@@ -28,10 +28,13 @@ import {
   taskRepo,
   taskLogRepo,
   monitorRepo,
+  chatMessageRepo,
+  chatSummaryRepo,
 } from "../db/repository.js";
 import { analyzeMessage } from "./analyzer.js";
 import { handleSlackMessage, handleDiscordMessage } from "./webhook-handler.js";
 import { relayTaskToPm, relayTaskUpdateToPm, hasPmRelay } from "./pm-relay.js";
+import { summarizeMessages } from "./summarizer.js";
 // logActivity removed
 
 /** logActivity wrapper: userName を "MACHINA" に固定 */
@@ -407,7 +410,15 @@ machinaRoutes.get("/groups/:workspaceId/monitors", async (c) => {
   }
 
   const monitors = await monitorRepo.findByWorkspaceId(workspaceId);
-  return c.json({ monitors });
+  // シークレットはレスポンスに含めず、登録済みフラグのみ返す
+  const safeMonitors = monitors.map((m) => ({
+    ...m,
+    botToken: undefined,
+    botSigningSecret: undefined,
+    hasBotToken: Boolean(m.botToken),
+    hasBotSigningSecret: Boolean(m.botSigningSecret),
+  }));
+  return c.json({ monitors: safeMonitors });
 });
 
 // POST /groups/:workspaceId/monitors — チャンネル監視追加
@@ -426,6 +437,10 @@ machinaRoutes.post("/groups/:workspaceId/monitors", async (c) => {
     channelId: string;
     channelName: string;
     webhookEndpointId?: string;
+    botToken?: string;
+    botWorkspaceId?: string;
+    botSigningSecret?: string;
+    captureMessages?: boolean;
   }>();
 
   if (!body.platform || !["slack", "discord"].includes(body.platform)) {
@@ -445,6 +460,10 @@ machinaRoutes.post("/groups/:workspaceId/monitors", async (c) => {
     channelId: body.channelId,
     channelName: body.channelName,
     webhookEndpointId: body.webhookEndpointId ?? null,
+    botToken: body.botToken ?? null,
+    botWorkspaceId: body.botWorkspaceId ?? null,
+    botSigningSecret: body.botSigningSecret ?? null,
+    captureMessages: body.captureMessages ?? true,
     isActive: true,
     createdBy: userId,
     createdAt: now,
@@ -477,12 +496,20 @@ machinaRoutes.put("/groups/:workspaceId/monitors/:id", async (c) => {
     channelName?: string;
     isActive?: boolean;
     webhookEndpointId?: string | null;
+    botToken?: string | null;
+    botWorkspaceId?: string | null;
+    botSigningSecret?: string | null;
+    captureMessages?: boolean;
   }>();
 
   const updates: Record<string, unknown> = {};
   if (body.channelName !== undefined) updates.channelName = body.channelName;
   if (body.isActive !== undefined) updates.isActive = body.isActive;
   if (body.webhookEndpointId !== undefined) updates.webhookEndpointId = body.webhookEndpointId;
+  if (body.botToken !== undefined) updates.botToken = body.botToken;
+  if (body.botWorkspaceId !== undefined) updates.botWorkspaceId = body.botWorkspaceId;
+  if (body.botSigningSecret !== undefined) updates.botSigningSecret = body.botSigningSecret;
+  if (body.captureMessages !== undefined) updates.captureMessages = body.captureMessages;
 
   await monitorRepo.update(monitorId, updates);
 
@@ -511,6 +538,161 @@ machinaRoutes.delete("/groups/:workspaceId/monitors/:id", async (c) => {
 
   return c.json({ deleted: monitorId });
 });
+
+// ─── Chat Messages (Logs) ─────────────────────────────────────
+
+// GET /groups/:workspaceId/monitors/:id/messages — チャットログ取得
+machinaRoutes.get("/groups/:workspaceId/monitors/:id/messages", async (c) => {
+  const userId = getUserId(c);
+  if (!userId) return c.json({ error: "Authentication required" }, 401);
+  const systemRole = getUserRole(c);
+  const workspaceId = c.req.param("workspaceId");
+  const monitorId = c.req.param("id");
+
+  if (!(await checkGroupAccess(userId, workspaceId, systemRole))) {
+    return c.json({ error: "このグループへのアクセス権がありません" }, 403);
+  }
+
+  const monitor = await monitorRepo.findById(monitorId);
+  if (!monitor || monitor.workspaceId !== workspaceId) {
+    return c.json({ error: "チャンネル監視が見つかりません" }, 404);
+  }
+
+  const limitParam = parseInt(c.req.query("limit") ?? "100", 10);
+  const limit = Math.min(500, Math.max(1, isNaN(limitParam) ? 100 : limitParam));
+
+  const messages = await chatMessageRepo.findByMonitorId(monitorId, { limit });
+  const total = await chatMessageRepo.countByMonitorId(monitorId);
+  return c.json({ messages, total });
+});
+
+// ─── Chat Summaries ───────────────────────────────────────────
+
+// GET /groups/:workspaceId/monitors/:id/summaries — 要約一覧
+machinaRoutes.get("/groups/:workspaceId/monitors/:id/summaries", async (c) => {
+  const userId = getUserId(c);
+  if (!userId) return c.json({ error: "Authentication required" }, 401);
+  const systemRole = getUserRole(c);
+  const workspaceId = c.req.param("workspaceId");
+  const monitorId = c.req.param("id");
+
+  if (!(await checkGroupAccess(userId, workspaceId, systemRole))) {
+    return c.json({ error: "このグループへのアクセス権がありません" }, 403);
+  }
+
+  const monitor = await monitorRepo.findById(monitorId);
+  if (!monitor || monitor.workspaceId !== workspaceId) {
+    return c.json({ error: "チャンネル監視が見つかりません" }, 404);
+  }
+
+  const summaries = await chatSummaryRepo.findByMonitorId(monitorId);
+  return c.json({ summaries });
+});
+
+// POST /groups/:workspaceId/monitors/:id/summaries — 要約生成
+machinaRoutes.post("/groups/:workspaceId/monitors/:id/summaries", async (c) => {
+  const userId = getUserId(c);
+  if (!userId) return c.json({ error: "Authentication required" }, 401);
+  const systemRole = getUserRole(c);
+  const workspaceId = c.req.param("workspaceId");
+  const monitorId = c.req.param("id");
+
+  if (!(await checkGroupAccess(userId, workspaceId, systemRole))) {
+    return c.json({ error: "このグループへのアクセス権がありません" }, 403);
+  }
+
+  const monitor = await monitorRepo.findById(monitorId);
+  if (!monitor || monitor.workspaceId !== workspaceId) {
+    return c.json({ error: "チャンネル監視が見つかりません" }, 404);
+  }
+
+  const body = await c.req.json<{
+    periodStart?: string; // ISO
+    periodEnd?: string; // ISO
+    hours?: number; // periodStart/End 未指定時に用いる直近 N 時間
+  }>().catch(() => ({} as { periodStart?: string; periodEnd?: string; hours?: number }));
+
+  let periodEnd = body.periodEnd ? new Date(body.periodEnd) : new Date();
+  let periodStart: Date;
+  if (body.periodStart) {
+    periodStart = new Date(body.periodStart);
+  } else {
+    const hours = body.hours && body.hours > 0 ? body.hours : 24;
+    periodStart = new Date(periodEnd.getTime() - hours * 3_600_000);
+  }
+
+  if (isNaN(periodStart.getTime()) || isNaN(periodEnd.getTime())) {
+    return c.json({ error: "periodStart / periodEnd が不正です" }, 400);
+  }
+  if (periodStart >= periodEnd) {
+    return c.json({ error: "periodStart は periodEnd より前でなければなりません" }, 400);
+  }
+
+  const messages = await chatMessageRepo.findByMonitorIdInRange(
+    monitorId,
+    periodStart,
+    periodEnd
+  );
+
+  const result = summarizeMessages(messages);
+
+  const summaryId = randomUUID();
+  await chatSummaryRepo.create({
+    id: summaryId,
+    monitorId,
+    workspaceId,
+    periodStart,
+    periodEnd,
+    summary: result.summary,
+    highlights: JSON.stringify(result.highlights),
+    messageCount: result.messageCount,
+    createdBy: userId,
+    createdAt: new Date(),
+  });
+
+  logMachina(
+    userId,
+    "summary_created",
+    `「${monitor.channelName}」の要約を生成 (${result.messageCount} 件)`
+  );
+
+  return c.json(
+    {
+      id: summaryId,
+      summary: result.summary,
+      highlights: result.highlights,
+      messageCount: result.messageCount,
+      periodStart: periodStart.toISOString(),
+      periodEnd: periodEnd.toISOString(),
+    },
+    201
+  );
+});
+
+// DELETE /groups/:workspaceId/monitors/:id/summaries/:summaryId — 要約削除
+machinaRoutes.delete(
+  "/groups/:workspaceId/monitors/:id/summaries/:summaryId",
+  async (c) => {
+    const userId = getUserId(c);
+    if (!userId) return c.json({ error: "Authentication required" }, 401);
+    const systemRole = getUserRole(c);
+    const workspaceId = c.req.param("workspaceId");
+    const monitorId = c.req.param("id");
+    const summaryId = c.req.param("summaryId");
+
+    if (!(await checkGroupAccess(userId, workspaceId, systemRole))) {
+      return c.json({ error: "このグループへのアクセス権がありません" }, 403);
+    }
+
+    const summary = await chatSummaryRepo.findById(summaryId);
+    if (!summary || summary.monitorId !== monitorId || summary.workspaceId !== workspaceId) {
+      return c.json({ error: "要約が見つかりません" }, 404);
+    }
+
+    await chatSummaryRepo.deleteById(summaryId);
+    return c.json({ deleted: summaryId });
+  }
+);
 
 // ─── Webhook Receivers ────────────────────────────────────────
 

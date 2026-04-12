@@ -5,6 +5,9 @@ import type {
   MachinaTaskItem,
   MachinaChannelMonitorItem,
   MachinaTaskLogItem,
+  MachinaChatMessageItem,
+  MachinaChatSummaryItem,
+  MachinaSummaryHighlights,
 } from "../lib/api-types";
 
 // ─── Constants ────────────────────────────────────────────────
@@ -61,7 +64,7 @@ export function MachinaPage() {
   const [statusFilter, setStatusFilter] = useState<string>("");
   const [loading, setLoading] = useState(false);
   const [message, setMessage] = useState("");
-  const [tab, setTab] = useState<"tasks" | "monitors" | "analyze">("tasks");
+  const [tab, setTab] = useState<"tasks" | "monitors" | "logs" | "analyze">("tasks");
 
   // Create task form
   const [showCreateTask, setShowCreateTask] = useState(false);
@@ -78,7 +81,29 @@ export function MachinaPage() {
     platform: "slack",
     channelId: "",
     channelName: "",
+    botToken: "",
+    botWorkspaceId: "",
+    botSigningSecret: "",
+    captureMessages: true,
   });
+
+  // Edit bot config for an existing monitor
+  const [editingBotMonitorId, setEditingBotMonitorId] = useState<string | null>(null);
+  const [botForm, setBotForm] = useState({
+    botToken: "",
+    botWorkspaceId: "",
+    botSigningSecret: "",
+    captureMessages: true,
+  });
+
+  // Chat logs / summaries
+  const [logMonitorId, setLogMonitorId] = useState<string>("");
+  const [chatMessages, setChatMessages] = useState<MachinaChatMessageItem[]>([]);
+  const [chatTotal, setChatTotal] = useState<number>(0);
+  const [summaries, setSummaries] = useState<MachinaChatSummaryItem[]>([]);
+  const [summaryHours, setSummaryHours] = useState<number>(24);
+  const [summaryLoading, setSummaryLoading] = useState(false);
+  const [logsLoading, setLogsLoading] = useState(false);
 
   // Analyze form
   const [analyzeText, setAnalyzeText] = useState("");
@@ -237,10 +262,59 @@ export function MachinaPage() {
         platform: monitorForm.platform,
         channelId: monitorForm.channelId,
         channelName: monitorForm.channelName,
+        botToken: monitorForm.botToken.trim() || undefined,
+        botWorkspaceId: monitorForm.botWorkspaceId.trim() || undefined,
+        botSigningSecret: monitorForm.botSigningSecret.trim() || undefined,
+        captureMessages: monitorForm.captureMessages,
       });
       showMsg("チャンネル監視を追加しました");
       setShowCreateMonitor(false);
-      setMonitorForm({ platform: "slack", channelId: "", channelName: "" });
+      setMonitorForm({
+        platform: "slack",
+        channelId: "",
+        channelName: "",
+        botToken: "",
+        botWorkspaceId: "",
+        botSigningSecret: "",
+        captureMessages: true,
+      });
+      fetchMonitors();
+    } catch (e) {
+      const err = e instanceof Error ? e.message : String(e);
+      showMsg(`エラー: ${err}`);
+    }
+  };
+
+  // ─── Edit Bot Config ────────────────────────────────────────
+
+  const openBotEdit = (m: MachinaChannelMonitorItem) => {
+    setEditingBotMonitorId(m.id);
+    setBotForm({
+      botToken: "",
+      botWorkspaceId: m.botWorkspaceId ?? "",
+      botSigningSecret: "",
+      captureMessages: m.captureMessages,
+    });
+  };
+
+  const handleSaveBotConfig = async () => {
+    if (!selectedGroupId || !editingBotMonitorId) return;
+    try {
+      const payload: Record<string, unknown> = {
+        captureMessages: botForm.captureMessages,
+        botWorkspaceId: botForm.botWorkspaceId.trim() || null,
+      };
+      // 空欄はトークン維持扱い。明示的にクリアしたい場合は "-" を入力する運用。
+      if (botForm.botToken.trim()) {
+        payload.botToken = botForm.botToken.trim() === "-" ? null : botForm.botToken.trim();
+      }
+      if (botForm.botSigningSecret.trim()) {
+        payload.botSigningSecret =
+          botForm.botSigningSecret.trim() === "-" ? null : botForm.botSigningSecret.trim();
+      }
+      await machinaApi.updateMonitor(selectedGroupId, editingBotMonitorId, payload);
+      showMsg("BOT 設定を更新しました");
+      setEditingBotMonitorId(null);
       fetchMonitors();
     } catch (e) {
       const err = e instanceof Error ? e.message : String(e);
@@ -273,6 +347,88 @@ export function MachinaPage() {
     } catch (e) {
       const err = e instanceof Error ? e.message : String(e);
       showMsg(`エラー: ${err}`);
+    }
+  };
+
+  // ─── Chat Logs / Summaries ──────────────────────────────────
+
+  const fetchChatLogs = useCallback(async () => {
+    if (!selectedGroupId || !logMonitorId) return;
+    setLogsLoading(true);
+    try {
+      const [msgRes, sumRes] = await Promise.all([
+        machinaApi.getMessages(selectedGroupId, logMonitorId, 200),
+        machinaApi.getSummaries(selectedGroupId, logMonitorId),
+      ]);
+      setChatMessages(msgRes.messages || []);
+      setChatTotal(msgRes.total || 0);
+      setSummaries(sumRes.summaries || []);
+    } catch (e) {
+      const err = e instanceof Error ? e.message : String(e);
+      showMsg(`エラー: ${err}`);
+    } finally {
+      setLogsLoading(false);
+    }
+  }, [selectedGroupId, logMonitorId]);
+
+  // Logs タブに切り替えたら監視一覧を取り込む
+  useEffect(() => {
+    if (tab === "logs") {
+      fetchMonitors();
+    }
+  }, [tab, fetchMonitors]);
+
+  // 監視が取得されたら、ログ対象の初期値を設定
+  useEffect(() => {
+    if (tab !== "logs") return;
+    if (monitors.length > 0 && !logMonitorId) {
+      setLogMonitorId(monitors[0].id);
+    }
+  }, [tab, monitors, logMonitorId]);
+
+  // 対象監視が決まったらログを取得
+  useEffect(() => {
+    if (tab === "logs" && logMonitorId) {
+      fetchChatLogs();
+    }
+  }, [tab, logMonitorId, fetchChatLogs]);
+
+  const handleCreateSummary = async () => {
+    if (!selectedGroupId || !logMonitorId) return;
+    setSummaryLoading(true);
+    try {
+      await machinaApi.createSummary(selectedGroupId, logMonitorId, {
+        hours: summaryHours,
+      });
+      showMsg("要約を生成しました");
+      fetchChatLogs();
+    } catch (e) {
+      const err = e instanceof Error ? e.message : String(e);
+      showMsg(`エラー: ${err}`);
+    } finally {
+      setSummaryLoading(false);
+    }
+  };
+
+  const handleDeleteSummary = async (summaryId: string) => {
+    if (!selectedGroupId || !logMonitorId) return;
+    if (!confirm("この要約を削除しますか？")) return;
+    try {
+      await machinaApi.deleteSummary(selectedGroupId, logMonitorId, summaryId);
+      showMsg("要約を削除しました");
+      fetchChatLogs();
+    } catch (e) {
+      const err = e instanceof Error ? e.message : String(e);
+      showMsg(`エラー: ${err}`);
+    }
+  };
+
+  const parseHighlights = (raw: string | null): MachinaSummaryHighlights | null => {
+    if (!raw) return null;
+    try {
+      return JSON.parse(raw) as MachinaSummaryHighlights;
+    } catch {
+      return null;
     }
   };
 
@@ -329,14 +485,20 @@ export function MachinaPage() {
 
         {/* Tabs */}
         <div style={{ display: "flex", gap: "0.25rem", marginLeft: "auto" }}>
-          {(["tasks", "monitors", "analyze"] as const).map((t) => (
+          {(["tasks", "monitors", "logs", "analyze"] as const).map((t) => (
             <button
               key={t}
               onClick={() => setTab(t)}
               className={tab === t ? "btn-primary" : "btn-secondary"}
               style={{ fontSize: "0.75rem", padding: "0.25rem 0.6rem" }}
             >
-              {t === "tasks" ? "タスク" : t === "monitors" ? "監視設定" : "テキスト解析"}
+              {t === "tasks"
+                ? "タスク"
+                : t === "monitors"
+                ? "監視設定"
+                : t === "logs"
+                ? "チャットログ"
+                : "テキスト解析"}
             </button>
           ))}
         </div>
@@ -599,10 +761,12 @@ export function MachinaPage() {
           {/* Create Monitor Form */}
           {showCreateMonitor && (
             <div className="card" style={{ marginBottom: "1rem" }}>
-              <h3 style={{ fontSize: "0.85rem", marginBottom: "0.75rem", color: "var(--text-muted)" }}>チャンネル監視追加</h3>
+              <h3 style={{ fontSize: "0.85rem", marginBottom: "0.75rem", color: "var(--text-muted)" }}>
+                BOT チャンネル設定
+              </h3>
               <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: "0.75rem" }}>
                 <div className="form-group">
-                  <label>プラットフォーム</label>
+                  <label>プラットフォーム *</label>
                   <select
                     value={monitorForm.platform}
                     onChange={(e) => setMonitorForm({ ...monitorForm, platform: e.target.value })}
@@ -617,7 +781,7 @@ export function MachinaPage() {
                     type="text"
                     value={monitorForm.channelId}
                     onChange={(e) => setMonitorForm({ ...monitorForm, channelId: e.target.value })}
-                    placeholder="C01234ABCDE"
+                    placeholder={monitorForm.platform === "slack" ? "C01234ABCDE" : "123456789012345678"}
                   />
                 </div>
                 <div className="form-group">
@@ -629,7 +793,56 @@ export function MachinaPage() {
                     placeholder="#general"
                   />
                 </div>
+                <div className="form-group" style={{ gridColumn: "1 / -1" }}>
+                  <label>BOT トークン (導入した BOT の認証情報)</label>
+                  <input
+                    type="password"
+                    autoComplete="new-password"
+                    value={monitorForm.botToken}
+                    onChange={(e) => setMonitorForm({ ...monitorForm, botToken: e.target.value })}
+                    placeholder={monitorForm.platform === "slack" ? "xoxb-..." : "Discord Bot Token"}
+                  />
+                </div>
+                <div className="form-group">
+                  <label>
+                    {monitorForm.platform === "slack" ? "Slack Workspace ID" : "Discord Guild ID"}
+                  </label>
+                  <input
+                    type="text"
+                    value={monitorForm.botWorkspaceId}
+                    onChange={(e) => setMonitorForm({ ...monitorForm, botWorkspaceId: e.target.value })}
+                    placeholder={monitorForm.platform === "slack" ? "T01ABCDEFGH" : "Guild ID"}
+                  />
+                </div>
+                <div className="form-group" style={{ gridColumn: "span 2" }}>
+                  <label>
+                    {monitorForm.platform === "slack" ? "Signing Secret" : "Application Public Key"}
+                  </label>
+                  <input
+                    type="password"
+                    autoComplete="new-password"
+                    value={monitorForm.botSigningSecret}
+                    onChange={(e) => setMonitorForm({ ...monitorForm, botSigningSecret: e.target.value })}
+                    placeholder="(任意) Webhook 署名検証用"
+                  />
+                </div>
+                <div className="form-group" style={{ gridColumn: "1 / -1" }}>
+                  <label style={{ display: "flex", alignItems: "center", gap: "0.4rem", cursor: "pointer" }}>
+                    <input
+                      type="checkbox"
+                      checked={monitorForm.captureMessages}
+                      onChange={(e) =>
+                        setMonitorForm({ ...monitorForm, captureMessages: e.target.checked })
+                      }
+                      style={{ width: "auto" }}
+                    />
+                    チャンネルのメッセージを取得してログに保存する
+                  </label>
+                </div>
               </div>
+              <p style={{ fontSize: "0.7rem", color: "var(--text-muted)", marginTop: "0.5rem" }}>
+                BOT の Webhook 先: <code>/api/webhook/{monitorForm.platform}?workspaceId={selectedGroupId}</code>
+              </p>
               <div style={{ display: "flex", gap: "0.5rem", marginTop: "0.75rem" }}>
                 <button className="btn-primary" onClick={handleCreateMonitor} style={{ fontSize: "0.75rem" }}>追加</button>
                 <button className="btn-secondary" onClick={() => setShowCreateMonitor(false)} style={{ fontSize: "0.75rem" }}>キャンセル</button>
@@ -644,8 +857,8 @@ export function MachinaPage() {
             <div style={{ display: "flex", flexDirection: "column", gap: "0.5rem" }}>
               {monitors.map((m) => (
                 <div key={m.id} className="card" style={{ padding: "0.6rem 0.75rem" }}>
-                  <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-                    <div>
+                  <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", gap: "0.5rem", flexWrap: "wrap" }}>
+                    <div style={{ flex: 1, minWidth: 0 }}>
                       <span style={{ fontSize: "0.85rem", fontWeight: 600 }}>{m.channelName}</span>
                       <span style={{
                         fontSize: "0.7rem",
@@ -664,11 +877,42 @@ export function MachinaPage() {
                       }}>
                         {m.isActive ? "有効" : "無効"}
                       </span>
+                      <span style={{
+                        fontSize: "0.7rem",
+                        marginLeft: "0.3rem",
+                        padding: "0.1rem 0.35rem",
+                        borderRadius: "3px",
+                        background: m.hasBotToken ? "#3FB95022" : "#8B949E22",
+                        color: m.hasBotToken ? "#3FB950" : "#8B949E",
+                      }}>
+                        {m.hasBotToken ? "BOT接続済" : "BOT未設定"}
+                      </span>
+                      <span style={{
+                        fontSize: "0.7rem",
+                        marginLeft: "0.3rem",
+                        color: m.captureMessages ? "var(--accent)" : "var(--text-muted)",
+                      }}>
+                        {m.captureMessages ? "ログ取得ON" : "ログ取得OFF"}
+                      </span>
                       <span style={{ fontSize: "0.7rem", color: "var(--text-muted)", marginLeft: "0.5rem" }}>
                         ID: {m.channelId}
                       </span>
                     </div>
                     <div style={{ display: "flex", gap: "0.3rem" }}>
+                      <button
+                        className="btn-secondary"
+                        onClick={() => openBotEdit(m)}
+                        style={{ fontSize: "0.65rem", padding: "0.15rem 0.35rem" }}
+                      >
+                        BOT 設定
+                      </button>
+                      <button
+                        className="btn-secondary"
+                        onClick={() => { setTab("logs"); setLogMonitorId(m.id); }}
+                        style={{ fontSize: "0.65rem", padding: "0.15rem 0.35rem" }}
+                      >
+                        ログ
+                      </button>
                       <button
                         className="btn-secondary"
                         onClick={() => handleToggleMonitor(m.id, m.isActive)}
@@ -685,9 +929,245 @@ export function MachinaPage() {
                       </button>
                     </div>
                   </div>
+
+                  {editingBotMonitorId === m.id && (
+                    <div style={{ marginTop: "0.6rem", paddingTop: "0.6rem", borderTop: "1px solid var(--border)" }}>
+                      <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "0.6rem" }}>
+                        <div className="form-group" style={{ gridColumn: "1 / -1" }}>
+                          <label>BOT トークン <span style={{ color: "var(--text-muted)" }}>(空欄=変更なし / "-"=クリア)</span></label>
+                          <input
+                            type="password"
+                            autoComplete="new-password"
+                            value={botForm.botToken}
+                            onChange={(e) => setBotForm({ ...botForm, botToken: e.target.value })}
+                            placeholder={m.platform === "slack" ? "xoxb-..." : "Discord Bot Token"}
+                          />
+                        </div>
+                        <div className="form-group">
+                          <label>{m.platform === "slack" ? "Workspace ID" : "Guild ID"}</label>
+                          <input
+                            type="text"
+                            value={botForm.botWorkspaceId}
+                            onChange={(e) => setBotForm({ ...botForm, botWorkspaceId: e.target.value })}
+                          />
+                        </div>
+                        <div className="form-group">
+                          <label>
+                            {m.platform === "slack" ? "Signing Secret" : "Public Key"} <span style={{ color: "var(--text-muted)" }}>(空欄=変更なし)</span>
+                          </label>
+                          <input
+                            type="password"
+                            autoComplete="new-password"
+                            value={botForm.botSigningSecret}
+                            onChange={(e) => setBotForm({ ...botForm, botSigningSecret: e.target.value })}
+                          />
+                        </div>
+                        <div className="form-group" style={{ gridColumn: "1 / -1" }}>
+                          <label style={{ display: "flex", alignItems: "center", gap: "0.4rem", cursor: "pointer" }}>
+                            <input
+                              type="checkbox"
+                              checked={botForm.captureMessages}
+                              onChange={(e) =>
+                                setBotForm({ ...botForm, captureMessages: e.target.checked })
+                              }
+                              style={{ width: "auto" }}
+                            />
+                            メッセージを取得してログに保存する
+                          </label>
+                        </div>
+                      </div>
+                      <div style={{ display: "flex", gap: "0.4rem", marginTop: "0.5rem" }}>
+                        <button className="btn-primary" onClick={handleSaveBotConfig} style={{ fontSize: "0.7rem" }}>保存</button>
+                        <button
+                          className="btn-secondary"
+                          onClick={() => setEditingBotMonitorId(null)}
+                          style={{ fontSize: "0.7rem" }}
+                        >
+                          キャンセル
+                        </button>
+                      </div>
+                    </div>
+                  )}
                 </div>
               ))}
             </div>
+          )}
+        </div>
+      )}
+
+      {/* ─── Chat Logs Tab ──────────────────────────────────── */}
+      {tab === "logs" && (
+        <div>
+          {monitors.length === 0 ? (
+            <p style={{ color: "var(--text-muted)", fontSize: "0.8rem" }}>
+              監視対象のチャンネルがありません。「監視設定」タブで BOT チャンネルを追加してください。
+            </p>
+          ) : (
+            <>
+              <div style={{ display: "flex", gap: "0.5rem", marginBottom: "0.75rem", alignItems: "center", flexWrap: "wrap" }}>
+                <label style={{ fontSize: "0.8rem", color: "var(--text-muted)" }}>チャンネル:</label>
+                <select
+                  value={logMonitorId}
+                  onChange={(e) => setLogMonitorId(e.target.value)}
+                  style={{ fontSize: "0.8rem", padding: "0.3rem 0.5rem", width: "auto", minWidth: "220px" }}
+                >
+                  {monitors.map((m) => (
+                    <option key={m.id} value={m.id}>
+                      [{m.platform}] {m.channelName}
+                    </option>
+                  ))}
+                </select>
+                <button
+                  className="btn-secondary"
+                  onClick={fetchChatLogs}
+                  disabled={logsLoading}
+                  style={{ fontSize: "0.7rem", padding: "0.25rem 0.5rem" }}
+                >
+                  再読み込み
+                </button>
+
+                <label style={{ fontSize: "0.8rem", color: "var(--text-muted)", marginLeft: "0.75rem" }}>
+                  要約対象:
+                </label>
+                <select
+                  value={summaryHours}
+                  onChange={(e) => setSummaryHours(parseInt(e.target.value, 10))}
+                  style={{ fontSize: "0.8rem", padding: "0.3rem 0.5rem", width: "auto" }}
+                >
+                  <option value={1}>直近 1 時間</option>
+                  <option value={6}>直近 6 時間</option>
+                  <option value={24}>直近 24 時間</option>
+                  <option value={24 * 7}>直近 1 週間</option>
+                  <option value={24 * 30}>直近 30 日</option>
+                </select>
+                <button
+                  className="btn-primary"
+                  onClick={handleCreateSummary}
+                  disabled={summaryLoading}
+                  style={{ fontSize: "0.7rem", padding: "0.25rem 0.6rem" }}
+                >
+                  {summaryLoading ? "生成中..." : "要約を生成"}
+                </button>
+              </div>
+
+              <div style={{ display: "flex", gap: "1rem", alignItems: "flex-start" }}>
+                {/* Messages Panel */}
+                <div className="card" style={{ flex: "1 1 0", minWidth: 0 }}>
+                  <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "0.5rem" }}>
+                    <h3 style={{ fontSize: "0.85rem", color: "var(--text-muted)", margin: 0 }}>
+                      チャットログ
+                    </h3>
+                    <span style={{ fontSize: "0.7rem", color: "var(--text-muted)" }}>
+                      {chatMessages.length} / {chatTotal} 件
+                    </span>
+                  </div>
+                  {logsLoading ? (
+                    <p style={{ color: "var(--text-muted)", fontSize: "0.8rem" }}>読み込み中...</p>
+                  ) : chatMessages.length === 0 ? (
+                    <p style={{ color: "var(--text-muted)", fontSize: "0.8rem" }}>
+                      このチャンネルのログはまだありません。BOT を連携すると、受信メッセージが自動で記録されます。
+                    </p>
+                  ) : (
+                    <div style={{
+                      display: "flex",
+                      flexDirection: "column",
+                      gap: "0.4rem",
+                      maxHeight: "540px",
+                      overflowY: "auto",
+                    }}>
+                      {chatMessages.map((msg) => (
+                        <div
+                          key={msg.id}
+                          style={{
+                            padding: "0.4rem 0.6rem",
+                            borderLeft: "2px solid var(--border)",
+                            background: "var(--bg-surface-2)",
+                            borderRadius: "0 4px 4px 0",
+                          }}
+                        >
+                          <div style={{ display: "flex", gap: "0.5rem", alignItems: "baseline", fontSize: "0.72rem" }}>
+                            <strong>{msg.authorName || msg.authorId}</strong>
+                            <span style={{ color: "var(--text-muted)" }}>
+                              {new Date(msg.postedAt).toLocaleString("ja-JP")}
+                            </span>
+                          </div>
+                          <div style={{ fontSize: "0.8rem", whiteSpace: "pre-wrap", marginTop: "0.15rem" }}>
+                            {msg.text}
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  )}
+                </div>
+
+                {/* Summaries Panel */}
+                <div className="card" style={{ flex: "0 0 380px", maxWidth: "380px" }}>
+                  <h3 style={{ fontSize: "0.85rem", color: "var(--text-muted)", marginBottom: "0.5rem" }}>
+                    要約
+                  </h3>
+                  {summaries.length === 0 ? (
+                    <p style={{ color: "var(--text-muted)", fontSize: "0.75rem" }}>
+                      まだ要約がありません。上の「要約を生成」ボタンで作成できます。
+                    </p>
+                  ) : (
+                    <div style={{ display: "flex", flexDirection: "column", gap: "0.6rem", maxHeight: "540px", overflowY: "auto" }}>
+                      {summaries.map((s) => {
+                        const h = parseHighlights(s.highlights);
+                        return (
+                          <div
+                            key={s.id}
+                            style={{
+                              borderLeft: "2px solid var(--accent)",
+                              paddingLeft: "0.5rem",
+                            }}
+                          >
+                            <div style={{ fontSize: "0.7rem", color: "var(--text-muted)", display: "flex", justifyContent: "space-between" }}>
+                              <span>
+                                {new Date(s.periodStart).toLocaleString("ja-JP")} 〜{" "}
+                                {new Date(s.periodEnd).toLocaleString("ja-JP")}
+                              </span>
+                              <button
+                                onClick={() => handleDeleteSummary(s.id)}
+                                className="btn-secondary"
+                                style={{ fontSize: "0.6rem", padding: "0 0.3rem", color: "#F85149" }}
+                              >
+                                削除
+                              </button>
+                            </div>
+                            <div style={{ fontSize: "0.78rem", whiteSpace: "pre-wrap", marginTop: "0.2rem" }}>
+                              {s.summary}
+                            </div>
+                            {h && h.topKeywords.length > 0 && (
+                              <div style={{ fontSize: "0.7rem", marginTop: "0.3rem" }}>
+                                <span style={{ color: "var(--text-muted)" }}>キーワード: </span>
+                                {h.topKeywords.slice(0, 6).map((k, i) => (
+                                  <span
+                                    key={i}
+                                    style={{
+                                      display: "inline-block",
+                                      background: "var(--bg-surface-2)",
+                                      padding: "0.05rem 0.3rem",
+                                      borderRadius: "2px",
+                                      marginRight: "0.25rem",
+                                      marginBottom: "0.15rem",
+                                    }}
+                                  >
+                                    {k.keyword} <span style={{ color: "var(--text-muted)" }}>×{k.count}</span>
+                                  </span>
+                                ))}
+                              </div>
+                            )}
+                            <div style={{ fontSize: "0.65rem", color: "var(--text-muted)", marginTop: "0.25rem" }}>
+                              {s.messageCount} 件のメッセージを集約
+                            </div>
+                          </div>
+                        );
+                      })}
+                    </div>
+                  )}
+                </div>
+              </div>
+            </>
           )}
         </div>
       )}

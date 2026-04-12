@@ -34,6 +34,15 @@ export const channelMonitors = sqliteTable(
     channelId: text("channel_id").notNull(),
     channelName: text("channel_name").notNull(),
     webhookEndpointId: text("webhook_endpoint_id"),
+    // ── BOT 接続情報 ──
+    // Slack: bot user OAuth token (xoxb-...), Discord: bot token
+    botToken: text("bot_token"),
+    // Slack: workspace id (Txxx), Discord: guild id
+    botWorkspaceId: text("bot_workspace_id"),
+    // Slack: Signing Secret / Discord: Application Public Key
+    botSigningSecret: text("bot_signing_secret"),
+    // 取り込みフラグ: BOT 経由でメッセージを取得・保存するか
+    captureMessages: integer("capture_messages", { mode: "boolean" }).notNull().default(true),
     isActive: integer("is_active", { mode: "boolean" }).notNull().default(true),
     createdBy: text("created_by").notNull(),
     createdAt: integer("created_at", { mode: "timestamp" })
@@ -46,6 +55,67 @@ export const channelMonitors = sqliteTable(
   (table) => [
     index("idx_monitor_workspace").on(table.workspaceId),
     unique("unique_monitor_channel").on(table.workspaceId, table.platform, table.channelId),
+  ]
+);
+
+// ── Chat Messages (取り込んだメッセージログ) ─────────
+
+export const chatMessages = sqliteTable(
+  "chat_messages",
+  {
+    id: text("id").primaryKey(),
+    monitorId: text("monitor_id")
+      .references(() => channelMonitors.id, { onDelete: "cascade" })
+      .notNull(),
+    workspaceId: text("workspace_id").notNull(),
+    platform: text("platform").notNull(),
+    channelId: text("channel_id").notNull(),
+    messageId: text("message_id").notNull(),
+    authorId: text("author_id").notNull(),
+    authorName: text("author_name").notNull(),
+    text: text("text").notNull(),
+    // メタ情報 (JSON) — mentions, thread_ts, attachments など
+    meta: text("meta"),
+    // メッセージの発言時刻 (Unix ms)
+    postedAt: integer("posted_at", { mode: "timestamp_ms" }).notNull(),
+    createdAt: integer("created_at", { mode: "timestamp" })
+      .$defaultFn(() => new Date())
+      .notNull(),
+  },
+  (table) => [
+    index("idx_chat_monitor").on(table.monitorId),
+    index("idx_chat_workspace").on(table.workspaceId),
+    index("idx_chat_posted").on(table.postedAt),
+    unique("unique_chat_msg").on(table.monitorId, table.messageId),
+  ]
+);
+
+// ── Chat Summaries (チャンネルの要約) ───────────────
+
+export const chatSummaries = sqliteTable(
+  "chat_summaries",
+  {
+    id: text("id").primaryKey(),
+    monitorId: text("monitor_id")
+      .references(() => channelMonitors.id, { onDelete: "cascade" })
+      .notNull(),
+    workspaceId: text("workspace_id").notNull(),
+    // 要約の対象期間
+    periodStart: integer("period_start", { mode: "timestamp_ms" }).notNull(),
+    periodEnd: integer("period_end", { mode: "timestamp_ms" }).notNull(),
+    // 要約本文
+    summary: text("summary").notNull(),
+    // 補足 (JSON): topKeywords, participants, messageCount 等
+    highlights: text("highlights"),
+    messageCount: integer("message_count").notNull().default(0),
+    createdBy: text("created_by").notNull(),
+    createdAt: integer("created_at", { mode: "timestamp" })
+      .$defaultFn(() => new Date())
+      .notNull(),
+  },
+  (table) => [
+    index("idx_summary_monitor").on(table.monitorId),
+    index("idx_summary_workspace").on(table.workspaceId),
   ]
 );
 
