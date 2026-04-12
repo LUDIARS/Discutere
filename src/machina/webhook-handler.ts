@@ -12,6 +12,7 @@ import {
   taskLogRepo,
   monitorRepo,
   userRepo,
+  chatMessageRepo,
 } from "../db/repository.js";
 import { relayTaskToPm } from "./pm-relay.js";
 
@@ -102,10 +103,32 @@ async function processMessage(
 ): Promise<Record<string, unknown> | null> {
   // チャンネルが監視対象か確認
   const monitors = await monitorRepo.findActiveByWorkspaceId(workspaceId);
-  const isMonitored = monitors.some(
+  const monitor = monitors.find(
     (m) => m.platform === msg.platform && m.channelId === msg.channelId
   );
-  if (!isMonitored) return null;
+  if (!monitor) return null;
+
+  // チャットログを保存 (captureMessages が有効な場合)
+  if (monitor.captureMessages) {
+    try {
+      await chatMessageRepo.create({
+        id: randomUUID(),
+        monitorId: monitor.id,
+        workspaceId,
+        platform: msg.platform,
+        channelId: msg.channelId,
+        messageId: msg.messageId,
+        authorId: msg.authorId,
+        authorName: msg.authorName,
+        text: msg.text,
+        meta: JSON.stringify({ mentions: msg.mentions }),
+        postedAt: new Date(),
+        createdAt: new Date(),
+      });
+    } catch (err) {
+      console.error("[machina:webhook] chat log 保存エラー:", err);
+    }
+  }
 
   // テキストを解析
   const analysis = analyzeMessage({
