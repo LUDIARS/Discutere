@@ -8,6 +8,9 @@ import type {
   MachinaChatMessageItem,
   MachinaChatSummaryItem,
   MachinaSummaryHighlights,
+  ModeTaskSessionItem,
+  ModeDiscussionSessionItem,
+  ChannelMode,
 } from "../lib/api-types";
 
 // ─── Constants ────────────────────────────────────────────────
@@ -46,6 +49,41 @@ const SOURCE_LABELS: Record<string, string> = {
   manual: "手動",
 };
 
+const MODE_LABELS: Record<ChannelMode, string> = {
+  task: "タスク",
+  discussion: "議論",
+  none: "処理なし",
+};
+
+const MODE_COLORS: Record<ChannelMode, string> = {
+  task: "#58A6FF",
+  discussion: "#D29922",
+  none: "#8B949E",
+};
+
+const MODE_DESCRIPTIONS: Record<ChannelMode, string> = {
+  task:
+    "投稿を即時処理。Haiku がタスク性を判定し、不足情報はスレッド/リプライでヒアリングします。",
+  discussion:
+    "指定した分後に遅延処理。チャンネル全体を要約し、GitHub Discussion に保存します。",
+  none: "何もしません (ログ保存のみ)。",
+};
+
+const TASK_SESSION_STATUS_LABELS: Record<string, string> = {
+  classifying: "判定中",
+  hearing: "ヒアリング中",
+  collecting: "補足収集中",
+  registering: "登録中",
+  failed: "停止",
+};
+
+const DISCUSSION_SESSION_STATUS_LABELS: Record<string, string> = {
+  pending: "タイマー待機中",
+  summarizing: "要約中",
+  publishing: "GitHub 書き込み中",
+  failed: "停止",
+};
+
 interface GroupOption {
   id: string;
   name: string;
@@ -64,7 +102,9 @@ export function MachinaPage() {
   const [statusFilter, setStatusFilter] = useState<string>("");
   const [loading, setLoading] = useState(false);
   const [message, setMessage] = useState("");
-  const [tab, setTab] = useState<"tasks" | "monitors" | "logs" | "analyze">("tasks");
+  const [tab, setTab] = useState<
+    "tasks" | "monitors" | "logs" | "analyze" | "sessions"
+  >("tasks");
 
   // Create task form
   const [showCreateTask, setShowCreateTask] = useState(false);
@@ -77,7 +117,19 @@ export function MachinaPage() {
 
   // Create monitor form
   const [showCreateMonitor, setShowCreateMonitor] = useState(false);
-  const [monitorForm, setMonitorForm] = useState({
+  const [monitorForm, setMonitorForm] = useState<{
+    platform: string;
+    channelId: string;
+    channelName: string;
+    botToken: string;
+    botWorkspaceId: string;
+    botSigningSecret: string;
+    captureMessages: boolean;
+    mode: ChannelMode;
+    discussionDelayMinutes: number;
+    githubRepo: string;
+    githubDiscussionCategoryId: string;
+  }>({
     platform: "slack",
     channelId: "",
     channelName: "",
@@ -85,16 +137,39 @@ export function MachinaPage() {
     botWorkspaceId: "",
     botSigningSecret: "",
     captureMessages: true,
+    mode: "task",
+    discussionDelayMinutes: 5,
+    githubRepo: "",
+    githubDiscussionCategoryId: "",
   });
 
   // Edit bot config for an existing monitor
   const [editingBotMonitorId, setEditingBotMonitorId] = useState<string | null>(null);
-  const [botForm, setBotForm] = useState({
+  const [botForm, setBotForm] = useState<{
+    botToken: string;
+    botWorkspaceId: string;
+    botSigningSecret: string;
+    captureMessages: boolean;
+    mode: ChannelMode;
+    discussionDelayMinutes: number;
+    githubRepo: string;
+    githubDiscussionCategoryId: string;
+  }>({
     botToken: "",
     botWorkspaceId: "",
     botSigningSecret: "",
     captureMessages: true,
+    mode: "task",
+    discussionDelayMinutes: 5,
+    githubRepo: "",
+    githubDiscussionCategoryId: "",
   });
+
+  // Mode sessions (in-memory 処理中状況)
+  const [taskSessions, setTaskSessions] = useState<ModeTaskSessionItem[]>([]);
+  const [discussionSessions, setDiscussionSessions] = useState<ModeDiscussionSessionItem[]>([]);
+  const [sessionsLoading, setSessionsLoading] = useState(false);
+  const [resumeDraft, setResumeDraft] = useState<Record<string, string>>({});
 
   // Chat logs / summaries
   const [logMonitorId, setLogMonitorId] = useState<string>("");
@@ -266,6 +341,11 @@ export function MachinaPage() {
         botWorkspaceId: monitorForm.botWorkspaceId.trim() || undefined,
         botSigningSecret: monitorForm.botSigningSecret.trim() || undefined,
         captureMessages: monitorForm.captureMessages,
+        mode: monitorForm.mode,
+        discussionDelayMinutes: monitorForm.discussionDelayMinutes,
+        githubRepo: monitorForm.githubRepo.trim() || undefined,
+        githubDiscussionCategoryId:
+          monitorForm.githubDiscussionCategoryId.trim() || undefined,
       });
       showMsg("チャンネル監視を追加しました");
       setShowCreateMonitor(false);
@@ -277,6 +357,10 @@ export function MachinaPage() {
         botWorkspaceId: "",
         botSigningSecret: "",
         captureMessages: true,
+        mode: "task",
+        discussionDelayMinutes: 5,
+        githubRepo: "",
+        githubDiscussionCategoryId: "",
       });
       fetchMonitors();
     } catch (e) {
@@ -294,6 +378,10 @@ export function MachinaPage() {
       botWorkspaceId: m.botWorkspaceId ?? "",
       botSigningSecret: "",
       captureMessages: m.captureMessages,
+      mode: m.mode,
+      discussionDelayMinutes: m.discussionDelayMinutes,
+      githubRepo: m.githubRepo ?? "",
+      githubDiscussionCategoryId: m.githubDiscussionCategoryId ?? "",
     });
   };
 
@@ -303,6 +391,10 @@ export function MachinaPage() {
       const payload: Record<string, unknown> = {
         captureMessages: botForm.captureMessages,
         botWorkspaceId: botForm.botWorkspaceId.trim() || null,
+        mode: botForm.mode,
+        discussionDelayMinutes: botForm.discussionDelayMinutes,
+        githubRepo: botForm.githubRepo.trim() || null,
+        githubDiscussionCategoryId: botForm.githubDiscussionCategoryId.trim() || null,
       };
       // 空欄はトークン維持扱い。明示的にクリアしたい場合は "-" を入力する運用。
       if (botForm.botToken.trim()) {
@@ -432,6 +524,106 @@ export function MachinaPage() {
     }
   };
 
+  // ─── Mode Sessions ──────────────────────────────────────────
+
+  const fetchModeSessions = useCallback(async () => {
+    if (!selectedGroupId) return;
+    setSessionsLoading(true);
+    try {
+      const res = await machinaApi.getModeSessions(selectedGroupId);
+      setTaskSessions(res.taskSessions || []);
+      setDiscussionSessions(res.discussionSessions || []);
+    } catch (e) {
+      const err = e instanceof Error ? e.message : String(e);
+      showMsg(`エラー: ${err}`);
+    } finally {
+      setSessionsLoading(false);
+    }
+  }, [selectedGroupId]);
+
+  useEffect(() => {
+    if (tab === "sessions") {
+      fetchModeSessions();
+      const t = setInterval(fetchModeSessions, 5000);
+      return () => clearInterval(t);
+    }
+  }, [tab, fetchModeSessions]);
+
+  const handleResumeTaskSession = async (sessionId: string) => {
+    if (!selectedGroupId) return;
+    const supplement = (resumeDraft[sessionId] || "").trim();
+    if (!supplement) {
+      showMsg("エラー: 補足テキストを入力してください");
+      return;
+    }
+    try {
+      const res = await machinaApi.resumeTaskSession(
+        selectedGroupId,
+        sessionId,
+        supplement
+      );
+      if (res.action === "registered") {
+        showMsg("セッションを再開してタスクを登録しました");
+      } else if (res.action === "still_hearing") {
+        showMsg("まだ情報が不足しています。引き続きヒアリング中です");
+      } else {
+        showMsg("セッションが見つかりませんでした");
+      }
+      setResumeDraft((prev) => {
+        const next = { ...prev };
+        delete next[sessionId];
+        return next;
+      });
+      fetchModeSessions();
+    } catch (e) {
+      const err = e instanceof Error ? e.message : String(e);
+      showMsg(`エラー: ${err}`);
+    }
+  };
+
+  const handleDismissTaskSession = async (sessionId: string) => {
+    if (!selectedGroupId) return;
+    if (!confirm("このセッションを破棄しますか？")) return;
+    try {
+      await machinaApi.dismissTaskSession(selectedGroupId, sessionId);
+      showMsg("セッションを破棄しました");
+      fetchModeSessions();
+    } catch (e) {
+      const err = e instanceof Error ? e.message : String(e);
+      showMsg(`エラー: ${err}`);
+    }
+  };
+
+  const handleFlushDiscussionSession = async (sessionId: string) => {
+    if (!selectedGroupId) return;
+    try {
+      await machinaApi.flushDiscussionSession(selectedGroupId, sessionId);
+      showMsg("議論サマリを即時生成しました");
+      fetchModeSessions();
+    } catch (e) {
+      const err = e instanceof Error ? e.message : String(e);
+      showMsg(`エラー: ${err}`);
+    }
+  };
+
+  const handleDismissDiscussionSession = async (sessionId: string) => {
+    if (!selectedGroupId) return;
+    if (!confirm("このセッションを破棄しますか？")) return;
+    try {
+      await machinaApi.dismissDiscussionSession(selectedGroupId, sessionId);
+      showMsg("セッションを破棄しました");
+      fetchModeSessions();
+    } catch (e) {
+      const err = e instanceof Error ? e.message : String(e);
+      showMsg(`エラー: ${err}`);
+    }
+  };
+
+  const monitorNameOf = (monitorId: string): string => {
+    const m = monitors.find((x) => x.id === monitorId);
+    return m ? `[${m.platform}] ${m.channelName}` : monitorId;
+  };
+
   // ─── Analyze ────────────────────────────────────────────────
 
   const handleAnalyze = async () => {
@@ -484,8 +676,8 @@ export function MachinaPage() {
         </select>
 
         {/* Tabs */}
-        <div style={{ display: "flex", gap: "0.25rem", marginLeft: "auto" }}>
-          {(["tasks", "monitors", "logs", "analyze"] as const).map((t) => (
+        <div style={{ display: "flex", gap: "0.25rem", marginLeft: "auto", flexWrap: "wrap" }}>
+          {(["tasks", "monitors", "sessions", "logs", "analyze"] as const).map((t) => (
             <button
               key={t}
               onClick={() => setTab(t)}
@@ -495,7 +687,9 @@ export function MachinaPage() {
               {t === "tasks"
                 ? "タスク"
                 : t === "monitors"
-                ? "監視設定"
+                ? "チャンネル設定"
+                : t === "sessions"
+                ? "処理状況"
                 : t === "logs"
                 ? "チャットログ"
                 : "テキスト解析"}
@@ -839,6 +1033,74 @@ export function MachinaPage() {
                     チャンネルのメッセージを取得してログに保存する
                   </label>
                 </div>
+
+                {/* ── チャンネルモード ── */}
+                <div className="form-group" style={{ gridColumn: "1 / -1" }}>
+                  <label>モード (このチャンネルで何をするか)</label>
+                  <div style={{ display: "flex", gap: "0.4rem", flexWrap: "wrap" }}>
+                    {(["task", "discussion", "none"] as const).map((m) => (
+                      <button
+                        key={m}
+                        type="button"
+                        onClick={() => setMonitorForm({ ...monitorForm, mode: m })}
+                        className={monitorForm.mode === m ? "btn-primary" : "btn-secondary"}
+                        style={{ fontSize: "0.75rem", padding: "0.25rem 0.6rem" }}
+                      >
+                        {MODE_LABELS[m]}
+                      </button>
+                    ))}
+                  </div>
+                  <p style={{ fontSize: "0.7rem", color: "var(--text-muted)", marginTop: "0.3rem" }}>
+                    {MODE_DESCRIPTIONS[monitorForm.mode]}
+                  </p>
+                </div>
+
+                {monitorForm.mode === "discussion" && (
+                  <>
+                    <div className="form-group">
+                      <label>遅延処理 (分)</label>
+                      <input
+                        type="number"
+                        min={1}
+                        max={1440}
+                        value={monitorForm.discussionDelayMinutes}
+                        onChange={(e) =>
+                          setMonitorForm({
+                            ...monitorForm,
+                            discussionDelayMinutes: parseInt(e.target.value || "5", 10),
+                          })
+                        }
+                      />
+                    </div>
+                    <div className="form-group" style={{ gridColumn: "span 2" }}>
+                      <label>GitHub リポジトリ (owner/repo)</label>
+                      <input
+                        type="text"
+                        value={monitorForm.githubRepo}
+                        onChange={(e) =>
+                          setMonitorForm({ ...monitorForm, githubRepo: e.target.value })
+                        }
+                        placeholder="ludiars/discutere"
+                      />
+                    </div>
+                    <div className="form-group" style={{ gridColumn: "1 / -1" }}>
+                      <label>
+                        GitHub Discussion カテゴリID <span style={{ color: "var(--text-muted)" }}>(任意)</span>
+                      </label>
+                      <input
+                        type="text"
+                        value={monitorForm.githubDiscussionCategoryId}
+                        onChange={(e) =>
+                          setMonitorForm({
+                            ...monitorForm,
+                            githubDiscussionCategoryId: e.target.value,
+                          })
+                        }
+                        placeholder="未指定なら General を自動選択"
+                      />
+                    </div>
+                  </>
+                )}
               </div>
               <p style={{ fontSize: "0.7rem", color: "var(--text-muted)", marginTop: "0.5rem" }}>
                 BOT の Webhook 先: <code>/api/webhook/{monitorForm.platform}?workspaceId={selectedGroupId}</code>
@@ -894,6 +1156,29 @@ export function MachinaPage() {
                       }}>
                         {m.captureMessages ? "ログ取得ON" : "ログ取得OFF"}
                       </span>
+                      <span style={{
+                        fontSize: "0.7rem",
+                        marginLeft: "0.3rem",
+                        padding: "0.1rem 0.35rem",
+                        borderRadius: "3px",
+                        background: MODE_COLORS[m.mode] + "22",
+                        color: MODE_COLORS[m.mode],
+                        fontWeight: 600,
+                      }}>
+                        モード: {MODE_LABELS[m.mode]}
+                      </span>
+                      {(m.pendingTaskSessions > 0 || m.pendingDiscussionSessions > 0) && (
+                        <span style={{
+                          fontSize: "0.7rem",
+                          marginLeft: "0.3rem",
+                          padding: "0.1rem 0.35rem",
+                          borderRadius: "3px",
+                          background: "#F8514922",
+                          color: "#F85149",
+                        }}>
+                          処理中: {m.pendingTaskSessions + m.pendingDiscussionSessions} 件
+                        </span>
+                      )}
                       <span style={{ fontSize: "0.7rem", color: "var(--text-muted)", marginLeft: "0.5rem" }}>
                         ID: {m.channelId}
                       </span>
@@ -975,6 +1260,71 @@ export function MachinaPage() {
                             メッセージを取得してログに保存する
                           </label>
                         </div>
+
+                        {/* ── モード設定 ── */}
+                        <div className="form-group" style={{ gridColumn: "1 / -1" }}>
+                          <label>モード</label>
+                          <div style={{ display: "flex", gap: "0.4rem", flexWrap: "wrap" }}>
+                            {(["task", "discussion", "none"] as const).map((md) => (
+                              <button
+                                key={md}
+                                type="button"
+                                onClick={() => setBotForm({ ...botForm, mode: md })}
+                                className={botForm.mode === md ? "btn-primary" : "btn-secondary"}
+                                style={{ fontSize: "0.7rem", padding: "0.2rem 0.5rem" }}
+                              >
+                                {MODE_LABELS[md]}
+                              </button>
+                            ))}
+                          </div>
+                          <p style={{ fontSize: "0.7rem", color: "var(--text-muted)", marginTop: "0.3rem" }}>
+                            {MODE_DESCRIPTIONS[botForm.mode]}
+                          </p>
+                        </div>
+
+                        {botForm.mode === "discussion" && (
+                          <>
+                            <div className="form-group">
+                              <label>遅延処理 (分)</label>
+                              <input
+                                type="number"
+                                min={1}
+                                max={1440}
+                                value={botForm.discussionDelayMinutes}
+                                onChange={(e) =>
+                                  setBotForm({
+                                    ...botForm,
+                                    discussionDelayMinutes: parseInt(e.target.value || "5", 10),
+                                  })
+                                }
+                              />
+                            </div>
+                            <div className="form-group">
+                              <label>GitHub リポジトリ</label>
+                              <input
+                                type="text"
+                                value={botForm.githubRepo}
+                                onChange={(e) =>
+                                  setBotForm({ ...botForm, githubRepo: e.target.value })
+                                }
+                                placeholder="owner/repo"
+                              />
+                            </div>
+                            <div className="form-group" style={{ gridColumn: "1 / -1" }}>
+                              <label>Discussion カテゴリID (任意)</label>
+                              <input
+                                type="text"
+                                value={botForm.githubDiscussionCategoryId}
+                                onChange={(e) =>
+                                  setBotForm({
+                                    ...botForm,
+                                    githubDiscussionCategoryId: e.target.value,
+                                  })
+                                }
+                              />
+                            </div>
+                          </>
+                        )}
                       </div>
                       <div style={{ display: "flex", gap: "0.4rem", marginTop: "0.5rem" }}>
                         <button className="btn-primary" onClick={handleSaveBotConfig} style={{ fontSize: "0.7rem" }}>保存</button>
@@ -992,6 +1342,228 @@ export function MachinaPage() {
               ))}
             </div>
           )}
+        </div>
+      )}
+
+      {/* ─── Sessions Tab (処理状況の可視化) ─────────────── */}
+      {tab === "sessions" && (
+        <div>
+          <div style={{ display: "flex", alignItems: "center", gap: "0.5rem", marginBottom: "0.75rem" }}>
+            <h3 style={{ fontSize: "0.9rem", fontWeight: 700, margin: 0 }}>
+              処理状況 (オンメモリ)
+            </h3>
+            <span style={{ fontSize: "0.7rem", color: "var(--text-muted)" }}>
+              自動更新: 5 秒毎
+            </span>
+            <button
+              className="btn-secondary"
+              onClick={fetchModeSessions}
+              disabled={sessionsLoading}
+              style={{ fontSize: "0.7rem", padding: "0.2rem 0.5rem", marginLeft: "auto" }}
+            >
+              再読み込み
+            </button>
+          </div>
+
+          <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "1rem" }}>
+            {/* タスクモード セッション */}
+            <div className="card">
+              <h4 style={{ fontSize: "0.85rem", marginBottom: "0.5rem", color: "var(--text-muted)" }}>
+                タスクモード ({taskSessions.length})
+              </h4>
+              {taskSessions.length === 0 ? (
+                <p style={{ color: "var(--text-muted)", fontSize: "0.75rem" }}>
+                  処理中のタスクモードセッションはありません。
+                </p>
+              ) : (
+                <div style={{ display: "flex", flexDirection: "column", gap: "0.5rem" }}>
+                  {taskSessions.map((s) => (
+                    <div
+                      key={s.id}
+                      style={{
+                        borderLeft: `3px solid ${s.isStalled ? "#F85149" : MODE_COLORS.task}`,
+                        background: "var(--bg-surface-2)",
+                        padding: "0.4rem 0.6rem",
+                        borderRadius: "0 4px 4px 0",
+                      }}
+                    >
+                      <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: "0.3rem", flexWrap: "wrap" }}>
+                        <div>
+                          <span style={{ fontSize: "0.75rem", fontWeight: 600 }}>
+                            {monitorNameOf(s.monitorId)}
+                          </span>
+                          <span style={{
+                            fontSize: "0.65rem",
+                            marginLeft: "0.4rem",
+                            padding: "0.05rem 0.3rem",
+                            borderRadius: "2px",
+                            background: s.isStalled ? "#F8514922" : "#58A6FF22",
+                            color: s.isStalled ? "#F85149" : "#58A6FF",
+                          }}>
+                            {TASK_SESSION_STATUS_LABELS[s.status] || s.status}
+                            {s.isStalled ? " (停滞)" : ""}
+                          </span>
+                        </div>
+                        <span style={{ fontSize: "0.65rem", color: "var(--text-muted)" }}>
+                          {new Date(s.updatedAt).toLocaleTimeString("ja-JP")}
+                        </span>
+                      </div>
+
+                      {s.classification && (
+                        <div style={{ fontSize: "0.7rem", marginTop: "0.25rem" }}>
+                          <div>
+                            <strong>判定:</strong>{" "}
+                            {s.classification.isTask ? "タスク" : "非タスク"}{" "}
+                            ({Math.round(s.classification.confidence * 100)}%)
+                          </div>
+                          {s.classification.title && (
+                            <div><strong>候補タイトル:</strong> {s.classification.title}</div>
+                          )}
+                          {s.classification.missingFields.length > 0 && (
+                            <div>
+                              <strong>不足:</strong>{" "}
+                              {s.classification.missingFields.join(", ")}
+                            </div>
+                          )}
+                          <div style={{ color: "var(--text-muted)", fontSize: "0.65rem" }}>
+                            {s.classification.reasoning}
+                          </div>
+                        </div>
+                      )}
+
+                      {s.errorReason && (
+                        <div style={{ fontSize: "0.7rem", color: "#F85149", marginTop: "0.25rem" }}>
+                          <strong>停止理由:</strong> {s.errorReason}
+                        </div>
+                      )}
+
+                      {s.messages.length > 0 && (
+                        <details style={{ marginTop: "0.3rem" }}>
+                          <summary style={{ fontSize: "0.7rem", cursor: "pointer", color: "var(--text-muted)" }}>
+                            投稿 {s.messages.length} 件
+                          </summary>
+                          <div style={{ fontSize: "0.7rem", marginTop: "0.2rem", paddingLeft: "0.5rem" }}>
+                            {s.messages.map((msg, i) => (
+                              <div key={i} style={{ marginBottom: "0.2rem" }}>
+                                <strong>{msg.authorName}:</strong> {msg.text}
+                              </div>
+                            ))}
+                          </div>
+                        </details>
+                      )}
+
+                      <div style={{ marginTop: "0.4rem" }}>
+                        <input
+                          type="text"
+                          placeholder="補足を入力して再開 (例: 担当は田中、明日まで)"
+                          value={resumeDraft[s.id] || ""}
+                          onChange={(e) =>
+                            setResumeDraft((prev) => ({ ...prev, [s.id]: e.target.value }))
+                          }
+                          style={{ fontSize: "0.75rem", width: "100%", padding: "0.25rem 0.4rem" }}
+                        />
+                        <div style={{ display: "flex", gap: "0.3rem", marginTop: "0.25rem" }}>
+                          <button
+                            className="btn-primary"
+                            onClick={() => handleResumeTaskSession(s.id)}
+                            style={{ fontSize: "0.65rem", padding: "0.15rem 0.4rem" }}
+                          >
+                            再開 (補足を投入)
+                          </button>
+                          <button
+                            className="btn-secondary"
+                            onClick={() => handleDismissTaskSession(s.id)}
+                            style={{ fontSize: "0.65rem", padding: "0.15rem 0.4rem", color: "#F85149" }}
+                          >
+                            破棄
+                          </button>
+                        </div>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
+
+            {/* 議論モード セッション */}
+            <div className="card">
+              <h4 style={{ fontSize: "0.85rem", marginBottom: "0.5rem", color: "var(--text-muted)" }}>
+                議論モード ({discussionSessions.length})
+              </h4>
+              {discussionSessions.length === 0 ? (
+                <p style={{ color: "var(--text-muted)", fontSize: "0.75rem" }}>
+                  発火待ちの議論モードセッションはありません。
+                </p>
+              ) : (
+                <div style={{ display: "flex", flexDirection: "column", gap: "0.5rem" }}>
+                  {discussionSessions.map((s) => (
+                    <div
+                      key={s.id}
+                      style={{
+                        borderLeft: `3px solid ${s.isStalled ? "#F85149" : MODE_COLORS.discussion}`,
+                        background: "var(--bg-surface-2)",
+                        padding: "0.4rem 0.6rem",
+                        borderRadius: "0 4px 4px 0",
+                      }}
+                    >
+                      <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", flexWrap: "wrap", gap: "0.3rem" }}>
+                        <div>
+                          <span style={{ fontSize: "0.75rem", fontWeight: 600 }}>
+                            {monitorNameOf(s.monitorId)}
+                          </span>
+                          <span style={{
+                            fontSize: "0.65rem",
+                            marginLeft: "0.4rem",
+                            padding: "0.05rem 0.3rem",
+                            borderRadius: "2px",
+                            background: s.isStalled ? "#F8514922" : "#D2992222",
+                            color: s.isStalled ? "#F85149" : "#D29922",
+                          }}>
+                            {DISCUSSION_SESSION_STATUS_LABELS[s.status] || s.status}
+                            {s.isStalled ? " (停滞)" : ""}
+                          </span>
+                        </div>
+                        <span style={{ fontSize: "0.65rem", color: "var(--text-muted)" }}>
+                          発火: {new Date(s.scheduledAt).toLocaleString("ja-JP")}
+                        </span>
+                      </div>
+                      <div style={{ fontSize: "0.7rem", marginTop: "0.2rem", color: "var(--text-muted)" }}>
+                        要約対象: {new Date(s.windowStart).toLocaleString("ja-JP")} 〜 現在
+                      </div>
+                      {s.errorReason && (
+                        <div style={{ fontSize: "0.7rem", color: "#F85149", marginTop: "0.25rem" }}>
+                          <strong>停止理由:</strong> {s.errorReason}
+                        </div>
+                      )}
+                      {s.lastPublishedUrl && (
+                        <div style={{ fontSize: "0.7rem", marginTop: "0.2rem" }}>
+                          <a href={s.lastPublishedUrl} target="_blank" rel="noopener noreferrer">
+                            最後に公開した GitHub Discussion
+                          </a>
+                        </div>
+                      )}
+                      <div style={{ display: "flex", gap: "0.3rem", marginTop: "0.4rem" }}>
+                        <button
+                          className="btn-primary"
+                          onClick={() => handleFlushDiscussionSession(s.id)}
+                          style={{ fontSize: "0.65rem", padding: "0.15rem 0.4rem" }}
+                        >
+                          即時実行
+                        </button>
+                        <button
+                          className="btn-secondary"
+                          onClick={() => handleDismissDiscussionSession(s.id)}
+                          style={{ fontSize: "0.65rem", padding: "0.15rem 0.4rem", color: "#F85149" }}
+                        >
+                          破棄
+                        </button>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
+          </div>
         </div>
       )}
 

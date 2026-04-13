@@ -43,6 +43,13 @@ export const channelMonitors = sqliteTable(
     botSigningSecret: text("bot_signing_secret"),
     // 取り込みフラグ: BOT 経由でメッセージを取得・保存するか
     captureMessages: integer("capture_messages", { mode: "boolean" }).notNull().default(true),
+    // モード: task / discussion / none
+    mode: text("mode").notNull().default("task"),
+    // discussion モードの遅延処理間隔 (分)
+    discussionDelayMinutes: integer("discussion_delay_minutes").notNull().default(5),
+    // discussion モードの要約先 (GitHub) 設定
+    githubRepo: text("github_repo"),
+    githubDiscussionCategoryId: text("github_discussion_category_id"),
     isActive: integer("is_active", { mode: "boolean" }).notNull().default(true),
     createdBy: text("created_by").notNull(),
     createdAt: integer("created_at", { mode: "timestamp" })

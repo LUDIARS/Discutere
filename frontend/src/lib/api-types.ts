@@ -42,6 +42,8 @@ export interface MachinaTaskLogItem {
 
 // ── Channel Monitor / Bot Types ───────────────────────────
 
+export type ChannelMode = "task" | "discussion" | "none";
+
 export interface MachinaChannelMonitorItem {
   id: string;
   workspaceId: string;
@@ -54,7 +56,60 @@ export interface MachinaChannelMonitorItem {
   hasBotSigningSecret: boolean;
   captureMessages: boolean;
   isActive: boolean;
+  mode: ChannelMode;
+  discussionDelayMinutes: number;
+  githubRepo: string | null;
+  githubDiscussionCategoryId: string | null;
+  pendingTaskSessions: number;
+  pendingDiscussionSessions: number;
   createdBy: string;
+  createdAt: string;
+  updatedAt: string;
+}
+
+// ── Mode Session Types ────────────────────────────────────
+
+export interface ModeTaskSessionItem {
+  id: string;
+  monitorId: string;
+  workspaceId: string;
+  platform: "slack" | "discord";
+  channelId: string;
+  threadKey: string;
+  status: "classifying" | "hearing" | "collecting" | "registering" | "failed";
+  messages: Array<{
+    authorId: string;
+    authorName: string;
+    text: string;
+    messageId: string;
+    postedAt: string;
+  }>;
+  classification: {
+    isTask: boolean;
+    confidence: number;
+    missingFields: string[];
+    title?: string;
+    description?: string;
+    priority?: string;
+    reasoning: string;
+  } | null;
+  errorReason: string | null;
+  taskId: string | null;
+  isStalled: boolean;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface ModeDiscussionSessionItem {
+  id: string;
+  monitorId: string;
+  workspaceId: string;
+  scheduledAt: string;
+  windowStart: string;
+  status: "pending" | "summarizing" | "publishing" | "failed";
+  errorReason: string | null;
+  lastPublishedUrl: string | null;
+  isStalled: boolean;
   createdAt: string;
   updatedAt: string;
 }
