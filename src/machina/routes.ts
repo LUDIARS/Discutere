@@ -35,6 +35,18 @@ import { analyzeMessage } from "./analyzer.js";
 import { handleSlackMessage, handleDiscordMessage } from "./webhook-handler.js";
 import { relayTaskToPm, relayTaskUpdateToPm, hasPmRelay } from "./pm-relay.js";
 import { summarizeMessages } from "./summarizer.js";
+import {
+  taskSessionStore,
+  discussionSessionStore,
+  serializeTaskSession,
+  serializeDiscussionSession,
+} from "./mode-state.js";
+import { resumeSession, dismissSession } from "./task-mode.js";
+import {
+  dismissDiscussionSession,
+  flushDiscussionSession,
+} from "./discussion-mode.js";
+import { CHANNEL_MODES, type ChannelMode } from "../shared/constants.js";
 // logActivity removed
 
 /** logActivity wrapper: userName を "MACHINA" に固定 */
@@ -417,6 +429,13 @@ machinaRoutes.get("/groups/:workspaceId/monitors", async (c) => {
     botSigningSecret: undefined,
     hasBotToken: Boolean(m.botToken),
     hasBotSigningSecret: Boolean(m.botSigningSecret),
+    mode: m.mode ?? "task",
+    discussionDelayMinutes: m.discussionDelayMinutes ?? 5,
+    githubRepo: m.githubRepo ?? null,
+    githubDiscussionCategoryId: m.githubDiscussionCategoryId ?? null,
+    // 現在処理中のセッション件数 (フロントでのバッジ表示用)
+    pendingTaskSessions: taskSessionStore.listByMonitor(m.id).length,
+    pendingDiscussionSessions: discussionSessionStore.listByMonitor(m.id).length,
   }));
   return c.json({ monitors: safeMonitors });
 });
@@ -441,6 +460,10 @@ machinaRoutes.post("/groups/:workspaceId/monitors", async (c) => {
     botWorkspaceId?: string;
     botSigningSecret?: string;
     captureMessages?: boolean;
+    mode?: ChannelMode;
+    discussionDelayMinutes?: number;
+    githubRepo?: string;
+    githubDiscussionCategoryId?: string;
   }>();
 
   if (!body.platform || !["slack", "discord"].includes(body.platform)) {
@@ -448,6 +471,9 @@ machinaRoutes.post("/groups/:workspaceId/monitors", async (c) => {
   }
   if (!body.channelId || !body.channelName) {
     return c.json({ error: "channelId と channelName は必須です" }, 400);
+  }
+  if (body.mode && !CHANNEL_MODES.includes(body.mode)) {
+    return c.json({ error: `mode は ${CHANNEL_MODES.join("/")} のいずれかです` }, 400);
   }
 
   const id = randomUUID();
@@ -464,6 +490,10 @@ machinaRoutes.post("/groups/:workspaceId/monitors", async (c) => {
     botWorkspaceId: body.botWorkspaceId ?? null,
     botSigningSecret: body.botSigningSecret ?? null,
     captureMessages: body.captureMessages ?? true,
+    mode: body.mode ?? "task",
+    discussionDelayMinutes: body.discussionDelayMinutes ?? 5,
+    githubRepo: body.githubRepo ?? null,
+    githubDiscussionCategoryId: body.githubDiscussionCategoryId ?? null,
     isActive: true,
     createdBy: userId,
     createdAt: now,
@@ -500,7 +530,15 @@ machinaRoutes.put("/groups/:workspaceId/monitors/:id", async (c) => {
     botWorkspaceId?: string | null;
     botSigningSecret?: string | null;
     captureMessages?: boolean;
+    mode?: ChannelMode;
+    discussionDelayMinutes?: number;
+    githubRepo?: string | null;
+    githubDiscussionCategoryId?: string | null;
   }>();
+
+  if (body.mode && !CHANNEL_MODES.includes(body.mode)) {
+    return c.json({ error: `mode は ${CHANNEL_MODES.join("/")} のいずれかです` }, 400);
+  }
 
   const updates: Record<string, unknown> = {};
   if (body.channelName !== undefined) updates.channelName = body.channelName;
@@ -510,6 +548,11 @@ machinaRoutes.put("/groups/:workspaceId/monitors/:id", async (c) => {
   if (body.botWorkspaceId !== undefined) updates.botWorkspaceId = body.botWorkspaceId;
   if (body.botSigningSecret !== undefined) updates.botSigningSecret = body.botSigningSecret;
   if (body.captureMessages !== undefined) updates.captureMessages = body.captureMessages;
+  if (body.mode !== undefined) updates.mode = body.mode;
+  if (body.discussionDelayMinutes !== undefined) updates.discussionDelayMinutes = body.discussionDelayMinutes;
+  if (body.githubRepo !== undefined) updates.githubRepo = body.githubRepo;
+  if (body.githubDiscussionCategoryId !== undefined)
+    updates.githubDiscussionCategoryId = body.githubDiscussionCategoryId;
 
   await monitorRepo.update(monitorId, updates);
 
@@ -789,6 +832,150 @@ machinaRoutes.get("/status", async (c) => {
       "ルールベースタスク自動生成",
       "自動アサイン / 優先度判定 / 納期設定",
       "PM (M2) リレー",
+      "チャンネルモード (task/discussion)",
     ],
   });
 });
+
+// ─── Channel Mode Sessions (オンメモリの処理状況) ────────────
+
+// GET /groups/:workspaceId/mode-sessions — 進行中セッションの一覧
+machinaRoutes.get("/groups/:workspaceId/mode-sessions", async (c) => {
+  const userId = getUserId(c);
+  if (!userId) return c.json({ error: "Authentication required" }, 401);
+  const systemRole = getUserRole(c);
+  const workspaceId = c.req.param("workspaceId");
+
+  if (!(await checkGroupAccess(userId, workspaceId, systemRole))) {
+    return c.json({ error: "このグループへのアクセス権がありません" }, 403);
+  }
+
+  const taskSessions = taskSessionStore.listByWorkspace(workspaceId).map(serializeTaskSession);
+  const discussionSessions = discussionSessionStore
+    .listByWorkspace(workspaceId)
+    .map(serializeDiscussionSession);
+
+  // 5 分以上 hearing のまま動いていないセッションを「停滞」として印をつける
+  const now = Date.now();
+  const STALL_THRESHOLD_MS = 5 * 60_000;
+  const taskWithFlag = taskSessions.map((s) => ({
+    ...s,
+    isStalled:
+      (s.status === "hearing" || s.status === "failed") &&
+      now - new Date(s.updatedAt).getTime() > STALL_THRESHOLD_MS,
+  }));
+  const discWithFlag = discussionSessions.map((s) => ({
+    ...s,
+    isStalled: s.status === "failed" || now - new Date(s.scheduledAt).getTime() > STALL_THRESHOLD_MS,
+  }));
+
+  return c.json({
+    taskSessions: taskWithFlag,
+    discussionSessions: discWithFlag,
+  });
+});
+
+// POST /groups/:workspaceId/mode-sessions/task/:sessionId/resume
+// 手動でヒアリング回答 (補足) を注入して再分類する
+machinaRoutes.post(
+  "/groups/:workspaceId/mode-sessions/task/:sessionId/resume",
+  async (c) => {
+    const userId = getUserId(c);
+    if (!userId) return c.json({ error: "Authentication required" }, 401);
+    const systemRole = getUserRole(c);
+    const workspaceId = c.req.param("workspaceId");
+    const sessionId = c.req.param("sessionId");
+
+    if (!(await checkGroupAccess(userId, workspaceId, systemRole))) {
+      return c.json({ error: "このグループへのアクセス権がありません" }, 403);
+    }
+
+    const session = taskSessionStore.findById(sessionId);
+    if (!session || session.workspaceId !== workspaceId) {
+      return c.json({ error: "セッションが見つかりません" }, 404);
+    }
+
+    const body = await c.req
+      .json<{ supplement: string }>()
+      .catch(() => ({ supplement: "" } as { supplement: string }));
+    if (!body.supplement || !body.supplement.trim()) {
+      return c.json({ error: "supplement は必須です" }, 400);
+    }
+
+    const result = await resumeSession(sessionId, body.supplement.trim(), userId);
+    return c.json(result);
+  }
+);
+
+// DELETE /groups/:workspaceId/mode-sessions/task/:sessionId — 破棄
+machinaRoutes.delete(
+  "/groups/:workspaceId/mode-sessions/task/:sessionId",
+  async (c) => {
+    const userId = getUserId(c);
+    if (!userId) return c.json({ error: "Authentication required" }, 401);
+    const systemRole = getUserRole(c);
+    const workspaceId = c.req.param("workspaceId");
+    const sessionId = c.req.param("sessionId");
+
+    if (!(await checkGroupAccess(userId, workspaceId, systemRole))) {
+      return c.json({ error: "このグループへのアクセス権がありません" }, 403);
+    }
+
+    const session = taskSessionStore.findById(sessionId);
+    if (!session || session.workspaceId !== workspaceId) {
+      return c.json({ error: "セッションが見つかりません" }, 404);
+    }
+
+    dismissSession(sessionId);
+    return c.json({ dismissed: sessionId });
+  }
+);
+
+// POST /groups/:workspaceId/mode-sessions/discussion/:sessionId/flush
+// タイマーを待たずに即時実行する
+machinaRoutes.post(
+  "/groups/:workspaceId/mode-sessions/discussion/:sessionId/flush",
+  async (c) => {
+    const userId = getUserId(c);
+    if (!userId) return c.json({ error: "Authentication required" }, 401);
+    const systemRole = getUserRole(c);
+    const workspaceId = c.req.param("workspaceId");
+    const sessionId = c.req.param("sessionId");
+
+    if (!(await checkGroupAccess(userId, workspaceId, systemRole))) {
+      return c.json({ error: "このグループへのアクセス権がありません" }, 403);
+    }
+
+    const session = discussionSessionStore.findById(sessionId);
+    if (!session || session.workspaceId !== workspaceId) {
+      return c.json({ error: "セッションが見つかりません" }, 404);
+    }
+
+    const result = await flushDiscussionSession(sessionId);
+    return c.json({ result });
+  }
+);
+
+// DELETE /groups/:workspaceId/mode-sessions/discussion/:sessionId
+machinaRoutes.delete(
+  "/groups/:workspaceId/mode-sessions/discussion/:sessionId",
+  async (c) => {
+    const userId = getUserId(c);
+    if (!userId) return c.json({ error: "Authentication required" }, 401);
+    const systemRole = getUserRole(c);
+    const workspaceId = c.req.param("workspaceId");
+    const sessionId = c.req.param("sessionId");
+
+    if (!(await checkGroupAccess(userId, workspaceId, systemRole))) {
+      return c.json({ error: "このグループへのアクセス権がありません" }, 403);
+    }
+
+    const session = discussionSessionStore.findById(sessionId);
+    if (!session || session.workspaceId !== workspaceId) {
+      return c.json({ error: "セッションが見つかりません" }, 404);
+    }
+
+    dismissDiscussionSession(sessionId);
+    return c.json({ dismissed: sessionId });
+  }
+);

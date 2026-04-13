@@ -5,6 +5,9 @@ import type {
   MachinaChatMessageItem,
   MachinaChatSummaryItem,
   MachinaSummaryHighlights,
+  ModeTaskSessionItem,
+  ModeDiscussionSessionItem,
+  ChannelMode,
   GroupItem,
 } from "./api-types";
 
@@ -135,6 +138,10 @@ export const machinaApi = {
       botWorkspaceId?: string;
       botSigningSecret?: string;
       captureMessages?: boolean;
+      mode?: ChannelMode;
+      discussionDelayMinutes?: number;
+      githubRepo?: string;
+      githubDiscussionCategoryId?: string;
     }
   ) {
     return request<{ id: string; message: string }>(
@@ -153,6 +160,10 @@ export const machinaApi = {
       botWorkspaceId: string | null;
       botSigningSecret: string | null;
       captureMessages: boolean;
+      mode: ChannelMode;
+      discussionDelayMinutes: number;
+      githubRepo: string | null;
+      githubDiscussionCategoryId: string | null;
     }>
   ) {
     return request<{ message: string }>(
@@ -205,6 +216,48 @@ export const machinaApi = {
     return request<{ deleted: string }>(
       "DELETE",
       `/api/groups/${encodeURIComponent(workspaceId)}/monitors/${encodeURIComponent(monitorId)}/summaries/${encodeURIComponent(summaryId)}`
+    );
+  },
+
+  // Channel mode sessions (in-memory, 処理状況の可視化)
+  getModeSessions(workspaceId: string) {
+    return request<{
+      taskSessions: ModeTaskSessionItem[];
+      discussionSessions: ModeDiscussionSessionItem[];
+    }>(
+      "GET",
+      `/api/groups/${encodeURIComponent(workspaceId)}/mode-sessions`
+    );
+  },
+  resumeTaskSession(workspaceId: string, sessionId: string, supplement: string) {
+    return request<{ action: "registered" | "still_hearing" | "not_found" }>(
+      "POST",
+      `/api/groups/${encodeURIComponent(workspaceId)}/mode-sessions/task/${encodeURIComponent(sessionId)}/resume`,
+      { supplement }
+    );
+  },
+  dismissTaskSession(workspaceId: string, sessionId: string) {
+    return request<{ dismissed: string }>(
+      "DELETE",
+      `/api/groups/${encodeURIComponent(workspaceId)}/mode-sessions/task/${encodeURIComponent(sessionId)}`
+    );
+  },
+  flushDiscussionSession(workspaceId: string, sessionId: string) {
+    return request<{
+      result: {
+        messageCount: number;
+        summaryId?: string;
+        githubUrl?: string;
+      } | null;
+    }>(
+      "POST",
+      `/api/groups/${encodeURIComponent(workspaceId)}/mode-sessions/discussion/${encodeURIComponent(sessionId)}/flush`
+    );
+  },
+  dismissDiscussionSession(workspaceId: string, sessionId: string) {
+    return request<{ dismissed: string }>(
+      "DELETE",
+      `/api/groups/${encodeURIComponent(workspaceId)}/mode-sessions/discussion/${encodeURIComponent(sessionId)}`
     );
   },
 

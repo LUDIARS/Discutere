@@ -14,7 +14,8 @@ import {
   userRepo,
   chatMessageRepo,
 } from "../db/repository.js";
-import { relayTaskToPm } from "./pm-relay.js";
+import { handleTaskModeMessage } from "./task-mode.js";
+import { scheduleDiscussionDigest } from "./discussion-mode.js";
 
 /** Slack Event APIのメッセージ形式 */
 interface SlackMessageEvent {
@@ -26,6 +27,8 @@ interface SlackMessageEvent {
   ts: string;
   thread_ts?: string;
 }
+
+type SupportedPlatform = "slack" | "discord";
 
 /** Discord Webhook のメッセージ形式 */
 interface DiscordMessageEvent {
@@ -71,7 +74,9 @@ export async function handleSlackMessage(
     mentions: extractSlackMentions(event.text),
   };
 
-  return processMessage(normalized, workspaceId);
+  return processMessage(normalized, workspaceId, {
+    threadKey: event.thread_ts ?? event.ts,
+  });
 }
 
 /**
@@ -91,15 +96,22 @@ export async function handleDiscordMessage(
     mentions: event.mentions.map((m) => m.username),
   };
 
-  return processMessage(normalized, workspaceId);
+  return processMessage(normalized, workspaceId, { threadKey: event.id });
 }
 
 /**
- * 正規化されたメッセージを処理し、タスクを生成/更新する
+ * 正規化されたメッセージを処理し、チャンネルの mode に応じて処理を分岐する。
+ *   - task       : task-mode.ts へ (Haiku 判定 + ヒアリング + タスク登録)
+ *   - discussion : discussion-mode.ts へ (5 分後の遅延要約を debounce)
+ *   - none       : ログ保存だけ
+ *
+ * 後方互換として従来のルールベース処理も走らせ、完了キーワードによる
+ * 既存タスクの自動クローズは引き続き動かす。
  */
 async function processMessage(
   msg: NormalizedMessage,
-  workspaceId: string
+  workspaceId: string,
+  ctx: { threadKey: string }
 ): Promise<Record<string, unknown> | null> {
   // チャンネルが監視対象か確認
   const monitors = await monitorRepo.findActiveByWorkspaceId(workspaceId);
@@ -107,6 +119,8 @@ async function processMessage(
     (m) => m.platform === msg.platform && m.channelId === msg.channelId
   );
   if (!monitor) return null;
+
+  const postedAt = new Date();
 
   // チャットログを保存 (captureMessages が有効な場合)
   if (monitor.captureMessages) {
@@ -121,8 +135,8 @@ async function processMessage(
         authorId: msg.authorId,
         authorName: msg.authorName,
         text: msg.text,
-        meta: JSON.stringify({ mentions: msg.mentions }),
-        postedAt: new Date(),
+        meta: JSON.stringify({ mentions: msg.mentions, threadKey: ctx.threadKey }),
+        postedAt,
         createdAt: new Date(),
       });
     } catch (err) {
@@ -130,95 +144,46 @@ async function processMessage(
     }
   }
 
-  // テキストを解析
-  const analysis = analyzeMessage({
+  const mode = (monitor.mode ?? "task") as "task" | "discussion" | "none";
+
+  // 完了キーワード検出時は常に既存タスク更新を試みる
+  const completionAnalysis = analyzeMessage({
     text: msg.text,
     authorId: msg.authorId,
     authorName: msg.authorName,
     mentions: msg.mentions,
     platform: msg.platform,
   });
-
-  // タスク更新（完了キーワード検出時）
-  if (analysis.shouldUpdateExisting && analysis.isCompletion) {
+  if (completionAnalysis.shouldUpdateExisting && completionAnalysis.isCompletion) {
     await handleTaskCompletion(msg, workspaceId);
-    return null;
   }
 
-  // タスク生成
-  if (!analysis.shouldCreateTask) return null;
-  if (analysis.confidence < 0.5) return null;
+  if (mode === "none") return null;
 
-  // アサイン先の解決
-  const assigneeId = await resolveAssignee(
-    analysis.assigneeHint,
-    workspaceId
-  );
+  if (mode === "discussion") {
+    scheduleDiscussionDigest({
+      monitorId: monitor.id,
+      workspaceId,
+      delayMinutes: monitor.discussionDelayMinutes ?? 5,
+      postedAt,
+    });
+    return { mode: "discussion" };
+  }
 
-  const taskId = randomUUID();
-  const now = new Date();
-
-  const taskData = {
-    id: taskId,
+  // mode === "task"
+  const result = await handleTaskModeMessage({
+    monitorId: monitor.id,
     workspaceId,
-    title: analysis.title,
-    description: analysis.description,
-    status: "pending",
-    priority: analysis.priority,
-    assigneeId,
-    dueDate: analysis.dueDateHint,
-    source: "auto",
-    sourcePlatform: msg.platform,
-    sourceMessageId: msg.messageId,
-    sourceChannelId: msg.channelId,
-    sourceText: msg.text.slice(0, 2000),
-    confidence: Math.round(analysis.confidence * 100),
-    isCriticalPath: false,
-    relayedToExternal: false,
-    externalTaskId: null,
-    createdBy: msg.authorId,
-    createdAt: now,
-    updatedAt: now,
-  };
-
-  await taskRepo.create(taskData);
-
-  // ログ記録
-  await taskLogRepo.create({
-    id: randomUUID(),
-    taskId,
-    action: "created",
-    previousValue: null,
-    newValue: JSON.stringify({ title: analysis.title, priority: analysis.priority }),
-    reason: analysis.reasoning,
-    triggerMessageId: msg.messageId,
-    performedBy: "system",
-    createdAt: now,
+    platform: msg.platform as SupportedPlatform,
+    channelId: msg.channelId,
+    messageId: msg.messageId,
+    threadKey: ctx.threadKey,
+    authorId: msg.authorId,
+    authorName: msg.authorName,
+    text: msg.text,
+    postedAt,
   });
-
-  // TODO: notification events via Cernere relay
-
-  // PM リレー
-  const relayResult = await relayTaskToPm(taskData);
-  if (relayResult) {
-    await taskRepo.update(taskId, {
-      relayedToExternal: true,
-      externalTaskId: relayResult.externalTaskId,
-    });
-    await taskLogRepo.create({
-      id: randomUUID(),
-      taskId,
-      action: "relayed",
-      previousValue: null,
-      newValue: JSON.stringify({ externalTaskId: relayResult.externalTaskId }),
-      reason: "PM (M2) へ自動リレー",
-      triggerMessageId: null,
-      performedBy: "system",
-      createdAt: new Date(),
-    });
-  }
-
-  return taskData;
+  return result ? { mode: "task", ...result } : null;
 }
 
 /**
