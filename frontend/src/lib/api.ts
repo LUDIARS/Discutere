@@ -16,7 +16,8 @@ const WORKSPACE_KEY = "discutere.workspaces";
 
 interface StoredUser {
   id: string;
-  displayName: string;
+  name: string;
+  email: string | null;
   role: string;
 }
 

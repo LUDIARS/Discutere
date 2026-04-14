@@ -5,12 +5,22 @@
   "type": "module",
   "main": "src/index.ts",
   "scripts": {
-    "dev": "tsx watch src/index.ts",
+    "dev": "npm run env:env && npx dotenv-cli -- concurrently -n api,web -c green,cyan \"tsx watch src/index.ts\" \"npx dotenv-cli -- npm run dev --prefix frontend\"",
+    "dev:server": "npx dotenv-cli -- tsx watch src/index.ts",
+    "dev:front": "npx dotenv-cli -- npm run dev --prefix frontend",
     "build": "tsc",
     "start": "node dist/index.js",
     "db:generate": "drizzle-kit generate",
     "db:migrate": "drizzle-kit migrate",
-    "db:push": "drizzle-kit push"
+    "db:push": "drizzle-kit push",
+    "env:setup": "npx tsx ../Cernere/packages/env-cli/src/cli.ts setup",
+    "env:test": "npx tsx ../Cernere/packages/env-cli/src/cli.ts test",
+    "env:env": "npx tsx ../Cernere/packages/env-cli/src/cli.ts env",
+    "env:initialize": "npx tsx ../Cernere/packages/env-cli/src/cli.ts initialize",
+    "env:list": "npx tsx ../Cernere/packages/env-cli/src/cli.ts list",
+    "env:get": "npx tsx ../Cernere/packages/env-cli/src/cli.ts get",
+    "env:set": "npx tsx ../Cernere/packages/env-cli/src/cli.ts set",
+    "env:up": "npx tsx ../Cernere/packages/env-cli/src/cli.ts env && docker compose up -d"
   },
   "dependencies": {
     "@hono/node-server": "^1.14.3",
@@ -27,6 +37,8 @@
     "@types/jsonwebtoken": "^9.0.9",
     "@types/node": "^22.0.0",
     "@types/uuid": "^10.0.0",
+    "concurrently": "^9.0.0",
+    "dotenv-cli": "^7.4.4",
     "drizzle-kit": "^0.31.3",
     "tsx": "^4.20.3",
     "typescript": "^5.9.0"
