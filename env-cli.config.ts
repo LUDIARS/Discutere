@@ -32,6 +32,15 @@ const config: EnvCliConfig = {
 
   defaultSiteUrl: "https://app.infisical.com",
   defaultEnvironment: "dev",
+
+  /**
+   * production 環境で env-cli env / up を実行したとき、
+   * Infisical に存在しない (= dev 用 placeholder のまま) と .env 生成を中止するキー。
+   * dev fallback が本番に漏れると致命的になる項目を列挙する。
+   */
+  required: {
+    production: ["JWT_SECRET", "CERNERE_PROJECT_CLIENT_SECRET"],
+  },
 };
 
 export default config;
