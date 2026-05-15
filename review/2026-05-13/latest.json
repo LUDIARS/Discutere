@@ -1,0 +1,33 @@
+{
+  "date": "2026-05-13",
+  "repo": "Discutere",
+  "weighted_score": 65,
+  "scores": {
+    "design_overall": "B",
+    "design_modularity": "B",
+    "design_doc_alignment": "C",
+    "vulnerability_overall": "C",
+    "vulnerability_auth": "C",
+    "vulnerability_input_validation": "C",
+    "implementation_correctness": "C",
+    "implementation_concurrency": "C",
+    "implementation_error_handling": "B",
+    "missing_features_coverage": "C",
+    "missing_features_tests": "D",
+    "quality_readability": "B",
+    "quality_type_safety": "C",
+    "quality_dead_code": "B"
+  },
+  "critical_count": 0,
+  "high_count": 4,
+  "autofix_count": 0,
+  "autofix_categories": {
+    "lint": 0,
+    "typo": 0,
+    "security_simple": 0,
+    "type_dx": 0,
+    "tests": 0,
+    "dead_code": 0
+  },
+  "fix_pr": null
+}
