@@ -15,6 +15,11 @@
   HypothesisIntegrated: "HypothesisIntegrated",
   MechanicProposed: "MechanicProposed",
   MechanicRefined: "MechanicRefined",
+  TranslationProposed: "TranslationProposed",
+  TranslationApproved: "TranslationApproved",
+  TranslationRevised: "TranslationRevised",
+  TranslationRejected: "TranslationRejected",
+  AffectAdded: "AffectAdded",
   AffectMeasured: "AffectMeasured",
   PlayContextCaptured: "PlayContextCaptured",
 } as const;

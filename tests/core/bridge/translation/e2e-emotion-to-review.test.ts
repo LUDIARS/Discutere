@@ -1,0 +1,21 @@
+﻿import fs from "node:fs";
+import path from "node:path";
+import assert from "node:assert/strict";
+import { createCore } from "../../../../src/core/index.js";
+import { MockLlmClient } from "../../../../src/core/bridge/translation/llm-client.js";
+import { processUtteranceForTranslation } from "../../../../src/core/bridge/translation/pipeline.js";
+import { listPendingReviews } from "../../../../src/core/bridge/translation/review-queue.js";
+
+const dir = path.resolve(".tmp/p3-e2e");
+fs.rmSync(dir, { recursive: true, force: true });
+fs.mkdirSync(dir, { recursive: true });
+const core = createCore(path.join(dir, "db.kuzu"), path.join(dir, "events.jsonl"));
+const ws = "w1";
+const sid = core.repos.session.create({ workspaceId: ws, title: "s", startedAt: Date.now(), mode: "emotion" });
+core.repos.affect.create({ workspaceId: ws, mood: "joy" });
+const uid = core.repos.utterance.create({ workspaceId: ws, sessionId: sid, rawContent: "pure joy", postedAt: Date.now() });
+await processUtteranceForTranslation({ core, llm: new MockLlmClient(), utteranceId: uid, workspaceId: ws });
+const pending = listPendingReviews(core, ws);
+assert.ok(pending.length >= 1);
+core.close();
+console.log("e2e-emotion-to-review passed");

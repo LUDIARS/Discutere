@@ -41,6 +41,27 @@ const MIGRATIONS = [
       `ALTER TABLE hypotheses ADD COLUMN refs_json TEXT`,
       `ALTER TABLE mechanics ADD COLUMN intends TEXT`
     ]
+  },
+  {
+    id: "0003_phase3_translation_bridge",
+    sql: [
+      `CREATE TABLE IF NOT EXISTS translation_proposals (
+        id TEXT PRIMARY KEY,
+        workspace_id TEXT NOT NULL,
+        utterance_id TEXT NOT NULL,
+        proposal_type TEXT NOT NULL,
+        target_id TEXT,
+        target_name TEXT,
+        confidence REAL NOT NULL,
+        pending_review INTEGER NOT NULL DEFAULT 1,
+        status TEXT NOT NULL DEFAULT 'pending',
+        payload_json TEXT NOT NULL,
+        created_at INTEGER NOT NULL,
+        updated_at INTEGER NOT NULL
+      )`,
+      `CREATE INDEX IF NOT EXISTS idx_translation_pending ON translation_proposals(workspace_id, pending_review, created_at)`,
+      `ALTER TABLE affects ADD COLUMN vocabulary_status TEXT`
+    ]
   }
 ];
 
