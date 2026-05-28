@@ -62,6 +62,18 @@ const MIGRATIONS = [
       `CREATE INDEX IF NOT EXISTS idx_translation_pending ON translation_proposals(workspace_id, pending_review, created_at)`,
       `ALTER TABLE affects ADD COLUMN vocabulary_status TEXT`
     ]
+  },
+  {
+    id: "0004_phase4_gap_detection",
+    sql: [
+      `ALTER TABLE mechanics ADD COLUMN intended_affect TEXT`,
+      `ALTER TABLE affects ADD COLUMN valence TEXT`,
+      `ALTER TABLE design_gaps ADD COLUMN gap_in TEXT`,
+      `ALTER TABLE design_gaps ADD COLUMN expected_affect TEXT`,
+      `ALTER TABLE design_gaps ADD COLUMN observed_affect TEXT`,
+      `ALTER TABLE design_gaps ADD COLUMN evidence_json TEXT`,
+      `CREATE UNIQUE INDEX IF NOT EXISTS idx_gap_dedup_key ON design_gaps(workspace_id, gap_in, expected_affect, observed_affect)`
+    ]
   }
 ];
 
