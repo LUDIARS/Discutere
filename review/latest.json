@@ -1,1 +1,38 @@
-{"date":"2026-05-13","weighted_score":"B","scores":{"vulnerability":"C","design":"B","design_consistency":"B","modularity":"C","code_quality":"B","data_schema":"A","sre":"D","zero_trust":"D","security":"D","test":"F","performance":"C","license":"A","cross_platform":"B","documentation":"B"},"critical_count":3,"high_count":4,"autofix_count":0,"autofix_categories":{"lint":0,"typo":0,"unused_import":0,"dead_code":0,"gitignore":0,"toc":0},"fix_pr":null}
+{
+  "date": "2026-05-29",
+  "weighted_score": "B-",
+  "scores": {
+    "vulnerability": "C",
+    "design": "B+",
+    "design_consistency": "B+",
+    "modularity": "B",
+    "code_quality": "C",
+    "data_schema": "B",
+    "feature_improvement": "C",
+    "missing_features": "C",
+    "sre": "C",
+    "zero_trust": "C",
+    "security": "C",
+    "test": "C",
+    "performance": "C",
+    "license": "B",
+    "cross_platform": "B",
+    "documentation": "B"
+  },
+  "critical_count": 2,
+  "high_count": 9,
+  "medium_count": 8,
+  "low_count": 4,
+  "autofix_count": 0,
+  "autofix_categories": {
+    "lint": 0,
+    "typo": 0,
+    "unused_import": 0,
+    "dead_code": 0,
+    "gitignore": 0,
+    "toc": 0,
+    "critical_high": 0
+  },
+  "fix_pr": null,
+  "target_commit_range": "5b76ba6..b42b66c (10 commits)"
+}
