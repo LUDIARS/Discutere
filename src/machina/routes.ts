@@ -38,6 +38,7 @@ import { handleSlackMessage, handleDiscordMessage } from "./webhook-handler.js";
 import { relayTaskToPm, relayTaskUpdateToPm, hasPmRelay } from "./pm-relay.js";
 import { summarizeMessages } from "./summarizer.js";
 import { normalizeDiscordInboundMessage } from "../discord-hook/normalize.js";
+import { interactionToCommand, verifyDiscordInteraction } from "../discord-hook/interactions.js";
 import { startMechanicsLearning } from "../ludus/mechanics-learner.js";
 import {
   taskSessionStore,
@@ -50,6 +51,8 @@ import {
   dismissDiscussionSession,
   flushDiscussionSession,
 } from "./discussion-mode.js";
+import { submitMessage } from "../core/projection/message-input.js";
+import { createCore } from "../core/index.js";
 import { CHANNEL_MODES, type ChannelMode } from "../shared/constants.js";
 // logActivity removed
 
@@ -794,6 +797,46 @@ machinaRoutes.post("/webhook/discord", async (c) => {
   }
 
   return c.json({ ok: true });
+});
+
+// POST /discord/interactions — Discord Interactions (slash command)
+machinaRoutes.post("/discord/interactions", async (c) => {
+  const rawBody = await c.req.text();
+  const sig = c.req.header("X-Signature-Ed25519") ?? "";
+  const ts = c.req.header("X-Signature-Timestamp") ?? "";
+  const publicKey = process.env.DISCORD_APPLICATION_PUBLIC_KEY ?? "";
+  if (!verifyDiscordInteraction({ rawBody, signature: sig, timestamp: ts, publicKey })) {
+    return c.json({ error: "invalid signature" }, 401);
+  }
+
+  const payload = JSON.parse(rawBody);
+  if (payload?.type === 1) return c.json({ type: 1 }); // PING -> PONG
+
+  const commandLine = interactionToCommand(payload);
+  if (!commandLine) {
+    return c.json({ type: 4, data: { content: "Unsupported interaction payload." } });
+  }
+
+  const workspaceId = String(payload?.guild_id ?? "discord");
+  const channelId = String(payload?.channel_id ?? "");
+  const userId = String(payload?.member?.user?.id ?? payload?.user?.id ?? "discord-user");
+  const sessionId = `discord-${channelId || "global"}`;
+  const core = createCore();
+  try {
+    const result = submitMessage({
+      core,
+      workspaceId,
+      sessionId,
+      personId: userId,
+      rawContent: commandLine,
+    });
+    const content = result.commandResult?.ok
+      ? (result.commandResult.message ?? "OK")
+      : `Error: ${result.commandResult?.error ?? "command failed"}`;
+    return c.json({ type: 4, data: { content } });
+  } finally {
+    core.close();
+  }
 });
 
 // ─── Text Analysis (Preview) ─────────────────────────────────
