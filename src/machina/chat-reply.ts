@@ -69,6 +69,27 @@ export async function sendChatReply(args: {
   }
 }
 
+export async function sendChannelNotice(args: {
+  monitorId: string;
+  platform: "slack" | "discord";
+  channelId: string;
+  text: string;
+}): Promise<void> {
+  const monitor = await monitorRepo.findById(args.monitorId);
+  const token = monitor?.botToken ?? null;
+  if (!token) {
+    console.log(
+      `[chat-reply:${args.platform}] BOT token missing; skipped channel notice: "${args.text}"`
+    );
+    return;
+  }
+  if (args.platform === "slack") {
+    await postSlackChannel(token, args.channelId, args.text);
+  } else {
+    await postDiscordChannel(token, args.channelId, args.text);
+  }
+}
+
 async function postSlack(
   botToken: string,
   channelId: string,
@@ -115,6 +136,47 @@ async function postDiscord(
         message_reference: { message_id: messageId },
         allowed_mentions: { replied_user: true },
       }),
+    }
+  );
+  if (!res.ok) {
+    const body = await res.text();
+    throw new Error(`Discord POST message HTTP ${res.status}: ${body}`);
+  }
+}
+
+async function postSlackChannel(
+  botToken: string,
+  channelId: string,
+  text: string
+): Promise<void> {
+  const res = await fetch("https://slack.com/api/chat.postMessage", {
+    method: "POST",
+    headers: {
+      Authorization: `Bearer ${botToken}`,
+      "Content-Type": "application/json; charset=utf-8",
+    },
+    body: JSON.stringify({
+      channel: channelId,
+      text,
+    }),
+  });
+  if (!res.ok) throw new Error(`Slack chat.postMessage HTTP ${res.status}`);
+}
+
+async function postDiscordChannel(
+  botToken: string,
+  channelId: string,
+  text: string
+): Promise<void> {
+  const res = await fetch(
+    `https://discord.com/api/v10/channels/${encodeURIComponent(channelId)}/messages`,
+    {
+      method: "POST",
+      headers: {
+        Authorization: `Bot ${botToken}`,
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({ content: text }),
     }
   );
   if (!res.ok) {

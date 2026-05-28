@@ -13,9 +13,13 @@ import {
   monitorRepo,
   userRepo,
   chatMessageRepo,
+  ludusMechanicRepo,
 } from "../db/repository.js";
 import { handleTaskModeMessage } from "./task-mode.js";
 import { scheduleDiscussionDigest } from "./discussion-mode.js";
+import type { DiscordInboundMessage } from "../discord-hook/types.js";
+import { sendChatReply } from "./chat-reply.js";
+import { buildObjectiveOpinion } from "../ludus/objective-opinion.js";
 
 /** Slack Event APIのメッセージ形式 */
 interface SlackMessageEvent {
@@ -29,19 +33,6 @@ interface SlackMessageEvent {
 }
 
 type SupportedPlatform = "slack" | "discord";
-
-/** Discord Webhook のメッセージ形式 */
-interface DiscordMessageEvent {
-  id: string;
-  channel_id: string;
-  author: {
-    id: string;
-    username: string;
-  };
-  content: string;
-  mentions: Array<{ id: string; username: string }>;
-  timestamp: string;
-}
 
 /** 共通メッセージ形式 */
 interface NormalizedMessage {
@@ -83,17 +74,17 @@ export async function handleSlackMessage(
  * Discord メッセージイベントを処理
  */
 export async function handleDiscordMessage(
-  event: DiscordMessageEvent,
+  event: DiscordInboundMessage,
   workspaceId: string
 ): Promise<Record<string, unknown> | null> {
   const normalized: NormalizedMessage = {
     platform: "discord",
-    channelId: event.channel_id,
+    channelId: event.channelId,
     authorId: event.author.id,
     authorName: event.author.username,
     text: event.content,
     messageId: event.id,
-    mentions: event.mentions.map((m) => m.username),
+    mentions: event.mentions.map((m) => m.username ?? "").filter((x) => x.length > 0),
   };
 
   return processMessage(normalized, workspaceId, { threadKey: event.id });
@@ -145,6 +136,21 @@ async function processMessage(
   }
 
   const mode = (monitor.mode ?? "task") as "task" | "discussion" | "none";
+
+  // Discord ask-ai command
+  if (msg.platform === "discord") {
+    const ask = parseAskAiCommand(msg.text);
+    if (ask) {
+      await handleAskAiCommand({
+        monitorId: monitor.id,
+        workspaceId,
+        channelId: msg.channelId,
+        threadKey: ctx.threadKey,
+        question: ask,
+      });
+      return { mode, command: "ask-ai" };
+    }
+  }
 
   // 完了キーワード検出時は常に既存タスク更新を試みる
   const completionAnalysis = analyzeMessage({
@@ -264,4 +270,40 @@ async function resolveAssignee(
 function extractSlackMentions(text: string): string[] {
   const matches = text.matchAll(/<@(\w+)>/g);
   return Array.from(matches, (m) => m[1]);
+}
+
+function parseAskAiCommand(text: string): string | null {
+  const t = text.trim();
+  if (!t) return null;
+  if (t.startsWith("/ask-ai ")) return t.slice("/ask-ai ".length).trim();
+  if (t === "/ask-ai") return "Provide objective game design feedback from current discussion.";
+  if (t.startsWith("!ask-ai ")) return t.slice("!ask-ai ".length).trim();
+  return null;
+}
+
+async function handleAskAiCommand(input: {
+  monitorId: string;
+  workspaceId: string;
+  channelId: string;
+  threadKey: string;
+  question: string;
+}): Promise<void> {
+  const recent = await chatMessageRepo.findByMonitorId(input.monitorId, { limit: 120 });
+  const mechanics = await ludusMechanicRepo.listByWorkspace(input.workspaceId, 400);
+  const opinion = buildObjectiveOpinion({
+    question: input.question,
+    messages: recent.map((m) => ({ authorName: m.authorName, text: m.text })),
+    mechanics: mechanics.map((m) => ({
+      mechanic: m.mechanic,
+      confidence: m.confidence,
+      gameTitle: m.gameTitle,
+    })),
+  });
+  await sendChatReply({
+    monitorId: input.monitorId,
+    platform: "discord",
+    channelId: input.channelId,
+    threadKey: input.threadKey,
+    text: opinion,
+  });
 }

@@ -1,14 +1,14 @@
 /**
- * チャンネルモード「議論」の処理器。
+ * 繝√Ε繝ｳ繝阪Ν繝｢繝ｼ繝峨瑚ｭｰ隲悶阪・蜃ｦ逅・勣縲・
  *
- * フロー:
- *   1. メッセージ投稿を受信すると、チャンネル単位で「N 分後の要約タイマー」を登録 (debounce)
- *   2. タイマーが発火したら、直近 N 分 + 少し前のメッセージを取得
- *   3. summarizer で要約 + 議論的なメッセージを pickup
- *   4. GitHub Discussions に投稿 (GITHUB_TOKEN + 対象リポジトリ設定時)
- *   5. chat_summaries テーブルにも保存 (永続化)
+ * 繝輔Ο繝ｼ:
+ *   1. 繝｡繝・そ繝ｼ繧ｸ謚慕ｨｿ繧貞女菫｡縺吶ｋ縺ｨ縲√メ繝｣繝ｳ繝阪Ν蜊倅ｽ阪〒縲君 蛻・ｾ後・隕∫ｴ・ち繧､繝槭・縲阪ｒ逋ｻ骭ｲ (debounce)
+ *   2. 繧ｿ繧､繝槭・縺檎匱轣ｫ縺励◆繧峨∫峩霑・N 蛻・+ 蟆代＠蜑阪・繝｡繝・そ繝ｼ繧ｸ繧貞叙蠕・
+ *   3. summarizer 縺ｧ隕∫ｴ・+ 隴ｰ隲也噪縺ｪ繝｡繝・そ繝ｼ繧ｸ繧・pickup
+ *   4. GitHub Discussions 縺ｫ謚慕ｨｿ (GITHUB_TOKEN + 蟇ｾ雎｡繝ｪ繝昴ず繝医Μ險ｭ螳壽凾)
+ *   5. chat_summaries 繝・・繝悶Ν縺ｫ繧ゆｿ晏ｭ・(豌ｸ邯壼喧)
  *
- * 追加で投稿があれば既存のタイマーをリセットし、スレッド分まとめて要約する。
+ * 霑ｽ蜉縺ｧ謚慕ｨｿ縺後≠繧後・譌｢蟄倥・繧ｿ繧､繝槭・繧偵Μ繧ｻ繝・ヨ縺励√せ繝ｬ繝・ラ蛻・∪縺ｨ繧√※隕∫ｴ・☆繧九・
  */
 
 import { randomUUID } from "crypto";
@@ -19,16 +19,17 @@ import {
   type DiscussionSession,
 } from "./mode-state.js";
 import { publishToGithubDiscussion } from "./github-discussion.js";
+import { sendChannelNotice } from "./chat-reply.js";
 
 export interface DiscussionModeInput {
   monitorId: string;
   workspaceId: string;
   delayMinutes: number;
-  /** 要約対象期間の下限を計算するために使う (投稿時刻) */
+  /** 隕∫ｴ・ｯｾ雎｡譛滄俣縺ｮ荳矩剞繧定ｨ育ｮ励☆繧九◆繧√↓菴ｿ縺・(謚慕ｨｿ譎ょ綾) */
   postedAt: Date;
 }
 
-/** 新規投稿を受けてタイマーを debounce 登録する */
+/** 譁ｰ隕乗兜遞ｿ繧貞女縺代※繧ｿ繧､繝槭・繧・debounce 逋ｻ骭ｲ縺吶ｋ */
 export function scheduleDiscussionDigest(input: DiscussionModeInput): DiscussionSession {
   const delayMs = Math.max(1, input.delayMinutes) * 60_000;
   const now = new Date();
@@ -36,7 +37,7 @@ export function scheduleDiscussionDigest(input: DiscussionModeInput): Discussion
 
   const existing = discussionSessionStore.findByMonitor(input.monitorId);
   if (existing && (existing.status === "pending" || existing.status === "failed")) {
-    // 既存タイマーをリセット
+    // 譌｢蟄倥ち繧､繝槭・繧偵Μ繧ｻ繝・ヨ
     if (existing._timer) clearTimeout(existing._timer);
     const updated = discussionSessionStore.update(existing.id, {
       scheduledAt,
@@ -73,7 +74,7 @@ export function scheduleDiscussionDigest(input: DiscussionModeInput): Discussion
   return session;
 }
 
-/** タイマー発火 or 手動トリガ時の実処理 */
+/** 繧ｿ繧､繝槭・逋ｺ轣ｫ or 謇句虚繝医Μ繧ｬ譎ゅ・螳溷・逅・*/
 export async function runDiscussionDigest(sessionId: string): Promise<{
   messageCount: number;
   summaryId?: string;
@@ -86,7 +87,7 @@ export async function runDiscussionDigest(sessionId: string): Promise<{
   if (!monitor) {
     discussionSessionStore.update(sessionId, {
       status: "failed",
-      errorReason: "モニタが見つかりません",
+      errorReason: "繝｢繝九ち縺瑚ｦ九▽縺九ｊ縺ｾ縺帙ｓ",
     });
     return null;
   }
@@ -101,7 +102,7 @@ export async function runDiscussionDigest(sessionId: string): Promise<{
       periodEnd
     );
 
-    // 議論的な内容を feature する: 複数人の応酬 / 一定の長さ / 疑問文を含む
+    // 隴ｰ隲也噪縺ｪ蜀・ｮｹ繧・feature 縺吶ｋ: 隍・焚莠ｺ縺ｮ蠢憺・ / 荳螳壹・髟ｷ縺・/ 逍大撫譁・ｒ蜷ｫ繧
     const featured = messages.filter(isDiscussionMessage);
     const targetMessages = featured.length >= 2 ? featured : messages;
 
@@ -121,7 +122,7 @@ export async function runDiscussionDigest(sessionId: string): Promise<{
       createdAt: new Date(),
     });
 
-    // GitHub Discussion へ publish
+    // GitHub Discussion 縺ｸ publish
     let githubUrl: string | undefined;
     if (monitor.githubRepo) {
       discussionSessionStore.update(sessionId, { status: "publishing" });
@@ -129,9 +130,7 @@ export async function runDiscussionDigest(sessionId: string): Promise<{
         const res = await publishToGithubDiscussion({
           repo: monitor.githubRepo,
           categoryId: monitor.githubDiscussionCategoryId ?? null,
-          title: `[${monitor.channelName}] ${session.windowStart
-            .toISOString()
-            .slice(0, 16)} 〜 ${periodEnd.toISOString().slice(0, 16)} の議論要約`,
+          title: "[" + monitor.channelName + "] " + session.windowStart.toISOString().slice(0, 16) + " - " + periodEnd.toISOString().slice(0, 16) + " discussion summary",
           body: buildGithubDiscussionBody({
             channelName: monitor.channelName,
             platform: monitor.platform,
@@ -144,13 +143,13 @@ export async function runDiscussionDigest(sessionId: string): Promise<{
         });
         githubUrl = res?.url;
       } catch (err) {
-        // publish 失敗でも summary 作成自体は成功扱い、session は failed に
+        // publish 螟ｱ謨励〒繧・summary 菴懈・閾ｪ菴薙・謌仙粥謇ｱ縺・《ession 縺ｯ failed 縺ｫ
         discussionSessionStore.update(sessionId, {
           status: "failed",
           errorReason:
             err instanceof Error
-              ? `GitHub publish 失敗: ${err.message}`
-              : "GitHub publish 失敗",
+              ? ("GitHub publish failed: " + err.message)
+              : "GitHub publish failed",
         });
         return { messageCount: result.messageCount, summaryId };
       }
@@ -160,7 +159,20 @@ export async function runDiscussionDigest(sessionId: string): Promise<{
       status: "summarizing",
       lastPublishedUrl: githubUrl,
     });
-    // 正常終了したら破棄
+    // 豁｣蟶ｸ邨ゆｺ・＠縺溘ｉ遐ｴ譽・
+    await sendChannelNotice({
+      monitorId: session.monitorId,
+      platform: monitor.platform as "slack" | "discord",
+      channelId: monitor.channelId,
+      text: buildChannelDigestNotice({
+        channelName: monitor.channelName,
+        messageCount: result.messageCount,
+        summary: result.summary,
+        githubUrl,
+      }),
+    }).catch((err) => {
+      console.error("[discussion-mode] channel notice failed:", err);
+    });
     discussionSessionStore.remove(sessionId);
 
     return { messageCount: result.messageCount, summaryId, githubUrl };
@@ -173,13 +185,13 @@ export async function runDiscussionDigest(sessionId: string): Promise<{
   }
 }
 
-/** 議論的メッセージのフィルタ: 一定長 or 疑問符 or 反応ワード */
+/** 隴ｰ隲也噪繝｡繝・そ繝ｼ繧ｸ縺ｮ繝輔ぅ繝ｫ繧ｿ: 荳螳夐聞 or 逍大撫隨ｦ or 蜿榊ｿ懊Ρ繝ｼ繝・*/
 function isDiscussionMessage(m: { text: string }): boolean {
   const t = m.text;
   if (t.length >= 30) return true;
-  if (/[?？]/.test(t)) return true;
-  if (/(どう思う|意見|議論|提案|案|検討|賛成|反対|思う|べき)/.test(t)) return true;
-  return false;
+  if (t.includes("?") || t.includes("？")) return true;
+  const kw = ["どう", "議論", "提案", "なぜ", "べき", "案"];
+  return kw.some((k) => t.includes(k));
 }
 
 function buildGithubDiscussionBody(args: {
@@ -192,49 +204,47 @@ function buildGithubDiscussionBody(args: {
   periodEnd: Date;
 }): string {
   const lines: string[] = [];
-  lines.push(`> **チャンネル**: ${args.channelName} (${args.platform})`);
-  lines.push(
-    `> **期間**: ${args.periodStart.toISOString()} 〜 ${args.periodEnd.toISOString()}`
-  );
-  lines.push(`> **メッセージ数**: ${args.messageCount}`);
+  lines.push("> **Channel**: " + args.channelName + " (" + args.platform + ")");
+  lines.push("> **Period**: " + args.periodStart.toISOString() + " - " + args.periodEnd.toISOString());
+  lines.push("> **Messages**: " + args.messageCount);
   lines.push("");
-  lines.push("## 要約");
+  lines.push("## Summary");
   lines.push(args.summary);
   if (args.highlights.participants.length > 0) {
     lines.push("");
-    lines.push("## 参加者");
+    lines.push("## Participants");
     for (const p of args.highlights.participants.slice(0, 10)) {
-      lines.push(`- ${p.authorName} — ${p.messageCount} 発言`);
+      lines.push("- " + p.authorName + ": " + p.messageCount + " messages");
     }
   }
   if (args.highlights.topKeywords.length > 0) {
     lines.push("");
-    lines.push("## 頻出キーワード");
+    lines.push("## Top Keywords");
     lines.push(
       args.highlights.topKeywords
         .slice(0, 10)
-        .map((k) => `\`${k.keyword}\` ×${k.count}`)
+        .map((k) => "`" + k.keyword + "` x" + k.count)
         .join(" / ")
     );
   }
   if (args.highlights.topMessages.length > 0) {
     lines.push("");
-    lines.push("## 代表メッセージ");
+    lines.push("## Highlight Messages");
     for (const m of args.highlights.topMessages) {
-      lines.push(`- **${m.authorName}** (${m.postedAt}): ${m.text}`);
+      lines.push("- **" + m.authorName + "** (" + m.postedAt + "): " + m.text);
     }
   }
   lines.push("");
-  lines.push("_このディスカッションは Discutere が議論モードで自動生成しました。_");
+  lines.push("_Auto-generated by Discutere discussion mode._");
   return lines.join("\n");
 }
 
-/** セッションを手動キャンセル */
+/** 繧ｻ繝・す繝ｧ繝ｳ繧呈焔蜍輔く繝｣繝ｳ繧ｻ繝ｫ */
 export function dismissDiscussionSession(sessionId: string): boolean {
   return discussionSessionStore.remove(sessionId);
 }
 
-/** 即時実行 (タイマー待ちをスキップ) */
+/** 蜊ｳ譎ょｮ溯｡・(繧ｿ繧､繝槭・蠕・■繧偵せ繧ｭ繝・・) */
 export async function flushDiscussionSession(
   sessionId: string
 ): Promise<Awaited<ReturnType<typeof runDiscussionDigest>>> {
@@ -243,4 +253,16 @@ export async function flushDiscussionSession(
   if (session._timer) clearTimeout(session._timer);
   discussionSessionStore.update(sessionId, { _timer: undefined });
   return runDiscussionDigest(sessionId);
+}
+
+function buildChannelDigestNotice(args: {
+  channelName: string;
+  messageCount: number;
+  summary: string;
+  githubUrl?: string;
+}): string {
+  const header = "[Discussion Summary] " + args.channelName + " / " + args.messageCount + " messages";
+  const body = args.summary.length > 500 ? (args.summary.slice(0, 500) + "...") : args.summary;
+  const link = args.githubUrl ? ("\nGitHub Discussion: " + args.githubUrl) : "";
+  return header + "\n" + body + link;
 }
