@@ -73,11 +73,23 @@ export function applyEventProjection(db: Database.Database, event: DomainEvent):
     case EVENT_TYPES.HypothesisCreated:
     case EVENT_TYPES.HypothesisUpdated:
     case EVENT_TYPES.HypothesisProposed:
+    case EVENT_TYPES.HypothesisDebated:
+    case EVENT_TYPES.HypothesisValidated:
     case EVENT_TYPES.HypothesisIntegrated:
+    case EVENT_TYPES.HypothesisRejected:
+    case EVENT_TYPES.HypothesisStaleFlagged:
       db.prepare(`INSERT INTO hypotheses (id, workspace_id, design_gap_id, statement, status, integrated, validated_by_emotion, refs_json, created_at, updated_at)
         VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
         ON CONFLICT(id) DO UPDATE SET design_gap_id=excluded.design_gap_id, statement=excluded.statement, status=excluded.status, integrated=excluded.integrated, validated_by_emotion=excluded.validated_by_emotion, refs_json=excluded.refs_json, updated_at=excluded.updated_at`)
         .run(event.payload.id, event.payload.workspaceId, (event.payload as any).designGapId ?? null, (event.payload as any).statement, (event.payload as any).status ?? null, (event.payload as any).integrated ? 1 : 0, (event.payload as any).validatedByEmotion ? 1 : 0, JSON.stringify((event.payload as any).refs ?? []), t, t);
+      if ((event.payload as any).staleFlagged !== undefined) {
+        db.prepare("UPDATE hypotheses SET stale_flagged = ?, updated_at = ? WHERE id = ?")
+          .run((event.payload as any).staleFlagged ? 1 : 0, t, event.payload.id);
+      }
+      if (event.eventType === EVENT_TYPES.HypothesisDebated) {
+        db.prepare("INSERT INTO hypothesis_validations (id, workspace_id, session_id, hypothesis_id, mode, created_at) VALUES (?, ?, ?, ?, ?, ?)")
+          .run(event.id, event.payload.workspaceId, (event.payload as any).sessionId ?? "", event.payload.id, (event.payload as any).status ?? "unknown", t);
+      }
       return;
 
     default:

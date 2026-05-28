@@ -1,6 +1,7 @@
 ﻿import { randomUUID } from "node:crypto";
 import { EVENT_TYPES } from "../../../events/event-types.js";
 import type { HandlerContext, HandlerResult } from "../types.js";
+import { applyLifecycle } from "../../../hypothesis/lifecycle-handler.js";
 
 function latestHypothesis(ctx: HandlerContext): any | undefined {
   return ctx.core.client.raw.prepare("SELECT * FROM hypotheses WHERE workspace_id = ? ORDER BY updated_at DESC LIMIT 1").get(ctx.workspaceId) as any;
@@ -37,7 +38,8 @@ export function handleSubmit(ctx: HandlerContext): HandlerResult {
   const h = latestHypothesis(ctx);
   if (!h) return { ok: false, error: "no hypothesis" };
   if (!h.design_gap_id) return { ok: false, error: "/addresses is required before /submit" };
-  ctx.core.eventLog.appendEvent({ eventType: EVENT_TYPES.HypothesisProposed, payload: { id: h.id, workspaceId: ctx.workspaceId, statement: h.statement, designGapId: h.design_gap_id, status: "submitted", integrated: !!h.integrated, validatedByEmotion: !!h.validated_by_emotion, refs: JSON.parse(h.refs_json ?? "[]") } as any });
+  const out = applyLifecycle(ctx.core, h.id, "submit", { workspaceId: ctx.workspaceId, sessionId: ctx.sessionId });
+  if (!out.ok) return { ok: false, error: out.error };
   return { ok: true, message: "submitted" };
 }
 
@@ -46,15 +48,23 @@ export function handleValidate(ctx: HandlerContext): HandlerResult {
   if (mode !== "theory" && mode !== "emotion") return { ok: false, error: "usage: /validate theory|emotion" };
   const h = latestHypothesis(ctx);
   if (!h) return { ok: false, error: "no hypothesis" };
-  const validatedByEmotion = mode === "emotion" ? true : !!h.validated_by_emotion;
-  ctx.core.eventLog.appendEvent({ eventType: EVENT_TYPES.HypothesisUpdated, payload: { id: h.id, workspaceId: ctx.workspaceId, statement: h.statement, designGapId: h.design_gap_id ?? undefined, status: mode === "theory" ? "validated_theory" : "validated_emotion", integrated: !!h.integrated, validatedByEmotion, refs: JSON.parse(h.refs_json ?? "[]") } as any });
+  const out = applyLifecycle(ctx.core, h.id, mode === "theory" ? "validate_theory" : "validate_emotion", { workspaceId: ctx.workspaceId, sessionId: ctx.sessionId });
+  if (!out.ok) return { ok: false, error: out.error };
   return { ok: true, message: `validated ${mode}` };
 }
 
 export function handleIntegrate(ctx: HandlerContext): HandlerResult {
   const h = latestHypothesis(ctx);
   if (!h) return { ok: false, error: "no hypothesis" };
-  if (!h.validated_by_emotion) return { ok: false, error: "validated_by_emotion is required" };
-  ctx.core.eventLog.appendEvent({ eventType: EVENT_TYPES.HypothesisIntegrated, payload: { id: h.id, workspaceId: ctx.workspaceId, statement: h.statement, designGapId: h.design_gap_id ?? undefined, status: "integrated", integrated: true, validatedByEmotion: true, refs: JSON.parse(h.refs_json ?? "[]") } as any });
+  const out = applyLifecycle(ctx.core, h.id, "integrate", { workspaceId: ctx.workspaceId, sessionId: ctx.sessionId });
+  if (!out.ok) return { ok: false, error: out.error };
   return { ok: true, message: "integrated" };
+}
+
+export function handleReject(ctx: HandlerContext): HandlerResult {
+  const h = latestHypothesis(ctx);
+  if (!h) return { ok: false, error: "no hypothesis" };
+  const out = applyLifecycle(ctx.core, h.id, "reject", { workspaceId: ctx.workspaceId, sessionId: ctx.sessionId });
+  if (!out.ok) return { ok: false, error: out.error };
+  return { ok: true, message: "rejected" };
 }
