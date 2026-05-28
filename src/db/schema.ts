@@ -188,3 +188,52 @@ export const taskLogs = sqliteTable(
     index("idx_log_task").on(table.taskId),
   ]
 );
+
+// ─── Ludus Mechanics Dictionary (Discatier domain) ───────────────────────────
+export const ludusMechanics = sqliteTable(
+  "ludus_mechanics",
+  {
+    id: text("id").primaryKey(),
+    workspaceId: text("workspace_id").notNull(),
+    gameTitle: text("game_title").notNull(),
+    mechanic: text("mechanic").notNull(),
+    confidence: integer("confidence").notNull().default(0),
+    sourceUrl: text("source_url").notNull(),
+    sourceTitle: text("source_title"),
+    sourceSnippet: text("source_snippet"),
+    tagsJson: text("tags_json"),
+    createdAt: integer("created_at", { mode: "timestamp" })
+      .$defaultFn(() => new Date())
+      .notNull(),
+  },
+  (table) => [
+    index("idx_ludus_workspace").on(table.workspaceId),
+    index("idx_ludus_game").on(table.gameTitle),
+    index("idx_ludus_mechanic").on(table.mechanic),
+    unique("unique_ludus_source_mechanic").on(table.workspaceId, table.sourceUrl, table.mechanic),
+  ]
+);
+
+export const ludusLearningJobs = sqliteTable(
+  "ludus_learning_jobs",
+  {
+    id: text("id").primaryKey(),
+    workspaceId: text("workspace_id").notNull(),
+    gameTitle: text("game_title").notNull(),
+    query: text("query").notNull(),
+    status: text("status").notNull().default("queued"), // queued|running|done|failed
+    fetchedCount: integer("fetched_count").notNull().default(0),
+    learnedCount: integer("learned_count").notNull().default(0),
+    error: text("error"),
+    createdAt: integer("created_at", { mode: "timestamp" })
+      .$defaultFn(() => new Date())
+      .notNull(),
+    updatedAt: integer("updated_at", { mode: "timestamp" })
+      .$defaultFn(() => new Date())
+      .notNull(),
+  },
+  (table) => [
+    index("idx_ludus_jobs_workspace").on(table.workspaceId),
+    index("idx_ludus_jobs_status").on(table.status),
+  ]
+);

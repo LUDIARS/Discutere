@@ -10,6 +10,8 @@ type TaskLog = typeof schema.taskLogs.$inferSelect;
 type ChannelMonitor = typeof schema.channelMonitors.$inferSelect;
 type ChatMessage = typeof schema.chatMessages.$inferSelect;
 type ChatSummary = typeof schema.chatSummaries.$inferSelect;
+type LudusMechanic = typeof schema.ludusMechanics.$inferSelect;
+type LudusLearningJob = typeof schema.ludusLearningJobs.$inferSelect;
 
 // ── Users ─────────────────────────────────────────
 
@@ -192,5 +194,56 @@ export const chatSummaryRepo = {
   },
   async deleteById(id: string): Promise<void> {
     await db.delete(schema.chatSummaries).where(eq(schema.chatSummaries.id, id));
+  },
+};
+
+// ─── Ludus mechanics dictionary ───────────────────────────────────────────────
+export const ludusMechanicRepo = {
+  async listByWorkspace(workspaceId: string, limit = 200): Promise<LudusMechanic[]> {
+    return db
+      .select()
+      .from(schema.ludusMechanics)
+      .where(eq(schema.ludusMechanics.workspaceId, workspaceId))
+      .orderBy(desc(schema.ludusMechanics.createdAt))
+      .limit(limit);
+  },
+  async create(data: typeof schema.ludusMechanics.$inferInsert): Promise<void> {
+    await db.insert(schema.ludusMechanics).values(data).onConflictDoNothing();
+  },
+  async searchByGame(workspaceId: string, gameTitle: string): Promise<LudusMechanic[]> {
+    return db
+      .select()
+      .from(schema.ludusMechanics)
+      .where(
+        and(
+          eq(schema.ludusMechanics.workspaceId, workspaceId),
+          eq(schema.ludusMechanics.gameTitle, gameTitle),
+        ),
+      )
+      .orderBy(desc(schema.ludusMechanics.confidence), desc(schema.ludusMechanics.createdAt));
+  },
+};
+
+export const ludusLearningJobRepo = {
+  async create(data: typeof schema.ludusLearningJobs.$inferInsert): Promise<void> {
+    await db.insert(schema.ludusLearningJobs).values(data);
+  },
+  async update(id: string, data: Partial<typeof schema.ludusLearningJobs.$inferInsert>): Promise<void> {
+    await db
+      .update(schema.ludusLearningJobs)
+      .set({ ...data, updatedAt: new Date() })
+      .where(eq(schema.ludusLearningJobs.id, id));
+  },
+  async findById(id: string): Promise<LudusLearningJob | undefined> {
+    const rows = await db.select().from(schema.ludusLearningJobs).where(eq(schema.ludusLearningJobs.id, id));
+    return rows[0];
+  },
+  async listByWorkspace(workspaceId: string, limit = 50): Promise<LudusLearningJob[]> {
+    return db
+      .select()
+      .from(schema.ludusLearningJobs)
+      .where(eq(schema.ludusLearningJobs.workspaceId, workspaceId))
+      .orderBy(desc(schema.ludusLearningJobs.createdAt))
+      .limit(limit);
   },
 };

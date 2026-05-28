@@ -30,11 +30,15 @@ import {
   monitorRepo,
   chatMessageRepo,
   chatSummaryRepo,
+  ludusMechanicRepo,
+  ludusLearningJobRepo,
 } from "../db/repository.js";
 import { analyzeMessage } from "./analyzer.js";
 import { handleSlackMessage, handleDiscordMessage } from "./webhook-handler.js";
 import { relayTaskToPm, relayTaskUpdateToPm, hasPmRelay } from "./pm-relay.js";
 import { summarizeMessages } from "./summarizer.js";
+import { normalizeDiscordInboundMessage } from "../discord-hook/normalize.js";
+import { startMechanicsLearning } from "../ludus/mechanics-learner.js";
 import {
   taskSessionStore,
   discussionSessionStore,
@@ -779,10 +783,10 @@ machinaRoutes.post("/webhook/discord", async (c) => {
     return c.json({ error: "workspaceId query parameter required" }, 400);
   }
 
-  // Discord のメッセージイベント
-  if (body.content && body.author) {
+  const inbound = normalizeDiscordInboundMessage(body);
+  if (inbound) {
     handleDiscordMessage(
-      body as unknown as Parameters<typeof handleDiscordMessage>[0],
+      inbound,
       workspaceId
     ).catch((err: unknown) => {
       console.error("[machina:webhook:discord] メッセージ処理エラー:", err);
@@ -814,6 +818,64 @@ machinaRoutes.post("/analyze", async (c) => {
   });
 
   return c.json({ analysis: result });
+});
+
+// ─── Ludus Dictionary Learning ───────────────────────────────────────────────
+machinaRoutes.post("/groups/:workspaceId/ludus/learn", async (c) => {
+  if (process.env.LUDUS_LEARNER_ENABLED === "0") {
+    return c.json({ error: "ludus learner is disabled" }, 503);
+  }
+  const userId = getUserId(c);
+  if (!userId) return c.json({ error: "Authentication required" }, 401);
+  const systemRole = getUserRole(c);
+  const workspaceId = c.req.param("workspaceId");
+  if (!(await checkGroupAccess(userId, workspaceId, systemRole))) {
+    return c.json({ error: "このグループへのアクセス権がありません" }, 403);
+  }
+
+  const body = await c.req.json<{
+    gameTitle: string;
+    query: string;
+    limit?: number;
+  }>().catch(() => null);
+  if (!body || !body.gameTitle?.trim() || !body.query?.trim()) {
+    return c.json({ error: "gameTitle and query are required" }, 400);
+  }
+
+  const { jobId } = await startMechanicsLearning({
+    workspaceId,
+    gameTitle: body.gameTitle.trim(),
+    query: body.query.trim(),
+    limit: body.limit ?? Number(process.env.LUDUS_LEARNER_DEFAULT_LIMIT ?? "20"),
+  });
+  return c.json({ ok: true, jobId }, 202);
+});
+
+machinaRoutes.get("/groups/:workspaceId/ludus/jobs", async (c) => {
+  const userId = getUserId(c);
+  if (!userId) return c.json({ error: "Authentication required" }, 401);
+  const systemRole = getUserRole(c);
+  const workspaceId = c.req.param("workspaceId");
+  if (!(await checkGroupAccess(userId, workspaceId, systemRole))) {
+    return c.json({ error: "このグループへのアクセス権がありません" }, 403);
+  }
+  const jobs = await ludusLearningJobRepo.listByWorkspace(workspaceId, 50);
+  return c.json({ jobs });
+});
+
+machinaRoutes.get("/groups/:workspaceId/ludus/mechanics", async (c) => {
+  const userId = getUserId(c);
+  if (!userId) return c.json({ error: "Authentication required" }, 401);
+  const systemRole = getUserRole(c);
+  const workspaceId = c.req.param("workspaceId");
+  if (!(await checkGroupAccess(userId, workspaceId, systemRole))) {
+    return c.json({ error: "このグループへのアクセス権がありません" }, 403);
+  }
+  const gameTitle = c.req.query("gameTitle");
+  const rows = gameTitle
+    ? await ludusMechanicRepo.searchByGame(workspaceId, gameTitle)
+    : await ludusMechanicRepo.listByWorkspace(workspaceId, 300);
+  return c.json({ mechanics: rows });
 });
 
 // ─── Status / Info ────────────────────────────────────────────
