@@ -29,6 +29,23 @@ MACHINA (M3) モジュールとして、外部プロジェクト管理システ�
 - **テキスト解析プレビュー** — メッセージがどう解析されるかを事前確認
 - **外部 PM 連携** — アダプターパターンで外部プロジェクト管理サービスへタスクをリレー
 - **監査ログ** — タスクの変更履歴を自動記録
+- **Game KG クローラー (Phase 0)** — `src/crawler/` で著名ゲームの攻略データを `data/games/<slug>.md` から Discatier Core (`Game` / `Mechanic` / `Aesthetic`) に import。詳細は [`spec/crawler/DESIGN.md`](spec/crawler/DESIGN.md)
+
+## Game KG クローラー
+
+```sh
+# 既存 md を Discatier Core に取り込む
+npm run crawl import data/games/sample-hollow-knight.md
+
+# 登録済 Game / Mechanic / Aesthetic 一覧
+npm run crawl list
+
+# crawler モジュールのテスト (md round-trip + importer + GraphDB 読み)
+npm run test:crawler
+```
+
+Phase 0 は md 手書き運用。Phase 1 で `runner.ts` に Claude API (WebSearch tool) を入れて自動 crawl + 日次 PR 化予定。
+ToS / 引用ポリシーは `spec/crawler/DESIGN.md`「制約」セクション必読。
 
 ## Getting Started
 
