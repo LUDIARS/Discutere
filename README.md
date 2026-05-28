@@ -1,34 +1,32 @@
 # Discutere
 
-Chat-to-Task 自動化サービス — Slack / Discord のメッセージを解析し、タスクを自動生成・管理します。
+Chat-to-Task / Chat-to-Discussion 自動化サービス — Slack / Discord のメッセージを解析してタスクを自動生成、 議論モードでは GitHub Discussions に要約を保存します。
 
-MACHINA (M3) モジュールとして、外部プロジェクト管理システムとの連携にも対応しています。
+**設計方針 (2026-05-28 更新)**: 元々あった Cernere + Frontend (admin UI) は撤去 (Di-14)。 今後の admin / 議論コマンドは Discord slash command + guild role guard に統一していきます。 過渡的に MACHINA admin REST は X-User-Id ヘッダーだけで動く形に縮退しています。
+
+MACHINA (M3) モジュールとして、 外部プロジェクト管理システムとの連携にも対応。 さらに Discatier Core (src/core/) を内包し、 Game design のための 3 軸対話 (学習 / 感情 / 統合) を扱う Knowledge graph レイヤを実装中です。
 
 ## Tech Stack
 
 | Layer | Technology |
 |-------|-----------|
 | Backend | [Hono](https://hono.dev/) + Node.js 22+ (TypeScript) |
-| Frontend | React 19 + React Router 7 + Vite |
 | Database | SQLite (WAL) + [Drizzle ORM](https://orm.drizzle.team/) |
-| Auth | [Cernere](https://github.com/LUDIARS/Cernere) Composite (HttpOnly Cookie + 独自 JWT) |
+| Graph (Discatier) | Kuzu + ベクトル ARRAY カラム |
+| Auth | Discord guild role (Di-1 以降) / 過渡期は X-User-Id ヘッダーのみ |
 | Env/Secrets | [Infisical](https://infisical.com) + `@cernere/env-cli` |
 
 ## Features
 
-- **チャットからタスク自動生成** — Slack / Discord の Webhook を受信し、パターンマッチングでタスクを検出・作成
+- **チャットからタスク自動生成** — Slack / Discord の Webhook を受信し、 パターンマッチングでタスクを検出・作成
 - **チャンネルモード (task / discussion / none)** — 各チャンネル(ツリー)に対して「何をするか」を設定
-  - `task`: 投稿を即時処理。Haiku でタスク性を判定し、情報不足時は Slack スレッド / Discord リプライ+メンションでヒアリング。処理中は追加投稿を同一タスクへ取り込み、登録完了で終了。処理状態はすべてオンメモリ。
-  - `discussion`: 投稿後 N 分 (既定 5 分、debounce) で遅延処理。チャンネル全体を要約し GitHub Discussions に保存。
+  - `task`: 投稿を即時処理。 Haiku でタスク性を判定し、 情報不足時は Slack スレッド / Discord リプライ+メンションでヒアリング。
+  - `discussion`: 投稿後 N 分 (既定 5 分、 debounce) で遅延処理。 チャンネル全体を要約し GitHub Discussions に保存。
   - `none`: 何もしない (ログ保存のみ)
-- **処理状況の可視化** — タスクモードのヒアリング待ち、議論モードのタイマー待ち/失敗をフロントエンドに一覧表示し、補足投入・即時実行・破棄などの対応指示を出せる
 - **タスク管理 (CRUD)** — ステータス・優先度・担当者・期限などを管理
-- **BOT チャネル設定** — フロントエンドから Slack / Discord の BOT トークンを登録して監視チャネルをセットアップ
-- **チャットログ** — 監視チャネルで流れるメッセージを蓄積・閲覧
-- **チャット要約** — 期間を指定してメッセージを要約 (参加者統計・頻出キーワード付き)
-- **テキスト解析プレビュー** — メッセージがどう解析されるかを事前確認
+- **チャットログ / 要約** — 監視チャネルで流れるメッセージを蓄積、 期間指定の要約も生成
 - **外部 PM 連携** — アダプターパターンで外部プロジェクト管理サービスへタスクをリレー
-- **監査ログ** — タスクの変更履歴を自動記録
+- **Discatier Core** — 学習 / 感情 / 統合 の 3 軸対話を扱う Knowledge graph + Event Sourcing (Phase 0-6 ライブラリ完成、 Discord 接続は Di-1 以降)
 
 ## Getting Started
 
@@ -36,15 +34,14 @@ MACHINA (M3) モジュールとして、外部プロジェクト管理システ�
 
 - Node.js 22+
 - npm
-- [Cernere](https://github.com/LUDIARS/Cernere) を `../Cernere` に clone 済み (env-cli と Composite 認証サーバーとして使用)
 - Infisical (環境変数管理)
+- [Cernere/packages/env-cli](https://github.com/LUDIARS/Cernere) を `../Cernere` に clone 済み (env-cli の参照のみ。 Cernere サーバ自体への接続は不要)
 
 ### 初回セットアップ
 
 ```bash
 # 1) 依存パッケージのインストール
 npm install
-cd frontend && npm install && cd ..
 
 # 2) Infisical の初回設定 (初回のみ)
 npm run env:setup
@@ -52,79 +49,44 @@ npm run env:setup
 # 3) デフォルト値を Infisical に登録 (初回のみ)
 npm run env:initialize
 
-# 4) Cernere 側で Discutere をプロジェクト登録し、CERNERE_PROJECT_CLIENT_ID /
-#    CERNERE_PROJECT_CLIENT_SECRET を Infisical に設定
-npm run env:set CERNERE_PROJECT_CLIENT_ID <value>
-npm run env:set CERNERE_PROJECT_CLIENT_SECRET <value>
-
-# 5) DB スキーマ反映
+# 4) DB スキーマ反映
 npm run db:push
 ```
 
 ### 開発起動 (ホットリロード)
 
 ```bash
-# バックエンド + フロントエンド を並列起動
 npm run dev
-# → api (port 3100) + web (port 5174)
-
-# 個別起動
-npm run dev:server   # バックエンドのみ
-npm run dev:front    # フロントエンドのみ
+# → api (port 3100)
 ```
 
-`npm run dev` は内部で `env:env` (Infisical → `.env` 生成) → `concurrently` で api / web を起動します。
+`npm run dev` は内部で Infisical → `.env` を生成し、 `tsx watch src/index.ts` で backend を起動します。
 
 ### 本番ビルド
 
 ```bash
-npm run build         # バックエンド
+npm run build         # tsc
 npm start             # dist/index.js
-
-cd frontend
-npm run build         # frontend/dist/
 ```
 
 ## Environment Variables
 
-`env-cli.config.ts` の `infraKeys` に定義されており、`npm run env:initialize` で
-Infisical のデフォルト値として登録されます。以下が主要キーです:
+`env-cli.config.ts` の `infraKeys` に定義されており、 `npm run env:initialize` で
+Infisical のデフォルト値として登録されます。 以下が主要キーです:
 
 | Variable | Description | Default |
 |----------|------------|---------|
-| `FRONTEND_PORT` | フロントエンドポート | `5174` |
 | `BACKEND_PORT` | バックエンドポート | `3100` |
 | `DATABASE_PATH` | SQLite DB パス | `data/discutere.db` |
-| `VITE_ALLOWED_HOSTS` | Vite dev server の許可ホスト (カンマ区切り) | *(空)* |
-| `FRONTEND_URL` | フロントエンド URL (CORS) | `http://localhost:5174` |
-| `CERNERE_URL` | Cernere サーバー URL (Composite 認証先) | `http://localhost:8080` |
-| `JWT_SECRET` | Discutere 独自 service_token の署名鍵 | `discutere-dev-secret-change-in-production` |
-| `CERNERE_PROJECT_CLIENT_ID` | Cernere プロジェクト認証の client_id | — |
-| `CERNERE_PROJECT_CLIENT_SECRET` | Cernere プロジェクト認証の client_secret | — |
 | `ANTHROPIC_API_KEY` | `task` モードの Haiku 判定 (未設定時はルールベース) | — |
 | `HAIKU_MODEL` | Haiku のモデル ID | `claude-haiku-4-5-20251001` |
 | `GITHUB_TOKEN` | `discussion` モードの GitHub Discussion 書き込み用 PAT | — |
 
-## Authentication (Cernere Composite)
+## Authentication (過渡期)
 
-認証は Cernere に委譲します。フロントエンド → Cernere ログイン → auth_code → Discutere
-backend で交換 → `discutere_token` (HttpOnly Cookie) が発行されます。
+Cernere Composite と React Frontend は撤去済 (Di-14)。 現在は REST admin API を **X-User-Id / X-User-Role ヘッダーだけ** で認可する縮退状態です。
 
-フロー:
-1. フロント: `POST /api/auth/login-url?origin=<self>` → Cernere ログイン URL を取得
-2. Popup で Cernere ログイン → `/composite/callback?code=<authCode>` にリダイレクト
-3. フロント: `POST /api/auth/exchange { code }` → auth_code を service_token に交換
-4. Backend: `discutere_token` Cookie (HttpOnly, SameSite=Lax) をセット
-5. 以降のリクエストは Cookie を `credentials: "include"` で送信
-
-Backend の `/api/auth` エンドポイント:
-
-| Method | Path | Description | 認証 |
-|--------|------|-------------|------|
-| `GET` | `/api/auth/login-url?origin=<url>` | Cernere ログイン URL を返す | 不要 |
-| `POST` | `/api/auth/exchange` | auth_code を service_token に交換 (Cookie 設定) | 不要 |
-| `POST` | `/api/auth/logout` | Cookie 削除 | 不要 |
-| `GET` | `/api/auth/me` | 現在のユーザー情報 | 必須 |
+正式な認可は Di-1 で Discord Interactions endpoint + Ed25519 署名検証 + guild role guard に移行します。 それまで REST admin を使う場合は内部ネットワーク or localhost に限定してください。
 
 ## API Endpoints
 
@@ -148,15 +110,11 @@ Backend の `/api/auth` エンドポイント:
 | `DELETE` | `/api/groups/:workspaceId/monitors/:id` | チャネル監視削除 |
 
 `POST` / `PUT` のボディに `botToken` / `botWorkspaceId` / `botSigningSecret` /
-`captureMessages` を含めることで、導入済み Slack/Discord BOT の認証情報を
-フロントエンドから登録できます。BOT トークンは API レスポンスでは返却されず、
-`hasBotToken` フラグのみ公開されます。
+`captureMessages` を含めることで BOT 認証情報を登録できます。 BOT トークンは API レスポンスでは返却されず、 `hasBotToken` フラグのみ公開されます。
 
-チャンネルモード (`mode`: `task` / `discussion` / `none`)、議論モードの
-遅延 (`discussionDelayMinutes`)、議論モードの保存先 (`githubRepo` /
-`githubDiscussionCategoryId`) も同じエンドポイントで設定します。
+チャンネルモード (`mode`: `task` / `discussion` / `none`)、 議論モードの遅延 (`discussionDelayMinutes`)、 保存先 (`githubRepo` / `githubDiscussionCategoryId`) も同じエンドポイントで設定します。
 
-### Channel Mode Sessions (処理状況の可視化)
+### Channel Mode Sessions (処理状況)
 
 | Method | Path | Description |
 |--------|------|------------|
@@ -166,7 +124,7 @@ Backend の `/api/auth` エンドポイント:
 | `POST` | `/api/groups/:workspaceId/mode-sessions/discussion/:sessionId/flush` | 議論モードの遅延タイマーを待たず即時実行 |
 | `DELETE` | `/api/groups/:workspaceId/mode-sessions/discussion/:sessionId` | 議論モードセッションを破棄 |
 
-セッションはすべてオンメモリ (プロセス再起動で消える) です。
+セッションはすべてオンメモリ (プロセス再起動で消える) です — Di-9 で SQLite 永続化予定。
 
 ### Chat Logs & Summaries
 
@@ -177,10 +135,6 @@ Backend の `/api/auth` エンドポイント:
 | `POST` | `/api/groups/:workspaceId/monitors/:id/summaries` | 期間を指定して要約を生成 |
 | `DELETE` | `/api/groups/:workspaceId/monitors/:id/summaries/:summaryId` | 要約削除 |
 
-要約生成の POST ボディ:
-- `hours`: 直近 N 時間 (既定: 24)
-- あるいは `periodStart` / `periodEnd` (ISO 8601)
-
 ### Webhooks & Utilities
 
 | Method | Path | Description |
@@ -189,8 +143,7 @@ Backend の `/api/auth` エンドポイント:
 | `POST` | `/api/webhook/discord` | Discord Webhook 受信 |
 | `POST` | `/api/analyze` | テキスト解析プレビュー |
 | `POST` | `/api/groups/:workspaceId/tasks/:taskId/relay` | 外部 PM へリレー |
-| `GET` | `/api/status` | モジュールステータス |
-| `GET` | `/api/health` | ヘルスチェック |
+| `GET` | `/health` | ヘルスチェック |
 
 ## Message Analysis
 
@@ -212,14 +165,11 @@ Backend の `/api/auth` エンドポイント:
 ```
 src/
 ├── index.ts                 # エントリーポイント (Hono サーバー)
-├── auth/
-│   ├── composite.ts         # Cernere Composite 認証フロー
-│   └── routes.ts            # /api/auth/{login-url,exchange,logout,me}
-├── middleware/auth.ts       # userContext / requireRole / getUserId 等
-├── machina/
+├── middleware/auth.ts       # X-User-Id / X-User-Role ヘッダー読取 (Cernere/JWT 撤去後の薄い実装)
+├── machina/                 # M3 MACHINA: chat → task/discussion
 │   ├── routes.ts            # API ルーティング
 │   ├── analyzer.ts          # テキスト解析エンジン (ルールベース)
-│   ├── haiku-classifier.ts  # Haiku によるタスク性判定 (ANTHROPIC_API_KEY があれば使用)
+│   ├── haiku-classifier.ts  # Haiku によるタスク性判定
 │   ├── task-mode.ts         # チャンネルモード "task" の処理器
 │   ├── discussion-mode.ts   # チャンネルモード "discussion" の処理器
 │   ├── mode-state.ts        # オンメモリのセッションストア
@@ -228,34 +178,22 @@ src/
 │   ├── summarizer.ts        # 要約エンジン
 │   ├── webhook-handler.ts   # Slack/Discord Webhook ハンドラ
 │   └── pm-relay.ts          # 外部 PM 連携アダプター
-├── db/
-│   ├── schema.ts            # Drizzle スキーマ定義
-│   ├── connection.ts        # DB 接続
-│   └── repository.ts        # データアクセス層
-└── shared/constants.ts      # 定数・Enum (CHANNEL_MODES を含む)
-
-frontend/src/
-├── App.tsx                       # ルーティング (PrivateRoute でガード)
-├── contexts/AuthContext.tsx      # Cernere Composite ログイン + /me 同期
-├── pages/
-│   ├── LoginPage.tsx             # "Cernere でログイン" ボタン (popup)
-│   ├── CallbackPage.tsx          # /composite/callback — authCode 受領
-│   └── MachinaPage.tsx           # メイン UI
-├── lib/
-│   ├── constants.ts              # API_BASE
-│   ├── api.ts                    # Fetch helpers (credentials: include)
-│   └── api-types.ts              # 型定義
-└── main.tsx                      # エントリーポイント
+├── discord-hook/            # Discord inbound payload 正規化 (機械的変換のみ)
+├── core/                    # Discatier Core (3 軸対話 Knowledge graph、 Phase 0-6 完了)
+│   ├── db/                  # Kuzu / SQLite schema
+│   ├── events/              # Event Sourcing
+│   ├── repositories/        # Node CRUD
+│   ├── vectors/             # 埋め込み登録 / 類似検索
+│   ├── bridge/              # Translation Bridge + Gap Detection
+│   ├── hypothesis/          # 状態機械 + 検証ルーティング
+│   ├── projection/          # メッセージ → グラフ射影 + cross queries
+│   ├── jobs/                # バッチジョブ
+│   ├── cache/               # ホットスポット / クラスタリングキャッシュ
+│   └── index.ts             # createCore() ファクトリ
+├── ludus/                   # Mechanics learner / objective opinion (stub)
+├── db/                      # MACHINA 側 Drizzle スキーマ + repository
+└── shared/constants.ts      # 定数・Enum
 ```
-
-## AIFormat 準拠
-
-LUDIARS [AIFormat](https://github.com/LUDIARS/AIFormat) の基盤設計ルールに従います:
-- **認証**: Cernere Composite (HttpOnly Cookie + 独自 service_token)
-- **技術スタック**: Hono + TypeScript + Drizzle ORM + React 19 + Vite
-- **環境変数**: Infisical + `@cernere/env-cli`
-- **npm scripts**: `concurrently` + `dotenv-cli` でクロスプラットフォーム対応
-- **DB**: Drizzle ORM (現状 SQLite。PostgreSQL 移行は将来課題)
 
 ## License
 
