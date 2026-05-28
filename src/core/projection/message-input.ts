@@ -2,7 +2,7 @@
 import { inferRespondsTo } from "./responds-to-inference.js";
 import { handleDefine, handleIntends, handleRefine, handleCompare, handleHistory } from "./command-handlers/learning/index.js";
 import { handleScene, handleDone } from "./command-handlers/emotion/index.js";
-import { handleRefs, handlePropose, handleAddresses, handleJump, handleSubmit, handleValidate, handleIntegrate } from "./command-handlers/synthesis/index.js";
+import { handleRefs, handlePropose, handleAddresses, handleJump, handleSubmit, handleValidate, handleIntegrate, handleReject } from "./command-handlers/synthesis/index.js";
 import { handleCrossStub } from "./command-handlers/cross/index.js";
 import type { ReturnTypeCreateCore } from "./types.js";
 
@@ -35,6 +35,7 @@ export function submitMessage(input: SubmitMessageInput): { utteranceId: string;
       c === "submit" ? handleSubmit(ctx) :
       c === "validate" ? handleValidate(ctx) :
       c === "integrate" ? handleIntegrate(ctx) :
+      c === "reject" ? handleReject(ctx) :
       ["me", "find", "lineage", "cluster", "stale", "hotspot"].includes(c) ? handleCrossStub(ctx, c) :
       { ok: false as const, error: `unknown command: ${c}` };
 

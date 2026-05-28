@@ -12,7 +12,11 @@
   HypothesisCreated: "HypothesisCreated",
   HypothesisUpdated: "HypothesisUpdated",
   HypothesisProposed: "HypothesisProposed",
+  HypothesisDebated: "HypothesisDebated",
+  HypothesisValidated: "HypothesisValidated",
   HypothesisIntegrated: "HypothesisIntegrated",
+  HypothesisRejected: "HypothesisRejected",
+  HypothesisStaleFlagged: "HypothesisStaleFlagged",
   MechanicProposed: "MechanicProposed",
   MechanicRefined: "MechanicRefined",
   TranslationProposed: "TranslationProposed",
@@ -51,6 +55,8 @@ export interface HypothesisPayload extends BasePayload {
   status?: string;
   integrated?: boolean;
   validatedByEmotion?: boolean;
+  staleFlagged?: boolean;
+  sessionId?: string;
   refs?: string[];
 }
 export interface MechanicProposedPayload extends BasePayload { gameId?: string; name: string; description?: string; intends?: string; }

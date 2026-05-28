@@ -74,6 +74,21 @@ const MIGRATIONS = [
       `ALTER TABLE design_gaps ADD COLUMN evidence_json TEXT`,
       `CREATE UNIQUE INDEX IF NOT EXISTS idx_gap_dedup_key ON design_gaps(workspace_id, gap_in, expected_affect, observed_affect)`
     ]
+  },
+  {
+    id: "0005_phase5_hypothesis_lifecycle",
+    sql: [
+      `ALTER TABLE hypotheses ADD COLUMN stale_flagged INTEGER NOT NULL DEFAULT 0`,
+      `CREATE TABLE IF NOT EXISTS hypothesis_validations (
+        id TEXT PRIMARY KEY,
+        workspace_id TEXT NOT NULL,
+        session_id TEXT NOT NULL,
+        hypothesis_id TEXT NOT NULL,
+        mode TEXT NOT NULL,
+        created_at INTEGER NOT NULL
+      )`,
+      `CREATE INDEX IF NOT EXISTS idx_hv_session ON hypothesis_validations(workspace_id, session_id, created_at)`
+    ]
   }
 ];
 
