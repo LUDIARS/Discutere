@@ -122,14 +122,14 @@ export function createPlayContextRepo(ctx: CoreContext) {
 
 export function createSessionRepo(ctx: CoreContext) {
   return {
-    create(input: { id?: string; workspaceId: string; title: string; startedAt: number; endedAt?: number }): string {
+    create(input: { id?: string; workspaceId: string; title: string; startedAt: number; endedAt?: number; mode?: string; scene?: string }): string {
       const id = input.id ?? randomUUID();
       append(ctx, EVENT_TYPES.SessionCreated, { ...input, id });
       return id;
     },
     get(id: string) { return getById(ctx, "sessions", id); },
     list(workspaceId: string) { return listByWorkspace(ctx, "sessions", workspaceId); },
-    update(id: string, patch: { workspaceId: string; title: string; startedAt: number; endedAt?: number }) {
+    update(id: string, patch: { workspaceId: string; title: string; startedAt: number; endedAt?: number; mode?: string; scene?: string }) {
       append(ctx, EVENT_TYPES.SessionUpdated, { ...patch, id });
     },
   };
@@ -137,7 +137,7 @@ export function createSessionRepo(ctx: CoreContext) {
 
 export function createUtteranceRepo(ctx: CoreContext) {
   return {
-    create(input: { id?: string; workspaceId: string; sessionId: string; speakerId?: string; rawContent: string; normalizedContent?: string; postedAt: number }): string {
+    create(input: { id?: string; workspaceId: string; sessionId: string; speakerId?: string; rawContent: string; normalizedContent?: string; postedAt: number; respondsTo?: string }): string {
       const id = input.id ?? randomUUID();
       append(ctx, EVENT_TYPES.UtteranceCreated, { ...input, id });
       return id;

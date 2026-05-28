@@ -14,6 +14,8 @@
     "db:migrate": "drizzle-kit migrate",
     "db:push": "drizzle-kit push",
     "test:core": "tsx tests/core/run.ts",
+    "test:phase2": "tsx tests/core/projection/run.ts",
+    "test:phase3": "tsx tests/core/bridge/translation/run.ts",
     "env:setup": "npx tsx ../Cernere/packages/env-cli/src/cli.ts setup",
     "env:test": "npx tsx ../Cernere/packages/env-cli/src/cli.ts test",
     "env:env": "npx tsx ../Cernere/packages/env-cli/src/cli.ts env",
