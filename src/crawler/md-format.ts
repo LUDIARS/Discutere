@@ -70,7 +70,7 @@ export function stringifyGameKG(kg: GameKG): string {
 }
 
 /** undefined を含むキーを除外。 YAML dumper が undefined を扱えないため。 */
-function compact<T extends Record<string, unknown>>(obj: T): Partial<T> {
+function compact<T extends object>(obj: T): Partial<T> {
   const out: Record<string, unknown> = {};
   for (const [k, v] of Object.entries(obj)) {
     if (v !== undefined) out[k] = v;

@@ -35,9 +35,10 @@ export class MockLLMClient implements LLMClient {
     this.lastInvocation = args;
     const responder = this.responders[this.callCount];
     this.callCount += 1;
-    const out = responder
-      ? responder(args)
-      : { ok: true, text: this.fallback };
+    if (!responder) {
+      return { ok: true, text: this.fallback };
+    }
+    const out = responder(args);
     if (typeof out === "string") {
       return { ok: true, text: out };
     }
