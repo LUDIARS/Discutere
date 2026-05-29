@@ -24,6 +24,7 @@
     "test:persona-engine": "tsx tests/persona-engine/run.ts",
     "test:machina": "tsx tests/machina/run.ts",
     "test:discord-hook": "tsx tests/discord-hook/run.ts",
+    "test:auth": "tsx tests/auth/run.ts",
     "crawl": "tsx scripts/crawl.ts",
     "visualize": "tsx scripts/visualize.ts",
     "persona-demo": "tsx scripts/persona-engine-demo.ts",

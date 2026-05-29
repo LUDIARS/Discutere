@@ -89,6 +89,74 @@ export interface DiscussionSession {
 const taskSessions = new Map<string, TaskSession>();
 const discussionSessions = new Map<string, DiscussionSession>();
 
+// TTL cleanup (PR-C / MISSING #4-7) — session timeout / cleanup
+const DEFAULT_TASK_TTL_MS = 24 * 60 * 60 * 1000; // 24h
+const DEFAULT_DISCUSSION_TTL_MS = 24 * 60 * 60 * 1000;
+const DEFAULT_CLEANUP_INTERVAL_MS = 15 * 60 * 1000; // 15 min
+
+export interface CleanupOptions {
+  /** TTL を超過した task session を削除する閾値 ms */
+  taskTtlMs?: number;
+  /** TTL を超過した discussion session を削除する閾値 ms */
+  discussionTtlMs?: number;
+  /** cleanup の起動間隔 ms */
+  intervalMs?: number;
+}
+
+/**
+ * setInterval で古い session を定期削除。 戻り値で停止できる。
+ *
+ * 議論モードの discussion session は _timer (setTimeout handle) を持つので、
+ * 削除前に clearTimeout で leak 防止。
+ */
+export function startSessionCleanup(options: CleanupOptions = {}): () => void {
+  const taskTtl = options.taskTtlMs ?? DEFAULT_TASK_TTL_MS;
+  const discussionTtl = options.discussionTtlMs ?? DEFAULT_DISCUSSION_TTL_MS;
+  const interval = options.intervalMs ?? DEFAULT_CLEANUP_INTERVAL_MS;
+  const timer = setInterval(() => {
+    cleanupOnce({ taskTtlMs: taskTtl, discussionTtlMs: discussionTtl });
+  }, interval);
+  return () => clearInterval(timer);
+}
+
+/**
+ * 1 回だけ cleanup を実行 (test 用 / 手動呼出用)。 削除件数を返す。
+ */
+export function cleanupOnce(options: { taskTtlMs: number; discussionTtlMs: number }): {
+  removedTaskSessions: number;
+  removedDiscussionSessions: number;
+} {
+  const now = Date.now();
+  let removedTask = 0;
+  for (const [k, s] of taskSessions) {
+    if (now - s.updatedAt.getTime() > options.taskTtlMs) {
+      taskSessions.delete(k);
+      removedTask += 1;
+    }
+  }
+  let removedDiscussion = 0;
+  for (const [k, s] of discussionSessions) {
+    if (now - s.updatedAt.getTime() > options.discussionTtlMs) {
+      if (s._timer) clearTimeout(s._timer);
+      discussionSessions.delete(k);
+      removedDiscussion += 1;
+    }
+  }
+  return {
+    removedTaskSessions: removedTask,
+    removedDiscussionSessions: removedDiscussion,
+  };
+}
+
+/** test 用 — 全 session を消す */
+export function __resetAllSessions(): void {
+  for (const s of discussionSessions.values()) {
+    if (s._timer) clearTimeout(s._timer);
+  }
+  taskSessions.clear();
+  discussionSessions.clear();
+}
+
 function sessionKey(monitorId: string, threadKey: string): string {
   return `${monitorId}::${threadKey}`;
 }
