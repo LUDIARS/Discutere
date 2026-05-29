@@ -449,6 +449,9 @@ export const EXPORTERS: Record<NodeType, Exporter | null> = {
   // affect / game は Phase 0 では未対応 (game は crawler 側で md 既に生成、 affect は使用頻度低)
   aff: null,
   game: null,
+  // persona は persona-engine の独立 DB に保存されているので、 Discatier core 用の
+  // dispatcher (= EXPORTERS) からは扱えない。 persona-exporter.ts:dumpPersona を直接使う。
+  persona: null,
 };
 
 export function exportNode(core: Core, type: NodeType, ws: string, id: string): ExportResult {

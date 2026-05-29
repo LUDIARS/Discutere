@@ -24,12 +24,23 @@ type Core = ReturnType<typeof createCore>;
 export interface DiscatierAdapterOptions {
   /** session を 1 つ pin して utterance 投稿先にする (Phase 0 簡易) */
   defaultSessionId?: string;
+  /**
+   * PR-E #5-2: persona 発言の md 自動 export 先 root (= data/discussions の親)。
+   * 指定時、 postUtterance / proposeHypothesis 後に該当 md を生成する。
+   * 失敗は warn のみで投稿自体は成功扱い (= 議論を止めない)。
+   */
+  autoExportRootDir?: string;
+  /** auto-export 失敗時のログハンドラ (default: console.warn) */
+  onAutoExportError?: (err: unknown, ctx: { type: string; id: string }) => void;
 }
 
 export function createDiscatierContextProvider(
   core: Core,
   options: DiscatierAdapterOptions = {}
 ): DiscussionContextProvider {
+  const autoExport = options.autoExportRootDir;
+  const onErr =
+    options.onAutoExportError ?? ((err, ctx) => console.warn("[adapter:auto-export]", ctx, err));
   return {
     listActiveHypotheses(workspaceId, limit): ContextHypothesis[] {
       const rows = core.client.raw
@@ -136,6 +147,7 @@ export function createDiscatierContextProvider(
           Date.now(),
           Date.now()
         );
+      autoExportIfEnabled("hyp", id, input.workspaceId);
       return { id };
     },
 
@@ -152,7 +164,22 @@ export function createDiscatierContextProvider(
         postedAt: Date.now(),
         respondsTo: input.respondsTo,
       });
+      autoExportIfEnabled("utt", id, input.workspaceId);
       return { id };
     },
   };
+
+  function autoExportIfEnabled(type: "utt" | "hyp", id: string, workspaceId: string): void {
+    if (!autoExport) return;
+    // dump は side-effect import で重い。 ここで動的 require して循環依存回避。
+    import("../visualize/dump.js")
+      .then(({ dumpNode }) => {
+        try {
+          dumpNode(core, type, id, { workspaceId, rootDir: autoExport });
+        } catch (err) {
+          onErr(err, { type, id });
+        }
+      })
+      .catch((err) => onErr(err, { type, id }));
+  }
 }
