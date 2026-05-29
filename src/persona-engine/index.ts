@@ -86,7 +86,7 @@ function consoleLogger(): Logger {
 // ─── re-exports (public) ──────────────────────────
 export { applyPersonaEngineMigrations } from "./db/migrations.js";
 export { DISCUSSION_PERSONA_SEEDS } from "./seeds/personas.js";
-export { DISCUSSION_RULE_SEEDS } from "./seeds/rules.js";
+export { DISCUSSION_RULE_SEEDS, SEED_RULE_IDS } from "./seeds/rules.js";
 export type {
   LLMClient,
   LLMInvokeArgs,

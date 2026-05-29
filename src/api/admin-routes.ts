@@ -86,6 +86,48 @@ adminRoutes.get("/admin/metrics/rules", async (c) => {
   return c.json({ metrics: ruleMetrics(engineInstance.rules) });
 });
 
+// PR-J: Rule Viewer — 全 rule + 補正履歴
+adminRoutes.get("/admin/rules", async (c) => {
+  const guard = requireAdmin(c);
+  if (guard) return guard;
+  if (!engineInstance) return c.json({ error: "persona-engine not initialized" }, 503);
+  const { SEED_RULE_IDS } = await import("../persona-engine/index.js");
+  const includeRemoved = c.req.query("includeRemoved") === "1";
+  const allRules = engineInstance.rules.list();
+  const rules = includeRemoved ? allRules : allRules.filter((r) => r.enabled === 1);
+  const annotated = rules.map((r) => ({
+    id: r.id,
+    description: r.description,
+    trigger_type: r.trigger_type,
+    tick_sec: r.tick_sec,
+    event_kind: r.event_kind,
+    target: r.target,
+    cooldown_sec: r.cooldown_sec,
+    last_fired_at: r.last_fired_at,
+    enabled: r.enabled === 1,
+    added_at: r.added_at,
+    added_by: r.added_by,
+    removed_at: r.removed_at,
+    removed_by: r.removed_by,
+    removed_reason: r.removed_reason,
+    is_seed: SEED_RULE_IDS.has(r.id),
+    is_ai_added: r.added_by.startsWith("ai:"),
+    is_ai_removed: r.removed_by !== null && r.removed_by.startsWith("ai:"),
+  }));
+  return c.json({ rules: annotated });
+});
+
+adminRoutes.get("/admin/rules/:id/logs", async (c) => {
+  const guard = requireAdmin(c);
+  if (guard) return guard;
+  if (!engineInstance) return c.json({ error: "persona-engine not initialized" }, 503);
+  const id = c.req.param("id");
+  const limit = Math.min(200, Math.max(1, Number(c.req.query("limit") ?? 50)));
+  const all = engineInstance.rules.recentLogs(1000);
+  const filtered = all.filter((l) => l.rule_id === id).slice(0, limit);
+  return c.json({ rule_id: id, logs: filtered });
+});
+
 function requireAdmin(c: Context): Response | null {
   const userId = getUserId(c);
   const role = getUserRole(c);

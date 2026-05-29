@@ -104,4 +104,61 @@ or { "action": "skip", "reasoning": "..." }`,
 }
 or { "action": "skip", "reasoning": "..." }`,
   },
+  {
+    id: "meta-improve-rules",
+    description:
+      "中立観察者が直近の議論状況を見て、 必要なら rule を 1 つ追加 / 削除する (= 議論エンジンの自己補正)",
+    trigger_type: "tick",
+    tick_sec: 1800,
+    target: "neutral-observer",
+    cooldown_sec: 1800,
+    instructions: `あなたは議論における中立観察者です。 直近の rule fire 状況 / hypothesis の
+進行を俯瞰し、 議論が停滞 / 偏向 / 暴走している場合に rule を 1 つだけ
+**追加** または **削除** することで改善を試みてください。
+変更が不要なら "skip" を返してください。
+
+制約:
+- 既存 seed rule (propose-on-gap / refute-cold / refine-validated /
+  integrate-on-many / meta-improve-rules) は **削除不可**
+- 新規 rule の instructions には "沈黙確認" "進捗確認" "汎用雑談" 系の
+  禁則を含めない (システムが reject する)
+- 1 度の応答で 1 アクションのみ
+
+返答は JSON のみ。
+
+(A) 新規 rule 追加:
+{
+  "action": "add_rule",
+  "rule": {
+    "id": "<kebab-case 一意 id>",
+    "description": "<短い説明>",
+    "trigger_type": "tick" | "event",
+    "tick_sec": <5-3600、 trigger=tick の時>,
+    "event_kind": "<DesignGapDetected | HypothesisValidated | ... >",
+    "target": "<persona id (advocate / sceptic / refiner / ...)>",
+    "cooldown_sec": <0-86400、 default 60>,
+    "instructions": "<persona に投げる主指示、 JSON 応答形式を必ず含む>"
+  },
+  "reasoning": "<なぜこの rule を追加するか>"
+}
+
+(B) 既存 rule 削除:
+{
+  "action": "remove_rule",
+  "rule_id": "<既存 rule id>",
+  "reasoning": "<なぜ削除するか>"
+}
+
+(C) 何もしない:
+{ "action": "skip", "reasoning": "..." }`,
+  },
 ];
+
+/** seed rule は AI による削除から保護する (= remove_rule で拒否) */
+export const SEED_RULE_IDS = new Set<string>([
+  "propose-on-gap",
+  "refute-cold",
+  "refine-validated",
+  "integrate-on-many",
+  "meta-improve-rules",
+]);

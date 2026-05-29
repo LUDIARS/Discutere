@@ -88,6 +88,22 @@ const HTML = `<!doctype html>
 </div>
 
 <div class="card">
+  <h2>🔧 Rule Viewer (議論エンジンの rule 群 + AI 自己補正履歴)</h2>
+  <div style="margin-bottom: 8px;">
+    <label><input type="checkbox" id="rules-show-removed"> include removed</label>
+    <button id="rules-refresh" style="margin-left: 8px;">refresh</button>
+  </div>
+  <table id="rules-table">
+    <thead><tr>
+      <th>id</th><th>type</th><th>target</th><th>cooldown</th>
+      <th>fired</th><th>added by</th><th>status</th>
+    </tr></thead>
+    <tbody><tr><td colspan="7" class="muted">loading…</td></tr></tbody>
+  </table>
+  <div id="rule-detail-card" class="muted" style="margin-top: 12px;">行をクリックで rule 詳細 + 補正履歴</div>
+</div>
+
+<div class="card">
   <h2>Recent rule log (latest 10)</h2>
   <table id="logs">
     <thead><tr><th>time</th><th>rule</th><th>actor</th><th>action</th><th>detail</th></tr></thead>
@@ -218,11 +234,100 @@ function renderRuleMetrics(list) {
   </tr>\`).join("");
 }
 
+async function fetchRules(includeRemoved) {
+  const url = "/api/admin/rules" + (includeRemoved ? "?includeRemoved=1" : "");
+  const res = await fetch(url, { credentials: "include" });
+  if (!res.ok) throw new Error("rules http " + res.status);
+  return res.json();
+}
+
+async function fetchRuleLogs(id) {
+  const res = await fetch("/api/admin/rules/" + encodeURIComponent(id) + "/logs?limit=30", { credentials: "include" });
+  if (!res.ok) throw new Error("rule logs http " + res.status);
+  return res.json();
+}
+
+function renderRulesTable(rules) {
+  const tbody = document.querySelector("#rules-table tbody");
+  if (!rules || rules.length === 0) {
+    tbody.innerHTML = '<tr><td colspan="7" class="muted">no rules</td></tr>';
+    return;
+  }
+  tbody.innerHTML = rules.map((r) => {
+    const trigger = r.trigger_type + (r.trigger_type === "tick"
+      ? " (" + (r.tick_sec || "?") + "s)"
+      : " (" + (r.event_kind || "*") + ")");
+    const status = !r.enabled
+      ? '<span class="stat bad">disabled</span>'
+      : r.is_ai_added
+        ? '<span class="stat warn">AI-added</span>'
+        : '<span class="stat">seed</span>';
+    const removed = r.removed_at ? '<div class="muted">removed by ' + escapeHtml(r.removed_by || "?") + ': ' + escapeHtml(r.removed_reason || "") + '</div>' : "";
+    const lastFired = r.last_fired_at
+      ? new Date(r.last_fired_at * 1000).toLocaleTimeString()
+      : '<span class="muted">never</span>';
+    return \`<tr data-rule-id="\${escapeHtml(r.id)}" style="cursor: pointer;">
+      <td><code>\${escapeHtml(r.id)}</code>\${removed}</td>
+      <td>\${escapeHtml(trigger)}</td>
+      <td>\${escapeHtml(r.target || "—")}</td>
+      <td>\${r.cooldown_sec}s</td>
+      <td>\${lastFired}</td>
+      <td class="muted">\${escapeHtml(r.added_by)}</td>
+      <td>\${status}</td>
+    </tr>\`;
+  }).join("");
+  tbody.querySelectorAll("tr[data-rule-id]").forEach((tr) => {
+    tr.addEventListener("click", () => showRuleDetail(tr.dataset.ruleId));
+  });
+}
+
+async function showRuleDetail(id) {
+  const card = document.getElementById("rule-detail-card");
+  card.innerHTML = '<em class="muted">loading…</em>';
+  try {
+    const data = await fetchRuleLogs(id);
+    if (!data.logs || data.logs.length === 0) {
+      card.innerHTML = '<strong>' + escapeHtml(id) + '</strong> — no logs yet';
+      return;
+    }
+    const rows = data.logs.map((l) => {
+      const dt = new Date(l.ts * 1000).toLocaleString();
+      return \`<tr>
+        <td>\${dt}</td>
+        <td class="action-\${l.action}">\${escapeHtml(l.action)}</td>
+        <td>\${escapeHtml(l.actor)}</td>
+        <td>\${escapeHtml(l.detail || "")}</td>
+      </tr>\`;
+    }).join("");
+    card.innerHTML = \`<strong>\${escapeHtml(id)}</strong> — last \${data.logs.length} logs
+      <table style="margin-top: 8px;">
+        <thead><tr><th>time</th><th>action</th><th>actor</th><th>detail</th></tr></thead>
+        <tbody>\${rows}</tbody>
+      </table>\`;
+  } catch (err) {
+    card.innerHTML = '<span class="stat bad">' + escapeHtml(err.message) + '</span>';
+  }
+}
+
+async function refreshRules() {
+  const showRemoved = document.getElementById("rules-show-removed").checked;
+  try {
+    const r = await fetchRules(showRemoved);
+    renderRulesTable(r.rules);
+  } catch (err) {
+    document.querySelector("#rules-table tbody").innerHTML =
+      '<tr><td colspan="7" class="muted">' + escapeHtml(err.message) + '</td></tr>';
+  }
+}
+document.getElementById("rules-refresh").addEventListener("click", refreshRules);
+document.getElementById("rules-show-removed").addEventListener("change", refreshRules);
+
 async function refresh() {
   try {
     renderStatus(await fetchStatus());
     fetchMetrics("personas").then((r) => renderPersonaMetrics(r.metrics)).catch(() => {});
     fetchMetrics("rules").then((r) => renderRuleMetrics(r.metrics)).catch(() => {});
+    refreshRules();
   } catch (err) {
     document.getElementById("status-stats").innerHTML = '<span class="stat bad">' + escapeHtml(err.message) + '</span>';
   }

@@ -16,7 +16,8 @@ import type {
   ProposeHypothesisInput,
 } from "../context-provider.js";
 import type { RulesRepo } from "../db/rules-repo.js";
-import type { Logger } from "../types.js";
+import { SEED_RULE_IDS } from "../seeds/rules.js";
+import type { Logger, RuleSeed, RuleTriggerType } from "../types.js";
 
 export interface HandleActionArgs {
   ruleId: string;
@@ -30,10 +31,54 @@ export interface HandleActionArgs {
 }
 
 export interface HandleActionResult {
-  kind: "skip" | "propose_hypothesis" | "post_utterance" | "error";
+  kind:
+    | "skip"
+    | "propose_hypothesis"
+    | "post_utterance"
+    | "add_rule"
+    | "remove_rule"
+    | "error";
   detail: string;
   createdId?: string;
 }
+
+/**
+ * AI が add_rule で持ち込もうとする rule の禁則 (= 議論を破壊する rule の事前 reject)。
+ * Concordia の禁則を議論モード向けに拡張。
+ */
+const FORBIDDEN_RULE_PATTERNS: Array<{ pattern: RegExp; reason: string }> = [
+  {
+    pattern: /無音|沈黙|silence|quiet[-_ ]?check/i,
+    reason: "無音 / 沈黙確認系 rule は禁止 (rule_log で見えるため不要)",
+  },
+  {
+    pattern: /進捗(どう|確認|聞|を聞|ping)|progress[-_ ]?(check|ping)/i,
+    reason: "進捗確認系 rule は禁止 (status endpoint で取得可)",
+  },
+  {
+    pattern: /汎用雑談|general[-_ ]?chitchat|small[-_ ]?talk[-_ ]?random/i,
+    reason: "ロール無関係な汎用雑談 rule は禁止 (persona の役割に紐づけること)",
+  },
+  {
+    pattern: /全\s*persona|all[-_ ]?personas?[-_ ]?(fire|act|invoke)/i,
+    reason: "全 persona 一括動員 rule は禁止 (LLM コスト暴騰防止)",
+  },
+];
+
+function checkForbiddenRule(rule: {
+  id: string;
+  description?: string | null;
+  instructions: string;
+}): { ok: true } | { ok: false; reason: string } {
+  const blob = `${rule.id}\n${rule.description ?? ""}\n${rule.instructions}`;
+  for (const { pattern, reason } of FORBIDDEN_RULE_PATTERNS) {
+    if (pattern.test(blob)) return { ok: false, reason };
+  }
+  return { ok: true };
+}
+
+export const _FORBIDDEN_RULE_PATTERNS = FORBIDDEN_RULE_PATTERNS;
+export const _checkForbiddenRule = checkForbiddenRule;
 
 export function handleAction(args: HandleActionArgs): HandleActionResult {
   const json = extractJson(args.rawText);
@@ -94,6 +139,13 @@ export function handleAction(args: HandleActionArgs): HandleActionResult {
     return { kind: "propose_hypothesis", detail: input.statement, createdId: id };
   }
 
+  if (action === "add_rule") {
+    return handleAddRule(args, json);
+  }
+  if (action === "remove_rule") {
+    return handleRemoveRule(args, json);
+  }
+
   if (action === "post_utterance") {
     if (typeof json.text !== "string" || json.text.trim() === "") {
       return logErr(args, "post_utterance without text");
@@ -124,6 +176,103 @@ export function handleAction(args: HandleActionArgs): HandleActionResult {
   }
 
   return logErr(args, `unknown action: ${action}`);
+}
+
+function handleAddRule(
+  args: HandleActionArgs,
+  json: Record<string, unknown>
+): HandleActionResult {
+  const ruleSpec = json.rule;
+  if (!ruleSpec || typeof ruleSpec !== "object") {
+    return logErr(args, "add_rule without rule object");
+  }
+  const r = ruleSpec as Record<string, unknown>;
+  const id = typeof r.id === "string" ? r.id.trim() : "";
+  const trigger = typeof r.trigger_type === "string" ? r.trigger_type : "";
+  const instructions = typeof r.instructions === "string" ? r.instructions : "";
+  if (!/^[a-z][a-z0-9-]{1,63}$/.test(id)) {
+    return logErr(args, `add_rule id invalid (must be kebab 2-64): ${id}`);
+  }
+  if (trigger !== "tick" && trigger !== "event") {
+    return logErr(args, `add_rule trigger_type must be tick|event: ${trigger}`);
+  }
+  if (!instructions || instructions.length < 16 || instructions.length > 4000) {
+    return logErr(args, "add_rule instructions length must be 16-4000");
+  }
+
+  const forbidden = checkForbiddenRule({
+    id,
+    description: typeof r.description === "string" ? r.description : null,
+    instructions,
+  });
+  if (!forbidden.ok) {
+    return logErr(args, `add_rule forbidden: ${forbidden.reason}`);
+  }
+
+  // 既存 (= seed 含む) の id は再 insert しない (= ignore)
+  if (args.rules.get(id)) {
+    return logErr(args, `add_rule id already exists: ${id}`);
+  }
+
+  const seed: RuleSeed = {
+    id,
+    description: typeof r.description === "string" ? r.description : undefined,
+    trigger_type: trigger as RuleTriggerType,
+    tick_sec:
+      typeof r.tick_sec === "number" && r.tick_sec >= 5 && r.tick_sec <= 3600
+        ? r.tick_sec
+        : null,
+    event_kind: typeof r.event_kind === "string" ? r.event_kind : null,
+    target: typeof r.target === "string" ? r.target : null,
+    cooldown_sec:
+      typeof r.cooldown_sec === "number" && r.cooldown_sec >= 0 && r.cooldown_sec <= 86400
+        ? r.cooldown_sec
+        : 60,
+    instructions,
+  };
+
+  args.rules.insertOrIgnore(seed, { addedBy: `ai:${args.personaId}` });
+  args.rules.log({
+    rule_id: id,
+    action: "add",
+    actor: "ai",
+    detail: `persona ${args.personaId} added rule ${id} via ${args.ruleId}`,
+  });
+  args.logger.info(
+    { rule_id: id, persona_id: args.personaId, via: args.ruleId },
+    "rule added by AI"
+  );
+  return { kind: "add_rule", detail: id, createdId: id };
+}
+
+function handleRemoveRule(
+  args: HandleActionArgs,
+  json: Record<string, unknown>
+): HandleActionResult {
+  const ruleId = typeof json.rule_id === "string" ? json.rule_id : "";
+  const reasoning = typeof json.reasoning === "string" ? json.reasoning : "(no reason)";
+  if (!ruleId) {
+    return logErr(args, "remove_rule without rule_id");
+  }
+  if (SEED_RULE_IDS.has(ruleId)) {
+    return logErr(args, `remove_rule rejected: ${ruleId} is a protected seed`);
+  }
+  const existing = args.rules.get(ruleId);
+  if (!existing) {
+    return logErr(args, `remove_rule unknown id: ${ruleId}`);
+  }
+  args.rules.remove(ruleId, `ai:${args.personaId}`, reasoning);
+  args.rules.log({
+    rule_id: ruleId,
+    action: "remove",
+    actor: "ai",
+    detail: `persona ${args.personaId} removed rule ${ruleId}: ${reasoning}`,
+  });
+  args.logger.info(
+    { rule_id: ruleId, persona_id: args.personaId, reasoning },
+    "rule removed by AI"
+  );
+  return { kind: "remove_rule", detail: ruleId };
 }
 
 function logErr(args: HandleActionArgs, detail: string): HandleActionResult {

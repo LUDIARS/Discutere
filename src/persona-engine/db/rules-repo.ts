@@ -11,7 +11,7 @@ export class RulesRepo {
 
   // ─── rule CRUD ─────────────────────────────────
 
-  insertOrIgnore(seed: RuleSeed): void {
+  insertOrIgnore(seed: RuleSeed, options: { addedBy?: string } = {}): void {
     const now = nowSec();
     this.db
       .prepare(
@@ -19,7 +19,7 @@ export class RulesRepo {
           (id, description, trigger_type, tick_sec, event_kind, conditions,
            instructions, target, cooldown_sec, last_fired_at, enabled,
            added_at, added_by)
-         VALUES (?, ?, ?, ?, ?, '[]', ?, ?, ?, NULL, 1, ?, 'seed')`
+         VALUES (?, ?, ?, ?, ?, '[]', ?, ?, ?, NULL, 1, ?, ?)`
       )
       .run(
         seed.id,
@@ -30,7 +30,8 @@ export class RulesRepo {
         seed.instructions,
         seed.target ?? null,
         seed.cooldown_sec ?? 60,
-        now
+        now,
+        options.addedBy ?? "seed"
       );
   }
 
