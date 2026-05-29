@@ -1,14 +1,28 @@
 import { serve } from "@hono/node-server";
 import { Hono } from "hono";
 import { cors } from "hono/cors";
+import Database from "better-sqlite3";
+import path from "node:path";
 import { machinaRoutes } from "./machina/routes.js";
 import { authRoutes, compositeAuthRoutes } from "./auth/routes.js";
 import { userContext } from "./middleware/auth.js";
 import { discordRoutes } from "./api/discord-routes.js";
-import { adminRoutes } from "./api/admin-routes.js";
+import { adminRoutes, setPersonaEngine } from "./api/admin-routes.js";
+import { assertProductionJwtSecret } from "./auth/jwt-guard.js";
+import { startSessionCleanup } from "./machina/mode-state.js";
+import { createCore } from "./core/index.js";
+import { createDiscatierContextProvider } from "./discatier-engine-adapter/index.js";
+import { createEventBridge } from "./discatier-engine-adapter/event-bridge.js";
+import {
+  AnthropicSdkClient,
+  createPersonaEngine,
+} from "./persona-engine/index.js";
 
 // Initialize DB (triggers schema creation)
 import "./db/connection.js";
+
+// PR-C: JWT_SECRET production guard (本番で default secret なら即 throw)
+assertProductionJwtSecret();
 
 const app = new Hono();
 
@@ -41,6 +55,49 @@ app.route("/api", discordRoutes);
 
 // ─── Admin (PR-B: 人間 → AI 介入経路) ────────────────────────
 app.route("/api", adminRoutes);
+
+// PR-C: mode-state TTL cleanup を 15 min interval で起動 (24h 経過 session を回収)
+const stopSessionCleanup = startSessionCleanup();
+
+// PR-C: persona-engine 起動 wiring (ANTHROPIC_API_KEY あれば自動起動)
+const personaEngineLifecycle = (() => {
+  if (!process.env.ANTHROPIC_API_KEY) {
+    console.log("  persona-engine: skipped (ANTHROPIC_API_KEY not set)");
+    return null;
+  }
+  try {
+    const peDbPath = process.env.DISCUTERE_PERSONA_ENGINE_DB ?? path.resolve("./data/persona-engine.db");
+    const workspaceId = process.env.DISCATIER_WORKSPACE ?? "knowledge";
+    const peDb = new Database(peDbPath);
+    const core = createCore();
+    const adapter = createDiscatierContextProvider(core, {});
+    const engine = createPersonaEngine({
+      db: peDb,
+      llm: new AnthropicSdkClient(),
+      contextProvider: adapter,
+      workspaceId,
+      maxFiresPerSession: Number(process.env.PERSONA_ENGINE_MAX_FIRES_PER_SESSION ?? 20),
+      maxFiresPerRulePerSession: Number(
+        process.env.PERSONA_ENGINE_MAX_FIRES_PER_RULE ?? 5
+      ),
+      tickMs: Number(process.env.PERSONA_ENGINE_TICK_MS ?? 5000),
+    });
+    const bridge = createEventBridge(core, engine, {
+      workspaceId,
+      pollMs: Number(process.env.PERSONA_ENGINE_BRIDGE_POLL_MS ?? 2000),
+    });
+    setPersonaEngine(engine);
+    engine.start();
+    bridge.start();
+    console.log(
+      `  persona-engine: attached (workspace=${workspaceId}, db=${peDbPath})`
+    );
+    return { engine, bridge, core, peDb };
+  } catch (err) {
+    console.warn("  persona-engine: startup failed:", err);
+    return null;
+  }
+})();
 
 const port = parseInt(process.env.BACKEND_PORT || "3100", 10);
 
