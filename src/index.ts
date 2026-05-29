@@ -8,6 +8,7 @@ import { authRoutes, compositeAuthRoutes } from "./auth/routes.js";
 import { userContext } from "./middleware/auth.js";
 import { discordRoutes } from "./api/discord-routes.js";
 import { adminRoutes, setPersonaEngine } from "./api/admin-routes.js";
+import { dashboardRoutes } from "./api/dashboard-routes.js";
 import { assertProductionJwtSecret } from "./auth/jwt-guard.js";
 import { startSessionCleanup } from "./machina/mode-state.js";
 import { createCore } from "./core/index.js";
@@ -55,6 +56,9 @@ app.route("/api", discordRoutes);
 
 // ─── Admin (PR-B: 人間 → AI 介入経路) ────────────────────────
 app.route("/api", adminRoutes);
+
+// ─── Admin dashboard HTML (PR-H: 観察 + kill switch GUI) ────
+app.route("/api", dashboardRoutes);
 
 // PR-C: mode-state TTL cleanup を 15 min interval で起動 (24h 経過 session を回収)
 const stopSessionCleanup = startSessionCleanup();
@@ -108,6 +112,7 @@ console.log(`  Monitors: /api/groups/:id/monitors`);
 console.log(`  Webhooks: /api/webhook/slack, /api/webhook/discord`);
 console.log(`  Discord:  /api/discord/interactions`);
 console.log(`  Admin:    /api/admin/{rules/enabled,session/reset,status}`);
+console.log(`  Dashboard: /api/admin/dashboard (HTML, admin role)`);
 console.log(`  Analyze:  /api/analyze`);
 
 serve({ fetch: app.fetch, port });
