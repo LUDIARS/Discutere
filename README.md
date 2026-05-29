@@ -31,6 +31,7 @@ MACHINA (M3) モジュールとして、外部プロジェクト管理システ�
 - **監査ログ** — タスクの変更履歴を自動記録
 - **Game KG クローラー (Phase 0)** — `src/crawler/` で著名ゲームの攻略データを `data/games/<slug>.md` から Discatier Core (`Game` / `Mechanic` / `Aesthetic`) に import。詳細は [`spec/crawler/DESIGN.md`](spec/crawler/DESIGN.md)
 - **議論ソース可視化 (Phase 0)** — `src/visualize/` で hypothesis / gap / mechanic / aesthetic / utterance / session を 1 ノード = 1 md に書き出し、 ノード間参照を `[[<type>:<id>]]` マジックリンクで繋ぐ。 詳細は [`spec/visualize/DESIGN.md`](spec/visualize/DESIGN.md)
+- **persona-engine (Phase 0)** — `src/persona-engine/` に閉じた 議論駆動エンジン。 ペルソナ (推進派 / 懐疑者 / 統合者 等 10 名) × チャットルール (propose-on-gap / refute-cold 等) × LLM 呼び出し。 将来 `@ludiars/persona-engine` として切り出す前提で、 Discutere 固有 import を持たない境界に閉じている。 詳細は [`spec/persona-engine/DESIGN.md`](spec/persona-engine/DESIGN.md)
 
 ## Game KG クローラー
 
@@ -66,6 +67,23 @@ npm run test:visualize
 ```
 
 ノード間参照は `[[hyp:abc123]]` / `[[utt:550e8400]]` / `[[mch:ghi789]]` 形式で、 GitHub / Memoria / 専用 viewer で相互リンク可能。 viewer が wikilink → md ファイルパス (`data/discussions/<workspace>/<type-dir>/<id>.md`) を解決すれば graph として閲覧できる。
+
+## persona-engine (議論駆動)
+
+```sh
+# 全テスト (repos / engine / Discatier adapter)
+npm run test:persona-engine
+
+# 動作 demo (MockLLM、 API 不要)
+npm run persona-demo
+# → gap 作成 → advocate が hypothesis 提案 → 結果 JSON
+
+# 動作 demo (実 LLM、 ANTHROPIC_API_KEY 必須)
+$env:ANTHROPIC_API_KEY = "sk-ant-..."  # PowerShell
+npm run persona-demo -- --real-llm
+```
+
+エンジンは `src/persona-engine/` に閉じており、 切り出し時は `mv src/persona-engine ../persona-engine-package/src/` + `package.json` 分割で完結する設計。 Discatier 接続は `src/discatier-engine-adapter/` に隔離。
 
 ## Getting Started
 
