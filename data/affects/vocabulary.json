@@ -1,0 +1,34 @@
+{
+  "_note": "Affect 統制語彙 (サンプル/Phase 0)。mechanics.intended_affect と 観測 affect (translation_proposals.target_name / affects.mood) が同じ `key` を完全一致で参照する。matcher の負感情ハードコード集合 (frustration/anger/sadness/boredom) と綴りを一致させてある。",
+  "workspace_id": "knowledge",
+  "version": "0.1.0",
+  "valence_values": ["positive", "negative", "ambivalent"],
+  "affects": [
+    { "key": "accomplishment", "label_ja": "達成感", "valence": "positive", "mda": "Challenge", "description": "困難を乗り越えて目標を成し遂げた充足。" },
+    { "key": "mastery", "label_ja": "上達感", "valence": "positive", "mda": "Challenge", "description": "繰り返しで腕が上がり自分の成長を実感する。" },
+    { "key": "tension_release", "label_ja": "緊張と解放", "valence": "positive", "mda": "Challenge", "description": "張り詰めた局面を切り抜けた瞬間のカタルシス。" },
+    { "key": "immersion", "label_ja": "没入", "valence": "positive", "mda": "Fantasy", "description": "世界・役割に入り込み現実を忘れる感覚。" },
+    { "key": "discovery", "label_ja": "発見", "valence": "positive", "mda": "Discovery", "description": "未知の場所・仕組み・攻略を見つけた喜び。" },
+    { "key": "flow", "label_ja": "フロー", "valence": "positive", "mda": "Submission", "description": "難易度と技量が釣り合い時間を忘れて没頭する状態。" },
+    { "key": "game_feel", "label_ja": "爽快感", "valence": "positive", "mda": "Sensation", "description": "操作の手触り・打撃・反応の気持ちよさ (juiciness)。" },
+    { "key": "excitement", "label_ja": "高揚", "valence": "positive", "mda": "Sensation", "description": "盛り上がり・テンションの上昇。" },
+    { "key": "collection", "label_ja": "収集の充足", "valence": "positive", "mda": "Discovery", "description": "集める・埋める・コンプリートする満足。" },
+    { "key": "expression", "label_ja": "自己表現", "valence": "positive", "mda": "Expression", "description": "ビルド・装飾・プレイスタイルで自分らしさを出す。" },
+    { "key": "fellowship", "label_ja": "連帯", "valence": "positive", "mda": "Fellowship", "description": "協力・共有・コミュニティの一体感。" },
+    { "key": "narrative", "label_ja": "物語的感動", "valence": "positive", "mda": "Narrative", "description": "ストーリー・キャラ・世界観に心を動かされる。" },
+    { "key": "wonder", "label_ja": "驚き・畏怖", "valence": "positive", "mda": "Sensation", "description": "想定を超える光景や仕掛けへの驚嘆。" },
+    { "key": "strategic", "label_ja": "戦略的満足", "valence": "positive", "mda": "Challenge", "description": "読み・組み立て・最適解が決まった知的快感。" },
+
+    { "key": "frustration", "label_ja": "理不尽・ストレス", "valence": "negative", "description": "不公平・操作不能・ハメ等による苛立ち。matcher 負集合。" },
+    { "key": "boredom", "label_ja": "退屈", "valence": "negative", "description": "刺激不足・進展のなさによる飽き。matcher 負集合。" },
+    { "key": "monotony", "label_ja": "単調(作業感)", "valence": "negative", "description": "同じ作業の繰り返しによる疲弊 (grind)。" },
+    { "key": "confusion", "label_ja": "混乱", "valence": "negative", "description": "目的・操作・情報が分からず迷う。" },
+    { "key": "anger", "label_ja": "怒り", "valence": "negative", "description": "強い不満・憤り。matcher 負集合。" },
+    { "key": "sadness", "label_ja": "喪失感", "valence": "negative", "description": "進捗・資産・愛着の喪失による落胆。matcher 負集合。" },
+    { "key": "unfair_monetization", "label_ja": "課金不公平感", "valence": "negative", "description": "pay2win・搾取的課金への反発。" },
+
+    { "key": "fear", "label_ja": "恐怖", "valence": "ambivalent", "description": "怖さ。ホラーでは意図された正、それ以外では負になりうる。" },
+    { "key": "suspense", "label_ja": "緊迫", "valence": "ambivalent", "description": "結果が読めない張り詰め。演出として正、過剰だと負。" },
+    { "key": "solitude", "label_ja": "孤独", "valence": "ambivalent", "description": "ひとりの感覚。探索美として正、疎外感だと負。" }
+  ]
+}

@@ -5,6 +5,8 @@ data/*
 !data/games/**
 !data/discussions/
 !data/discussions/**
+!data/affects/
+!data/affects/**
 .env
 .env.secrets
 *.tsbuildinfo
