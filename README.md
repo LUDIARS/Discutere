@@ -29,6 +29,26 @@ MACHINA (M3) モジュールとして、外部プロジェクト管理システ�
 - **テキスト解析プレビュー** — メッセージがどう解析されるかを事前確認
 - **外部 PM 連携** — アダプターパターンで外部プロジェクト管理サービスへタスクをリレー
 - **監査ログ** — タスクの変更履歴を自動記録
+- **議論ソース可視化 (Phase 0)** — `src/visualize/` で hypothesis / gap / mechanic / aesthetic / utterance / session を 1 ノード = 1 md に書き出し、 ノード間参照を `[[<type>:<id>]]` マジックリンクで繋ぐ。 詳細は [`spec/visualize/DESIGN.md`](spec/visualize/DESIGN.md)
+
+## 議論ソース可視化 (magic-link md)
+
+```sh
+# 仮説を md に書き出す → data/discussions/<workspace>/hypothesis/<id>.md
+npm run visualize hypothesis <id>
+
+# gap / mechanic / aesthetic / utterance / session も同様
+npm run visualize gap <id>
+npm run visualize mechanic <id>
+
+# workspace 指定 (default: env DISCATIER_WORKSPACE or "knowledge")
+npm run visualize hypothesis <id> --workspace team-alpha
+
+# 全テスト (wikilink / md-exporter / dump)
+npm run test:visualize
+```
+
+ノード間参照は `[[hyp:abc123]]` / `[[utt:550e8400]]` / `[[mch:ghi789]]` 形式で、 GitHub / Memoria / 専用 viewer で相互リンク可能。 viewer が wikilink → md ファイルパス (`data/discussions/<workspace>/<type-dir>/<id>.md`) を解決すれば graph として閲覧できる。
 
 ## Getting Started
 

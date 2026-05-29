@@ -1,6 +1,8 @@
 node_modules
 dist
-data
+data/*
+!data/discussions/
+!data/discussions/**
 .env
 .env.secrets
 *.tsbuildinfo
