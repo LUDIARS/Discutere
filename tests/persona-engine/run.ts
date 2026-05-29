@@ -7,5 +7,6 @@ import "./repos.test.js";
 import "./engine.test.js";
 import "./discatier-adapter.test.js";
 import "./safety-caps.test.js";
+import "./event-bridge.test.js";
 
 console.log("persona-engine tests: all passed");
