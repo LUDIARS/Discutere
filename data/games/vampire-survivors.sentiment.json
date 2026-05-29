@@ -1,0 +1,271 @@
+{
+  "game": "Vampire Survivors",
+  "slug": "vampire-survivors",
+  "fetched_date": "2026-05-29",
+  "method": "hybrid (lexicon first-pass; vectors generated in-code / Claude Code, no external embedding API)",
+  "embedding_space": [
+    "emo.joy",
+    "emo.trust",
+    "emo.fear",
+    "emo.surprise",
+    "emo.sadness",
+    "emo.disgust",
+    "emo.anger",
+    "emo.anticipation",
+    "asp.fun",
+    "asp.difficulty",
+    "asp.content",
+    "asp.price_value",
+    "asp.performance",
+    "asp.story",
+    "asp.graphics",
+    "asp.replayability"
+  ],
+  "sources": [
+    {
+      "source": "steam",
+      "n": 200
+    }
+  ],
+  "overall": {
+    "valence": "positive",
+    "score": 0.8748,
+    "positive_ratio": 0.94,
+    "volume": 200,
+    "volume_log": 0.5758
+  },
+  "aspects": {
+    "fun": {
+      "mentions": 33,
+      "score": 0.9545
+    },
+    "difficulty": {
+      "mentions": 6,
+      "score": 0.75
+    },
+    "content": {
+      "mentions": 18,
+      "score": 0.9167
+    },
+    "price_value": {
+      "mentions": 11,
+      "score": 0.8182
+    },
+    "performance": {
+      "mentions": 2,
+      "score": 0.75
+    },
+    "story": {
+      "mentions": 8,
+      "score": 0.9375
+    },
+    "graphics": {
+      "mentions": 11,
+      "score": 0.7727
+    },
+    "replayability": {
+      "mentions": 17,
+      "score": 1
+    }
+  },
+  "affects": [
+    {
+      "subject": "overall",
+      "mood": "joy",
+      "valence": "positive",
+      "score": 0.8748
+    },
+    {
+      "subject": "period:2026-05",
+      "mood": "joy",
+      "valence": "positive",
+      "score": 0.8748
+    }
+  ],
+  "sentiment_curve": [
+    {
+      "period": "2026-05",
+      "count": 200,
+      "valence01": 0.8748,
+      "mood": "joy",
+      "sentiment": "positive"
+    }
+  ],
+  "clusters": [
+    {
+      "id": "cluster:fun",
+      "topic_aspect": "fun",
+      "size": 27,
+      "sentiment": "positive",
+      "score": 0.9517,
+      "vector": [
+        0.579324,
+        0.082761,
+        0,
+        0.055174,
+        0,
+        0,
+        0,
+        0,
+        0.744845,
+        0.082761,
+        0.027587,
+        0.027587,
+        0,
+        0.055174,
+        0.110347,
+        0.275869
+      ]
+    },
+    {
+      "id": "cluster:content",
+      "topic_aspect": "content",
+      "size": 11,
+      "sentiment": "positive",
+      "score": 0.8484,
+      "vector": [
+        0.31427,
+        0.078567,
+        0,
+        0.078567,
+        0,
+        0,
+        0,
+        0,
+        0.157135,
+        0,
+        0.864242,
+        0.078567,
+        0.078567,
+        0.157135,
+        0.235702,
+        0.157135
+      ]
+    },
+    {
+      "id": "cluster:price_value",
+      "topic_aspect": "price_value",
+      "size": 4,
+      "sentiment": "positive",
+      "score": 0.9563,
+      "vector": [
+        0.196116,
+        0.392232,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0.196116,
+        0,
+        0.392232,
+        0.784465,
+        0,
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "id": "cluster:replayability",
+      "topic_aspect": "replayability",
+      "size": 4,
+      "sentiment": "positive",
+      "score": 0.9333,
+      "vector": [
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0.204124,
+        0,
+        0.204124,
+        0.204124,
+        0,
+        0.408248,
+        0.204124,
+        0.816497
+      ]
+    },
+    {
+      "id": "cluster:graphics",
+      "topic_aspect": "graphics",
+      "size": 3,
+      "sentiment": "positive",
+      "score": 0.6882,
+      "vector": [
+        0.320256,
+        0.320256,
+        0,
+        0,
+        0.160128,
+        0,
+        0,
+        0,
+        0.320256,
+        0.160128,
+        0.320256,
+        0.480384,
+        0.160128,
+        0.160128,
+        0.480384,
+        0.160128
+      ]
+    },
+    {
+      "id": "cluster:difficulty",
+      "topic_aspect": "difficulty",
+      "size": 2,
+      "sentiment": "positive",
+      "score": 0.96,
+      "vector": [
+        0,
+        0.377964,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0.755929,
+        0.377964,
+        0.377964,
+        0,
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "id": "cluster:story",
+      "topic_aspect": "story",
+      "size": 1,
+      "sentiment": "positive",
+      "score": 0.875,
+      "vector": [
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        1,
+        0,
+        0
+      ]
+    }
+  ]
+}

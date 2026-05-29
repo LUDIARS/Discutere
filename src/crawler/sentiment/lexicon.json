@@ -1,0 +1,30 @@
+{
+  "_note": "日英の軽量辞書。polarity は単語→極性(-1..1)。emotions は Plutchik 8、aspects はゲーム評価軸のキーワード。substring マッチ(JP はトークナイザ無しのため)。拡張前提のコンパクト版。",
+  "polarity": {
+    "amazing": 1, "awesome": 1, "great": 0.8, "good": 0.6, "love": 0.9, "loved": 0.9, "fun": 0.8, "enjoy": 0.7, "enjoyable": 0.7, "excellent": 0.9, "best": 0.9, "perfect": 1, "masterpiece": 1, "addictive": 0.7, "addicting": 0.7, "recommend": 0.7, "fantastic": 0.9, "wonderful": 0.9, "smooth": 0.5, "worth": 0.6, "beautiful": 0.7, "solid": 0.5, "incredible": 0.9, "gem": 0.7, "polished": 0.6,
+    "bad": -0.7, "boring": -0.8, "hate": -0.9, "terrible": -0.9, "awful": -0.9, "worst": -1, "broken": -0.8, "buggy": -0.7, "bug": -0.4, "bugs": -0.5, "lag": -0.6, "laggy": -0.6, "crash": -0.7, "crashes": -0.7, "refund": -0.7, "refunded": -0.8, "disappointing": -0.8, "disappointment": -0.8, "repetitive": -0.5, "grindy": -0.4, "pay2win": -0.8, "p2w": -0.8, "scam": -1, "frustrating": -0.7, "unplayable": -0.9, "trash": -0.9, "garbage": -0.9, "overpriced": -0.7, "stutter": -0.5, "mediocre": -0.5,
+    "面白い": 0.8, "面白": 0.8, "神ゲー": 1, "神ゲ": 1, "神": 0.6, "最高": 0.9, "楽しい": 0.8, "楽し": 0.7, "おすすめ": 0.7, "良い": 0.6, "良ゲー": 0.8, "良作": 0.8, "名作": 0.9, "中毒": 0.6, "感動": 0.8, "快適": 0.6, "好き": 0.6, "神作": 1, "傑作": 0.9, "やり込める": 0.6,
+    "つまらない": -0.8, "つまん": -0.8, "クソゲー": -1, "クソ": -0.7, "最悪": -0.9, "退屈": -0.7, "重い": -0.5, "萎え": -0.6, "ひどい": -0.8, "酷い": -0.8, "単調": -0.5, "飽き": -0.5, "詐欺": -1, "返金": -0.6, "ストレス": -0.6, "理不尽": -0.6, "課金ゲー": -0.7, "がっかり": -0.7, "バグだらけ": -0.8, "微妙": -0.4
+  },
+  "emotions": {
+    "joy": ["fun", "love", "happy", "joy", "enjoy", "amazing", "awesome", "楽しい", "嬉しい", "神ゲー", "最高", "面白"],
+    "trust": ["reliable", "recommend", "trust", "solid", "worth", "安心", "信頼", "おすすめ", "安定"],
+    "fear": ["scary", "afraid", "fear", "terrifying", "怖い", "恐怖", "ホラー", "ビビ"],
+    "surprise": ["surprising", "wow", "unexpected", "amazing", "驚", "びっくり", "すごい", "まさか"],
+    "sadness": ["sad", "cry", "depressing", "lonely", "悲しい", "泣", "切ない", "鬱"],
+    "disgust": ["disgusting", "gross", "cringe", "不快", "萎え", "キモ", "気持ち悪"],
+    "anger": ["angry", "rage", "furious", "frustrating", "annoying", "怒", "ムカ", "理不尽", "クソ", "腹立"],
+    "anticipation": ["hype", "excited", "can't wait", "looking forward", "楽しみ", "期待", "次回", "アプデ待ち"]
+  },
+  "aspects": {
+    "fun": ["fun", "enjoyable", "addictive", "addicting", "entertaining", "面白", "楽し", "中毒", "ハマ"],
+    "difficulty": ["hard", "difficult", "easy", "challenge", "challenging", "難し", "簡単", "難易度", "理不尽", "歯ごたえ"],
+    "content": ["content", "hours", "amount", "variety", "endgame", "量", "ボリューム", "やり込み", "コンテンツ", "ボリュ"],
+    "price_value": ["price", "cheap", "worth", "expensive", "value", "free", "値段", "安い", "高い", "コスパ", "課金", "無料"],
+    "performance": ["lag", "fps", "crash", "optimization", "optimized", "performance", "bug", "stutter", "重い", "軽い", "最適化", "バグ", "落ちる", "カクつ"],
+    "story": ["story", "plot", "narrative", "lore", "characters", "ストーリー", "物語", "シナリオ", "キャラ", "世界観"],
+    "graphics": ["graphics", "art", "visual", "visuals", "beautiful", "aesthetic", "グラフィック", "綺麗", "ビジュアル", "作画", "美麗"],
+    "replayability": ["replay", "replayability", "again", "addictive", "やり込み", "繰り返し", "リプレイ", "周回", "リプレ"]
+  },
+  "arousal": ["!", "!!", "amazing", "incredible", "insane", "wow", "epic", "best", "worst", "神", "最高", "すごい", "やばい", "ヤバ", "神ゲー"]
+}
