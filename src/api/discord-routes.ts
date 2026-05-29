@@ -27,6 +27,7 @@ import {
 } from "../discord-hook/interactions.js";
 import { createCore } from "../core/index.js";
 import { submitMessage } from "../core/projection/message-input.js";
+import { getPersonaEngine } from "./admin-routes.js";
 
 export const discordRoutes = new Hono();
 
@@ -67,7 +68,15 @@ discordRoutes.post("/discord/interactions", async (c) => {
     return c.json(pongResponse());
   }
 
-  // APPLICATION_COMMAND → Discatier command 文字列
+  // APPLICATION_COMMAND → 専用 slash command を先に分岐 (kill / status)
+  if (interaction.type === 2 && interaction.data?.name) {
+    const name = interaction.data.name;
+    if (name === "discutere-kill" || name === "discutere-status") {
+      return c.json(handleEngineSlash(name, interaction));
+    }
+  }
+
+  // それ以外は Discatier の command 文字列に変換し submitMessage に流す
   const commandText = interactionToCommand(interaction);
   if (!commandText) {
     return c.json(
@@ -98,6 +107,69 @@ discordRoutes.post("/discord/interactions", async (c) => {
     core.close();
   }
 });
+
+/**
+ * PR-I: /discutere-kill / /discutere-status の Discord slash command handler。
+ *
+ * /discutere-kill enabled:true|false → engine.setRulesEnabled
+ * /discutere-status                 → engine 状態を ephemeral で返す
+ *
+ * 認可: env DISCUTERE_DISCORD_ADMIN_IDS (カンマ区切り user id) 上の人のみ。
+ * 未設定なら全 reject (= 安全 default、 設定必須)。
+ */
+function handleEngineSlash(
+  name: string,
+  interaction: import("../discord-hook/interactions.js").DiscordInteraction
+): { type: number; data: { content: string; flags?: number } } {
+  const userId = interaction.member?.user?.id ?? interaction.user?.id ?? "";
+  const allowed = (process.env.DISCUTERE_DISCORD_ADMIN_IDS ?? "")
+    .split(",")
+    .map((s) => s.trim())
+    .filter((s) => s.length > 0);
+  if (allowed.length === 0) {
+    return channelMessageResponse(
+      "⚠️ DISCUTERE_DISCORD_ADMIN_IDS env not set — admin commands are disabled",
+      { ephemeral: true }
+    );
+  }
+  if (!userId || !allowed.includes(userId)) {
+    return channelMessageResponse("⚠️ admin only", { ephemeral: true });
+  }
+
+  const engine = getPersonaEngine();
+  if (!engine) {
+    return channelMessageResponse("⚠️ persona-engine not initialized", { ephemeral: true });
+  }
+
+  if (name === "discutere-status") {
+    const personas = engine.personas.list().length;
+    const rules = engine.rules.list({ enabled: true }).length;
+    return channelMessageResponse(
+      `🤖 persona-engine\n personas: \`${personas}\`\n active rules: \`${rules}\``,
+      { ephemeral: true }
+    );
+  }
+
+  // discutere-kill
+  const enabledOpt = (interaction.data?.options ?? []).find((o) => o.name === "enabled");
+  let target: boolean;
+  if (enabledOpt && typeof enabledOpt.value === "boolean") {
+    target = enabledOpt.value;
+  } else if (enabledOpt && typeof enabledOpt.value === "string") {
+    const v = enabledOpt.value.toLowerCase();
+    target = v === "true" || v === "on" || v === "1" || v === "enable";
+  } else {
+    return channelMessageResponse(
+      "usage: /discutere-kill enabled:true|false",
+      { ephemeral: true }
+    );
+  }
+  engine.setRulesEnabled(target);
+  return channelMessageResponse(
+    target ? "✅ persona-engine **ENABLED** (rules running)" : "🛑 persona-engine **DISABLED** (rules paused)",
+    { ephemeral: true }
+  );
+}
 
 function ensureDiscordSession(
   core: ReturnType<typeof createCore>,
