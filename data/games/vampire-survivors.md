@@ -29,4 +29,4 @@ Vampire Survivors のユーザー反応サマリ (収集 200 件・2026-05-29)�
 - difficulty: score 0.75 (言及 6)
 - performance: score 0.75 (言及 2)
 
-※ ソース本文は転載せず数値・ラベルのみ (summary-only)。感情曲線/議論クラスタベクトルは vampire-survivors.sentiment.json 参照。
+※ ソース本文は転載せず数値・ラベル・ベクトルのみ (summary-only)。複合ベクトル/感情曲線/議論クラスタは vampire-survivors.sentiment.json 参照。

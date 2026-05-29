@@ -14,12 +14,26 @@ Discatier Core の **affect(感情) / discussion 埋め込み(議論ベクトル
 ハイブリッド: **辞書ベース一次極性**(`sentiment/lexicon.json`、日英)→ 集約。
 (LLM/Claude Code による要約・クラスタ精緻化は後段で差し込み可能。)
 
-- **affects** — `{mood, valence, score}`(Discatier `affects` テーブルに対応)。overall + 月次バケット。
-- **感情曲線** — `sentiment_curve[]`(period × valence01 × mood)。
-- **aspects** — fun/difficulty/content/price_value/performance/story/graphics/replayability の評価スコア(0..1)。
-- **discussion clusters** — dominant aspect 別。各クラスタを **16 次元 (emotion8 + aspect8) 特徴ベクトル → L2 正規化** し、
-  Discatier `embeddings`(`node_type="discussion_cluster"`, `vector_json:number[]`)として登録可能(cosine 類似)。
-  **議論はこのベクトルデータで扱う**。ベクトルは外部 embedding API を使わず本コード内 (Claude Code) で算出する。
+### 用意されたベクトル(再定義版・複合固定 20 次元 / 各次元 0..1)
+
+全ゲーム共通の固定ベクトル空間。収集集合をこの空間へ**正規化**する。
+
+```
+emo.valence, emo.arousal,
+emo.{joy,trust,fear,surprise,sadness,disgust,anger,anticipation}   (Plutchik 8)
+asp.{fun,difficulty,content,price_value,performance,story,graphics,replayability}
+meta.positive_ratio, meta.volume_log
+```
+
+- **ゲーム全体 / discussion cluster(dominant aspect 別) / 月次バケット** を**すべて同一 20 次元**で表現
+  → cosine 比較・時系列(感情曲線)・横断比較が同一空間で可能。**議論はこのベクトルデータで扱う**。
+- number[] なので Discatier `embeddings`(`vector_json`)に格納可能
+  (`node_type="game_sentiment"` / `"discussion_cluster"`)。emo ブロックは `affects`(mood/valence/score)に対応。
+- **affects** — overall + 月次の `{mood, valence, score}`。**感情曲線** — `sentiment_curve[]`(period × vector)。
+- ベクトルは外部 embedding API を使わず本コード内 (Claude Code) で算出する。
+
+> 注: 旧版(Discatier `affects` + 自由次元 embeddings)ではなく、再定義版のこの複合固定ベクトルを採用。
+> 旧版の利点(embeddings 格納・affects 対応)は number[] 化により両立する。
 
 ## 出力
 
