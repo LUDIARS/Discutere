@@ -38,6 +38,7 @@ import { handleSlackMessage, handleDiscordMessage } from "./webhook-handler.js";
 import { relayTaskToPm, relayTaskUpdateToPm, hasPmRelay } from "./pm-relay.js";
 import { summarizeMessages } from "./summarizer.js";
 import { normalizeDiscordInboundMessage } from "../discord-hook/normalize.js";
+import { verifySlackSignature, verifyDiscordSignature } from "./signature-verify.js";
 import { startMechanicsLearning } from "../ludus/mechanics-learner.js";
 import {
   taskSessionStore,
@@ -745,22 +746,45 @@ machinaRoutes.delete(
 
 // POST /webhook/slack — Slack Event APIの受信
 machinaRoutes.post("/webhook/slack", async (c) => {
-  const body = await c.req.json<Record<string, unknown>>();
+  const rawBody = await c.req.text();
+  const workspaceId = c.req.query("workspaceId");
+  if (!workspaceId) {
+    return c.json({ error: "workspaceId query parameter required" }, 400);
+  }
 
-  // Slack URL Verification challenge
+  let body: Record<string, unknown>;
+  try {
+    body = JSON.parse(rawBody) as Record<string, unknown>;
+  } catch {
+    return c.json({ error: "invalid json" }, 400);
+  }
+
+  // Slack URL Verification challenge は handshake で signature 不要
   if (body.type === "url_verification") {
     return c.json({ challenge: body.challenge });
+  }
+
+  // 署名検証: workspace 配下の slack monitor の signing secret いずれかで一致を要求
+  const monitors = await monitorRepo.findByWorkspaceId(workspaceId);
+  const slackSecrets = monitors
+    .filter((m) => m.platform === "slack" && !!m.botSigningSecret)
+    .map((m) => m.botSigningSecret as string);
+  if (slackSecrets.length === 0) {
+    return c.json({ error: "no slack monitor with signing secret" }, 401);
+  }
+  const signature = c.req.header("x-slack-signature") ?? "";
+  const timestamp = c.req.header("x-slack-request-timestamp") ?? "";
+  const sigOk = slackSecrets.some((s) =>
+    verifySlackSignature({ rawBody, signature, timestamp, signingSecret: s })
+  );
+  if (!sigOk) {
+    return c.json({ error: "invalid signature" }, 401);
   }
 
   // Event callback
   if (body.type === "event_callback") {
     const event = body.event as Record<string, unknown>;
     if (event.type === "message" && !event.subtype) {
-      const workspaceId = c.req.query("workspaceId");
-      if (!workspaceId) {
-        return c.json({ error: "workspaceId query parameter required" }, 400);
-      }
-
       // 非同期処理（レスポンスを先に返す）
       handleSlackMessage(
         event as unknown as Parameters<typeof handleSlackMessage>[0],
@@ -776,11 +800,35 @@ machinaRoutes.post("/webhook/slack", async (c) => {
 
 // POST /webhook/discord — Discord Webhook の受信
 machinaRoutes.post("/webhook/discord", async (c) => {
-  const body = await c.req.json<Record<string, unknown>>();
+  const rawBody = await c.req.text();
   const workspaceId = c.req.query("workspaceId");
 
   if (!workspaceId) {
     return c.json({ error: "workspaceId query parameter required" }, 400);
+  }
+
+  // 署名検証: workspace 配下の discord monitor の public key いずれかで一致を要求
+  const monitors = await monitorRepo.findByWorkspaceId(workspaceId);
+  const discordKeys = monitors
+    .filter((m) => m.platform === "discord" && !!m.botSigningSecret)
+    .map((m) => m.botSigningSecret as string);
+  if (discordKeys.length === 0) {
+    return c.json({ error: "no discord monitor with public key" }, 401);
+  }
+  const signature = c.req.header("x-signature-ed25519") ?? "";
+  const timestamp = c.req.header("x-signature-timestamp") ?? "";
+  const sigOk = discordKeys.some((k) =>
+    verifyDiscordSignature({ rawBody, signature, timestamp, publicKey: k })
+  );
+  if (!sigOk) {
+    return c.json({ error: "invalid signature" }, 401);
+  }
+
+  let body: Record<string, unknown>;
+  try {
+    body = JSON.parse(rawBody) as Record<string, unknown>;
+  } catch {
+    return c.json({ error: "invalid json" }, 400);
   }
 
   const inbound = normalizeDiscordInboundMessage(body);
