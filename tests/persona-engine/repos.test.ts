@@ -61,7 +61,7 @@ assert.ok(tickRules.length >= 1);
 assert.ok(eventRules.length >= 1);
 const propose = rules.get("propose-on-gap");
 assert.ok(propose);
-assert.equal(propose?.event_kind, "GapDetected");
+assert.equal(propose?.event_kind, "DesignGapDetected");
 assert.equal(propose?.target, "advocate");
 console.log("ok rule seed");
 

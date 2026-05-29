@@ -20,7 +20,7 @@ export const DISCUSSION_RULE_SEEDS: RuleSeed[] = [
     description:
       "design gap が検出されたら、 advocate (推進派) が新規 hypothesis を提案する",
     trigger_type: "event",
-    event_kind: "GapDetected",
+    event_kind: "DesignGapDetected",
     target: "advocate",
     cooldown_sec: 60,
     instructions: `あなたは議論における推進派です。 直前に検出された design gap を読み、
