@@ -15,6 +15,7 @@ export const NODE_TYPES = [
   "aff",
   "ses",
   "game",
+  "persona",
 ] as const;
 export type NodeType = (typeof NODE_TYPES)[number];
 
@@ -71,6 +72,7 @@ export const TYPE_TO_TABLE: Record<NodeType, string> = {
   aff: "affects",
   ses: "sessions",
   game: "games",
+  persona: "personas",
 };
 
 /** node type ↔ 出力 md ディレクトリ名のマップ */
@@ -83,6 +85,7 @@ export const TYPE_TO_DIR: Record<NodeType, string> = {
   aff: "affect",
   ses: "session",
   game: "game",
+  persona: "persona",
 };
 
 /** CLI 引数 / DESIGN.md の表記 (full word) と prefix のマップ */
@@ -97,6 +100,7 @@ export const FULL_TO_PREFIX: Record<string, NodeType> = {
   affect: "aff",
   session: "ses",
   game: "game",
+  persona: "persona",
 };
 
 /** "hypothesis" / "hyp" のどちらでも prefix に揃える */
