@@ -35,6 +35,19 @@ export interface EngineDeps {
   tickMs?: number;
   /** false にすると LLM 呼ばずに skip ログ (テスト用) */
   enableLlm?: boolean;
+  /**
+   * Safety cap — 同一 session 内の総発火数上限。
+   * 超過したら以降の fire は "skip / session cap reached" でスキップ。
+   * `resetSession(sessionId)` で reset 可。
+   * 未指定なら上限なし。
+   */
+  maxFiresPerSession?: number;
+  /**
+   * Safety cap — 同一 session 内で同一 rule の発火数上限。
+   * 無限ループ防止 (event 連鎖で同 rule が再発火するケース) の対策。
+   * 未指定なら上限なし。
+   */
+  maxFiresPerRulePerSession?: number;
 }
 
 export interface EngineHandle {
@@ -45,6 +58,8 @@ export interface EngineHandle {
   /** 外部 event 通知 (event-driven rules を発火) */
   fireEvent(event: { kind: string; sessionId?: string | null; payload?: unknown }): Promise<void>;
   setRulesEnabled(enabled: boolean): void;
+  /** session カウンタを reset (= 議論クローズ後の cap 解放) */
+  resetSession(sessionId: string): void;
 }
 
 const DEFAULT_TICK_MS = 1000;
@@ -56,6 +71,10 @@ export function createEngine(deps: EngineDeps): EngineHandle {
   let runtimeEnabled = true;
   const tickMs = deps.tickMs ?? DEFAULT_TICK_MS;
 
+  // per-session safety counter: Map<sessionId, Map<ruleId, count>>
+  // sessionId が null の rule (tick rule) はカウントしない (cooldown で十分)
+  const sessionFires = new Map<string, Map<string, number>>();
+
   function isDisabled(): boolean {
     if (!runtimeEnabled) return true;
     if (deps.rulesDisabled && deps.rulesDisabled()) return true;
@@ -64,6 +83,31 @@ export function createEngine(deps: EngineDeps): EngineHandle {
 
   function nowSec(): number {
     return Math.floor(Date.now() / 1000);
+  }
+
+  function checkSessionCap(rule: RuleRow, sessionId: string | null): { ok: true } | { ok: false; reason: string } {
+    if (!sessionId) return { ok: true };
+    const perRuleMap = sessionFires.get(sessionId);
+    if (!perRuleMap) return { ok: true };
+    const totalFires = [...perRuleMap.values()].reduce((a, b) => a + b, 0);
+    if (deps.maxFiresPerSession !== undefined && totalFires >= deps.maxFiresPerSession) {
+      return { ok: false, reason: `session cap reached: ${totalFires}/${deps.maxFiresPerSession} (turn budget)` };
+    }
+    const perRuleCount = perRuleMap.get(rule.id) ?? 0;
+    if (deps.maxFiresPerRulePerSession !== undefined && perRuleCount >= deps.maxFiresPerRulePerSession) {
+      return { ok: false, reason: `rule cap reached: ${rule.id} ${perRuleCount}/${deps.maxFiresPerRulePerSession} (loop guard)` };
+    }
+    return { ok: true };
+  }
+
+  function recordSessionFire(rule: RuleRow, sessionId: string | null): void {
+    if (!sessionId) return;
+    let perRuleMap = sessionFires.get(sessionId);
+    if (!perRuleMap) {
+      perRuleMap = new Map();
+      sessionFires.set(sessionId, perRuleMap);
+    }
+    perRuleMap.set(rule.id, (perRuleMap.get(rule.id) ?? 0) + 1);
   }
 
   async function tryFire(rule: RuleRow, triggeredBy: string, sessionId: string | null): Promise<void> {
@@ -91,9 +135,21 @@ export function createEngine(deps: EngineDeps): EngineHandle {
       return; // cooldown 内、 ログも spam なので無音
     }
 
+    const cap = checkSessionCap(rule, sessionId);
+    if (!cap.ok) {
+      deps.rules.log({
+        rule_id: rule.id,
+        action: "skip",
+        actor: "engine",
+        detail: cap.reason,
+      });
+      return;
+    }
+
     running = true;
     try {
       deps.rules.setLastFired(rule.id, now);
+      recordSessionFire(rule, sessionId);
       await fireOnce(rule, triggeredBy, sessionId);
     } catch (err) {
       const message = (err as Error).message ?? String(err);
@@ -230,6 +286,10 @@ export function createEngine(deps: EngineDeps): EngineHandle {
     setRulesEnabled(enabled: boolean): void {
       runtimeEnabled = enabled;
       deps.logger.info({ enabled }, "rules runtime switch");
+    },
+    resetSession(sessionId: string): void {
+      sessionFires.delete(sessionId);
+      deps.logger.info({ sessionId }, "session counter reset");
     },
   };
 }

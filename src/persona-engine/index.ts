@@ -31,6 +31,10 @@ export interface PersonaEngineOptions {
   enableLlm?: boolean;
   rulesDisabled?: () => boolean;
   resolveSessionId?: EngineDeps["resolveSessionId"];
+  /** Safety: 同一 session 内総発火上限 (turn budget) */
+  maxFiresPerSession?: number;
+  /** Safety: 同一 session 内同一 rule 発火上限 (無限ループ防止) */
+  maxFiresPerRulePerSession?: number;
 }
 
 export interface PersonaEngineHandle extends EngineHandle {
@@ -63,6 +67,8 @@ export function createPersonaEngine(
     enableLlm: opts.enableLlm,
     rulesDisabled: opts.rulesDisabled,
     resolveSessionId: opts.resolveSessionId,
+    maxFiresPerSession: opts.maxFiresPerSession,
+    maxFiresPerRulePerSession: opts.maxFiresPerRulePerSession,
   });
 
   return Object.assign(engine, { personas, rules });
