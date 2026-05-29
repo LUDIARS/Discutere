@@ -48,8 +48,15 @@ export function handleValidate(ctx: HandlerContext): HandlerResult {
   if (mode !== "theory" && mode !== "emotion") return { ok: false, error: "usage: /validate theory|emotion" };
   const h = latestHypothesis(ctx);
   if (!h) return { ok: false, error: "no hypothesis" };
-  const out = applyLifecycle(ctx.core, h.id, mode === "theory" ? "validate_theory" : "validate_emotion", { workspaceId: ctx.workspaceId, sessionId: ctx.sessionId });
+  const action = mode === "theory" ? "validate_theory" : "validate_emotion";
+  const out = applyLifecycle(ctx.core, h.id, action, { workspaceId: ctx.workspaceId, sessionId: ctx.sessionId });
   if (!out.ok) return { ok: false, error: out.error };
+  // 2-phase commit を 1 コマンドで完了させる: under_X_validation → validated_by_X
+  // (finalizeValidationForSession を session 終了まで待たない議論モード向け簡略化)
+  const finalize = applyLifecycle(ctx.core, h.id, "session_end", { workspaceId: ctx.workspaceId, sessionId: ctx.sessionId });
+  if (!finalize.ok) {
+    return { ok: true, message: `validated ${mode} (pending finalize: ${finalize.error})` };
+  }
   return { ok: true, message: `validated ${mode}` };
 }
 
