@@ -186,9 +186,9 @@ npm run build && npm start
 - `/validate mode:emotion` — 検証 → `/integrate` で採用
 - 自動議論の進行は同 channel に AI persona の発話として post される
 
-## Quickstart (Discord 議論を最短で動かす)
+## Quickstart (Discord 議論を最短で動かす / Cernere 不要)
 
-上の詳細手順をローカル開発向けに圧縮した最短経路:
+**議論機能のみなら Cernere / Infisical / frontend は不要**。 dev mode では `X-User-Id` + `X-User-Role: admin` ヘッダーで admin になれるので、 monitor 登録も curl 一発で済む(`src/middleware/auth.ts:62-71` の dev フォールバック)。
 
 ```sh
 # 1. clone + 依存
@@ -196,68 +196,70 @@ git clone https://github.com/LUDIARS/Discutere && cd Discutere
 npm install
 npm run build
 
-# 2. 最小 env (議論機能だけ動かす場合)
-cp .env.example .env  2>/dev/null || true
-cat >> .env <<'ENV'
-NODE_ENV=development
-BACKEND_PORT=3100
-JWT_SECRET=dev-only-not-for-prod-but-long-enough-32chars
-FRONTEND_URL=http://localhost:5174
-CERNERE_URL=http://localhost:8080
+# 2. 最小 env (議論機能だけ動かす場合 — Cernere/Infisical なし)
+cp .env.example .env
+# .env を開いて DISCUTERE_DISCORD_ADMIN_IDS=<自分の Discord user id> を埋める
 
-# LLM backend は二択
-LLM_BACKEND=claude-cli         # (a) Lictor 経由 spawn (claude CLI 必須、 API key 不要)
-# LLM_BACKEND=anthropic         # (b) Anthropic SDK 直叩き
-# ANTHROPIC_API_KEY=sk-ant-...
-
-# 議論 workspace + safety
-DISCATIER_WORKSPACE=knowledge
-PERSONA_ENGINE_MAX_FIRES_PER_SESSION=20
-PERSONA_ENGINE_MAX_FIRES_PER_RULE=5
-PERSONA_ENGINE_TICK_MS=5000
-PERSONA_ENGINE_BRIDGE_POLL_MS=2000
-
-# Discord (kill switch 認可)
-DISCUTERE_DISCORD_ADMIN_IDS=<あなたの Discord user id>
-ENV
-
-# 3. DB 初期化
+# 3. DB 初期化 (drizzle table)
 mkdir -p data
-npm run db:push          # MACHINA 用 drizzle table
+npx drizzle-kit push --config=drizzle.config.ts 2>/dev/null || npm run db:push
 # persona-engine 用 SQLite (data/persona-engine.db) は起動時 auto-migrate
 
-# 4. tunneling (Discord interactions endpoint を外部公開、 cloudflared / ngrok 等)
-cloudflared tunnel --url http://localhost:3100   # → https://<sub>.trycloudflare.com 取得
+# 4. 起動
+npm start
+# → :3100 listen、 persona-engine attached、 mode-state cleanup 起動
 
-# 5. Discord 側
+# 5. tunneling (Discord interactions endpoint を外部公開)
+cloudflared tunnel --url http://localhost:3100   # → https://<sub>.trycloudflare.com
+
+# 6. Discord 側
 #    a. https://discord.com/developers/applications で Application + Bot 作成
 #    b. INTERACTIONS ENDPOINT URL = https://<sub>.trycloudflare.com/api/discord/interactions?workspaceId=knowledge
-#    c. Bot を guild に invite (scope: bot + applications.commands)
+#    c. Bot を guild に invite (scope: bot + applications.commands、 channel に投稿可能な権限)
 #    d. README §3 の curl で slash command 登録
 
-# 6. monitor 登録 (Cernere 認証済の admin で POST)
+# 7. monitor 登録 (Cernere 不要、 dev mode の X-User-Role ヘッダーで admin)
 curl -X POST http://localhost:3100/api/groups/knowledge/monitors \
-  -H "Content-Type: application/json" -H "Cookie: discutere_token=<your-token>" \
-  -d '{"platform":"discord","channelId":"<id>","channelName":"discutere","botToken":"<Bot>","botSigningSecret":"<PubKey>","botWorkspaceId":"<Guild>","captureMessages":true,"mode":"none","createdBy":"<your-user-id>"}'
+  -H "Content-Type: application/json" \
+  -H "X-User-Id: dev-admin" \
+  -H "X-User-Role: admin" \
+  -d '{
+    "platform": "discord",
+    "channelId": "<対象 channel ID>",
+    "channelName": "discutere",
+    "botToken": "<Bot Token>",
+    "botSigningSecret": "<Application Public Key>",
+    "botWorkspaceId": "<Guild ID>",
+    "captureMessages": true,
+    "mode": "none",
+    "createdBy": "dev-admin"
+  }'
 
-# 7. 起動
-npm start
-# → Discord channel で /propose ... → AI 議論が start
+# 8. Discord channel で /propose statement:オンボーディング改善 を投げる
+# → persona-engine が advocate / sceptic / refiner... を回し、 結果が channel に bot post
 
-# 8. dashboard で監視
-# https://<sub>.trycloudflare.com/api/admin/dashboard  (admin cookie 必須)
+# 9. dashboard で監視 (= dev mode は同 ヘッダーで開ける)
+# curl -H "X-User-Id: dev-admin" -H "X-User-Role: admin" \
+#   https://<sub>.trycloudflare.com/api/admin/dashboard
+# (ブラウザで見るなら拡張 e.g. ModHeader で X-User-Id/X-User-Role を付ける、
+#  もしくは production では Cernere Composite ログイン経由)
 ```
 
 ### 議論を確認 / 停止
 
-- **dashboard**: `/api/admin/dashboard` で engine 状態 / Rule Viewer / persona 採用率を 5s ポーリング
-- **Discord 内 kill switch**: `/discutere-kill enabled:false` でその場停止
+- **Discord 内 kill switch**: `/discutere-kill enabled:false` でその場停止 (env の `DISCUTERE_DISCORD_ADMIN_IDS` 一致 user のみ)
 - **dashboard kill switch**: 「DISABLE rules」 ボタン
 - **session cap 解放**: dashboard の Session ops 欄に sessionId 入力 → reset
+- **Rule Viewer**: AI が自己補正した rule の追加 / 発火履歴を時系列で確認
+
+### Cernere / production について
+
+- **dev (NODE_ENV !== production)**: Cernere 不要、 `X-User-Id` + `X-User-Role: admin` ヘッダーで全 admin API 通る
+- **production (NODE_ENV=production)**: Cernere Composite ログイン + JWT_SECRET 32+ 文字必須 (`src/auth/jwt-guard.ts`)。 ヘッダー fallback は無効化される
+- 議論機能 (Discord interactions / persona-engine / kill switch slash) は **常に Cernere 非依存**
 
 ### 既知の制約
 
-- Cernere Composite 認証は monitor 登録 / dashboard アクセスに必要 (= 議論機能だけ動かしたい場合でも Cernere を別途立てる)
 - 議論用 dedicated mode で channel 自由発話を取り込む path は未実装 (= 現状は slash 経由のみ)
 - 自動 gap 検出 (`DesignGapDetected` event) 由来の議論は session.scene = `gap:...` のため Discord post されない (= 明示的に discord channel と紐付ける PR が次の課題)
 
