@@ -1,8 +1,25 @@
 # Discutere
 
-Chat-to-Task 自動化サービス — Slack / Discord のメッセージを解析し、タスクを自動生成・管理します。
+**遊びの議論プラットフォーム (Discatier)** — ゲームデザインの「意図された体験 (`intended_affect`)」と
+「観測された体験 (`expressed_affect`)」を 3 軸の弁証法的対話で突き合わせ、設計のズレ (`DesignGap`) と
+跳躍的仮説 (`Hypothesis`) を育てる議論基盤。
 
-MACHINA (M3) モジュールとして、外部プロジェクト管理システムとの連携にも対応しています。
+> **役割整理 (2026-05-29)**
+> 本リポジトリは当初 *Chat-to-Task 自動化 (Slack / Discord メッセージ → タスク生成)* として始まったが、
+> その実装意図は **Imperativus (Iv) — 入力 → コマンド / タスクのルーター** が担うべきものと整理した。
+> よって **Discutere は「議論専用 (Discatier)」に純化**し、Chat-to-Task 機能群は **Iv へ移管**する。
+> 移管完了まではコードに Chat-to-Task 実装が同居するため、下記 Features では該当群に「→ Iv へ移管」を明記する。
+
+## コンセプト — Discatier の 3 軸対話
+
+| 軸 | モード | 役割 | 生成物 |
+|---|---|---|---|
+| Axis 1 学習対話 | `learning` | 語彙 / メカニクスの定義を精緻化 | `Mechanic.intended_affect` |
+| Axis 2 感情会話 | `emotion` | プレイヤーが理論用語を介さず生の感情を報告 | `expressed_affect`(観測) |
+| Axis 3 統合 | `synthesis` | Axis 1↔2 のズレに仮説を提示・検証 | `DesignGap` → `Hypothesis` |
+
+単一のデータ基盤 (Kuzu グラフ + イベントログ) 上で Translation Bridge / Gap Detection /
+Hypothesis Lifecycle が弁証法的ループを形成する。詳細は [`docs/discatier_implementation_plan.md`](docs/discatier_implementation_plan.md)。
 
 ## Tech Stack
 
@@ -10,28 +27,26 @@ MACHINA (M3) モジュールとして、外部プロジェクト管理システ�
 |-------|-----------|
 | Backend | [Hono](https://hono.dev/) + Node.js 22+ (TypeScript) |
 | Frontend | React 19 + React Router 7 + Vite |
-| Database | SQLite (WAL) + [Drizzle ORM](https://orm.drizzle.team/) |
+| Database | SQLite (WAL) + [Drizzle ORM](https://orm.drizzle.team/) / Discatier Core は Kuzu (SQLite WAL) + イベントログ |
 | Auth | [Cernere](https://github.com/LUDIARS/Cernere) Composite (HttpOnly Cookie + 独自 JWT) |
 | Env/Secrets | [Infisical](https://infisical.com) + `@cernere/env-cli` |
 
-## Features
+## Features — 議論専用 (Discatier)
 
-- **チャットからタスク自動生成** — Slack / Discord の Webhook を受信し、パターンマッチングでタスクを検出・作成
-- **チャンネルモード (task / discussion / none)** — 各チャンネル(ツリー)に対して「何をするか」を設定
-  - `task`: 投稿を即時処理。Haiku でタスク性を判定し、情報不足時は Slack スレッド / Discord リプライ+メンションでヒアリング。処理中は追加投稿を同一タスクへ取り込み、登録完了で終了。処理状態はすべてオンメモリ。
-  - `discussion`: 投稿後 N 分 (既定 5 分、debounce) で遅延処理。チャンネル全体を要約し GitHub Discussions に保存。
-  - `none`: 何もしない (ログ保存のみ)
-- **処理状況の可視化** — タスクモードのヒアリング待ち、議論モードのタイマー待ち/失敗をフロントエンドに一覧表示し、補足投入・即時実行・破棄などの対応指示を出せる
-- **タスク管理 (CRUD)** — ステータス・優先度・担当者・期限などを管理
-- **BOT チャネル設定** — フロントエンドから Slack / Discord の BOT トークンを登録して監視チャネルをセットアップ
-- **チャットログ** — 監視チャネルで流れるメッセージを蓄積・閲覧
-- **チャット要約** — 期間を指定してメッセージを要約 (参加者統計・頻出キーワード付き)
-- **テキスト解析プレビュー** — メッセージがどう解析されるかを事前確認
-- **外部 PM 連携** — アダプターパターンで外部プロジェクト管理サービスへタスクをリレー
-- **監査ログ** — タスクの変更履歴を自動記録
+- **Discatier Core (3 軸対話)** — `src/core/` に Game / Mechanic / Aesthetic / Affect / PlayContext / Utterance / Reaction / DesignGap / Hypothesis を Event Sourcing + projection で管理。Translation Bridge / Gap Detection / Hypothesis Lifecycle。
 - **Game KG クローラー (Phase 0)** — `src/crawler/` で著名ゲームの攻略データを `data/games/<slug>.md` から Discatier Core (`Game` / `Mechanic` / `Aesthetic`) に import。詳細は [`spec/crawler/DESIGN.md`](spec/crawler/DESIGN.md)
-- **議論ソース可視化 (Phase 0)** — `src/visualize/` で hypothesis / gap / mechanic / aesthetic / utterance / session を 1 ノード = 1 md に書き出し、 ノード間参照を `[[<type>:<id>]]` マジックリンクで繋ぐ。 詳細は [`spec/visualize/DESIGN.md`](spec/visualize/DESIGN.md)
-- **persona-engine (Phase 0)** — `src/persona-engine/` に閉じた 議論駆動エンジン。 ペルソナ (推進派 / 懐疑者 / 統合者 等 10 名) × チャットルール (propose-on-gap / refute-cold 等) × LLM 呼び出し。 将来 `@ludiars/persona-engine` として切り出す前提で、 Discutere 固有 import を持たない境界に閉じている。 詳細は [`spec/persona-engine/DESIGN.md`](spec/persona-engine/DESIGN.md)
+- **レビュー/コメント → 感情・議論ベクトル (Phase 0)** — 外部収集ツール (`LUDIARS/game-knowledge-graph/collectors/`) の収集物を、複合固定ベクトル (感情 + 評価アスペクト) + affect + 議論クラスタに変換。詳細は [`spec/crawler/SENTIMENT.md`](spec/crawler/SENTIMENT.md) / [`docs/crawler-to-discussion-pipeline.md`](docs/crawler-to-discussion-pipeline.md)
+- **議論ソース可視化 (Phase 0)** — `src/visualize/` で hypothesis / gap / mechanic / aesthetic / utterance / session を 1 ノード = 1 md に書き出し、ノード間参照を `[[<type>:<id>]]` マジックリンクで繋ぐ。詳細は [`spec/visualize/DESIGN.md`](spec/visualize/DESIGN.md)
+- **persona-engine (Phase 0)** — `src/persona-engine/` に閉じた議論駆動エンジン。ペルソナ (推進派 / 懐疑者 / 統合者 等 10 名) × チャットルール (propose-on-gap / refute-cold 等) × LLM 呼び出し。将来 `@ludiars/persona-engine` として切り出す前提。詳細は [`spec/persona-engine/DESIGN.md`](spec/persona-engine/DESIGN.md)
+- **Discord で議論を動かす** — slash command (`/propose` `/validate` `/integrate` `/reject` `/discutere-status` 等) + persona-engine の自走。
+
+### → Imperativus (Iv) へ移管予定 (旧 Chat-to-Task)
+
+以下は本来 **Iv (入力→コマンド/タスクのルーター)** が担う実装。移管までは本リポに残存:
+
+- **チャットからタスク自動生成** — Slack / Discord Webhook → パターンマッチでタスク検出・作成
+- **チャンネルモード (task / discussion / none)** / **処理状況の可視化** / **タスク管理 (CRUD)**
+- **BOT チャネル設定** / **チャットログ** / **チャット要約** / **テキスト解析プレビュー** / **外部 PM 連携** / **監査ログ**
 
 ## Game KG クローラー
 
