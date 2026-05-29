@@ -32,6 +32,25 @@ export interface DiscatierAdapterOptions {
   autoExportRootDir?: string;
   /** auto-export 失敗時のログハンドラ (default: console.warn) */
   onAutoExportError?: (err: unknown, ctx: { type: string; id: string }) => void;
+  /**
+   * PR-I: 議論 utterance / hypothesis を作った直後に発火する callback。
+   * Discord 議論 bridge から差し込む (= AI 発話を Discord channel に投稿)。
+   * 失敗しても adapter 側は無視 (= 議論を止めない)。
+   */
+  onPostedUtterance?: (input: {
+    workspaceId: string;
+    sessionId: string;
+    text: string;
+    byPersonaId: string;
+    utteranceId: string;
+  }) => Promise<void> | void;
+  onPostedHypothesis?: (input: {
+    workspaceId: string;
+    statement: string;
+    byPersonaId: string;
+    designGapId: string | null;
+    hypothesisId: string;
+  }) => Promise<void> | void;
 }
 
 export function createDiscatierContextProvider(
@@ -148,6 +167,17 @@ export function createDiscatierContextProvider(
           Date.now()
         );
       autoExportIfEnabled("hyp", id, input.workspaceId);
+      if (options.onPostedHypothesis) {
+        Promise.resolve(
+          options.onPostedHypothesis({
+            workspaceId: input.workspaceId,
+            statement: input.statement,
+            byPersonaId: input.byPersonaId,
+            designGapId: input.designGapId ?? null,
+            hypothesisId: id,
+          })
+        ).catch((err) => onErr(err, { type: "hyp", id }));
+      }
       return { id };
     },
 
@@ -165,6 +195,17 @@ export function createDiscatierContextProvider(
         respondsTo: input.respondsTo,
       });
       autoExportIfEnabled("utt", id, input.workspaceId);
+      if (options.onPostedUtterance) {
+        Promise.resolve(
+          options.onPostedUtterance({
+            workspaceId: input.workspaceId,
+            sessionId,
+            text: input.text,
+            byPersonaId: input.byPersonaId,
+            utteranceId: id,
+          })
+        ).catch((err) => onErr(err, { type: "utt", id }));
+      }
       return { id };
     },
   };

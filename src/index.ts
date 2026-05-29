@@ -16,8 +16,11 @@ import { createDiscatierContextProvider } from "./discatier-engine-adapter/index
 import { createEventBridge } from "./discatier-engine-adapter/event-bridge.js";
 import {
   AnthropicSdkClient,
+  ClaudeCliClient,
   createPersonaEngine,
+  type LLMClient,
 } from "./persona-engine/index.js";
+import { postDiscussionToDiscord } from "./discord-hook/discussion-bridge.js";
 
 // Initialize DB (triggers schema creation)
 import "./db/connection.js";
@@ -63,21 +66,71 @@ app.route("/api", dashboardRoutes);
 // PR-C: mode-state TTL cleanup を 15 min interval で起動 (24h 経過 session を回収)
 const stopSessionCleanup = startSessionCleanup();
 
-// PR-C: persona-engine 起動 wiring (ANTHROPIC_API_KEY あれば自動起動)
+// PR-C / PR-I: persona-engine 起動 wiring
+//   LLM backend は env LLM_BACKEND で切替: "anthropic" (= ANTHROPIC_API_KEY)
+//   または "claude-cli" (= Lictor 経由 spawn、 環境に claude CLI が必要)。
 const personaEngineLifecycle = (() => {
-  if (!process.env.ANTHROPIC_API_KEY) {
-    console.log("  persona-engine: skipped (ANTHROPIC_API_KEY not set)");
+  const backend = (process.env.LLM_BACKEND ?? "anthropic").toLowerCase();
+  let llm: LLMClient | null = null;
+  if (backend === "claude-cli") {
+    llm = new ClaudeCliClient({
+      defaultTimeoutMs: Number(process.env.CLAUDE_CLI_TIMEOUT_MS ?? 120_000),
+    });
+    console.log("  persona-engine LLM: ClaudeCliClient (Lictor 経由 spawn)");
+  } else if (process.env.ANTHROPIC_API_KEY) {
+    llm = new AnthropicSdkClient();
+    console.log("  persona-engine LLM: AnthropicSdkClient (HTTP)");
+  } else {
+    console.log("  persona-engine: skipped (set LLM_BACKEND=claude-cli or ANTHROPIC_API_KEY)");
     return null;
   }
+
   try {
     const peDbPath = process.env.DISCUTERE_PERSONA_ENGINE_DB ?? path.resolve("./data/persona-engine.db");
     const workspaceId = process.env.DISCATIER_WORKSPACE ?? "knowledge";
     const peDb = new Database(peDbPath);
     const core = createCore();
-    const adapter = createDiscatierContextProvider(core, {});
+    const adapter = createDiscatierContextProvider(core, {
+      // PR-I: AI 発話 / hypothesis を Discord channel に bot post
+      async onPostedUtterance(input) {
+        const r = await postDiscussionToDiscord({
+          core,
+          workspaceId: input.workspaceId,
+          sessionId: input.sessionId,
+          kind: "utterance",
+          speakerLabel: `persona:${input.byPersonaId}`,
+          text: input.text,
+        });
+        if (!r.ok) {
+          console.warn("  persona-engine: discord utterance post skipped:", r.reason);
+        }
+      },
+      async onPostedHypothesis(input) {
+        // hypothesis は対応する gap session の scene が discord 由来でない場合スキップ
+        const session = core.client.raw
+          .prepare(
+            "SELECT id, scene FROM sessions WHERE workspace_id = ? AND title = ? ORDER BY started_at DESC LIMIT 1"
+          )
+          .get(workspaceId, `discussion-of-gap:${input.designGapId ?? "_none"}`) as
+          | { id: string; scene: string | null }
+          | undefined;
+        if (!session?.scene?.startsWith("discord:")) return;
+        const r = await postDiscussionToDiscord({
+          core,
+          workspaceId: input.workspaceId,
+          sessionId: session.id,
+          kind: "hypothesis",
+          speakerLabel: `persona:${input.byPersonaId}`,
+          text: input.statement,
+        });
+        if (!r.ok) {
+          console.warn("  persona-engine: discord hypothesis post skipped:", r.reason);
+        }
+      },
+    });
     const engine = createPersonaEngine({
       db: peDb,
-      llm: new AnthropicSdkClient(),
+      llm,
       contextProvider: adapter,
       workspaceId,
       maxFiresPerSession: Number(process.env.PERSONA_ENGINE_MAX_FIRES_PER_SESSION ?? 20),

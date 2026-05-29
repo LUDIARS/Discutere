@@ -68,6 +68,82 @@ npm run test:visualize
 
 ノード間参照は `[[hyp:abc123]]` / `[[utt:550e8400]]` / `[[mch:ghi789]]` 形式で、 GitHub / Memoria / 専用 viewer で相互リンク可能。 viewer が wikilink → md ファイルパス (`data/discussions/<workspace>/<type-dir>/<id>.md`) を解決すれば graph として閲覧できる。
 
+## Discord で議論を動かす (PR-I)
+
+### 1. Discord application / bot 作成
+
+1. <https://discord.com/developers/applications> で新規 application
+2. Bot 追加、 Privileged Gateway Intents の "Message Content" を有効化 (必要なら)
+3. OAuth2 URL Generator で `bot` + `applications.commands` scope + 必要権限を選んで guild に invite
+4. Application の `INTERACTIONS ENDPOINT URL` を `https://<your-host>/api/discord/interactions?workspaceId=<ws>` に設定
+
+### 2. monitor 登録 (Discutere 側)
+
+`POST /api/groups/:workspaceId/monitors` で:
+
+- `platform: "discord"`
+- `channelId / channelName`
+- `botToken`: Bot Token (= AI 発話 post に使用)
+- `botSigningSecret`: Application Public Key (= Ed25519 検証 / Discord は public key を secret 欄に保存)
+- `botWorkspaceId`: Guild ID
+
+### 3. Slash command 登録
+
+```sh
+# DISCORD_BOT_TOKEN + DISCORD_APP_ID を export してから
+curl -X POST -H "Authorization: Bot $DISCORD_BOT_TOKEN" -H "Content-Type: application/json" \
+  -d '[
+    {"name":"discutere-kill","description":"persona-engine の ON/OFF","options":[
+      {"name":"enabled","description":"true で再開、 false で停止","type":5,"required":true}]},
+    {"name":"discutere-status","description":"persona-engine の状態を確認"},
+    {"name":"propose","description":"hypothesis 提案","options":[
+      {"name":"statement","description":"仮説 1 文","type":3,"required":true}]},
+    {"name":"validate","description":"hypothesis 検証","options":[
+      {"name":"mode","description":"theory|emotion","type":3,"required":true}]},
+    {"name":"integrate","description":"hypothesis 統合"},
+    {"name":"reject","description":"hypothesis 棄却"}
+  ]' \
+  "https://discord.com/api/v10/applications/$DISCORD_APP_ID/commands"
+```
+
+### 4. env 設定
+
+```sh
+# kill switch を叩ける admin user id (カンマ区切り)
+DISCUTERE_DISCORD_ADMIN_IDS=<your-discord-user-id>
+
+# LLM backend を選択
+# (a) Anthropic API 直叩き
+LLM_BACKEND=anthropic
+ANTHROPIC_API_KEY=sk-ant-...
+# (b) Claude Code を Lictor 経由 spawn
+LLM_BACKEND=claude-cli
+# CLAUDE_CLI_TIMEOUT_MS=120000
+
+# workspace
+DISCATIER_WORKSPACE=knowledge
+
+# session 別 safety caps
+PERSONA_ENGINE_MAX_FIRES_PER_SESSION=20
+PERSONA_ENGINE_MAX_FIRES_PER_RULE=5
+```
+
+### 5. server 起動
+
+```sh
+npm run build && npm start
+# → :3100 で interaction endpoint 公開
+```
+
+### 6. Discord 上での運用
+
+- `/discutere-status` — engine 状態確認 (ephemeral)
+- `/discutere-kill enabled:false` — 議論停止 (admin only)
+- `/discutere-kill enabled:true` — 議論再開
+- `/propose statement:<仮説>` — 人間が hypothesis 提案 → persona の自動議論が走る
+- `/validate mode:emotion` — 検証 → `/integrate` で採用
+- 自動議論の進行は同 channel に AI persona の発話として post される
+
 ## persona-engine (議論駆動)
 
 ```sh

@@ -94,6 +94,7 @@ export type {
 } from "./llm/client.js";
 export { AnthropicSdkClient } from "./llm/anthropic.js";
 export { MockLLMClient } from "./llm/mock.js";
+export { ClaudeCliClient, type ClaudeCliClientOptions } from "./llm/claude-cli.js";
 export type {
   DiscussionContextProvider,
   ContextHypothesis,
