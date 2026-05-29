@@ -10,5 +10,6 @@ import "./safety-caps.test.js";
 import "./event-bridge.test.js";
 import "./auto-export.test.js";
 import "./learning.test.js";
+import "./rule-self-edit.test.js";
 
 console.log("persona-engine tests: all passed");
