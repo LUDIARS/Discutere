@@ -19,7 +19,14 @@ export function canTransition(from: HypothesisState, action: HypothesisAction): 
 
   if (action === "submit") return from === "draft" ? { ok: true, to: "proposed" } : { ok: false, error: "submit requires draft" };
   if (action === "validate_theory") return from === "proposed" ? { ok: true, to: "under_theory_validation" } : { ok: false, error: "validate theory requires proposed" };
-  if (action === "validate_emotion") return from === "validated_by_theory" ? { ok: true, to: "under_emotion_validation" } : { ok: false, error: "validate emotion requires validated_by_theory" };
+  if (action === "validate_emotion") {
+    // 議論モードでは theory → emotion 厳密順を強制せず、 proposed から直接 emotion 検証へ進めるを許容。
+    // (theory チェック飛ばしが望ましくないケースは consumer 側で wrap 制約する設計とする)
+    if (from === "proposed" || from === "validated_by_theory") {
+      return { ok: true, to: "under_emotion_validation" };
+    }
+    return { ok: false, error: "validate emotion requires proposed or validated_by_theory" };
+  }
   if (action === "session_end") {
     if (from === "under_theory_validation") return { ok: true, to: "validated_by_theory" };
     if (from === "under_emotion_validation") return { ok: true, to: "validated_by_emotion" };
