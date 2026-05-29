@@ -72,6 +72,22 @@ const HTML = `<!doctype html>
 </div>
 
 <div class="card">
+  <h2>Persona metrics (proposed / integrated / rejected)</h2>
+  <table id="personas">
+    <thead><tr><th>persona</th><th>proposed</th><th>integrated</th><th>rejected</th><th>acceptance</th></tr></thead>
+    <tbody><tr><td colspan="5" class="muted">loading…</td></tr></tbody>
+  </table>
+</div>
+
+<div class="card">
+  <h2>Rule metrics (fires / skips / errors)</h2>
+  <table id="rules">
+    <thead><tr><th>rule</th><th>fires</th><th>skips</th><th>errors</th></tr></thead>
+    <tbody><tr><td colspan="4" class="muted">loading…</td></tr></tbody>
+  </table>
+</div>
+
+<div class="card">
   <h2>Recent rule log (latest 10)</h2>
   <table id="logs">
     <thead><tr><th>time</th><th>rule</th><th>actor</th><th>action</th><th>detail</th></tr></thead>
@@ -163,9 +179,50 @@ function escapeHtml(s) {
   return String(s).replace(/[&<>"']/g, (c) => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#039;"}[c]));
 }
 
+async function fetchMetrics(kind) {
+  const res = await fetch("/api/admin/metrics/" + kind, { credentials: "include" });
+  if (!res.ok) throw new Error(kind + " metrics http " + res.status);
+  return res.json();
+}
+
+function renderPersonaMetrics(list) {
+  const tbody = document.querySelector("#personas tbody");
+  if (!list || list.length === 0) {
+    tbody.innerHTML = '<tr><td colspan="5" class="muted">no personas</td></tr>';
+    return;
+  }
+  const sorted = [...list].sort((a, b) => (b.proposed || 0) - (a.proposed || 0));
+  tbody.innerHTML = sorted.map((m) => {
+    const rate = m.acceptanceRate === null ? "—" : (m.acceptanceRate * 100).toFixed(0) + "%";
+    return \`<tr>
+      <td>\${escapeHtml(m.name)} <span class="muted">(\${escapeHtml(m.display_name)})</span></td>
+      <td>\${m.proposed}</td>
+      <td>\${m.integrated}</td>
+      <td>\${m.rejected}</td>
+      <td>\${rate}</td>
+    </tr>\`;
+  }).join("");
+}
+
+function renderRuleMetrics(list) {
+  const tbody = document.querySelector("#rules tbody");
+  if (!list || list.length === 0) {
+    tbody.innerHTML = '<tr><td colspan="4" class="muted">no rule activity</td></tr>';
+    return;
+  }
+  tbody.innerHTML = list.map((m) => \`<tr>
+    <td>\${escapeHtml(m.id)}</td>
+    <td>\${m.fires}</td>
+    <td>\${m.skips}</td>
+    <td>\${m.errors}</td>
+  </tr>\`).join("");
+}
+
 async function refresh() {
   try {
     renderStatus(await fetchStatus());
+    fetchMetrics("personas").then((r) => renderPersonaMetrics(r.metrics)).catch(() => {});
+    fetchMetrics("rules").then((r) => renderRuleMetrics(r.metrics)).catch(() => {});
   } catch (err) {
     document.getElementById("status-stats").innerHTML = '<span class="stat bad">' + escapeHtml(err.message) + '</span>';
   }

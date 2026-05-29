@@ -115,3 +115,15 @@ export type {
 } from "./types.js";
 export { PersonasRepo } from "./db/personas-repo.js";
 export { RulesRepo } from "./db/rules-repo.js";
+export {
+  recordHypothesisOutcome,
+  type HypothesisOutcome,
+  type RecordOutcomeArgs,
+} from "./learning/learner.js";
+export {
+  personaMetrics,
+  ruleMetrics,
+  type PersonaMetric,
+  type RuleMetric,
+  type HypothesisStatusResolver,
+} from "./learning/metrics.js";
