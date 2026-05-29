@@ -3,6 +3,8 @@ dist
 data/*
 !data/games/
 !data/games/**
+!data/discussions/
+!data/discussions/**
 .env
 .env.secrets
 *.tsbuildinfo
