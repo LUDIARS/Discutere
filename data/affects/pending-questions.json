@@ -1,0 +1,4 @@
+{
+  "_note": "未知 Affect 語の単語登録質問キュー。resolveAffect() が未知語を計算せずここへ積む。scripts/investigate-affects.mjs が LLM に意味(valence 等)を調査させ vocabulary.json に status='provisional' で追加し、本キューの status を 'answered' にする。provisional 語は後で人手で修正可能。",
+  "questions": []
+}
