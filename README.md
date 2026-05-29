@@ -70,6 +70,48 @@ npm run test:visualize
 
 ## Discord で議論を動かす (PR-I)
 
+### Channel 参照モデル
+
+Di が Discord のどの channel を読み書きするかは、 **monitor + session.scene** の 2 段で決まる。
+
+```
+[monitor] (DB row、 workspace 単位、 複数登録可)
+   ├ platform: "discord"
+   ├ channelId / channelName        ← 参照用 (表示)
+   ├ botToken                       ← AI 発話 post に使う
+   ├ botSigningSecret = Public Key  ← interaction Ed25519 検証
+   └ botWorkspaceId = Guild ID      ← post 時に guild 絞り込み
+
+[session] (議論ごとに自動作成、 sessions table)
+   ├ title:  "discord-session:<guildId>:<channelId>"  ← slash 経由
+   │     or  "discussion-of-gap:<gapId>"              ← event 経由
+   └ scene:  "discord:<guildId>/<channelId>"          ← post 先の決定キー
+         or  "gap:<gapId>"                            ← post されない
+```
+
+#### 流れ別の channel 解決
+
+**人間 → AI (slash command)**
+1. `/propose statement:...` を打つ
+2. Di が `interaction.channel_id` を取り出し、 同 channel 用 session を ensure (なければ作成、 あれば再利用)
+3. session.scene = `"discord:<guild>/<channel>"` で固定
+4. Discatier core (`submitMessage`) に `/propose ...` 文字列を流す
+
+**AI → 人間 (発話 post)**
+1. persona-engine が utterance / hypothesis を生成
+2. adapter の `onPostedUtterance` callback が発火 (`discussion-bridge`)
+3. session.scene を見て `discord:` プレフィックスなら guildId / channelId 抽出
+4. workspace 配下の discord monitor から `botWorkspaceId == guildId` 一致の bot を選ぶ
+5. `POST https://discord.com/api/v10/channels/{channelId}/messages` で投稿
+6. scene が `gap:...` だけの session (= event 由来) は **post しない** (= 明示的に discord-bound でない判定)
+
+#### 結論
+
+- AI 発話の **post 先 = `/propose` 等を最初に打った channel** (session.scene が固定する)
+- 別 channel で `/propose` すれば別 session が立ち、 そっちの channel に閉じて post
+- guild ID 一致で bot を絞るので、 同じ bot を複数 guild に置いてもクロス post しない
+- 自由発話 (slash 外の `#channel` 投稿) は現状 Di の議論には入らない (= 既存 webhook handler は MACHINA mode 専用、 議論 wire は別 PR)
+
 ### 1. Discord application / bot 作成
 
 1. <https://discord.com/developers/applications> で新規 application
@@ -143,6 +185,81 @@ npm run build && npm start
 - `/propose statement:<仮説>` — 人間が hypothesis 提案 → persona の自動議論が走る
 - `/validate mode:emotion` — 検証 → `/integrate` で採用
 - 自動議論の進行は同 channel に AI persona の発話として post される
+
+## Quickstart (Discord 議論を最短で動かす)
+
+上の詳細手順をローカル開発向けに圧縮した最短経路:
+
+```sh
+# 1. clone + 依存
+git clone https://github.com/LUDIARS/Discutere && cd Discutere
+npm install
+npm run build
+
+# 2. 最小 env (議論機能だけ動かす場合)
+cp .env.example .env  2>/dev/null || true
+cat >> .env <<'ENV'
+NODE_ENV=development
+BACKEND_PORT=3100
+JWT_SECRET=dev-only-not-for-prod-but-long-enough-32chars
+FRONTEND_URL=http://localhost:5174
+CERNERE_URL=http://localhost:8080
+
+# LLM backend は二択
+LLM_BACKEND=claude-cli         # (a) Lictor 経由 spawn (claude CLI 必須、 API key 不要)
+# LLM_BACKEND=anthropic         # (b) Anthropic SDK 直叩き
+# ANTHROPIC_API_KEY=sk-ant-...
+
+# 議論 workspace + safety
+DISCATIER_WORKSPACE=knowledge
+PERSONA_ENGINE_MAX_FIRES_PER_SESSION=20
+PERSONA_ENGINE_MAX_FIRES_PER_RULE=5
+PERSONA_ENGINE_TICK_MS=5000
+PERSONA_ENGINE_BRIDGE_POLL_MS=2000
+
+# Discord (kill switch 認可)
+DISCUTERE_DISCORD_ADMIN_IDS=<あなたの Discord user id>
+ENV
+
+# 3. DB 初期化
+mkdir -p data
+npm run db:push          # MACHINA 用 drizzle table
+# persona-engine 用 SQLite (data/persona-engine.db) は起動時 auto-migrate
+
+# 4. tunneling (Discord interactions endpoint を外部公開、 cloudflared / ngrok 等)
+cloudflared tunnel --url http://localhost:3100   # → https://<sub>.trycloudflare.com 取得
+
+# 5. Discord 側
+#    a. https://discord.com/developers/applications で Application + Bot 作成
+#    b. INTERACTIONS ENDPOINT URL = https://<sub>.trycloudflare.com/api/discord/interactions?workspaceId=knowledge
+#    c. Bot を guild に invite (scope: bot + applications.commands)
+#    d. README §3 の curl で slash command 登録
+
+# 6. monitor 登録 (Cernere 認証済の admin で POST)
+curl -X POST http://localhost:3100/api/groups/knowledge/monitors \
+  -H "Content-Type: application/json" -H "Cookie: discutere_token=<your-token>" \
+  -d '{"platform":"discord","channelId":"<id>","channelName":"discutere","botToken":"<Bot>","botSigningSecret":"<PubKey>","botWorkspaceId":"<Guild>","captureMessages":true,"mode":"none","createdBy":"<your-user-id>"}'
+
+# 7. 起動
+npm start
+# → Discord channel で /propose ... → AI 議論が start
+
+# 8. dashboard で監視
+# https://<sub>.trycloudflare.com/api/admin/dashboard  (admin cookie 必須)
+```
+
+### 議論を確認 / 停止
+
+- **dashboard**: `/api/admin/dashboard` で engine 状態 / Rule Viewer / persona 採用率を 5s ポーリング
+- **Discord 内 kill switch**: `/discutere-kill enabled:false` でその場停止
+- **dashboard kill switch**: 「DISABLE rules」 ボタン
+- **session cap 解放**: dashboard の Session ops 欄に sessionId 入力 → reset
+
+### 既知の制約
+
+- Cernere Composite 認証は monitor 登録 / dashboard アクセスに必要 (= 議論機能だけ動かしたい場合でも Cernere を別途立てる)
+- 議論用 dedicated mode で channel 自由発話を取り込む path は未実装 (= 現状は slash 経由のみ)
+- 自動 gap 検出 (`DesignGapDetected` event) 由来の議論は session.scene = `gap:...` のため Discord post されない (= 明示的に discord channel と紐付ける PR が次の課題)
 
 ## persona-engine (議論駆動)
 
