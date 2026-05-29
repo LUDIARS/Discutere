@@ -9,5 +9,6 @@ import "./discatier-adapter.test.js";
 import "./safety-caps.test.js";
 import "./event-bridge.test.js";
 import "./auto-export.test.js";
+import "./learning.test.js";
 
 console.log("persona-engine tests: all passed");

@@ -20,6 +20,7 @@ import type Database from "better-sqlite3";
 
 import type { createCore } from "../core/index.js";
 import type { PersonaEngineHandle } from "../persona-engine/index.js";
+import { recordHypothesisOutcome } from "../persona-engine/index.js";
 
 type Core = ReturnType<typeof createCore>;
 
@@ -116,9 +117,26 @@ export function createEventBridge(
       payload,
     });
 
-    // 終結 event なら session カウンタ解放
-    if (closing.has(row.event_type) && sessionId) {
-      engine.resetSession(sessionId);
+    // 終結 event なら session カウンタ解放 + learning loop (#3-1)
+    if (closing.has(row.event_type)) {
+      if (sessionId) engine.resetSession(sessionId);
+      const hypothesisId = typeof payload?.id === "string" ? payload.id : null;
+      if (hypothesisId) {
+        const outcome =
+          row.event_type === "HypothesisIntegrated" ? "integrated" : "rejected";
+        const statement = typeof payload?.statement === "string" ? payload.statement : undefined;
+        try {
+          recordHypothesisOutcome({
+            personas: engine.personas,
+            rules: engine.rules,
+            hypothesisId,
+            outcome,
+            statement,
+          });
+        } catch (err) {
+          onError(err, row);
+        }
+      }
     }
   }
 

@@ -65,6 +65,27 @@ adminRoutes.get("/admin/status", async (c) => {
   });
 });
 
+// PR-F: learning metrics — persona / rule 採用率
+adminRoutes.get("/admin/metrics/personas", async (c) => {
+  const guard = requireAdmin(c);
+  if (guard) return guard;
+  if (!engineInstance) return c.json({ error: "persona-engine not initialized" }, 503);
+  const { personaMetrics } = await import("../persona-engine/index.js");
+  // hypothesis status resolver は未提供 (Discatier core を持たないため engine 単体)。
+  // status 不明として "unknown" を返す stub。 production では event-bridge 側で
+  // status を埋め込む resolver を inject する。
+  const metrics = personaMetrics(engineInstance.personas, engineInstance.rules, () => "unknown");
+  return c.json({ metrics });
+});
+
+adminRoutes.get("/admin/metrics/rules", async (c) => {
+  const guard = requireAdmin(c);
+  if (guard) return guard;
+  if (!engineInstance) return c.json({ error: "persona-engine not initialized" }, 503);
+  const { ruleMetrics } = await import("../persona-engine/index.js");
+  return c.json({ metrics: ruleMetrics(engineInstance.rules) });
+});
+
 function requireAdmin(c: Context): Response | null {
   const userId = getUserId(c);
   const role = getUserRole(c);
