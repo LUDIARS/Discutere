@@ -71,8 +71,7 @@ export async function startDiscordGateway(
     if (deps.guildId) {
       monitor = new MonitorCard({
         client,
-        knowledge: deps.knowledge,
-        workspace: deps.workspace,
+        workspaceId: deps.workspaceId,
         guildId: deps.guildId,
       });
       monitor.start();
