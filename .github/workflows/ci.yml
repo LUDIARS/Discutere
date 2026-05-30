@@ -1,0 +1,51 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+jobs:
+  build-test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version-file: .nvmrc
+          cache: npm
+
+      - name: Install deps
+        run: npm ci
+
+      # ビルドチェック (tsc)
+      - name: Build (tsc)
+        run: npm run build
+
+      # 動作テスト: 自作 tsx ランナー (node:assert)。Discord/LLM を叩かない
+      # 純ロジック/投影/ブリッジ/仮説/クローラ/可視化/ペルソナ/discord-hook を網羅。
+      - name: Tests (core + phases)
+        run: |
+          npm run test:core
+          npm run test:phase2
+          npm run test:phase3
+          npm run test:phase4
+          npm run test:phase5
+          npm run test:phase6
+      - name: Tests (crawler / visualize / persona / machina / discord-hook)
+        run: |
+          npm run test:crawler
+          npm run test:visualize
+          npm run test:persona-engine
+          npm run test:machina
+          npm run test:discord-hook
