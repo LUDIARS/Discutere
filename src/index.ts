@@ -3,11 +3,9 @@ import { Hono } from "hono";
 import { cors } from "hono/cors";
 import Database from "better-sqlite3";
 import { machinaRoutes } from "./machina/routes.js";
-import { authRoutes, compositeAuthRoutes } from "./auth/routes.js";
 import { userContext } from "./middleware/auth.js";
 import { adminRoutes, setPersonaEngine, getPersonaEngine } from "./api/admin-routes.js";
 import { dashboardRoutes } from "./api/dashboard-routes.js";
-import { assertProductionJwtSecret } from "./auth/jwt-guard.js";
 import { startSessionCleanup } from "./machina/mode-state.js";
 import { createCore } from "./core/index.js";
 import { createDiscatierContextProvider } from "./discatier-engine-adapter/index.js";
@@ -25,9 +23,6 @@ import { getConfig } from "./config.js";
 // Initialize DB (triggers schema creation)
 import "./db/connection.js";
 
-// PR-C: JWT_SECRET production guard (本番で default secret なら即 throw)
-assertProductionJwtSecret();
-
 const config = getConfig();
 const app = new Hono();
 
@@ -43,14 +38,10 @@ app.use("*", cors({
 // Health check (認証不要)
 app.get("/health", (c) => c.json({ status: "ok", service: "discutere" }));
 
-// ─── Composite Auth (認証不要: ログイン前に呼ばれる) ───────────
-app.route("/api/auth", compositeAuthRoutes);
-
-// ─── 認証ミドルウェア (以降の /api/* に適用) ───────────────────
+// ─── 認証ミドルウェア (X-User-Id / X-User-Role ヘッダーを context に載せる) ──
+// Cernere / 独自 JWT 認証層は Discord-only pivot で撤去。実認可は Discord
+// Gateway (bot token + admin-id allowlist) 側。詳細は middleware/auth.ts。
 app.use("/api/*", userContext());
-
-// ─── Auth Routes (認証必須: /me 等) ─────────────────────────
-app.route("/api/auth", authRoutes);
 
 // ─── MACHINA routes ──────────────────────────────────────────
 app.route("/api", machinaRoutes);
@@ -173,7 +164,7 @@ const discordGatewayLifecycle = startDiscordGateway({
 void discordGatewayLifecycle;
 
 console.log(`Discutere listening on http://localhost:${port}`);
-console.log(`  Auth:     /api/auth/{login-url,exchange,logout,me}`);
+console.log(`  Auth:     Discord Gateway (bot token + admin-id allowlist) / HTTP は X-User-Id・X-User-Role ヘッダー`);
 console.log(`  Tasks:    /api/groups/:id/tasks`);
 console.log(`  Monitors: /api/groups/:id/monitors`);
 console.log(`  Webhooks: /api/webhook/slack, /api/webhook/discord`);

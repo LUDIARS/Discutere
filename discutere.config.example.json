@@ -4,7 +4,6 @@
     "port": 3100,
     "frontendUrl": "http://localhost:5174"
   },
-  "jwtSecret": "dev-secret-change-me",
   "workspace": "knowledge",
   "discatier": {
     "kuzuPath": "./data/discatier.kuzu"

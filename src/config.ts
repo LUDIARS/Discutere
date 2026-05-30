@@ -22,7 +22,6 @@ export interface DiscutereConfig {
     port: number;
     frontendUrl: string;
   };
-  jwtSecret: string;
   /** 匿名議論 workspace (個人データ非保管) */
   workspace: string;
   discatier: {
@@ -70,7 +69,6 @@ export interface DiscutereConfig {
 
 interface RawFileConfig {
   server?: Partial<DiscutereConfig["server"]>;
-  jwtSecret?: string;
   workspace?: string;
   discatier?: Partial<DiscutereConfig["discatier"]>;
   personaEngine?: Partial<DiscutereConfig["personaEngine"]>;
@@ -147,7 +145,6 @@ export function loadConfig(): DiscutereConfig {
       port: pickNum(process.env.BACKEND_PORT, file.server?.port, 3100),
       frontendUrl: pick(process.env.FRONTEND_URL, file.server?.frontendUrl, "http://localhost:5174"),
     },
-    jwtSecret: pick(process.env.JWT_SECRET, file.jwtSecret, "dev-secret-change-me"),
     workspace: pick(process.env.DISCATIER_WORKSPACE, file.workspace, "knowledge"),
     discatier: {
       kuzuPath: pickOpt(process.env.DISCATIER_KUZU_PATH, file.discatier?.kuzuPath),
