@@ -52,18 +52,50 @@ export interface DiscutereConfig {
   discord: {
     /** Gateway 接続用 bot token (未設定なら Gateway 起動を skip) */
     botToken?: string;
-    /** slash command 登録用 application id (運用補助、本体動作には不要) */
+    /** slash command 登録用 application id (起動時自動登録に使用。未設定なら client.application.id を使う) */
     applicationId?: string;
-    /** 単一ギルド運用時の guild id (運用補助) */
-    guildId?: string;
-    /** admin slash (kill/status) の認可 allowlist。空なら全 deny (安全 default) */
+    /**
+     * 運用する guild id 群。複数サーバ運用ではここに全 guild を列挙する。
+     * - slash command の即時登録 (guild commands) 先
+     * - guild ごとの discutere-monitor 状態カード設置先
+     * 空なら global command 登録 (反映に最大1時間) + monitor カードなしで動く。
+     * すべて同一 workspace (= 単一 KG) に集約される。
+     */
+    guildIds: string[];
+    /** admin slash (kill/status/backup) の認可 allowlist。空なら全 deny (安全 default) */
     adminIds: string[];
     /**
      * 平文メッセージ (非 slash) を utterance として取り込む議論チャンネル id。
      * 空なら取り込まない (安全 default — 無関係チャンネルのノイズ混入を防ぐ)。
      * slash command は本リストに依らず常に処理される。
+     * スレッド内の発言は親チャンネルが本リストにあれば取り込む (自然な議論の継承)。
      */
     discussionChannelIds: string[];
+  };
+  /**
+   * 学習データ (Discatier KG + persona-engine.db + discutere.db) の S3 アーカイブ。
+   * tar.gz 化して S3 (Glacier 系ストレージクラス想定) に push する。月次自動 + 手動。
+   */
+  backup: {
+    /** 自動バックアップを有効化するか (手動 slash/script は enabled に依らず常に可) */
+    enabled: boolean;
+    /** S3 bucket 名 (未設定ならバックアップ不可) */
+    bucket?: string;
+    /** S3 region */
+    region: string;
+    /** key prefix (例 "discutere/") */
+    prefix: string;
+    /** ストレージクラス (GLACIER / DEEP_ARCHIVE / STANDARD_IA / STANDARD ...) */
+    storageClass: string;
+    /** S3 互換エンドポイント (MinIO 等。未設定なら AWS) */
+    endpoint?: string;
+    /** 認証情報 (未設定なら AWS SDK の既定チェーン = 環境/IAM ロール) */
+    accessKeyId?: string;
+    secretAccessKey?: string;
+    /** 自動バックアップ周期 (日)。既定 30 = 月次 */
+    intervalDays: number;
+    /** 最終実行時刻を記録する state ファイル */
+    stateFile: string;
   };
 }
 
@@ -73,10 +105,14 @@ interface RawFileConfig {
   discatier?: Partial<DiscutereConfig["discatier"]>;
   personaEngine?: Partial<DiscutereConfig["personaEngine"]>;
   llm?: Partial<DiscutereConfig["llm"]>;
-  discord?: Partial<Omit<DiscutereConfig["discord"], "adminIds" | "discussionChannelIds">> & {
+  discord?: Partial<Omit<DiscutereConfig["discord"], "adminIds" | "discussionChannelIds" | "guildIds">> & {
     adminIds?: string[];
     discussionChannelIds?: string[];
+    guildIds?: string[];
+    /** 後方互換: 旧 単数 guildId (guildIds に統合される) */
+    guildId?: string;
   };
+  backup?: Partial<DiscutereConfig["backup"]>;
 }
 
 function readFileConfig(): RawFileConfig {
@@ -106,6 +142,15 @@ function pickOpt(envValue: string | undefined, fileValue: unknown): string | und
   return undefined;
 }
 
+/** boolean 版。env("1"/"true"/"yes" → true) → file(boolean) → default */
+function pickBool(envValue: string | undefined, fileValue: unknown, dflt: boolean): boolean {
+  if (envValue !== undefined && envValue !== "") {
+    return /^(1|true|yes|on)$/i.test(envValue.trim());
+  }
+  if (typeof fileValue === "boolean") return fileValue;
+  return dflt;
+}
+
 /** number 版。env(string)→file(number|string)→default */
 function pickNum(envValue: string | undefined, fileValue: unknown, dflt: number): number {
   if (envValue !== undefined && envValue !== "") {
@@ -131,6 +176,13 @@ function parseStringList(env: string | undefined, fileValue: unknown): string[] 
     return fileValue.filter((s): s is string => typeof s === "string" && s.trim().length > 0).map((s) => s.trim());
   }
   return [];
+}
+
+/** 複数 guildIds と後方互換の単数 guildId を結合・重複排除する */
+function mergeGuildIds(list: string[], single: string | undefined): string[] {
+  const set = new Set(list);
+  if (single) set.add(single);
+  return [...set];
 }
 
 export function loadConfig(): DiscutereConfig {
@@ -182,11 +234,31 @@ export function loadConfig(): DiscutereConfig {
     discord: {
       botToken: pickOpt(process.env.DISCUTERE_DISCORD_BOT_TOKEN, file.discord?.botToken),
       applicationId: pickOpt(process.env.DISCUTERE_DISCORD_APPLICATION_ID, file.discord?.applicationId),
-      guildId: pickOpt(process.env.DISCUTERE_DISCORD_GUILD_ID, file.discord?.guildId),
+      // guildIds: env (カンマ区切り) → file.guildIds → 後方互換で単数 guildId を1要素に。
+      guildIds: mergeGuildIds(
+        parseStringList(process.env.DISCUTERE_DISCORD_GUILD_IDS, file.discord?.guildIds),
+        pickOpt(process.env.DISCUTERE_DISCORD_GUILD_ID, file.discord?.guildId)
+      ),
       adminIds: parseStringList(process.env.DISCUTERE_DISCORD_ADMIN_IDS, file.discord?.adminIds),
       discussionChannelIds: parseStringList(
         process.env.DISCUTERE_DISCORD_DISCUSSION_CHANNELS,
         file.discord?.discussionChannelIds
+      ),
+    },
+    backup: {
+      enabled: pickBool(process.env.DISCUTERE_BACKUP_ENABLED, file.backup?.enabled, false),
+      bucket: pickOpt(process.env.DISCUTERE_BACKUP_BUCKET, file.backup?.bucket),
+      region: pick(process.env.DISCUTERE_BACKUP_REGION ?? process.env.AWS_REGION, file.backup?.region, "ap-northeast-1"),
+      prefix: pick(process.env.DISCUTERE_BACKUP_PREFIX, file.backup?.prefix, "discutere/"),
+      storageClass: pick(process.env.DISCUTERE_BACKUP_STORAGE_CLASS, file.backup?.storageClass, "GLACIER"),
+      endpoint: pickOpt(process.env.DISCUTERE_BACKUP_ENDPOINT, file.backup?.endpoint),
+      accessKeyId: pickOpt(process.env.AWS_ACCESS_KEY_ID, file.backup?.accessKeyId),
+      secretAccessKey: pickOpt(process.env.AWS_SECRET_ACCESS_KEY, file.backup?.secretAccessKey),
+      intervalDays: pickNum(process.env.DISCUTERE_BACKUP_INTERVAL_DAYS, file.backup?.intervalDays, 30),
+      stateFile: pick(
+        process.env.DISCUTERE_BACKUP_STATE_FILE,
+        file.backup?.stateFile,
+        path.resolve("./data/backup-state.json")
       ),
     },
   });

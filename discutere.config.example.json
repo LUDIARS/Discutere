@@ -25,8 +25,18 @@
   "discord": {
     "botToken": "",
     "applicationId": "",
-    "guildId": "",
+    "guildIds": [],
     "adminIds": [],
     "discussionChannelIds": []
+  },
+  "backup": {
+    "enabled": false,
+    "bucket": "",
+    "region": "ap-northeast-1",
+    "prefix": "discutere/",
+    "storageClass": "GLACIER",
+    "endpoint": "",
+    "intervalDays": 30,
+    "stateFile": "./data/backup-state.json"
   }
 }
