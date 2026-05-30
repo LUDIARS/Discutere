@@ -5,9 +5,8 @@
   "type": "module",
   "main": "src/index.ts",
   "scripts": {
-    "dev": "npm run env:env && npx dotenv-cli -- concurrently -n api,web -c green,cyan \"tsx watch src/index.ts\" \"npx dotenv-cli -- npm run dev --prefix frontend\"",
+    "dev": "npm run env:env && npx dotenv-cli -- tsx watch src/index.ts",
     "dev:server": "npx dotenv-cli -- tsx watch src/index.ts",
-    "dev:front": "npx dotenv-cli -- npm run dev --prefix frontend",
     "build": "tsc",
     "start": "node dist/index.js",
     "db:generate": "drizzle-kit generate",
@@ -24,7 +23,6 @@
     "test:persona-engine": "tsx tests/persona-engine/run.ts",
     "test:machina": "tsx tests/machina/run.ts",
     "test:discord-hook": "tsx tests/discord-hook/run.ts",
-    "test:auth": "tsx tests/auth/run.ts",
     "crawl": "tsx scripts/crawl.ts",
     "visualize": "tsx scripts/visualize.ts",
     "persona-demo": "tsx scripts/persona-engine-demo.ts",
@@ -42,19 +40,15 @@
   },
   "dependencies": {
     "@hono/node-server": "^1.14.3",
-    "bcryptjs": "^3.0.3",
     "better-sqlite3": "^12.6.0",
     "discord.js": "^14.26.4",
     "drizzle-orm": "^0.43.1",
     "gray-matter": "^4.0.3",
     "hono": "^4.8.3",
-    "jsonwebtoken": "^9.0.3",
     "uuid": "^11.1.0"
   },
   "devDependencies": {
-    "@types/bcryptjs": "^3.0.0",
     "@types/better-sqlite3": "^7.6.8",
-    "@types/jsonwebtoken": "^9.0.9",
     "@types/node": "^22.0.0",
     "@types/uuid": "^10.0.0",
     "concurrently": "^9.0.0",
