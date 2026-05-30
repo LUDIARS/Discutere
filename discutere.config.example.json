@@ -1,0 +1,32 @@
+{
+  "$comment": "Discutere サービス固有 config の例。`discutere.config.json` にコピーして使う (DISCUTERE_CONFIG で別パス指定可)。優先順: default < このファイル < env。秘密情報 (bot token / API key) は env での上書きを推奨。",
+  "server": {
+    "port": 3100,
+    "frontendUrl": "http://localhost:5174"
+  },
+  "jwtSecret": "dev-secret-change-me",
+  "workspace": "knowledge",
+  "discatier": {
+    "kuzuPath": "./data/discatier.kuzu"
+  },
+  "personaEngine": {
+    "dbPath": "./data/persona-engine.db",
+    "maxFiresPerSession": 20,
+    "maxFiresPerRule": 5,
+    "tickMs": 5000,
+    "bridgePollMs": 2000
+  },
+  "llm": {
+    "backend": "claude-cli",
+    "anthropicApiKey": "",
+    "model": "",
+    "claudeCliTimeoutMs": 120000,
+    "gitBashPath": ""
+  },
+  "discord": {
+    "botToken": "",
+    "applicationId": "",
+    "guildId": "",
+    "adminIds": []
+  }
+}

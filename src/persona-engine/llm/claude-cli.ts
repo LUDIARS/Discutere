@@ -24,6 +24,8 @@ export interface ClaudeCliClientOptions {
   defaultModel?: string;
   /** タイムアウト ms (default 120_000) */
   defaultTimeoutMs?: number;
+  /** 任意 — Windows で claude CLI が要する git-bash パス (config 由来、未指定なら自動検出) */
+  gitBashPath?: string;
 }
 
 const DEFAULT_TIMEOUT_MS = 120_000;
@@ -31,10 +33,12 @@ const DEFAULT_TIMEOUT_MS = 120_000;
 export class ClaudeCliClient implements LLMClient {
   private readonly cliPath: string;
   private readonly defaultTimeoutMs: number;
+  private readonly gitBashPath?: string;
 
   constructor(options: ClaudeCliClientOptions = {}) {
     this.cliPath = options.cliPath ?? "claude";
     this.defaultTimeoutMs = options.defaultTimeoutMs ?? DEFAULT_TIMEOUT_MS;
+    this.gitBashPath = options.gitBashPath;
   }
 
   async invoke(args: LLMInvokeArgs): Promise<LLMResult> {
@@ -43,6 +47,7 @@ export class ClaudeCliClient implements LLMClient {
       cliPath: this.cliPath,
       prompt: composePrompt(args.system, args.prompt),
       timeoutMs,
+      gitBashPath: this.gitBashPath,
     });
   }
 }
@@ -56,11 +61,15 @@ interface SpawnArgs {
   cliPath: string;
   prompt: string;
   timeoutMs: number;
+  gitBashPath?: string;
 }
 
 function spawnClaude(args: SpawnArgs): Promise<LLMResult> {
   return new Promise((resolve) => {
     const env: NodeJS.ProcessEnv = { ...process.env };
+    if (args.gitBashPath) {
+      env.CLAUDE_CODE_GIT_BASH_PATH = args.gitBashPath;
+    }
     if (process.platform === "win32" && !env.CLAUDE_CODE_GIT_BASH_PATH) {
       const candidates = [
         "C:\\Program Files\\Git\\bin\\bash.exe",

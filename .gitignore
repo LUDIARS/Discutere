@@ -9,6 +9,8 @@ data/*
 !data/affects/**
 .env
 .env.secrets
+# サービス固有 config の実体 (secrets を含む)。example のみ追跡する。
+discutere.config.json
 *.tsbuildinfo
 frontend/node_modules
 frontend/dist
