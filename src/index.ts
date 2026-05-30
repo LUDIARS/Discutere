@@ -18,6 +18,9 @@ import {
 } from "./persona-engine/index.js";
 import { postDiscussionToDiscord } from "./discord-hook/discussion-bridge.js";
 import { startDiscordGateway } from "./discord-hook/gateway.js";
+import { queueRoutes } from "./api/queue-routes.js";
+import { buildQueueSnapshot, formatQueueText } from "./queue/snapshot.js";
+import { startBackupScheduler } from "./backup/runner.js";
 import { getConfig } from "./config.js";
 
 // Initialize DB (triggers schema creation)
@@ -51,6 +54,9 @@ app.route("/api", adminRoutes);
 
 // ─── Admin dashboard HTML (PR-H: 観察 + kill switch GUI) ────
 app.route("/api", dashboardRoutes);
+
+// ─── 議論キュー可視化 (進行中 session / 未処理 gap / 検証待ち仮説) ──
+app.route("/api", queueRoutes);
 
 // PR-C: mode-state TTL cleanup を 15 min interval で起動 (24h 経過 session を回収)
 const stopSessionCleanup = startSessionCleanup();
@@ -149,14 +155,33 @@ const personaEngineLifecycle = (() => {
 
 const port = config.server.port;
 
+// ─── S3 バックアップ: 月次自動スケジューラ起動 (enabled かつ bucket 設定時のみ) ──
+//   手動トリガ (slash /discutere-backup・npm run backup) は scheduler.trigger() を共有。
+const backupScheduler = startBackupScheduler(config);
+
+// 議論キューのサマリ生成 (slash /discutere-queue 用)。core は都度 open/close。
+function buildQueueText(): string {
+  const core = createCore();
+  try {
+    const peDb = personaEngineLifecycle?.peDb ?? null;
+    return formatQueueText(buildQueueSnapshot(core.client.raw, peDb, config.workspace));
+  } finally {
+    core.close();
+  }
+}
+
 // WS 再設計: Discord Gateway 常時接続 (公開 URL + 署名検証エンドポイント不要)。
 //   config.discord.botToken 未設定なら skip 起動。
 const discordGatewayLifecycle = startDiscordGateway({
   botToken: config.discord.botToken ?? "",
+  applicationId: config.discord.applicationId,
+  guildIds: config.discord.guildIds,
   workspaceId: config.workspace,
   adminIds: config.discord.adminIds,
   discussionChannelIds: config.discord.discussionChannelIds,
   getEngine: () => getPersonaEngine(),
+  buildQueueText,
+  triggerBackup: () => backupScheduler.trigger(),
 }).catch((err) => {
   console.warn("  discord-gateway: startup failed:", (err as Error).message);
   return null;

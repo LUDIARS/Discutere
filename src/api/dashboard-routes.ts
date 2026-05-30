@@ -72,6 +72,25 @@ const HTML = `<!doctype html>
 </div>
 
 <div class="card">
+  <h2>🧭 議論キュー <span class="muted" id="queue-totals">loading…</span></h2>
+  <h3 style="margin:12px 0 4px;font-size:14px;">進行中の議論 session</h3>
+  <table id="queue-sessions">
+    <thead><tr><th>channel</th><th>guild</th><th>発話</th><th>発火</th><th>最終発話</th></tr></thead>
+    <tbody><tr><td colspan="5" class="muted">loading…</td></tr></tbody>
+  </table>
+  <h3 style="margin:12px 0 4px;font-size:14px;">未処理 DesignGap (仮説待ち)</h3>
+  <table id="queue-gaps">
+    <thead><tr><th>title</th><th>status</th></tr></thead>
+    <tbody><tr><td colspan="2" class="muted">loading…</td></tr></tbody>
+  </table>
+  <h3 style="margin:12px 0 4px;font-size:14px;">検証待ちの仮説</h3>
+  <table id="queue-hyps">
+    <thead><tr><th>statement</th><th>status</th></tr></thead>
+    <tbody><tr><td colspan="2" class="muted">loading…</td></tr></tbody>
+  </table>
+</div>
+
+<div class="card">
   <h2>Persona metrics (proposed / integrated / rejected)</h2>
   <table id="personas">
     <thead><tr><th>persona</th><th>proposed</th><th>integrated</th><th>rejected</th><th>acceptance</th></tr></thead>
@@ -322,11 +341,41 @@ async function refreshRules() {
 document.getElementById("rules-refresh").addEventListener("click", refreshRules);
 document.getElementById("rules-show-removed").addEventListener("change", refreshRules);
 
+async function fetchQueue() {
+  const res = await fetch("/api/admin/queue", { credentials: "include" });
+  if (!res.ok) throw new Error("queue http " + res.status);
+  return res.json();
+}
+
+function renderQueue(q) {
+  document.getElementById("queue-totals").textContent =
+    \`session \${q.totals.activeSessions} / gap \${q.totals.openGaps} / 仮説 \${q.totals.pendingHypotheses}\`;
+  const st = document.querySelector("#queue-sessions tbody");
+  st.innerHTML = q.activeSessions.length
+    ? q.activeSessions.map((s) => \`<tr>
+        <td><code>\${escapeHtml(s.channelId || "?")}</code></td>
+        <td class="muted">\${escapeHtml(s.guildId || "—")}</td>
+        <td>\${s.utteranceCount}</td>
+        <td>\${s.fireCount}</td>
+        <td class="muted">\${s.lastUtteranceAt ? new Date(s.lastUtteranceAt).toLocaleTimeString() : "—"}</td>
+      </tr>\`).join("")
+    : '<tr><td colspan="5" class="muted">進行中の議論なし</td></tr>';
+  const gt = document.querySelector("#queue-gaps tbody");
+  gt.innerHTML = q.openGaps.length
+    ? q.openGaps.map((g) => \`<tr><td>\${escapeHtml(g.title)}</td><td class="muted">\${escapeHtml(g.status || "open")}</td></tr>\`).join("")
+    : '<tr><td colspan="2" class="muted">未処理 gap なし</td></tr>';
+  const ht = document.querySelector("#queue-hyps tbody");
+  ht.innerHTML = q.pendingHypotheses.length
+    ? q.pendingHypotheses.map((h) => \`<tr><td>\${escapeHtml(h.statement)}</td><td class="muted">\${escapeHtml(h.status || "open")}</td></tr>\`).join("")
+    : '<tr><td colspan="2" class="muted">検証待ち仮説なし</td></tr>';
+}
+
 async function refresh() {
   try {
     renderStatus(await fetchStatus());
     fetchMetrics("personas").then((r) => renderPersonaMetrics(r.metrics)).catch(() => {});
     fetchMetrics("rules").then((r) => renderRuleMetrics(r.metrics)).catch(() => {});
+    fetchQueue().then(renderQueue).catch(() => {});
     refreshRules();
   } catch (err) {
     document.getElementById("status-stats").innerHTML = '<span class="stat bad">' + escapeHtml(err.message) + '</span>';

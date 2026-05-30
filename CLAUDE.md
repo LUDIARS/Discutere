@@ -32,6 +32,21 @@ Discutere は **半ローカルツール(Discord ギルド内限定の議論 Cha
 env 散在は `src/config.ts` の単一 typed config に集約 (優先順 default < `discutere.config.json` <
 env)。`discutere.config.example.json` 参照。詳細は `docs/ws-gateway-config-recovery.md`。
 
+## 主要機能 (2026-05-31 追加)
+
+- **slash 自動登録**: gateway ClientReady で `registerSlashCommands` を呼び Discord に application
+  command を登録する (`command-defs.ts` が single source of truth)。`guildIds` 指定で即時反映、
+  未指定で global。手動は `npm run discord:register`。**handler だけ実装して登録を忘れると
+  クライアントに slash が出ない**ので、command-defs と routeSlashCommand の name は必ず一致させる。
+- **自然なテキスト取り込み**: 許可チャンネル (`discord.discussionChannelIds`) では slash なしで
+  全平文を utterance に取り込み、取り込んだら 👀 を付ける。スレッドは親が許可なら継承。
+- **複数サーバ対応**: `discord.guildIds[]` (旧単数 `guildId` は後方互換で統合)。学習データ KG は
+  `discatier.kuzuPath` 単一に集約 (session は guild 別、KG は 1 つ)。
+- **議論キュー可視化**: `src/queue/snapshot.ts` → `GET /api/admin/queue` + dashboard カード +
+  `/discutere-queue`。
+- **S3 バックアップ**: `src/backup/` で KG + 全 SQLite を tar.gz 化し S3 (Glacier 系) へ。
+  月次自動 (`backup.enabled` + `intervalDays`) + 手動 (`npm run backup` / `/discutere-backup`)。
+
 ## 個人データ
 
 匿名 workspace (`DISCATIER_WORKSPACE` 既定 `knowledge`)。攻略 KG / 議論ノードに編集者名・アカウント名を保存しない (`spec/crawler/DESIGN.md` 準拠)。

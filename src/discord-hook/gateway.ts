@@ -31,12 +31,19 @@ import {
   type InboundSlashCommand,
 } from "./command-router.js";
 import { MonitorCard } from "./monitor-card.js";
+import { registerSlashCommands } from "./register-commands.js";
 
 export interface DiscordGatewayDeps extends CommandRouterDeps {
   /** Gateway 接続用 bot token */
   botToken: string;
-  /** 単一ギルド運用時の guild id (discutere-monitor 状態カードの設置先) */
-  guildId?: string;
+  /** slash command 登録用 application id (未設定なら client.application.id を使う) */
+  applicationId?: string;
+  /**
+   * 運用 guild id 群 (複数サーバ対応)。
+   * - 各 guild に slash command を即時登録 (空なら global 登録)
+   * - guild ごとに discutere-monitor 状態カードを設置
+   */
+  guildIds?: string[];
 }
 
 export interface DiscordGatewayHandle {
@@ -64,19 +71,34 @@ export async function startDiscordGateway(
     partials: [Partials.Channel, Partials.Message],
   });
 
-  let monitor: MonitorCard | null = null;
+  const monitors: MonitorCard[] = [];
+  const guildIds = (deps.guildIds ?? []).filter((g) => g && g !== "dm");
 
-  client.once(Events.ClientReady, (c) => {
+  client.once(Events.ClientReady, async (c) => {
     console.log(`  discord-gateway: logged in as ${c.user.tag}`);
-    if (deps.guildId) {
-      monitor = new MonitorCard({
-        client,
-        workspaceId: deps.workspaceId,
-        guildId: deps.guildId,
-      });
-      monitor.start();
+
+    // slash command を Discord に登録 (これが無いとクライアントに候補が出ない)。
+    try {
+      const appId = deps.applicationId || c.application?.id || c.user.id;
+      const r = await registerSlashCommands({ botToken: deps.botToken, applicationId: appId, guildIds });
+      console.log(
+        `  discord-gateway: registered ${r.commandCount} slash commands (${r.scope}${
+          r.scope === "guild" ? ` x${r.guildIds.length}` : " — 反映に最大1時間"
+        })`
+      );
+    } catch (err) {
+      console.warn(`  discord-gateway: slash command 登録失敗: ${(err as Error).message}`);
+    }
+
+    // guild ごとに monitor 状態カードを設置 (複数サーバ対応)。
+    if (guildIds.length > 0) {
+      for (const guildId of guildIds) {
+        const card = new MonitorCard({ client, workspaceId: deps.workspaceId, guildId });
+        card.start();
+        monitors.push(card);
+      }
     } else {
-      console.log("  discord-monitor: skipped (set discord.guildId to enable)");
+      console.log("  discord-monitor: skipped (set discord.guildIds to enable)");
     }
   });
 
@@ -95,8 +117,12 @@ export async function startDiscordGateway(
       mentions: msg.mentions.users.map((u) => ({ id: u.id, username: u.username })),
     });
     if (!normalized) return;
+    // スレッド内発言は親チャンネルで許可判定する (自然な議論の継承)。
+    const parentChannelId = msg.channel?.isThread?.() ? msg.channel.parentId ?? undefined : undefined;
     try {
-      routeInboundMessage(normalized, msg.guildId ?? "dm", deps);
+      const ingested = routeInboundMessage(normalized, msg.guildId ?? "dm", deps, parentChannelId);
+      // 取り込んだら 👀 を付けて「議論に乗った」ことを自然にフィードバックする。
+      if (ingested) void msg.react("👀").catch(() => {});
     } catch (err) {
       console.warn(`  discord-gateway: message route failed: ${(err as Error).message}`);
     }
@@ -127,7 +153,7 @@ export async function startDiscordGateway(
 
   return {
     async stop() {
-      monitor?.stop();
+      for (const m of monitors) m.stop();
       try {
         await client.destroy();
       } catch {

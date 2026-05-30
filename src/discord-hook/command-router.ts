@@ -47,11 +47,21 @@ export interface CommandRouterDeps {
   discussionChannelIds: string[];
   /** persona-engine の取得 (起動後に注入される singleton 想定) */
   getEngine: () => PersonaEngineHandle | null;
+  /** /discutere-queue 用の議論キューサマリ生成 (注入。未設定なら非対応応答) */
+  buildQueueText?: () => string;
+  /** /discutere-backup 用の手動バックアップトリガ (注入。未設定なら非対応応答) */
+  triggerBackup?: () => Promise<{ ok: boolean; key?: string; bucket?: string; error?: string }>;
 }
 
 export function routeSlashCommand(cmd: InboundSlashCommand, deps: CommandRouterDeps): SlashReply {
   if (cmd.name === "discutere-kill" || cmd.name === "discutere-status") {
     return handleEngineSlash(cmd, deps);
+  }
+  if (cmd.name === "discutere-queue") {
+    return handleQueueSlash(deps);
+  }
+  if (cmd.name === "discutere-backup") {
+    return handleBackupSlash(cmd, deps);
   }
 
   const commandText = cmd.argsText.length > 0 ? `/${cmd.name} ${cmd.argsText}` : `/${cmd.name}`;
@@ -80,18 +90,28 @@ export function routeSlashCommand(cmd: InboundSlashCommand, deps: CommandRouterD
  * 平文メッセージ (slash でない発話) を discord-bound session の utterance に記録。
  * persona-engine は events table 経由で反応するため、ここでは utterance の記録に徹する。
  * bot 自身のメッセージは caller 側で除外する前提。
+ *
+ * 「自然な取り込み」: 許可チャンネルでは slash を打たずとも全平文を議論に乗せる。
+ * スレッド内発言は親チャンネルが許可リストにあれば取り込む (parentChannelId で判定)。
+ * session は実際の発言先 (スレッドなら thread id) に bind するので、AI 返信も同じ場所に返る。
+ *
+ * @returns 取り込んだら true (caller 側で 👀 リアクションを付ける等の自然なフィードバック用)
  */
 export function routeInboundMessage(
   msg: DiscordInboundMessage,
   guildId: string,
-  deps: CommandRouterDeps
-): void {
-  // 議論チャンネルとして許可されたチャンネルのみ取り込む (無関係チャンネルのノイズ防止)。
-  if (!deps.discussionChannelIds.includes(msg.channelId)) return;
+  deps: CommandRouterDeps,
+  parentChannelId?: string
+): boolean {
+  // 議論チャンネル (または親が議論チャンネルのスレッド) のみ取り込む。
+  const allowed =
+    deps.discussionChannelIds.includes(msg.channelId) ||
+    (!!parentChannelId && deps.discussionChannelIds.includes(parentChannelId));
+  if (!allowed) return false;
   const text = msg.content.trim();
-  if (text.length === 0) return;
+  if (text.length === 0) return false;
   // slash 由来 (先頭 "/") は interaction 経路で処理されるので二重取り込みしない。
-  if (text.startsWith("/")) return;
+  if (text.startsWith("/")) return false;
 
   const core = createCore();
   try {
@@ -103,9 +123,47 @@ export function routeInboundMessage(
       personId: msg.author.id,
       rawContent: text,
     });
+    return true;
   } finally {
     core.close();
   }
+}
+
+/** /discutere-queue — 議論キューのサマリを ephemeral で返す (全員可) */
+function handleQueueSlash(deps: CommandRouterDeps): SlashReply {
+  if (!deps.buildQueueText) {
+    return { content: "⚠️ queue view が利用できません (起動構成を確認)", ephemeral: true };
+  }
+  try {
+    return { content: deps.buildQueueText(), ephemeral: true };
+  } catch (err) {
+    return { content: `⚠️ queue 取得失敗: ${(err as Error).message}`, ephemeral: true };
+  }
+}
+
+/**
+ * /discutere-backup — 手動 S3 バックアップ (admin only)。
+ * tar+upload は数秒かかり得るので fire-and-forget で起動し、即時 ack を返す
+ * (Discord interaction の 3 秒 ack 制限回避)。結果はサーバログ / dashboard で確認。
+ */
+function handleBackupSlash(cmd: InboundSlashCommand, deps: CommandRouterDeps): SlashReply {
+  if (deps.adminIds.length === 0) {
+    return { content: "⚠️ discord.adminIds 未設定 — admin コマンドは無効", ephemeral: true };
+  }
+  if (!cmd.userId || !deps.adminIds.includes(cmd.userId)) {
+    return { content: "⚠️ admin only", ephemeral: true };
+  }
+  if (!deps.triggerBackup) {
+    return { content: "⚠️ backup が構成されていません (backup.bucket 未設定?)", ephemeral: true };
+  }
+  void deps
+    .triggerBackup()
+    .then((r) => {
+      if (r.ok) console.log(`  backup(manual): uploaded s3://${r.bucket}/${r.key}`);
+      else console.warn(`  backup(manual): failed: ${r.error}`);
+    })
+    .catch((e) => console.warn(`  backup(manual): error: ${(e as Error).message}`));
+  return { content: "🗄️ バックアップを開始しました (完了はサーバログ / dashboard で確認)", ephemeral: true };
 }
 
 /**

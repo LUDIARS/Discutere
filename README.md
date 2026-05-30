@@ -2,13 +2,17 @@
 
 **遊びの議論プラットフォーム (Discatier)** — ゲームデザインの「意図された体験 (`intended_affect`)」と
 「観測された体験 (`expressed_affect`)」を 3 軸の弁証法的対話で突き合わせ、設計のズレ (`DesignGap`) と
-跳躍的仮説 (`Hypothesis`) を育てる議論基盤。
+跳躍的仮説 (`Hypothesis`) を育てる **Discord-only の自走議論 ChatBot**。
 
-> **役割整理 (2026-05-29)**
-> 本リポジトリは当初 *Chat-to-Task 自動化 (Slack / Discord メッセージ → タスク生成)* として始まったが、
-> その実装意図は **Imperativus (Iv) — 入力 → コマンド / タスクのルーター** が担うべきものと整理した。
-> よって **Discutere は「議論専用 (Discatier)」に純化**し、Chat-to-Task 機能群は **Iv へ移管**する。
-> 移管完了まではコードに Chat-to-Task 実装が同居するため、下記 Features では該当群に「→ Iv へ移管」を明記する。
+> **アーキテクチャ (canonical / 2026-05-30 WS Gateway 再設計)**
+> - **transport = Discord Gateway (WebSocket) 常時接続**。公開 URL / HTTP Interactions Endpoint /
+>   Ed25519 署名検証は撤去済み。bot token でアウトバウンド接続するので外部公開不要。
+> - **認証 = bot token + admin-id allowlist**。Cernere / 独自 JWT / React frontend は撤去済み
+>   (半ローカルツールゆえの意図的設計)。詳細は `CLAUDE.md`。
+> - 設定は `src/config.ts` の単一 typed config に集約 (`default < discutere.config.json < env`)。
+>
+> 旧 *Chat-to-Task 自動化 (Slack/Discord → タスク生成)* 機能群 (`src/machina/`) は
+> **Imperativus (Iv)** へ移管予定。移管まで同居するが議論 (Discatier) とは独立。
 
 ## コンセプト — Discatier の 3 軸対話
 
@@ -25,503 +29,215 @@ Hypothesis Lifecycle が弁証法的ループを形成する。詳細は [`docs/
 
 | Layer | Technology |
 |-------|-----------|
-| Backend | [Hono](https://hono.dev/) + Node.js 22+ (TypeScript) |
-| Frontend | React 19 + React Router 7 + Vite |
-| Database | SQLite (WAL) + [Drizzle ORM](https://orm.drizzle.team/) / Discatier Core は Kuzu (SQLite WAL) + イベントログ |
-| Auth | [Cernere](https://github.com/LUDIARS/Cernere) Composite (HttpOnly Cookie + 独自 JWT) |
-| Env/Secrets | [Infisical](https://infisical.com) + `@cernere/env-cli` |
+| Runtime | Node.js 22+ / TypeScript (ESM) |
+| Discord | [discord.js](https://discord.js.org/) v14 — Gateway (WS) 常時接続 |
+| HTTP (admin/dashboard) | [Hono](https://hono.dev/) + `@hono/node-server` (port 3100) |
+| データ基盤 | Discatier Core = Kuzu(SQLite) + イベントログ / MACHINA = SQLite + Drizzle |
+| LLM | Anthropic SDK 直叩き or Claude CLI (Lictor 経由 spawn) |
+| 設定 | `src/config.ts` 単一 typed config (`default < discutere.config.json < env`) |
+| バックアップ | tar.gz → S3 (`@aws-sdk/client-s3`、Glacier 系ストレージクラス) |
 
-## Features — 議論専用 (Discatier)
-
-- **Discatier Core (3 軸対話)** — `src/core/` に Game / Mechanic / Aesthetic / Affect / PlayContext / Utterance / Reaction / DesignGap / Hypothesis を Event Sourcing + projection で管理。Translation Bridge / Gap Detection / Hypothesis Lifecycle。
-- **Game KG クローラー (Phase 0)** — `src/crawler/` で著名ゲームの攻略データを `data/games/<slug>.md` から Discatier Core (`Game` / `Mechanic` / `Aesthetic`) に import。詳細は [`spec/crawler/DESIGN.md`](spec/crawler/DESIGN.md)
-- **レビュー/コメント → 感情・議論ベクトル (Phase 0)** — 外部収集ツール (`LUDIARS/game-knowledge-graph/collectors/`) の収集物を、複合固定ベクトル (感情 + 評価アスペクト) + affect + 議論クラスタに変換。詳細は [`spec/crawler/SENTIMENT.md`](spec/crawler/SENTIMENT.md) / [`docs/crawler-to-discussion-pipeline.md`](docs/crawler-to-discussion-pipeline.md)
-- **議論ソース可視化 (Phase 0)** — `src/visualize/` で hypothesis / gap / mechanic / aesthetic / utterance / session を 1 ノード = 1 md に書き出し、ノード間参照を `[[<type>:<id>]]` マジックリンクで繋ぐ。詳細は [`spec/visualize/DESIGN.md`](spec/visualize/DESIGN.md)
-- **persona-engine (Phase 0)** — `src/persona-engine/` に閉じた議論駆動エンジン。ペルソナ (推進派 / 懐疑者 / 統合者 等 10 名) × チャットルール (propose-on-gap / refute-cold 等) × LLM 呼び出し。将来 `@ludiars/persona-engine` として切り出す前提。詳細は [`spec/persona-engine/DESIGN.md`](spec/persona-engine/DESIGN.md)
-- **Discord で議論を動かす** — slash command (`/propose` `/validate` `/integrate` `/reject` `/discutere-status` 等) + persona-engine の自走。
-
-### → Imperativus (Iv) へ移管予定 (旧 Chat-to-Task)
-
-以下は本来 **Iv (入力→コマンド/タスクのルーター)** が担う実装。移管までは本リポに残存:
-
-- **チャットからタスク自動生成** — Slack / Discord Webhook → パターンマッチでタスク検出・作成
-- **チャンネルモード (task / discussion / none)** / **処理状況の可視化** / **タスク管理 (CRUD)**
-- **BOT チャネル設定** / **チャットログ** / **チャット要約** / **テキスト解析プレビュー** / **外部 PM 連携** / **監査ログ**
-
-## Game KG クローラー
+## Quickstart (Discord で議論を最短で動かす)
 
 ```sh
-# 既存 md を Discatier Core に取り込む
-npm run crawl import data/games/sample-hollow-knight.md
-
-# 登録済 Game / Mechanic / Aesthetic 一覧
-npm run crawl list
-
-# crawler モジュールのテスト (md round-trip + importer + GraphDB 読み)
-npm run test:crawler
-```
-
-Phase 0 は md 手書き運用。Phase 1 で `runner.ts` に Claude API (WebSearch tool) を入れて自動 crawl + 日次 PR 化予定。
-ToS / 引用ポリシーは `spec/crawler/DESIGN.md`「制約」セクション必読。
-
-## 議論ソース可視化 (magic-link md)
-
-```sh
-# 仮説を md に書き出す → data/discussions/<workspace>/hypothesis/<id>.md
-npm run visualize hypothesis <id>
-
-# gap / mechanic / aesthetic / utterance / session も同様
-npm run visualize gap <id>
-npm run visualize mechanic <id>
-
-# workspace 指定 (default: env DISCATIER_WORKSPACE or "knowledge")
-npm run visualize hypothesis <id> --workspace team-alpha
-
-# 全テスト (wikilink / md-exporter / dump)
-npm run test:visualize
-```
-
-ノード間参照は `[[hyp:abc123]]` / `[[utt:550e8400]]` / `[[mch:ghi789]]` 形式で、 GitHub / Memoria / 専用 viewer で相互リンク可能。 viewer が wikilink → md ファイルパス (`data/discussions/<workspace>/<type-dir>/<id>.md`) を解決すれば graph として閲覧できる。
-
-## Discord で議論を動かす (PR-I)
-
-### Channel 参照モデル
-
-Di が Discord のどの channel を読み書きするかは、 **monitor + session.scene** の 2 段で決まる。
-
-```
-[monitor] (DB row、 workspace 単位、 複数登録可)
-   ├ platform: "discord"
-   ├ channelId / channelName        ← 参照用 (表示)
-   ├ botToken                       ← AI 発話 post に使う
-   ├ botSigningSecret = Public Key  ← interaction Ed25519 検証
-   └ botWorkspaceId = Guild ID      ← post 時に guild 絞り込み
-
-[session] (議論ごとに自動作成、 sessions table)
-   ├ title:  "discord-session:<guildId>:<channelId>"  ← slash 経由
-   │     or  "discussion-of-gap:<gapId>"              ← event 経由
-   └ scene:  "discord:<guildId>/<channelId>"          ← post 先の決定キー
-         or  "gap:<gapId>"                            ← post されない
-```
-
-#### 流れ別の channel 解決
-
-**人間 → AI (slash command)**
-1. `/propose statement:...` を打つ
-2. Di が `interaction.channel_id` を取り出し、 同 channel 用 session を ensure (なければ作成、 あれば再利用)
-3. session.scene = `"discord:<guild>/<channel>"` で固定
-4. Discatier core (`submitMessage`) に `/propose ...` 文字列を流す
-
-**AI → 人間 (発話 post)**
-1. persona-engine が utterance / hypothesis を生成
-2. adapter の `onPostedUtterance` callback が発火 (`discussion-bridge`)
-3. session.scene を見て `discord:` プレフィックスなら guildId / channelId 抽出
-4. workspace 配下の discord monitor から `botWorkspaceId == guildId` 一致の bot を選ぶ
-5. `POST https://discord.com/api/v10/channels/{channelId}/messages` で投稿
-6. scene が `gap:...` だけの session (= event 由来) は **post しない** (= 明示的に discord-bound でない判定)
-
-#### 結論
-
-- AI 発話の **post 先 = `/propose` 等を最初に打った channel** (session.scene が固定する)
-- 別 channel で `/propose` すれば別 session が立ち、 そっちの channel に閉じて post
-- guild ID 一致で bot を絞るので、 同じ bot を複数 guild に置いてもクロス post しない
-- 自由発話 (slash 外の `#channel` 投稿) は現状 Di の議論には入らない (= 既存 webhook handler は MACHINA mode 専用、 議論 wire は別 PR)
-
-### 1. Discord application / bot 作成
-
-1. <https://discord.com/developers/applications> で新規 application
-2. Bot 追加、 Privileged Gateway Intents の "Message Content" を有効化 (必要なら)
-3. OAuth2 URL Generator で `bot` + `applications.commands` scope + 必要権限を選んで guild に invite
-4. Application の `INTERACTIONS ENDPOINT URL` を `https://<your-host>/api/discord/interactions?workspaceId=<ws>` に設定
-
-### 2. monitor 登録 (Discutere 側)
-
-`POST /api/groups/:workspaceId/monitors` で:
-
-- `platform: "discord"`
-- `channelId / channelName`
-- `botToken`: Bot Token (= AI 発話 post に使用)
-- `botSigningSecret`: Application Public Key (= Ed25519 検証 / Discord は public key を secret 欄に保存)
-- `botWorkspaceId`: Guild ID
-
-### 3. Slash command 登録
-
-```sh
-# DISCORD_BOT_TOKEN + DISCORD_APP_ID を export してから
-curl -X POST -H "Authorization: Bot $DISCORD_BOT_TOKEN" -H "Content-Type: application/json" \
-  -d '[
-    {"name":"discutere-kill","description":"persona-engine の ON/OFF","options":[
-      {"name":"enabled","description":"true で再開、 false で停止","type":5,"required":true}]},
-    {"name":"discutere-status","description":"persona-engine の状態を確認"},
-    {"name":"propose","description":"hypothesis 提案","options":[
-      {"name":"statement","description":"仮説 1 文","type":3,"required":true}]},
-    {"name":"validate","description":"hypothesis 検証","options":[
-      {"name":"mode","description":"theory|emotion","type":3,"required":true}]},
-    {"name":"integrate","description":"hypothesis 統合"},
-    {"name":"reject","description":"hypothesis 棄却"}
-  ]' \
-  "https://discord.com/api/v10/applications/$DISCORD_APP_ID/commands"
-```
-
-### 4. env 設定
-
-```sh
-# kill switch を叩ける admin user id (カンマ区切り)
-DISCUTERE_DISCORD_ADMIN_IDS=<your-discord-user-id>
-
-# LLM backend を選択
-# (a) Anthropic API 直叩き
-LLM_BACKEND=anthropic
-ANTHROPIC_API_KEY=sk-ant-...
-# (b) Claude Code を Lictor 経由 spawn
-LLM_BACKEND=claude-cli
-# CLAUDE_CLI_TIMEOUT_MS=120000
-
-# workspace
-DISCATIER_WORKSPACE=knowledge
-
-# session 別 safety caps
-PERSONA_ENGINE_MAX_FIRES_PER_SESSION=20
-PERSONA_ENGINE_MAX_FIRES_PER_RULE=5
-```
-
-### 5. server 起動
-
-```sh
-npm run build && npm start
-# → :3100 で interaction endpoint 公開
-```
-
-### 6. Discord 上での運用
-
-- `/discutere-status` — engine 状態確認 (ephemeral)
-- `/discutere-kill enabled:false` — 議論停止 (admin only)
-- `/discutere-kill enabled:true` — 議論再開
-- `/propose statement:<仮説>` — 人間が hypothesis 提案 → persona の自動議論が走る
-- `/validate mode:emotion` — 検証 → `/integrate` で採用
-- 自動議論の進行は同 channel に AI persona の発話として post される
-
-## Quickstart (Discord 議論を最短で動かす / Cernere 不要)
-
-**議論機能のみなら Cernere / Infisical / frontend は不要**。 dev mode では `X-User-Id` + `X-User-Role: admin` ヘッダーで admin になれるので、 monitor 登録も curl 一発で済む(`src/middleware/auth.ts:62-71` の dev フォールバック)。
-
-```sh
-# 1. clone + 依存
+# 1. clone + 依存 + build
 git clone https://github.com/LUDIARS/Discutere && cd Discutere
 npm install
 npm run build
 
-# 2. 最小 env (議論機能だけ動かす場合 — Cernere/Infisical なし)
-cp .env.example .env
-# .env を開いて DISCUTERE_DISCORD_ADMIN_IDS=<自分の Discord user id> を埋める
+# 2. config を用意 (実体は gitignore)
+cp discutere.config.example.json discutere.config.json
+#   discord.botToken / discord.applicationId / discord.guildIds / discord.adminIds を埋める
+#   議論を取り込むチャンネルは discord.discussionChannelIds に列挙
+#   秘密情報 (botToken / apiKey) は env 上書き推奨
 
-# 3. DB 初期化 (drizzle table)
-mkdir -p data
-npx drizzle-kit push --config=drizzle.config.ts 2>/dev/null || npm run db:push
-# persona-engine 用 SQLite (data/persona-engine.db) は起動時 auto-migrate
-
-# 4. 起動
+# 3. 起動 (Gateway 常時接続 + persona-engine attach + slash 自動登録)
 npm start
-# → :3100 listen、 persona-engine attached、 mode-state cleanup 起動
-
-# 5. tunneling (Discord interactions endpoint を外部公開)
-cloudflared tunnel --url http://localhost:3100   # → https://<sub>.trycloudflare.com
-
-# 6. Discord 側
-#    a. https://discord.com/developers/applications で Application + Bot 作成
-#    b. INTERACTIONS ENDPOINT URL = https://<sub>.trycloudflare.com/api/discord/interactions?workspaceId=knowledge
-#    c. Bot を guild に invite (scope: bot + applications.commands、 channel に投稿可能な権限)
-#    d. README §3 の curl で slash command 登録
-
-# 7. monitor 登録 (Cernere 不要、 dev mode の X-User-Role ヘッダーで admin)
-curl -X POST http://localhost:3100/api/groups/knowledge/monitors \
-  -H "Content-Type: application/json" \
-  -H "X-User-Id: dev-admin" \
-  -H "X-User-Role: admin" \
-  -d '{
-    "platform": "discord",
-    "channelId": "<対象 channel ID>",
-    "channelName": "discutere",
-    "botToken": "<Bot Token>",
-    "botSigningSecret": "<Application Public Key>",
-    "botWorkspaceId": "<Guild ID>",
-    "captureMessages": true,
-    "mode": "none",
-    "createdBy": "dev-admin"
-  }'
-
-# 8. Discord channel で /propose statement:オンボーディング改善 を投げる
-# → persona-engine が advocate / sceptic / refiner... を回し、 結果が channel に bot post
-
-# 9. dashboard で監視 (= dev mode は同 ヘッダーで開ける)
-# curl -H "X-User-Id: dev-admin" -H "X-User-Role: admin" \
-#   https://<sub>.trycloudflare.com/api/admin/dashboard
-# (ブラウザで見るなら拡張 e.g. ModHeader で X-User-Id/X-User-Role を付ける、
-#  もしくは production では Cernere Composite ログイン経由)
+#   → :3100 listen、Discord にログイン、slash command を自動登録
 ```
 
-### 議論を確認 / 停止
+### Discord 側の準備
 
-- **Discord 内 kill switch**: `/discutere-kill enabled:false` でその場停止 (env の `DISCUTERE_DISCORD_ADMIN_IDS` 一致 user のみ)
-- **dashboard kill switch**: 「DISABLE rules」 ボタン
-- **session cap 解放**: dashboard の Session ops 欄に sessionId 入力 → reset
-- **Rule Viewer**: AI が自己補正した rule の追加 / 発火履歴を時系列で確認
+1. <https://discord.com/developers/applications> で Application + Bot を作成
+2. **Bot Token** / **Application ID** を控える
+3. Privileged Gateway Intents の **Message Content** を有効化 (平文取り込みを使う場合)
+4. OAuth2 URL Generator で `bot` + `applications.commands` scope + 投稿権限を選び guild に invite
+   - Gateway 接続なので **公開 URL / INTERACTIONS ENDPOINT URL の設定は不要**
 
-### Cernere / production について
+### slash command の登録
 
-- **dev (NODE_ENV !== production)**: Cernere 不要、 `X-User-Id` + `X-User-Role: admin` ヘッダーで全 admin API 通る
-- **production (NODE_ENV=production)**: Cernere Composite ログイン + JWT_SECRET 32+ 文字必須 (`src/auth/jwt-guard.ts`)。 ヘッダー fallback は無効化される
-- 議論機能 (Discord interactions / persona-engine / kill switch slash) は **常に Cernere 非依存**
+起動時 (`gateway` の ClientReady) に **自動登録**される。`guildIds` 指定時は **guild commands**
+として即時反映、未指定時は **global commands** (反映に最大 1 時間)。bot を起動せず手動登録したい場合:
 
-### 既知の制約
+```sh
+npm run discord:register   # discord.botToken + discord.applicationId が必要
+```
 
-- 議論用 dedicated mode で channel 自由発話を取り込む path は未実装 (= 現状は slash 経由のみ)
-- 自動 gap 検出 (`DesignGapDetected` event) 由来の議論は session.scene = `gap:...` のため Discord post されない (= 明示的に discord channel と紐付ける PR が次の課題)
+> 旧バージョンは登録コードが無く、slash がクライアントに一切出ない不具合があった (#この PR で修正)。
+
+## 使える slash command
+
+| command | 説明 | 認可 |
+|---|---|---|
+| `/propose statement:<仮説>` | hypothesis を提案 → persona の自走議論が走る | 全員 |
+| `/validate mode:theory\|emotion` | hypothesis を検証 | 全員 |
+| `/integrate` | 検証済 hypothesis を統合 (採用) | 全員 |
+| `/reject` | hypothesis を棄却 | 全員 |
+| `/discutere-status` | persona-engine の稼働状態 (ephemeral) | 全員 |
+| `/discutere-queue` | 議論キュー (進行中 session / 未処理 gap / 検証待ち仮説) を可視化 | 全員 |
+| `/discutere-kill enabled:true\|false` | 自走を停止/再開 | admin only |
+| `/discutere-backup` | 学習データを今すぐ S3 にバックアップ | admin only |
+
+## 自然なテキスト取り込み
+
+`discord.discussionChannelIds` に入れたチャンネルでは、**slash を打たなくても全平文を議論
+(utterance) として自然に取り込む**。
+
+- 取り込んだメッセージには bot が 👀 リアクションを付け、「議論に乗った」ことをフィードバックする。
+- **スレッド**内の発言は、親チャンネルが許可リストにあれば継承して取り込む。AI の返信も同じ
+  スレッド/チャンネルに返る (session.scene が発言先に bind するため)。
+- allowlist 外のチャンネルは取り込まない (ノイズ混入を防ぐ安全 default)。
+
+## 複数サーバ (guild) 対応
+
+複数 Discord サーバの議論を **1 つの workspace (= 単一 Discatier KG) に集約**できる。
+
+- `discord.guildIds` に運用 guild を列挙する (各 guild に slash を登録 + 状態カードを設置)。
+- 学習データ (Kuzu KG) は `discatier.kuzuPath` 単一に集約される。session は
+  `discord:<guildId>/<channelId>` で guild 別に分離されるが、KG は 1 つ。
+- bot は「1 トークンを複数 guild に invite」「guild ごとに別 bot」のどちらでも動く
+  (各 monitor 行が自身の botToken を持ち、post 時は guild ID 一致で bot を選ぶのでクロス post しない)。
+
+## 議論キューの可視化
+
+「今どんな議論が走っていて、何が積まれているか」を可視化する。
+
+- **slash**: `/discutere-queue` — 進行中 session / 未処理 DesignGap / 検証待ち Hypothesis のサマリ
+- **dashboard**: `GET /api/admin/dashboard` の「🧭 議論キュー」カード (5 秒 polling、admin role)
+- **API**: `GET /api/admin/queue` — スナップショット JSON (active session・open gap・pending hypothesis)
+
+## 学習データの S3 バックアップ
+
+Discatier KG (kuzu) + persona-engine.db + discutere.db を **tar.gz にまとめて S3** に push する
+(`storageClass=GLACIER` 系で安価に長期アーカイブ。MinIO 等の S3 互換にも `endpoint` で対応)。
+
+- **自動 (月次)**: `backup.enabled=true` かつ `backup.bucket` 設定で、`intervalDays` (既定 30 日)
+  経過ごとに自動バックアップ。最終実行は `backup.stateFile` に記録され、再起動を跨いで判定する。
+- **手動 (script)**: `npm run backup`
+- **手動 (slash)**: `/discutere-backup` (admin only) — 起動して即時 ack、結果はサーバログ / dashboard で確認
+
+```jsonc
+// discutere.config.json (抜粋)
+"backup": {
+  "enabled": true,
+  "bucket": "my-discutere-archive",
+  "region": "ap-northeast-1",
+  "prefix": "discutere/",
+  "storageClass": "GLACIER",     // DEEP_ARCHIVE / STANDARD_IA / STANDARD も可
+  "intervalDays": 30,            // 月次
+  "endpoint": ""                 // MinIO 等の S3 互換 (任意)
+}
+```
+
+> 認証情報は env (`AWS_ACCESS_KEY_ID` / `AWS_SECRET_ACCESS_KEY`) または AWS SDK 既定チェーン
+> (IAM ロール等) を使う。値は config に直書きせず env 上書きを推奨。
+
+## 設定リファレンス (`discutere.config.json`)
+
+`default < discutere.config.json < env` の順で解決 (`DISCUTERE_CONFIG` で config パス変更可)。
+全キーは [`discutere.config.example.json`](discutere.config.example.json) と
+[`.env.example`](.env.example) を参照。主要キー:
+
+| セクション | キー | env | 説明 |
+|---|---|---|---|
+| server | `port` | `BACKEND_PORT` | HTTP port (既定 3100) |
+| | `workspace` | `DISCATIER_WORKSPACE` | 匿名議論 workspace (既定 `knowledge`) |
+| discord | `botToken` | `DISCUTERE_DISCORD_BOT_TOKEN` | Gateway 接続 (空なら skip) |
+| | `applicationId` | `DISCUTERE_DISCORD_APPLICATION_ID` | slash 登録 (未設定なら自動解決) |
+| | `guildIds` | `DISCUTERE_DISCORD_GUILD_IDS` | 運用 guild 群 (複数サーバ) |
+| | `adminIds` | `DISCUTERE_DISCORD_ADMIN_IDS` | admin slash 認可 (空なら全 deny) |
+| | `discussionChannelIds` | `DISCUTERE_DISCORD_DISCUSSION_CHANNELS` | 平文取り込みチャンネル |
+| llm | `backend` | `LLM_BACKEND` | `anthropic` / `claude-cli` / `mock` |
+| | `anthropicApiKey` | `ANTHROPIC_API_KEY` | anthropic backend 用 |
+| | `gitBashPath` | `CLAUDE_CODE_GIT_BASH_PATH` | Windows で claude-cli 利用時必須 |
+| personaEngine | `maxFiresPerSession` 等 | `PERSONA_ENGINE_*` | safety cap / tick 周期 |
+| backup | `enabled` / `bucket` 等 | `DISCUTERE_BACKUP_*` | S3 バックアップ (上述) |
+
+## 開発
+
+```sh
+npm run dev:server   # tsx watch (ホットリロード)
+npm run build        # tsc → dist/
+npm start            # node dist/index.js
+```
+
+### テスト
+
+```sh
+npm run test:core            # Discatier Core (Phase 0)
+npm run test:phase2          # message projection
+npm run test:phase3          # translation bridge
+npm run test:phase4          # gap detection
+npm run test:phase5          # hypothesis lifecycle
+npm run test:phase6          # cross-axis projection
+npm run test:persona-engine  # 議論駆動エンジン
+npm run test:discord-hook    # Gateway / command-router / interactions
+npm run test:queue           # 議論キュー snapshot
+npm run test:backup          # バックアップ archive
+npm run test:crawler         # KG クローラー
+npm run test:visualize       # magic-link md 書き出し
+```
 
 ## persona-engine (議論駆動)
 
 ```sh
-# 全テスト (repos / engine / Discatier adapter)
-npm run test:persona-engine
-
-# 動作 demo (MockLLM、 API 不要)
-npm run persona-demo
-# → gap 作成 → advocate が hypothesis 提案 → 結果 JSON
-
-# 動作 demo (実 LLM、 ANTHROPIC_API_KEY 必須)
-$env:ANTHROPIC_API_KEY = "sk-ant-..."  # PowerShell
-npm run persona-demo -- --real-llm
+npm run persona-demo            # MockLLM デモ (API 不要)
+$env:ANTHROPIC_API_KEY="sk-ant-..."; npm run persona-demo -- --real-llm   # 実 LLM
 ```
 
-エンジンは `src/persona-engine/` に閉じており、 切り出し時は `mv src/persona-engine ../persona-engine-package/src/` + `package.json` 分割で完結する設計。 Discatier 接続は `src/discatier-engine-adapter/` に隔離。
+エンジンは `src/persona-engine/` に閉じており、切り出し時は `mv src/persona-engine
+../persona-engine-package/src/` + `package.json` 分割で完結する設計。Discatier 接続は
+`src/discatier-engine-adapter/` に隔離。per-session 発火カウンタは `session_rule_fires`
+テーブルに永続化され、再起動を跨いで safety cap が効く。
 
-## Getting Started
+## Game KG クローラー / 議論ソース可視化
 
-### Prerequisites
+```sh
+npm run crawl import data/games/sample-hollow-knight.md   # md を Discatier Core に取り込む
+npm run crawl list                                        # 登録済 Game/Mechanic/Aesthetic
 
-- Node.js 22+
-- npm
-- [Cernere](https://github.com/LUDIARS/Cernere) を `../Cernere` に clone 済み (env-cli と Composite 認証サーバーとして使用)
-- Infisical (環境変数管理)
-
-### 初回セットアップ
-
-```bash
-# 1) 依存パッケージのインストール
-npm install
-cd frontend && npm install && cd ..
-
-# 2) Infisical の初回設定 (初回のみ)
-npm run env:setup
-
-# 3) デフォルト値を Infisical に登録 (初回のみ)
-npm run env:initialize
-
-# 4) Cernere 側で Discutere をプロジェクト登録し、CERNERE_PROJECT_CLIENT_ID /
-#    CERNERE_PROJECT_CLIENT_SECRET を Infisical に設定
-npm run env:set CERNERE_PROJECT_CLIENT_ID <value>
-npm run env:set CERNERE_PROJECT_CLIENT_SECRET <value>
-
-# 5) DB スキーマ反映
-npm run db:push
+npm run visualize hypothesis <id>   # data/discussions/<ws>/hypothesis/<id>.md に書き出し
+npm run visualize gap <id>          # gap / mechanic / aesthetic / utterance / session も同様
 ```
 
-### 開発起動 (ホットリロード)
+ノード間参照は `[[hyp:abc123]]` / `[[utt:550e8400]]` 形式の magic-link md。詳細は
+[`spec/crawler/DESIGN.md`](spec/crawler/DESIGN.md) / [`spec/visualize/DESIGN.md`](spec/visualize/DESIGN.md)。
 
-```bash
-# バックエンド + フロントエンド を並列起動
-npm run dev
-# → api (port 3100) + web (port 5174)
-
-# 個別起動
-npm run dev:server   # バックエンドのみ
-npm run dev:front    # フロントエンドのみ
-```
-
-`npm run dev` は内部で `env:env` (Infisical → `.env` 生成) → `concurrently` で api / web を起動します。
-
-### 本番ビルド
-
-```bash
-npm run build         # バックエンド
-npm start             # dist/index.js
-
-cd frontend
-npm run build         # frontend/dist/
-```
-
-## Environment Variables
-
-`env-cli.config.ts` の `infraKeys` に定義されており、`npm run env:initialize` で
-Infisical のデフォルト値として登録されます。以下が主要キーです:
-
-| Variable | Description | Default |
-|----------|------------|---------|
-| `FRONTEND_PORT` | フロントエンドポート | `5174` |
-| `BACKEND_PORT` | バックエンドポート | `3100` |
-| `DATABASE_PATH` | SQLite DB パス | `data/discutere.db` |
-| `VITE_ALLOWED_HOSTS` | Vite dev server の許可ホスト (カンマ区切り) | *(空)* |
-| `FRONTEND_URL` | フロントエンド URL (CORS) | `http://localhost:5174` |
-| `CERNERE_URL` | Cernere サーバー URL (Composite 認証先) | `http://localhost:8080` |
-| `JWT_SECRET` | Discutere 独自 service_token の署名鍵 | `discutere-dev-secret-change-in-production` |
-| `CERNERE_PROJECT_CLIENT_ID` | Cernere プロジェクト認証の client_id | — |
-| `CERNERE_PROJECT_CLIENT_SECRET` | Cernere プロジェクト認証の client_secret | — |
-| `ANTHROPIC_API_KEY` | `task` モードの Haiku 判定 (未設定時はルールベース) | — |
-| `HAIKU_MODEL` | Haiku のモデル ID | `claude-haiku-4-5-20251001` |
-| `GITHUB_TOKEN` | `discussion` モードの GitHub Discussion 書き込み用 PAT | — |
-
-## Authentication (Cernere Composite)
-
-認証は Cernere に委譲します。フロントエンド → Cernere ログイン → auth_code → Discutere
-backend で交換 → `discutere_token` (HttpOnly Cookie) が発行されます。
-
-フロー:
-1. フロント: `POST /api/auth/login-url?origin=<self>` → Cernere ログイン URL を取得
-2. Popup で Cernere ログイン → `/composite/callback?code=<authCode>` にリダイレクト
-3. フロント: `POST /api/auth/exchange { code }` → auth_code を service_token に交換
-4. Backend: `discutere_token` Cookie (HttpOnly, SameSite=Lax) をセット
-5. 以降のリクエストは Cookie を `credentials: "include"` で送信
-
-Backend の `/api/auth` エンドポイント:
-
-| Method | Path | Description | 認証 |
-|--------|------|-------------|------|
-| `GET` | `/api/auth/login-url?origin=<url>` | Cernere ログイン URL を返す | 不要 |
-| `POST` | `/api/auth/exchange` | auth_code を service_token に交換 (Cookie 設定) | 不要 |
-| `POST` | `/api/auth/logout` | Cookie 削除 | 不要 |
-| `GET` | `/api/auth/me` | 現在のユーザー情報 | 必須 |
-
-## API Endpoints
-
-### Tasks
-
-| Method | Path | Description |
-|--------|------|------------|
-| `GET` | `/api/groups/:workspaceId/tasks` | タスク一覧 (status フィルタ対応) |
-| `GET` | `/api/groups/:workspaceId/tasks/:taskId` | タスク詳細 + ログ |
-| `POST` | `/api/groups/:workspaceId/tasks` | タスク作成 |
-| `PUT` | `/api/groups/:workspaceId/tasks/:taskId` | タスク更新 |
-| `DELETE` | `/api/groups/:workspaceId/tasks/:taskId` | タスク削除 |
-
-### Channel Monitors (BOT 設定)
-
-| Method | Path | Description |
-|--------|------|------------|
-| `GET` | `/api/groups/:workspaceId/monitors` | 監視チャネル一覧 (BOT 接続状態付き) |
-| `POST` | `/api/groups/:workspaceId/monitors` | チャネル + BOT 認証情報を登録 |
-| `PUT` | `/api/groups/:workspaceId/monitors/:id` | 監視/BOT 設定更新 |
-| `DELETE` | `/api/groups/:workspaceId/monitors/:id` | チャネル監視削除 |
-
-`POST` / `PUT` のボディに `botToken` / `botWorkspaceId` / `botSigningSecret` /
-`captureMessages` を含めることで、導入済み Slack/Discord BOT の認証情報を
-フロントエンドから登録できます。BOT トークンは API レスポンスでは返却されず、
-`hasBotToken` フラグのみ公開されます。
-
-チャンネルモード (`mode`: `task` / `discussion` / `none`)、議論モードの
-遅延 (`discussionDelayMinutes`)、議論モードの保存先 (`githubRepo` /
-`githubDiscussionCategoryId`) も同じエンドポイントで設定します。
-
-### Channel Mode Sessions (処理状況の可視化)
-
-| Method | Path | Description |
-|--------|------|------------|
-| `GET` | `/api/groups/:workspaceId/mode-sessions` | 進行中セッション一覧 (task / discussion) |
-| `POST` | `/api/groups/:workspaceId/mode-sessions/task/:sessionId/resume` | ヒアリング中セッションに補足を投入して再分類 |
-| `DELETE` | `/api/groups/:workspaceId/mode-sessions/task/:sessionId` | タスクモードセッションを破棄 |
-| `POST` | `/api/groups/:workspaceId/mode-sessions/discussion/:sessionId/flush` | 議論モードの遅延タイマーを待たず即時実行 |
-| `DELETE` | `/api/groups/:workspaceId/mode-sessions/discussion/:sessionId` | 議論モードセッションを破棄 |
-
-セッションはすべてオンメモリ (プロセス再起動で消える) です。
-
-### Chat Logs & Summaries
-
-| Method | Path | Description |
-|--------|------|------------|
-| `GET` | `/api/groups/:workspaceId/monitors/:id/messages?limit=N` | 取得済みチャットログ一覧 |
-| `GET` | `/api/groups/:workspaceId/monitors/:id/summaries` | 要約一覧 |
-| `POST` | `/api/groups/:workspaceId/monitors/:id/summaries` | 期間を指定して要約を生成 |
-| `DELETE` | `/api/groups/:workspaceId/monitors/:id/summaries/:summaryId` | 要約削除 |
-
-要約生成の POST ボディ:
-- `hours`: 直近 N 時間 (既定: 24)
-- あるいは `periodStart` / `periodEnd` (ISO 8601)
-
-### Webhooks & Utilities
-
-| Method | Path | Description |
-|--------|------|------------|
-| `POST` | `/api/webhook/slack` | Slack Event API 受信 |
-| `POST` | `/api/webhook/discord` | Discord Webhook 受信 |
-| `POST` | `/api/analyze` | テキスト解析プレビュー |
-| `POST` | `/api/groups/:workspaceId/tasks/:taskId/relay` | 外部 PM へリレー |
-| `GET` | `/api/status` | モジュールステータス |
-| `GET` | `/api/health` | ヘルスチェック |
-
-## Message Analysis
-
-以下のパターンでメッセージからタスクを検出します:
-
-**タスク検出キーワード:** `task:`, `TODO:`, `お願い:`, `...をお願い`, `...してください`, `issue:`, `bug:`, `/task`, `!task`
-
-**優先度の自動判定:**
-- Critical — `急ぎ`, `至急`, `ASAP`, `緊急`
-- High — `重要`, `important`
-- Low — `できれば`, `低優先度`
-
-**期限の自動抽出:** `今日中`, `明日まで`, `今週中`, `来週中`, `◯日後`, `◯月◯日`
-
-**完了の検出:** `完了`, `done`, `修正した`, `解決`, `resolved`, `fixed`
-
-## Project Structure
+## ディレクトリ構成 (抜粋)
 
 ```
 src/
-├── index.ts                 # エントリーポイント (Hono サーバー)
-├── auth/
-│   ├── composite.ts         # Cernere Composite 認証フロー
-│   └── routes.ts            # /api/auth/{login-url,exchange,logout,me}
-├── middleware/auth.ts       # userContext / requireRole / getUserId 等
-├── machina/
-│   ├── routes.ts            # API ルーティング
-│   ├── analyzer.ts          # テキスト解析エンジン (ルールベース)
-│   ├── haiku-classifier.ts  # Haiku によるタスク性判定 (ANTHROPIC_API_KEY があれば使用)
-│   ├── task-mode.ts         # チャンネルモード "task" の処理器
-│   ├── discussion-mode.ts   # チャンネルモード "discussion" の処理器
-│   ├── mode-state.ts        # オンメモリのセッションストア
-│   ├── chat-reply.ts        # Slack / Discord への返信ヘルパ
-│   ├── github-discussion.ts # 議論モードの GitHub Discussion 書き込み
-│   ├── summarizer.ts        # 要約エンジン
-│   ├── webhook-handler.ts   # Slack/Discord Webhook ハンドラ
-│   └── pm-relay.ts          # 外部 PM 連携アダプター
-├── db/
-│   ├── schema.ts            # Drizzle スキーマ定義
-│   ├── connection.ts        # DB 接続
-│   └── repository.ts        # データアクセス層
-└── shared/constants.ts      # 定数・Enum (CHANNEL_MODES を含む)
+├── index.ts                  # エントリ (Hono + Gateway + engine + backup wiring)
+├── config.ts                 # 単一 typed config (default < json < env)
+├── discord-hook/             # Discord Gateway transport
+│   ├── gateway.ts            #   discord.js Client 常時接続 + slash 自動登録 + 👀 ack
+│   ├── command-router.ts     #   transport 非依存ルーティング (slash + 平文)
+│   ├── command-defs.ts       #   slash command 定義 (single source of truth)
+│   ├── register-commands.ts  #   REST PUT で Discord に登録
+│   ├── discussion-bridge.ts  #   AI 発話を guild/channel に post
+│   └── poster.ts             #   Discord channel への投稿
+├── core/                     # Discatier Core (Event Sourcing + Kuzu projection)
+├── persona-engine/           # 議論駆動エンジン (ペルソナ × ルール × LLM)
+├── queue/snapshot.ts         # 議論キューのスナップショット生成
+├── backup/                   # tar.gz アーカイブ + S3 upload + 月次スケジューラ
+├── api/                      # admin / dashboard / queue ルート
+└── machina/                  # (Iv へ移管予定) Chat-to-Task
 
-frontend/src/
-├── App.tsx                       # ルーティング (PrivateRoute でガード)
-├── contexts/AuthContext.tsx      # Cernere Composite ログイン + /me 同期
-├── pages/
-│   ├── LoginPage.tsx             # "Cernere でログイン" ボタン (popup)
-│   ├── CallbackPage.tsx          # /composite/callback — authCode 受領
-│   └── MachinaPage.tsx           # メイン UI
-├── lib/
-│   ├── constants.ts              # API_BASE
-│   ├── api.ts                    # Fetch helpers (credentials: include)
-│   └── api-types.ts              # 型定義
-└── main.tsx                      # エントリーポイント
+scripts/
+├── register-discord-commands.ts   # npm run discord:register
+└── backup.ts                       # npm run backup
 ```
-
-## AIFormat 準拠
-
-LUDIARS [AIFormat](https://github.com/LUDIARS/AIFormat) の基盤設計ルールに従います:
-- **認証**: Cernere Composite (HttpOnly Cookie + 独自 service_token)
-- **技術スタック**: Hono + TypeScript + Drizzle ORM + React 19 + Vite
-- **環境変数**: Infisical + `@cernere/env-cli`
-- **npm scripts**: `concurrently` + `dotenv-cli` でクロスプラットフォーム対応
-- **DB**: Drizzle ORM (現状 SQLite。PostgreSQL 移行は将来課題)
 
 ## License
 
-[MIT](LICENSE) &copy; LUDIARS
+[MIT](LICENSE) © LUDIARS
