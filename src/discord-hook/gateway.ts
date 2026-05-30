@@ -30,10 +30,13 @@ import {
   type CommandRouterDeps,
   type InboundSlashCommand,
 } from "./command-router.js";
+import { MonitorCard } from "./monitor-card.js";
 
 export interface DiscordGatewayDeps extends CommandRouterDeps {
   /** Gateway 接続用 bot token */
   botToken: string;
+  /** 単一ギルド運用時の guild id (discutere-monitor 状態カードの設置先) */
+  guildId?: string;
 }
 
 export interface DiscordGatewayHandle {
@@ -61,8 +64,21 @@ export async function startDiscordGateway(
     partials: [Partials.Channel, Partials.Message],
   });
 
+  let monitor: MonitorCard | null = null;
+
   client.once(Events.ClientReady, (c) => {
     console.log(`  discord-gateway: logged in as ${c.user.tag}`);
+    if (deps.guildId) {
+      monitor = new MonitorCard({
+        client,
+        knowledge: deps.knowledge,
+        workspace: deps.workspace,
+        guildId: deps.guildId,
+      });
+      monitor.start();
+    } else {
+      console.log("  discord-monitor: skipped (set discord.guildId to enable)");
+    }
   });
 
   client.on(Events.MessageCreate, (msg: Message) => {
@@ -112,6 +128,7 @@ export async function startDiscordGateway(
 
   return {
     async stop() {
+      monitor?.stop();
       try {
         await client.destroy();
       } catch {
