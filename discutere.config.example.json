@@ -27,6 +27,7 @@
     "botToken": "",
     "applicationId": "",
     "guildId": "",
-    "adminIds": []
+    "adminIds": [],
+    "discussionChannelIds": []
   }
 }

@@ -59,6 +59,12 @@ export interface DiscutereConfig {
     guildId?: string;
     /** admin slash (kill/status) の認可 allowlist。空なら全 deny (安全 default) */
     adminIds: string[];
+    /**
+     * 平文メッセージ (非 slash) を utterance として取り込む議論チャンネル id。
+     * 空なら取り込まない (安全 default — 無関係チャンネルのノイズ混入を防ぐ)。
+     * slash command は本リストに依らず常に処理される。
+     */
+    discussionChannelIds: string[];
   };
 }
 
@@ -69,7 +75,10 @@ interface RawFileConfig {
   discatier?: Partial<DiscutereConfig["discatier"]>;
   personaEngine?: Partial<DiscutereConfig["personaEngine"]>;
   llm?: Partial<DiscutereConfig["llm"]>;
-  discord?: Partial<Omit<DiscutereConfig["discord"], "adminIds">> & { adminIds?: string[] };
+  discord?: Partial<Omit<DiscutereConfig["discord"], "adminIds" | "discussionChannelIds">> & {
+    adminIds?: string[];
+    discussionChannelIds?: string[];
+  };
 }
 
 function readFileConfig(): RawFileConfig {
@@ -113,7 +122,8 @@ function pickNum(envValue: string | undefined, fileValue: unknown, dflt: number)
   return dflt;
 }
 
-function parseAdminIds(env: string | undefined, fileValue: unknown): string[] {
+/** カンマ区切り env → 無ければ file の string 配列 → 無ければ空。両者の最初に存在した方を採用 */
+function parseStringList(env: string | undefined, fileValue: unknown): string[] {
   const fromEnv = (env ?? "")
     .split(",")
     .map((s) => s.trim())
@@ -176,7 +186,11 @@ export function loadConfig(): DiscutereConfig {
       botToken: pickOpt(process.env.DISCUTERE_DISCORD_BOT_TOKEN, file.discord?.botToken),
       applicationId: pickOpt(process.env.DISCUTERE_DISCORD_APPLICATION_ID, file.discord?.applicationId),
       guildId: pickOpt(process.env.DISCUTERE_DISCORD_GUILD_ID, file.discord?.guildId),
-      adminIds: parseAdminIds(process.env.DISCUTERE_DISCORD_ADMIN_IDS, file.discord?.adminIds),
+      adminIds: parseStringList(process.env.DISCUTERE_DISCORD_ADMIN_IDS, file.discord?.adminIds),
+      discussionChannelIds: parseStringList(
+        process.env.DISCUTERE_DISCORD_DISCUSSION_CHANNELS,
+        file.discord?.discussionChannelIds
+      ),
     },
   });
 }
