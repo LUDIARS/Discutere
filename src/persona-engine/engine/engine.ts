@@ -14,6 +14,7 @@ import type {
 } from "../context-provider.js";
 import type { PersonasRepo } from "../db/personas-repo.js";
 import type { RulesRepo } from "../db/rules-repo.js";
+import { InMemorySessionFireStore, type SessionFireStore } from "../db/session-fires-repo.js";
 import type { LLMClient } from "../llm/client.js";
 import type { Logger, RuleRow } from "../types.js";
 import { buildPrompt } from "./prompt-builder.js";
@@ -48,6 +49,11 @@ export interface EngineDeps {
    * 未指定なら上限なし。
    */
   maxFiresPerRulePerSession?: number;
+  /**
+   * per-session fire counter の保存先。未指定なら in-memory (従来挙動)。
+   * SqliteSessionFireStore を渡すと再起動越しに cap が効く (restart-recovery)。
+   */
+  sessionFireStore?: SessionFireStore;
 }
 
 export interface EngineHandle {
@@ -71,9 +77,9 @@ export function createEngine(deps: EngineDeps): EngineHandle {
   let runtimeEnabled = true;
   const tickMs = deps.tickMs ?? DEFAULT_TICK_MS;
 
-  // per-session safety counter: Map<sessionId, Map<ruleId, count>>
-  // sessionId が null の rule (tick rule) はカウントしない (cooldown で十分)
-  const sessionFires = new Map<string, Map<string, number>>();
+  // per-session safety counter。sessionId が null の rule (tick rule) はカウント
+  // しない (cooldown で十分)。store は in-memory (既定) か sqlite (restart-recovery)。
+  const sessionFires: SessionFireStore = deps.sessionFireStore ?? new InMemorySessionFireStore();
 
   function isDisabled(): boolean {
     if (!runtimeEnabled) return true;
@@ -87,27 +93,24 @@ export function createEngine(deps: EngineDeps): EngineHandle {
 
   function checkSessionCap(rule: RuleRow, sessionId: string | null): { ok: true } | { ok: false; reason: string } {
     if (!sessionId) return { ok: true };
-    const perRuleMap = sessionFires.get(sessionId);
-    if (!perRuleMap) return { ok: true };
-    const totalFires = [...perRuleMap.values()].reduce((a, b) => a + b, 0);
-    if (deps.maxFiresPerSession !== undefined && totalFires >= deps.maxFiresPerSession) {
-      return { ok: false, reason: `session cap reached: ${totalFires}/${deps.maxFiresPerSession} (turn budget)` };
+    if (deps.maxFiresPerSession !== undefined) {
+      const totalFires = sessionFires.total(sessionId);
+      if (totalFires >= deps.maxFiresPerSession) {
+        return { ok: false, reason: `session cap reached: ${totalFires}/${deps.maxFiresPerSession} (turn budget)` };
+      }
     }
-    const perRuleCount = perRuleMap.get(rule.id) ?? 0;
-    if (deps.maxFiresPerRulePerSession !== undefined && perRuleCount >= deps.maxFiresPerRulePerSession) {
-      return { ok: false, reason: `rule cap reached: ${rule.id} ${perRuleCount}/${deps.maxFiresPerRulePerSession} (loop guard)` };
+    if (deps.maxFiresPerRulePerSession !== undefined) {
+      const perRuleCount = sessionFires.ruleCount(sessionId, rule.id);
+      if (perRuleCount >= deps.maxFiresPerRulePerSession) {
+        return { ok: false, reason: `rule cap reached: ${rule.id} ${perRuleCount}/${deps.maxFiresPerRulePerSession} (loop guard)` };
+      }
     }
     return { ok: true };
   }
 
   function recordSessionFire(rule: RuleRow, sessionId: string | null): void {
     if (!sessionId) return;
-    let perRuleMap = sessionFires.get(sessionId);
-    if (!perRuleMap) {
-      perRuleMap = new Map();
-      sessionFires.set(sessionId, perRuleMap);
-    }
-    perRuleMap.set(rule.id, (perRuleMap.get(rule.id) ?? 0) + 1);
+    sessionFires.increment(sessionId, rule.id);
   }
 
   async function tryFire(rule: RuleRow, triggeredBy: string, sessionId: string | null): Promise<void> {
@@ -288,7 +291,7 @@ export function createEngine(deps: EngineDeps): EngineHandle {
       deps.logger.info({ enabled }, "rules runtime switch");
     },
     resetSession(sessionId: string): void {
-      sessionFires.delete(sessionId);
+      sessionFires.reset(sessionId);
       deps.logger.info({ sessionId }, "session counter reset");
     },
   };

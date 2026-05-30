@@ -69,6 +69,21 @@ const MIGRATIONS: Array<{ id: string; sql: string[] }> = [
       `CREATE INDEX IF NOT EXISTS idx_rule_log_ts ON rule_log(ts)`,
     ],
   },
+  {
+    // restart-recovery: per-session fire counter を永続化し、再起動越しに
+    // safety cap (maxFiresPerSession / maxFiresPerRulePerSession) を効かせる。
+    // 新規テーブルなので ALTER 順序の罠 (no such column) は無し。
+    id: "pe_0002_session_fires",
+    sql: [
+      `CREATE TABLE IF NOT EXISTS session_rule_fires (
+        session_id TEXT NOT NULL,
+        rule_id TEXT NOT NULL,
+        count INTEGER NOT NULL DEFAULT 0,
+        PRIMARY KEY (session_id, rule_id)
+      )`,
+      `CREATE INDEX IF NOT EXISTS idx_session_rule_fires_session ON session_rule_fires(session_id)`,
+    ],
+  },
 ];
 
 export function applyPersonaEngineMigrations(db: Database.Database): void {

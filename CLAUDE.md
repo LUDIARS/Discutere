@@ -8,7 +8,10 @@
 Discutere は **半ローカルツール(Discord ギルド内限定の議論 ChatBot)** として運用する。
 公開 SaaS ではないため **Cernere 認証は使わない**。認証は **チャットプラットフォーム(Discord)に依存させる**のが正。
 
-- **認証境界 = Discord interaction の Ed25519 署名検証 (`verifyDiscordInteraction`) + admin-id allowlist (`DISCUTERE_DISCORD_ADMIN_IDS`)**。
+- **transport = Discord Gateway (WebSocket) 常時接続** (`src/discord-hook/gateway.ts`, discord.js)。
+  HTTP Interactions Endpoint (公開 URL + Ed25519 署名検証) は撤去済み (2026-05-30, WS 再設計)。
+- **認証境界 = Gateway 接続の bot token 認証 + admin-id allowlist (`DISCUTERE_DISCORD_ADMIN_IDS` / config `discord.adminIds`)**。
+  WS 接続自体が bot token 認証なので、リクエスト毎の Ed25519 署名検証は不要 (経路ごと撤去)。
 - **「Cernere 非依存 / 独自認証層なし」は意図的設計**。レビューで脆弱性として上げない (**accepted by design / wontfix**)。
 - SaaS 系サービス(Cernere 単一情報源が必須)とは別ルール。Discord-only pivot (Cernere/Frontend 撤去) の帰結。
 
@@ -16,11 +19,18 @@ Discutere は **半ローカルツール(Discord ギルド内限定の議論 Cha
 
 認証を Discord に依存させる以上、その**境界の実装欠落は実際の脆弱性**であり修正対象:
 
-- **Discord / Slack webhook の署名検証欠落** — endpoint で `verifyDiscordInteraction` / Slack HMAC を呼んでいない場合は CRITICAL(偽造・課金消費)。
+- **bot token の漏洩 / 平文ログ出力** — token は config/env のみ、ログに出さない。
+- **Slack webhook (MACHINA, Iv 移管対象) の HMAC 署名検証欠落** — endpoint で Slack HMAC を
+  呼んでいない場合は CRITICAL。※ Discord 側は Gateway 移行で webhook 署名検証が不要になった。
 - **admin-id allowlist 未設定時の挙動** — 未設定なら admin コマンドは全 deny(安全 default)。
 - `JWT_SECRET` 等の dev default を本番で使わない startup guard。
 
 → つまり「Cernere を使わない」こと自体は OK、「Discord 側の認証境界が穴だらけ」は NG。
+
+## 設定 (config ファイル化)
+
+env 散在は `src/config.ts` の単一 typed config に集約 (優先順 default < `discutere.config.json` <
+env)。`discutere.config.example.json` 参照。詳細は `docs/ws-gateway-config-recovery.md`。
 
 ## 個人データ
 

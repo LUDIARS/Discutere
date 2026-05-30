@@ -10,6 +10,7 @@ import type Database from "better-sqlite3";
 import { applyPersonaEngineMigrations } from "./db/migrations.js";
 import { PersonasRepo } from "./db/personas-repo.js";
 import { RulesRepo } from "./db/rules-repo.js";
+import { SqliteSessionFireStore } from "./db/session-fires-repo.js";
 import { createEngine, type EngineHandle, type EngineDeps } from "./engine/engine.js";
 import { DISCUSSION_PERSONA_SEEDS } from "./seeds/personas.js";
 import { DISCUSSION_RULE_SEEDS } from "./seeds/rules.js";
@@ -69,6 +70,9 @@ export function createPersonaEngine(
     resolveSessionId: opts.resolveSessionId,
     maxFiresPerSession: opts.maxFiresPerSession,
     maxFiresPerRulePerSession: opts.maxFiresPerRulePerSession,
+    // restart-recovery: per-session fire counter を同一 db に永続化し、
+    // 再起動越しに safety cap を効かせる。
+    sessionFireStore: new SqliteSessionFireStore(opts.db),
   });
 
   return Object.assign(engine, { personas, rules });
