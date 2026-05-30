@@ -164,6 +164,7 @@ const discordGatewayLifecycle = startDiscordGateway({
   botToken: config.discord.botToken ?? "",
   workspaceId: config.workspace,
   adminIds: config.discord.adminIds,
+  discussionChannelIds: config.discord.discussionChannelIds,
   getEngine: () => getPersonaEngine(),
 }).catch((err) => {
   console.warn("  discord-gateway: startup failed:", (err as Error).message);

@@ -9,10 +9,12 @@
 import assert from "node:assert/strict";
 
 import {
+  routeInboundMessage,
   routeSlashCommand,
   type CommandRouterDeps,
   type InboundSlashCommand,
 } from "../../src/discord-hook/command-router.js";
+import type { DiscordInboundMessage } from "../../src/discord-hook/types.js";
 import type { PersonaEngineHandle } from "../../src/persona-engine/index.js";
 
 // ─── fake engine ────────────────────────────────
@@ -26,7 +28,7 @@ const fakeEngine = {
 } as unknown as PersonaEngineHandle;
 
 function depsWith(adminIds: string[], engine: PersonaEngineHandle | null): CommandRouterDeps {
-  return { workspaceId: "knowledge", adminIds, getEngine: () => engine };
+  return { workspaceId: "knowledge", adminIds, discussionChannelIds: [], getEngine: () => engine };
 }
 
 function slash(partial: Partial<InboundSlashCommand>): InboundSlashCommand {
@@ -111,6 +113,26 @@ function slash(partial: Partial<InboundSlashCommand>): InboundSlashCommand {
   );
   assert.ok(r.content.includes("not initialized"), `got: ${r.content}`);
   console.log("ok engine-not-initialized handled");
+}
+
+// 8. routeInboundMessage は非許可チャンネルを早期 return (core に触れず副作用なし)
+{
+  const msg: DiscordInboundMessage = {
+    id: "m1",
+    channelId: "ch-not-allowed",
+    author: { id: "u1", username: "alice" },
+    content: "ふつうの発言",
+    mentions: [],
+    timestamp: new Date(0).toISOString(),
+  };
+  // discussionChannelIds が空 / 不一致なら createCore に到達せず throw しない
+  routeInboundMessage(msg, "g1", depsWith(["admin1"], fakeEngine));
+  routeInboundMessage(
+    msg,
+    "g1",
+    { workspaceId: "knowledge", adminIds: [], discussionChannelIds: ["ch-other"], getEngine: () => null }
+  );
+  console.log("ok inbound message gated by discussionChannelIds (non-allowed channel ignored)");
 }
 
 console.log("command-router.test.ts: all passed");

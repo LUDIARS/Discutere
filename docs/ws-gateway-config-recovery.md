@@ -34,6 +34,8 @@ heartbeat / resume / reconnect / shard を自前実装せず堅牢性を担保 (
     - それ以外 → `/<name> <args>` に組み立て `submitMessage` へ流す。
   - `routeInboundMessage(DiscordInboundMessage, guildId, deps)`
     - bot 以外の平文メッセージを discord-bound session の utterance として記録。
+    - **取り込みは `discord.discussionChannelIds` 許可リストに限定** (空なら取り込まない安全
+      default)。無関係チャンネルのノイズ混入を防ぐ (2026-05-30 レビュー M1 対応)。
 - `src/discord-hook/gateway.ts` … discord.js Client (WS transport) の薄い adapter。
   - `Events.InteractionCreate` → `routeSlashCommand` → `interaction.reply`。
   - `Events.MessageCreate` → normalize → `routeInboundMessage`。

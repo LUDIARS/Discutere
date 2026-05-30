@@ -40,6 +40,11 @@ export interface CommandRouterDeps {
   workspaceId: string;
   /** admin slash の認可 allowlist。空なら全 deny (安全 default) */
   adminIds: string[];
+  /**
+   * 平文メッセージを utterance 取り込みする議論チャンネル id の許可リスト。
+   * 空なら取り込まない (= 無関係チャンネルのノイズ混入を防ぐ安全 default)。
+   */
+  discussionChannelIds: string[];
   /** persona-engine の取得 (起動後に注入される singleton 想定) */
   getEngine: () => PersonaEngineHandle | null;
 }
@@ -81,6 +86,8 @@ export function routeInboundMessage(
   guildId: string,
   deps: CommandRouterDeps
 ): void {
+  // 議論チャンネルとして許可されたチャンネルのみ取り込む (無関係チャンネルのノイズ防止)。
+  if (!deps.discussionChannelIds.includes(msg.channelId)) return;
   const text = msg.content.trim();
   if (text.length === 0) return;
   // slash 由来 (先頭 "/") は interaction 経路で処理されるので二重取り込みしない。
