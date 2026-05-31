@@ -142,26 +142,21 @@ Discatier KG (kuzu) + persona-engine.db + discutere.db を **tar.gz にまとめ
 > 認証情報は env (`AWS_ACCESS_KEY_ID` / `AWS_SECRET_ACCESS_KEY`) または AWS SDK 既定チェーン
 > (IAM ロール等) を使う。値は config に直書きせず env 上書きを推奨。
 
-## 設定リファレンス (`discutere.config.json`)
+## セットアップガイド (用途別)
 
-`default < discutere.config.json < env` の順で解決 (`DISCUTERE_CONFIG` で config パス変更可)。
-全キーは [`discutere.config.example.json`](discutere.config.example.json) と
-[`.env.example`](.env.example) を参照。主要キー:
+「○○するための設定」は [`spec/setup/`](spec/setup/) に用途別でまとめてある:
 
-| セクション | キー | env | 説明 |
-|---|---|---|---|
-| server | `port` | `BACKEND_PORT` | HTTP port (既定 3100) |
-| | `workspace` | `DISCATIER_WORKSPACE` | 匿名議論 workspace (既定 `knowledge`) |
-| discord | `botToken` | `DISCUTERE_DISCORD_BOT_TOKEN` | Gateway 接続 (空なら skip) |
-| | `applicationId` | `DISCUTERE_DISCORD_APPLICATION_ID` | slash 登録 (未設定なら自動解決) |
-| | `guildIds` | `DISCUTERE_DISCORD_GUILD_IDS` | 運用 guild 群 (複数サーバ) |
-| | `adminIds` | `DISCUTERE_DISCORD_ADMIN_IDS` | admin slash 認可 (空なら全 deny) |
-| | `discussionChannelIds` | `DISCUTERE_DISCORD_DISCUSSION_CHANNELS` | 平文取り込みチャンネル |
-| llm | `backend` | `LLM_BACKEND` | `anthropic` / `claude-cli` / `mock` |
-| | `anthropicApiKey` | `ANTHROPIC_API_KEY` | anthropic backend 用 |
-| | `gitBashPath` | `CLAUDE_CODE_GIT_BASH_PATH` | Windows で claude-cli 利用時必須 |
-| personaEngine | `maxFiresPerSession` 等 | `PERSONA_ENGINE_*` | safety cap / tick 周期 |
-| backup | `enabled` / `bucket` 等 | `DISCUTERE_BACKUP_*` | S3 バックアップ (上述) |
+| やりたいこと | ガイド |
+|---|---|
+| Discord で議論を動かす (最短) | [spec/setup/discord.md](spec/setup/discord.md) |
+| AI に自走議論させる (LLM backend) | [spec/setup/llm.md](spec/setup/llm.md) |
+| 複数サーバ (guild) で運用する | [spec/setup/multi-server.md](spec/setup/multi-server.md) |
+| 学習データを S3 にバックアップする | [spec/setup/backup.md](spec/setup/backup.md) |
+| **全設定キーを確認する** | [spec/setup/config-reference.md](spec/setup/config-reference.md) |
+
+設定は `default < discutere.config.json < env` の順で解決 (`DISCUTERE_CONFIG` で config パス変更可)。
+雛形は [`discutere.config.example.json`](discutere.config.example.json) /
+[`.env.example`](.env.example)。秘密情報は env 上書き推奨。
 
 ## 開発
 
