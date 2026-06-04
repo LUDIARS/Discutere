@@ -181,6 +181,27 @@ export function createDiscatierContextProvider(
       return { id };
     },
 
+    findDiscussionSession(input: {
+      workspaceId: string;
+      hypothesisId?: string;
+      gapId?: string;
+    }): string | null {
+      let gapId = input.gapId;
+      if (!gapId && input.hypothesisId) {
+        const row = core.client.raw
+          .prepare("SELECT design_gap_id FROM hypotheses WHERE id = ?")
+          .get(input.hypothesisId) as { design_gap_id: string | null } | undefined;
+        gapId = row?.design_gap_id ?? undefined;
+      }
+      if (!gapId) return null;
+      const session = core.client.raw
+        .prepare(
+          "SELECT id FROM sessions WHERE workspace_id = ? AND title = ? ORDER BY started_at DESC LIMIT 1"
+        )
+        .get(input.workspaceId, `discussion-of-gap:${gapId}`) as { id: string } | undefined;
+      return session?.id ?? null;
+    },
+
     postUtterance(input: PostUtteranceInput): { id: string } {
       const sessionId = input.sessionId || options.defaultSessionId;
       if (!sessionId) {
