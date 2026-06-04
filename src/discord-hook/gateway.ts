@@ -46,6 +46,8 @@ export interface DiscordGatewayDeps extends CommandRouterDeps {
    * - guild ごとに discutere-monitor 状態カードを設置
    */
   guildIds?: string[];
+  /** メッセージへのリアクション付与イベント (議論意見スコアリング用)。 */
+  onReaction?: (info: { messageId: string; channelId: string; emoji: string; userId: string }) => void;
   /**
    * データクロール用チャンネル id。 ここに貼られた URL は議論取り込みではなく
    * 外部議論データのクロール (crawl-handler) に回す。 空ならクロール無効。
@@ -76,8 +78,9 @@ export async function startDiscordGateway(
       GatewayIntentBits.GuildMessages,
       GatewayIntentBits.MessageContent,
       GatewayIntentBits.DirectMessages,
+      GatewayIntentBits.GuildMessageReactions,
     ],
-    partials: [Partials.Channel, Partials.Message],
+    partials: [Partials.Channel, Partials.Message, Partials.Reaction],
   });
 
   const monitors: MonitorCard[] = [];
@@ -161,6 +164,20 @@ export async function startDiscordGateway(
       }
     } catch (err) {
       console.warn(`  discord-gateway: message route failed: ${(err as Error).message}`);
+    }
+  });
+
+  // 議論意見へのリアクション → スコアリング (deps.onReaction が処理)。
+  client.on(Events.MessageReactionAdd, (reaction, user) => {
+    try {
+      if (user?.bot) return;
+      const emoji = reaction.emoji?.name ?? reaction.emoji?.toString() ?? "";
+      const messageId = reaction.message?.id;
+      const channelId = reaction.message?.channelId ?? "";
+      if (!messageId || !emoji) return;
+      deps.onReaction?.({ messageId, channelId, emoji, userId: user?.id ?? "" });
+    } catch (err) {
+      console.warn(`  discord-gateway: reaction handle failed: ${(err as Error).message}`);
     }
   });
 

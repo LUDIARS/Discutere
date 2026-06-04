@@ -40,7 +40,8 @@
     "env:list": "npx tsx ../Cernere/packages/env-cli/src/cli.ts list",
     "env:get": "npx tsx ../Cernere/packages/env-cli/src/cli.ts get",
     "env:set": "npx tsx ../Cernere/packages/env-cli/src/cli.ts set",
-    "env:up": "npx tsx ../Cernere/packages/env-cli/src/cli.ts env && docker compose up -d"
+    "env:up": "npx tsx ../Cernere/packages/env-cli/src/cli.ts env && docker compose up -d",
+    "headless": "tsx scripts/headless-discuss.ts"
   },
   "dependencies": {
     "@aws-sdk/client-s3": "^3.658.0",

@@ -40,6 +40,29 @@ or
 }`,
   },
   {
+    id: "respond-to-human",
+    description:
+      "人間の発言には最優先かつ即座に応答する (人間 > AI、 遠慮不要)",
+    trigger_type: "event",
+    event_kind: "HumanUtterance",
+    target: "advocate",
+    cooldown_sec: 8,
+    instructions: `議論チャンネルに **人間の参加者** が発言しました。
+議論コンテキスト (utterances) の **最新 (末尾) の発言が その人間のもの** です。
+あなたはその人間の発言に **最優先で即座に** 応答してください。
+
+- AI 同士の進行中のやり取りよりも、 人間の発言を優先する。
+- 遠慮や過剰な配慮は不要。 賛否・具体例・反論を率直に述べてよい (馴れ合わない)。
+- Discord の会話として自然な口語で 1〜2 文、 一文ごとに改行。
+- ただし 人間が「議論のテーマ自体を変えたい / 別の話を始めたい」 ように見える場合は、
+  あなたが勝手に話題や場を切り替えず "skip" を返す
+  (場を変えるかどうかの判断はファシリテーターが行う)。
+
+返答は JSON のみ:
+{ "action": "post_utterance", "text": "<人間への応答 1〜2 文>", "reasoning": "<30字以内>" }
+or { "action": "skip", "reasoning": "場を変える発言 / 応答不要などの理由" }`,
+  },
+  {
     id: "refute-cold",
     description:
       "5 分以上反論されていない hypothesis を sceptic が突く",
@@ -157,6 +180,7 @@ or { "action": "skip", "reasoning": "..." }`,
 /** seed rule は AI による削除から保護する (= remove_rule で拒否) */
 export const SEED_RULE_IDS = new Set<string>([
   "propose-on-gap",
+  "respond-to-human",
   "refute-cold",
   "refine-validated",
   "integrate-on-many",

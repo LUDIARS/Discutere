@@ -13,7 +13,12 @@
 import { getConfig } from "../config.js";
 import type { createCore } from "../core/index.js";
 import { monitorRepo } from "../db/repository.js";
-import { postDiscordChannel } from "./poster.js";
+import {
+  ensureChannelWebhook,
+  humanizeForDiscord,
+  postDiscordChannel,
+  postDiscordWebhook,
+} from "./poster.js";
 
 type Core = ReturnType<typeof createCore>;
 
@@ -26,19 +31,32 @@ export interface DiscussionPostArgs {
   /** 発話者 (persona name 等、 表示用) */
   speakerLabel: string;
   text: string;
+  /**
+   * true: persona を webhook で人間名 (speakerLabel) として投稿する。
+   * false/未指定: Discutere bot として直接投稿する (= 進行役)。
+   */
+  viaWebhook?: boolean;
 }
 
 export async function postDiscussionToDiscord(args: DiscussionPostArgs): Promise<{
   ok: boolean;
+  /**
+   * true: 失敗ではなく「意図的に投稿しなかった」(= headless 議論など非 discord scene)。
+   * caller はこの場合 warn を出さずに黙ってスキップする (ログ noise 除去 / #63)。
+   */
+  skipped?: boolean;
   reason?: string;
   channelId?: string;
+  messageId?: string;
 }> {
   // session.scene = "discord:<guildId>/<channelId>" or "gap:<gapId>" (gap session 用)
   const session = args.core.client.raw
     .prepare("SELECT scene FROM sessions WHERE id = ?")
     .get(args.sessionId) as { scene: string | null } | undefined;
   if (!session?.scene || !session.scene.startsWith("discord:")) {
-    return { ok: false, reason: "session.scene is not discord-bound" };
+    // headless (gap:<gapId> 等) の議論は Discord に出さないのが正常動作。
+    // 失敗ではないので skipped で返し、 caller の warn を抑止する。
+    return { ok: false, skipped: true, reason: "session.scene is not discord-bound (headless)" };
   }
   const guildChannel = session.scene.slice("discord:".length);
   const [guildId, channelId] = guildChannel.split("/");
@@ -57,16 +75,34 @@ export async function postDiscussionToDiscord(args: DiscussionPostArgs): Promise
     return { ok: false, reason: "no discord bot token (channel_monitors / config どちらも未設定)" };
   }
 
-  const prefix = args.kind === "hypothesis" ? "💡 **新仮説**" : "💬";
-  const content = `${prefix} \`${args.speakerLabel}\`\n${args.text}`;
+  const body = humanizeForDiscord(args.text);
 
+  // persona は webhook で人間名として投稿 (議論参加者らしく見せる)。
+  if (args.viaWebhook) {
+    try {
+      const wh = await ensureChannelWebhook(botToken, channelId);
+      const r = await postDiscordWebhook({
+        webhookId: wh.id,
+        webhookToken: wh.token,
+        username: args.speakerLabel,
+        content: body,
+      });
+      return { ok: true, channelId, messageId: r.id };
+    } catch (err) {
+      // webhook 権限が無い等で失敗 → bot 直接投稿に fallback (名前を本文先頭に)
+      try {
+        const r = await postDiscordChannel({ botToken, channelId, content: `**${args.speakerLabel}**\n${body}` });
+        return { ok: true, channelId, messageId: r.id };
+      } catch (err2) {
+        return { ok: false, reason: `webhook(${(err as Error).message}) / bot(${(err2 as Error).message})` };
+      }
+    }
+  }
+
+  // 進行役 (Discutere) は bot として直接投稿。
   try {
-    await postDiscordChannel({
-      botToken,
-      channelId,
-      content,
-    });
-    return { ok: true, channelId };
+    const r = await postDiscordChannel({ botToken, channelId, content: body });
+    return { ok: true, channelId, messageId: r.id };
   } catch (err) {
     return { ok: false, reason: (err as Error).message };
   }
