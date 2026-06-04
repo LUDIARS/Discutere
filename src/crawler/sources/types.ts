@@ -25,8 +25,14 @@ export interface ExternalUtterance {
   gameSlug: string;
   /** 議論の場の単位 → session_id に対応 (appid / 動画id / スレッドid) */
   threadKey: string;
-  /** 発話本文 (原文) */
+  /** 発話本文 (原文 = raw)。 長文 source (website 記事) では raw 全文がここに入る。 */
   content: string;
+  /**
+   * 要約 (任意)。 長文 source 用の 2 層化 — 議論コンテキスト参照はこちらを使って
+   * トークンを節約し、 raw 全文 (content) は raw-store に退避する (importer 側で処理)。
+   * 未設定なら content をそのまま参照する (従来挙動)。
+   */
+  summary?: string;
   /** "ja" | "en" 等 (判明すれば) */
   lang?: string;
   /** epoch ms */

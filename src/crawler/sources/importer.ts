@@ -15,6 +15,7 @@ import type { createCore } from "../../core/index.js";
 
 import { toSpeakerId } from "./persona.js";
 import type { IngestedStore } from "./ingested-store.js";
+import type { RawStore } from "./raw-store.js";
 import type { ExternalUtterance } from "./types.js";
 
 type Core = ReturnType<typeof createCore>;
@@ -24,12 +25,19 @@ export interface ExternalImportResult {
   utterances: number;
   reactions: number;
   skipped: number;
+  /** summary を本文に採用し raw を raw-store へ退避した件数 (2 層化、 id=67) */
+  summarized: number;
 }
 
 export interface ExternalImportOptions {
   workspaceId: string;
   /** dedup sidecar。渡せば取り込み済み (source,nativeId) を skip + 記録する */
   ingested?: IngestedStore;
+  /**
+   * raw 全文の退避先 (id=67)。 item.summary がある時、 utterance 本文は summary に、
+   * raw 全文 (content) はこの store に保存する (トークン節約 2 層化)。 未指定なら raw を本文に。
+   */
+  rawStore?: RawStore;
   /** session タイトル生成 (既定 `<source>:<gameSlug>`) */
   sessionTitle?: (item: ExternalUtterance) => string;
 }
@@ -44,7 +52,7 @@ export function importExternalUtterances(
   opts: ExternalImportOptions
 ): ExternalImportResult {
   const ws = opts.workspaceId;
-  const result: ExternalImportResult = { sessions: 0, utterances: 0, reactions: 0, skipped: 0 };
+  const result: ExternalImportResult = { sessions: 0, utterances: 0, reactions: 0, skipped: 0, summarized: 0 };
   const ensuredSessions = new Set<string>();
 
   // 親→子 (postedAt 昇順) に並べ、responds_to 先が先に入るようにする。
@@ -72,15 +80,22 @@ export function importExternalUtterances(
 
     const speakerId = toSpeakerId(item.source, item.authorId);
     const respondsTo = item.parentNativeId ? extId(item.source, item.parentNativeId) : undefined;
+    // 2 層化: summary があれば本文は要約 (参照される側 = トークン節約)、 raw 全文は退避。
+    const useSummary = !!(item.summary && item.summary.trim() && opts.rawStore);
+    const bodyContent = useSummary ? item.summary!.trim() : item.content;
     core.repos.utterance.create({
       id: utteranceId,
       workspaceId: ws,
       sessionId,
       speakerId,
-      rawContent: item.content,
+      rawContent: bodyContent,
       postedAt: item.postedAt,
       respondsTo,
     });
+    if (useSummary) {
+      opts.rawStore!.set({ utteranceId, source: item.source, url: item.sourceUrl, rawText: item.content });
+      result.summarized += 1;
+    }
     result.utterances += 1;
 
     if (item.signal?.votedUp !== undefined) {

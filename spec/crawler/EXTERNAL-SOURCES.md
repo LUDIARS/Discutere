@@ -296,6 +296,15 @@ work queue `data/external/youtube/videos/<gameSlug>.jsonl` (`{videoId,title,chan
   `<meta author>` があれば `host:著者`、 無ければ `host` を **authorId** (公開・安定な
   サイトアンカー §6)、 日本語含有で `lang=ja` 推定、 取得時刻→postedAt、 正規化 URL→sourceUrl。
 - **dedup**: `(website, 正規化 URL)` で sidecar 冪等。 同一記事の再取り込みは skip。
+- **要約 / raw の 2 層化 (id=67 / 2026-06-05 追加)**: website は長文なので、 取り込み時に
+  LLM で要約を生成し (`summarize.ts`)、 **utterances 本文 (= 議論コンテキストで参照される側)
+  には要約を入れてトークンを節約**、 **raw 全文は raw-store (`source_raw` sidecar、
+  `data/external/.raw.sqlite`) に utterance id 紐付けで退避**する。 必要時のみ raw を引く。
+  - `importExternalUtterances(..., { rawStore })` + `item.summary` がある時に発動。
+  - LLM 未設定 / 短文 (< 600 字) は従来通り raw を本文に (要約しない)。 Steam/YouTube/Reddit
+    のコメントは短文なので 2 層化対象外 (website 限定)。
+  - CLI `ext-ingest website` は config の LLM があれば自動で要約。 クロールチャンネルも同様
+    (gateway が要約器を注入)。
 - **ToS**: robots / レート制限を尊重 (§7)。 ペイウォール内本文・ログイン必須ページは取得しない。
   著作権配慮で **本文は議論の素として内部利用**、 sourceUrl を必ず保持し原文へ辿れるようにする。
 
