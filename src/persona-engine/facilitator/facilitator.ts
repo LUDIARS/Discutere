@@ -12,6 +12,7 @@
 
 import { randomUUID } from "node:crypto";
 
+import { ensureReactionTables, getOpinionScore } from "../../discord-hook/reactions.js";
 import type { createCore } from "../../core/index.js";
 import type { PersonasRepo } from "../db/personas-repo.js";
 import type { DiscussionContextProvider } from "../context-provider.js";
@@ -19,6 +20,7 @@ import type { LLMClient } from "../llm/client.js";
 import type { Logger } from "../types.js";
 
 import {
+  buildAufhebungJudgePrompt,
   buildConvergePrompt,
   buildExpandPrompt,
   extractJsonObject,
@@ -33,8 +35,10 @@ export interface FacilitatorOptions {
   tickMs?: number;
   /** 発言が無くなってから「停滞」とみなす空白 ms (既定 120_000) */
   idleGapMs?: number;
-  /** 参加 persona がこの数を超えたら収束へ (既定 20) */
+  /** 参加 persona がこの数を超えたら強制収束 (安全上限、 既定 20) */
   maxPersonas?: number;
+  /** 止揚 (アウフヘーベン) がこの数たまったら収束 (既定 3) */
+  aufhebungTarget?: number;
   /** LLM model 上書き */
   model?: string;
 }
@@ -61,22 +65,24 @@ interface SessionMetrics {
   now: number;
 }
 
-export type FacilitatorMode = "active" | "wait" | "expand" | "converge";
+export type FacilitatorMode = "active" | "wait" | "intervene";
 
-/** 介入判定 (純粋関数、 テスト可能)。 */
+/**
+ * 介入タイミング判定 (純粋関数、 テスト可能)。
+ * - 新しい発言があった → active (再 arm)
+ * - 発言間隔が空いた (idle) かつ armed → intervene (止揚判定 + 拡張/収束は呼び出し側)
+ */
 export function evaluate(
   metrics: SessionMetrics,
   state: SessionState,
-  opts: { idleGapMs: number; maxPersonas: number }
+  opts: { idleGapMs: number }
 ): { mode: FacilitatorMode; state: SessionState } {
   if (metrics.utteranceCount > state.lastUtteranceCount) {
-    // 新しい発言があった = 活性。 カウント更新 + 次の idle に備えて再 arm。
     return { mode: "active", state: { lastUtteranceCount: metrics.utteranceCount, armed: true } };
   }
   const idleFor = metrics.now - metrics.lastActivityAt;
   if (state.armed && idleFor >= opts.idleGapMs) {
-    const mode: FacilitatorMode = metrics.distinctPersonas > opts.maxPersonas ? "converge" : "expand";
-    return { mode, state: { ...state, armed: false } };
+    return { mode: "intervene", state: { ...state, armed: false } };
   }
   return { mode: "wait", state };
 }
@@ -94,10 +100,22 @@ export function createFacilitator(deps: FacilitatorDeps): Facilitator {
   const tickMs = deps.options?.tickMs ?? 30_000;
   const idleGapMs = deps.options?.idleGapMs ?? 120_000;
   const maxPersonas = deps.options?.maxPersonas ?? 20;
+  const aufhebungTarget = deps.options?.aufhebungTarget ?? 3;
   const raw = deps.core.client.raw;
   const states = new Map<string, SessionState>();
   let timer: NodeJS.Timeout | null = null;
   let running = false;
+
+  // スコア参照のため reaction テーブルを冪等確保 + 止揚ストックテーブル。
+  ensureReactionTables(raw);
+  raw.exec(
+    `CREATE TABLE IF NOT EXISTS aufhebung_stock (
+       id TEXT PRIMARY KEY,
+       gap_id TEXT NOT NULL,
+       summary TEXT NOT NULL,
+       created_at INTEGER NOT NULL
+     )`
+  );
 
   // 進行役 persona を登録 (収束のまとめ発言者)
   deps.personas.insertOrIgnore({
@@ -187,6 +205,58 @@ export function createFacilitator(deps: FacilitatorDeps): Facilitator {
     return rows.map((r) => speakerLabel(r.speaker_id));
   }
 
+  function listAufhebung(gapId: string): string[] {
+    const rows = raw
+      .prepare("SELECT summary FROM aufhebung_stock WHERE gap_id = ? ORDER BY created_at ASC")
+      .all(gapId) as Array<{ summary: string }>;
+    return rows.map((r) => r.summary);
+  }
+
+  function stockAufhebung(gapId: string, summary: string): void {
+    raw
+      .prepare("INSERT INTO aufhebung_stock (id, gap_id, summary, created_at) VALUES (?, ?, ?, ?)")
+      .run(randomUUID(), gapId, summary, Date.now());
+  }
+
+  /** session 内発話を リアクションスコア降順で上位 (まとめがスコアに引っ張られる)。 */
+  function topOpinions(sessionId: string, limit: number): string[] {
+    const rows = raw
+      .prepare(
+        "SELECT id, speaker_id, raw_content FROM utterances WHERE session_id = ? AND speaker_id LIKE 'persona:%'"
+      )
+      .all(sessionId) as Array<{ id: string; speaker_id: string; raw_content: string }>;
+    return rows
+      .map((u) => ({ ...u, score: getOpinionScore(raw, u.id) }))
+      .filter((u) => u.score > 0)
+      .sort((a, b) => b.score - a.score)
+      .slice(0, limit)
+      .map((u) => `${speakerLabel(u.speaker_id)}「${u.raw_content}」(+${u.score})`);
+  }
+
+  /** 止揚判定 → 新規なら stock。 stock 後の総数を返す。 */
+  async function judgeAndStockAufhebung(d: Discussion): Promise<number> {
+    const stocked = listAufhebung(d.gapId);
+    const { system, user } = buildAufhebungJudgePrompt({
+      topic: gapTopic(d.gapId),
+      recent: recentUtterances(d.sessionId, 16),
+      stockedSummaries: stocked,
+    });
+    const res = await deps.llm.invoke({ prompt: user, system, model: deps.options?.model });
+    if (!res.ok) return stocked.length;
+    try {
+      const obj = extractJsonObject(res.text) as { found?: unknown; summary?: unknown };
+      const summary = typeof obj.summary === "string" ? obj.summary.trim() : "";
+      if (obj.found === true && summary && !stocked.some((s) => s === summary)) {
+        stockAufhebung(d.gapId, summary);
+        deps.logger.info({ gap_id: d.gapId, summary }, "facilitator stocked aufhebung");
+        return stocked.length + 1;
+      }
+    } catch {
+      /* 判定失敗は無視 */
+    }
+    return stocked.length;
+  }
+
   async function expand(d: Discussion): Promise<void> {
     const { system, user } = buildExpandPrompt({
       topic: gapTopic(d.gapId),
@@ -228,6 +298,8 @@ export function createFacilitator(deps: FacilitatorDeps): Facilitator {
     const { system, user } = buildConvergePrompt({
       topic: gapTopic(d.gapId),
       recent: recentUtterances(d.sessionId, 40),
+      aufhebungen: listAufhebung(d.gapId),
+      topOpinions: topOpinions(d.sessionId, 5),
     });
     const res = await deps.llm.invoke({ prompt: user, system, model: deps.options?.model });
     if (!res.ok) {
@@ -265,16 +337,25 @@ export function createFacilitator(deps: FacilitatorDeps): Facilitator {
     });
   }
 
+  /** idle 時の介入: 止揚判定 → たまっていれば収束、 まだなら拡張。 */
+  async function intervene(d: Discussion, metrics: SessionMetrics): Promise<void> {
+    const aufCount = await judgeAndStockAufhebung(d);
+    if (aufCount >= aufhebungTarget || metrics.distinctPersonas > maxPersonas) {
+      await converge(d);
+    } else {
+      await expand(d);
+    }
+  }
+
   async function tickOnce(): Promise<void> {
     const now = Date.now();
     for (const d of listActiveDiscussions()) {
       const metrics = metricsFor(d.sessionId, now);
       const prev = states.get(d.sessionId) ?? { lastUtteranceCount: metrics.utteranceCount, armed: true };
-      const { mode, state } = evaluate(metrics, prev, { idleGapMs, maxPersonas });
+      const { mode, state } = evaluate(metrics, prev, { idleGapMs });
       states.set(d.sessionId, state);
       try {
-        if (mode === "expand") await expand(d);
-        else if (mode === "converge") await converge(d);
+        if (mode === "intervene") await intervene(d, metrics);
       } catch (err) {
         deps.logger.warn({ gap_id: d.gapId, err: (err as Error).message }, "facilitator action failed");
       }

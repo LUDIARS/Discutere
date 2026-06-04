@@ -47,8 +47,10 @@ export interface DiscutereConfig {
     tickMs: number;
     /** 発言が無くなってから「停滞」とみなす空白 ms (既定 120_000) */
     idleGapMs: number;
-    /** 参加 persona がこの数を超えたら収束へ (既定 20) */
+    /** 参加 persona がこの数を超えたら強制収束 (安全上限、 既定 20) */
     maxPersonas: number;
+    /** 止揚 (アウフヘーベン) がこの数たまったら収束 (既定 3) */
+    aufhebungTarget: number;
   };
   llm: {
     backend: LlmBackend;
@@ -241,6 +243,7 @@ export function loadConfig(): DiscutereConfig {
       tickMs: pickNum(process.env.DISCUTERE_FACILITATOR_TICK_MS, file.facilitator?.tickMs, 30_000),
       idleGapMs: pickNum(process.env.DISCUTERE_FACILITATOR_IDLE_GAP_MS, file.facilitator?.idleGapMs, 120_000),
       maxPersonas: pickNum(process.env.DISCUTERE_FACILITATOR_MAX_PERSONAS, file.facilitator?.maxPersonas, 20),
+      aufhebungTarget: pickNum(process.env.DISCUTERE_FACILITATOR_AUFHEBUNG_TARGET, file.facilitator?.aufhebungTarget, 3),
     },
     llm: {
       backend,

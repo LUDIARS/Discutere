@@ -57,18 +57,51 @@ export function buildExpandPrompt(input: {
   return { system, user };
 }
 
+/**
+ * 止揚(アウフヘーベン)判定: 直近の議論で、 対立する既存意見を統合して
+ * 一段上の結論に至った「新しい止揚」が出たかを判定する。
+ * 既出 (stockedSummaries) と実質同じなら found=false。
+ */
+export function buildAufhebungJudgePrompt(input: {
+  topic: string;
+  recent: RecentUtterance[];
+  stockedSummaries: string[];
+}): { system: string; user: string } {
+  const system =
+    "あなたは議論の進行役です。 議論の中に『アウフヘーベン(止揚)』、 すなわち" +
+    " 対立する複数の意見を否定し合うのではなく、 両者を活かして一段上の新しい結論へ統合した見解が" +
+    " 新たに現れたかを判定します。 単なる賛成・繰り返し・部分的な指摘は止揚ではありません。 返答は JSON のみ。";
+  const stocked = input.stockedSummaries.length
+    ? input.stockedSummaries.map((s, i) => `${i + 1}. ${s}`).join("\n")
+    : "(まだ無し)";
+  const user =
+    `# 議題\n${input.topic}\n\n` +
+    `# 既にストック済みの止揚 (これと実質同じなら found=false)\n${stocked}\n\n` +
+    `# 直近の議論\n${transcript(input.recent)}\n\n` +
+    "# 指示\n直近の議論に、 既出と異なる新しい止揚が現れたか判定してください。 返答は次の JSON のみ:\n" +
+    `{ "found": <true/false>, "summary": "<止揚の要旨を 1〜2 文で。 found=false なら空文字>" }`;
+  return { system, user };
+}
+
 export function buildConvergePrompt(input: {
   topic: string;
   recent: RecentUtterance[];
+  aufhebungen?: string[];
+  topOpinions?: string[];
 }): { system: string; user: string } {
   const system =
-    "あなたは議論の進行役 (ファシリテーター) です。 十分に視点が出揃った議論を、" +
-    " 中立の立場で要約し、 合意点・対立点・暫定結論を簡潔にまとめて締めます。 返答は JSON のみ。";
+    "あなたは議論の進行役 (ファシリテーター) です。 出揃った議論を中立の立場で要約し、" +
+    " 到達した止揚 (統合された結論) と、 参加者の評価が高かった意見を軸に、 締めのまとめを作ります。 返答は JSON のみ。";
+  const auf = input.aufhebungen?.length
+    ? input.aufhebungen.map((s, i) => `${i + 1}. ${s}`).join("\n")
+    : "(特になし)";
+  const top = input.topOpinions?.length ? input.topOpinions.map((s) => `- ${s}`).join("\n") : "(特になし)";
   const user =
     `# 議題\n${input.topic}\n\n` +
+    `# 到達した止揚 (最重要、 結論の軸にする)\n${auf}\n\n` +
+    `# 評価の高かった意見 (リアクション順、 重視する)\n${top}\n\n` +
     `# これまでの議論\n${transcript(input.recent)}\n\n` +
-    "# 指示\n議論を収束させる締めの要約を作ってください。 合意点 / 主要な対立軸 / 暫定結論を" +
-    " 箇条書き中心で簡潔に。 返答は次の JSON のみ:\n" +
+    "# 指示\n上記の止揚と高評価意見を軸に、 議論の到達点を簡潔にまとめてください。 返答は次の JSON のみ:\n" +
     `{ "summary": "<収束のまとめ (Discord 1 投稿に収まる長さ、 箇条書き可)>" }`;
   return { system, user };
 }

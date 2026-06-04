@@ -9,6 +9,7 @@ export {
 export {
   buildExpandPrompt,
   buildConvergePrompt,
+  buildAufhebungJudgePrompt,
   extractJsonObject,
   type GeneratedPersona,
   type RecentUtterance,

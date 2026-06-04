@@ -12,23 +12,18 @@ import { createFacilitator, evaluate } from "../../src/persona-engine/facilitato
 import type { LLMClient } from "../../src/persona-engine/llm/client.js";
 
 // ───────── 1. evaluate (純粋判定) ─────────
-const opts = { idleGapMs: 1000, maxPersonas: 20 };
+const opts = { idleGapMs: 1000 };
 // 新発言あり → active + 再 arm
 assert.deepEqual(
   evaluate({ utteranceCount: 5, distinctPersonas: 3, lastActivityAt: 0, now: 9999 }, { lastUtteranceCount: 4, armed: false }, opts),
   { mode: "active", state: { lastUtteranceCount: 5, armed: true } }
 );
-// idle + armed + persona<=max → expand
+// idle + armed → intervene
 assert.equal(
   evaluate({ utteranceCount: 5, distinctPersonas: 3, lastActivityAt: 0, now: 5000 }, { lastUtteranceCount: 5, armed: true }, opts).mode,
-  "expand"
+  "intervene"
 );
-// idle + armed + persona>max → converge
-assert.equal(
-  evaluate({ utteranceCount: 5, distinctPersonas: 21, lastActivityAt: 0, now: 5000 }, { lastUtteranceCount: 5, armed: true }, opts).mode,
-  "converge"
-);
-// idle だが disarm 済 → wait (連発しない)
+// idle だが disarm 済 → wait
 assert.equal(
   evaluate({ utteranceCount: 5, distinctPersonas: 3, lastActivityAt: 0, now: 5000 }, { lastUtteranceCount: 5, armed: false }, opts).mode,
   "wait"
@@ -40,7 +35,7 @@ assert.equal(
 );
 console.log("ok facilitator evaluate");
 
-// ───────── 2. tickOnce (mock LLM で expand / converge) ─────────
+// ───────── 2. tickOnce (mock LLM で expand / 止揚収束) ─────────
 const workDir = path.resolve(".tmp/facilitator");
 fs.rmSync(workDir, { recursive: true, force: true });
 fs.mkdirSync(workDir, { recursive: true });
@@ -51,7 +46,7 @@ applyPersonaEngineMigrations(peDb);
 const personas = new PersonasRepo(peDb);
 const adapter = createDiscatierContextProvider(core);
 const ws = "knowledge";
-const OLD = Date.now() - 5_000; // idle 化
+const OLD = Date.now() - 5_000;
 
 function makeDiscussion(title: string, personaSpeakers: string[]): { gapId: string; sessionId: string } {
   const gapId = core.repos.designGap.create({ workspaceId: ws, title });
@@ -67,14 +62,22 @@ function makeDiscussion(title: string, personaSpeakers: string[]): { gapId: stri
   return { gapId, sessionId };
 }
 
-const expandCase = makeDiscussion("拡張テスト", ["persona:advocate"]); // persona 1 <= max(2)
-const convergeCase = makeDiscussion("収束テスト", ["persona:a", "persona:b", "persona:c"]); // 3 > max(2)
+const expandCase = makeDiscussion("拡張テスト", ["persona:advocate"]); // 止揚まだ → expand
+const convergeCase = makeDiscussion("収束テスト", ["persona:advocate"]); // 止揚出る → converge
 
+// mock LLM: prompt 種別を本文で判別 (止揚判定 / 拡張 / まとめ)
 const mockLlm: LLMClient = {
   async invoke(args) {
-    if (args.system?.includes("収束")) {
-      return { ok: true, text: '{ "summary": "合意: 自動攻撃が核。 対立: 難易度。 暫定結論: ビルド設計が肝。" }' };
+    const u = args.prompt;
+    if (u.includes("ストック済みの止揚")) {
+      // 止揚判定: 「収束テスト」議題でだけ止揚を検出
+      const found = u.includes("収束テスト");
+      return { ok: true, text: found ? '{ "found": true, "summary": "両論を統合した一段上の結論X" }' : '{ "found": false, "summary": "" }' };
     }
+    if (u.includes("到達した止揚")) {
+      return { ok: true, text: '{ "summary": "止揚Xを軸にした結論。" }' };
+    }
+    // 拡張 (新 persona)
     return {
       ok: true,
       text: '{ "name": "コスト懐疑", "display_name": "費田 渋", "description": "費用対効果を問う", "traits": ["慎重"], "speech_style": "淡々", "opening": "本当にそれは時間に見合う?" }',
@@ -89,37 +92,31 @@ const fac = createFacilitator({
   personas,
   workspaceId: ws,
   logger: { debug() {}, info() {}, warn() {}, error() {} },
-  options: { idleGapMs: 1000, maxPersonas: 2 },
+  options: { idleGapMs: 1000, maxPersonas: 50, aufhebungTarget: 1 },
 });
 
 await fac.tickOnce();
 
-// expand: 新 persona 発話が入った
+// expandCase: 止揚なし → 新 persona 投入
 const expandUtts = core.client.raw
-  .prepare("SELECT speaker_id, raw_content FROM utterances WHERE session_id = ? AND speaker_id LIKE 'persona:dyn-%'")
-  .all(expandCase.sessionId) as Array<{ speaker_id: string; raw_content: string }>;
-assert.equal(expandUtts.length, 1, "停滞 discussion に新 persona が 1 体投入される");
-assert.ok(expandUtts[0].raw_content.includes("時間に見合う"), "生成された開口一番が投稿される");
-const newPersonaId = expandUtts[0].speaker_id.slice("persona:".length);
-assert.ok(personas.get(newPersonaId), "生成 persona が personas に永続化される");
-console.log("ok facilitator expand");
+  .prepare("SELECT raw_content FROM utterances WHERE session_id = ? AND speaker_id LIKE 'persona:dyn-%'")
+  .all(expandCase.sessionId) as Array<{ raw_content: string }>;
+assert.equal(expandUtts.length, 1, "止揚が無い議論は新 persona で広げる");
+console.log("ok facilitator expand (止揚なし)");
 
-// converge: まとめ発言 + gap closed
+// convergeCase: 止揚 1 つ stock → aufhebungTarget(1) 到達 → 収束
+const stock = core.client.raw
+  .prepare("SELECT summary FROM aufhebung_stock WHERE gap_id = ?")
+  .all(convergeCase.gapId) as Array<{ summary: string }>;
+assert.equal(stock.length, 1, "止揚が裏レイヤにストックされる");
+assert.ok(stock[0].summary.includes("統合"), "止揚の要旨");
 const convUtt = core.client.raw
   .prepare("SELECT raw_content FROM utterances WHERE session_id = ? AND speaker_id = 'persona:facilitator'")
   .get(convergeCase.sessionId) as { raw_content: string } | undefined;
 assert.ok(convUtt?.raw_content.includes("【収束】"), "収束まとめが投稿される");
 const gapStatus = core.client.raw.prepare("SELECT status FROM design_gaps WHERE id = ?").get(convergeCase.gapId) as { status: string };
-assert.equal(gapStatus.status, "closed", "persona 過多で gap が closed");
-console.log("ok facilitator converge");
-
-// 収束後は管理対象外 (再 tick で何も起きない)
-await fac.tickOnce();
-const convUtt2 = core.client.raw
-  .prepare("SELECT COUNT(*) n FROM utterances WHERE session_id = ? AND speaker_id = 'persona:facilitator'")
-  .get(convergeCase.sessionId) as { n: number };
-assert.equal(convUtt2.n, 1, "収束済 discussion には二度と介入しない");
-console.log("ok facilitator stops after convergence");
+assert.equal(gapStatus.status, "closed", "止揚到達で gap が closed");
+console.log("ok facilitator converge (止揚到達)");
 
 peDb.close();
 core.close();

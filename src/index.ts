@@ -206,6 +206,7 @@ const personaEngineLifecycle = (() => {
           tickMs: config.facilitator.tickMs,
           idleGapMs: config.facilitator.idleGapMs,
           maxPersonas: config.facilitator.maxPersonas,
+          aufhebungTarget: config.facilitator.aufhebungTarget,
           model: config.llm.model,
         },
       });
