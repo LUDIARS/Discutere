@@ -15,6 +15,7 @@ import { createCore } from "../../core/index.js";
 import { importExternalUtterances } from "./importer.js";
 import { openIngestedStore } from "./ingested-store.js";
 import { fetchSteamReviews } from "./steam.js";
+import { fetchWebsiteArticles } from "./website.js";
 import { fetchVideoComments } from "./youtube-comments.js";
 import { createQuotaTracker } from "./youtube-quota.js";
 import { discoverVideosBySearch, type VideoRef } from "./youtube-videos.js";
@@ -131,6 +132,28 @@ async function fetchYoutubeCommentsFor(
   });
 }
 
+interface WebsiteArgs {
+  gameSlug: string;
+  urls: string[];
+}
+
+function parseWebsiteArgs(rest: string[]): WebsiteArgs {
+  const [gameSlug, ...urls] = rest;
+  if (!gameSlug || urls.length === 0) {
+    console.error("usage: crawl.ts ext-fetch website <gameSlug> <url> [<url> ...]");
+    process.exit(2);
+  }
+  return { gameSlug, urls };
+}
+
+async function fetchWebsite(args: WebsiteArgs): Promise<ExternalUtterance[]> {
+  return fetchWebsiteArticles({
+    urls: args.urls,
+    gameSlug: args.gameSlug,
+    onPage: (n) => process.stderr.write(`\r  fetched ${n}/${args.urls.length} articles...`),
+  });
+}
+
 /** ext-fetch: collector を回して中間 JSONL に保存する (DB には入れない)。 */
 export async function runExtFetch(rest: string[]): Promise<void> {
   const [source, ...sourceArgs] = rest;
@@ -171,8 +194,17 @@ export async function runExtFetch(rest: string[]): Promise<void> {
       console.log(JSON.stringify({ source, gameSlug, videoId, fetched: items.length, out: path.relative(process.cwd(), out) }, null, 2));
       return;
     }
+    case "website": {
+      const args = parseWebsiteArgs(sourceArgs);
+      const items = await fetchWebsite(args);
+      process.stderr.write("\n");
+      const out = stagePath(source, args.gameSlug);
+      writeJsonl(out, items);
+      console.log(JSON.stringify({ source, gameSlug: args.gameSlug, urls: args.urls.length, fetched: items.length, out: path.relative(process.cwd(), out) }, null, 2));
+      return;
+    }
     default:
-      console.error("ext-fetch: source は steam | youtube-videos | youtube-comments");
+      console.error("ext-fetch: source は steam | youtube-videos | youtube-comments | website");
       process.exit(2);
   }
 }
@@ -235,8 +267,18 @@ export async function runExtIngest(rest: string[]): Promise<void> {
       console.log(JSON.stringify({ source, gameSlug, videoId, fetched: items.length, stage: path.relative(process.cwd(), out), ...result }, null, 2));
       return;
     }
+    case "website": {
+      const args = parseWebsiteArgs(sourceArgs);
+      const items = await fetchWebsite(args);
+      process.stderr.write("\n");
+      const out = stagePath(source, args.gameSlug);
+      writeJsonl(out, items);
+      const result = importItems(items);
+      console.log(JSON.stringify({ source, gameSlug: args.gameSlug, urls: args.urls.length, fetched: items.length, stage: path.relative(process.cwd(), out), ...result }, null, 2));
+      return;
+    }
     default:
-      console.error("ext-ingest: source は steam | youtube");
+      console.error("ext-ingest: source は steam | youtube | website");
       process.exit(2);
   }
 }

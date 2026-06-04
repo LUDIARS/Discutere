@@ -6,7 +6,7 @@
  * 仕様は spec/crawler/EXTERNAL-SOURCES.md。
  */
 
-export type ExternalSource = "steam" | "youtube" | "reddit" | "niconico" | "fandom";
+export type ExternalSource = "steam" | "youtube" | "website" | "reddit" | "niconico" | "fandom";
 
 /** 賛否 / 人気度 (取得元にあれば) */
 export interface ExternalSignal {

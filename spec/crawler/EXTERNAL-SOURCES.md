@@ -189,6 +189,50 @@ work queue `data/external/youtube/videos/<gameSlug>.jsonl` (`{videoId,title,chan
   コメント/日**。 ボトルネックは discovery 側の `search.list` (100 units)。
 - 予算配分の既定: discovery に最大 2,000 units、 残りをコメント取得に。 config で可変。
 
+#### (c) 「プレイ動画 → 人気順 → 関係コメント」 パイプライン設計 (2026-06-04 追加)
+
+ゲームタイトルから **実際のプレイ動画を人気順に並べ、 上位動画のコメントから
+ゲームに関係する意見だけを取り込む** ための end-to-end フロー。 「感情値 (sentiment)
+が多くなる」 のは織り込み済み (= プレイ動画コメントは感想・感情表現が主)。
+
+1. **discovery (人気順)**: `discoverVideosBySearch({ query, order: "viewCount" })`。
+   - query は `<ゲーム名> + 実況|プレイ|gameplay|playthrough` を OR で付与し、 攻略でも
+     レビューでもない **プレイ動画** に寄せる (config `youtube.playVideoTerms`)。
+   - `order=viewCount` で視聴回数降順 = 人気順。
+2. **動画メタ enrich + 厳密ランク付け**: 候補 videoId を 50 件束で
+   `videos.list(part=statistics,snippet,contentDetails)` (1 unit/50 件) して
+   `viewCount / likeCount / commentCount / duration / categoryId` を取得。
+   - `categoryId=20`(Gaming) 以外、 `commentCount=0`、 極端に短い (Shorts) 動画を間引く。
+   - `viewCount` 実数で再ソート (search の順位は厳密でないため確定ランクを付け直す)。
+3. **上位 N 動画のコメント取得**: 上位から `youtube-comments` を回す (N は config
+   `youtube.topVideos`、 既定 10)。 既存 quota 予算内で打ち切り、 落とした分は log。
+4. **ゲーム関係フィルタ (取り込み前)**: コメントを「その**ゲームに関係する意見**か」 で
+   選別してから ingest する。 二段:
+   - **安価な事前フィルタ**: 雑コメント (絵文字のみ / "草" 単独 / タイムスタンプ "12:34" /
+     投稿者宛ノイズ / URL のみ) と極端な短文を正規表現で除外。
+   - **関連度判定**: ゲーム名・主要メカニクス語 (KG の mechanics/aesthetics から生成した
+     辞書) を含むか + 任意で LLM 一括バッチ判定 (`relevant: bool`)。 LLM 判定は quota とは
+     別予算なので config `youtube.useLlmRelevance` で on/off。
+   - 関係しないコメントは ingest しない (= KG を実況者個人の雑談で薄めない)。
+5. **取り込み**: 残ったコメントを既存 importer で `ext:youtube:<commentId>` 化。
+   `likeCount`→signal.upvotes、 動画の人気度は session(=videoId) のメタとして保持。
+
+#### (d) YouTube API から追加で取得するデータ
+
+「他に取れるデータがあれば取る」 → 議論の素・重み付けに使えるものを併取する:
+
+| データ | API (part) | 用途 |
+| --- | --- | --- |
+| 動画 統計 (view/like/comment 数) | `videos.list(statistics)` | 人気順ランク + 意見の母集団規模の重み |
+| 動画 説明文 / タグ | `videos.list(snippet)` | 議論の種 (どんな切り口の動画か) の文脈 |
+| 動画 カテゴリ / 長さ | `videos.list(snippet,contentDetails)` | Gaming 判定・Shorts 間引き |
+| チャンネル情報 (登録者数) | `channels.list(statistics)` | 投稿者 persona の影響力の重み |
+| コメントの like 数 / 返信数 | `commentThreads.list` | 意見スコア (signal.upvotes) |
+| 字幕 (取得可能な場合) | `captions.list`/timedtext | 動画本体の主張を議論の種にする (任意・Phase 後段) |
+
+> ToS 注意: 字幕の機械取得は動画によって不可・グレーなので **任意かつ後段**。 取得不可は
+> 握って skip。 個人特定はしない (channelId は公開アンカーとしてのみ利用、 §6 の露出制御に従う)。
+
 ### 4.3 Reddit (Phase 2)
 
 - **OAuth2** (`script` app, client_credentials または password grant) で
@@ -228,6 +272,31 @@ work queue `data/external/youtube/videos/<gameSlug>.jsonl` (`{videoId,title,chan
 - **ライセンス**: Fandom 本文は **CC-BY-SA**。 `sourceUrl` + attribution を必ず残す (§7)。
 - **マッピング**: post id→nativeId、 本文→content、 created→postedAt、 親 post→
   parentNativeId、 threadKey=スレッド/記事 id、 投稿者 userId/userName→authorId/authorName。
+
+### 4.6 Webサイト (任意 URL の記事 / Phase 1 / 2026-06-04 追加)
+
+レビュー・考察ブログ・ニュース記事など **任意の公開 URL** を 1 件取得し、 本文を抽出して
+**1 記事 = ひとりの論者の 1 意見** として取り込む。 API キー不要 (公開 HTML を直接取得)。
+`src/crawler/sources/website.ts`。
+
+- **取得**: `fetchWebsiteArticles({ urls[], gameSlug })`。 URL ごとに `fetch` →
+  `extractArticle(html)` で `{title, text, author}` を抽出。 失敗 URL (404 / 本文 < 80 字
+  = 非記事) は skip して続行。 同一ドメイン連続取得は politeDelay (既定 1500ms)。
+- **本文抽出 (依存ライブラリ無しの軽量ヒューリスティック)**: `<script>/<style>/<nav>/
+  <header>/<footer>/<aside>` を除去 → `<article>` → `<main>` → `<body>` の順で本文領域を
+  選択 → タグ除去 + HTML エンティティ復号 + 空白圧縮。 上限 8,000 字。 完全な readability
+  ではないが「粗く動かす」段階には十分 (将来 Lector に寄せる余地、 §11)。
+- **マッピング**: `normalizeUrl(url)`(hash + utm/fbclid 等の tracking 除去)→ nativeId /
+  threadKey (記事 1 本 = 1 スレッド = 1 session)、 `title + 本文`→content、
+  `<meta author>` があれば `host:著者`、 無ければ `host` を **authorId** (公開・安定な
+  サイトアンカー §6)、 日本語含有で `lang=ja` 推定、 取得時刻→postedAt、 正規化 URL→sourceUrl。
+- **dedup**: `(website, 正規化 URL)` で sidecar 冪等。 同一記事の再取り込みは skip。
+- **ToS**: robots / レート制限を尊重 (§7)。 ペイウォール内本文・ログイン必須ページは取得しない。
+  著作権配慮で **本文は議論の素として内部利用**、 sourceUrl を必ず保持し原文へ辿れるようにする。
+
+> 補足: 「ワンダと巨像」 のように **Steam 非掲載 (PS 専売・PC 版なし)** のタイトルは
+> Steam レビューが存在しないため、 Web 記事 (この source) と YouTube を主取得元にする
+> (2026-06-04 ユーザ決定)。
 
 ## 5. 設定 (config)
 
