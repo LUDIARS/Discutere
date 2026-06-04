@@ -24,6 +24,7 @@ export interface HandleActionArgs {
   personaId: string;
   workspaceId: string;
   sessionId: string | null;
+  triggerEvent?: { kind: string; payload?: unknown };
   rawText: string;
   contextProvider: DiscussionContextProvider;
   rules: RulesRepo;
@@ -120,7 +121,7 @@ export function handleAction(args: HandleActionArgs): HandleActionResult {
           ? json.addresses_gap_id
           : typeof json.gap_id === "string"
             ? json.gap_id
-            : null,
+            : inferDesignGapIdFromTrigger(args.triggerEvent),
       byPersonaId: args.personaId,
       reasoning:
         typeof json.reasoning === "string" ? json.reasoning : undefined,
@@ -150,12 +151,28 @@ export function handleAction(args: HandleActionArgs): HandleActionResult {
     if (typeof json.text !== "string" || json.text.trim() === "") {
       return logErr(args, "post_utterance without text");
     }
-    if (!args.sessionId) {
-      return logErr(args, "post_utterance requires sessionId (tick rule no session)");
+    // tick rule は session context を持たない。 json.hypothesis_id から
+    // 紐付く議論 session を解決する。 解決できなければ error ではなく skip。
+    let sessionId = args.sessionId;
+    if (!sessionId) {
+      const hypothesisId =
+        typeof json.hypothesis_id === "string" ? json.hypothesis_id : undefined;
+      sessionId =
+        (hypothesisId && args.contextProvider.findDiscussionSession?.({
+          workspaceId: args.workspaceId,
+          hypothesisId,
+        })) ||
+        null;
+    }
+    if (!sessionId) {
+      return {
+        kind: "skip",
+        detail: "post_utterance: 議論 session を解決できないため skip (tick rule)",
+      };
     }
     const input: PostUtteranceInput = {
       workspaceId: args.workspaceId,
-      sessionId: args.sessionId,
+      sessionId,
       text: json.text,
       byPersonaId: args.personaId,
       respondsTo:
@@ -284,6 +301,22 @@ function logErr(args: HandleActionArgs, detail: string): HandleActionResult {
   });
   args.logger.warn({ rule_id: args.ruleId }, detail);
   return { kind: "error", detail };
+}
+
+function inferDesignGapIdFromTrigger(
+  triggerEvent: HandleActionArgs["triggerEvent"]
+): string | null {
+  if (!triggerEvent) return null;
+  if (
+    triggerEvent.kind !== "DesignGapDetected" &&
+    triggerEvent.kind !== "DesignGapUpdated"
+  ) {
+    return null;
+  }
+  const payload = triggerEvent.payload;
+  if (!payload || typeof payload !== "object") return null;
+  const id = (payload as { id?: unknown }).id;
+  return typeof id === "string" && id.length > 0 ? id : null;
 }
 
 /**

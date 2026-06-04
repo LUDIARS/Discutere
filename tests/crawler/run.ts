@@ -9,6 +9,7 @@
 import "./md-format.test.js";
 import "./importer-roundtrip.test.js";
 import "./graphdb-read.test.js";
+import "./ai-runner.test.js";
 
 // External discussion sources (Phase 1)
 import "./external/persona.test.js";

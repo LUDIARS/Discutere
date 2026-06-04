@@ -59,4 +59,15 @@ export interface DiscussionContextProvider {
 
   proposeHypothesis(input: ProposeHypothesisInput): { id: string };
   postUtterance(input: PostUtteranceInput): { id: string };
+
+  /**
+   * tick rule 等 session context が無い発話のために、 hypothesis / gap から
+   * 紐付く議論 session (discussion-of-gap:<gapId>) を引く。 無ければ null。
+   * 実装は任意 (未実装なら tick 発話は skip される)。
+   */
+  findDiscussionSession?(input: {
+    workspaceId: string;
+    hypothesisId?: string;
+    gapId?: string;
+  }): string | null;
 }

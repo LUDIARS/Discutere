@@ -17,6 +17,9 @@ import type { Context } from "hono";
 
 import { getUserId, getUserRole } from "../middleware/auth.js";
 import type { PersonaEngineHandle } from "../persona-engine/index.js";
+import { createCore } from "../core/index.js";
+import { getConfig } from "../config.js";
+import { buildTopicOpinionSnapshot } from "../visualize/topic-opinions.js";
 
 let engineInstance: PersonaEngineHandle | null = null;
 let runtimeEnabled = true;
@@ -63,6 +66,25 @@ adminRoutes.get("/admin/status", async (c) => {
     rule_count: engineInstance ? engineInstance.rules.list({ enabled: true }).length : 0,
     recent_rule_logs: engineInstance ? engineInstance.rules.recentLogs(10) : [],
   });
+});
+
+adminRoutes.get("/admin/learning/topics", async (c) => {
+  const guard = requireAdmin(c);
+  if (guard) return guard;
+  const config = getConfig();
+  const limit = Number(c.req.query("limit") ?? 40);
+  const opinionsPerTopic = Number(c.req.query("opinionsPerTopic") ?? 8);
+  const core = createCore();
+  try {
+    return c.json(
+      buildTopicOpinionSnapshot(core.client.raw, config.workspace, {
+        limit,
+        opinionsPerTopic,
+      })
+    );
+  } finally {
+    core.close();
+  }
 });
 
 // PR-F: learning metrics — persona / rule 採用率
