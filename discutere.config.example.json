@@ -27,7 +27,8 @@
     "applicationId": "",
     "guildIds": [],
     "adminIds": [],
-    "discussionChannelIds": []
+    "discussionChannelIds": [],
+    "crawlChannelIds": []
   },
   "backup": {
     "enabled": false,

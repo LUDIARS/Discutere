@@ -32,6 +32,8 @@ import {
 } from "./command-router.js";
 import { MonitorCard } from "./monitor-card.js";
 import { registerSlashCommands } from "./register-commands.js";
+import { handleCrawlMessage } from "./crawl-handler.js";
+import type { CrawlDeps } from "./crawl-channel.js";
 
 export interface DiscordGatewayDeps extends CommandRouterDeps {
   /** Gateway 接続用 bot token */
@@ -46,6 +48,13 @@ export interface DiscordGatewayDeps extends CommandRouterDeps {
   guildIds?: string[];
   /** メッセージへのリアクション付与イベント (議論意見スコアリング用)。 */
   onReaction?: (info: { messageId: string; channelId: string; emoji: string; userId: string }) => void;
+  /**
+   * データクロール用チャンネル id。 ここに貼られた URL は議論取り込みではなく
+   * 外部議論データのクロール (crawl-handler) に回す。 空ならクロール無効。
+   */
+  crawlChannelIds?: string[];
+  /** クロール取り込みの依存 (createCore / workspaceId / youtubeApiKey)。 未設定ならクロール skip。 */
+  crawlDeps?: CrawlDeps;
 }
 
 export interface DiscordGatewayHandle {
@@ -105,8 +114,23 @@ export async function startDiscordGateway(
     }
   });
 
+  const crawlChannelIds = new Set((deps.crawlChannelIds ?? []).filter(Boolean));
+
   client.on(Events.MessageCreate, (msg: Message) => {
     if (msg.author?.bot) return;
+
+    // データクロール用チャンネル: 貼られた URL を外部データ取り込みに回す (議論取り込みはしない)。
+    const parentForCrawl = msg.channel?.isThread?.() ? msg.channel.parentId ?? undefined : undefined;
+    if (
+      deps.crawlDeps &&
+      (crawlChannelIds.has(msg.channelId) || (parentForCrawl && crawlChannelIds.has(parentForCrawl)))
+    ) {
+      void handleCrawlMessage(client, msg, { crawl: deps.crawlDeps }).catch((err) =>
+        console.warn(`  discord-gateway: crawl 失敗: ${(err as Error).message}`)
+      );
+      return;
+    }
+
     const normalized = normalizeDiscordInboundMessage({
       id: msg.id,
       channel_id: msg.channelId,
