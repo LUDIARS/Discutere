@@ -10,6 +10,7 @@
  * 失敗は warn のみ (= 議論を止めない)。
  */
 
+import { getConfig } from "../config.js";
 import type { createCore } from "../core/index.js";
 import { monitorRepo } from "../db/repository.js";
 import { postDiscordChannel } from "./poster.js";
@@ -49,8 +50,11 @@ export async function postDiscussionToDiscord(args: DiscussionPostArgs): Promise
   const discordMonitor = monitors.find(
     (m) => m.platform === "discord" && m.botToken && (!guildId || m.botWorkspaceId === guildId)
   );
-  if (!discordMonitor?.botToken) {
-    return { ok: false, reason: "no discord monitor with bot token for this guild" };
+  // Discord-only pivot: channel_monitors に登録が無くても、 Gateway 接続と同じ
+  // config の bot token で投稿する (bot は既に当該 guild に在席している)。
+  const botToken = discordMonitor?.botToken ?? getConfig().discord.botToken;
+  if (!botToken) {
+    return { ok: false, reason: "no discord bot token (channel_monitors / config どちらも未設定)" };
   }
 
   const prefix = args.kind === "hypothesis" ? "💡 **新仮説**" : "💬";
@@ -58,7 +62,7 @@ export async function postDiscussionToDiscord(args: DiscussionPostArgs): Promise
 
   try {
     await postDiscordChannel({
-      botToken: discordMonitor.botToken,
+      botToken,
       channelId,
       content,
     });

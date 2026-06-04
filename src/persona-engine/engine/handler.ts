@@ -151,12 +151,28 @@ export function handleAction(args: HandleActionArgs): HandleActionResult {
     if (typeof json.text !== "string" || json.text.trim() === "") {
       return logErr(args, "post_utterance without text");
     }
-    if (!args.sessionId) {
-      return logErr(args, "post_utterance requires sessionId (tick rule no session)");
+    // tick rule は session context を持たない。 json.hypothesis_id から
+    // 紐付く議論 session を解決する。 解決できなければ error ではなく skip。
+    let sessionId = args.sessionId;
+    if (!sessionId) {
+      const hypothesisId =
+        typeof json.hypothesis_id === "string" ? json.hypothesis_id : undefined;
+      sessionId =
+        (hypothesisId && args.contextProvider.findDiscussionSession?.({
+          workspaceId: args.workspaceId,
+          hypothesisId,
+        })) ||
+        null;
+    }
+    if (!sessionId) {
+      return {
+        kind: "skip",
+        detail: "post_utterance: 議論 session を解決できないため skip (tick rule)",
+      };
     }
     const input: PostUtteranceInput = {
       workspaceId: args.workspaceId,
-      sessionId: args.sessionId,
+      sessionId,
       text: json.text,
       byPersonaId: args.personaId,
       respondsTo:
