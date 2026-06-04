@@ -39,11 +39,16 @@ assert.equal(classifyCrawlUrl("https://youtu.be/abc123XYZ_-").videoId, "abc123XY
 assert.equal(classifyCrawlUrl("https://famitsu.com/news/x.html").kind, "website");
 // youtube のトップ/検索は videoId 無し → website 扱い
 assert.equal(classifyCrawlUrl("https://www.youtube.com/results?search_query=x").kind, "website");
+// reddit スレッド → submissionId
+const rd = classifyCrawlUrl("https://www.reddit.com/r/gaming/comments/abc123/some_title/");
+assert.equal(rd.kind, "reddit");
+assert.equal(rd.submissionId, "abc123");
 console.log("ok crawl classify");
 
 // ── slugFromTarget ──
 assert.equal(slugFromTarget({ kind: "steam", url: "x", appId: 42 }), "steam-42");
 assert.equal(slugFromTarget({ kind: "youtube", url: "x", videoId: "vid" }), "yt-vid");
+assert.equal(slugFromTarget({ kind: "reddit", url: "x", submissionId: "abc" }), "reddit-abc");
 assert.equal(slugFromTarget({ kind: "website", url: "https://www.example.com/p" }), "example-com");
 console.log("ok crawl slug");
 
