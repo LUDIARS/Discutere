@@ -13,8 +13,9 @@ import path from "node:path";
 
 import { createCore } from "../src/core/index.js";
 import { importGameKG, parseGameKG } from "../src/crawler/index.js";
+import { runExtFetch, runExtImport, runExtIngest } from "../src/crawler/sources/cli.js";
 
-function main(): void {
+async function main(): Promise<void> {
   const [, , subcommand, ...rest] = process.argv;
   if (!subcommand) {
     printUsageAndExit();
@@ -29,6 +30,13 @@ function main(): void {
       throw new Error(
         "`run` is not implemented in Phase 0. Author data/games/<slug>.md manually."
       );
+    // 外部議論ソース (Phase 1) — spec/crawler/EXTERNAL-SOURCES.md
+    case "ext-fetch":
+      return runExtFetch(rest);
+    case "ext-import":
+      return runExtImport(rest);
+    case "ext-ingest":
+      return runExtIngest(rest);
     default:
       printUsageAndExit();
   }
@@ -96,9 +104,18 @@ function runList(): void {
 
 function printUsageAndExit(): never {
   console.error(
-    "usage:\n  crawl.ts import <md-path>\n  crawl.ts list\n  crawl.ts run <gameName>   (Phase 1+)"
+    "usage:\n" +
+      "  crawl.ts import <md-path>\n" +
+      "  crawl.ts list\n" +
+      "  crawl.ts run <gameName>   (Phase 1+)\n" +
+      "  crawl.ts ext-fetch steam <gameSlug> <appId> [--lang all] [--max N]\n" +
+      "  crawl.ts ext-import <jsonl-path>\n" +
+      "  crawl.ts ext-ingest steam <gameSlug> <appId> [--lang all] [--max N]"
   );
   process.exit(2);
 }
 
-main();
+main().catch((err) => {
+  console.error((err as Error).message);
+  process.exit(1);
+});

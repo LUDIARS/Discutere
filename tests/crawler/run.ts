@@ -10,4 +10,9 @@ import "./md-format.test.js";
 import "./importer-roundtrip.test.js";
 import "./graphdb-read.test.js";
 
+// External discussion sources (Phase 1)
+import "./external/persona.test.js";
+import "./external/steam-map.test.js";
+import "./external/importer.test.js";
+
 console.log("crawler tests: all passed");
