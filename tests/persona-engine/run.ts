@@ -7,6 +7,7 @@ import "./repos.test.js";
 import "./engine.test.js";
 import "./discatier-adapter.test.js";
 import "./find-discussion-session.test.js";
+import "./facilitator.test.js";
 import "./session-fire-store.test.js";
 import "./safety-caps.test.js";
 import "./event-bridge.test.js";

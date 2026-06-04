@@ -17,6 +17,8 @@ import {
   createPersonaEngine,
   type LLMClient,
 } from "./persona-engine/index.js";
+import { PersonasRepo } from "./persona-engine/db/personas-repo.js";
+import { createFacilitator } from "./persona-engine/facilitator/index.js";
 import { postDiscussionToDiscord } from "./discord-hook/discussion-bridge.js";
 import { createDiscordAutoDiscussionStarter } from "./discord-hook/auto-discussion.js";
 import { startDiscordGateway } from "./discord-hook/gateway.js";
@@ -153,7 +155,37 @@ const personaEngineLifecycle = (() => {
     console.log(
       `  persona-engine: attached (workspace=${workspaceId}, db=${peDbPath})`
     );
-    return { engine, bridge, core, peDb };
+
+    // ファシリテーター: 停滞→新 persona 投入で拡張、 persona 過多→収束 (gap closed)
+    let facilitator: ReturnType<typeof createFacilitator> | null = null;
+    if (config.facilitator.enabled && llm) {
+      const facLogger = {
+        debug: () => {},
+        info: (meta: Record<string, unknown>, msg: string) => console.log(`  [facilitator] ${msg}`, meta),
+        warn: (meta: Record<string, unknown>, msg: string) => console.warn(`  [facilitator] ${msg}`, meta),
+        error: (meta: Record<string, unknown>, msg: string) => console.error(`  [facilitator] ${msg}`, meta),
+      };
+      facilitator = createFacilitator({
+        core,
+        llm,
+        contextProvider: adapter,
+        personas: new PersonasRepo(peDb),
+        workspaceId,
+        logger: facLogger,
+        options: {
+          tickMs: config.facilitator.tickMs,
+          idleGapMs: config.facilitator.idleGapMs,
+          maxPersonas: config.facilitator.maxPersonas,
+          model: config.llm.model,
+        },
+      });
+      facilitator.start();
+      console.log(
+        `  facilitator: started (tick=${config.facilitator.tickMs}ms, idleGap=${config.facilitator.idleGapMs}ms, maxPersonas=${config.facilitator.maxPersonas})`
+      );
+    }
+
+    return { engine, bridge, core, peDb, facilitator };
   } catch (err) {
     console.warn("  persona-engine: startup failed:", err);
     return null;

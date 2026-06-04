@@ -39,6 +39,17 @@ export interface DiscutereConfig {
     /** events table polling 周期 ms */
     bridgePollMs: number;
   };
+  /** 議論ファシリテーター (停滞→拡張 / persona 過多→収束)。spec/facilitator/DESIGN.md */
+  facilitator: {
+    /** 有効化 (既定 true) */
+    enabled: boolean;
+    /** 見張り周期 ms (既定 30_000) */
+    tickMs: number;
+    /** 発言が無くなってから「停滞」とみなす空白 ms (既定 120_000) */
+    idleGapMs: number;
+    /** 参加 persona がこの数を超えたら収束へ (既定 20) */
+    maxPersonas: number;
+  };
   llm: {
     backend: LlmBackend;
     anthropicApiKey?: string;
@@ -104,6 +115,7 @@ interface RawFileConfig {
   workspace?: string;
   discatier?: Partial<DiscutereConfig["discatier"]>;
   personaEngine?: Partial<DiscutereConfig["personaEngine"]>;
+  facilitator?: Partial<DiscutereConfig["facilitator"]>;
   llm?: Partial<DiscutereConfig["llm"]>;
   discord?: Partial<Omit<DiscutereConfig["discord"], "adminIds" | "discussionChannelIds" | "guildIds">> & {
     adminIds?: string[];
@@ -223,6 +235,12 @@ export function loadConfig(): DiscutereConfig {
         file.personaEngine?.bridgePollMs,
         2000
       ),
+    },
+    facilitator: {
+      enabled: pickBool(process.env.DISCUTERE_FACILITATOR_ENABLED, file.facilitator?.enabled, true),
+      tickMs: pickNum(process.env.DISCUTERE_FACILITATOR_TICK_MS, file.facilitator?.tickMs, 30_000),
+      idleGapMs: pickNum(process.env.DISCUTERE_FACILITATOR_IDLE_GAP_MS, file.facilitator?.idleGapMs, 120_000),
+      maxPersonas: pickNum(process.env.DISCUTERE_FACILITATOR_MAX_PERSONAS, file.facilitator?.maxPersonas, 20),
     },
     llm: {
       backend,
