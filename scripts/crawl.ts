@@ -109,8 +109,11 @@ function printUsageAndExit(): never {
       "  crawl.ts list\n" +
       "  crawl.ts run <gameName>   (Phase 1+)\n" +
       "  crawl.ts ext-fetch steam <gameSlug> <appId> [--lang all] [--max N]\n" +
+      '  crawl.ts ext-fetch youtube-videos <gameSlug> --q "<query>" [--max N]\n' +
+      "  crawl.ts ext-fetch youtube-comments <gameSlug> <videoId> [--max N]\n" +
       "  crawl.ts ext-import <jsonl-path>\n" +
-      "  crawl.ts ext-ingest steam <gameSlug> <appId> [--lang all] [--max N]"
+      "  crawl.ts ext-ingest steam <gameSlug> <appId> [--lang all] [--max N]\n" +
+      "  crawl.ts ext-ingest youtube <gameSlug> <videoId> [--max N]"
   );
   process.exit(2);
 }
