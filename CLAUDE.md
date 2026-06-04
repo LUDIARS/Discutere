@@ -39,7 +39,9 @@ env)。`discutere.config.example.json` 参照。詳細は `docs/ws-gateway-confi
   未指定で global。手動は `npm run discord:register`。**handler だけ実装して登録を忘れると
   クライアントに slash が出ない**ので、command-defs と routeSlashCommand の name は必ず一致させる。
 - **自然なテキスト取り込み**: 許可チャンネル (`discord.discussionChannelIds`) では slash なしで
-  全平文を utterance に取り込み、取り込んだら 👀 を付ける。スレッドは親が許可なら継承。
+  全平文を utterance に取り込む。👀 リアクションは**取り込み全件ではなく「議論の種(開始エントリ)に
+  なった投稿」=auto-discussion が designGap を新規に立てた時だけ**付ける (リアクション=議論が立った
+  合図 / persona-engine の返信と対応)。スレッドは親が許可なら継承。
 - **複数サーバ対応**: `discord.guildIds[]` (旧単数 `guildId` は後方互換で統合)。学習データ KG は
   `discatier.kuzuPath` 単一に集約 (session は guild 別、KG は 1 つ)。
 - **議論キュー可視化**: `src/queue/snapshot.ts` → `GET /api/admin/queue` + dashboard カード +
