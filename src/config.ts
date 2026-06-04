@@ -71,6 +71,11 @@ export interface DiscutereConfig {
      * スレッド内の発言は親チャンネルが本リストにあれば取り込む (自然な議論の継承)。
      */
     discussionChannelIds: string[];
+    /**
+     * 貼られた URL から外部議論データを取り込む「データクロール」 チャンネル id。
+     * 空ならクロール無効 (安全 default)。 取り込み結果は「データ追加」 通知チャンネルへ。
+     */
+    crawlChannelIds: string[];
   };
   /**
    * 学習データ (Discatier KG + persona-engine.db + discutere.db) の S3 アーカイブ。
@@ -105,9 +110,10 @@ interface RawFileConfig {
   discatier?: Partial<DiscutereConfig["discatier"]>;
   personaEngine?: Partial<DiscutereConfig["personaEngine"]>;
   llm?: Partial<DiscutereConfig["llm"]>;
-  discord?: Partial<Omit<DiscutereConfig["discord"], "adminIds" | "discussionChannelIds" | "guildIds">> & {
+  discord?: Partial<Omit<DiscutereConfig["discord"], "adminIds" | "discussionChannelIds" | "crawlChannelIds" | "guildIds">> & {
     adminIds?: string[];
     discussionChannelIds?: string[];
+    crawlChannelIds?: string[];
     guildIds?: string[];
     /** 後方互換: 旧 単数 guildId (guildIds に統合される) */
     guildId?: string;
@@ -243,6 +249,10 @@ export function loadConfig(): DiscutereConfig {
       discussionChannelIds: parseStringList(
         process.env.DISCUTERE_DISCORD_DISCUSSION_CHANNELS,
         file.discord?.discussionChannelIds
+      ),
+      crawlChannelIds: parseStringList(
+        process.env.DISCUTERE_DISCORD_CRAWL_CHANNELS,
+        file.discord?.crawlChannelIds
       ),
     },
     backup: {

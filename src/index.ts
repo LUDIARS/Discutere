@@ -186,6 +186,13 @@ const discordGatewayLifecycle = startDiscordGateway({
   workspaceId: config.workspace,
   adminIds: config.discord.adminIds,
   discussionChannelIds: config.discord.discussionChannelIds,
+  // データクロール用チャンネル: 貼られた URL から外部議論データを取り込む。
+  crawlChannelIds: config.discord.crawlChannelIds,
+  crawlDeps: {
+    createCore: () => createCore(),
+    workspaceId: config.workspace,
+    youtubeApiKey: process.env.DISCUTERE_YOUTUBE_API_KEY ?? null,
+  },
   getEngine: () => getPersonaEngine(),
   buildQueueText,
   triggerBackup: () => backupScheduler.trigger(),
