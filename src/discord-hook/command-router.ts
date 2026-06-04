@@ -14,6 +14,12 @@
 import type { PersonaEngineHandle } from "../persona-engine/index.js";
 import { createCore } from "../core/index.js";
 import { submitMessage } from "../core/projection/message-input.js";
+import {
+  listConclusions,
+  getConclusionDetail,
+  type ConclusionSummary,
+  type ConclusionDetail,
+} from "../visualize/conclusions.js";
 import type { DiscordAutoDiscussionInput } from "./auto-discussion.js";
 import type { DiscordInboundMessage } from "./types.js";
 
@@ -81,6 +87,9 @@ export function routeSlashCommand(cmd: InboundSlashCommand, deps: CommandRouterD
   }
   if (cmd.name === "discutere-backup") {
     return handleBackupSlash(cmd, deps);
+  }
+  if (cmd.name === "discutere-conclusions") {
+    return handleConclusionsSlash(cmd, deps);
   }
 
   const commandText = cmd.argsText.length > 0 ? `/${cmd.name} ${cmd.argsText}` : `/${cmd.name}`;
@@ -203,6 +212,60 @@ function handleBackupSlash(cmd: InboundSlashCommand, deps: CommandRouterDeps): S
     })
     .catch((e) => console.warn(`  backup(manual): error: ${(e as Error).message}`));
   return { content: "🗄️ バックアップを開始しました (完了はサーバログ / dashboard で確認)", ephemeral: true };
+}
+
+/**
+ * /discutere-conclusions — 収束した議論の結論を一覧 / gap 指定で論述データを表示 (#66)。
+ * 認可不要 (読み取り専用)。 ephemeral で返す。
+ */
+function handleConclusionsSlash(cmd: InboundSlashCommand, deps: CommandRouterDeps): SlashReply {
+  const core = createCore();
+  try {
+    const gapId = cmd.argsText.trim();
+    if (gapId) {
+      const detail = getConclusionDetail(core, deps.workspaceId, gapId);
+      if (!detail) return { content: `⚠️ 結論が見つかりません (gap=${gapId})`, ephemeral: true };
+      return { content: formatConclusionDetail(detail), ephemeral: true };
+    }
+    const list = listConclusions(core, deps.workspaceId, 10);
+    return { content: formatConclusionList(list), ephemeral: true };
+  } catch (err) {
+    return { content: `⚠️ 結論取得失敗: ${(err as Error).message}`, ephemeral: true };
+  } finally {
+    core.close();
+  }
+}
+
+function formatConclusionList(list: ConclusionSummary[]): string {
+  if (list.length === 0) return "まだ収束した議論はありません。";
+  const lines = list.map((c) => {
+    const head = c.conclusion ? truncateText(c.conclusion, 120) : "(まとめ未生成)";
+    return `• **${c.title}**\n  ${head}\n  └ 詳細: /discutere-conclusions gap:${c.gapId} (発言${c.utteranceCount}/止揚${c.aufhebungCount})`;
+  });
+  return [`【結論一覧 (新しい順 ${list.length}件)】`, ...lines].join("\n");
+}
+
+function formatConclusionDetail(d: ConclusionDetail): string {
+  const parts: string[] = [`【結論】${d.title}`];
+  parts.push(d.conclusion ? d.conclusion : "(まとめ未生成)");
+  if (d.aufhebungen.length) {
+    parts.push("\n── 止揚ストック ──");
+    parts.push(d.aufhebungen.map((s, i) => `${i + 1}. ${s}`).join("\n"));
+  }
+  if (d.topOpinions.length) {
+    parts.push("\n── 高評価意見 ──");
+    parts.push(d.topOpinions.map((o) => `+${o.score} ${o.speaker}: ${truncateText(o.content, 100)}`).join("\n"));
+  }
+  parts.push(`\n── 議論ログ (${d.transcript.length}発言) ──`);
+  parts.push(
+    d.transcript.map((u) => `[${u.speaker}] ${truncateText(u.content, 120)}`).join("\n")
+  );
+  return truncateText(parts.join("\n"), 1900); // Discord 2000 字制限に収める
+}
+
+function truncateText(value: string, max: number): string {
+  const flat = value.replace(/\n+/g, (m) => (m.length > 1 ? "\n" : m));
+  return flat.length <= max ? flat : `${flat.slice(0, max - 1)}…`;
 }
 
 /**

@@ -19,6 +19,7 @@ import {
 } from "./persona-engine/index.js";
 import { PersonasRepo } from "./persona-engine/db/personas-repo.js";
 import { createFacilitator } from "./persona-engine/facilitator/index.js";
+import { createAutoSeedScheduler } from "./discussion-seed/scheduler.js";
 import { postDiscussionToDiscord } from "./discord-hook/discussion-bridge.js";
 import { createDiscordAutoDiscussionStarter } from "./discord-hook/auto-discussion.js";
 import { startDiscordGateway } from "./discord-hook/gateway.js";
@@ -216,7 +217,33 @@ const personaEngineLifecycle = (() => {
       );
     }
 
-    return { engine, bridge, core, peDb, facilitator };
+    // 自動シード議論: 定期的にジャンル/ストアトレンドから headless 議論を立てる (#64/#65)。
+    // 駆動は上の facilitator が担うので、 facilitator が動いている時だけ有効化する。
+    let autoSeed: ReturnType<typeof createAutoSeedScheduler> | null = null;
+    if (config.autoSeed.enabled && facilitator) {
+      autoSeed = createAutoSeedScheduler({
+        core,
+        personas: new PersonasRepo(peDb),
+        workspaceId,
+        config: {
+          intervalMs: config.autoSeed.intervalMs,
+          maxConcurrent: config.autoSeed.maxConcurrent,
+          sources: config.autoSeed.sources,
+        },
+        logger: {
+          debug: () => {},
+          info: (meta: Record<string, unknown>, msg: string) => console.log(`  [auto-seed] ${msg}`, meta),
+          warn: (meta: Record<string, unknown>, msg: string) => console.warn(`  [auto-seed] ${msg}`, meta),
+          error: (meta: Record<string, unknown>, msg: string) => console.error(`  [auto-seed] ${msg}`, meta),
+        },
+      });
+      autoSeed.start();
+      console.log(
+        `  auto-seed: started (interval=${config.autoSeed.intervalMs}ms, maxConcurrent=${config.autoSeed.maxConcurrent}, sources=${config.autoSeed.sources.join("/")})`
+      );
+    }
+
+    return { engine, bridge, core, peDb, facilitator, autoSeed };
   } catch (err) {
     console.warn("  persona-engine: startup failed:", err);
     return null;

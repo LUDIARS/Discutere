@@ -67,4 +67,16 @@ export const DISCORD_COMMAND_DEFS: RESTPostAPIChatInputApplicationCommandsJSONBo
     name: "discutere-backup",
     description: "学習データを今すぐ S3 にバックアップ (admin only)",
   },
+  {
+    name: "discutere-conclusions",
+    description: "収束した議論の結論を一覧 / 指定で論述データ (議論ログ・止揚・高評価意見) を表示",
+    options: [
+      {
+        name: "gap",
+        description: "結論の gap id を指定すると裏の論述データを表示 (省略で一覧)",
+        type: ApplicationCommandOptionType.String,
+        required: false,
+      },
+    ],
+  },
 ];
