@@ -52,6 +52,20 @@ export interface DiscutereConfig {
     /** 止揚 (アウフヘーベン) がこの数たまったら収束 (既定 3) */
     aufhebungTarget: number;
   };
+  /**
+   * 自動シード議論 (#64/#65)。 種 (ジャンル / ストアトレンド) から headless 議論を
+   * 定期的に立て、 facilitator 機構が収束まで回す。 学習データを自走で蓄積する。
+   */
+  autoSeed: {
+    /** 有効化 (既定 false — opt-in) */
+    enabled: boolean;
+    /** シード投入の周期 ms (既定 1_800_000 = 30 分) */
+    intervalMs: number;
+    /** 同時に開いておく headless 議論の上限 (これ未満の時だけ新規シード、 既定 2) */
+    maxConcurrent: number;
+    /** 種ソース ("genre" | "store-trend")。 複数指定で巡回 (既定 ["genre"]) */
+    sources: string[];
+  };
   llm: {
     backend: LlmBackend;
     anthropicApiKey?: string;
@@ -118,6 +132,7 @@ interface RawFileConfig {
   discatier?: Partial<DiscutereConfig["discatier"]>;
   personaEngine?: Partial<DiscutereConfig["personaEngine"]>;
   facilitator?: Partial<DiscutereConfig["facilitator"]>;
+  autoSeed?: Partial<DiscutereConfig["autoSeed"]>;
   llm?: Partial<DiscutereConfig["llm"]>;
   discord?: Partial<Omit<DiscutereConfig["discord"], "adminIds" | "discussionChannelIds" | "guildIds">> & {
     adminIds?: string[];
@@ -244,6 +259,14 @@ export function loadConfig(): DiscutereConfig {
       idleGapMs: pickNum(process.env.DISCUTERE_FACILITATOR_IDLE_GAP_MS, file.facilitator?.idleGapMs, 120_000),
       maxPersonas: pickNum(process.env.DISCUTERE_FACILITATOR_MAX_PERSONAS, file.facilitator?.maxPersonas, 20),
       aufhebungTarget: pickNum(process.env.DISCUTERE_FACILITATOR_AUFHEBUNG_TARGET, file.facilitator?.aufhebungTarget, 3),
+    },
+    autoSeed: {
+      enabled: pickBool(process.env.DISCUTERE_AUTOSEED_ENABLED, file.autoSeed?.enabled, false),
+      intervalMs: pickNum(process.env.DISCUTERE_AUTOSEED_INTERVAL_MS, file.autoSeed?.intervalMs, 1_800_000),
+      maxConcurrent: pickNum(process.env.DISCUTERE_AUTOSEED_MAX_CONCURRENT, file.autoSeed?.maxConcurrent, 2),
+      sources: parseStringList(process.env.DISCUTERE_AUTOSEED_SOURCES, file.autoSeed?.sources).length
+        ? parseStringList(process.env.DISCUTERE_AUTOSEED_SOURCES, file.autoSeed?.sources)
+        : ["genre"],
     },
     llm: {
       backend,

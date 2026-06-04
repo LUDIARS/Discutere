@@ -40,6 +40,11 @@ export interface DiscussionPostArgs {
 
 export async function postDiscussionToDiscord(args: DiscussionPostArgs): Promise<{
   ok: boolean;
+  /**
+   * true: 失敗ではなく「意図的に投稿しなかった」(= headless 議論など非 discord scene)。
+   * caller はこの場合 warn を出さずに黙ってスキップする (ログ noise 除去 / #63)。
+   */
+  skipped?: boolean;
   reason?: string;
   channelId?: string;
   messageId?: string;
@@ -49,7 +54,9 @@ export async function postDiscussionToDiscord(args: DiscussionPostArgs): Promise
     .prepare("SELECT scene FROM sessions WHERE id = ?")
     .get(args.sessionId) as { scene: string | null } | undefined;
   if (!session?.scene || !session.scene.startsWith("discord:")) {
-    return { ok: false, reason: "session.scene is not discord-bound" };
+    // headless (gap:<gapId> 等) の議論は Discord に出さないのが正常動作。
+    // 失敗ではないので skipped で返し、 caller の warn を抑止する。
+    return { ok: false, skipped: true, reason: "session.scene is not discord-bound (headless)" };
   }
   const guildChannel = session.scene.slice("discord:".length);
   const [guildId, channelId] = guildChannel.split("/");
