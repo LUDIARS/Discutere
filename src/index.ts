@@ -98,15 +98,27 @@ const personaEngineLifecycle = (() => {
     const workspaceId = config.workspace;
     const peDb = new Database(peDbPath);
     const core = createCore();
+    const relayPersonas = new PersonasRepo(peDb);
+    // persona の人間名と、 webhook 投稿の要否を解決する。
+    // facilitator (進行役) は Discutere bot として直接、 議論 persona は webhook で人間名。
+    const resolveSpeaker = (byPersonaId: string) => {
+      const p = relayPersonas.get(byPersonaId);
+      return {
+        name: p?.display_name ?? byPersonaId,
+        viaWebhook: byPersonaId !== "facilitator",
+      };
+    };
     const adapter = createDiscatierContextProvider(core, {
-      // PR-I: AI 発話 / hypothesis めEDiscord channel に bot post
+      // PR-I: AI 発話 / hypothesis を Discord channel に post
       async onPostedUtterance(input) {
+        const sp = resolveSpeaker(input.byPersonaId);
         const r = await postDiscussionToDiscord({
           core,
           workspaceId: input.workspaceId,
           sessionId: input.sessionId,
           kind: "utterance",
-          speakerLabel: `persona:${input.byPersonaId}`,
+          speakerLabel: sp.name,
+          viaWebhook: sp.viaWebhook,
           text: input.text,
         });
         if (!r.ok) {
@@ -123,12 +135,14 @@ const personaEngineLifecycle = (() => {
           | { id: string; scene: string | null }
           | undefined;
         if (!session?.scene?.startsWith("discord:")) return;
+        const sp = resolveSpeaker(input.byPersonaId);
         const r = await postDiscussionToDiscord({
           core,
           workspaceId: input.workspaceId,
           sessionId: session.id,
           kind: "hypothesis",
-          speakerLabel: `persona:${input.byPersonaId}`,
+          speakerLabel: sp.name,
+          viaWebhook: sp.viaWebhook,
           text: input.statement,
         });
         if (!r.ok) {

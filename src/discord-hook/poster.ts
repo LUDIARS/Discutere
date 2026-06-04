@@ -46,3 +46,81 @@ function truncate(s: string, max: number): string {
   if (s.length <= max) return s;
   return s.slice(0, max - 1) + "…";
 }
+
+// ───────── Webhook (persona を人間名で投稿するため) ─────────
+
+const WEBHOOK_NAME = "Discutere議論";
+const webhookCache = new Map<string, { id: string; token: string }>();
+
+/** channel に議論用 webhook を確保 (なければ作成)。 Manage Webhooks 権限が要る。 */
+export async function ensureChannelWebhook(
+  botToken: string,
+  channelId: string
+): Promise<{ id: string; token: string }> {
+  const cached = webhookCache.get(channelId);
+  if (cached) return cached;
+
+  const list = await fetch(`${DISCORD_API}/channels/${encodeURIComponent(channelId)}/webhooks`, {
+    headers: { Authorization: `Bot ${botToken}` },
+  });
+  if (list.ok) {
+    const hooks = (await list.json()) as Array<{ id: string; token?: string; name: string }>;
+    const mine = hooks.find((h) => h.token && h.name === WEBHOOK_NAME);
+    if (mine?.token) {
+      const v = { id: mine.id, token: mine.token };
+      webhookCache.set(channelId, v);
+      return v;
+    }
+  }
+  const res = await fetch(`${DISCORD_API}/channels/${encodeURIComponent(channelId)}/webhooks`, {
+    method: "POST",
+    headers: { Authorization: `Bot ${botToken}`, "Content-Type": "application/json" },
+    body: JSON.stringify({ name: WEBHOOK_NAME }),
+  });
+  if (!res.ok) {
+    throw new Error(`create webhook ${res.status}: ${(await res.text().catch(() => "")).slice(0, 200)}`);
+  }
+  const j = (await res.json()) as { id: string; token: string };
+  const v = { id: j.id, token: j.token };
+  webhookCache.set(channelId, v);
+  return v;
+}
+
+export interface DiscordWebhookPostArgs {
+  webhookId: string;
+  webhookToken: string;
+  username: string;
+  content: string;
+  avatarUrl?: string;
+}
+
+/** webhook で username (= persona の人間名) を変えて投稿。 */
+export async function postDiscordWebhook(args: DiscordWebhookPostArgs): Promise<void> {
+  const res = await fetch(
+    `${DISCORD_API}/webhooks/${args.webhookId}/${args.webhookToken}?wait=true`,
+    {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        content: truncate(args.content, 1900),
+        username: args.username.slice(0, 80),
+        avatar_url: args.avatarUrl,
+      }),
+    }
+  );
+  if (!res.ok) {
+    throw new Error(`webhook post ${res.status}: ${(await res.text().catch(() => "")).slice(0, 200)}`);
+  }
+}
+
+/**
+ * 人間のチャットらしく整形する:
+ *  - 先頭の機械的ラベル (反証:/反例:/弱点: 等) を除去
+ *  - 文末 (。！？) ごとに改行
+ */
+export function humanizeForDiscord(text: string): string {
+  let t = text.trim();
+  t = t.replace(/^(反証|反例|弱点|指摘|反論|懸念)\s*[:：]\s*/u, "");
+  t = t.replace(/([。！？!?])(?!\n|$)/gu, "$1\n");
+  return t;
+}

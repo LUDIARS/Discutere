@@ -13,7 +13,12 @@
 import { getConfig } from "../config.js";
 import type { createCore } from "../core/index.js";
 import { monitorRepo } from "../db/repository.js";
-import { postDiscordChannel } from "./poster.js";
+import {
+  ensureChannelWebhook,
+  humanizeForDiscord,
+  postDiscordChannel,
+  postDiscordWebhook,
+} from "./poster.js";
 
 type Core = ReturnType<typeof createCore>;
 
@@ -26,6 +31,11 @@ export interface DiscussionPostArgs {
   /** 発話者 (persona name 等、 表示用) */
   speakerLabel: string;
   text: string;
+  /**
+   * true: persona を webhook で人間名 (speakerLabel) として投稿する。
+   * false/未指定: Discutere bot として直接投稿する (= 進行役)。
+   */
+  viaWebhook?: boolean;
 }
 
 export async function postDiscussionToDiscord(args: DiscussionPostArgs): Promise<{
@@ -57,15 +67,33 @@ export async function postDiscussionToDiscord(args: DiscussionPostArgs): Promise
     return { ok: false, reason: "no discord bot token (channel_monitors / config どちらも未設定)" };
   }
 
-  const prefix = args.kind === "hypothesis" ? "💡 **新仮説**" : "💬";
-  const content = `${prefix} \`${args.speakerLabel}\`\n${args.text}`;
+  const body = humanizeForDiscord(args.text);
 
+  // persona は webhook で人間名として投稿 (議論参加者らしく見せる)。
+  if (args.viaWebhook) {
+    try {
+      const wh = await ensureChannelWebhook(botToken, channelId);
+      await postDiscordWebhook({
+        webhookId: wh.id,
+        webhookToken: wh.token,
+        username: args.speakerLabel,
+        content: body,
+      });
+      return { ok: true, channelId };
+    } catch (err) {
+      // webhook 権限が無い等で失敗 → bot 直接投稿に fallback (名前を本文先頭に)
+      try {
+        await postDiscordChannel({ botToken, channelId, content: `**${args.speakerLabel}**\n${body}` });
+        return { ok: true, channelId };
+      } catch (err2) {
+        return { ok: false, reason: `webhook(${(err as Error).message}) / bot(${(err2 as Error).message})` };
+      }
+    }
+  }
+
+  // 進行役 (Discutere) は bot として直接投稿。
   try {
-    await postDiscordChannel({
-      botToken,
-      channelId,
-      content,
-    });
+    await postDiscordChannel({ botToken, channelId, content: body });
     return { ok: true, channelId };
   } catch (err) {
     return { ok: false, reason: (err as Error).message };
