@@ -113,7 +113,12 @@ export function createEngine(deps: EngineDeps): EngineHandle {
     sessionFires.increment(sessionId, rule.id);
   }
 
-  async function tryFire(rule: RuleRow, triggeredBy: string, sessionId: string | null): Promise<void> {
+  async function tryFire(
+    rule: RuleRow,
+    triggeredBy: string,
+    sessionId: string | null,
+    triggerEvent?: { kind: string; payload?: unknown }
+  ): Promise<void> {
     if (stopped) return;
     if (running) {
       deps.rules.log({
@@ -153,7 +158,7 @@ export function createEngine(deps: EngineDeps): EngineHandle {
     try {
       deps.rules.setLastFired(rule.id, now);
       recordSessionFire(rule, sessionId);
-      await fireOnce(rule, triggeredBy, sessionId);
+      await fireOnce(rule, triggeredBy, sessionId, triggerEvent);
     } catch (err) {
       const message = (err as Error).message ?? String(err);
       deps.rules.log({
@@ -171,7 +176,8 @@ export function createEngine(deps: EngineDeps): EngineHandle {
   async function fireOnce(
     rule: RuleRow,
     triggeredBy: string,
-    sessionId: string | null
+    sessionId: string | null,
+    triggerEvent?: { kind: string; payload?: unknown }
   ): Promise<void> {
     const personaId = rule.target;
     if (!personaId) {
@@ -236,6 +242,7 @@ export function createEngine(deps: EngineDeps): EngineHandle {
       personaId,
       workspaceId: deps.workspaceId,
       sessionId,
+      triggerEvent,
       rawText: llmRes.text,
       contextProvider: deps.contextProvider,
       rules: deps.rules,
@@ -283,7 +290,10 @@ export function createEngine(deps: EngineDeps): EngineHandle {
         .list({ enabled: true, trigger_type: "event" })
         .filter((r) => !r.event_kind || r.event_kind === event.kind);
       for (const r of candidates) {
-        await tryFire(r, `event:${event.kind}`, sessionId);
+        await tryFire(r, `event:${event.kind}`, sessionId, {
+          kind: event.kind,
+          payload: event.payload,
+        });
       }
     },
     setRulesEnabled(enabled: boolean): void {

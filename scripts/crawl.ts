@@ -12,7 +12,17 @@ import fs from "node:fs";
 import path from "node:path";
 
 import { createCore } from "../src/core/index.js";
-import { importGameKG, parseGameKG } from "../src/crawler/index.js";
+import {
+  createAiTrainingRunner,
+  importGameKG,
+  parseGameKG,
+} from "../src/crawler/index.js";
+import {
+  AnthropicSdkClient,
+  ClaudeCliClient,
+  type LLMClient,
+} from "../src/persona-engine/index.js";
+import { getConfig } from "../src/config.js";
 
 function main(): void {
   const [, , subcommand, ...rest] = process.argv;
@@ -26,9 +36,10 @@ function main(): void {
     case "list":
       return runList();
     case "run":
-      throw new Error(
-        "`run` is not implemented in Phase 0. Author data/games/<slug>.md manually."
-      );
+      return void runAi(rest).catch((err) => {
+        console.error((err as Error).message);
+        process.exit(1);
+      });
     default:
       printUsageAndExit();
   }
@@ -94,9 +105,76 @@ function runList(): void {
   }
 }
 
+async function runAi(args: string[]): Promise<void> {
+  const [gameName, outArg] = args;
+  if (!gameName) {
+    console.error("usage: crawl.ts run <gameName> [out-md-path]");
+    process.exit(2);
+  }
+
+  const config = getConfig();
+  const llm = createConfiguredLlm(config);
+  const runner = createAiTrainingRunner({
+    llm,
+    workspaceId: config.workspace,
+    model: config.llm.model,
+    timeoutMs: config.llm.claudeCliTimeoutMs,
+  });
+  const result = await runner.run(gameName, { maxSources: 5 });
+  const outPath = path.resolve(outArg ?? path.join("data", "games", `${toSlug(result.kg.id || gameName)}.md`));
+  fs.mkdirSync(path.dirname(outPath), { recursive: true });
+  fs.writeFileSync(outPath, result.markdown, "utf8");
+
+  const core = createCore();
+  try {
+    const imported = importGameKG(core, result.kg);
+    console.log(
+      JSON.stringify(
+        {
+          file: path.relative(process.cwd(), outPath),
+          game: { id: imported.gameId, title: result.kg.title },
+          inserted: imported.inserted,
+          updated: imported.updated,
+          meta: result.meta,
+        },
+        null,
+        2
+      )
+    );
+  } finally {
+    core.close();
+  }
+}
+
+function createConfiguredLlm(config: ReturnType<typeof getConfig>): LLMClient {
+  if (config.llm.backend === "claude-cli") {
+    return new ClaudeCliClient({
+      defaultTimeoutMs: config.llm.claudeCliTimeoutMs,
+      defaultModel: config.llm.model,
+      gitBashPath: config.llm.gitBashPath,
+    });
+  }
+  if (config.llm.anthropicApiKey) {
+    return new AnthropicSdkClient({
+      apiKey: config.llm.anthropicApiKey,
+      defaultModel: config.llm.model,
+    });
+  }
+  throw new Error("LLM is not configured. Set llm.backend=claude-cli or ANTHROPIC_API_KEY.");
+}
+
+function toSlug(value: string): string {
+  return value
+    .normalize("NFKD")
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, "-")
+    .replace(/^-+|-+$/g, "")
+    .replace(/-{2,}/g, "-") || "ai-generated-game";
+}
+
 function printUsageAndExit(): never {
   console.error(
-    "usage:\n  crawl.ts import <md-path>\n  crawl.ts list\n  crawl.ts run <gameName>   (Phase 1+)"
+    "usage:\n  crawl.ts import <md-path>\n  crawl.ts list\n  crawl.ts run <gameName> [out-md-path]"
   );
   process.exit(2);
 }

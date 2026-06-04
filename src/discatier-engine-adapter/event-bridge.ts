@@ -187,18 +187,53 @@ export function createEventBridge(
 
   function ensureGapDiscussionSession(gapId: string): string {
     const title = `discussion-of-gap:${gapId}`;
+    const scene = resolveGapDiscussionScene(gapId);
     const existing = core.client.raw
       .prepare(
-        "SELECT id FROM sessions WHERE workspace_id = ? AND title = ? ORDER BY started_at DESC LIMIT 1"
+        "SELECT id, scene FROM sessions WHERE workspace_id = ? AND title = ? ORDER BY started_at DESC LIMIT 1"
       )
-      .get(options.workspaceId, title) as { id: string } | undefined;
-    if (existing) return existing.id;
+      .get(options.workspaceId, title) as { id: string; scene: string | null } | undefined;
+    if (existing) {
+      if (scene.startsWith("discord:") && existing.scene !== scene) {
+        core.client.raw
+          .prepare("UPDATE sessions SET scene = ?, updated_at = ? WHERE id = ?")
+          .run(scene, Date.now(), existing.id);
+      }
+      return existing.id;
+    }
     return core.repos.session.create({
       workspaceId: options.workspaceId,
       title,
       startedAt: Date.now(),
-      scene: `gap:${gapId}`,
+      scene,
     } as never);
+  }
+
+  function resolveGapDiscussionScene(gapId: string): string {
+    const gap = core.client.raw
+      .prepare("SELECT evidence_json FROM design_gaps WHERE id = ?")
+      .get(gapId) as { evidence_json: string | null } | undefined;
+    const evidence = parsePayload(gap?.evidence_json ?? "");
+    const evidenceSessionId =
+      typeof evidence?.sessionId === "string" && evidence.sessionId.length > 0
+        ? evidence.sessionId
+        : null;
+    if (evidenceSessionId) {
+      const sourceSession = core.client.raw
+        .prepare("SELECT scene FROM sessions WHERE id = ?")
+        .get(evidenceSessionId) as { scene: string | null } | undefined;
+      if (sourceSession?.scene?.startsWith("discord:")) return sourceSession.scene;
+    }
+    const guildId =
+      typeof evidence?.guildId === "string" && evidence.guildId.length > 0
+        ? evidence.guildId
+        : null;
+    const channelId =
+      typeof evidence?.channelId === "string" && evidence.channelId.length > 0
+        ? evidence.channelId
+        : null;
+    if (guildId && channelId) return `discord:${guildId}/${channelId}`;
+    return `gap:${gapId}`;
   }
 
   return {

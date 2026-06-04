@@ -91,6 +91,7 @@ try {
     .all(ws) as Array<{ id: string; statement: string; design_gap_id: string | null }>;
   assert.ok(hyps.length >= 1, "hypothesis should be proposed by advocate");
   assert.equal(hyps[0].statement, "first proposal");
+  assert.equal(hyps[0].design_gap_id, gapId);
   console.log("ok advocate proposed hypothesis via event bridge");
 
   // 4. gap 1:1 で discussion-of-gap session が自動作成されている

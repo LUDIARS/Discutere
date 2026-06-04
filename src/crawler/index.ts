@@ -7,3 +7,8 @@ export {
   type RunOptions,
   type RunResult,
 } from "./runner.js";
+export {
+  createAiTrainingRunner,
+  parseJsonObject,
+  type AiTrainingRunnerOptions,
+} from "./ai-runner.js";

@@ -370,12 +370,39 @@ function renderQueue(q) {
     : '<tr><td colspan="2" class="muted">検証待ち仮説なし</td></tr>';
 }
 
+
+async function fetchLearningTopics() {
+  const res = await fetch("/api/admin/learning/topics?limit=20&opinionsPerTopic=3", { credentials: "include" });
+  if (!res.ok) throw new Error("learning topics http " + res.status);
+  return res.json();
+}
+
+function renderLearningTopics(snap) {
+  document.getElementById("learning-totals").textContent =
+    "topic " + snap.totals.topics + " / opinion " + snap.totals.opinions + " / utterance " + snap.totals.utterances;
+  const tbody = document.querySelector("#learning-topics tbody");
+  if (!snap.topics || snap.topics.length === 0) {
+    tbody.innerHTML = '<tr><td colspan="5" class="muted">no learning topics</td></tr>';
+    return;
+  }
+  tbody.innerHTML = snap.topics.map((topic) =>
+    '<tr>' +
+      '<td>' + escapeHtml(topic.title) + '</td>' +
+      '<td><span class="stat">' + topic.size + '</span></td>' +
+      '<td>' + topic.opinionCount + '</td>' +
+      '<td>' + topic.utteranceCount + '</td>' +
+      '<td class="muted">' + escapeHtml(topic.status || "open") + '</td>' +
+    '</tr>'
+  ).join("");
+}
+
 async function refresh() {
   try {
     renderStatus(await fetchStatus());
     fetchMetrics("personas").then((r) => renderPersonaMetrics(r.metrics)).catch(() => {});
     fetchMetrics("rules").then((r) => renderRuleMetrics(r.metrics)).catch(() => {});
     fetchQueue().then(renderQueue).catch(() => {});
+    fetchLearningTopics().then(renderLearningTopics).catch(() => {});
     refreshRules();
   } catch (err) {
     document.getElementById("status-stats").innerHTML = '<span class="stat bad">' + escapeHtml(err.message) + '</span>';

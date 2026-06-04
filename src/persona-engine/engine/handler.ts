@@ -24,6 +24,7 @@ export interface HandleActionArgs {
   personaId: string;
   workspaceId: string;
   sessionId: string | null;
+  triggerEvent?: { kind: string; payload?: unknown };
   rawText: string;
   contextProvider: DiscussionContextProvider;
   rules: RulesRepo;
@@ -120,7 +121,7 @@ export function handleAction(args: HandleActionArgs): HandleActionResult {
           ? json.addresses_gap_id
           : typeof json.gap_id === "string"
             ? json.gap_id
-            : null,
+            : inferDesignGapIdFromTrigger(args.triggerEvent),
       byPersonaId: args.personaId,
       reasoning:
         typeof json.reasoning === "string" ? json.reasoning : undefined,
@@ -284,6 +285,22 @@ function logErr(args: HandleActionArgs, detail: string): HandleActionResult {
   });
   args.logger.warn({ rule_id: args.ruleId }, detail);
   return { kind: "error", detail };
+}
+
+function inferDesignGapIdFromTrigger(
+  triggerEvent: HandleActionArgs["triggerEvent"]
+): string | null {
+  if (!triggerEvent) return null;
+  if (
+    triggerEvent.kind !== "DesignGapDetected" &&
+    triggerEvent.kind !== "DesignGapUpdated"
+  ) {
+    return null;
+  }
+  const payload = triggerEvent.payload;
+  if (!payload || typeof payload !== "object") return null;
+  const id = (payload as { id?: unknown }).id;
+  return typeof id === "string" && id.length > 0 ? id : null;
 }
 
 /**

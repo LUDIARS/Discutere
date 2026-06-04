@@ -9,6 +9,7 @@ import "./discatier-adapter.test.js";
 import "./session-fire-store.test.js";
 import "./safety-caps.test.js";
 import "./event-bridge.test.js";
+import "./event-bridge-discord.test.js";
 import "./auto-export.test.js";
 import "./learning.test.js";
 import "./rule-self-edit.test.js";
