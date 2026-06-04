@@ -22,6 +22,7 @@ import { createFacilitator } from "./persona-engine/facilitator/index.js";
 import { postDiscussionToDiscord } from "./discord-hook/discussion-bridge.js";
 import { createDiscordAutoDiscussionStarter } from "./discord-hook/auto-discussion.js";
 import { startDiscordGateway } from "./discord-hook/gateway.js";
+import { ensureReactionTables, recordPostedMessage, applyReaction } from "./discord-hook/reactions.js";
 import { queueRoutes } from "./api/queue-routes.js";
 import { buildQueueSnapshot, formatQueueText } from "./queue/snapshot.js";
 import { startBackupScheduler } from "./backup/runner.js";
@@ -98,6 +99,7 @@ const personaEngineLifecycle = (() => {
     const workspaceId = config.workspace;
     const peDb = new Database(peDbPath);
     const core = createCore();
+    ensureReactionTables(core.client.raw);
     const relayPersonas = new PersonasRepo(peDb);
     // persona の人間名と、 webhook 投稿の要否を解決する。
     // facilitator (進行役) は Discutere bot として直接、 議論 persona は webhook で人間名。
@@ -123,6 +125,13 @@ const personaEngineLifecycle = (() => {
         });
         if (!r.ok) {
           console.warn("  persona-engine: discord utterance post skipped:", r.reason);
+        } else if (r.messageId) {
+          recordPostedMessage(core.client.raw, {
+            messageId: r.messageId,
+            targetId: input.utteranceId,
+            targetKind: "utterance",
+            channelId: r.channelId,
+          });
         }
       },
       async onPostedHypothesis(input) {
@@ -147,6 +156,13 @@ const personaEngineLifecycle = (() => {
         });
         if (!r.ok) {
           console.warn("  persona-engine: discord hypothesis post skipped:", r.reason);
+        } else if (r.messageId) {
+          recordPostedMessage(core.client.raw, {
+            messageId: r.messageId,
+            targetId: input.hypothesisId,
+            targetKind: "hypothesis",
+            channelId: r.channelId,
+          });
         }
       },
     });
@@ -238,6 +254,16 @@ const discordGatewayLifecycle = startDiscordGateway({
   classifyInboundMessage: createDiscordAutoDiscussionStarter({
     getLlm: () => autoDiscussionLlm,
   }),
+  // 議論意見へのリアクション → 内部スコア加算 (絵文字ごとの重み)。
+  onReaction: (info) => {
+    const pe = personaEngineLifecycle;
+    if (!pe?.core) return;
+    try {
+      applyReaction(pe.core.client.raw, { messageId: info.messageId, emoji: info.emoji });
+    } catch (err) {
+      console.warn("  discord-gateway: reaction scoring failed:", (err as Error).message);
+    }
+  },
 }).catch((err) => {
   console.warn("  discord-gateway: startup failed:", (err as Error).message);
   return null;

@@ -94,8 +94,8 @@ export interface DiscordWebhookPostArgs {
   avatarUrl?: string;
 }
 
-/** webhook で username (= persona の人間名) を変えて投稿。 */
-export async function postDiscordWebhook(args: DiscordWebhookPostArgs): Promise<void> {
+/** webhook で username (= persona の人間名) を変えて投稿。 message id を返す。 */
+export async function postDiscordWebhook(args: DiscordWebhookPostArgs): Promise<{ id: string }> {
   const res = await fetch(
     `${DISCORD_API}/webhooks/${args.webhookId}/${args.webhookToken}?wait=true`,
     {
@@ -111,6 +111,8 @@ export async function postDiscordWebhook(args: DiscordWebhookPostArgs): Promise<
   if (!res.ok) {
     throw new Error(`webhook post ${res.status}: ${(await res.text().catch(() => "")).slice(0, 200)}`);
   }
+  const json = (await res.json().catch(() => ({}))) as { id?: string };
+  return { id: json.id ?? "" };
 }
 
 /**

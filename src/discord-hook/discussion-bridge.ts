@@ -42,6 +42,7 @@ export async function postDiscussionToDiscord(args: DiscussionPostArgs): Promise
   ok: boolean;
   reason?: string;
   channelId?: string;
+  messageId?: string;
 }> {
   // session.scene = "discord:<guildId>/<channelId>" or "gap:<gapId>" (gap session 用)
   const session = args.core.client.raw
@@ -73,18 +74,18 @@ export async function postDiscussionToDiscord(args: DiscussionPostArgs): Promise
   if (args.viaWebhook) {
     try {
       const wh = await ensureChannelWebhook(botToken, channelId);
-      await postDiscordWebhook({
+      const r = await postDiscordWebhook({
         webhookId: wh.id,
         webhookToken: wh.token,
         username: args.speakerLabel,
         content: body,
       });
-      return { ok: true, channelId };
+      return { ok: true, channelId, messageId: r.id };
     } catch (err) {
       // webhook 権限が無い等で失敗 → bot 直接投稿に fallback (名前を本文先頭に)
       try {
-        await postDiscordChannel({ botToken, channelId, content: `**${args.speakerLabel}**\n${body}` });
-        return { ok: true, channelId };
+        const r = await postDiscordChannel({ botToken, channelId, content: `**${args.speakerLabel}**\n${body}` });
+        return { ok: true, channelId, messageId: r.id };
       } catch (err2) {
         return { ok: false, reason: `webhook(${(err as Error).message}) / bot(${(err2 as Error).message})` };
       }
@@ -93,8 +94,8 @@ export async function postDiscussionToDiscord(args: DiscussionPostArgs): Promise
 
   // 進行役 (Discutere) は bot として直接投稿。
   try {
-    await postDiscordChannel({ botToken, channelId, content: body });
-    return { ok: true, channelId };
+    const r = await postDiscordChannel({ botToken, channelId, content: body });
+    return { ok: true, channelId, messageId: r.id };
   } catch (err) {
     return { ok: false, reason: (err as Error).message };
   }
