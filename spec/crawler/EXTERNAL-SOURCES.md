@@ -23,7 +23,9 @@ Discatier の議論エンジン (persona-engine / auto-discussion / designGap) �
 - **入力**: ゲーム / 動画 / スレッド単位の「議論の場」
 - **出力**: Discatier Core の `utterances` (+ 賛否は `reactions`)
 - **同一性**: 投稿者の **公開・安定 ID** (SteamID 等) を speaker_id として保持し、
-  同一人物の発話を横断同定して persona を積む (§6)。 workspace は `knowledge` 固定
+  同一人物の発話を横断同定して persona を積む。 ただし **個人特定情報は議論ユーザに
+  見せず** 内部ペルソナ表示名でマスクする (原則「情報精度 > プライバシー」だが露出は遮断、§6)。
+  workspace は `knowledge` 固定
 - **非リアルタイム**: バッチ取り込み (日次 cron 想定)。 ライブ監視はしない
 
 ### 取得元 (優先順)
@@ -265,6 +267,11 @@ work queue `data/external/youtube/videos/<gameSlug>.jsonl` (`{videoId,title,chan
 > 採らない。 各プラットフォームが公開している **安定な同一性 ID** (SteamID64 /
 > YouTube channelId / Reddit username / niconico userId 等) を **そのまま speaker_id の
 > アンカーとして保持** し、 「同じ人物の発話」 を横断同定して persona を積み上げる。
+>
+> **統治原則: 情報精度 > プライバシー**。 persona の精度を最優先し、 同定情報は捨てない。
+> ただしそれは **保管・内部解析レイヤーに限る**。 個人を特定しうる情報は
+> **議論に参加するユーザ (Discord 等の end user) には一切参照させない** (§露出制御)。
+> = 「内部はフル精度で持つ / 外向きには出さない」 の二層で両立させる。
 
 ### なぜ保持するか
 - persona-engine は「**誰が**どんな論調で何を語るか」 を学習する。 同一性 ID が無いと
@@ -278,6 +285,23 @@ work queue `data/external/youtube/videos/<gameSlug>.jsonl` (`{videoId,title,chan
   authorId → 実世界個人への逆引き / プロファイリングはしない (§10 非ゴール)。
 - **プラットフォーム横断の同一人物紐付けはしない**: SteamID と YouTube channelId は
   別人として扱う (確実な対応付けが不可能なため)。 persona は **platform-identity 単位**。
+
+### 露出制御 (議論ユーザには見せない)
+
+「情報精度 > プライバシー」 は **内部保管・解析** の原則であって、 **外部露出を許す意味では
+ない**。 個人を特定しうる情報は議論に参加するユーザには参照させない:
+
+- **保管レイヤー (DB / 内部解析)**: `authorId` (公開 ID) / `authorName` をフル精度で保持。
+  persona-engine の学習・同定はここで完結する。
+- **露出レイヤー (Discord 返信・要約・dashboard・API 等 end user が見る面)**:
+  `authorId` / `authorName` / `sourceUrl` を **そのまま出さない**。 代わりに persona-engine が
+  発番した **不可逆な内部ペルソナ表示名** (例 `論者#a1b2` や生成ニックネーム) のみを見せる。
+  - 露出名 → 公開 ID への逆引きは end user 側からは不可能 (対応表は内部のみ)。
+  - 発話原文を引用する場合も「誰が」 は内部ペルソナ表示名に置換する。
+- **実装方針**: utterance に紐づく `speaker_id` (= 公開 ID アンカー) は **API レスポンス /
+  Discord 出力に素通ししない**。 表示用の persona ラベルへ解決してから出す projection を
+  presentation 層に置く (collector/importer は保持、 出力 serializer がマスク)。
+- **admin/運用面**: 生 ID の参照は admin (admin-id allowlist) のみ。 一般議論ユーザには出さない。
 
 ### 既存「個人データ禁止」ルールとの関係
 - CLAUDE.md「個人データ」/ [[project_personal_data_rule]] は **LUDIARS 利用者の個人データ**
