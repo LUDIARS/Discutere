@@ -282,6 +282,15 @@ const discordGatewayLifecycle = startDiscordGateway({
     createCore: () => createCore(),
     workspaceId: config.workspace,
     youtubeApiKey: process.env.DISCUTERE_YOUTUBE_API_KEY ?? null,
+    reddit:
+      process.env.DISCUTERE_REDDIT_CLIENT_ID && process.env.DISCUTERE_REDDIT_CLIENT_SECRET
+        ? {
+            clientId: process.env.DISCUTERE_REDDIT_CLIENT_ID,
+            clientSecret: process.env.DISCUTERE_REDDIT_CLIENT_SECRET,
+            userAgent:
+              process.env.DISCUTERE_REDDIT_USER_AGENT ?? "LUDIARS-Discutere/0.1 (external discussion crawler)",
+          }
+        : null,
   },
   getEngine: () => getPersonaEngine(),
   buildQueueText,

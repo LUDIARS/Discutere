@@ -17,6 +17,7 @@ import "./external/steam-map.test.js";
 import "./external/youtube-map.test.js";
 import "./external/youtube-fetch.test.js";
 import "./external/website.test.js";
+import "./external/reddit.test.js";
 import "./external/importer.test.js";
 
 console.log("crawler tests: all passed");

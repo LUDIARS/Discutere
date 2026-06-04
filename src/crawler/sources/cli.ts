@@ -16,6 +16,7 @@ import { importExternalUtterances } from "./importer.js";
 import { openIngestedStore } from "./ingested-store.js";
 import { fetchSteamReviews } from "./steam.js";
 import { fetchWebsiteArticles } from "./website.js";
+import { fetchRedditDiscussions, type RedditCredentials } from "./reddit.js";
 import { fetchVideoComments } from "./youtube-comments.js";
 import { createQuotaTracker } from "./youtube-quota.js";
 import { discoverVideosBySearch, type VideoRef } from "./youtube-videos.js";
@@ -30,6 +31,55 @@ function youtubeApiKey(): string {
     process.exit(2);
   }
   return key;
+}
+
+function redditCredentials(): RedditCredentials {
+  const clientId = process.env.DISCUTERE_REDDIT_CLIENT_ID;
+  const clientSecret = process.env.DISCUTERE_REDDIT_CLIENT_SECRET;
+  if (!clientId || !clientSecret) {
+    console.error(
+      "Reddit 認証未設定: env DISCUTERE_REDDIT_CLIENT_ID / DISCUTERE_REDDIT_CLIENT_SECRET をセットしてください"
+    );
+    process.exit(2);
+  }
+  const userAgent =
+    process.env.DISCUTERE_REDDIT_USER_AGENT ?? "LUDIARS-Discutere/0.1 (external discussion crawler)";
+  return { clientId, clientSecret, userAgent };
+}
+
+interface RedditArgs {
+  gameSlug: string;
+  query: string;
+  subreddit?: string;
+  maxThreads?: number;
+}
+
+function parseRedditArgs(rest: string[]): RedditArgs {
+  const [gameSlug, ...flags] = rest;
+  let query: string | undefined;
+  let subreddit: string | undefined;
+  let maxThreads: number | undefined;
+  for (let i = 0; i < flags.length; i += 1) {
+    if (flags[i] === "--q" || flags[i] === "--query") query = flags[++i];
+    else if (flags[i] === "--sub" || flags[i] === "--subreddit") subreddit = flags[++i];
+    else if (flags[i] === "--threads") maxThreads = Number(flags[++i]);
+  }
+  if (!gameSlug || !query) {
+    console.error('usage: crawl.ts ext-fetch reddit <gameSlug> --q "<query>" [--sub <subreddit>] [--threads N]');
+    process.exit(2);
+  }
+  return { gameSlug, query, subreddit, maxThreads };
+}
+
+async function fetchReddit(args: RedditArgs): Promise<ExternalUtterance[]> {
+  return fetchRedditDiscussions({
+    ...redditCredentials(),
+    gameSlug: args.gameSlug,
+    query: args.query,
+    subreddit: args.subreddit,
+    maxThreads: args.maxThreads,
+    onThread: (i) => process.stderr.write(`\r  reddit: ${i.total} comments (${i.comments} from latest thread)...`),
+  });
 }
 
 interface FlagOpts {
@@ -203,8 +253,17 @@ export async function runExtFetch(rest: string[]): Promise<void> {
       console.log(JSON.stringify({ source, gameSlug: args.gameSlug, urls: args.urls.length, fetched: items.length, out: path.relative(process.cwd(), out) }, null, 2));
       return;
     }
+    case "reddit": {
+      const args = parseRedditArgs(sourceArgs);
+      const items = await fetchReddit(args);
+      process.stderr.write("\n");
+      const out = stagePath(source, args.gameSlug);
+      writeJsonl(out, items);
+      console.log(JSON.stringify({ source, gameSlug: args.gameSlug, query: args.query, fetched: items.length, out: path.relative(process.cwd(), out) }, null, 2));
+      return;
+    }
     default:
-      console.error("ext-fetch: source は steam | youtube-videos | youtube-comments | website");
+      console.error("ext-fetch: source は steam | youtube-videos | youtube-comments | website | reddit");
       process.exit(2);
   }
 }
@@ -277,8 +336,18 @@ export async function runExtIngest(rest: string[]): Promise<void> {
       console.log(JSON.stringify({ source, gameSlug: args.gameSlug, urls: args.urls.length, fetched: items.length, stage: path.relative(process.cwd(), out), ...result }, null, 2));
       return;
     }
+    case "reddit": {
+      const args = parseRedditArgs(sourceArgs);
+      const items = await fetchReddit(args);
+      process.stderr.write("\n");
+      const out = stagePath(source, args.gameSlug);
+      writeJsonl(out, items);
+      const result = importItems(items);
+      console.log(JSON.stringify({ source, gameSlug: args.gameSlug, query: args.query, fetched: items.length, stage: path.relative(process.cwd(), out), ...result }, null, 2));
+      return;
+    }
     default:
-      console.error("ext-ingest: source は steam | youtube | website");
+      console.error("ext-ingest: source は steam | youtube | website | reddit");
       process.exit(2);
   }
 }

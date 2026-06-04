@@ -2,7 +2,7 @@
  * データクロール用チャンネル — 貼られたリンクから外部議論データを学習する (id=60)。
  *
  * 専用チャンネル (config `discord.crawlChannelIds`) に URL が貼られたら、 URL の種類を
- * 判定 (steam / youtube / website) して該当 collector を回し、 Discatier Core に取り込む。
+ * 判定 (steam / youtube / reddit / website) して該当 collector を回し、 Discatier Core に取り込む。
  * 取り込み結果は「データ追加」 通知チャンネル (system-channel.ts) に投稿する。
  *
  * URL 判定・slug 導出・メッセージ解析は純粋関数 (テスト可能)、 `ingestCrawlUrls` が I/O。
@@ -13,12 +13,13 @@ import { fetchSteamReviews } from "../crawler/sources/steam.js";
 import { fetchVideoComments } from "../crawler/sources/youtube-comments.js";
 import { createQuotaTracker } from "../crawler/sources/youtube-quota.js";
 import { fetchWebsiteArticles } from "../crawler/sources/website.js";
+import { getRedditToken, fetchThreadComments, type RedditCredentials } from "../crawler/sources/reddit.js";
 import { importExternalUtterances } from "../crawler/sources/importer.js";
 import { openIngestedStore } from "../crawler/sources/ingested-store.js";
 
 type Core = ReturnType<typeof createCore>;
 
-export type CrawlKind = "steam" | "youtube" | "website";
+export type CrawlKind = "steam" | "youtube" | "reddit" | "website";
 
 export interface CrawlTarget {
   kind: CrawlKind;
@@ -27,10 +28,13 @@ export interface CrawlTarget {
   appId?: number;
   /** youtube videoId (kind=youtube) */
   videoId?: string;
+  /** reddit submission id + permalink (kind=reddit) */
+  submissionId?: string;
+  permalink?: string;
 }
 
 /** 1 URL あたりの取得上限 (1 回の貼り付けで KG を埋め尽くさないための安全弁)。 */
-export const CRAWL_CAPS = { steamReviews: 500, youtubeComments: 500, websiteArticles: 1 } as const;
+export const CRAWL_CAPS = { steamReviews: 500, youtubeComments: 500, redditComments: 500, websiteArticles: 1 } as const;
 
 const URL_RE = /https?:\/\/[^\s<>"'）)】」]+/gi;
 
@@ -88,6 +92,12 @@ export function classifyCrawlUrl(rawUrl: string): CrawlTarget {
     if (videoId) return { kind: "youtube", url: rawUrl, videoId };
   }
 
+  // Reddit: reddit.com/r/<sub>/comments/<id>/... or /comments/<id>
+  if (host === "reddit.com" || host === "old.reddit.com" || host === "np.reddit.com") {
+    const m = u.pathname.match(/\/comments\/([a-z0-9]+)/i);
+    if (m) return { kind: "reddit", url: rawUrl, submissionId: m[1], permalink: u.pathname };
+  }
+
   return { kind: "website", url: rawUrl };
 }
 
@@ -106,6 +116,7 @@ function slugify(value: string): string {
 export function slugFromTarget(t: CrawlTarget): string {
   if (t.kind === "steam" && t.appId) return `steam-${t.appId}`;
   if (t.kind === "youtube" && t.videoId) return `yt-${t.videoId}`;
+  if (t.kind === "reddit" && t.submissionId) return `reddit-${t.submissionId}`;
   try {
     return slugify(new URL(t.url).hostname.replace(/^www\./, ""));
   } catch {
@@ -128,6 +139,8 @@ export interface CrawlDeps {
   workspaceId: string;
   /** YouTube Data API key (未設定なら youtube URL はエラーにする) */
   youtubeApiKey?: string | null;
+  /** Reddit OAuth 認証 (未設定なら reddit URL はエラーにする) */
+  reddit?: RedditCredentials | null;
 }
 
 async function fetchForTarget(t: CrawlTarget, gameSlug: string, deps: CrawlDeps) {
@@ -142,6 +155,18 @@ async function fetchForTarget(t: CrawlTarget, gameSlug: string, deps: CrawlDeps)
       apiKey: deps.youtubeApiKey,
       maxComments: CRAWL_CAPS.youtubeComments,
       quota: createQuotaTracker(),
+    });
+  }
+  if (t.kind === "reddit" && t.submissionId) {
+    if (!deps.reddit) throw new Error("Reddit 認証未設定 (DISCUTERE_REDDIT_CLIENT_ID/SECRET)");
+    const token = await getRedditToken(deps.reddit);
+    return fetchThreadComments({
+      token,
+      userAgent: deps.reddit.userAgent,
+      submissionId: t.submissionId,
+      gameSlug,
+      permalink: t.permalink,
+      maxComments: CRAWL_CAPS.redditComments,
     });
   }
   return fetchWebsiteArticles({ urls: [t.url], gameSlug });

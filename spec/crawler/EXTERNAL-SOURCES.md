@@ -233,7 +233,12 @@ work queue `data/external/youtube/videos/<gameSlug>.jsonl` (`{videoId,title,chan
 > ToS 注意: 字幕の機械取得は動画によって不可・グレーなので **任意かつ後段**。 取得不可は
 > 握って skip。 個人特定はしない (channelId は公開アンカーとしてのみ利用、 §6 の露出制御に従う)。
 
-### 4.3 Reddit (Phase 2)
+### 4.3 Reddit (実装済 / `src/crawler/sources/reddit.ts` 2026-06-05)
+
+> 実装: client_credentials grant で app-only token → 検索 → 上位スレッド → コメントツリー平坦化。
+> CLI `crawl.ts ext-ingest reddit <gameSlug> --q "<query>" [--sub <subreddit>] [--threads N]`。
+> 認証は env `DISCUTERE_REDDIT_CLIENT_ID` / `DISCUTERE_REDDIT_CLIENT_SECRET` / `DISCUTERE_REDDIT_USER_AGENT`
+> (config に平文を置かない)。 クロールチャンネルに reddit スレッド URL を貼ると当該スレッドのコメントを取込。
 
 - **OAuth2** (`script` app, client_credentials または password grant) で
   `POST https://www.reddit.com/api/v1/access_token` → bearer。

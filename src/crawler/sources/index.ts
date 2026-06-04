@@ -29,6 +29,17 @@ export {
   type ExtractedArticle,
   type WebsiteFetchOptions,
 } from "./website.js";
+export {
+  getRedditToken,
+  mapRedditComment,
+  flattenComments,
+  searchThreads,
+  fetchThreadComments,
+  fetchRedditDiscussions,
+  type RedditCredentials,
+  type RedditThreadRef,
+  type RedditFetchOptions,
+} from "./reddit.js";
 export { openIngestedStore, DEFAULT_INGESTED_PATH, type IngestedStore } from "./ingested-store.js";
 export {
   importExternalUtterances,
