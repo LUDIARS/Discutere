@@ -117,6 +117,13 @@ export function createEventBridge(
       payload,
     });
 
+    // 人間の発言 → 進行中の議論に最優先で素早く応答させる (人間 > AI)。
+    // UtteranceCreated のうち speaker が人間 (persona:/ext: 以外) のものを拾い、
+    // 同チャンネルの open な議論 session にミラーしてから HumanUtterance を発火する。
+    if (row.event_type === "UtteranceCreated") {
+      await handleHumanUtterance(payload);
+    }
+
     // 終結 event なら session カウンタ解放 + learning loop (#3-1)
     if (closing.has(row.event_type)) {
       if (sessionId) engine.resetSession(sessionId);
@@ -176,6 +183,73 @@ export function createEventBridge(
       }
     }
     return null;
+  }
+
+  /** speaker が「人間」 か (persona:/ext: でも空でもない = Discord ユーザ)。 */
+  function isHumanSpeaker(speakerId: unknown): speakerId is string {
+    return (
+      typeof speakerId === "string" &&
+      speakerId.length > 0 &&
+      !speakerId.startsWith("persona:") &&
+      !speakerId.startsWith("ext:")
+    );
+  }
+
+  /**
+   * 人間の発言を、 同チャンネルで進行中の議論 session にミラーして
+   * HumanUtterance イベントを発火する (人間優先・即応のトリガ)。
+   * - ミラーで人間が議論の一次参加者になる (収束まとめ / persona の文脈に乗る)。
+   * - source が既に discussion-of-gap session の場合は no-op (ミラーの再帰防止)。
+   * - 同チャンネルに open な議論が無ければ何もしない (議論の起動は auto-classifier 側)。
+   */
+  async function handleHumanUtterance(payload: Record<string, unknown> | null): Promise<void> {
+    if (!payload) return;
+    const speakerId = payload.speakerId;
+    if (!isHumanSpeaker(speakerId)) return;
+    const rawContent = typeof payload.rawContent === "string" ? payload.rawContent : "";
+    if (!rawContent.trim()) return;
+    const srcSessionId = typeof payload.sessionId === "string" ? payload.sessionId : "";
+    if (!srcSessionId) return;
+
+    const src = core.client.raw
+      .prepare("SELECT title, scene FROM sessions WHERE id = ?")
+      .get(srcSessionId) as { title: string; scene: string | null } | undefined;
+    if (!src) return;
+    // 既に議論 session 内の発言 (= ミラー済 or persona 議論場) は再処理しない。
+    if (src.title.startsWith("discussion-of-gap:")) return;
+    if (!src.scene?.startsWith("discord:")) return;
+
+    // 同じ Discord チャンネル (scene) の open な議論 session を引く。
+    const discussion = core.client.raw
+      .prepare(
+        `SELECT s.id AS id, s.title AS title
+           FROM sessions s
+           JOIN design_gaps g
+             ON g.id = SUBSTR(s.title, LENGTH('discussion-of-gap:') + 1)
+          WHERE s.workspace_id = ?
+            AND s.title LIKE 'discussion-of-gap:%'
+            AND s.scene = ?
+            AND (g.status IS NULL OR g.status NOT IN ('closed', 'converged'))
+          ORDER BY s.started_at DESC LIMIT 1`
+      )
+      .get(options.workspaceId, src.scene) as { id: string; title: string } | undefined;
+    if (!discussion) return;
+
+    // 人間発言を議論 session にミラー (= 議論の一次参加者として記録)。
+    core.repos.utterance.create({
+      workspaceId: options.workspaceId,
+      sessionId: discussion.id,
+      speakerId,
+      rawContent,
+      postedAt: Date.now(),
+    });
+
+    // HumanUtterance を発火 → respond-to-human ルールが最優先で即応する。
+    await engine.fireEvent({
+      kind: "HumanUtterance",
+      sessionId: discussion.id,
+      payload: { ...payload, sessionId: discussion.id, humanSpeakerId: speakerId },
+    });
   }
 
   function lookupGapIdForHypothesis(hypothesisId: string): string | null {

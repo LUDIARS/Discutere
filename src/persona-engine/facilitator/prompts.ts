@@ -99,7 +99,7 @@ export function buildConvergePrompt(input: {
   const user =
     `# 議題\n${input.topic}\n\n` +
     `# 到達した止揚 (最重要、 結論の軸にする)\n${auf}\n\n` +
-    `# 評価の高かった意見 (リアクション順、 重視する)\n${top}\n\n` +
+    `# 評価の高かった意見 (リアクション順、 重視する。 「/ 人間」 付きは人間の意見なので最優先で尊重する)\n${top}\n\n` +
     `# これまでの議論\n${transcript(input.recent)}\n\n` +
     "# 指示\n上記の止揚と高評価意見を軸に、 議論の到達点を簡潔にまとめてください。 返答は次の JSON のみ:\n" +
     `{ "summary": "<収束のまとめ (Discord 1 投稿に収まる長さ、 箇条書き可)>" }`;

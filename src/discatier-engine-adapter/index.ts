@@ -62,12 +62,18 @@ export function createDiscatierContextProvider(
     options.onAutoExportError ?? ((err, ctx) => console.warn("[adapter:auto-export]", ctx, err));
   return {
     listActiveHypotheses(workspaceId, limit): ContextHypothesis[] {
+      // gap が closed/converged になった議論の hypothesis は context から外す。
+      // これを残すと facilitator が収束させても refute-cold / integrate-on-many
+      // (tick rule) がそれらを拾い続け、 議論が止まらない (= 収束無効化)。
       const rows = core.client.raw
         .prepare(
-          `SELECT id, statement, status, design_gap_id, updated_at
-             FROM hypotheses
-             WHERE workspace_id = ? AND (status IS NULL OR status NOT IN ('rejected'))
-             ORDER BY updated_at DESC LIMIT ?`
+          `SELECT h.id, h.statement, h.status, h.design_gap_id, h.updated_at
+             FROM hypotheses h
+             LEFT JOIN design_gaps g ON g.id = h.design_gap_id
+             WHERE h.workspace_id = ?
+               AND (h.status IS NULL OR h.status NOT IN ('rejected'))
+               AND (g.status IS NULL OR g.status NOT IN ('closed', 'converged'))
+             ORDER BY h.updated_at DESC LIMIT ?`
         )
         .all(workspaceId, limit) as Array<{
         id: string;
@@ -194,6 +200,11 @@ export function createDiscatierContextProvider(
         gapId = row?.design_gap_id ?? undefined;
       }
       if (!gapId) return null;
+      // closed/converged gap の議論には tick rule を着地させない (= 収束後の沈黙)。
+      const gap = core.client.raw
+        .prepare("SELECT status FROM design_gaps WHERE id = ?")
+        .get(gapId) as { status: string | null } | undefined;
+      if (gap?.status && ["closed", "converged"].includes(gap.status)) return null;
       const session = core.client.raw
         .prepare(
           "SELECT id FROM sessions WHERE workspace_id = ? AND title = ? ORDER BY started_at DESC LIMIT 1"

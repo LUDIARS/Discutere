@@ -186,7 +186,12 @@ export function createFacilitator(deps: FacilitatorDeps): Facilitator {
       const p = deps.personas.get(speakerId.slice("persona:".length));
       return p?.display_name ?? speakerId.slice("persona:".length);
     }
-    return "参加者";
+    if (speakerId.startsWith("ext:")) return "外部の声";
+    return "人間"; // Discord ユーザ (= 人間参加者)
+  }
+
+  function isHumanSpeaker(speakerId: string | null): boolean {
+    return !!speakerId && !speakerId.startsWith("persona:") && !speakerId.startsWith("ext:");
   }
 
   function gapTopic(gapId: string): string {
@@ -218,19 +223,30 @@ export function createFacilitator(deps: FacilitatorDeps): Facilitator {
       .run(randomUUID(), gapId, summary, Date.now());
   }
 
-  /** session 内発話を リアクションスコア降順で上位 (まとめがスコアに引っ張られる)。 */
+  // 人間の意見はリアクションが無くても収束まとめで優先的に拾うためのスコア下駄。
+  // 「人間がいる場合は他の AI の意見より優先度を高く」 を反映する。
+  const HUMAN_OPINION_BASE = 5;
+
+  /** session 内発話を スコア降順で上位 (まとめがスコアに引っ張られる)。 人間発言は下駄あり。 */
   function topOpinions(sessionId: string, limit: number): string[] {
     const rows = raw
       .prepare(
-        "SELECT id, speaker_id, raw_content FROM utterances WHERE session_id = ? AND speaker_id LIKE 'persona:%'"
+        "SELECT id, speaker_id, raw_content FROM utterances WHERE session_id = ? AND speaker_id IS NOT NULL"
       )
       .all(sessionId) as Array<{ id: string; speaker_id: string; raw_content: string }>;
     return rows
-      .map((u) => ({ ...u, score: getOpinionScore(raw, u.id) }))
+      .filter((u) => u.speaker_id.startsWith("persona:") || isHumanSpeaker(u.speaker_id))
+      .map((u) => {
+        const human = isHumanSpeaker(u.speaker_id);
+        return { ...u, human, score: getOpinionScore(raw, u.id) + (human ? HUMAN_OPINION_BASE : 0) };
+      })
       .filter((u) => u.score > 0)
       .sort((a, b) => b.score - a.score)
       .slice(0, limit)
-      .map((u) => `${speakerLabel(u.speaker_id)}「${u.raw_content}」(+${u.score})`);
+      .map(
+        (u) =>
+          `${speakerLabel(u.speaker_id)}「${u.raw_content}」(+${u.score}${u.human ? " / 人間" : ""})`
+      );
   }
 
   /** 止揚判定 → 新規なら stock。 stock 後の総数を返す。 */
