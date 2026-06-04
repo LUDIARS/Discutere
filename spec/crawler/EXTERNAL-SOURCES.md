@@ -22,7 +22,8 @@ Discatier の議論エンジン (persona-engine / auto-discussion / designGap) �
 
 - **入力**: ゲーム / 動画 / スレッド単位の「議論の場」
 - **出力**: Discatier Core の `utterances` (+ 賛否は `reactions`)
-- **匿名**: 投稿者名・アカウントは保存しない (§6)。 workspace は `knowledge` 固定
+- **同一性**: 投稿者の **公開・安定 ID** (SteamID 等) を speaker_id として保持し、
+  同一人物の発話を横断同定して persona を積む (§6)。 workspace は `knowledge` 固定
 - **非リアルタイム**: バッチ取り込み (日次 cron 想定)。 ライブ監視はしない
 
 ### 取得元 (優先順)
@@ -83,10 +84,12 @@ interface ExternalUtterance {
   nativeId: string;        // 取得元での一意 id (dedup key の素)
   gameSlug: string;        // どのゲームの議論か (Game.id と揃える / 例 "hollow-knight")
   threadKey: string;       // 議論の場の単位 → session_id に対応 (動画id/スレッドid/appid)
-  content: string;         // 発話本文 (原文。 匿名化は normalizer が行う)
+  content: string;         // 発話本文 (原文)
   lang?: string;           // "ja" | "en" など (判明すれば)
   postedAt: number;        // epoch ms
-  authorRaw?: string;      // 取得元の投稿者 handle (★normalizer で hash 化し破棄)
+  authorId: string;        // ★公開・安定な同一性 ID (SteamID64 / YouTube channelId 等)。
+                           //   同一人物の判定アンカー = persona の素 (§6)。保持する。
+  authorName?: string;     // 公開表示名 (persona の手触り用。任意。逆引き用途には使わない)
   parentNativeId?: string; // 返信元 (スレッド構造) → responds_to に対応
   signal?: {               // 賛否・人気度 (あれば)
     votedUp?: boolean;     // Steam recommended / YT/Reddit は省略
@@ -104,8 +107,8 @@ interface ExternalUtterance {
 |---|---|---|
 | — | `workspace_id` | 固定 `"knowledge"` |
 | `threadKey` | `session_id` | `ext:<source>:<threadKey>` (議論の場 = session) |
-| `authorRaw` | `speaker_id` | `ext:<source>:<sha256(salt+authorRaw)[:16]>` (§6) |
-| `content` | `raw_content` | 原文 (匿名化後) |
+| `authorId` | `speaker_id` | `ext:<source>:<authorId>` (公開 ID をそのまま安定アンカー化 §6) |
+| `content` | `raw_content` | 原文 |
 | `postedAt` | `posted_at` | そのまま |
 | `parentNativeId` | `responds_to` | 同バッチ内の nativeId→utteranceId 解決 |
 | `signal.votedUp` | (reactions) | true→`positive` / false→`negative` |
@@ -138,8 +141,11 @@ interface ExternalUtterance {
 - **appid 解決**: 入力はゲーム名。 `GET https://api.steampowered.com/ISteamApps/GetAppList/v2/`
   を 1 回取得しローカル cache → 名前一致で appid 特定。 曖昧なら config で明示。
 - **マッピング**: `reviews[].recommendationid`→nativeId、 `review`→content、
-  `timestamp_created*1000`→postedAt、 `author.steamid`→authorRaw、
+  `timestamp_created*1000`→postedAt、 `author.steamid`(SteamID64)→**authorId**、
   `voted_up`→signal.votedUp、 `votes_up`→signal.upvotes、 threadKey=`appid`。
+  - SteamID64 は安定・公開 ID。 同一人物の複数レビュー/別ゲーム発話を横断同定でき、
+    persona の素になる。 author.num_games_owned / playtime 等の公開属性も persona
+    補助に使える (任意)。
 - **言語**: `language` で絞れるので日本語議論を集めやすい。
 
 ### 4.2 YouTube (Phase 1 / 動画クローラ + コメントクローラの 2 本)
@@ -169,9 +175,10 @@ work queue `data/external/youtube/videos/<gameSlug>.jsonl` (`{videoId,title,chan
 - 返信が `totalReplyCount` を超えて切れている場合のみ `comments.list(parentId=...)`
   (1 unit) で追加取得。
 - **マッピング**: `comment.id`→nativeId、 `textOriginal`→content、
-  `publishedAt`→postedAt、 `authorChannelId`→authorRaw、 返信は
-  `parentNativeId`=トップコメント id、 threadKey=`videoId`。
-  `likeCount`→signal.upvotes。
+  `publishedAt`→postedAt、 `authorChannelId`(UCxxxx)→**authorId** /
+  `authorDisplayName`→authorName、 返信は `parentNativeId`=トップコメント id、
+  threadKey=`videoId`。 `likeCount`→signal.upvotes。
+  - channelId は安定・公開 ID。 同一チャンネル主の全コメントを横断同定でき persona 化可。
 - コメント無効動画は `commentsDisabled` エラーを握って skip。
 
 #### quota 設計
@@ -188,8 +195,9 @@ work queue `data/external/youtube/videos/<gameSlug>.jsonl` (`{videoId,title,chan
   でスレッド列挙 → 各スレッド `GET /comments/{id}?depth=10&limit=500` でコメントツリー。
 - **rate**: OAuth で ~60 req/min。 `User-Agent` 必須 (`LUDIARS-Discutere/<ver> by /u/<acct>`)。
 - **マッピング**: comment `name`(t1_xxx)→nativeId、 `body`→content、
-  `created_utc*1000`→postedAt、 `author`→authorRaw、 `parent_id`→parentNativeId、
-  threadKey=submission id、 `ups`→signal.upvotes。
+  `created_utc*1000`→postedAt、 `author`(username)→**authorId**(=authorName)、
+  `parent_id`→parentNativeId、 threadKey=submission id、 `ups`→signal.upvotes。
+  - Reddit username は公開・安定。 同一ユーザの議論を横断同定でき persona 化可。
 - `[deleted]` / `[removed]` は skip。 削除尊重ポリシー (§7)。
 
 ### 4.4 ニコニコ (Phase 2)
@@ -203,7 +211,9 @@ work queue `data/external/youtube/videos/<gameSlug>.jsonl` (`{videoId,title,chan
   の `server` / `threadKey` / `params` を取得 → `POST https://nvcomment.nicovideo.jp/v1/threads`。
   **2 段必要・仕様変動リスクが高い** ため Phase 2 の中でも後段。
 - **マッピング**: comment `id`→nativeId、 `body`→content、 `postedAt`→postedAt、
-  `userId` は匿名 id だがさらに hash、 threadKey=`contentId`。
+  `userId`(公開コメント userId)→**authorId**、 threadKey=`contentId`。
+  - ニコニコ userId は数値の安定 ID (実名ではない) で公開。 同一 userId の弾幕を
+    横断同定でき persona 化可。 184(匿名コメント)は authorId 無し → persona 対象外。
 - ニコニコのコメントは時系列の弾幕で**返信構造を持たない** → `responds_to=null` 固定。
 
 ### 4.5 Fandom (Phase 3)
@@ -215,7 +225,7 @@ work queue `data/external/youtube/videos/<gameSlug>.jsonl` (`{videoId,title,chan
     siteId は `?action=query&meta=siteinfo` から解決。
 - **ライセンス**: Fandom 本文は **CC-BY-SA**。 `sourceUrl` + attribution を必ず残す (§7)。
 - **マッピング**: post id→nativeId、 本文→content、 created→postedAt、 親 post→
-  parentNativeId、 threadKey=スレッド/記事 id。
+  parentNativeId、 threadKey=スレッド/記事 id、 投稿者 userId/userName→authorId/authorName。
 
 ## 5. 設定 (config)
 
@@ -244,23 +254,38 @@ work queue `data/external/youtube/videos/<gameSlug>.jsonl` (`{videoId,title,chan
 [[feedback_config_and_secrets]] / [[feedback_secret_per_user_memory_only]] に従い、
 **鍵類は平文 config に書かない**:
 
-- `youtube.apiKey` / `reddit.clientId` / `reddit.clientSecret` / 匿名化 `salt`
+- `youtube.apiKey` / `reddit.clientId` / `reddit.clientSecret`
   → **env or Infisical 経由** で起動時取得 (`externalSources` には非シークレットのみ)。
 - env 名: `DISCUTERE_YOUTUBE_API_KEY` / `DISCUTERE_REDDIT_CLIENT_ID` /
-  `DISCUTERE_REDDIT_CLIENT_SECRET` / `DISCUTERE_EXTERNAL_ANON_SALT`。
+  `DISCUTERE_REDDIT_CLIENT_SECRET`。
 
-## 6. 匿名化 (個人データ禁止)
+## 6. 話者の同一性 (persona アンカー)
 
-CLAUDE.md「個人データ」/ [[project_personal_data_rule]] に従い、 **投稿者の同定情報を
-一切保存しない**:
+> **方針 (2026-06-04 ユーザー決定)**: hash 匿名化は議論主の **persona 情報を壊す** ため
+> 採らない。 各プラットフォームが公開している **安定な同一性 ID** (SteamID64 /
+> YouTube channelId / Reddit username / niconico userId 等) を **そのまま speaker_id の
+> アンカーとして保持** し、 「同じ人物の発話」 を横断同定して persona を積み上げる。
 
-- `authorRaw` は normalizer で `speaker_id = "ext:<source>:" + sha256(salt + authorRaw).slice(0,16)`
-  に変換し、 **元の handle/userId は JSONL にも DB にも残さない** (fetch 直後にメモリ上で hash)。
-  - salt は秘匿 (env)。 これにより「同一人物の連投」「返信関係」は保てるが、
-    handle への逆引きは不可。
-- content 内に現れる @mention / 固有名 (実名らしき列) は **そのまま** (発話の一部)
-  だが、 将来 PII マスキングを normalizer に足せる余地を残す。
-- workspace は `knowledge` (匿名スペース) 固定。 guild 別 session には混ぜない。
+### なぜ保持するか
+- persona-engine は「**誰が**どんな論調で何を語るか」 を学習する。 同一性 ID が無いと
+  全発話が無名の独立点になり、 論者の一貫性・嗜好・語り口 (= persona) が消える。
+- 対象はいずれも **公開かつ仮名の platform ID**。 実名・連絡先ではない。
+
+### 保持するもの / しないもの
+- **保持**: `authorId` (公開・安定 ID。 `speaker_id = ext:<source>:<authorId>`) +
+  `authorName` (公開表示名。 persona の手触り)。 公開属性 (Steam 所持本数/プレイ時間 等) も任意で persona 補助。
+- **しない**: 実名・メール・IP・platform 外の同定情報の取得や推定。
+  authorId → 実世界個人への逆引き / プロファイリングはしない (§10 非ゴール)。
+- **プラットフォーム横断の同一人物紐付けはしない**: SteamID と YouTube channelId は
+  別人として扱う (確実な対応付けが不可能なため)。 persona は **platform-identity 単位**。
+
+### 既存「個人データ禁止」ルールとの関係
+- CLAUDE.md「個人データ」/ [[project_personal_data_rule]] は **LUDIARS 利用者の個人データ**
+  (Cernere 単一情報源) を対象としたもの。 本件は **外部公開の仮名 platform ID** であり、
+  Cernere 管理対象でも LUDIARS ユーザでもない。 両者は別レイヤーとして切り分ける。
+- ただし運用境界は守る: workspace は `knowledge` (Discord guild 由来の内部発話とは
+  混ぜない)、 原文の外部再配布はしない (§7)、 削除された発話は取り込まない (§7)。
+- → このルール整合は **CLAUDE.md §個人データ に追記して明文化する** (本 PR の TODO)。
 
 ## 7. ToS / 著作権 / レート制限 (= 必ず守る範囲)
 
@@ -288,7 +313,7 @@ npx tsx scripts/crawl.ts ext-fetch youtube hollow-knight        # 動画→コ�
 npx tsx scripts/crawl.ts ext-fetch youtube-videos hollow-knight # 動画クローラ単体
 npx tsx scripts/crawl.ts ext-fetch youtube-comments <videoId>   # コメントクローラ単体
 
-# JSONL → Discatier Core (匿名化 + dedup + sentiment)
+# JSONL → Discatier Core (同一性アンカー付与 + dedup + sentiment)
 npx tsx scripts/crawl.ts ext-import data/external/steam/hollow-knight.jsonl
 
 # 全 source × config.games を一括 (cron 用)
@@ -324,7 +349,9 @@ npx tsx scripts/crawl.ts ext-run-all
 ## 10. 非ゴール
 - ライブ/リアルタイム監視 (バッチのみ)
 - 原文の外部公開・再配布
-- 投稿者の同定・プロファイリング (匿名 hash のみ)
+- **公開 platform ID → 実世界個人への逆引き / 名寄せ / プロファイリング** (公開仮名 ID を
+  persona アンカーとして保持はするが、 実名特定はしない)
+- **プラットフォーム横断の同一人物紐付け** (Steam↔YouTube↔Reddit を同一人物と推定しない)
 - X(Twitter) / Discord 他サーバ / 5ch (ToS・コスト・脆さで今回は対象外)
 - `utterances` schema 変更 (既存カラムに収める。 dedup は sidecar DB)
 
