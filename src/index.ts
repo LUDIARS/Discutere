@@ -27,6 +27,7 @@ import { ensureReactionTables, recordPostedMessage, applyReaction } from "./disc
 import { queueRoutes } from "./api/queue-routes.js";
 import { buildQueueSnapshot, formatQueueText } from "./queue/snapshot.js";
 import { startBackupScheduler } from "./backup/runner.js";
+import { createLlmSummarizer } from "./crawler/sources/summarize.js";
 import { getConfig } from "./config.js";
 
 // Initialize DB (triggers schema creation)
@@ -291,6 +292,8 @@ const discordGatewayLifecycle = startDiscordGateway({
               process.env.DISCUTERE_REDDIT_USER_AGENT ?? "LUDIARS-Discutere/0.1 (external discussion crawler)",
           }
         : null,
+    // website 長文の要約器 (id=67)。 LLM があれば要約/raw 2 層で取り込む。
+    summarizer: autoDiscussionLlm ? createLlmSummarizer(autoDiscussionLlm, { model: config.llm.model }) : null,
   },
   getEngine: () => getPersonaEngine(),
   buildQueueText,

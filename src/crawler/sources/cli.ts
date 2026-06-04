@@ -14,6 +14,9 @@ import { createCore } from "../../core/index.js";
 
 import { importExternalUtterances } from "./importer.js";
 import { openIngestedStore } from "./ingested-store.js";
+import { openRawStore } from "./raw-store.js";
+import { createLlmSummarizer, summarizeItems, type Summarizer } from "./summarize.js";
+import { AnthropicSdkClient, ClaudeCliClient } from "../../persona-engine/index.js";
 import { fetchSteamReviews } from "./steam.js";
 import { fetchWebsiteArticles } from "./website.js";
 import { fetchRedditDiscussions, type RedditCredentials } from "./reddit.js";
@@ -136,16 +139,53 @@ function ytStagePath(gameSlug: string, videoId: string): string {
   return path.join(STAGE_DIR, "youtube", gameSlug, `${videoId}.jsonl`);
 }
 
-/** ExternalUtterance[] を Discatier Core に取り込み、結果を返す。 */
-function importItems(items: ExternalUtterance[]) {
+/** ExternalUtterance[] を Discatier Core に取り込み、結果を返す。 useRawStore=true で要約/raw 2 層化。 */
+function importItems(items: ExternalUtterance[], opts: { useRawStore?: boolean } = {}) {
   const core = createCore();
   const ingested = openIngestedStore();
+  const rawStore = opts.useRawStore ? openRawStore() : undefined;
   try {
-    return importExternalUtterances(core, items, { workspaceId: getConfig().workspace, ingested });
+    return importExternalUtterances(core, items, { workspaceId: getConfig().workspace, ingested, rawStore });
   } finally {
+    rawStore?.close();
     ingested.close();
     core.close();
   }
+}
+
+/** config から要約器を組み立てる (LLM 未設定なら null = raw のまま取り込み)。 */
+function buildSummarizer(): Summarizer | null {
+  const cfg = getConfig();
+  if (cfg.llm.backend === "claude-cli") {
+    return createLlmSummarizer(
+      new ClaudeCliClient({
+        defaultTimeoutMs: cfg.llm.claudeCliTimeoutMs,
+        defaultModel: cfg.llm.model,
+        gitBashPath: cfg.llm.gitBashPath,
+      }),
+      { model: cfg.llm.model }
+    );
+  }
+  if (cfg.llm.anthropicApiKey) {
+    return createLlmSummarizer(
+      new AnthropicSdkClient({ apiKey: cfg.llm.anthropicApiKey, defaultModel: cfg.llm.model }),
+      { model: cfg.llm.model }
+    );
+  }
+  return null;
+}
+
+/** website 記事を要約付き (2 層化) で取り込む。 LLM 未設定なら raw のまま。 */
+async function importWebsiteItems(items: ExternalUtterance[]): Promise<ReturnType<typeof importItems>> {
+  const summarizer = buildSummarizer();
+  if (summarizer) {
+    const n = await summarizeItems(items, summarizer, {
+      onItem: (d) => process.stderr.write(`\r  summarizing ${d}/${items.length}...`),
+    });
+    if (n > 0) process.stderr.write("\n");
+    return importItems(items, { useRawStore: true });
+  }
+  return importItems(items);
 }
 
 function readJsonl(file: string): ExternalUtterance[] {
@@ -332,7 +372,8 @@ export async function runExtIngest(rest: string[]): Promise<void> {
       process.stderr.write("\n");
       const out = stagePath(source, args.gameSlug);
       writeJsonl(out, items);
-      const result = importItems(items);
+      // website は長文 → 要約/raw 2 層で取り込み (トークン節約、 id=67)。
+      const result = await importWebsiteItems(items);
       console.log(JSON.stringify({ source, gameSlug: args.gameSlug, urls: args.urls.length, fetched: items.length, stage: path.relative(process.cwd(), out), ...result }, null, 2));
       return;
     }

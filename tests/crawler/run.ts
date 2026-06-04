@@ -19,5 +19,6 @@ import "./external/youtube-fetch.test.js";
 import "./external/website.test.js";
 import "./external/reddit.test.js";
 import "./external/importer.test.js";
+import "./external/summary.test.js";
 
 console.log("crawler tests: all passed");

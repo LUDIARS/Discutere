@@ -41,6 +41,13 @@ export {
   type RedditFetchOptions,
 } from "./reddit.js";
 export { openIngestedStore, DEFAULT_INGESTED_PATH, type IngestedStore } from "./ingested-store.js";
+export { openRawStore, DEFAULT_RAW_PATH, type RawStore, type RawDocument } from "./raw-store.js";
+export {
+  createLlmSummarizer,
+  summarizeItems,
+  type Summarizer,
+  type LlmSummarizerOptions,
+} from "./summarize.js";
 export {
   importExternalUtterances,
   type ExternalImportResult,
