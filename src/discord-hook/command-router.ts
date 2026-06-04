@@ -14,6 +14,7 @@
 import type { PersonaEngineHandle } from "../persona-engine/index.js";
 import { createCore } from "../core/index.js";
 import { submitMessage } from "../core/projection/message-input.js";
+import type { DiscordAutoDiscussionInput } from "./auto-discussion.js";
 import type { DiscordInboundMessage } from "./types.js";
 
 export interface SlashReply {
@@ -51,6 +52,24 @@ export interface CommandRouterDeps {
   buildQueueText?: () => string;
   /** /discutere-backup 用の手動バックアップトリガ (注入。未設定なら非対応応答) */
   triggerBackup?: () => Promise<{ ok: boolean; key?: string; bucket?: string; error?: string }>;
+  /**
+   * 平文投稿から議題を自動検出して persona-engine の議論開始イベントにつなぐ。
+   * `started=true` は「議論の種(開始エントリ)が新規に立った」ことを表す (caller のリアクション判定用)。
+   */
+  classifyInboundMessage?: (
+    input: DiscordAutoDiscussionInput
+  ) => Promise<{ started: boolean }> | Promise<void> | void;
+}
+
+/** routeInboundMessage の結果。ingested=取り込み有無 / seed=議論の種が立ったかの非同期判定。 */
+export interface InboundRouteResult {
+  /** 議論チャンネルの平文として utterance に取り込んだか */
+  ingested: boolean;
+  /**
+   * 取り込んだ投稿が「議論の種(開始エントリ)」になったかを解決する Promise。
+   * 分類器(classifyInboundMessage)未設定 or 未取込なら undefined。
+   */
+  seed?: Promise<boolean>;
 }
 
 export function routeSlashCommand(cmd: InboundSlashCommand, deps: CommandRouterDeps): SlashReply {
@@ -95,35 +114,55 @@ export function routeSlashCommand(cmd: InboundSlashCommand, deps: CommandRouterD
  * スレッド内発言は親チャンネルが許可リストにあれば取り込む (parentChannelId で判定)。
  * session は実際の発言先 (スレッドなら thread id) に bind するので、AI 返信も同じ場所に返る。
  *
- * @returns 取り込んだら true (caller 側で 👀 リアクションを付ける等の自然なフィードバック用)
+ * @returns ingested と、議論の種(開始エントリ)になったかを解決する seed Promise。
+ *   caller は seed が true のときだけリアクションを付ける (取り込み全件には付けない)。
  */
 export function routeInboundMessage(
   msg: DiscordInboundMessage,
   guildId: string,
   deps: CommandRouterDeps,
   parentChannelId?: string
-): boolean {
+): InboundRouteResult {
   // 議論チャンネル (または親が議論チャンネルのスレッド) のみ取り込む。
   const allowed =
     deps.discussionChannelIds.includes(msg.channelId) ||
     (!!parentChannelId && deps.discussionChannelIds.includes(parentChannelId));
-  if (!allowed) return false;
+  if (!allowed) return { ingested: false };
   const text = msg.content.trim();
-  if (text.length === 0) return false;
+  if (text.length === 0) return { ingested: false };
   // slash 由来 (先頭 "/") は interaction 経路で処理されるので二重取り込みしない。
-  if (text.startsWith("/")) return false;
+  if (text.startsWith("/")) return { ingested: false };
 
   const core = createCore();
   try {
     const sessionId = ensureDiscordSession(core, deps.workspaceId, guildId, msg.channelId);
-    submitMessage({
+    const res = submitMessage({
       core,
       workspaceId: deps.workspaceId,
       sessionId,
       personId: msg.author.id,
       rawContent: text,
     });
-    return true;
+    let seed: Promise<boolean> | undefined;
+    if (res.utteranceId && deps.classifyInboundMessage) {
+      seed = Promise.resolve(
+        deps.classifyInboundMessage({
+          workspaceId: deps.workspaceId,
+          guildId,
+          channelId: msg.channelId,
+          sessionId,
+          utteranceId: res.utteranceId,
+          authorId: msg.author.id,
+          content: text,
+        })
+      )
+        .then((r) => (r != null && typeof r === "object" ? r.started === true : false))
+        .catch((err) => {
+          console.warn(`  discord-auto-discussion: failed: ${(err as Error).message}`);
+          return false;
+        });
+    }
+    return { ingested: true, seed };
   } finally {
     core.close();
   }

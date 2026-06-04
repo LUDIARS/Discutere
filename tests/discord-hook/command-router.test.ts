@@ -125,13 +125,18 @@ function slash(partial: Partial<InboundSlashCommand>): InboundSlashCommand {
     mentions: [],
     timestamp: new Date(0).toISOString(),
   };
-  // discussionChannelIds が空 / 不一致なら createCore に到達せず throw しない
-  routeInboundMessage(msg, "g1", depsWith(["admin1"], fakeEngine));
-  routeInboundMessage(
+  // discussionChannelIds が空 / 不一致なら createCore に到達せず throw しない。
+  // 非取込なので ingested=false かつ seed=undefined (caller はリアクションを付けない)。
+  const r1 = routeInboundMessage(msg, "g1", depsWith(["admin1"], fakeEngine));
+  assert.equal(r1.ingested, false);
+  assert.equal(r1.seed, undefined);
+  const r2 = routeInboundMessage(
     msg,
     "g1",
     { workspaceId: "knowledge", adminIds: [], discussionChannelIds: ["ch-other"], getEngine: () => null }
   );
+  assert.equal(r2.ingested, false);
+  assert.equal(r2.seed, undefined);
   console.log("ok inbound message gated by discussionChannelIds (non-allowed channel ignored)");
 }
 

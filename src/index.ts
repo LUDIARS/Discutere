@@ -17,6 +17,7 @@ import {
   type LLMClient,
 } from "./persona-engine/index.js";
 import { postDiscussionToDiscord } from "./discord-hook/discussion-bridge.js";
+import { createDiscordAutoDiscussionStarter } from "./discord-hook/auto-discussion.js";
 import { startDiscordGateway } from "./discord-hook/gateway.js";
 import { queueRoutes } from "./api/queue-routes.js";
 import { buildQueueSnapshot, formatQueueText } from "./queue/snapshot.js";
@@ -61,6 +62,8 @@ app.route("/api", queueRoutes);
 // PR-C: mode-state TTL cleanup を 15 min interval で起動 (24h 経過 session を回収)
 const stopSessionCleanup = startSessionCleanup();
 
+let autoDiscussionLlm: LLMClient | null = null;
+
 // PR-C / PR-I: persona-engine 起動 wiring
 //   LLM backend は config.llm.backend で切替: "anthropic" (= anthropicApiKey)
 //   または "claude-cli" (= Lictor 経由 spawn、 環境に claude CLI が必要)。
@@ -83,6 +86,7 @@ const personaEngineLifecycle = (() => {
     console.log("  persona-engine: skipped (set llm.backend=claude-cli or llm.anthropicApiKey)");
     return null;
   }
+  autoDiscussionLlm = llm;
 
   try {
     const peDbPath = config.personaEngine.dbPath;
@@ -182,6 +186,9 @@ const discordGatewayLifecycle = startDiscordGateway({
   getEngine: () => getPersonaEngine(),
   buildQueueText,
   triggerBackup: () => backupScheduler.trigger(),
+  classifyInboundMessage: createDiscordAutoDiscussionStarter({
+    getLlm: () => autoDiscussionLlm,
+  }),
 }).catch((err) => {
   console.warn("  discord-gateway: startup failed:", (err as Error).message);
   return null;

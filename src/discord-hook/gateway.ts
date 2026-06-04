@@ -120,9 +120,21 @@ export async function startDiscordGateway(
     // スレッド内発言は親チャンネルで許可判定する (自然な議論の継承)。
     const parentChannelId = msg.channel?.isThread?.() ? msg.channel.parentId ?? undefined : undefined;
     try {
-      const ingested = routeInboundMessage(normalized, msg.guildId ?? "dm", deps, parentChannelId);
-      // 取り込んだら 👀 を付けて「議論に乗った」ことを自然にフィードバックする。
-      if (ingested) void msg.react("👀").catch(() => {});
+      const { ingested, seed } = routeInboundMessage(
+        normalized,
+        msg.guildId ?? "dm",
+        deps,
+        parentChannelId
+      );
+      // 取り込んだ全件ではなく「議論の種(開始エントリ)になった投稿」にだけ 👀 を付ける。
+      // こうするとリアクション=議論が立った合図になり、persona-engine の返信と対応する。
+      if (ingested && seed) {
+        void seed
+          .then((started) => {
+            if (started) void msg.react("👀").catch(() => {});
+          })
+          .catch(() => {});
+      }
     } catch (err) {
       console.warn(`  discord-gateway: message route failed: ${(err as Error).message}`);
     }
