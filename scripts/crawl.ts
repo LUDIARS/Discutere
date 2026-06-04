@@ -17,6 +17,7 @@ import {
   importGameKG,
   parseGameKG,
 } from "../src/crawler/index.js";
+import { runExtFetch, runExtImport, runExtIngest } from "../src/crawler/sources/cli.js";
 import {
   AnthropicSdkClient,
   ClaudeCliClient,
@@ -24,7 +25,7 @@ import {
 } from "../src/persona-engine/index.js";
 import { getConfig } from "../src/config.js";
 
-function main(): void {
+async function main(): Promise<void> {
   const [, , subcommand, ...rest] = process.argv;
   if (!subcommand) {
     printUsageAndExit();
@@ -40,6 +41,13 @@ function main(): void {
         console.error((err as Error).message);
         process.exit(1);
       });
+    // 外部議論ソース (Phase 1) — spec/crawler/EXTERNAL-SOURCES.md
+    case "ext-fetch":
+      return runExtFetch(rest);
+    case "ext-import":
+      return runExtImport(rest);
+    case "ext-ingest":
+      return runExtIngest(rest);
     default:
       printUsageAndExit();
   }
@@ -174,9 +182,21 @@ function toSlug(value: string): string {
 
 function printUsageAndExit(): never {
   console.error(
-    "usage:\n  crawl.ts import <md-path>\n  crawl.ts list\n  crawl.ts run <gameName> [out-md-path]"
+    "usage:\n" +
+      "  crawl.ts import <md-path>\n" +
+      "  crawl.ts list\n" +
+      "  crawl.ts run <gameName> [out-md-path]\n" +
+      "  crawl.ts ext-fetch steam <gameSlug> <appId> [--lang all] [--max N]\n" +
+      '  crawl.ts ext-fetch youtube-videos <gameSlug> --q "<query>" [--max N]\n' +
+      "  crawl.ts ext-fetch youtube-comments <gameSlug> <videoId> [--max N]\n" +
+      "  crawl.ts ext-import <jsonl-path>\n" +
+      "  crawl.ts ext-ingest steam <gameSlug> <appId> [--lang all] [--max N]\n" +
+      "  crawl.ts ext-ingest youtube <gameSlug> <videoId> [--max N]"
   );
   process.exit(2);
 }
 
-main();
+main().catch((err) => {
+  console.error((err as Error).message);
+  process.exit(1);
+});
