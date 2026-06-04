@@ -123,7 +123,7 @@ const personaEngineLifecycle = (() => {
           viaWebhook: sp.viaWebhook,
           text: input.text,
         });
-        if (!r.ok) {
+        if (!r.ok && !r.skipped) {
           console.warn("  persona-engine: discord utterance post skipped:", r.reason);
         } else if (r.messageId) {
           recordPostedMessage(core.client.raw, {
