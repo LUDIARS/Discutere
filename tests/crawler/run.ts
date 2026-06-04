@@ -9,5 +9,6 @@
 import "./md-format.test.js";
 import "./importer-roundtrip.test.js";
 import "./graphdb-read.test.js";
+import "./ai-runner.test.js";
 
 console.log("crawler tests: all passed");
