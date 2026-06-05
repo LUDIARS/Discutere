@@ -18,6 +18,13 @@ export interface MechanicEntry {
   description?: string;
   intends?: string; // designer intent (Discatier Mechanic.intends)
   intended_affect?: string; // Phase 4 affect (Discatier Mechanic.intended_affect)
+  // ---- 運営の想定感情 (Gap率分析用の構造化定義、任意) ----
+  /** 運営が狙う感情極性。Gap率は観測 valence がこれと不一致な割合で測る */
+  intended_valence?: "positive" | "negative" | "neutral";
+  /** この mechanic が駆動するはずの aspect (fun/difficulty/price_value 等、lexicon の 8 種) */
+  intended_aspects?: string[];
+  /** 運営が狙う Plutchik 感情 (joy/anticipation 等、任意) */
+  intended_emotions?: string[];
 }
 
 export interface AestheticEntry {

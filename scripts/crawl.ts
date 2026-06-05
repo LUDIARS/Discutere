@@ -18,6 +18,7 @@ import {
   parseGameKG,
 } from "../src/crawler/index.js";
 import { runExtFetch, runExtImport, runExtIngest } from "../src/crawler/sources/cli.js";
+import { analyzeGapRate, formatGapReport } from "../src/analysis/gap-rate.js";
 import {
   AnthropicSdkClient,
   ClaudeCliClient,
@@ -48,8 +49,25 @@ async function main(): Promise<void> {
       return runExtImport(rest);
     case "ext-ingest":
       return runExtIngest(rest);
+    case "gap-rate":
+      return runGapRate(rest);
     default:
       printUsageAndExit();
+  }
+}
+
+/** Gap率分析 (運営の想定感情 vs 観測感情) を多角的に出力する。 */
+function runGapRate(args: string[]): void {
+  const [slug, ...flags] = args;
+  if (!slug) {
+    console.error("usage: crawl.ts gap-rate <gameSlug> [--json]");
+    process.exit(2);
+  }
+  const report = analyzeGapRate(slug);
+  if (flags.includes("--json")) {
+    console.log(JSON.stringify(report, null, 2));
+  } else {
+    console.log(formatGapReport(report));
   }
 }
 
@@ -186,6 +204,7 @@ function printUsageAndExit(): never {
       "  crawl.ts import <md-path>\n" +
       "  crawl.ts list\n" +
       "  crawl.ts run <gameName> [out-md-path]\n" +
+      "  crawl.ts gap-rate <gameSlug> [--json]   # 運営想定 vs 観測のGap率を多角分析\n" +
       "  crawl.ts ext-fetch steam <gameSlug> <appId> [--lang all] [--max N]\n" +
       '  crawl.ts ext-fetch youtube-videos <gameSlug> --q "<query>" [--max N]\n' +
       "  crawl.ts ext-fetch youtube-comments <gameSlug> <videoId> [--max N]\n" +

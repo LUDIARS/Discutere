@@ -43,6 +43,11 @@ app.get("/learning/data", (c) => {
   const snapshot = cache.layer(normalizeLearningLayer(c.req.query("layer")));
   return snapshot ? c.json(snapshot as object) : c.json({ error: "layer not cached" }, 404);
 });
+app.get("/learning/gap", (c) => c.json(cache.gapSummary() as object));
+app.get("/learning/gap/detail", (c) => {
+  const detail = cache.gap(c.req.query("slug") ?? "");
+  return detail ? c.json(detail as object) : c.json({ error: "not found" }, 404);
+});
 
 serve({ fetch: app.fetch, port }, (info) => {
   const builtAt = cache.builtAt();

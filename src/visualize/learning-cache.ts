@@ -17,6 +17,7 @@ import Database from "better-sqlite3";
 import type { createCore } from "../core/index.js";
 import { buildLearningLayerSnapshot, type LearningLayer } from "./learning-layers.js";
 import { listConclusions, getConclusionDetail } from "./conclusions.js";
+import { analyzeGapRate, type GapRateReport } from "../analysis/gap-rate.js";
 
 type Core = ReturnType<typeof createCore>;
 
@@ -100,10 +101,77 @@ export function buildLearningCache(
   }
 }
 
+export interface GapSummaryEntry {
+  slug: string;
+  game: string;
+  total: number;
+  coverage: number; // 感情シグナル率 (= 1 - 中立率)
+  gapRate: number;
+  negativeRate: number;
+  topGapMechanic: string | null;
+}
+
+/**
+ * data/games/*.md (運営の想定感情の定義) を走査して各ゲームの Gap率を算出し cache へ焼く。
+ * 観測は KG を read-only で読む。learning-cache と同じ SQLite に gap:<slug> / gap-summary を追記。
+ */
+export function buildGapCache(
+  dbPath: string = DEFAULT_CACHE_PATH,
+  gamesDir: string = path.resolve("./data/games"),
+  kuzuPath?: string,
+  now: number = Date.now()
+): { games: number } {
+  const db = openDb(dbPath);
+  try {
+    const put = db.prepare(
+      "INSERT INTO cache (key, payload, built_at) VALUES (?, ?, ?) " +
+        "ON CONFLICT(key) DO UPDATE SET payload = excluded.payload, built_at = excluded.built_at"
+    );
+    const slugs = fs.existsSync(gamesDir)
+      ? fs
+          .readdirSync(gamesDir)
+          .filter((f) => f.endsWith(".md"))
+          .map((f) => f.replace(/\.md$/, ""))
+      : [];
+    const summary: GapSummaryEntry[] = [];
+    db.prepare("DELETE FROM cache WHERE key LIKE 'gap:%'").run();
+    for (const slug of slugs) {
+      let report: GapRateReport;
+      try {
+        report = analyzeGapRate(slug, gamesDir, kuzuPath);
+      } catch {
+        continue; // md 不正 / 該当発話なし等は skip
+      }
+      if (report.total === 0) continue;
+      // 運営想定 (intended_aspects) を 1 つも定義していない md は Gap 比較に乗せない
+      // (未定義だと観測がすべて「想定外」に倒れ、見かけ上の高Gapで横断比較を歪めるため)。
+      const enriched = report.byMechanic.some((m) => m.intendedAspects.length > 0);
+      if (!enriched) continue;
+      put.run(`gap:${slug}`, JSON.stringify(report), now);
+      summary.push({
+        slug,
+        game: report.game,
+        total: report.total,
+        coverage: Math.round((1 - report.neutralRate) * 1000) / 1000,
+        gapRate: report.gapRate,
+        negativeRate: report.negativeRate,
+        topGapMechanic: report.byMechanic.find((m) => m.attributed > 0)?.name ?? null,
+      });
+    }
+    summary.sort((a, b) => b.gapRate - a.gapRate);
+    put.run("gap-summary", JSON.stringify({ games: summary }), now);
+    return { games: summary.length };
+  } finally {
+    db.close();
+  }
+}
+
 export interface LearningCacheReader {
   conclusions(): unknown;
   conclusion(gapId: string): unknown | undefined;
   layer(name: string): unknown | undefined;
+  gap(slug: string): unknown | undefined;
+  gapSummary(): unknown;
   builtAt(): number | null;
   close(): void;
 }
@@ -120,6 +188,8 @@ export function openLearningCacheReader(dbPath: string = DEFAULT_CACHE_PATH): Le
     conclusions: () => read("conclusions") ?? { conclusions: [] },
     conclusion: (gapId) => read(`conclusion:${gapId}`),
     layer: (name) => read(`layer:${name}`),
+    gap: (slug) => read(`gap:${slug}`),
+    gapSummary: () => read("gap-summary") ?? { games: [] },
     builtAt: () => {
       const meta = read(META_KEY) as { builtAt?: number } | undefined;
       return meta?.builtAt ?? null;
