@@ -11,28 +11,32 @@ import path from "node:path";
 
 import { getConfig } from "../src/config.js";
 import { createCore } from "../src/core/index.js";
-import { buildLearningCache } from "../src/visualize/learning-cache.js";
+import { buildLearningCache, buildGapCache } from "../src/visualize/learning-cache.js";
 
 function main(): void {
   const core = createCore();
+  let result;
   try {
-    const result = buildLearningCache(core, getConfig().workspace);
-    console.log(
-      JSON.stringify(
-        {
-          path: path.relative(process.cwd(), result.path),
-          builtAt: new Date(result.builtAt).toISOString(),
-          conclusions: result.conclusions,
-          details: result.details,
-          layers: result.layers,
-        },
-        null,
-        2
-      )
-    );
+    result = buildLearningCache(core, getConfig().workspace);
   } finally {
     core.close();
   }
+  // Gap率 (運営想定 vs 観測) を data/games/*.md から算出して同 cache に焼く (KG は read-only)。
+  const gap = buildGapCache(result.path);
+  console.log(
+    JSON.stringify(
+      {
+        path: path.relative(process.cwd(), result.path),
+        builtAt: new Date(result.builtAt).toISOString(),
+        conclusions: result.conclusions,
+        details: result.details,
+        layers: result.layers,
+        gapGames: gap.games,
+      },
+      null,
+      2
+    )
+  );
 }
 
 main();
