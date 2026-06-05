@@ -191,11 +191,17 @@ function printUsageAndExit(): never {
       "  crawl.ts ext-fetch youtube-comments <gameSlug> <videoId> [--max N]\n" +
       "  crawl.ts ext-fetch website <gameSlug> <url> [<url> ...]\n" +
       '  crawl.ts ext-fetch reddit <gameSlug> --q "<query>" [--sub <subreddit>] [--threads N]\n' +
+      "  crawl.ts ext-fetch fandom <gameSlug> <wikiHost> <pageTitle> [<pageTitle> ...]\n" +
+      '  crawl.ts ext-fetch niconico <gameSlug> --q "<query>" [--videos N] [--max N]\n' +
+      '  crawl.ts ext-fetch opencritic <gameSlug> --q "<game name>" [--game-id N] [--max N]\n' +
       "  crawl.ts ext-import <jsonl-path>\n" +
       "  crawl.ts ext-ingest steam <gameSlug> <appId> [--lang all] [--max N]\n" +
       "  crawl.ts ext-ingest youtube <gameSlug> <videoId> [--max N]\n" +
       "  crawl.ts ext-ingest website <gameSlug> <url> [<url> ...]\n" +
-      '  crawl.ts ext-ingest reddit <gameSlug> --q "<query>" [--sub <subreddit>] [--threads N]'
+      '  crawl.ts ext-ingest reddit <gameSlug> --q "<query>" [--sub <subreddit>] [--threads N]\n' +
+      "  crawl.ts ext-ingest fandom <gameSlug> <wikiHost> <pageTitle> [<pageTitle> ...]\n" +
+      '  crawl.ts ext-ingest niconico <gameSlug> --q "<query>" [--videos N] [--max N]\n' +
+      '  crawl.ts ext-ingest opencritic <gameSlug> --q "<game name>" [--game-id N] [--max N]'
   );
   process.exit(2);
 }
