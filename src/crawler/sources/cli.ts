@@ -20,6 +20,9 @@ import { AnthropicSdkClient, ClaudeCliClient } from "../../persona-engine/index.
 import { fetchSteamReviews } from "./steam.js";
 import { fetchWebsiteArticles } from "./website.js";
 import { fetchRedditDiscussions, type RedditCredentials } from "./reddit.js";
+import { fetchFandomPages } from "./fandom.js";
+import { fetchNiconicoDiscussions } from "./niconico.js";
+import { fetchOpenCriticReviews } from "./opencritic.js";
 import { fetchVideoComments } from "./youtube-comments.js";
 import { createQuotaTracker } from "./youtube-quota.js";
 import { discoverVideosBySearch, type VideoRef } from "./youtube-videos.js";
@@ -244,6 +247,115 @@ async function fetchWebsite(args: WebsiteArgs): Promise<ExternalUtterance[]> {
   });
 }
 
+function opencriticApiKey(): string {
+  const key = process.env.DISCUTERE_OPENCRITIC_RAPIDAPI_KEY;
+  if (!key) {
+    console.error(
+      "OpenCritic 未設定: env DISCUTERE_OPENCRITIC_RAPIDAPI_KEY (RapidAPI opencritic-api のキー) をセットしてください"
+    );
+    process.exit(2);
+  }
+  return key;
+}
+
+// ---- Fandom ----
+interface FandomArgs {
+  gameSlug: string;
+  host: string;
+  titles: string[];
+}
+
+function parseFandomArgs(rest: string[]): FandomArgs {
+  const [gameSlug, host, ...titles] = rest;
+  if (!gameSlug || !host || titles.length === 0) {
+    console.error(
+      'usage: crawl.ts ext-fetch fandom <gameSlug> <wikiHost> <pageTitle> [<pageTitle> ...]'
+    );
+    process.exit(2);
+  }
+  return { gameSlug, host, titles };
+}
+
+async function fetchFandom(args: FandomArgs): Promise<ExternalUtterance[]> {
+  return fetchFandomPages({
+    host: args.host,
+    gameSlug: args.gameSlug,
+    titles: args.titles,
+    onPage: (n) => process.stderr.write(`\r  fetched ${n}/${args.titles.length} pages...`),
+  });
+}
+
+// ---- niconico ----
+interface NicoArgs {
+  gameSlug: string;
+  query: string;
+  maxVideos?: number;
+  maxComments?: number;
+}
+
+function parseNicoArgs(rest: string[]): NicoArgs {
+  const [gameSlug, ...flags] = rest;
+  let query: string | undefined;
+  let maxVideos: number | undefined;
+  let maxComments: number | undefined;
+  for (let i = 0; i < flags.length; i += 1) {
+    if (flags[i] === "--q" || flags[i] === "--query") query = flags[++i];
+    else if (flags[i] === "--videos") maxVideos = Number(flags[++i]);
+    else if (flags[i] === "--max") maxComments = Number(flags[++i]);
+  }
+  if (!gameSlug || !query) {
+    console.error('usage: crawl.ts ext-fetch niconico <gameSlug> --q "<query>" [--videos N] [--max N]');
+    process.exit(2);
+  }
+  return { gameSlug, query, maxVideos, maxComments };
+}
+
+async function fetchNico(args: NicoArgs): Promise<ExternalUtterance[]> {
+  return fetchNiconicoDiscussions({
+    gameSlug: args.gameSlug,
+    query: args.query,
+    maxVideos: args.maxVideos,
+    maxComments: args.maxComments,
+    onVideo: (i) => process.stderr.write(`\r  niconico: ${i.comments} comments (${i.videos} videos)...`),
+  });
+}
+
+// ---- OpenCritic ----
+interface OcArgs {
+  gameSlug: string;
+  query: string;
+  gameId?: number;
+  maxReviews?: number;
+}
+
+function parseOcArgs(rest: string[]): OcArgs {
+  const [gameSlug, ...flags] = rest;
+  let query: string | undefined;
+  let gameId: number | undefined;
+  let maxReviews: number | undefined;
+  for (let i = 0; i < flags.length; i += 1) {
+    if (flags[i] === "--q" || flags[i] === "--query") query = flags[++i];
+    else if (flags[i] === "--game-id") gameId = Number(flags[++i]);
+    else if (flags[i] === "--max") maxReviews = Number(flags[++i]);
+  }
+  if (!gameSlug || (!query && !gameId)) {
+    console.error('usage: crawl.ts ext-fetch opencritic <gameSlug> --q "<game name>" [--game-id N] [--max N]');
+    process.exit(2);
+  }
+  return { gameSlug, query: query ?? "", gameId, maxReviews };
+}
+
+async function fetchOc(args: OcArgs): Promise<ExternalUtterance[]> {
+  return fetchOpenCriticReviews({
+    gameSlug: args.gameSlug,
+    query: args.query,
+    gameId: args.gameId,
+    maxReviews: args.maxReviews,
+    apiKey: opencriticApiKey(),
+    onPage: (n) => process.stderr.write(`\r  fetched ${n} reviews...`),
+  });
+}
+
 /** ext-fetch: collector を回して中間 JSONL に保存する (DB には入れない)。 */
 export async function runExtFetch(rest: string[]): Promise<void> {
   const [source, ...sourceArgs] = rest;
@@ -302,8 +414,37 @@ export async function runExtFetch(rest: string[]): Promise<void> {
       console.log(JSON.stringify({ source, gameSlug: args.gameSlug, query: args.query, fetched: items.length, out: path.relative(process.cwd(), out) }, null, 2));
       return;
     }
+    case "fandom": {
+      const args = parseFandomArgs(sourceArgs);
+      const items = await fetchFandom(args);
+      process.stderr.write("\n");
+      const out = stagePath(source, args.gameSlug);
+      writeJsonl(out, items);
+      console.log(JSON.stringify({ source, gameSlug: args.gameSlug, host: args.host, pages: args.titles.length, fetched: items.length, out: path.relative(process.cwd(), out) }, null, 2));
+      return;
+    }
+    case "niconico": {
+      const args = parseNicoArgs(sourceArgs);
+      const items = await fetchNico(args);
+      process.stderr.write("\n");
+      const out = stagePath(source, args.gameSlug);
+      writeJsonl(out, items);
+      console.log(JSON.stringify({ source, gameSlug: args.gameSlug, query: args.query, fetched: items.length, out: path.relative(process.cwd(), out) }, null, 2));
+      return;
+    }
+    case "opencritic": {
+      const args = parseOcArgs(sourceArgs);
+      const items = await fetchOc(args);
+      process.stderr.write("\n");
+      const out = stagePath(source, args.gameSlug);
+      writeJsonl(out, items);
+      console.log(JSON.stringify({ source, gameSlug: args.gameSlug, query: args.query, fetched: items.length, out: path.relative(process.cwd(), out) }, null, 2));
+      return;
+    }
     default:
-      console.error("ext-fetch: source は steam | youtube-videos | youtube-comments | website | reddit");
+      console.error(
+        "ext-fetch: source は steam | youtube-videos | youtube-comments | website | reddit | fandom | niconico | opencritic"
+      );
       process.exit(2);
   }
 }
@@ -387,8 +528,41 @@ export async function runExtIngest(rest: string[]): Promise<void> {
       console.log(JSON.stringify({ source, gameSlug: args.gameSlug, query: args.query, fetched: items.length, stage: path.relative(process.cwd(), out), ...result }, null, 2));
       return;
     }
+    case "fandom": {
+      const args = parseFandomArgs(sourceArgs);
+      const items = await fetchFandom(args);
+      process.stderr.write("\n");
+      const out = stagePath(source, args.gameSlug);
+      writeJsonl(out, items);
+      // wiki 本文は長文 → 要約/raw 2 層で取り込み (トークン節約)。
+      const result = await importWebsiteItems(items);
+      console.log(JSON.stringify({ source, gameSlug: args.gameSlug, host: args.host, pages: args.titles.length, fetched: items.length, stage: path.relative(process.cwd(), out), ...result }, null, 2));
+      return;
+    }
+    case "niconico": {
+      const args = parseNicoArgs(sourceArgs);
+      const items = await fetchNico(args);
+      process.stderr.write("\n");
+      const out = stagePath(source, args.gameSlug);
+      writeJsonl(out, items);
+      const result = importItems(items);
+      console.log(JSON.stringify({ source, gameSlug: args.gameSlug, query: args.query, fetched: items.length, stage: path.relative(process.cwd(), out), ...result }, null, 2));
+      return;
+    }
+    case "opencritic": {
+      const args = parseOcArgs(sourceArgs);
+      const items = await fetchOc(args);
+      process.stderr.write("\n");
+      const out = stagePath(source, args.gameSlug);
+      writeJsonl(out, items);
+      const result = importItems(items);
+      console.log(JSON.stringify({ source, gameSlug: args.gameSlug, query: args.query, fetched: items.length, stage: path.relative(process.cwd(), out), ...result }, null, 2));
+      return;
+    }
     default:
-      console.error("ext-ingest: source は steam | youtube | website | reddit");
+      console.error(
+        "ext-ingest: source は steam | youtube | website | reddit | fandom | niconico | opencritic"
+      );
       process.exit(2);
   }
 }

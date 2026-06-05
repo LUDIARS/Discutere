@@ -43,6 +43,31 @@ export {
 export { openIngestedStore, DEFAULT_INGESTED_PATH, type IngestedStore } from "./ingested-store.js";
 export { openRawStore, DEFAULT_RAW_PATH, type RawStore, type RawDocument } from "./raw-store.js";
 export {
+  htmlToText,
+  mapFandomPage,
+  fetchFandomPages,
+  type FandomParseRaw,
+  type FandomFetchOptions,
+} from "./fandom.js";
+export {
+  searchNicoVideos,
+  extractNvComment,
+  fetchNicoComments,
+  mapNicoComment,
+  fetchNiconicoDiscussions,
+  type NicoVideoRef,
+  type NvComment,
+  type NicoComment,
+  type NicoFetchOptions,
+} from "./niconico.js";
+export {
+  mapOpenCriticReview,
+  searchOpenCriticGame,
+  fetchOpenCriticReviews,
+  type OpenCriticReviewRaw,
+  type OpenCriticFetchOptions,
+} from "./opencritic.js";
+export {
   createLlmSummarizer,
   summarizeItems,
   type Summarizer,
