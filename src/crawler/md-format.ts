@@ -119,14 +119,28 @@ function normalizeMechanics(raw: unknown): MechanicEntry[] {
     if (typeof e.name !== "string" || e.name.trim() === "") {
       throw new GameKGParseError(`mechanics[${idx}].name is required`);
     }
+    const valence = e.intended_valence;
     return {
       name: e.name,
       description: typeof e.description === "string" ? e.description : undefined,
       intends: typeof e.intends === "string" ? e.intends : undefined,
       intended_affect:
         typeof e.intended_affect === "string" ? e.intended_affect : undefined,
+      intended_valence:
+        valence === "positive" || valence === "negative" || valence === "neutral"
+          ? valence
+          : undefined,
+      intended_aspects: normalizeStringArray(e.intended_aspects),
+      intended_emotions: normalizeStringArray(e.intended_emotions),
     };
   });
+}
+
+/** 文字列配列に正規化する (非配列 / 空要素は除去、空配列は undefined)。 */
+function normalizeStringArray(raw: unknown): string[] | undefined {
+  if (!Array.isArray(raw)) return undefined;
+  const out = raw.filter((x): x is string => typeof x === "string" && x.trim() !== "");
+  return out.length > 0 ? out : undefined;
 }
 
 function normalizeAesthetics(raw: unknown): AestheticEntry[] {
