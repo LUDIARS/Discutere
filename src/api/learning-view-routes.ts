@@ -6,10 +6,37 @@ import {
   buildLearningLayerSnapshot,
   normalizeLearningLayer,
 } from "../visualize/learning-layers.js";
+import { listConclusions, getConclusionDetail } from "../visualize/conclusions.js";
 
 export const learningViewRoutes = new Hono();
 
 learningViewRoutes.get("/learning", (c) => c.html(HTML));
+
+// 収束した議論の結論一覧 (#66 — Learning View 統合)
+learningViewRoutes.get("/learning/conclusions", (c) => {
+  const config = getConfig();
+  const limit = Number(c.req.query("limit") ?? 100);
+  const core = createCore();
+  try {
+    return c.json({ conclusions: listConclusions(core, config.workspace, limit) });
+  } finally {
+    core.close();
+  }
+});
+
+// 1 件の結論の裏の論述データ (議論ログ / 止揚 / 高評価意見)
+learningViewRoutes.get("/learning/conclusion", (c) => {
+  const config = getConfig();
+  const gapId = c.req.query("gap") ?? "";
+  const core = createCore();
+  try {
+    const detail = getConclusionDetail(core, config.workspace, gapId);
+    if (!detail) return c.json({ error: "not found" }, 404);
+    return c.json(detail);
+  } finally {
+    core.close();
+  }
+});
 
 learningViewRoutes.get("/learning/data", (c) => {
   const config = getConfig();
@@ -65,6 +92,7 @@ const HTML = `<!doctype html>
     <button data-layer="knowledge" class="active">基礎知識</button>
     <button data-layer="games">ゲーム学習</button>
     <button data-layer="opinions">話題と意見</button>
+    <button data-layer="conclusions">結論</button>
   </div>
   <div class="muted" id="totals">loading...</div>
 </header>
@@ -90,6 +118,11 @@ function label(value, max) {
 }
 
 async function load(layer) {
+  if (layer === "conclusions") {
+    const res = await fetch("/learning/conclusions?limit=200");
+    if (!res.ok) throw new Error("conclusions http " + res.status);
+    return res.json();
+  }
   const res = await fetch("/learning/data?layer=" + encodeURIComponent(layer) + "&limit=80&detailLimit=8");
   if (!res.ok) throw new Error("learning data http " + res.status);
   return res.json();
@@ -108,9 +141,55 @@ function setActiveLayer(layer) {
 }
 
 function render(snap) {
+  if (currentLayer === "conclusions") return renderConclusions(snap);
   if (snap.layer === "knowledge") return renderKnowledge(snap);
   if (snap.layer === "games") return renderGames(snap);
   return renderOpinions(snap);
+}
+
+function renderConclusions(snap) {
+  const list = snap.conclusions || [];
+  document.getElementById("totals").textContent = "結論: " + list.length + " 件 (収束した議論)";
+  document.getElementById("graph-help").textContent = "円の大きさ = 議論の発話数。";
+  document.getElementById("items").innerHTML = list.length
+    ? list.map((c) =>
+        '<article class="item" data-gap="' + esc(c.gapId) + '">' +
+          '<div class="item-head">' +
+            '<div class="item-title">' + esc(c.title) + '</div>' +
+            '<div class="item-size muted">発話 ' + c.utteranceCount + ' / 止揚 ' + c.aufhebungCount + '</div>' +
+          '</div>' +
+          '<div style="margin-top:6px;">' + esc(c.conclusion || "(まとめ未生成)") + '</div>' +
+          '<button class="detail-btn" data-gap="' + esc(c.gapId) + '" style="margin-top:8px;">論述データを見る</button>' +
+          '<div class="detail-slot"></div>' +
+        '</article>').join("")
+    : '<div class="muted">まだ収束した議論はありません</div>';
+  document.querySelectorAll(".detail-btn").forEach((btn) => {
+    btn.addEventListener("click", () => loadConclusionDetail(btn));
+  });
+  renderGraph(list.map((c) => ({ title: c.title, size: c.utteranceCount, status: "closed" })), "結論なし");
+}
+
+async function loadConclusionDetail(btn) {
+  const gap = btn.dataset.gap;
+  const slot = btn.parentElement.querySelector(".detail-slot");
+  slot.innerHTML = '<div class="muted">loading...</div>';
+  try {
+    const res = await fetch("/learning/conclusion?gap=" + encodeURIComponent(gap));
+    if (!res.ok) throw new Error("detail http " + res.status);
+    const d = await res.json();
+    const auf = (d.aufhebungen || []).length
+      ? '<div style="margin-top:8px;"><b>止揚ストック</b><ol class="details">' +
+        d.aufhebungen.map((s) => '<li>' + esc(s) + '</li>').join("") + '</ol></div>' : "";
+    const top = (d.topOpinions || []).length
+      ? '<div style="margin-top:8px;"><b>高評価意見</b><ol class="details">' +
+        d.topOpinions.map((o) => '<li>+' + o.score + ' ' + esc(o.speaker) + ': ' + esc(o.content) + '</li>').join("") + '</ol></div>' : "";
+    const log = '<div style="margin-top:8px;"><b>議論ログ (' + (d.transcript || []).length + '発話)</b><ol class="details">' +
+      (d.transcript || []).map((u) => '<li><span class="muted">[' + esc(u.speaker) + ']</span> ' + esc(u.content) + '</li>').join("") + '</ol></div>';
+    slot.innerHTML = auf + top + log;
+    btn.style.display = "none";
+  } catch (err) {
+    slot.innerHTML = '<div class="muted">' + esc(err.message) + '</div>';
+  }
 }
 
 function renderKnowledge(snap) {
