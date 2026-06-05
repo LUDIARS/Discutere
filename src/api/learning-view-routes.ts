@@ -56,7 +56,7 @@ learningViewRoutes.get("/learning/data", (c) => {
   }
 });
 
-const HTML = `<!doctype html>
+export const HTML = `<!doctype html>
 <html lang="ja">
 <head>
 <meta charset="utf-8">
