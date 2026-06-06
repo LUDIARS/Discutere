@@ -59,13 +59,10 @@ export class WorkerPool {
   private spawnOne(worker: WorkerRuntime["config"]): void {
     if (this.workers.has(worker.id)) return;
     const promptPath = join(this.absPromptsDir, `${worker.id}.md`);
-    const body = buildStandingPrompt({
-      worker,
-      callbackBaseUrl: this.cfg.callbackBaseUrl,
-      turnsDir: this.cfg.turnsDir,
-    });
+    const body = buildStandingPrompt({ worker });
     writeFileSync(promptPath, body, "utf8");
-    const { pid } = spawnWorker({ worker, promptPath, cwd: this.cwd, cfg: this.cfg });
+    // ワーカーは worker-home を cwd にして起動 (専用 .claude/settings.json を効かせる)。
+    const { pid } = spawnWorker({ worker, promptPath, cwd: this.cfg.workerCwd, cfg: this.cfg });
     this.workers.set(worker.id, { config: worker, pid, lictorPort: null, busy: false, promptPath });
     this.log.info(`spawned worker ${worker.id} (${worker.provider}/${worker.model}) pid=${pid}`);
   }
@@ -169,8 +166,10 @@ export class WorkerPool {
       "utf8"
     );
 
-    // 注入は relative path で (worker の cwd = Discutere)。1 行 + Enter。
-    const line = `[TURN] ${payload.reqId} ${this.cfg.turnsDir}/${payload.reqId}.json\r`;
+    // worker の cwd は worker-home なので turnsDir を相対で渡すと解決できない。
+    // 絶対パス (forward slash 正規化) で注入する。worker は Read ツールで読む。
+    const turnAbs = turnPath.replace(/\\/g, "/");
+    const line = `[TURN] ${payload.reqId} ${turnAbs}\r`;
     await this.injectKeys(rt.lictorPort, line);
 
     rt.busy = true;

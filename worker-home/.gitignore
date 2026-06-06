@@ -1,0 +1,8 @@
+# ランタイム生成物 (ワーカーが書き出すターン/返信 JSON)
+/turns/
+/prompts/
+/replies/
+
+# 有効な権限設定は運用者が settings.template.json からコピーして作る (実体はコミットしない)。
+# テンプレート (settings.template.json) のみ追跡する。
+/.claude/
