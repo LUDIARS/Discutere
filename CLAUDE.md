@@ -58,6 +58,11 @@ env)。`discutere.config.example.json` 参照。詳細は `docs/ws-gateway-confi
   で議論を起こす (`forum-monitor.handleForumThreadCreate` → `command-router.routeForumPost`)。
   scene を `discord:<guild>/<threadId>` に紐付けるので、AI 返信・収束まとめはそのスレッドに出る。
   starter 判定は `msg.id === thread.id`。後続投稿は進行中議論への参加発言 (新規 gap は立てない)。
+- **議論の方向性 (タグ)**: フォーラムポストの適用タグで方向を決める。「改善提案」系タグ →
+  課題抽出+改善案、「面白さ」系タグ → 魅力の語り合い。**タグ無しは既定で「面白さ」方向**。
+  方向は gap 説明にディレクティブとして差し込まれ facilitator の拡張/収束を steer する
+  (`forum-monitor.pickForumDirection` → `auto-discussion.forumDirectionDirective`)。
+  タグ名は config `discord.forum.improvementTagNames` / `funTagNames` (部分一致) で調整可。
 - **クローズ**: facilitator が収束し gap を closed にすると `onConverged` フックが発火 →
   gateway の `finalizeForumPost` がスレッドを **lock + archive** し、まとめを「まとめ投稿」へ転記。
 - **自動作成チャンネル** (ClientReady, guild ごと、Manage Channels 権限が必要):

@@ -22,7 +22,47 @@ import {
 
 import { normalizeDiscordInboundMessage } from "./normalize.js";
 import { routeForumPost, type CommandRouterDeps } from "./command-router.js";
+import {
+  DEFAULT_FORUM_DIRECTION,
+  type ForumDirection,
+} from "./auto-discussion.js";
 import { ensureSystemChannel } from "./system-channel.js";
+
+/** タグ名 → 方向性のマッピング設定 (config `discord.forum`)。 */
+export interface ForumDirectionConfig {
+  /** この名前(部分一致)のタグが付いたら「改善提案」方向。 */
+  improvementTagNames: string[];
+  /** この名前(部分一致)のタグが付いたら「面白さ」方向 (既定方向でもある)。 */
+  funTagNames: string[];
+}
+
+export const DEFAULT_FORUM_DIRECTION_CONFIG: ForumDirectionConfig = {
+  improvementTagNames: ["改善提案", "改善", "提案", "improvement"],
+  funTagNames: ["面白さ", "面白い", "おもしろさ", "fun"],
+};
+
+/**
+ * フォーラムポストの適用タグ名から議論の方向性を決める (純粋関数)。
+ * - 改善系タグがあれば "improvement" (明示意図を優先)。
+ * - 面白さ系タグがあれば "fun"。
+ * - どちらも無ければ既定 = "fun" (タグ無しは面白さ方向)。
+ */
+export function pickForumDirection(
+  appliedTagNames: string[],
+  cfg: ForumDirectionConfig = DEFAULT_FORUM_DIRECTION_CONFIG
+): ForumDirection {
+  const names = appliedTagNames.map((n) => n.trim().toLowerCase()).filter((n) => n.length > 0);
+  const matches = (cands: string[]): boolean =>
+    names.some((n) =>
+      cands.some((c) => {
+        const cc = c.trim().toLowerCase();
+        return cc.length > 0 && (n === cc || n.includes(cc));
+      })
+    );
+  if (matches(cfg.improvementTagNames)) return "improvement";
+  if (matches(cfg.funTagNames)) return "fun";
+  return DEFAULT_FORUM_DIRECTION;
+}
 
 /** scene 文字列 "discord:<guildId>/<channelId>" を分解。形式不正なら null。 */
 export function parseDiscordScene(
@@ -65,6 +105,18 @@ export function formatForumSummary(title: string, summary: string): string {
 export interface ForumMonitorDeps {
   /** routeForumPost に渡す共通 deps (workspaceId / classifyInboundMessage など)。 */
   router: CommandRouterDeps;
+  /** タグ→方向性の設定 (未設定なら既定マッピング)。 */
+  directionConfig?: ForumDirectionConfig;
+}
+
+/** スレッドの適用タグ id を親フォーラムの availableTags でタグ名に解決する。 */
+function threadAppliedTagNames(thread: AnyThreadChannel, parentForum: unknown): string[] {
+  const applied = (thread as { appliedTags?: string[] }).appliedTags ?? [];
+  if (applied.length === 0) return [];
+  const available =
+    (parentForum as { availableTags?: Array<{ id: string; name: string }> } | null)?.availableTags ?? [];
+  const byId = new Map(available.map((t) => [t.id, t.name]));
+  return applied.map((id) => byId.get(id)).filter((n): n is string => typeof n === "string" && n.length > 0);
 }
 
 /**
@@ -76,11 +128,13 @@ export async function handleForumThreadCreate(
   thread: AnyThreadChannel,
   deps: ForumMonitorDeps
 ): Promise<void> {
-  // 親が未キャッシュのことがあるので、不明なら親を fetch して種別を確かめる。
+  // 親が未キャッシュのことがあるので、不明なら親を fetch して種別 + タグ定義を得る。
+  let parentForum: unknown = thread.parent;
   let parentType: ChannelType | undefined = thread.parent?.type;
   if (parentType === undefined && thread.parentId) {
     try {
       const parent = await thread.client.channels.fetch(thread.parentId);
+      parentForum = parent;
       parentType = parent?.type;
     } catch {
       /* 取得不可なら判定不能 → skip */
@@ -89,6 +143,12 @@ export async function handleForumThreadCreate(
   if (parentType !== ChannelType.GuildForum) return;
   const guildId = thread.guildId ?? thread.guild?.id;
   if (!guildId) return;
+
+  // 適用タグから議論の方向性を決める (タグ無し → 既定 = 面白さ)。
+  const direction = pickForumDirection(
+    threadAppliedTagNames(thread, parentForum),
+    deps.directionConfig
+  );
 
   const starter = await fetchStarterWithRetry(thread);
   if (!starter) {
@@ -112,7 +172,10 @@ export async function handleForumThreadCreate(
   if (!normalized) return;
 
   try {
-    const { ingested, seed } = routeForumPost(normalized, guildId, deps.router, { isStarter: true });
+    const { ingested, seed } = routeForumPost(normalized, guildId, deps.router, {
+      isStarter: true,
+      direction,
+    });
     if (ingested && seed) {
       const started = await seed;
       if (started) await starter.react("👀").catch(() => {});

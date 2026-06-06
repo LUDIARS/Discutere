@@ -73,6 +73,8 @@ export interface DiscordGatewayDeps extends CommandRouterDeps {
     summaryChannelName: string;
     dataLearningChannelName: string;
     managedCategoryName: string;
+    improvementTagNames: string[];
+    funTagNames: string[];
   };
 }
 
@@ -164,7 +166,12 @@ export async function startDiscordGateway(
   if (forumEnabled) {
     client.on(Events.ThreadCreate, (thread: AnyThreadChannel, newlyCreated: boolean) => {
       if (!newlyCreated) return;
-      void handleForumThreadCreate(thread, { router: deps }).catch((err) =>
+      void handleForumThreadCreate(thread, {
+        router: deps,
+        directionConfig: deps.forum
+          ? { improvementTagNames: deps.forum.improvementTagNames, funTagNames: deps.forum.funTagNames }
+          : undefined,
+      }).catch((err) =>
         console.warn(`  discord-forum: thread-create 失敗: ${(err as Error).message}`)
       );
     });
