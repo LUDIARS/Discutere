@@ -91,6 +91,7 @@ async function fetchReddit(args: RedditArgs): Promise<ExternalUtterance[]> {
 interface FlagOpts {
   query?: string;
   maxItems?: number;
+  order?: string;
 }
 
 function parseFlags(flags: string[]): FlagOpts {
@@ -98,6 +99,7 @@ function parseFlags(flags: string[]): FlagOpts {
   for (let i = 0; i < flags.length; i += 1) {
     if (flags[i] === "--q" || flags[i] === "--query") out.query = flags[++i];
     else if (flags[i] === "--max") out.maxItems = Number(flags[++i]);
+    else if (flags[i] === "--order") out.order = flags[++i];
   }
   return out;
 }
@@ -371,12 +373,12 @@ export async function runExtFetch(rest: string[]): Promise<void> {
     }
     case "youtube-videos": {
       const [gameSlug, ...flags] = sourceArgs;
-      const { query, maxItems } = parseFlags(flags);
+      const { query, maxItems, order } = parseFlags(flags);
       if (!gameSlug || !query) {
-        console.error('usage: crawl.ts ext-fetch youtube-videos <gameSlug> --q "<query>" [--max N]');
+        console.error('usage: crawl.ts ext-fetch youtube-videos <gameSlug> --q "<query>" [--max N] [--order viewCount|relevance|date]');
         process.exit(2);
       }
-      const videos = await discoverVideosBySearch({ query, apiKey: youtubeApiKey(), maxResults: maxItems ?? 50 });
+      const videos = await discoverVideosBySearch({ query, apiKey: youtubeApiKey(), maxResults: maxItems ?? 50, order });
       const out = path.join(STAGE_DIR, "youtube", "videos", `${gameSlug}.jsonl`);
       writeJsonl(out, videos as VideoRef[]);
       console.log(JSON.stringify({ source, gameSlug, query, videos: videos.length, out: path.relative(process.cwd(), out) }, null, 2));
