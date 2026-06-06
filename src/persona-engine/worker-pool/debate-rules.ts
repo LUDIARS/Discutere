@@ -58,3 +58,22 @@ export const DEBATE_RULE_SEEDS: RuleSeed[] = [
       "十分まとまっていれば収束を促してください。promotしすぎず、不要なら skip。",
   },
 ];
+
+/** ルール id → 既定 instructions (runtime override の比較・デフォルト用)。 */
+export const RULE_INSTRUCTION_DEFAULTS: Record<string, string> = Object.fromEntries(
+  DEBATE_RULE_SEEDS.map((r) => [r.id, r.instructions]),
+);
+
+/**
+ * 各ルールの instructions に runtime override を適用した新しい seed 配列を返す (pure)。
+ * override が無い (= undefined / 空) ルールは元の instructions を保つ。
+ */
+export function applyRuleInstructionOverrides(
+  seeds: RuleSeed[],
+  getInstruction: (ruleId: string) => string | undefined,
+): RuleSeed[] {
+  return seeds.map((r) => {
+    const ov = getInstruction(r.id);
+    return ov && ov.trim() !== "" ? { ...r, instructions: ov } : r;
+  });
+}
