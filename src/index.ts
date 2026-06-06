@@ -21,6 +21,7 @@ import {
 import { WorkerPool } from "./persona-engine/worker-pool/pool.js";
 import { WorkerPoolClient } from "./persona-engine/worker-pool/client.js";
 import { DEFAULT_WORKERS, buildWorkerPersonaSeeds } from "./persona-engine/worker-pool/persona-prompts.js";
+import { DEBATE_RULE_SEEDS } from "./persona-engine/worker-pool/debate-rules.js";
 import { workerRoutes, setWorkerPool } from "./api/worker.js";
 import { PersonasRepo } from "./persona-engine/db/personas-repo.js";
 import { createFacilitator } from "./persona-engine/facilitator/index.js";
@@ -215,6 +216,9 @@ const personaEngineLifecycle = (() => {
       workspaceId,
       // worker-pool 時は 8 固定キャストを seed (persona id = worker id)。
       personaSeeds: workerPersonaSeeds,
+      // worker-pool 時は target=worker id の debate ルールを使う
+      // (既存ルールの target=advocate 等は worker と一致せず全 skip になる)。
+      ruleSeeds: isWorkerPool ? DEBATE_RULE_SEEDS : undefined,
       maxFiresPerSession: config.personaEngine.maxFiresPerSession,
       maxFiresPerRulePerSession: config.personaEngine.maxFiresPerRule,
       tickMs: config.personaEngine.tickMs,

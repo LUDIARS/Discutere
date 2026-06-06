@@ -35,11 +35,13 @@ export class WorkerPoolClient implements LLMClient {
         system: args.system ?? "",
         prompt: args.prompt,
       });
+      // engine の handler は LLM が {action,...} JSON を返す前提。ワーカーは素の
+      // 発話テキストを返すので、ここで action JSON に包んで handler に渡す。
       const trimmed = text.trim();
       if (trimmed.length === 0) {
-        return { ok: false, error: "worker-pool: worker が空応答 (skip)" };
+        return { ok: true, text: JSON.stringify({ action: "skip", reasoning: "worker skip (空応答)" }) };
       }
-      return { ok: true, text: trimmed };
+      return { ok: true, text: JSON.stringify({ action: "post_utterance", text: trimmed }) };
     } catch (err) {
       return { ok: false, error: `worker-pool: ${(err as Error).message}` };
     }
