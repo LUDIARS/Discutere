@@ -34,11 +34,13 @@ export class ClaudeCliClient implements LLMClient {
   private readonly cliPath: string;
   private readonly defaultTimeoutMs: number;
   private readonly gitBashPath?: string;
+  private readonly defaultModel?: string;
 
   constructor(options: ClaudeCliClientOptions = {}) {
     this.cliPath = options.cliPath ?? "claude";
     this.defaultTimeoutMs = options.defaultTimeoutMs ?? DEFAULT_TIMEOUT_MS;
     this.gitBashPath = options.gitBashPath;
+    this.defaultModel = options.defaultModel;
   }
 
   async invoke(args: LLMInvokeArgs): Promise<LLMResult> {
@@ -48,6 +50,8 @@ export class ClaudeCliClient implements LLMClient {
       prompt: composePrompt(args.system, args.prompt),
       timeoutMs,
       gitBashPath: this.gitBashPath,
+      // delegation 準拠: per-invoke model > client 既定 model。未指定なら CLI 既定。
+      model: args.model ?? this.defaultModel,
     });
   }
 }
@@ -62,6 +66,8 @@ interface SpawnArgs {
   prompt: string;
   timeoutMs: number;
   gitBashPath?: string;
+  /** claude CLI に渡す --model (delegation 準拠)。未指定なら付けず CLI 既定。 */
+  model?: string;
 }
 
 function spawnClaude(args: SpawnArgs): Promise<LLMResult> {
@@ -86,9 +92,11 @@ function spawnClaude(args: SpawnArgs): Promise<LLMResult> {
     delete env.CONCORDIA_HOOK;
     delete env.LICTOR_PORT;
 
+    const cliArgs = ["-p"];
+    if (args.model) cliArgs.push("--model", args.model);
     let child;
     try {
-      child = spawn(args.cliPath, ["-p"], {
+      child = spawn(args.cliPath, cliArgs, {
         env,
         shell: process.platform === "win32",
         windowsHide: true,

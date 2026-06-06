@@ -14,7 +14,15 @@
 import { existsSync, readFileSync } from "node:fs";
 import path from "node:path";
 
-export type LlmBackend = "claude-cli" | "anthropic" | "mock";
+export type LlmBackend = "claude-cli" | "anthropic" | "mock" | "worker-pool";
+
+/** 常駐ワーカー 1 体 (= 1 ペルソナ) の定義。 */
+export interface WorkerPoolWorker {
+  id: string;
+  role: string;
+  provider: "claude" | "codex";
+  model: string;
+}
 
 export interface DiscutereConfig {
   nodeEnv: string;
@@ -75,6 +83,25 @@ export interface DiscutereConfig {
     claudeCliTimeoutMs: number;
     /** Windows で claude CLI を spawn する際の git-bash パス (Memoria 方式) */
     gitBashPath?: string;
+  };
+  /**
+   * 常駐ワーカープール (backend=worker-pool 時)。各ペルソナをサブスクの Lictor
+   * セッションとして常駐させ、議論ターンを注入して発話を返させる。
+   * spec/feature/persistent-worker-pool.md。
+   */
+  workerPool: {
+    enabled: boolean;
+    /** 議論 workspace (既存 knowledge と隔離する想定)。 */
+    workspace: string;
+    /** ワーカーが register / utterance を返す Discutere の base URL。 */
+    callbackBaseUrl: string;
+    /** Windows で lictor→CLI を起動する git-bash パス (空なら自動検出)。 */
+    gitBashPath?: string;
+    injectDelayMs: number;
+    turnTimeoutMs: number;
+    registerTimeoutMs: number;
+    /** ワーカー定義 (空なら index.ts が DEFAULT_WORKERS を使う)。 */
+    workers: WorkerPoolWorker[];
   };
   discord: {
     /** Gateway 接続用 bot token (未設定なら Gateway 起動を skip) */
@@ -162,6 +189,7 @@ interface RawFileConfig {
   facilitator?: Partial<DiscutereConfig["facilitator"]>;
   autoSeed?: Partial<DiscutereConfig["autoSeed"]>;
   llm?: Partial<DiscutereConfig["llm"]>;
+  workerPool?: Partial<Omit<DiscutereConfig["workerPool"], "workers">> & { workers?: WorkerPoolWorker[] };
   discord?: Partial<
     Omit<DiscutereConfig["discord"], "adminIds" | "discussionChannelIds" | "crawlChannelIds" | "guildIds" | "forum">
   > & {
@@ -250,7 +278,9 @@ export function loadConfig(): DiscutereConfig {
   const file = readFileConfig();
   const backendRaw = pick(process.env.LLM_BACKEND, file.llm?.backend, "anthropic").toLowerCase();
   const backend: LlmBackend =
-    backendRaw === "claude-cli" || backendRaw === "mock" ? (backendRaw as LlmBackend) : "anthropic";
+    backendRaw === "claude-cli" || backendRaw === "mock" || backendRaw === "worker-pool"
+      ? (backendRaw as LlmBackend)
+      : "anthropic";
 
   return Object.freeze({
     nodeEnv: pick(process.env.NODE_ENV, undefined, "development"),
@@ -306,6 +336,27 @@ export function loadConfig(): DiscutereConfig {
       model: pickOpt(process.env.ANTHROPIC_MODEL, file.llm?.model),
       claudeCliTimeoutMs: pickNum(process.env.CLAUDE_CLI_TIMEOUT_MS, file.llm?.claudeCliTimeoutMs, 120_000),
       gitBashPath: pickOpt(process.env.CLAUDE_CODE_GIT_BASH_PATH, file.llm?.gitBashPath),
+    },
+    workerPool: {
+      enabled: pickBool(process.env.DISCUTERE_WORKER_POOL_ENABLED, file.workerPool?.enabled, false),
+      workspace: pick(process.env.DISCUTERE_WORKER_POOL_WORKSPACE, file.workerPool?.workspace, "debate"),
+      callbackBaseUrl: pick(
+        process.env.DISCUTERE_WORKER_POOL_CALLBACK_URL,
+        file.workerPool?.callbackBaseUrl,
+        `http://127.0.0.1:${pickNum(process.env.BACKEND_PORT, file.server?.port, 3100)}`
+      ),
+      gitBashPath: pickOpt(
+        process.env.DISCUTERE_WORKER_POOL_GIT_BASH ?? process.env.CLAUDE_CODE_GIT_BASH_PATH,
+        file.workerPool?.gitBashPath ?? file.llm?.gitBashPath
+      ),
+      injectDelayMs: pickNum(process.env.DISCUTERE_WORKER_POOL_INJECT_DELAY_MS, file.workerPool?.injectDelayMs, 2500),
+      turnTimeoutMs: pickNum(process.env.DISCUTERE_WORKER_POOL_TURN_TIMEOUT_MS, file.workerPool?.turnTimeoutMs, 120_000),
+      registerTimeoutMs: pickNum(
+        process.env.DISCUTERE_WORKER_POOL_REGISTER_TIMEOUT_MS,
+        file.workerPool?.registerTimeoutMs,
+        60_000
+      ),
+      workers: Array.isArray(file.workerPool?.workers) ? file.workerPool!.workers : [],
     },
     discord: {
       botToken: pickOpt(process.env.DISCUTERE_DISCORD_BOT_TOKEN, file.discord?.botToken),

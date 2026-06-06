@@ -16,7 +16,14 @@ import {
   ClaudeCliClient,
   createPersonaEngine,
   type LLMClient,
+  type PersonaSeed,
 } from "./persona-engine/index.js";
+import { WorkerPool } from "./persona-engine/worker-pool/pool.js";
+import { WorkerPoolClient } from "./persona-engine/worker-pool/client.js";
+import { DEFAULT_WORKERS, buildWorkerPersonaSeeds } from "./persona-engine/worker-pool/persona-prompts.js";
+import { DEBATE_RULE_SEEDS } from "./persona-engine/worker-pool/debate-rules.js";
+import { workerRoutes, setWorkerPool } from "./api/worker.js";
+import { workerPoolControlRoutes, setWorkerPoolControl } from "./api/worker-pool-control.js";
 import { PersonasRepo } from "./persona-engine/db/personas-repo.js";
 import { createFacilitator } from "./persona-engine/facilitator/index.js";
 import { createAutoSeedScheduler } from "./discussion-seed/scheduler.js";
@@ -50,6 +57,9 @@ app.get("/health", (c) => c.json({ status: "ok", service: "discutere" }));
 
 app.route("/", learningViewRoutes);
 
+// 常駐ワーカー callback (内部用、認証不要)。userContext より前に mount する。
+app.route("/internal", workerRoutes);
+
 // ─── 認証ミドルウェア (X-User-Id / X-User-Role ヘッダーめEcontext に載せめE ──
 // Cernere / 独自 JWT 認証層は Discord-only pivot で撤去。実認可は Discord
 // Gateway (bot token + admin-id allowlist) 側。詳細は middleware/auth.ts、E
@@ -67,10 +77,18 @@ app.route("/api", dashboardRoutes);
 // ─── 議論キュー可視化 (進行中 session / 未処琁Egap / 検証征E��仮説) ──
 app.route("/api", queueRoutes);
 
+// ─── 常駐ワーカー制御 UI/API (/api/worker-pool) ────────────────
+app.route("/api", workerPoolControlRoutes);
+
 // PR-C: mode-state TTL cleanup めE15 min interval で起勁E(24h 経過 session を回叁E
 const stopSessionCleanup = startSessionCleanup();
 
 let autoDiscussionLlm: LLMClient | null = null;
+// backend=worker-pool 時に握る常駐ワーカープール (shutdown で stop する)。
+let workerPool: WorkerPool | null = null;
+// worker-pool 時の 8 ペルソナ seed (persona id = worker id)。
+let workerPersonaSeeds: PersonaSeed[] | undefined;
+const isWorkerPool = config.llm.backend === "worker-pool";
 
 // フォーラム集約: 収束したフォーラムポストを締める finalizer。
 // facilitator は gateway より先に生成されるため late-bound (gateway 起動後に結線)。
@@ -81,9 +99,44 @@ let forumFinalizer:
 // PR-C / PR-I: persona-engine 起勁Ewiring
 //   LLM backend は config.llm.backend で刁E��: "anthropic" (= anthropicApiKey)
 //   また�E "claude-cli" (= Lictor 経由 spawn、E環墁E�� claude CLI が忁E��E、E
+//   または "worker-pool" (= サブスク Lictor 常駐ワーカー、 spec/feature/persistent-worker-pool.md)
 const personaEngineLifecycle = (() => {
   let llm: LLMClient | null = null;
-  if (config.llm.backend === "claude-cli") {
+  if (isWorkerPool) {
+    const workers =
+      config.workerPool.workers.length > 0 ? config.workerPool.workers : DEFAULT_WORKERS;
+    workerPool = new WorkerPool(
+      {
+        enabled: config.workerPool.enabled,
+        workspace: config.workerPool.workspace,
+        callbackBaseUrl: config.workerPool.callbackBaseUrl,
+        gitBashPath: config.workerPool.gitBashPath,
+        injectDelayMs: config.workerPool.injectDelayMs,
+        turnTimeoutMs: config.workerPool.turnTimeoutMs,
+        registerTimeoutMs: config.workerPool.registerTimeoutMs,
+        turnsDir: "data/worker-turns",
+        promptsDir: "data/worker-prompts",
+        workers,
+      },
+      process.cwd()
+    );
+    setWorkerPool(workerPool);
+    setWorkerPoolControl(workerPool);
+    workerPersonaSeeds = buildWorkerPersonaSeeds(workers);
+    // boot 自動 spawn は config.workerPool.enabled が true の時だけ (既定 false)。
+    // 通常は /api/worker-pool の UI から必要数だけ手動起動する。
+    if (config.workerPool.enabled) workerPool.start();
+    // worker 未起動のペルソナは既存どおり claude -p で動作させる。
+    // model は worker 定義 (delegation) に沿わせる。
+    const workerFallback = new ClaudeCliClient({
+      defaultTimeoutMs: config.llm.claudeCliTimeoutMs,
+      gitBashPath: config.workerPool.gitBashPath ?? config.llm.gitBashPath,
+    });
+    llm = new WorkerPoolClient(workerPool, workerFallback);
+    console.log(
+      `  persona-engine LLM: WorkerPoolClient (定義 ${workers.length} / boot自動起動=${config.workerPool.enabled}, 未起動は claude -p フォールバック)`
+    );
+  } else if (config.llm.backend === "claude-cli") {
     llm = new ClaudeCliClient({
       defaultTimeoutMs: config.llm.claudeCliTimeoutMs,
       defaultModel: config.llm.model,
@@ -103,7 +156,10 @@ const personaEngineLifecycle = (() => {
   autoDiscussionLlm = llm;
 
   try {
-    const peDbPath = config.personaEngine.dbPath;
+    // worker-pool は persona DB だけ分離し (8 固定キャスト)、workspace は
+    // 実フォーラムと共有する (= worker が live forum の utterance/gap を読む)。
+    // workspace まで分けると worker が空の議論を見て反応しなくなる。
+    const peDbPath = isWorkerPool ? "./data/persona-engine-debate.db" : config.personaEngine.dbPath;
     const workspaceId = config.workspace;
     const peDb = new Database(peDbPath);
     const core = createCore();
@@ -179,6 +235,11 @@ const personaEngineLifecycle = (() => {
       llm,
       contextProvider: adapter,
       workspaceId,
+      // worker-pool 時は 8 固定キャストを seed (persona id = worker id)。
+      personaSeeds: workerPersonaSeeds,
+      // worker-pool 時は target=worker id の debate ルールを使う
+      // (既存ルールの target=advocate 等は worker と一致せず全 skip になる)。
+      ruleSeeds: isWorkerPool ? DEBATE_RULE_SEEDS : undefined,
       maxFiresPerSession: config.personaEngine.maxFiresPerSession,
       maxFiresPerRulePerSession: config.personaEngine.maxFiresPerRule,
       tickMs: config.personaEngine.tickMs,
@@ -195,8 +256,9 @@ const personaEngineLifecycle = (() => {
     );
 
     // ファシリテーター: 停滞→新 persona 投入で拡張、 persona 過多→収束 (gap closed)
+    // worker-pool 時は動的 persona 生成 (= ワーカー無しの persona) を避けるため facilitator を止める。
     let facilitator: ReturnType<typeof createFacilitator> | null = null;
-    if (config.facilitator.enabled && llm) {
+    if (config.facilitator.enabled && llm && !isWorkerPool) {
       const facLogger = {
         debug: () => {},
         info: (meta: Record<string, unknown>, msg: string) => console.log(`  [facilitator] ${msg}`, meta),
@@ -229,6 +291,7 @@ const personaEngineLifecycle = (() => {
 
     // 自動シード議論: 定期的にジャンル/ストアトレンドから headless 議論を立てる (#64/#65)。
     // 駆動は上の facilitator が担うので、 facilitator が動いている時だけ有効化する。
+    // (worker-pool 時は facilitator を止めているので auto-seed も起動しない)
     let autoSeed: ReturnType<typeof createAutoSeedScheduler> | null = null;
     if (config.autoSeed.enabled && facilitator) {
       autoSeed = createAutoSeedScheduler({
@@ -353,5 +416,30 @@ console.log(`  Admin:    /api/admin/{rules/enabled,session/reset,status}`);
 console.log(`  Dashboard: /api/admin/dashboard (HTML, admin role)`);
 console.log(`  Learning:  /learning (local read-only view)`);
 console.log(`  Analyze:  /api/analyze`);
+
+if (isWorkerPool) {
+  console.log(`  WorkerPool: /internal/worker/{register,utterance} (常駐ワーカー callback)`);
+}
+
+// 終了時に常駐ワーカー (8 セッション) を kill する。
+let shuttingDown = false;
+const gracefulShutdown = (sig: string) => {
+  if (shuttingDown) return;
+  shuttingDown = true;
+  console.log(`\n${sig} received — shutting down (worker pool stop)...`);
+  try {
+    workerPool?.stop();
+  } catch (err) {
+    console.warn("  worker-pool stop failed:", (err as Error).message);
+  }
+  try {
+    stopSessionCleanup();
+  } catch {
+    /* best-effort */
+  }
+  process.exit(0);
+};
+process.on("SIGINT", () => gracefulShutdown("SIGINT"));
+process.on("SIGTERM", () => gracefulShutdown("SIGTERM"));
 
 serve({ fetch: app.fetch, port });
