@@ -23,6 +23,7 @@ import { WorkerPoolClient } from "./persona-engine/worker-pool/client.js";
 import { DEFAULT_WORKERS, buildWorkerPersonaSeeds } from "./persona-engine/worker-pool/persona-prompts.js";
 import { DEBATE_RULE_SEEDS } from "./persona-engine/worker-pool/debate-rules.js";
 import { workerRoutes, setWorkerPool } from "./api/worker.js";
+import { workerPoolControlRoutes, setWorkerPoolControl } from "./api/worker-pool-control.js";
 import { PersonasRepo } from "./persona-engine/db/personas-repo.js";
 import { createFacilitator } from "./persona-engine/facilitator/index.js";
 import { postDiscussionToDiscord } from "./discord-hook/discussion-bridge.js";
@@ -74,6 +75,9 @@ app.route("/api", dashboardRoutes);
 // ─── 議論キュー可視化 (進行中 session / 未処琁Egap / 検証征E��仮説) ──
 app.route("/api", queueRoutes);
 
+// ─── 常駐ワーカー制御 UI/API (/api/worker-pool) ────────────────
+app.route("/api", workerPoolControlRoutes);
+
 // PR-C: mode-state TTL cleanup めE15 min interval で起勁E(24h 経過 session を回叁E
 const stopSessionCleanup = startSessionCleanup();
 
@@ -109,11 +113,20 @@ const personaEngineLifecycle = (() => {
       process.cwd()
     );
     setWorkerPool(workerPool);
+    setWorkerPoolControl(workerPool);
     workerPersonaSeeds = buildWorkerPersonaSeeds(workers);
+    // boot 自動 spawn は config.workerPool.enabled が true の時だけ (既定 false)。
+    // 通常は /api/worker-pool の UI から必要数だけ手動起動する。
     if (config.workerPool.enabled) workerPool.start();
-    llm = new WorkerPoolClient(workerPool);
+    // worker 未起動のペルソナは既存どおり claude -p で動作させる。
+    // model は worker 定義 (delegation) に沿わせる。
+    const workerFallback = new ClaudeCliClient({
+      defaultTimeoutMs: config.llm.claudeCliTimeoutMs,
+      gitBashPath: config.workerPool.gitBashPath ?? config.llm.gitBashPath,
+    });
+    llm = new WorkerPoolClient(workerPool, workerFallback);
     console.log(
-      `  persona-engine LLM: WorkerPoolClient (常駐 ${workers.length} ワーカー, enabled=${config.workerPool.enabled})`
+      `  persona-engine LLM: WorkerPoolClient (定義 ${workers.length} / boot自動起動=${config.workerPool.enabled}, 未起動は claude -p フォールバック)`
     );
   } else if (config.llm.backend === "claude-cli") {
     llm = new ClaudeCliClient({

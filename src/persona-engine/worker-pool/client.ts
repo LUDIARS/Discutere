@@ -15,35 +15,55 @@ import type { LLMClient, LLMInvokeArgs, LLMResult } from "../llm/client.js";
 import type { WorkerPool } from "./pool.js";
 
 export class WorkerPoolClient implements LLMClient {
-  constructor(private readonly pool: WorkerPool) {}
+  /**
+   * @param pool 常駐ワーカープール
+   * @param fallback worker 不在/未起動時に使う既存 LLM (= ClaudeCliClient)。
+   *   指定時、personaId のワーカーが起動していなければ claude -p にフォールバックし、
+   *   model は worker 定義 (delegation) に沿わせる。
+   */
+  constructor(
+    private readonly pool: WorkerPool,
+    private readonly fallback?: LLMClient | null
+  ) {}
 
   async invoke(args: LLMInvokeArgs): Promise<LLMResult> {
     const workerId = args.personaId;
     if (!workerId) {
       return { ok: false, error: "worker-pool: personaId 未指定 (ルーティング不能)" };
     }
-    if (!this.pool.hasWorker(workerId)) {
-      return { ok: false, error: `worker-pool: persona '${workerId}' に対応するワーカー無し` };
-    }
-    if (!this.pool.isReady(workerId)) {
-      return { ok: false, error: `worker-pool: worker '${workerId}' 未登録 (port 未取得)` };
-    }
-    const reqId = randomUUID();
-    try {
-      const text = await this.pool.dispatch(workerId, {
-        reqId,
-        system: args.system ?? "",
-        prompt: args.prompt,
-      });
-      // engine の handler は LLM が {action,...} JSON を返す前提。ワーカーは素の
-      // 発話テキストを返すので、ここで action JSON に包んで handler に渡す。
-      const trimmed = text.trim();
-      if (trimmed.length === 0) {
-        return { ok: true, text: JSON.stringify({ action: "skip", reasoning: "worker skip (空応答)" }) };
+
+    const ready = this.pool.hasWorker(workerId) && this.pool.isReady(workerId);
+    if (ready) {
+      const reqId = randomUUID();
+      try {
+        const text = await this.pool.dispatch(workerId, {
+          reqId,
+          system: args.system ?? "",
+          prompt: args.prompt,
+        });
+        // engine の handler は {action,...} JSON 前提。ワーカーは素の発話テキストを
+        // 返すので、ここで action JSON に包む (空応答は skip)。
+        const trimmed = text.trim();
+        if (trimmed.length === 0) {
+          return { ok: true, text: JSON.stringify({ action: "skip", reasoning: "worker skip (空応答)" }) };
+        }
+        return { ok: true, text: JSON.stringify({ action: "post_utterance", text: trimmed }) };
+      } catch (err) {
+        // worker 経路で失敗 → fallback があれば claude -p に回す。
+        if (this.fallback) return this.invokeFallback(args, workerId);
+        return { ok: false, error: `worker-pool: ${(err as Error).message}` };
       }
-      return { ok: true, text: JSON.stringify({ action: "post_utterance", text: trimmed }) };
-    } catch (err) {
-      return { ok: false, error: `worker-pool: ${(err as Error).message}` };
     }
+
+    // worker 不在/未起動 → 既存どおり claude -p で動作 (model は delegation 準拠)。
+    if (this.fallback) return this.invokeFallback(args, workerId);
+    return { ok: false, error: `worker-pool: worker '${workerId}' 未起動 かつ fallback 無し` };
+  }
+
+  /** claude -p フォールバック。model を worker 定義に沿わせて呼ぶ。 */
+  private invokeFallback(args: LLMInvokeArgs, workerId: string): Promise<LLMResult> {
+    const cfg = this.pool.getWorkerConfig(workerId);
+    const model = cfg?.model ?? args.model;
+    return this.fallback!.invoke({ ...args, model });
   }
 }

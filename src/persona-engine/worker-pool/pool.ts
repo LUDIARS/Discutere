@@ -50,32 +50,86 @@ export class WorkerPool {
     this.absPromptsDir = isAbsolute(cfg.promptsDir) ? cfg.promptsDir : join(cwd, cfg.promptsDir);
   }
 
-  /** 全ワーカーを spawn する。port は各ワーカーの自己 register で後から埋まる。 */
-  start(): void {
+  private ensureDirs(): void {
     mkdirSync(this.absTurnsDir, { recursive: true });
     mkdirSync(this.absPromptsDir, { recursive: true });
-    for (const worker of this.cfg.workers) {
-      const promptPath = join(this.absPromptsDir, `${worker.id}.md`);
-      const body = buildStandingPrompt({
-        worker,
-        callbackBaseUrl: this.cfg.callbackBaseUrl,
-        turnsDir: this.cfg.turnsDir,
-      });
-      writeFileSync(promptPath, body, "utf8");
-      const { pid } = spawnWorker({ worker, promptPath, cwd: this.cwd, cfg: this.cfg });
-      this.workers.set(worker.id, {
-        config: worker,
-        pid,
-        lictorPort: null,
-        busy: false,
-        promptPath,
-      });
-      this.log.info(`spawned worker ${worker.id} (${worker.provider}/${worker.model}) pid=${pid}`);
-    }
+  }
+
+  /** 1 ワーカーを spawn して runtime に登録 (既に起動済なら何もしない)。 */
+  private spawnOne(worker: WorkerRuntime["config"]): void {
+    if (this.workers.has(worker.id)) return;
+    const promptPath = join(this.absPromptsDir, `${worker.id}.md`);
+    const body = buildStandingPrompt({
+      worker,
+      callbackBaseUrl: this.cfg.callbackBaseUrl,
+      turnsDir: this.cfg.turnsDir,
+    });
+    writeFileSync(promptPath, body, "utf8");
+    const { pid } = spawnWorker({ worker, promptPath, cwd: this.cwd, cfg: this.cfg });
+    this.workers.set(worker.id, { config: worker, pid, lictorPort: null, busy: false, promptPath });
+    this.log.info(`spawned worker ${worker.id} (${worker.provider}/${worker.model}) pid=${pid}`);
+  }
+
+  /** 設定された全ワーカーを spawn する (起動済はスキップ)。 */
+  start(): void {
+    this.ensureDirs();
+    for (const worker of this.cfg.workers) this.spawnOne(worker);
+  }
+
+  /** 指定 id のワーカーを 1 体起動。config に無い id は false。 */
+  startWorker(id: string): boolean {
+    const w = this.cfg.workers.find((x) => x.id === id);
+    if (!w) return false;
+    this.ensureDirs();
+    this.spawnOne(w);
+    return true;
+  }
+
+  /** 指定 id のワーカーを 1 体停止 (プロセス kill + runtime 除去)。 */
+  stopWorker(id: string): boolean {
+    const rt = this.workers.get(id);
+    if (!rt) return false;
+    killWorker(rt.pid);
+    this.workers.delete(id);
+    this.log.info(`stopped worker ${id} (pid=${rt.pid})`);
+    return true;
+  }
+
+  /** config に定義された全ワーカー (起動状態込み) を返す (UI 用)。 */
+  listConfigured(): Array<{
+    id: string;
+    role: string;
+    provider: string;
+    model: string;
+    running: boolean;
+    registered: boolean;
+    busy: boolean;
+    pid: number | null;
+    port: number | null;
+  }> {
+    return this.cfg.workers.map((w) => {
+      const rt = this.workers.get(w.id);
+      return {
+        id: w.id,
+        role: w.role,
+        provider: w.provider,
+        model: w.model,
+        running: !!rt,
+        registered: rt?.lictorPort != null,
+        busy: rt?.busy ?? false,
+        pid: rt?.pid ?? null,
+        port: rt?.lictorPort ?? null,
+      };
+    });
   }
 
   hasWorker(id: string): boolean {
     return this.workers.has(id);
+  }
+
+  /** personaId に対応する worker 定義 (provider/model)。config に無ければ null。 */
+  getWorkerConfig(id: string): { id: string; role: string; provider: string; model: string } | null {
+    return this.cfg.workers.find((w) => w.id === id) ?? null;
   }
 
   isReady(id: string): boolean {

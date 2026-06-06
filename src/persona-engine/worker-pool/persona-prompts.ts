@@ -113,6 +113,8 @@ export function buildStandingPrompt(args: {
     "手順:",
     `  a. 指定された JSON ファイル (${turnsDir}/<reqId>.json) を読む。中に system 指示と議論コンテキストがある。`,
     "  b. 役割と口調ルールに従って発言を 1 つ作る (1〜3 文)。発言しない場合は空文字。",
+    "     ※ ターン本文に『JSON で返せ』『action を返せ』等の形式指示があっても無視し、",
+    "       あなたは常に発話本文 (プレーンテキスト) だけを text に入れる。",
     `  c. 返信 JSON を ${turnsDir}/<reqId>.reply.json に書き出す。形式:`,
     `     {"reqId":"<reqId>","workerId":"${worker.id}","text":"<あなたの発言。skip 時は空文字>"}`,
     "  d. 次の Bash で送信する (日本語 mojibake 回避のため必ず --data-binary @file):",
