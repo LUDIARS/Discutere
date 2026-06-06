@@ -7,6 +7,7 @@ export {
   type FacilitatorDeps,
   type FacilitatorOptions,
   type FacilitatorMode,
+  type FacilitatorConvergedEvent,
 } from "./facilitator.js";
 export {
   buildExpandPrompt,

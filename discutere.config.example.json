@@ -28,7 +28,13 @@
     "guildIds": [],
     "adminIds": [],
     "discussionChannelIds": [],
-    "crawlChannelIds": []
+    "crawlChannelIds": [],
+    "forum": {
+      "enabled": true,
+      "summaryChannelName": "まとめ投稿",
+      "dataLearningChannelName": "データ学習依頼",
+      "managedCategoryName": "システム"
+    }
   },
   "backup": {
     "enabled": false,

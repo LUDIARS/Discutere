@@ -49,6 +49,23 @@ env)。`discutere.config.example.json` 参照。詳細は `docs/ws-gateway-confi
 - **S3 バックアップ**: `src/backup/` で KG + 全 SQLite を tar.gz 化し S3 (Glacier 系) へ。
   月次自動 (`backup.enabled` + `intervalDays`) + 手動 (`npm run backup` / `/discutere-backup`)。
 
+## フォーラム集約 (2026-06-06, `discord.forum`)
+
+議論を Discord **フォーラムチャンネル** に集約する (`docs/forum-aggregation.md`)。フォーラムを
+「議論カテゴリ」として使い、guild 内の **全 Forum チャンネル** を監視する。
+
+- **入口**: フォーラム新規ポスト (`ThreadCreate`, 親=`GuildForum`) の **最初の投稿 (starter)**
+  で議論を起こす (`forum-monitor.handleForumThreadCreate` → `command-router.routeForumPost`)。
+  scene を `discord:<guild>/<threadId>` に紐付けるので、AI 返信・収束まとめはそのスレッドに出る。
+  starter 判定は `msg.id === thread.id`。後続投稿は進行中議論への参加発言 (新規 gap は立てない)。
+- **クローズ**: facilitator が収束し gap を closed にすると `onConverged` フックが発火 →
+  gateway の `finalizeForumPost` がスレッドを **lock + archive** し、まとめを「まとめ投稿」へ転記。
+- **自動作成チャンネル** (ClientReady, guild ごと、Manage Channels 権限が必要):
+  - **データ学習依頼** — 貼られた URL を crawl に回す入口 (id は runtime の crawl 集合へ追加)。
+  - **まとめ投稿** — 収束まとめの集約先。
+- 既存 `discussionChannelIds` (平文議論) は後方互換で残すが、フォーラムが議論の正路。
+  無効化は `discord.forum.enabled=false` (env `DISCUTERE_DISCORD_FORUM_ENABLED`)。
+
 ## 個人データ
 
 匿名 workspace (`DISCATIER_WORKSPACE` 既定 `knowledge`)。攻略 KG / 議論ノードに編集者名・アカウント名を保存しない (`spec/crawler/DESIGN.md` 準拠)。

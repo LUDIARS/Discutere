@@ -103,6 +103,22 @@ export interface DiscutereConfig {
      * 空ならクロール無効 (安全 default)。 取り込み結果は「データ追加」 通知チャンネルへ。
      */
     crawlChannelIds: string[];
+    /**
+     * フォーラム集約: guild 内の Forum チャンネルを「議論カテゴリ」として監視する。
+     * 各ポストの最初の投稿で議論を起こし、収束したらポストを archive+lock してクローズ、
+     * まとめを「まとめ投稿」チャンネルへ転記する。データ学習依頼 / まとめ投稿チャンネルは
+     * 起動時に自動作成する (Manage Channels 権限が必要)。
+     */
+    forum: {
+      /** フォーラム監視を有効化 (既定 true)。 */
+      enabled: boolean;
+      /** 収束まとめの転記先チャンネル名 (既定「まとめ投稿」)。 */
+      summaryChannelName: string;
+      /** データクロール依頼の入口チャンネル名 (既定「データ学習依頼」)。 */
+      dataLearningChannelName: string;
+      /** 自動作成チャンネルの親カテゴリ名 (既定「システム」)。 */
+      managedCategoryName: string;
+    };
   };
   /**
    * 学習データ (Discatier KG + persona-engine.db + discutere.db) の S3 アーカイブ。
@@ -139,11 +155,14 @@ interface RawFileConfig {
   facilitator?: Partial<DiscutereConfig["facilitator"]>;
   autoSeed?: Partial<DiscutereConfig["autoSeed"]>;
   llm?: Partial<DiscutereConfig["llm"]>;
-  discord?: Partial<Omit<DiscutereConfig["discord"], "adminIds" | "discussionChannelIds" | "crawlChannelIds" | "guildIds">> & {
+  discord?: Partial<
+    Omit<DiscutereConfig["discord"], "adminIds" | "discussionChannelIds" | "crawlChannelIds" | "guildIds" | "forum">
+  > & {
     adminIds?: string[];
     discussionChannelIds?: string[];
     crawlChannelIds?: string[];
     guildIds?: string[];
+    forum?: Partial<DiscutereConfig["discord"]["forum"]>;
     /** 後方互換: 旧 単数 guildId (guildIds に統合される) */
     guildId?: string;
   };
@@ -298,6 +317,24 @@ export function loadConfig(): DiscutereConfig {
         process.env.DISCUTERE_DISCORD_CRAWL_CHANNELS,
         file.discord?.crawlChannelIds
       ),
+      forum: {
+        enabled: pickBool(process.env.DISCUTERE_DISCORD_FORUM_ENABLED, file.discord?.forum?.enabled, true),
+        summaryChannelName: pick(
+          process.env.DISCUTERE_DISCORD_FORUM_SUMMARY_CHANNEL,
+          file.discord?.forum?.summaryChannelName,
+          "まとめ投稿"
+        ),
+        dataLearningChannelName: pick(
+          process.env.DISCUTERE_DISCORD_FORUM_DATA_CHANNEL,
+          file.discord?.forum?.dataLearningChannelName,
+          "データ学習依頼"
+        ),
+        managedCategoryName: pick(
+          process.env.DISCUTERE_DISCORD_FORUM_CATEGORY,
+          file.discord?.forum?.managedCategoryName,
+          "システム"
+        ),
+      },
     },
     backup: {
       enabled: pickBool(process.env.DISCUTERE_BACKUP_ENABLED, file.backup?.enabled, false),

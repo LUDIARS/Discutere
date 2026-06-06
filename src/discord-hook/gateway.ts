@@ -34,6 +34,15 @@ import { MonitorCard } from "./monitor-card.js";
 import { registerSlashCommands } from "./register-commands.js";
 import { handleCrawlMessage } from "./crawl-handler.js";
 import type { CrawlDeps } from "./crawl-channel.js";
+import {
+  finalizeForumPost,
+  handleForumReply,
+  handleForumThreadCreate,
+  isForumStarterMessage,
+  isForumThreadChannel,
+} from "./forum-monitor.js";
+import { ensureManagedChannels } from "./managed-channels.js";
+import type { AnyThreadChannel } from "discord.js";
 
 export interface DiscordGatewayDeps extends CommandRouterDeps {
   /** Gateway 接続用 bot token */
@@ -55,10 +64,29 @@ export interface DiscordGatewayDeps extends CommandRouterDeps {
   crawlChannelIds?: string[];
   /** クロール取り込みの依存 (createCore / workspaceId / youtubeApiKey)。 未設定ならクロール skip。 */
   crawlDeps?: CrawlDeps;
+  /**
+   * フォーラム集約設定。enabled なら guild 内の全 Forum チャンネルを監視し、
+   * 起動時に データ学習依頼 / まとめ投稿 チャンネルを自動作成する。
+   */
+  forum?: {
+    enabled: boolean;
+    summaryChannelName: string;
+    dataLearningChannelName: string;
+    managedCategoryName: string;
+  };
 }
 
 export interface DiscordGatewayHandle {
   stop(): Promise<void>;
+  /**
+   * 収束したフォーラムポストを締める (archive+lock + まとめ転記)。
+   * scene がフォーラムスレッドでなければ no-op。facilitator の onConverged から呼ぶ。
+   */
+  finalizeForumPost(args: {
+    scene: string | null;
+    summary: string;
+    title: string;
+  }): Promise<{ closed: boolean; reason?: string }>;
 }
 
 /**
@@ -85,6 +113,9 @@ export async function startDiscordGateway(
 
   const monitors: MonitorCard[] = [];
   const guildIds = (deps.guildIds ?? []).filter((g) => g && g !== "dm");
+  // crawl 対象は config 由来 + 起動時に自動作成する「データ学習依頼」チャンネルを足す (mutable)。
+  const crawlChannelIds = new Set((deps.crawlChannelIds ?? []).filter(Boolean));
+  const forumEnabled = deps.forum?.enabled ?? false;
 
   client.once(Events.ClientReady, async (c) => {
     console.log(`  discord-gateway: logged in as ${c.user.tag}`);
@@ -112,12 +143,41 @@ export async function startDiscordGateway(
     } else {
       console.log("  discord-monitor: skipped (set discord.guildIds to enable)");
     }
+
+    // フォーラム集約: データ学習依頼 / まとめ投稿 を自動作成し、前者を crawl 監視に足す。
+    if (forumEnabled && deps.forum && guildIds.length > 0) {
+      try {
+        const { dataLearningChannelIds } = await ensureManagedChannels(client, guildIds, {
+          dataLearning: deps.forum.dataLearningChannelName,
+          summary: deps.forum.summaryChannelName,
+          category: deps.forum.managedCategoryName,
+        });
+        for (const id of dataLearningChannelIds) crawlChannelIds.add(id);
+        console.log(`  discord-forum: monitoring all guild forums; managed channels ensured`);
+      } catch (err) {
+        console.warn(`  discord-forum: managed channel 作成失敗: ${(err as Error).message}`);
+      }
+    }
   });
 
-  const crawlChannelIds = new Set((deps.crawlChannelIds ?? []).filter(Boolean));
+  // フォーラム新規ポスト (親=GuildForum) の最初の投稿で議論を起こす。
+  if (forumEnabled) {
+    client.on(Events.ThreadCreate, (thread: AnyThreadChannel, newlyCreated: boolean) => {
+      if (!newlyCreated) return;
+      void handleForumThreadCreate(thread, { router: deps }).catch((err) =>
+        console.warn(`  discord-forum: thread-create 失敗: ${(err as Error).message}`)
+      );
+    });
+  }
 
   client.on(Events.MessageCreate, (msg: Message) => {
     if (msg.author?.bot) return;
+
+    // フォーラムスレッド内の投稿: starter は ThreadCreate が処理済 → ここでは返信のみ取り込む。
+    if (forumEnabled && isForumThreadChannel(msg.channel)) {
+      if (!isForumStarterMessage(msg)) handleForumReply(msg, { router: deps });
+      return;
+    }
 
     // データクロール用チャンネル: 貼られた URL を外部データ取り込みに回す (議論取り込みはしない)。
     const parentForCrawl = msg.channel?.isThread?.() ? msg.channel.parentId ?? undefined : undefined;
@@ -212,6 +272,16 @@ export async function startDiscordGateway(
       } catch {
         /* ignore */
       }
+    },
+    finalizeForumPost(args) {
+      if (!forumEnabled) return Promise.resolve({ closed: false, reason: "forum disabled" });
+      return finalizeForumPost(client, {
+        scene: args.scene,
+        summary: args.summary,
+        title: args.title,
+        summaryChannelName: deps.forum?.summaryChannelName,
+        categoryName: deps.forum?.managedCategoryName,
+      });
     },
   };
 }

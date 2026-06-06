@@ -72,6 +72,12 @@ const stopSessionCleanup = startSessionCleanup();
 
 let autoDiscussionLlm: LLMClient | null = null;
 
+// フォーラム集約: 収束したフォーラムポストを締める finalizer。
+// facilitator は gateway より先に生成されるため late-bound (gateway 起動後に結線)。
+let forumFinalizer:
+  | ((args: { scene: string | null; summary: string; title: string }) => void)
+  | null = null;
+
 // PR-C / PR-I: persona-engine 起勁Ewiring
 //   LLM backend は config.llm.backend で刁E��: "anthropic" (= anthropicApiKey)
 //   また�E "claude-cli" (= Lictor 経由 spawn、E環墁E�� claude CLI が忁E��E、E
@@ -211,6 +217,9 @@ const personaEngineLifecycle = (() => {
           aufhebungTarget: config.facilitator.aufhebungTarget,
           model: config.llm.model,
         },
+        // 収束したらフォーラムポストを締める (gateway 起動後に forumFinalizer が結線される)。
+        onConverged: (e) =>
+          forumFinalizer?.({ scene: e.scene, summary: e.summary, title: e.title }),
       });
       facilitator.start();
       console.log(
@@ -279,6 +288,8 @@ const discordGatewayLifecycle = startDiscordGateway({
   discussionChannelIds: config.discord.discussionChannelIds,
   // データクロール用チャンネル: 貼られた URL から外部議論データを取り込む。
   crawlChannelIds: config.discord.crawlChannelIds,
+  // フォーラム集約: guild 内の全 Forum 監視 + データ学習依頼/まとめ投稿 を自動作成。
+  forum: config.discord.forum,
   crawlDeps: {
     createCore: () => createCore(),
     workspaceId: config.workspace,
@@ -315,7 +326,22 @@ const discordGatewayLifecycle = startDiscordGateway({
   console.warn("  discord-gateway: startup failed:", (err as Error).message);
   return null;
 });
-void discordGatewayLifecycle;
+
+// フォーラム集約: gateway 起動後に収束 finalizer を結線する (facilitator.onConverged が呼ぶ)。
+discordGatewayLifecycle
+  .then((handle) => {
+    if (!handle || !config.discord.forum.enabled) return;
+    forumFinalizer = (args) => {
+      void handle
+        .finalizeForumPost(args)
+        .then((r) => {
+          if (r.closed) console.log("  discord-forum: post closed (converged)");
+        })
+        .catch((e) => console.warn("  discord-forum: finalize error:", (e as Error).message));
+    };
+    console.log("  discord-forum: convergence finalizer wired");
+  })
+  .catch(() => {});
 
 console.log(`Discutere listening on http://localhost:${port}`);
 console.log(`  Auth:     Discord Gateway (bot token + admin-id allowlist) / HTTP は X-User-Id・X-User-Role ヘッダー`);
