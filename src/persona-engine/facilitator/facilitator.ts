@@ -18,6 +18,7 @@ import type { PersonasRepo } from "../db/personas-repo.js";
 import type { DiscussionContextProvider } from "../context-provider.js";
 import type { LLMClient } from "../llm/client.js";
 import type { Logger } from "../types.js";
+import type { FacilitatorTuning } from "../../runtime-settings/store.js";
 
 import {
   buildAufhebungJudgePrompt,
@@ -63,6 +64,12 @@ export interface FacilitatorDeps {
   workspaceId: string;
   logger: Logger;
   options?: FacilitatorOptions;
+  /**
+   * 収束トリガーのライブ設定取得 (任意)。 渡すと tick ごとにここから
+   * maxPersonas / aufhebungTarget / idleGapMs / convergePolicy を読み、 Web UI からの
+   * 変更を再起動なしで反映する。 未指定なら options (boot 時固定) を使う。
+   */
+  tuning?: () => FacilitatorTuning;
   /**
    * 議論が収束し gap を closed にした直後に呼ばれる (任意)。
    * フォーラム集約ではこのフックでスレッドを archive+lock し、まとめを転記する。
@@ -129,10 +136,17 @@ export interface Facilitator {
 }
 
 export function createFacilitator(deps: FacilitatorDeps): Facilitator {
-  const tickMs = deps.options?.tickMs ?? 30_000;
-  const idleGapMs = deps.options?.idleGapMs ?? 120_000;
-  const maxPersonas = deps.options?.maxPersonas ?? 20;
-  const aufhebungTarget = deps.options?.aufhebungTarget ?? 3;
+  // boot 時 options を既定 tuning とし、 deps.tuning があれば tick ごとに
+  // ライブ値 (Web UI からの変更) を読む。 tickMs だけは setInterval に焼くため固定。
+  const defaultTuning: FacilitatorTuning = {
+    tickMs: deps.options?.tickMs ?? 30_000,
+    idleGapMs: deps.options?.idleGapMs ?? 120_000,
+    maxPersonas: deps.options?.maxPersonas ?? 20,
+    aufhebungTarget: deps.options?.aufhebungTarget ?? 3,
+    convergePolicy: "default",
+  };
+  const getTuning = (): FacilitatorTuning => deps.tuning?.() ?? defaultTuning;
+  const tickMs = defaultTuning.tickMs;
   const raw = deps.core.client.raw;
   const states = new Map<string, SessionState>();
   let timer: NodeJS.Timeout | null = null;
@@ -413,8 +427,12 @@ export function createFacilitator(deps: FacilitatorDeps): Facilitator {
 
   /** idle 時の介入: 止揚判定 → たまっていれば収束、 まだなら拡張。 */
   async function intervene(d: Discussion, metrics: SessionMetrics): Promise<void> {
+    const t = getTuning();
     const aufCount = await judgeAndStockAufhebung(d);
-    if (aufCount >= aufhebungTarget || metrics.distinctPersonas > maxPersonas) {
+    // aufhebung-only ポリシーでは persona 数では収束させず、 止揚が出るまで続ける。
+    const personaOver =
+      t.convergePolicy === "aufhebung-only" ? false : metrics.distinctPersonas > t.maxPersonas;
+    if (aufCount >= t.aufhebungTarget || personaOver) {
       await converge(d);
     } else {
       await expand(d);
@@ -426,7 +444,7 @@ export function createFacilitator(deps: FacilitatorDeps): Facilitator {
     for (const d of listActiveDiscussions()) {
       const metrics = metricsFor(d.sessionId, now);
       const prev = states.get(d.sessionId) ?? { lastUtteranceCount: metrics.utteranceCount, armed: true };
-      const { mode, state } = evaluate(metrics, prev, { idleGapMs });
+      const { mode, state } = evaluate(metrics, prev, { idleGapMs: getTuning().idleGapMs });
       states.set(d.sessionId, state);
       try {
         if (mode === "intervene") await intervene(d, metrics);

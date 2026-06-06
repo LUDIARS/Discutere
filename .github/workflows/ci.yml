@@ -49,3 +49,4 @@ jobs:
           npm run test:persona-engine
           npm run test:machina
           npm run test:discord-hook
+          npm run test:runtime-settings

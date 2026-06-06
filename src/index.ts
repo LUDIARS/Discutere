@@ -26,6 +26,11 @@ import { DEFAULT_WORKERS, buildWorkerPersonaSeeds } from "./persona-engine/worke
 import { DEBATE_RULE_SEEDS } from "./persona-engine/worker-pool/debate-rules.js";
 import { workerRoutes, setWorkerPool } from "./api/worker.js";
 import { workerPoolControlRoutes, setWorkerPoolControl } from "./api/worker-pool-control.js";
+import { tuningRoutes, setRuntimeSettings } from "./api/tuning-routes.js";
+import { topPageRoutes } from "./api/top-page-routes.js";
+import { createRuntimeSettingsStore } from "./runtime-settings/store.js";
+import { setRolePromptResolver, ROLE_GUIDANCE_DEFAULTS } from "./persona-engine/worker-pool/persona-prompts.js";
+import { applyRuleInstructionOverrides, RULE_INSTRUCTION_DEFAULTS } from "./persona-engine/worker-pool/debate-rules.js";
 import { PersonasRepo } from "./persona-engine/db/personas-repo.js";
 import { createFacilitator } from "./persona-engine/facilitator/index.js";
 import { createAutoSeedScheduler } from "./discussion-seed/scheduler.js";
@@ -57,6 +62,9 @@ app.use("*", cors({
 // Health check (認証不要E
 app.get("/health", (c) => c.json({ status: "ok", service: "discutere" }));
 
+// ─── トップページ (各 Web UI への入口、 認証不要・loopback) ──────────
+app.route("/", topPageRoutes);
+
 app.route("/", learningViewRoutes);
 
 // 常駐ワーカー callback (内部用、認証不要)。userContext より前に mount する。
@@ -82,6 +90,9 @@ app.route("/api", queueRoutes);
 // ─── 常駐ワーカー制御 UI/API (/api/worker-pool) ────────────────
 app.route("/api", workerPoolControlRoutes);
 
+// ─── 議論チューニング UI/API (/api/admin/tuning) ───────────────
+app.route("/api", tuningRoutes);
+
 // PR-C: mode-state TTL cleanup めE15 min interval で起勁E(24h 経過 session を回叁E
 const stopSessionCleanup = startSessionCleanup();
 
@@ -104,6 +115,25 @@ let forumFinalizer:
 //   または "worker-pool" (= サブスク Lictor 常駐ワーカー、 spec/feature/persistent-worker-pool.md)
 const personaEngineLifecycle = (() => {
   let llm: LLMClient | null = null;
+
+  // runtime 設定ストア (収束トリガー / 役割プロンプト / debate instructions の
+  // override を SQLite 永続)。 役割プロンプト override を persona seed / standing
+  // prompt 生成より前に効かせるため、 ここで最初に作って resolver を注入する。
+  const settingsDb = new Database("./data/discutere-settings.db");
+  const runtimeSettings = createRuntimeSettingsStore(settingsDb, {
+    facilitator: {
+      tickMs: config.facilitator.tickMs,
+      idleGapMs: config.facilitator.idleGapMs,
+      maxPersonas: config.facilitator.maxPersonas,
+      aufhebungTarget: config.facilitator.aufhebungTarget,
+      convergePolicy: "default",
+    },
+    rolePrompts: ROLE_GUIDANCE_DEFAULTS,
+    ruleInstructions: RULE_INSTRUCTION_DEFAULTS,
+  });
+  setRolePromptResolver((role) => runtimeSettings.getRolePrompt(role));
+  setRuntimeSettings(runtimeSettings);
+
   if (isWorkerPool) {
     const workers =
       config.workerPool.workers.length > 0 ? config.workerPool.workers : DEFAULT_WORKERS;
@@ -244,7 +274,12 @@ const personaEngineLifecycle = (() => {
       personaSeeds: workerPersonaSeeds,
       // worker-pool 時は target=worker id の debate ルールを使う
       // (既存ルールの target=advocate 等は worker と一致せず全 skip になる)。
-      ruleSeeds: isWorkerPool ? DEBATE_RULE_SEEDS : undefined,
+      // instructions は runtime override (チューニング UI) を適用してから seed する。
+      ruleSeeds: isWorkerPool
+        ? applyRuleInstructionOverrides(DEBATE_RULE_SEEDS, (id) =>
+            runtimeSettings.getRuleInstruction(id),
+          )
+        : undefined,
       maxFiresPerSession: config.personaEngine.maxFiresPerSession,
       maxFiresPerRulePerSession: config.personaEngine.maxFiresPerRule,
       tickMs: config.personaEngine.tickMs,
@@ -284,6 +319,9 @@ const personaEngineLifecycle = (() => {
           aufhebungTarget: config.facilitator.aufhebungTarget,
           model: config.llm.model,
         },
+        // 収束トリガーは tick ごとに runtime-settings から読み、 チューニング UI の
+        // 変更 (「20」等 / aufhebung-only ポリシー) を再起動なしで反映する。
+        tuning: () => runtimeSettings.getFacilitatorTuning(),
         // 収束したらフォーラムポストを締める (gateway 起動後に forumFinalizer が結線される)。
         onConverged: (e) =>
           forumFinalizer?.({ scene: e.scene, summary: e.summary, title: e.title }),

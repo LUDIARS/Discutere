@@ -21,6 +21,39 @@ export const DEFAULT_WORKERS: WorkerConfig[] = [
   { id: "opinion-gpt", role: "意見屋", provider: "codex", model: "gpt-5.5" },
 ];
 
+/**
+ * 役割別の既定ガイダンス (override 比較のため辞書として公開)。
+ * runtime-settings の rolePrompts デフォルトに渡す。
+ */
+export const ROLE_GUIDANCE_DEFAULTS: Record<string, string> = {
+  ファシリテーター: [
+    "あなたは議論のファシリテーターです。対立する意見を整理し、止揚 (アウフヘーベン) を促し、",
+    "人間の発言を最優先で拾う。結論を急がず、論点を一つに絞って次の一手を投げる。",
+  ].join("\n"),
+  正論派: [
+    "あなたは正論派です。テーマの主張を筋の通った形で擁護・補強する。",
+    "ただし盲信せず、根拠を添えて『なぜ妥当か』を一言で示す。",
+  ].join("\n"),
+  否定派: [
+    "あなたは否定派です。健全な反対意見・反例・見落とされた弱点を投げかける。",
+    "揚げ足取りではなく、議論を前に進める否定を心がける。",
+  ].join("\n"),
+  意見屋: [
+    "あなたは意見屋です。賛否どちらにも寄りすぎず、自分の角度から独自の見方や具体例を出す。",
+    "他のペルソナが触れていない切り口を一つ持ち込む。",
+  ].join("\n"),
+};
+
+/**
+ * 役割ガイダンスの runtime override 解決関数。 index.ts が runtime-settings ストアを
+ * 注入する。 未注入なら hardcoded デフォルトを使う (テスト / 単体実行時)。
+ * `setWorkerPoolControl` 等と同じモジュールレベル注入パターン。
+ */
+let rolePromptResolver: ((role: string) => string | undefined) | null = null;
+export function setRolePromptResolver(fn: ((role: string) => string | undefined) | null): void {
+  rolePromptResolver = fn;
+}
+
 /** モデル ID → 表示用の短縮タグ。 */
 function modelShort(model: string): string {
   if (model.includes("opus")) return "Opus";
@@ -45,32 +78,14 @@ export function buildWorkerPersonaSeeds(workers: WorkerConfig[]): PersonaSeed[] 
   }));
 }
 
-/** 役割別の振る舞い指示。 */
+/**
+ * 役割別の振る舞い指示。 runtime override があればそれを、 無ければ hardcoded
+ * デフォルト、 未知の役割はフォールバック文。
+ */
 function roleGuidance(role: string): string {
-  switch (role) {
-    case "ファシリテーター":
-      return [
-        "あなたは議論のファシリテーターです。対立する意見を整理し、止揚 (アウフヘーベン) を促し、",
-        "人間の発言を最優先で拾う。結論を急がず、論点を一つに絞って次の一手を投げる。",
-      ].join("\n");
-    case "正論派":
-      return [
-        "あなたは正論派です。テーマの主張を筋の通った形で擁護・補強する。",
-        "ただし盲信せず、根拠を添えて『なぜ妥当か』を一言で示す。",
-      ].join("\n");
-    case "否定派":
-      return [
-        "あなたは否定派です。健全な反対意見・反例・見落とされた弱点を投げかける。",
-        "揚げ足取りではなく、議論を前に進める否定を心がける。",
-      ].join("\n");
-    case "意見屋":
-      return [
-        "あなたは意見屋です。賛否どちらにも寄りすぎず、自分の角度から独自の見方や具体例を出す。",
-        "他のペルソナが触れていない切り口を一つ持ち込む。",
-      ].join("\n");
-    default:
-      return `あなたは議論ペルソナ「${role}」です。役割に沿って発言する。`;
-  }
+  const override = rolePromptResolver?.(role);
+  if (override && override.trim() !== "") return override;
+  return ROLE_GUIDANCE_DEFAULTS[role] ?? `あなたは議論ペルソナ「${role}」です。役割に沿って発言する。`;
 }
 
 /**

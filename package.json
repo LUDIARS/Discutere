@@ -25,6 +25,7 @@
     "test:persona-engine": "tsx tests/persona-engine/run.ts",
     "test:machina": "tsx tests/machina/run.ts",
     "test:discord-hook": "tsx tests/discord-hook/run.ts",
+    "test:runtime-settings": "tsx tests/runtime-settings/run.ts",
     "test:queue": "tsx tests/queue/run.ts",
     "test:backup": "tsx tests/backup/run.ts",
     "crawl": "tsx scripts/crawl.ts",
