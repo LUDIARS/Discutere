@@ -15,6 +15,11 @@ export interface LLMInvokeArgs {
   maxTokens?: number;
   /** タイムアウト ms (default 60_000) */
   timeoutMs?: number;
+  /**
+   * 発話するペルソナ id。worker-pool backend が「どの常駐ワーカーに投げるか」
+   * のルーティングに使う。他 backend (anthropic / claude-cli / mock) は無視する。
+   */
+  personaId?: string;
 }
 
 export type LLMResult =

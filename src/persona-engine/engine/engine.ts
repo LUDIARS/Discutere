@@ -222,6 +222,8 @@ export function createEngine(deps: EngineDeps): EngineHandle {
     const llmRes = await deps.llm.invoke({
       prompt: built.user,
       system: built.system,
+      // worker-pool backend のルーティング用 (他 backend は無視)。
+      personaId,
     });
     if (!llmRes.ok) {
       deps.rules.log({
