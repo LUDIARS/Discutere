@@ -20,7 +20,7 @@ import {
   type ConclusionSummary,
   type ConclusionDetail,
 } from "../visualize/conclusions.js";
-import type { DiscordAutoDiscussionInput } from "./auto-discussion.js";
+import type { DiscordAutoDiscussionInput, ForumDirection } from "./auto-discussion.js";
 import type { DiscordInboundMessage } from "./types.js";
 
 export interface SlashReply {
@@ -195,7 +195,7 @@ export function routeForumPost(
   msg: DiscordInboundMessage,
   guildId: string,
   deps: CommandRouterDeps,
-  opts: { isStarter: boolean }
+  opts: { isStarter: boolean; direction?: ForumDirection }
 ): InboundRouteResult {
   const text = msg.content.trim();
   if (text.length === 0) return { ingested: false };
@@ -230,6 +230,7 @@ export function routeForumPost(
         utteranceId: res.utteranceId!,
         authorId: msg.author.id,
         content: text,
+        direction: opts.direction,
       })
     )
       .then((r) => (r != null && typeof r === "object" ? r.started === true : false))

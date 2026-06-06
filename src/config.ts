@@ -118,6 +118,13 @@ export interface DiscutereConfig {
       dataLearningChannelName: string;
       /** 自動作成チャンネルの親カテゴリ名 (既定「システム」)。 */
       managedCategoryName: string;
+      /**
+       * 議論の方向性を決めるフォーラムタグ名 (部分一致)。
+       * improvement 系タグ → 「改善提案」方向、fun 系 → 「面白さ」方向。
+       * タグ無し / 未一致は既定で「面白さ」方向。
+       */
+      improvementTagNames: string[];
+      funTagNames: string[];
     };
   };
   /**
@@ -334,6 +341,21 @@ export function loadConfig(): DiscutereConfig {
           file.discord?.forum?.managedCategoryName,
           "システム"
         ),
+        improvementTagNames: parseStringList(
+          process.env.DISCUTERE_DISCORD_FORUM_IMPROVEMENT_TAGS,
+          file.discord?.forum?.improvementTagNames
+        ).length
+          ? parseStringList(
+              process.env.DISCUTERE_DISCORD_FORUM_IMPROVEMENT_TAGS,
+              file.discord?.forum?.improvementTagNames
+            )
+          : ["改善提案", "改善", "提案", "improvement"],
+        funTagNames: parseStringList(
+          process.env.DISCUTERE_DISCORD_FORUM_FUN_TAGS,
+          file.discord?.forum?.funTagNames
+        ).length
+          ? parseStringList(process.env.DISCUTERE_DISCORD_FORUM_FUN_TAGS, file.discord?.forum?.funTagNames)
+          : ["面白さ", "面白い", "おもしろさ", "fun"],
       },
     },
     backup: {

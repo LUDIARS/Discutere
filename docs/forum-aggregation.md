@@ -56,6 +56,26 @@
 - 起動は `ThreadCreate` を正トリガにする (フォーラムポスト新規作成の確実なシグナル)。
   `fetchStarterMessage` は作成直後に取りこぼすことがあるため 1 回リトライする。
 
+## 議論の方向性 (フォーラムタグ) — 2026-06-06 追加
+
+フォーラムポストの **適用タグ** で議論の方向を決める:
+
+| タグ | direction | 議論の進め方 |
+|---|---|---|
+| 「改善提案」系 (`improvementTagNames` 部分一致) | `improvement` | 課題を洗い出し具体的な改善案を出し合う |
+| 「面白さ」系 (`funTagNames` 部分一致) | `fun` | 何がどう面白いか、体験の魅力を語り合う |
+| タグ無し / 未一致 | `fun` (既定) | 上の「面白さ」方向 |
+
+- `forum-monitor.pickForumDirection(appliedTagNames, cfg)` (純粋関数) で判定。改善系を優先。
+- スレッドの `appliedTags` (タグ id) を親フォーラムの `availableTags` でタグ名に解決する。
+- direction は `routeForumPost` → `classifyInboundMessage` 入力に乗り、`auto-discussion` が
+  `forumDirectionDirective(direction)` を **gap 説明に差し込む**。facilitator は gapTopic
+  (title + description) を読むので、拡張/収束プロンプトが方向に沿う。
+- direction は gap の `evidence_json.direction` にも残す。非フォーラム経路 (平文議論) は direction
+  無し = 従来挙動。
+- タグ名は config `discord.forum.improvementTagNames` / `funTagNames` で上書き可
+  (env `DISCUTERE_DISCORD_FORUM_IMPROVEMENT_TAGS` / `..._FUN_TAGS`、カンマ区切り)。
+
 ## 収束 → クローズ (onConverged)
 
 - facilitator に optional `onConverged({ gapId, sessionId, scene, summary, title })` を追加。
