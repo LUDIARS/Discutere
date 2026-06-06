@@ -8,6 +8,7 @@
  */
 
 import http from "node:http";
+import { join } from "node:path";
 
 import { WorkerPool } from "../src/persona-engine/worker-pool/pool.js";
 import type { WorkerConfig } from "../src/persona-engine/worker-pool/types.js";
@@ -20,6 +21,7 @@ const pool = new WorkerPool(
     enabled: true,
     workspace: "debate",
     callbackBaseUrl: `http://127.0.0.1:${PORT}`,
+    workerCwd: join(process.cwd(), "worker-home"),
     injectDelayMs: 2500,
     turnTimeoutMs: 180_000,
     registerTimeoutMs: 120_000,

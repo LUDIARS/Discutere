@@ -59,9 +59,9 @@ persona-engine の発話生成は従来 `ClaudeCliClient`（`claude -p` を per-
 
 各ワーカーの **standing persona prompt**（auto-inject される本文）は:
 1. 役割・口調ルール（prompt-builder.ts の現行ルールを踏襲: ラベル禁止 / 一文ごと改行 / 1〜3文 / 自然口語）。
-2. 動作プロトコル:
-   - 起動直後: `POST $DI_CALLBACK_URL/api/worker/register {workerId:'<id>', lictorPort:$LICTOR_PORT}` を1回。
-   - ターン受信（注入されるJSON `{reqId, context}`）: 役割に沿って発言を1つ作り、`POST $DI_CALLBACK_URL/api/worker/utterance {reqId, workerId, text}`。それ以外は何もしない。
+2. 動作プロトコル（register/utterance は生 curl をやめ worker-home の node スクリプト経由。後述 §4.8）:
+   - 起動直後: `node scripts/register.mjs` を1回（workerId / lictorPort は env から自動取得 → `POST /internal/worker/register`）。
+   - ターン受信（`[TURN] <reqId> <ターン JSON の絶対パス>` の1行注入）: 役割に沿って発言を1つ作り `replies/<reqId>.reply.json` に書き、`node scripts/send.mjs replies/<reqId>.reply.json`（→ `POST /internal/worker/utterance`、ファイルを生で送るので日本語も化けない）。それ以外は何もしない。
    - 投稿後は次のターンまで静かに待機。
 
 ## 4. コンポーネント
@@ -85,7 +85,11 @@ persona-engine の発話生成は従来 `ClaudeCliClient`（`claude -p` を per-
 worker 定義 → standing prompt 文字列。役割別テンプレ（正論派/否定派/意見屋/ファシリテーター）＋共通プロトコル節。
 
 ### 4.3 spawner (`src/persona-engine/worker-pool/spawner.ts`)
-`lictor <provider-bin> --model <m>` を別窓 spawn（PS `Start-Process` 相当を Node `child_process.spawn` で）。env:
+`lictor <provider-bin> --model <m> [--permission-mode acceptEdits]` を別窓 spawn（Node `child_process.spawn`）。
+claude ワーカーは **auto-mode ではなく edit-mode (`acceptEdits`)** で起動し、cwd を専用ディレクトリ
+`worker-home` (= `cfg.workerCwd`) にする。そこの `.claude/settings.json` で register/send スクリプトを
+allow-list するので、旧来の生 curl が auto-mode 分類器に遮断される問題を回避（後述 §4.8）。codex は
+`--permission-mode` が claude 専用 flag なので付けない。env:
 - `CONCORDIA_DELEGATION_PROMPT_FILE` = 書き出した standing prompt md
 - `LICTOR_DISABLE_CONCORDIA=1`
 - `DI_WORKER_ID`, `DI_CALLBACK_URL`
@@ -112,7 +116,25 @@ worker 定義 → standing prompt 文字列。役割別テンプレ（正論派/
 - loopback 限定（Di の他 API と同様の guard）。
 
 ### 4.7 配線 (`src/index.ts`)
-`config.llm.backend === "worker-pool"` のとき WorkerPool + WorkerPoolClient を構築し、`createPersonaEngine({ llm: workerPoolClient, workspaceId: "debate", ... })`。api ルータに `/api/worker` を mount。終了時に pool.stop()（全 worker kill）。
+`config.llm.backend === "worker-pool"` のとき WorkerPool + WorkerPoolClient を構築し、`createPersonaEngine({ llm: workerPoolClient, workspaceId: "debate", ... })`。api ルータに `/internal/worker` を mount。`workerCwd = join(process.cwd(), "worker-home")` を pool 設定に渡す。終了時に pool.stop()（全 worker kill）。
+
+### 4.8 worker-home（ワーカー専用 cwd） — curl 廃止 + edit-mode
+ワーカー (lictor claude/codex) の cwd を Discutere 本体リポではなく専用ディレクトリ `worker-home/` にする。
+これは「議論ワーカーに特殊な権限は不要」という前提のもと、旧来の生 curl が auto-mode の権限分類器に
+プロンプトインジェクションとして遮断された問題への対処:
+```
+worker-home/
+├── .claude/settings.json   # permissions.defaultMode=acceptEdits + register/send を allow-list
+├── scripts/register.mjs    # 起動直後の自己 register (env: DI_CALLBACK_URL/DI_WORKER_ID/LICTOR_PORT)
+├── scripts/send.mjs        # 1 ターンの発話送信 (reply JSON を生 POST → mojibake 回避)
+└── replies/                # ワーカーが書く返信 JSON (gitignore)
+```
+- **curl → node スクリプト**: `register.mjs` / `send.mjs` を allow-list することで分類器評価なしに待ち無し実行。
+- **edit-mode 起動**: spawner が claude に `--permission-mode acceptEdits` を渡す + settings.json でも宣言（二重）。
+- **trust ダイアログ**: `worker-home` は `E:/Document/Ars` (trust 済) の子なので Claude Code が trust を継承し、
+  headless でもダイアログで hang しない。
+- **`.claude/settings.json` は手動配置が要ることがある**: 権限 allow-list を含むため、auto-mode 下の生成ツール
+  からは書けず弾かれる場合がある。その場合はユーザが直接配置する（内容は `worker-home/README.md` 記載）。
 
 ## 5. ターンプロトコル / 相関
 
@@ -122,9 +144,9 @@ worker 定義 → standing prompt 文字列。役割別テンプレ（正論派/
 
 ## 6. 失敗モード・既知の制約
 
-- **権限ゲート**: `LICTOR_DISABLE_CONCORDIA=1` で permission-hook が付かない前提（wrap.ts は concordia 有効時のみ hook 付与）。これにより worker の `curl` が待ち無しで通る。**逆に言うと Concordia 連携を切ることが前提条件**。
-- **port 取得の堅牢性**: 現状は worker 自己登録（LLM が起動時に curl 1回）。失敗時は registerTimeoutMs で諦め respawn。将来硬化: Lictor に `LICTOR_PORT_FILE` env を足し、port をファイルに書かせて pool が deterministic に読む（Lictor 側 3 行、別 PR）。
-- **codex provider**: gpt-5.5 ワーカーは Codex CLI 経由。auto-inject の submit 戦略は provider 差（codex は 2 段 submit）を Lictor が吸収済。callback の curl も Codex セッション内で実行できる前提（要実機確認）。
+- **権限ゲート**: `LICTOR_DISABLE_CONCORDIA=1` で permission-hook が付かない前提（wrap.ts は concordia 有効時のみ hook 付与）。さらに claude は edit-mode + worker-home の allow-list 済 node スクリプトで register/send するので待ち無しで通る（§4.8）。**Concordia 連携を切ることが前提条件**。
+- **port 取得の堅牢性**: 現状は worker 自己登録（LLM が起動時に `node scripts/register.mjs` を1回）。失敗時は registerTimeoutMs で諦め respawn。将来硬化: Lictor に `LICTOR_PORT_FILE` env を足し、port をファイルに書かせて pool が deterministic に読む（Lictor 側 3 行、別 PR）。
+- **codex provider**: gpt-5.5 ワーカーは Codex CLI 経由。auto-inject の submit 戦略は provider 差（codex は 2 段 submit）を Lictor が吸収済。codex は claude の settings.json / `--permission-mode` を共有しないため、register/send の node スクリプトを Codex セッション内で実行できるか（承認モード）は **要実機確認**。
 - **レイテンシ**: 1ターン = 注入 + 生成（数秒〜十数秒）。常駐なので spawn コストはターンに乗らない。
 - **8セッション常時占有**: サブスクのセッション枠を8消費。
 
