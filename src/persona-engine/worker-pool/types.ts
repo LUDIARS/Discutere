@@ -24,6 +24,13 @@ export interface WorkerPoolConfig {
   workspace: string;
   /** ワーカーが register / utterance を返す Discutere の base URL。 */
   callbackBaseUrl: string;
+  /**
+   * 各ワーカー (lictor claude/codex) を起動する cwd。
+   * Discutere 本体リポではなく専用ディレクトリ (worker-home) を指す。
+   * ここに専用 `.claude/settings.json` (edit-mode + register/send スクリプトの
+   * allow-list) と `scripts/{register,send}.mjs` を置く。
+   */
+  workerCwd: string;
   /** Windows で lictor → claude CLI を起動する際の git-bash パス (空なら自動検出)。 */
   gitBashPath?: string;
   /** auto-inject の TUI 待ち ms。 */

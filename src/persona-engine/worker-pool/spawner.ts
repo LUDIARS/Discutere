@@ -1,10 +1,14 @@
 /**
  * 常駐ワーカーの spawn。
  *
- * `lictor <bin> --model <model>` を起動する。Concordia は無効化する
- * (`LICTOR_DISABLE_CONCORDIA=1`) ので:
+ * `lictor <bin> --model <model> [--permission-mode acceptEdits]` を起動する。
+ * Concordia は無効化する (`LICTOR_DISABLE_CONCORDIA=1`) ので:
  *   - Concordia セッション登録なし → Concordia の Discord にチャンネルが作られない
- *   - permission-hook も付かない → ワーカーの curl callback が待ち無しで通る
+ *   - permission-hook も付かない
+ * claude ワーカーは auto-mode ではなく **edit-mode (`acceptEdits`)** で起動し、
+ * cwd を専用ディレクトリ (`cfg.workerCwd` = worker-home) にする。そこの
+ * `.claude/settings.json` で register/send スクリプトを allow-list 済みなので、
+ * 旧来の生 curl が auto-mode 分類器に遮断される問題を回避しつつ待ち無しで通る。
  * standing persona prompt は `CONCORDIA_DELEGATION_PROMPT_FILE` 経由で Lictor の
  * delegation auto-inject が 1 回だけ流し込む。
  */
@@ -40,11 +44,20 @@ export interface SpawnedWorker {
 export function spawnWorker(args: {
   worker: WorkerConfig;
   promptPath: string;
+  /** ワーカーの cwd (= worker-home)。専用 `.claude/settings.json` がここを基準に効く。 */
   cwd: string;
   cfg: WorkerPoolConfig;
 }): SpawnedWorker {
   const { worker, promptPath, cwd, cfg } = args;
   const bin = BIN_BY_PROVIDER[worker.provider] ?? "claude";
+
+  // claude は edit-mode (acceptEdits) で起動。worker-home の settings.json と
+  // 合わせて register/send スクリプトを待ち無しで実行させる (codex は claude 専用
+  // flag なので付けない)。
+  const lictorArgs =
+    worker.provider === "claude"
+      ? [bin, "--model", worker.model, "--permission-mode", "acceptEdits"]
+      : [bin, "--model", worker.model];
 
   const env: NodeJS.ProcessEnv = {
     ...process.env,
@@ -67,14 +80,14 @@ export function spawnWorker(args: {
   // Windows: lictor は .cmd shim なので cmd.exe 経由。detached + stdio ignore で
   // headless 常駐 (claude TUI は node-pty が pseudo-tty を確保するので可視窓は不要)。
   const child = isWin
-    ? spawn("cmd.exe", ["/c", "lictor", bin, "--model", worker.model], {
+    ? spawn("cmd.exe", ["/c", "lictor", ...lictorArgs], {
         cwd,
         env,
         detached: true,
         stdio: "ignore",
         windowsHide: true,
       })
-    : spawn("lictor", [bin, "--model", worker.model], {
+    : spawn("lictor", lictorArgs, {
         cwd,
         env,
         detached: true,

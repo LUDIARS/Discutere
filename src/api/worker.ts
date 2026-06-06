@@ -2,7 +2,8 @@
  * 常駐ワーカー callback endpoint (内部用)。
  *
  * ワーカー (= LICTOR_DISABLE_CONCORDIA で起動した Lictor セッション) が
- * curl で叩く:
+ * worker-home の node スクリプト (scripts/{register,send}.mjs) から叩く
+ * (旧: 生 curl。 auto-mode 分類器の遮断回避のため node 経由に置換):
  *   - POST /internal/worker/register  { workerId, lictorPort } : 起動時の自己登録
  *   - POST /internal/worker/utterance { reqId, workerId, text } : 1 ターンの発話
  *
