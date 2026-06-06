@@ -177,6 +177,96 @@ export function routeInboundMessage(
   }
 }
 
+/**
+ * フォーラムポストの取り込み (フォーラム集約)。
+ *
+ * フォーラム = 議論カテゴリ。ポスト (スレッド) の **最初の投稿 (starter)** が議論の種で、
+ * 後続投稿は進行中議論への参加者発言になる。`discussionChannelIds` の許可ゲートに依らず
+ * guild 内の全フォーラムを対象にする (channelId = thread.id なので session/AI 返信は
+ * そのスレッドに紐付く)。
+ *
+ * - isStarter=true: utterance を取り込み、まだ議論が立っていなければ auto-discussion で
+ *   designGap を起こす (seed Promise を返す)。既に当該スレッドで open な議論があれば
+ *   二重起動を避けて classify しない。
+ * - isStarter=false: utterance を取り込むだけ (新規 gap は立てない)。event-bridge が
+ *   人間発言として進行中議論にミラーする。
+ */
+export function routeForumPost(
+  msg: DiscordInboundMessage,
+  guildId: string,
+  deps: CommandRouterDeps,
+  opts: { isStarter: boolean }
+): InboundRouteResult {
+  const text = msg.content.trim();
+  if (text.length === 0) return { ingested: false };
+  // slash 由来 (先頭 "/") は interaction 経路で処理されるので二重取り込みしない。
+  if (text.startsWith("/")) return { ingested: false };
+
+  const core = createCore();
+  try {
+    const sessionId = ensureDiscordSession(core, deps.workspaceId, guildId, msg.channelId);
+    const res = submitMessage({
+      core,
+      workspaceId: deps.workspaceId,
+      sessionId,
+      personId: msg.author.id,
+      rawContent: text,
+    });
+
+    // starter のみ議論を起こす。既に当該スレッドで open な議論があれば二重起動しない。
+    const shouldSeed =
+      opts.isStarter &&
+      !!res.utteranceId &&
+      !!deps.classifyInboundMessage &&
+      !forumDiscussionExists(core, deps.workspaceId, guildId, msg.channelId);
+    if (!shouldSeed) return { ingested: true };
+
+    const seed = Promise.resolve(
+      deps.classifyInboundMessage!({
+        workspaceId: deps.workspaceId,
+        guildId,
+        channelId: msg.channelId,
+        sessionId,
+        utteranceId: res.utteranceId!,
+        authorId: msg.author.id,
+        content: text,
+      })
+    )
+      .then((r) => (r != null && typeof r === "object" ? r.started === true : false))
+      .catch((err) => {
+        console.warn(`  discord-forum: classify failed: ${(err as Error).message}`);
+        return false;
+      });
+    return { ingested: true, seed };
+  } finally {
+    core.close();
+  }
+}
+
+/** 当該スレッド (scene=discord:<guild>/<threadId>) で open な議論 session が既にあるか。 */
+function forumDiscussionExists(
+  core: ReturnType<typeof createCore>,
+  workspaceId: string,
+  guildId: string,
+  threadId: string
+): boolean {
+  const scene = `discord:${guildId}/${threadId}`;
+  const row = core.client.raw
+    .prepare(
+      `SELECT s.id AS id
+         FROM sessions s
+         JOIN design_gaps g
+           ON g.id = SUBSTR(s.title, LENGTH('discussion-of-gap:') + 1)
+        WHERE s.workspace_id = ?
+          AND s.title LIKE 'discussion-of-gap:%'
+          AND s.scene = ?
+          AND (g.status IS NULL OR g.status NOT IN ('closed', 'converged'))
+        LIMIT 1`
+    )
+    .get(workspaceId, scene) as { id: string } | undefined;
+  return !!row;
+}
+
 /** /discutere-queue — 議論キューのサマリを ephemeral で返す (全員可) */
 function handleQueueSlash(deps: CommandRouterDeps): SlashReply {
   if (!deps.buildQueueText) {

@@ -43,6 +43,18 @@ export interface FacilitatorOptions {
   model?: string;
 }
 
+/** 議論収束イベント (gap closed の直後に発火)。discord 依存は持たせない純データ。 */
+export interface FacilitatorConvergedEvent {
+  gapId: string;
+  sessionId: string;
+  /** 議論 session の scene ("discord:<guild>/<channel>" or "gap:<gapId>")。 */
+  scene: string | null;
+  /** 議題タイトル。 */
+  title: string;
+  /** 収束まとめ本文 (【収束】プレフィックス無し)。 */
+  summary: string;
+}
+
 export interface FacilitatorDeps {
   core: Core;
   llm: LLMClient;
@@ -51,6 +63,12 @@ export interface FacilitatorDeps {
   workspaceId: string;
   logger: Logger;
   options?: FacilitatorOptions;
+  /**
+   * 議論が収束し gap を closed にした直後に呼ばれる (任意)。
+   * フォーラム集約ではこのフックでスレッドを archive+lock し、まとめを転記する。
+   * 失敗しても収束処理は止めない (fire-and-forget)。
+   */
+  onConverged?: (event: FacilitatorConvergedEvent) => void;
 }
 
 interface SessionState {
@@ -350,6 +368,34 @@ export function createFacilitator(deps: FacilitatorDeps): Facilitator {
     closeGap(d.gapId);
     states.delete(d.sessionId); // 収束したら管理終了 (= ファシリテーター消滅)
     deps.logger.info({ gap_id: d.gapId }, "facilitator converged discussion (gap closed)");
+
+    // 収束フック (フォーラム集約: スレッドを締めてまとめを転記)。失敗は議論を止めない。
+    if (deps.onConverged) {
+      try {
+        const scene =
+          (
+            raw.prepare("SELECT scene FROM sessions WHERE id = ?").get(d.sessionId) as
+              | { scene: string | null }
+              | undefined
+          )?.scene ?? null;
+        deps.onConverged({
+          gapId: d.gapId,
+          sessionId: d.sessionId,
+          scene,
+          title: gapTitle(d.gapId),
+          summary,
+        });
+      } catch (err) {
+        deps.logger.warn({ gap_id: d.gapId, err: (err as Error).message }, "facilitator onConverged hook failed");
+      }
+    }
+  }
+
+  function gapTitle(gapId: string): string {
+    const g = raw.prepare("SELECT title FROM design_gaps WHERE id = ?").get(gapId) as
+      | { title: string }
+      | undefined;
+    return g?.title ?? "(無題の議論)";
   }
 
   function closeGap(gapId: string): void {

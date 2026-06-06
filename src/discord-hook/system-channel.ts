@@ -20,6 +20,8 @@ export interface EnsureSystemChannelOptions {
   categoryName?: string;
   /** チャンネル名 (既定「データ追加」) */
   channelName?: string;
+  /** 新規作成時に付ける channel topic (既定はデータ追加通知用)。既存チャンネル流用時は変更しない。 */
+  topic?: string;
 }
 
 const cache = new Map<string, TextChannel>();
@@ -74,7 +76,7 @@ export async function ensureSystemChannel(
       name: channelName,
       type: ChannelType.GuildText,
       parent: category.id,
-      topic: "外部議論データの取り込み通知 (Discutere クロール)",
+      topic: opts.topic ?? "外部議論データの取り込み通知 (Discutere クロール)",
     })) as TextChannel;
     cache.set(key, created);
     return created;
