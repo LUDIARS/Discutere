@@ -1,3 +1,5 @@
+import { join } from "node:path";
+
 import { serve } from "@hono/node-server";
 import { Hono } from "hono";
 import { cors } from "hono/cors";
@@ -110,6 +112,9 @@ const personaEngineLifecycle = (() => {
         enabled: config.workerPool.enabled,
         workspace: config.workerPool.workspace,
         callbackBaseUrl: config.workerPool.callbackBaseUrl,
+        // ワーカー (lictor claude/codex) の cwd = 専用 worker-home。
+        // そこの .claude/settings.json (edit-mode + register/send allow-list) を効かせる。
+        workerCwd: join(process.cwd(), "worker-home"),
         gitBashPath: config.workerPool.gitBashPath,
         injectDelayMs: config.workerPool.injectDelayMs,
         turnTimeoutMs: config.workerPool.turnTimeoutMs,

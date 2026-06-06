@@ -1,0 +1,15 @@
+{
+  "$schema": "https://json.schemastore.org/claude-code-settings.json",
+  "_README": "これは worker-home/.claude/settings.json のテンプレート。Copy-Item でコピーして有効化する: Copy-Item \"E:\\Document\\Ars\\Discutere\\worker-home\\settings.template.json\" \"E:\\Document\\Ars\\Discutere\\worker-home\\.claude\\settings.json\" (.claude フォルダが無ければ先に New-Item -ItemType Directory -Force で作成)。Claude Code は _README キーを無視する。",
+  "permissions": {
+    "defaultMode": "acceptEdits",
+    "allow": [
+      "Bash(node scripts/register.mjs)",
+      "Bash(node ./scripts/register.mjs)",
+      "Bash(node scripts/send.mjs:*)",
+      "Bash(node ./scripts/send.mjs:*)"
+    ],
+    "deny": [],
+    "ask": []
+  }
+}
