@@ -134,9 +134,11 @@ const personaEngineLifecycle = (() => {
   autoDiscussionLlm = llm;
 
   try {
-    // worker-pool は専用 DB + workspace で既存 knowledge (1260 persona) と隔離する。
+    // worker-pool は persona DB だけ分離し (8 固定キャスト)、workspace は
+    // 実フォーラムと共有する (= worker が live forum の utterance/gap を読む)。
+    // workspace まで分けると worker が空の議論を見て反応しなくなる。
     const peDbPath = isWorkerPool ? "./data/persona-engine-debate.db" : config.personaEngine.dbPath;
-    const workspaceId = isWorkerPool ? config.workerPool.workspace : config.workspace;
+    const workspaceId = config.workspace;
     const peDb = new Database(peDbPath);
     const core = createCore();
     ensureReactionTables(core.client.raw);
