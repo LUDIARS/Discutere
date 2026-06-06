@@ -14,7 +14,13 @@
 import type { PersonaEngineHandle } from "../persona-engine/index.js";
 import { createCore } from "../core/index.js";
 import { submitMessage } from "../core/projection/message-input.js";
-import type { DiscordAutoDiscussionInput } from "./auto-discussion.js";
+import {
+  listConclusions,
+  getConclusionDetail,
+  type ConclusionSummary,
+  type ConclusionDetail,
+} from "../visualize/conclusions.js";
+import type { DiscordAutoDiscussionInput, ForumDirection } from "./auto-discussion.js";
 import type { DiscordInboundMessage } from "./types.js";
 
 export interface SlashReply {
@@ -81,6 +87,9 @@ export function routeSlashCommand(cmd: InboundSlashCommand, deps: CommandRouterD
   }
   if (cmd.name === "discutere-backup") {
     return handleBackupSlash(cmd, deps);
+  }
+  if (cmd.name === "discutere-conclusions") {
+    return handleConclusionsSlash(cmd, deps);
   }
 
   const commandText = cmd.argsText.length > 0 ? `/${cmd.name} ${cmd.argsText}` : `/${cmd.name}`;
@@ -168,6 +177,97 @@ export function routeInboundMessage(
   }
 }
 
+/**
+ * フォーラムポストの取り込み (フォーラム集約)。
+ *
+ * フォーラム = 議論カテゴリ。ポスト (スレッド) の **最初の投稿 (starter)** が議論の種で、
+ * 後続投稿は進行中議論への参加者発言になる。`discussionChannelIds` の許可ゲートに依らず
+ * guild 内の全フォーラムを対象にする (channelId = thread.id なので session/AI 返信は
+ * そのスレッドに紐付く)。
+ *
+ * - isStarter=true: utterance を取り込み、まだ議論が立っていなければ auto-discussion で
+ *   designGap を起こす (seed Promise を返す)。既に当該スレッドで open な議論があれば
+ *   二重起動を避けて classify しない。
+ * - isStarter=false: utterance を取り込むだけ (新規 gap は立てない)。event-bridge が
+ *   人間発言として進行中議論にミラーする。
+ */
+export function routeForumPost(
+  msg: DiscordInboundMessage,
+  guildId: string,
+  deps: CommandRouterDeps,
+  opts: { isStarter: boolean; direction?: ForumDirection }
+): InboundRouteResult {
+  const text = msg.content.trim();
+  if (text.length === 0) return { ingested: false };
+  // slash 由来 (先頭 "/") は interaction 経路で処理されるので二重取り込みしない。
+  if (text.startsWith("/")) return { ingested: false };
+
+  const core = createCore();
+  try {
+    const sessionId = ensureDiscordSession(core, deps.workspaceId, guildId, msg.channelId);
+    const res = submitMessage({
+      core,
+      workspaceId: deps.workspaceId,
+      sessionId,
+      personId: msg.author.id,
+      rawContent: text,
+    });
+
+    // starter のみ議論を起こす。既に当該スレッドで open な議論があれば二重起動しない。
+    const shouldSeed =
+      opts.isStarter &&
+      !!res.utteranceId &&
+      !!deps.classifyInboundMessage &&
+      !forumDiscussionExists(core, deps.workspaceId, guildId, msg.channelId);
+    if (!shouldSeed) return { ingested: true };
+
+    const seed = Promise.resolve(
+      deps.classifyInboundMessage!({
+        workspaceId: deps.workspaceId,
+        guildId,
+        channelId: msg.channelId,
+        sessionId,
+        utteranceId: res.utteranceId!,
+        authorId: msg.author.id,
+        content: text,
+        direction: opts.direction,
+      })
+    )
+      .then((r) => (r != null && typeof r === "object" ? r.started === true : false))
+      .catch((err) => {
+        console.warn(`  discord-forum: classify failed: ${(err as Error).message}`);
+        return false;
+      });
+    return { ingested: true, seed };
+  } finally {
+    core.close();
+  }
+}
+
+/** 当該スレッド (scene=discord:<guild>/<threadId>) で open な議論 session が既にあるか。 */
+function forumDiscussionExists(
+  core: ReturnType<typeof createCore>,
+  workspaceId: string,
+  guildId: string,
+  threadId: string
+): boolean {
+  const scene = `discord:${guildId}/${threadId}`;
+  const row = core.client.raw
+    .prepare(
+      `SELECT s.id AS id
+         FROM sessions s
+         JOIN design_gaps g
+           ON g.id = SUBSTR(s.title, LENGTH('discussion-of-gap:') + 1)
+        WHERE s.workspace_id = ?
+          AND s.title LIKE 'discussion-of-gap:%'
+          AND s.scene = ?
+          AND (g.status IS NULL OR g.status NOT IN ('closed', 'converged'))
+        LIMIT 1`
+    )
+    .get(workspaceId, scene) as { id: string } | undefined;
+  return !!row;
+}
+
 /** /discutere-queue — 議論キューのサマリを ephemeral で返す (全員可) */
 function handleQueueSlash(deps: CommandRouterDeps): SlashReply {
   if (!deps.buildQueueText) {
@@ -203,6 +303,60 @@ function handleBackupSlash(cmd: InboundSlashCommand, deps: CommandRouterDeps): S
     })
     .catch((e) => console.warn(`  backup(manual): error: ${(e as Error).message}`));
   return { content: "🗄️ バックアップを開始しました (完了はサーバログ / dashboard で確認)", ephemeral: true };
+}
+
+/**
+ * /discutere-conclusions — 収束した議論の結論を一覧 / gap 指定で論述データを表示 (#66)。
+ * 認可不要 (読み取り専用)。 ephemeral で返す。
+ */
+function handleConclusionsSlash(cmd: InboundSlashCommand, deps: CommandRouterDeps): SlashReply {
+  const core = createCore();
+  try {
+    const gapId = cmd.argsText.trim();
+    if (gapId) {
+      const detail = getConclusionDetail(core, deps.workspaceId, gapId);
+      if (!detail) return { content: `⚠️ 結論が見つかりません (gap=${gapId})`, ephemeral: true };
+      return { content: formatConclusionDetail(detail), ephemeral: true };
+    }
+    const list = listConclusions(core, deps.workspaceId, 10);
+    return { content: formatConclusionList(list), ephemeral: true };
+  } catch (err) {
+    return { content: `⚠️ 結論取得失敗: ${(err as Error).message}`, ephemeral: true };
+  } finally {
+    core.close();
+  }
+}
+
+function formatConclusionList(list: ConclusionSummary[]): string {
+  if (list.length === 0) return "まだ収束した議論はありません。";
+  const lines = list.map((c) => {
+    const head = c.conclusion ? truncateText(c.conclusion, 120) : "(まとめ未生成)";
+    return `• **${c.title}**\n  ${head}\n  └ 詳細: /discutere-conclusions gap:${c.gapId} (発言${c.utteranceCount}/止揚${c.aufhebungCount})`;
+  });
+  return [`【結論一覧 (新しい順 ${list.length}件)】`, ...lines].join("\n");
+}
+
+function formatConclusionDetail(d: ConclusionDetail): string {
+  const parts: string[] = [`【結論】${d.title}`];
+  parts.push(d.conclusion ? d.conclusion : "(まとめ未生成)");
+  if (d.aufhebungen.length) {
+    parts.push("\n── 止揚ストック ──");
+    parts.push(d.aufhebungen.map((s, i) => `${i + 1}. ${s}`).join("\n"));
+  }
+  if (d.topOpinions.length) {
+    parts.push("\n── 高評価意見 ──");
+    parts.push(d.topOpinions.map((o) => `+${o.score} ${o.speaker}: ${truncateText(o.content, 100)}`).join("\n"));
+  }
+  parts.push(`\n── 議論ログ (${d.transcript.length}発言) ──`);
+  parts.push(
+    d.transcript.map((u) => `[${u.speaker}] ${truncateText(u.content, 120)}`).join("\n")
+  );
+  return truncateText(parts.join("\n"), 1900); // Discord 2000 字制限に収める
+}
+
+function truncateText(value: string, max: number): string {
+  const flat = value.replace(/\n+/g, (m) => (m.length > 1 ? "\n" : m));
+  return flat.length <= max ? flat : `${flat.slice(0, max - 1)}…`;
 }
 
 /**

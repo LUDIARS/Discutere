@@ -26,6 +26,7 @@ import { workerRoutes, setWorkerPool } from "./api/worker.js";
 import { workerPoolControlRoutes, setWorkerPoolControl } from "./api/worker-pool-control.js";
 import { PersonasRepo } from "./persona-engine/db/personas-repo.js";
 import { createFacilitator } from "./persona-engine/facilitator/index.js";
+import { createAutoSeedScheduler } from "./discussion-seed/scheduler.js";
 import { postDiscussionToDiscord } from "./discord-hook/discussion-bridge.js";
 import { createDiscordAutoDiscussionStarter } from "./discord-hook/auto-discussion.js";
 import { startDiscordGateway } from "./discord-hook/gateway.js";
@@ -33,6 +34,7 @@ import { ensureReactionTables, recordPostedMessage, applyReaction } from "./disc
 import { queueRoutes } from "./api/queue-routes.js";
 import { buildQueueSnapshot, formatQueueText } from "./queue/snapshot.js";
 import { startBackupScheduler } from "./backup/runner.js";
+import { createLlmSummarizer } from "./crawler/sources/summarize.js";
 import { getConfig } from "./config.js";
 
 // Initialize DB (triggers schema creation)
@@ -87,6 +89,12 @@ let workerPool: WorkerPool | null = null;
 // worker-pool 時の 8 ペルソナ seed (persona id = worker id)。
 let workerPersonaSeeds: PersonaSeed[] | undefined;
 const isWorkerPool = config.llm.backend === "worker-pool";
+
+// フォーラム集約: 収束したフォーラムポストを締める finalizer。
+// facilitator は gateway より先に生成されるため late-bound (gateway 起動後に結線)。
+let forumFinalizer:
+  | ((args: { scene: string | null; summary: string; title: string }) => void)
+  | null = null;
 
 // PR-C / PR-I: persona-engine 起勁Ewiring
 //   LLM backend は config.llm.backend で刁E��: "anthropic" (= anthropicApiKey)
@@ -179,7 +187,7 @@ const personaEngineLifecycle = (() => {
           viaWebhook: sp.viaWebhook,
           text: input.text,
         });
-        if (!r.ok) {
+        if (!r.ok && !r.skipped) {
           console.warn("  persona-engine: discord utterance post skipped:", r.reason);
         } else if (r.messageId) {
           recordPostedMessage(core.client.raw, {
@@ -271,6 +279,9 @@ const personaEngineLifecycle = (() => {
           aufhebungTarget: config.facilitator.aufhebungTarget,
           model: config.llm.model,
         },
+        // 収束したらフォーラムポストを締める (gateway 起動後に forumFinalizer が結線される)。
+        onConverged: (e) =>
+          forumFinalizer?.({ scene: e.scene, summary: e.summary, title: e.title }),
       });
       facilitator.start();
       console.log(
@@ -278,7 +289,34 @@ const personaEngineLifecycle = (() => {
       );
     }
 
-    return { engine, bridge, core, peDb, facilitator };
+    // 自動シード議論: 定期的にジャンル/ストアトレンドから headless 議論を立てる (#64/#65)。
+    // 駆動は上の facilitator が担うので、 facilitator が動いている時だけ有効化する。
+    // (worker-pool 時は facilitator を止めているので auto-seed も起動しない)
+    let autoSeed: ReturnType<typeof createAutoSeedScheduler> | null = null;
+    if (config.autoSeed.enabled && facilitator) {
+      autoSeed = createAutoSeedScheduler({
+        core,
+        personas: new PersonasRepo(peDb),
+        workspaceId,
+        config: {
+          intervalMs: config.autoSeed.intervalMs,
+          maxConcurrent: config.autoSeed.maxConcurrent,
+          sources: config.autoSeed.sources,
+        },
+        logger: {
+          debug: () => {},
+          info: (meta: Record<string, unknown>, msg: string) => console.log(`  [auto-seed] ${msg}`, meta),
+          warn: (meta: Record<string, unknown>, msg: string) => console.warn(`  [auto-seed] ${msg}`, meta),
+          error: (meta: Record<string, unknown>, msg: string) => console.error(`  [auto-seed] ${msg}`, meta),
+        },
+      });
+      autoSeed.start();
+      console.log(
+        `  auto-seed: started (interval=${config.autoSeed.intervalMs}ms, maxConcurrent=${config.autoSeed.maxConcurrent}, sources=${config.autoSeed.sources.join("/")})`
+      );
+    }
+
+    return { engine, bridge, core, peDb, facilitator, autoSeed };
   } catch (err) {
     console.warn("  persona-engine: startup failed:", err);
     return null;
@@ -311,6 +349,26 @@ const discordGatewayLifecycle = startDiscordGateway({
   workspaceId: config.workspace,
   adminIds: config.discord.adminIds,
   discussionChannelIds: config.discord.discussionChannelIds,
+  // データクロール用チャンネル: 貼られた URL から外部議論データを取り込む。
+  crawlChannelIds: config.discord.crawlChannelIds,
+  // フォーラム集約: guild 内の全 Forum 監視 + データ学習依頼/まとめ投稿 を自動作成。
+  forum: config.discord.forum,
+  crawlDeps: {
+    createCore: () => createCore(),
+    workspaceId: config.workspace,
+    youtubeApiKey: process.env.DISCUTERE_YOUTUBE_API_KEY ?? null,
+    reddit:
+      process.env.DISCUTERE_REDDIT_CLIENT_ID && process.env.DISCUTERE_REDDIT_CLIENT_SECRET
+        ? {
+            clientId: process.env.DISCUTERE_REDDIT_CLIENT_ID,
+            clientSecret: process.env.DISCUTERE_REDDIT_CLIENT_SECRET,
+            userAgent:
+              process.env.DISCUTERE_REDDIT_USER_AGENT ?? "LUDIARS-Discutere/0.1 (external discussion crawler)",
+          }
+        : null,
+    // website 長文の要約器 (id=67)。 LLM があれば要約/raw 2 層で取り込む。
+    summarizer: autoDiscussionLlm ? createLlmSummarizer(autoDiscussionLlm, { model: config.llm.model }) : null,
+  },
   getEngine: () => getPersonaEngine(),
   buildQueueText,
   triggerBackup: () => backupScheduler.trigger(),
@@ -331,7 +389,22 @@ const discordGatewayLifecycle = startDiscordGateway({
   console.warn("  discord-gateway: startup failed:", (err as Error).message);
   return null;
 });
-void discordGatewayLifecycle;
+
+// フォーラム集約: gateway 起動後に収束 finalizer を結線する (facilitator.onConverged が呼ぶ)。
+discordGatewayLifecycle
+  .then((handle) => {
+    if (!handle || !config.discord.forum.enabled) return;
+    forumFinalizer = (args) => {
+      void handle
+        .finalizeForumPost(args)
+        .then((r) => {
+          if (r.closed) console.log("  discord-forum: post closed (converged)");
+        })
+        .catch((e) => console.warn("  discord-forum: finalize error:", (e as Error).message));
+    };
+    console.log("  discord-forum: convergence finalizer wired");
+  })
+  .catch(() => {});
 
 console.log(`Discutere listening on http://localhost:${port}`);
 console.log(`  Auth:     Discord Gateway (bot token + admin-id allowlist) / HTTP は X-User-Id・X-User-Role ヘッダー`);
