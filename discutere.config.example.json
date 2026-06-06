@@ -27,7 +27,16 @@
     "applicationId": "",
     "guildIds": [],
     "adminIds": [],
-    "discussionChannelIds": []
+    "discussionChannelIds": [],
+    "crawlChannelIds": [],
+    "forum": {
+      "enabled": true,
+      "summaryChannelName": "まとめ投稿",
+      "dataLearningChannelName": "データ学習依頼",
+      "managedCategoryName": "システム",
+      "improvementTagNames": ["改善提案", "改善", "提案", "improvement"],
+      "funTagNames": ["面白さ", "面白い", "おもしろさ", "fun"]
+    }
   },
   "backup": {
     "enabled": false,

@@ -60,6 +60,20 @@ export interface DiscutereConfig {
     /** 止揚 (アウフヘーベン) がこの数たまったら収束 (既定 3) */
     aufhebungTarget: number;
   };
+  /**
+   * 自動シード議論 (#64/#65)。 種 (ジャンル / ストアトレンド) から headless 議論を
+   * 定期的に立て、 facilitator 機構が収束まで回す。 学習データを自走で蓄積する。
+   */
+  autoSeed: {
+    /** 有効化 (既定 false — opt-in) */
+    enabled: boolean;
+    /** シード投入の周期 ms (既定 1_800_000 = 30 分) */
+    intervalMs: number;
+    /** 同時に開いておく headless 議論の上限 (これ未満の時だけ新規シード、 既定 2) */
+    maxConcurrent: number;
+    /** 種ソース ("genre" | "store-trend")。 複数指定で巡回 (既定 ["genre"]) */
+    sources: string[];
+  };
   llm: {
     backend: LlmBackend;
     anthropicApiKey?: string;
@@ -111,6 +125,34 @@ export interface DiscutereConfig {
      * スレッド内の発言は親チャンネルが本リストにあれば取り込む (自然な議論の継承)。
      */
     discussionChannelIds: string[];
+    /**
+     * 貼られた URL から外部議論データを取り込む「データクロール」 チャンネル id。
+     * 空ならクロール無効 (安全 default)。 取り込み結果は「データ追加」 通知チャンネルへ。
+     */
+    crawlChannelIds: string[];
+    /**
+     * フォーラム集約: guild 内の Forum チャンネルを「議論カテゴリ」として監視する。
+     * 各ポストの最初の投稿で議論を起こし、収束したらポストを archive+lock してクローズ、
+     * まとめを「まとめ投稿」チャンネルへ転記する。データ学習依頼 / まとめ投稿チャンネルは
+     * 起動時に自動作成する (Manage Channels 権限が必要)。
+     */
+    forum: {
+      /** フォーラム監視を有効化 (既定 true)。 */
+      enabled: boolean;
+      /** 収束まとめの転記先チャンネル名 (既定「まとめ投稿」)。 */
+      summaryChannelName: string;
+      /** データクロール依頼の入口チャンネル名 (既定「データ学習依頼」)。 */
+      dataLearningChannelName: string;
+      /** 自動作成チャンネルの親カテゴリ名 (既定「システム」)。 */
+      managedCategoryName: string;
+      /**
+       * 議論の方向性を決めるフォーラムタグ名 (部分一致)。
+       * improvement 系タグ → 「改善提案」方向、fun 系 → 「面白さ」方向。
+       * タグ無し / 未一致は既定で「面白さ」方向。
+       */
+      improvementTagNames: string[];
+      funTagNames: string[];
+    };
   };
   /**
    * 学習データ (Discatier KG + persona-engine.db + discutere.db) の S3 アーカイブ。
@@ -145,12 +187,17 @@ interface RawFileConfig {
   discatier?: Partial<DiscutereConfig["discatier"]>;
   personaEngine?: Partial<DiscutereConfig["personaEngine"]>;
   facilitator?: Partial<DiscutereConfig["facilitator"]>;
+  autoSeed?: Partial<DiscutereConfig["autoSeed"]>;
   llm?: Partial<DiscutereConfig["llm"]>;
   workerPool?: Partial<Omit<DiscutereConfig["workerPool"], "workers">> & { workers?: WorkerPoolWorker[] };
-  discord?: Partial<Omit<DiscutereConfig["discord"], "adminIds" | "discussionChannelIds" | "guildIds">> & {
+  discord?: Partial<
+    Omit<DiscutereConfig["discord"], "adminIds" | "discussionChannelIds" | "crawlChannelIds" | "guildIds" | "forum">
+  > & {
     adminIds?: string[];
     discussionChannelIds?: string[];
+    crawlChannelIds?: string[];
     guildIds?: string[];
+    forum?: Partial<DiscutereConfig["discord"]["forum"]>;
     /** 後方互換: 旧 単数 guildId (guildIds に統合される) */
     guildId?: string;
   };
@@ -275,6 +322,14 @@ export function loadConfig(): DiscutereConfig {
       maxPersonas: pickNum(process.env.DISCUTERE_FACILITATOR_MAX_PERSONAS, file.facilitator?.maxPersonas, 20),
       aufhebungTarget: pickNum(process.env.DISCUTERE_FACILITATOR_AUFHEBUNG_TARGET, file.facilitator?.aufhebungTarget, 3),
     },
+    autoSeed: {
+      enabled: pickBool(process.env.DISCUTERE_AUTOSEED_ENABLED, file.autoSeed?.enabled, false),
+      intervalMs: pickNum(process.env.DISCUTERE_AUTOSEED_INTERVAL_MS, file.autoSeed?.intervalMs, 1_800_000),
+      maxConcurrent: pickNum(process.env.DISCUTERE_AUTOSEED_MAX_CONCURRENT, file.autoSeed?.maxConcurrent, 2),
+      sources: parseStringList(process.env.DISCUTERE_AUTOSEED_SOURCES, file.autoSeed?.sources).length
+        ? parseStringList(process.env.DISCUTERE_AUTOSEED_SOURCES, file.autoSeed?.sources)
+        : ["genre"],
+    },
     llm: {
       backend,
       anthropicApiKey: pickOpt(process.env.ANTHROPIC_API_KEY, file.llm?.anthropicApiKey),
@@ -316,6 +371,43 @@ export function loadConfig(): DiscutereConfig {
         process.env.DISCUTERE_DISCORD_DISCUSSION_CHANNELS,
         file.discord?.discussionChannelIds
       ),
+      crawlChannelIds: parseStringList(
+        process.env.DISCUTERE_DISCORD_CRAWL_CHANNELS,
+        file.discord?.crawlChannelIds
+      ),
+      forum: {
+        enabled: pickBool(process.env.DISCUTERE_DISCORD_FORUM_ENABLED, file.discord?.forum?.enabled, true),
+        summaryChannelName: pick(
+          process.env.DISCUTERE_DISCORD_FORUM_SUMMARY_CHANNEL,
+          file.discord?.forum?.summaryChannelName,
+          "まとめ投稿"
+        ),
+        dataLearningChannelName: pick(
+          process.env.DISCUTERE_DISCORD_FORUM_DATA_CHANNEL,
+          file.discord?.forum?.dataLearningChannelName,
+          "データ学習依頼"
+        ),
+        managedCategoryName: pick(
+          process.env.DISCUTERE_DISCORD_FORUM_CATEGORY,
+          file.discord?.forum?.managedCategoryName,
+          "システム"
+        ),
+        improvementTagNames: parseStringList(
+          process.env.DISCUTERE_DISCORD_FORUM_IMPROVEMENT_TAGS,
+          file.discord?.forum?.improvementTagNames
+        ).length
+          ? parseStringList(
+              process.env.DISCUTERE_DISCORD_FORUM_IMPROVEMENT_TAGS,
+              file.discord?.forum?.improvementTagNames
+            )
+          : ["改善提案", "改善", "提案", "improvement"],
+        funTagNames: parseStringList(
+          process.env.DISCUTERE_DISCORD_FORUM_FUN_TAGS,
+          file.discord?.forum?.funTagNames
+        ).length
+          ? parseStringList(process.env.DISCUTERE_DISCORD_FORUM_FUN_TAGS, file.discord?.forum?.funTagNames)
+          : ["面白さ", "面白い", "おもしろさ", "fun"],
+      },
     },
     backup: {
       enabled: pickBool(process.env.DISCUTERE_BACKUP_ENABLED, file.backup?.enabled, false),

@@ -43,6 +43,18 @@ export interface FacilitatorOptions {
   model?: string;
 }
 
+/** 議論収束イベント (gap closed の直後に発火)。discord 依存は持たせない純データ。 */
+export interface FacilitatorConvergedEvent {
+  gapId: string;
+  sessionId: string;
+  /** 議論 session の scene ("discord:<guild>/<channel>" or "gap:<gapId>")。 */
+  scene: string | null;
+  /** 議題タイトル。 */
+  title: string;
+  /** 収束まとめ本文 (【収束】プレフィックス無し)。 */
+  summary: string;
+}
+
 export interface FacilitatorDeps {
   core: Core;
   llm: LLMClient;
@@ -51,6 +63,12 @@ export interface FacilitatorDeps {
   workspaceId: string;
   logger: Logger;
   options?: FacilitatorOptions;
+  /**
+   * 議論が収束し gap を closed にした直後に呼ばれる (任意)。
+   * フォーラム集約ではこのフックでスレッドを archive+lock し、まとめを転記する。
+   * 失敗しても収束処理は止めない (fire-and-forget)。
+   */
+  onConverged?: (event: FacilitatorConvergedEvent) => void;
 }
 
 interface SessionState {
@@ -87,7 +105,21 @@ export function evaluate(
   return { mode: "wait", state };
 }
 
-const FACILITATOR_PERSONA_ID = "facilitator";
+export const FACILITATOR_PERSONA_ID = "facilitator";
+
+/**
+ * 進行役 persona のプロフィール (収束のまとめ発言者 / headless seed の開幕も担う)。
+ * seed 側でも同じ persona を登録・登場させるため共有する。
+ */
+export const FACILITATOR_PERSONA = {
+  id: FACILITATOR_PERSONA_ID,
+  name: "進行役",
+  display_name: "司会 結",
+  description: "議論の活性化と収束を司る中立の進行役。",
+  traits: ["中立", "俯瞰", "要約", "合意形成"],
+  speech_style:
+    "落ち着いた中立的な口調。 論点を整理し、 停滞時は新しい問いを投げ、 出揃ったら要約して締める。",
+} as const;
 
 export interface Facilitator {
   start(): void;
@@ -118,21 +150,19 @@ export function createFacilitator(deps: FacilitatorDeps): Facilitator {
   );
 
   // 進行役 persona を登録 (収束のまとめ発言者)
-  deps.personas.insertOrIgnore({
-    id: FACILITATOR_PERSONA_ID,
-    name: "進行役",
-    display_name: "司会 結",
-    description: "議論の活性化と収束を司る中立の進行役。",
-    traits: ["中立", "俯瞰", "要約", "合意形成"],
-    speech_style: "落ち着いた中立的な口調。 論点を整理し、 停滞時は新しい問いを投げ、 出揃ったら要約して締める。",
-  });
+  deps.personas.insertOrIgnore({ ...FACILITATOR_PERSONA, traits: [...FACILITATOR_PERSONA.traits] });
 
   interface Discussion {
     sessionId: string;
     gapId: string;
   }
 
-  /** open な discord 議論 (discussion-of-gap session) を列挙。 */
+  /**
+   * open な議論 (discussion-of-gap session) を列挙。
+   * Discord 紐付け (scene=discord:*) に加え、 headless 議論 (scene=gap:*、 自動シード等) も
+   * 駆動対象に含める。 headless は postUtterance が Discord に出ないだけで、 拡張/収束の
+   * オーケストレーション自体は同じ機構で回す (#63-65 の土台)。
+   */
   function listActiveDiscussions(): Discussion[] {
     const rows = raw
       .prepare(
@@ -140,7 +170,7 @@ export function createFacilitator(deps: FacilitatorDeps): Facilitator {
            FROM sessions s
           WHERE s.workspace_id = ?
             AND s.title LIKE 'discussion-of-gap:%'
-            AND s.scene LIKE 'discord:%'`
+            AND (s.scene LIKE 'discord:%' OR s.scene LIKE 'gap:%')`
       )
       .all(deps.workspaceId) as Array<{ sessionId: string; title: string }>;
     const out: Discussion[] = [];
@@ -338,6 +368,34 @@ export function createFacilitator(deps: FacilitatorDeps): Facilitator {
     closeGap(d.gapId);
     states.delete(d.sessionId); // 収束したら管理終了 (= ファシリテーター消滅)
     deps.logger.info({ gap_id: d.gapId }, "facilitator converged discussion (gap closed)");
+
+    // 収束フック (フォーラム集約: スレッドを締めてまとめを転記)。失敗は議論を止めない。
+    if (deps.onConverged) {
+      try {
+        const scene =
+          (
+            raw.prepare("SELECT scene FROM sessions WHERE id = ?").get(d.sessionId) as
+              | { scene: string | null }
+              | undefined
+          )?.scene ?? null;
+        deps.onConverged({
+          gapId: d.gapId,
+          sessionId: d.sessionId,
+          scene,
+          title: gapTitle(d.gapId),
+          summary,
+        });
+      } catch (err) {
+        deps.logger.warn({ gap_id: d.gapId, err: (err as Error).message }, "facilitator onConverged hook failed");
+      }
+    }
+  }
+
+  function gapTitle(gapId: string): string {
+    const g = raw.prepare("SELECT title FROM design_gaps WHERE id = ?").get(gapId) as
+      | { title: string }
+      | undefined;
+    return g?.title ?? "(無題の議論)";
   }
 
   function closeGap(gapId: string): void {

@@ -6,10 +6,60 @@ import {
   buildLearningLayerSnapshot,
   normalizeLearningLayer,
 } from "../visualize/learning-layers.js";
+import { listConclusions, getConclusionDetail } from "../visualize/conclusions.js";
+import { openLearningCacheReader, learningCacheExists } from "../visualize/learning-cache.js";
 
 export const learningViewRoutes = new Hono();
 
 learningViewRoutes.get("/learning", (c) => c.html(HTML));
+
+// Gap率 (運営想定 vs 観測) は事前ビルドの cache から配信 (build:learning-cache で焼く)。
+learningViewRoutes.get("/learning/gap", (c) => {
+  if (!learningCacheExists()) return c.json({ games: [] });
+  const reader = openLearningCacheReader();
+  try {
+    return c.json(reader.gapSummary() as object);
+  } finally {
+    reader.close();
+  }
+});
+
+learningViewRoutes.get("/learning/gap/detail", (c) => {
+  if (!learningCacheExists()) return c.json({ error: "no cache" }, 404);
+  const reader = openLearningCacheReader();
+  try {
+    const detail = reader.gap(c.req.query("slug") ?? "");
+    return detail ? c.json(detail as object) : c.json({ error: "not found" }, 404);
+  } finally {
+    reader.close();
+  }
+});
+
+// 収束した議論の結論一覧 (#66 — Learning View 統合)
+learningViewRoutes.get("/learning/conclusions", (c) => {
+  const config = getConfig();
+  const limit = Number(c.req.query("limit") ?? 100);
+  const core = createCore();
+  try {
+    return c.json({ conclusions: listConclusions(core, config.workspace, limit) });
+  } finally {
+    core.close();
+  }
+});
+
+// 1 件の結論の裏の論述データ (議論ログ / 止揚 / 高評価意見)
+learningViewRoutes.get("/learning/conclusion", (c) => {
+  const config = getConfig();
+  const gapId = c.req.query("gap") ?? "";
+  const core = createCore();
+  try {
+    const detail = getConclusionDetail(core, config.workspace, gapId);
+    if (!detail) return c.json({ error: "not found" }, 404);
+    return c.json(detail);
+  } finally {
+    core.close();
+  }
+});
 
 learningViewRoutes.get("/learning/data", (c) => {
   const config = getConfig();
@@ -29,7 +79,7 @@ learningViewRoutes.get("/learning/data", (c) => {
   }
 });
 
-const HTML = `<!doctype html>
+export const HTML = `<!doctype html>
 <html lang="ja">
 <head>
 <meta charset="utf-8">
@@ -65,6 +115,8 @@ const HTML = `<!doctype html>
     <button data-layer="knowledge" class="active">基礎知識</button>
     <button data-layer="games">ゲーム学習</button>
     <button data-layer="opinions">話題と意見</button>
+    <button data-layer="conclusions">結論</button>
+    <button data-layer="gap">Gap率</button>
   </div>
   <div class="muted" id="totals">loading...</div>
 </header>
@@ -90,6 +142,16 @@ function label(value, max) {
 }
 
 async function load(layer) {
+  if (layer === "gap") {
+    const res = await fetch("/learning/gap");
+    if (!res.ok) throw new Error("gap http " + res.status);
+    return res.json();
+  }
+  if (layer === "conclusions") {
+    const res = await fetch("/learning/conclusions?limit=200");
+    if (!res.ok) throw new Error("conclusions http " + res.status);
+    return res.json();
+  }
   const res = await fetch("/learning/data?layer=" + encodeURIComponent(layer) + "&limit=80&detailLimit=8");
   if (!res.ok) throw new Error("learning data http " + res.status);
   return res.json();
@@ -108,9 +170,56 @@ function setActiveLayer(layer) {
 }
 
 function render(snap) {
+  if (currentLayer === "gap") return renderGap(snap);
+  if (currentLayer === "conclusions") return renderConclusions(snap);
   if (snap.layer === "knowledge") return renderKnowledge(snap);
   if (snap.layer === "games") return renderGames(snap);
   return renderOpinions(snap);
+}
+
+function renderConclusions(snap) {
+  const list = snap.conclusions || [];
+  document.getElementById("totals").textContent = "結論: " + list.length + " 件 (収束した議論)";
+  document.getElementById("graph-help").textContent = "円の大きさ = 議論の発話数。";
+  document.getElementById("items").innerHTML = list.length
+    ? list.map((c) =>
+        '<article class="item" data-gap="' + esc(c.gapId) + '">' +
+          '<div class="item-head">' +
+            '<div class="item-title">' + esc(c.title) + '</div>' +
+            '<div class="item-size muted">発話 ' + c.utteranceCount + ' / 止揚 ' + c.aufhebungCount + '</div>' +
+          '</div>' +
+          '<div style="margin-top:6px;">' + esc(c.conclusion || "(まとめ未生成)") + '</div>' +
+          '<button class="detail-btn" data-gap="' + esc(c.gapId) + '" style="margin-top:8px;">論述データを見る</button>' +
+          '<div class="detail-slot"></div>' +
+        '</article>').join("")
+    : '<div class="muted">まだ収束した議論はありません</div>';
+  document.querySelectorAll(".detail-btn").forEach((btn) => {
+    btn.addEventListener("click", () => loadConclusionDetail(btn));
+  });
+  renderGraph(list.map((c) => ({ title: c.title, size: c.utteranceCount, status: "closed" })), "結論なし");
+}
+
+async function loadConclusionDetail(btn) {
+  const gap = btn.dataset.gap;
+  const slot = btn.parentElement.querySelector(".detail-slot");
+  slot.innerHTML = '<div class="muted">loading...</div>';
+  try {
+    const res = await fetch("/learning/conclusion?gap=" + encodeURIComponent(gap));
+    if (!res.ok) throw new Error("detail http " + res.status);
+    const d = await res.json();
+    const auf = (d.aufhebungen || []).length
+      ? '<div style="margin-top:8px;"><b>止揚ストック</b><ol class="details">' +
+        d.aufhebungen.map((s) => '<li>' + esc(s) + '</li>').join("") + '</ol></div>' : "";
+    const top = (d.topOpinions || []).length
+      ? '<div style="margin-top:8px;"><b>高評価意見</b><ol class="details">' +
+        d.topOpinions.map((o) => '<li>+' + o.score + ' ' + esc(o.speaker) + ': ' + esc(o.content) + '</li>').join("") + '</ol></div>' : "";
+    const log = '<div style="margin-top:8px;"><b>議論ログ (' + (d.transcript || []).length + '発話)</b><ol class="details">' +
+      (d.transcript || []).map((u) => '<li><span class="muted">[' + esc(u.speaker) + ']</span> ' + esc(u.content) + '</li>').join("") + '</ol></div>';
+    slot.innerHTML = auf + top + log;
+    btn.style.display = "none";
+  } catch (err) {
+    slot.innerHTML = '<div class="muted">' + esc(err.message) + '</div>';
+  }
 }
 
 function renderKnowledge(snap) {
@@ -209,6 +318,62 @@ function renderOpinions(snap) {
       }).join("")
     : '<div class="muted">話題はまだありません</div>';
   renderGraph(topics, "話題なし");
+}
+
+function pctg(value) { return (Math.round((value || 0) * 1000) / 10) + "%"; }
+
+function renderGap(snap) {
+  const games = snap.games || [];
+  document.getElementById("totals").textContent =
+    "Gap率: 運営の想定感情 vs 観測 (" + games.length + "ゲーム / Gap率降順)";
+  document.getElementById("graph-help").textContent = "円の大きさ = 総発話数 / 色 = Gap率(高=赤)。";
+  document.getElementById("items").innerHTML = games.length
+    ? games.map((g) =>
+        '<article class="item">' +
+          '<div class="item-head"><div class="item-title">' + esc(g.game) + '</div>' +
+            '<div class="item-size muted">Gap ' + pctg(g.gapRate) + '</div></div>' +
+          '<div class="muted">総発話 ' + g.total + ' / カバレッジ ' + pctg(g.coverage) +
+            ' / 意図外負 ' + pctg(g.negativeRate) +
+            (g.topGapMechanic ? ' / 最大Gap: ' + esc(g.topGapMechanic) : '') + '</div>' +
+          '<button class="gap-btn" data-slug="' + esc(g.slug) + '" style="margin-top:8px;">多角内訳を見る</button>' +
+          '<div class="gap-slot"></div>' +
+        '</article>').join("")
+    : '<div class="muted">Gapデータなし (data/games の md に運営想定を定義 → build:learning-cache)</div>';
+  document.querySelectorAll(".gap-btn").forEach((b) => b.addEventListener("click", () => loadGapDetail(b)));
+  renderGraph(games.map((g) => ({
+    title: g.game,
+    size: g.total,
+    status: g.gapRate >= 0.5 ? "negative" : g.gapRate >= 0.3 ? "ambivalent" : "open",
+  })), "Gapなし");
+}
+
+async function loadGapDetail(btn) {
+  const slug = btn.dataset.slug;
+  const slot = btn.parentElement.querySelector(".gap-slot");
+  slot.innerHTML = '<div class="muted">loading...</div>';
+  try {
+    const res = await fetch("/learning/gap/detail?slug=" + encodeURIComponent(slug));
+    if (!res.ok) throw new Error("detail http " + res.status);
+    const d = await res.json();
+    const mech = '<div style="margin-top:8px;"><b>mechanic別 Gap率</b><ol class="details">' +
+      (d.byMechanic || []).filter((m) => m.attributed > 0).map((m) =>
+        '<li>' + esc(m.name) + ' <span class="muted">想定' + esc(m.intendedValence) +
+        ' / 帰属' + m.attributed + ' → gap ' + pctg(m.gapRate) + ' / neg ' + pctg(m.negativeRate) + '</span></li>'
+      ).join("") + '</ol></div>';
+    const asp = '<div style="margin-top:8px;"><b>感情次元別 負率</b><ol class="details">' +
+      (d.byAspect || []).slice(0, 6).map((a) =>
+        '<li>' + (a.intended ? "★" : "") + esc(a.aspect) +
+        ' <span class="muted">言及' + a.mentions + ' / neg ' + pctg(a.negativeRate) + '</span></li>'
+      ).join("") + '</ol></div>';
+    const src = '<div style="margin-top:8px;"><b>ソース別 Gap率</b><ol class="details">' +
+      (d.bySource || []).map((s) =>
+        '<li>' + esc(s.key) + ' <span class="muted">n' + s.n + ' / gap ' + pctg(s.gapRate) + ' / neg ' + pctg(s.negativeRate) + '</span></li>'
+      ).join("") + '</ol></div>';
+    slot.innerHTML = mech + asp + src;
+    btn.style.display = "none";
+  } catch (err) {
+    slot.innerHTML = '<div class="muted">' + esc(err.message) + '</div>';
+  }
 }
 
 function renderGraph(items, emptyLabel) {

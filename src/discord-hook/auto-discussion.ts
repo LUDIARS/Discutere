@@ -9,6 +9,23 @@ export type AutoDiscussionCategory =
   | "noise"
   | "command_like";
 
+/**
+ * 議論の方向性 (フォーラムのタグで指定)。
+ * - "improvement": 改善提案 — 課題を洗い出し具体的な改善案を出し合う。
+ * - "fun": 面白さ — 何がどう面白いか、体験の魅力を語り合う (タグ無しの既定)。
+ */
+export type ForumDirection = "improvement" | "fun";
+
+/** タグが無い / 判別不能なときの既定方向 (= 面白さ)。 */
+export const DEFAULT_FORUM_DIRECTION: ForumDirection = "fun";
+
+/** 方向性を facilitator が読む議題説明に差し込むためのディレクティブ文。 */
+export function forumDirectionDirective(direction: ForumDirection): string {
+  return direction === "improvement"
+    ? "【議論の方向性: 改善提案】この議題はゲーム/メカニクスの課題を洗い出し、具体的な改善案を出し合って収束させる。"
+    : "【議論の方向性: 面白さ】この議題は何がどう面白いのか、体験の魅力を多角的に語り合って収束させる。";
+}
+
 export interface DiscordAutoDiscussionInput {
   workspaceId: string;
   guildId: string;
@@ -17,6 +34,11 @@ export interface DiscordAutoDiscussionInput {
   utteranceId: string;
   authorId: string;
   content: string;
+  /**
+   * 議論の方向性 (フォーラムのタグ由来)。設定時のみ議題説明にディレクティブを差し込む。
+   * 非フォーラム経路 (平文議論) は未設定 = 従来挙動。
+   */
+  direction?: ForumDirection;
 }
 
 export interface AutoDiscussionClassification {
@@ -59,10 +81,16 @@ export async function startAutoDiscussionForDiscordMessage(
   if (existing) return { started: false, gapId: existing, classification };
   if (classification.action !== "start_discussion") return { started: false, classification };
 
+  // 方向性 (フォーラムタグ由来) があれば議題説明にディレクティブを差し込む。
+  // facilitator は gapTopic (title + description) を読むので、これで拡張/収束が方向に沿う。
+  const description = input.direction
+    ? `${classification.description}\n\n${forumDirectionDirective(input.direction)}`
+    : classification.description;
+
   const gapId = core.repos.designGap.create({
     workspaceId: input.workspaceId,
     title: classification.title,
-    description: classification.description,
+    description,
     status: "open",
   });
 
@@ -70,6 +98,7 @@ export async function startAutoDiscussionForDiscordMessage(
     source: "discord:auto-classifier",
     category: classification.category,
     reason: classification.reason ?? null,
+    direction: input.direction ?? null,
     utteranceIds: [input.utteranceId],
     guildId: input.guildId,
     channelId: input.channelId,

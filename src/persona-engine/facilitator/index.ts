@@ -1,10 +1,13 @@
 export {
   createFacilitator,
   evaluate,
+  FACILITATOR_PERSONA_ID,
+  FACILITATOR_PERSONA,
   type Facilitator,
   type FacilitatorDeps,
   type FacilitatorOptions,
   type FacilitatorMode,
+  type FacilitatorConvergedEvent,
 } from "./facilitator.js";
 export {
   buildExpandPrompt,

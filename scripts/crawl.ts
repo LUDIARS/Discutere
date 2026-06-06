@@ -17,6 +17,8 @@ import {
   importGameKG,
   parseGameKG,
 } from "../src/crawler/index.js";
+import { runExtFetch, runExtImport, runExtIngest } from "../src/crawler/sources/cli.js";
+import { analyzeGapRate, formatGapReport } from "../src/analysis/gap-rate.js";
 import {
   AnthropicSdkClient,
   ClaudeCliClient,
@@ -24,7 +26,7 @@ import {
 } from "../src/persona-engine/index.js";
 import { getConfig } from "../src/config.js";
 
-function main(): void {
+async function main(): Promise<void> {
   const [, , subcommand, ...rest] = process.argv;
   if (!subcommand) {
     printUsageAndExit();
@@ -40,8 +42,32 @@ function main(): void {
         console.error((err as Error).message);
         process.exit(1);
       });
+    // 外部議論ソース (Phase 1) — spec/crawler/EXTERNAL-SOURCES.md
+    case "ext-fetch":
+      return runExtFetch(rest);
+    case "ext-import":
+      return runExtImport(rest);
+    case "ext-ingest":
+      return runExtIngest(rest);
+    case "gap-rate":
+      return runGapRate(rest);
     default:
       printUsageAndExit();
+  }
+}
+
+/** Gap率分析 (運営の想定感情 vs 観測感情) を多角的に出力する。 */
+function runGapRate(args: string[]): void {
+  const [slug, ...flags] = args;
+  if (!slug) {
+    console.error("usage: crawl.ts gap-rate <gameSlug> [--json]");
+    process.exit(2);
+  }
+  const report = analyzeGapRate(slug);
+  if (flags.includes("--json")) {
+    console.log(JSON.stringify(report, null, 2));
+  } else {
+    console.log(formatGapReport(report));
   }
 }
 
@@ -174,9 +200,32 @@ function toSlug(value: string): string {
 
 function printUsageAndExit(): never {
   console.error(
-    "usage:\n  crawl.ts import <md-path>\n  crawl.ts list\n  crawl.ts run <gameName> [out-md-path]"
+    "usage:\n" +
+      "  crawl.ts import <md-path>\n" +
+      "  crawl.ts list\n" +
+      "  crawl.ts run <gameName> [out-md-path]\n" +
+      "  crawl.ts gap-rate <gameSlug> [--json]   # 運営想定 vs 観測のGap率を多角分析\n" +
+      "  crawl.ts ext-fetch steam <gameSlug> <appId> [--lang all] [--max N]\n" +
+      '  crawl.ts ext-fetch youtube-videos <gameSlug> --q "<query>" [--max N]\n' +
+      "  crawl.ts ext-fetch youtube-comments <gameSlug> <videoId> [--max N]\n" +
+      "  crawl.ts ext-fetch website <gameSlug> <url> [<url> ...]\n" +
+      '  crawl.ts ext-fetch reddit <gameSlug> --q "<query>" [--sub <subreddit>] [--threads N]\n' +
+      "  crawl.ts ext-fetch fandom <gameSlug> <wikiHost> <pageTitle> [<pageTitle> ...]\n" +
+      '  crawl.ts ext-fetch niconico <gameSlug> --q "<query>" [--videos N] [--max N]\n' +
+      '  crawl.ts ext-fetch opencritic <gameSlug> --q "<game name>" [--game-id N] [--max N]\n' +
+      "  crawl.ts ext-import <jsonl-path>\n" +
+      "  crawl.ts ext-ingest steam <gameSlug> <appId> [--lang all] [--max N]\n" +
+      "  crawl.ts ext-ingest youtube <gameSlug> <videoId> [--max N]\n" +
+      "  crawl.ts ext-ingest website <gameSlug> <url> [<url> ...]\n" +
+      '  crawl.ts ext-ingest reddit <gameSlug> --q "<query>" [--sub <subreddit>] [--threads N]\n' +
+      "  crawl.ts ext-ingest fandom <gameSlug> <wikiHost> <pageTitle> [<pageTitle> ...]\n" +
+      '  crawl.ts ext-ingest niconico <gameSlug> --q "<query>" [--videos N] [--max N]\n' +
+      '  crawl.ts ext-ingest opencritic <gameSlug> --q "<game name>" [--game-id N] [--max N]'
   );
   process.exit(2);
 }
 
-main();
+main().catch((err) => {
+  console.error((err as Error).message);
+  process.exit(1);
+});
