@@ -18,6 +18,7 @@ import {
   humanizeForDiscord,
   postDiscordChannel,
   postDiscordWebhook,
+  resolveWebhookTarget,
 } from "./poster.js";
 
 type Core = ReturnType<typeof createCore>;
@@ -77,15 +78,19 @@ export async function postDiscussionToDiscord(args: DiscussionPostArgs): Promise
 
   const body = humanizeForDiscord(args.text);
 
-  // persona は webhook で人間名として投稿 (議論参加者らしく見せる)。
+  // 全 persona (進行役含む) を webhook で人間名として投稿する (役割名は出さない)。
   if (args.viaWebhook) {
     try {
-      const wh = await ensureChannelWebhook(botToken, channelId);
+      // フォーラムスレッドは webhook を持てないので、 親フォーラムの webhook +
+      // thread_id でスレッドに流す (通常チャンネルはそのまま)。
+      const { webhookChannelId, threadId } = await resolveWebhookTarget(botToken, channelId);
+      const wh = await ensureChannelWebhook(botToken, webhookChannelId);
       const r = await postDiscordWebhook({
         webhookId: wh.id,
         webhookToken: wh.token,
         username: args.speakerLabel,
         content: body,
+        threadId,
       });
       return { ok: true, channelId, messageId: r.id };
     } catch (err) {
@@ -99,7 +104,7 @@ export async function postDiscussionToDiscord(args: DiscussionPostArgs): Promise
     }
   }
 
-  // 進行役 (Discutere) は bot として直接投稿。
+  // viaWebhook=false の経路 (名前なし bot 投稿)。 現状は全 persona webhook なので未使用。
   try {
     const r = await postDiscordChannel({ botToken, channelId, content: body });
     return { ok: true, channelId, messageId: r.id };

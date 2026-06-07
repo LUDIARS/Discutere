@@ -200,19 +200,21 @@ const personaEngineLifecycle = (() => {
     const core = createCore();
     ensureReactionTables(core.client.raw);
     const relayPersonas = new PersonasRepo(peDb);
-    // persona の人間名と、 webhook 投稿の要否を解決する。
-    // facilitator (進行役) は Discutere bot として直接、 議論 persona は webhook で人間名。
+    // persona の人間名を解決する。 全 persona (進行役 facilitator 含む) を
+    // webhook で人間名として投稿する (役割名は出さない)。
     const resolveSpeaker = (byPersonaId: string) => {
       const p = relayPersonas.get(byPersonaId);
       return {
         name: p?.display_name ?? byPersonaId,
-        viaWebhook: byPersonaId !== "facilitator",
+        viaWebhook: true,
       };
     };
     const adapter = createDiscatierContextProvider(core, {
       // PR-I: AI 発話 / hypothesis を Discord channel に post
       async onPostedUtterance(input) {
         const sp = resolveSpeaker(input.byPersonaId);
+        // ログにも人間名を反映 (誰が何を言ったか追える)。
+        console.log(`  [議論] ${sp.name}: ${input.text.replace(/\s+/g, " ").slice(0, 80)}`);
         const r = await postDiscussionToDiscord({
           core,
           workspaceId: input.workspaceId,
@@ -223,7 +225,7 @@ const personaEngineLifecycle = (() => {
           text: input.text,
         });
         if (!r.ok && !r.skipped) {
-          console.warn("  persona-engine: discord utterance post skipped:", r.reason);
+          console.warn(`  persona-engine: discord utterance post skipped (${sp.name}):`, r.reason);
         } else if (r.messageId) {
           recordPostedMessage(core.client.raw, {
             messageId: r.messageId,
