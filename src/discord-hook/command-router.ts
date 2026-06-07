@@ -195,7 +195,7 @@ export function routeForumPost(
   msg: DiscordInboundMessage,
   guildId: string,
   deps: CommandRouterDeps,
-  opts: { isStarter: boolean; direction?: ForumDirection }
+  opts: { isStarter: boolean; direction?: ForumDirection; forumTitle?: string }
 ): InboundRouteResult {
   const text = msg.content.trim();
   if (text.length === 0) return { ingested: false };
@@ -230,6 +230,7 @@ export function routeForumPost(
         utteranceId: res.utteranceId!,
         authorId: msg.author.id,
         content: text,
+        forumTitle: opts.forumTitle,
         direction: opts.direction,
       })
     )
