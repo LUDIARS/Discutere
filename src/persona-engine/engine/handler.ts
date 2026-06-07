@@ -157,7 +157,8 @@ export function handleAction(args: HandleActionArgs): HandleActionResult {
       return logErr(args, "post_utterance without text");
     }
     // tick rule は session context を持たない。 json.hypothesis_id から
-    // 紐付く議論 session を解決する。 解決できなければ error ではなく skip。
+    // 紐付く議論 session を解決する。 hypothesis も無い純 debate 発話は
+    // 「進行中の discord 議論」 にフォールバックする (無ければ skip)。
     let sessionId = args.sessionId;
     if (!sessionId) {
       const hypothesisId =
@@ -167,6 +168,9 @@ export function handleAction(args: HandleActionArgs): HandleActionResult {
           workspaceId: args.workspaceId,
           hypothesisId,
         })) ||
+        args.contextProvider.findActiveDiscussionSession?.({
+          workspaceId: args.workspaceId,
+        }) ||
         null;
     }
     if (!sessionId) {

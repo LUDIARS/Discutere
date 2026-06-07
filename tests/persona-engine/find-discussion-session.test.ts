@@ -39,5 +39,26 @@ assert.equal(
   "ended session は着地対象にしない"
 );
 
+// findActiveDiscussionSession: 進行中の discord-bound 議論を 1 件返す (純 debate 発話の着地先)。
+const gap2 = core.repos.designGap.create({ workspaceId: ws, title: "進行中の議題" });
+const activeSession = core.repos.session.create({
+  workspaceId: ws,
+  title: `discussion-of-gap:${gap2}`,
+  startedAt: Date.now(),
+  scene: "discord:g1/c1",
+} as never);
+assert.equal(
+  adapter.findActiveDiscussionSession?.({ workspaceId: ws }),
+  activeSession,
+  "進行中 discord 議論を返す"
+);
+// gap を closed にすると除外される。
+core.client.raw.prepare("UPDATE design_gaps SET status = 'closed' WHERE id = ?").run(gap2);
+assert.equal(
+  adapter.findActiveDiscussionSession?.({ workspaceId: ws }),
+  null,
+  "closed gap の議論は active 対象外"
+);
+
 core.close();
 console.log("ok findDiscussionSession (tick rule の session 解決)");
