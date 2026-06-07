@@ -175,6 +175,8 @@ export async function handleForumThreadCreate(
     const { ingested, seed } = routeForumPost(normalized, guildId, deps.router, {
       isStarter: true,
       direction,
+      // スレッド名 = 議論の主題。本文にゲーム名が無くても議題を固定する。
+      forumTitle: typeof thread.name === "string" ? thread.name : undefined,
     });
     if (ingested && seed) {
       const started = await seed;

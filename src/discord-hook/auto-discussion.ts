@@ -35,6 +35,12 @@ export interface DiscordAutoDiscussionInput {
   authorId: string;
   content: string;
   /**
+   * フォーラムスレッドのタイトル (= 議論の主題)。フォーラム starter のみ設定。
+   * 本文に主題 (ゲーム名等) が書かれていなくても、 タイトルから議題を固定する。
+   * これが無いと分類器が本文だけで主題を推測し、 別ゲームに誤爆する。
+   */
+  forumTitle?: string;
+  /**
    * 議論の方向性 (フォーラムのタグ由来)。設定時のみ議題説明にディレクティブを差し込む。
    * 非フォーラム経路 (平文議論) は未設定 = 従来挙動。
    */
@@ -77,19 +83,28 @@ export async function startAutoDiscussionForDiscordMessage(
   llm: LLMClient | null = null
 ): Promise<{ started: boolean; gapId?: string; classification: AutoDiscussionClassification }> {
   const existing = findGapByEvidenceUtterance(core, input.workspaceId, input.utteranceId);
-  const classification = await classifyDiscordMessage(input.content, llm);
+  const classification = await classifyDiscordMessage(input.content, llm, input.forumTitle);
   if (existing) return { started: false, gapId: existing, classification };
   if (classification.action !== "start_discussion") return { started: false, classification };
+
+  // フォーラムタイトル (= 主題) があればそれを gap タイトルにし、本文先頭にも刻む。
+  // 本文にゲーム名が無くても議論が主題から逸れない (ワンダと巨像→ヴァンサバ 誤爆対策)。
+  const forumTitle = input.forumTitle?.trim();
+  const gapTitle = forumTitle && forumTitle.length > 0 ? forumTitle : classification.title;
+  const baseDescription =
+    forumTitle && forumTitle.length > 0
+      ? `【主題: ${forumTitle}】\n${classification.description}`
+      : classification.description;
 
   // 方向性 (フォーラムタグ由来) があれば議題説明にディレクティブを差し込む。
   // facilitator は gapTopic (title + description) を読むので、これで拡張/収束が方向に沿う。
   const description = input.direction
-    ? `${classification.description}\n\n${forumDirectionDirective(input.direction)}`
-    : classification.description;
+    ? `${baseDescription}\n\n${forumDirectionDirective(input.direction)}`
+    : baseDescription;
 
   const gapId = core.repos.designGap.create({
     workspaceId: input.workspaceId,
-    title: classification.title,
+    title: gapTitle,
     description,
     status: "open",
   });
@@ -129,8 +144,10 @@ export async function startAutoDiscussionForDiscordMessage(
 
 export async function classifyDiscordMessage(
   content: string,
-  llm: LLMClient | null = null
+  llm: LLMClient | null = null,
+  threadTitle?: string
 ): Promise<AutoDiscussionClassification> {
+  const title = threadTitle?.trim();
   const fallback = classifyDiscordMessageFallback(content);
   if (!llm) return fallback;
 
@@ -139,10 +156,14 @@ export async function classifyDiscordMessage(
       "You classify Discord posts for an automatic game-design discussion system. Return only compact JSON.",
     prompt: [
       "Classify the post. Start a discussion only when it is a substantive game/design/mechanic question or a debatable opinion.",
+      // スレッドタイトルは議論の主題 (対象ゲーム等)。本文に主題が無くてもこれを基準にする。
+      title ? `Thread title (議論の主題・対象ゲーム — これを必ず主題にする): ${title}` : "",
       "JSON schema:",
       '{"action":"start_discussion|record_only","category":"game_design_question|mechanic_question|opinion|noise|command_like","title":"short Japanese title","description":"Japanese summary","expectedAffect":"optional","observedAffect":"optional","reason":"short reason"}',
       `Post: ${content}`,
-    ].join("\n"),
+    ]
+      .filter((l) => l.length > 0)
+      .join("\n"),
     maxTokens: 700,
   });
 

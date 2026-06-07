@@ -91,6 +91,42 @@ const utteranceId = core.repos.utterance.create({
 }
 
 {
+  // フォーラムタイトル (主題) を渡すと、 LLM が別タイトルを返しても gap タイトルは
+  // フォーラムタイトルに固定され、 description にも主題が刻まれる (主題ずれ防止)。
+  const llm = new MockLLMClient([
+    () =>
+      JSON.stringify({
+        action: "start_discussion",
+        category: "game_design_question",
+        title: "全然違うゲームの議題",
+        description: "本文だけから推測した説明",
+        reason: "mock",
+      }),
+  ]);
+  const result = await startAutoDiscussionForDiscordMessage(
+    core,
+    {
+      workspaceId: "knowledge",
+      guildId: "g1",
+      channelId: "ch-forum",
+      sessionId,
+      utteranceId: `utt-forumtitle-${Date.now()}`,
+      authorId: "u1",
+      content: "目立ったアクションもないし、よじ登りもだるい。名作の要素はどこ？",
+      forumTitle: "ワンダと巨像",
+    },
+    llm
+  );
+  assert.equal(result.started, true);
+  const gap = core.client.raw
+    .prepare("SELECT title, description FROM design_gaps WHERE id = ?")
+    .get(result.gapId) as { title: string; description: string };
+  assert.equal(gap.title, "ワンダと巨像", "gap タイトルはフォーラムタイトルに固定");
+  assert.ok(gap.description.includes("ワンダと巨像"), "description にも主題が刻まれる");
+  console.log("ok forumTitle anchors gap topic");
+}
+
+{
   // 同じ category + 同じ affect の議論を 2 件起こしても dedup ユニーク索引
   // (workspace_id, gap_in, expected_affect, observed_affect) で衝突しないこと。
   // (旧実装は gap_in=`discord:<category>` 固定で 2 件目が UNIQUE 制約違反で throw した。)
