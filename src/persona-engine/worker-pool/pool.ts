@@ -33,6 +33,18 @@ const defaultLogger: PoolLogger = {
   warn: (m, meta) => console.warn(`[worker-pool] ${m}`, meta ?? ""),
 };
 
+/**
+ * TUI へ本文を注入してから Enter (CR) を「別 write」で送るまでの待ち時間 (ms)。
+ * 本文 + CR を 1 write で送ると Claude TUI が bracketed paste 扱いし、CR が入力欄の
+ * 改行として取り込まれて submit されない (= プロンプトが入力欄に溜まり、ワーカーが
+ * 一切応答しない / 発話 0)。本文 → 待機 → CR の 2 段送出で確実に submit させる。
+ */
+const SUBMIT_DELAY_MS = 150;
+
+function delay(ms: number): Promise<void> {
+  return new Promise((resolve) => setTimeout(resolve, ms));
+}
+
 export class WorkerPool {
   private readonly workers = new Map<string, WorkerRuntime>();
   private readonly pending = new Map<string, PendingTurn>();
@@ -169,8 +181,12 @@ export class WorkerPool {
     // worker の cwd は worker-home なので turnsDir を相対で渡すと解決できない。
     // 絶対パス (forward slash 正規化) で注入する。worker は Read ツールで読む。
     const turnAbs = turnPath.replace(/\\/g, "/");
-    const line = `[TURN] ${payload.reqId} ${turnAbs}\r`;
+    // 本文と Enter(CR) を分けて送る。1 write (`...\r`) だと bracketed paste 扱いで
+    // CR が改行化し submit されない (プロンプト蓄積 / 発話 0 の原因)。
+    const line = `[TURN] ${payload.reqId} ${turnAbs}`;
     await this.injectKeys(rt.lictorPort, line);
+    await delay(SUBMIT_DELAY_MS);
+    await this.injectKeys(rt.lictorPort, "\r");
 
     rt.busy = true;
     return new Promise<string>((resolve, reject) => {
