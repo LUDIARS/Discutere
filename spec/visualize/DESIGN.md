@@ -202,6 +202,23 @@ npm run visualize session <id>
 npm run visualize hypothesis <id> --workspace team-alpha
 ```
 
+## データソース・ビュー (学習データの出所可視化)
+
+「学習データがいくつの取得元から・どこから来たか」を学習ビューアの **「データソース」タブ**
+(`/learning/sources`) で俯瞰する。
+
+- 集計は `src/visualize/data-sources.ts` の `buildDataSourceSnapshot(rawDb, ws)` (純粋関数)。
+  KG の `sessions.title` 接頭辞 (`<source>:<slug>`) を取得元 source として切り出し、
+  source 別 / source×ゲーム別に session 数・utterance 数・対象ゲーム数を集計する。
+- **source の種別**: `import` (steam / youtube / niconico / website / fandom / reddit / opencritic =
+  外部から取り込んだデータ) / `internal` (discussion-of-gap = 自走議論, discord-session) /
+  `derived` (reception = wire:affects 由来)。各 source にラベルと取得元 (origin) の説明を持たせる。
+- gap uuid (`discussion-of-gap:<uuid>`) は「ゲーム取込」に数えない (UUID 形を除外)。
+- スナップショットは他の層と同じく `build:learning-cache` で `data/learning-cache.sqlite` の
+  `data-sources` キーに焼かれ、ビューアは cache のみ参照 (KG 非ロック)。
+- ビューア: source 一覧 (発話数・取得単位・対象ゲーム) + ゲーム別の取得元内訳 + 円グラフ
+  (青=取込 / 橙=派生 / 灰=内部生成)。
+
 ## 参照
 - Discatier Core schema: `src/core/db/schema.ts`
 - Discatier Core repos: `src/core/repositories/base.ts`

@@ -8,5 +8,6 @@ import "./md-exporter.test.js";
 import "./dump.test.js";
 import "./topic-opinions.test.js";
 import "./learning-layers.test.js";
+import "./data-sources.test.js";
 
 console.log("visualize tests: all passed");
