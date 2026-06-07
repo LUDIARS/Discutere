@@ -29,5 +29,15 @@ assert.equal(adapter.findDiscussionSession?.({ workspaceId: ws, hypothesisId: hi
 assert.equal(adapter.findDiscussionSession?.({ workspaceId: ws, hypothesisId: "nope" }), null, "未知 hypothesis は null");
 assert.equal(adapter.findDiscussionSession?.({ workspaceId: ws, gapId: "nope" }), null, "未知 gap は null");
 
+// ended_at が入った session (= 管理画面から「閉じた」議論) は gap が open でも null。
+core.client.raw
+  .prepare("UPDATE sessions SET ended_at = ? WHERE id = ?")
+  .run(Date.now(), sessionId);
+assert.equal(
+  adapter.findDiscussionSession?.({ workspaceId: ws, gapId }),
+  null,
+  "ended session は着地対象にしない"
+);
+
 core.close();
 console.log("ok findDiscussionSession (tick rule の session 解決)");

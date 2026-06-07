@@ -75,8 +75,8 @@ const HTML = `<!doctype html>
   <h2>🧭 議論キュー <span class="muted" id="queue-totals">loading…</span></h2>
   <h3 style="margin:12px 0 4px;font-size:14px;">進行中の議論 session</h3>
   <table id="queue-sessions">
-    <thead><tr><th>channel</th><th>guild</th><th>発話</th><th>発火</th><th>最終発話</th></tr></thead>
-    <tbody><tr><td colspan="5" class="muted">loading…</td></tr></tbody>
+    <thead><tr><th>channel</th><th>guild</th><th>発話</th><th>発火</th><th>最終発話</th><th>操作</th></tr></thead>
+    <tbody><tr><td colspan="6" class="muted">loading…</td></tr></tbody>
   </table>
   <h3 style="margin:12px 0 4px;font-size:14px;">未処理 DesignGap (仮説待ち)
     <button id="dismiss-all" class="bad" style="float:right;padding:4px 10px;font-size:12px;">未処理を一括却下</button>
@@ -361,8 +361,10 @@ function renderQueue(q) {
         <td>\${s.utteranceCount}</td>
         <td>\${s.fireCount}</td>
         <td class="muted">\${s.lastUtteranceAt ? new Date(s.lastUtteranceAt).toLocaleTimeString() : "—"}</td>
+        <td><button class="bad close-session" data-session-id="\${escapeHtml(s.sessionId)}" style="padding:3px 9px;font-size:12px;">閉じる</button></td>
       </tr>\`).join("")
-    : '<tr><td colspan="5" class="muted">進行中の議論なし</td></tr>';
+    : '<tr><td colspan="6" class="muted">進行中の議論なし</td></tr>';
+  st.querySelectorAll(".close-session").forEach((b) => b.addEventListener("click", () => closeSession(b.dataset.sessionId)));
   const gt = document.querySelector("#queue-gaps tbody");
   gt.innerHTML = q.openGaps.length
     ? q.openGaps.map((g) => \`<tr><td>\${escapeHtml(g.title)}</td><td class="muted">\${escapeHtml(g.status || "open")}</td><td><button class="bad dismiss-gap" data-gap-id="\${escapeHtml(g.id)}" style="padding:3px 9px;font-size:12px;">却下</button></td></tr>\`).join("")
@@ -456,6 +458,17 @@ async function dismissAllOpen() {
     const res = await fetch("/api/admin/gaps/dismiss-open", { method: "POST", credentials: "include" });
     const j = await res.json();
     el.textContent = res.ok ? ("一括却下 " + (j.dismissed ?? 0) + " 件") : ("失敗: " + (j.error || res.status));
+  } catch (e) { el.textContent = "失敗: " + e.message; }
+  fetchQueue().then(renderQueue).catch(() => {});
+}
+
+async function closeSession(id) {
+  if (!id || !confirm("この進行中の議論を閉じますか?(結論として終了し、AI の発言を止めます)")) return;
+  const el = document.getElementById("dismiss-result");
+  try {
+    const res = await fetch("/api/admin/sessions/" + encodeURIComponent(id) + "/close", { method: "POST", credentials: "include" });
+    const j = await res.json();
+    el.textContent = res.ok ? ("閉じた session " + (j.endedSessions ?? 0) + " / gap " + (j.closedGaps ?? 0)) : ("失敗: " + (j.error || res.status));
   } catch (e) { el.textContent = "失敗: " + e.message; }
   fetchQueue().then(renderQueue).catch(() => {});
 }
