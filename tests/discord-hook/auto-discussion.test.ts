@@ -90,5 +90,49 @@ const utteranceId = core.repos.utterance.create({
   console.log("ok auto discussion can use LLM classification");
 }
 
+{
+  // 同じ category + 同じ affect の議論を 2 件起こしても dedup ユニーク索引
+  // (workspace_id, gap_in, expected_affect, observed_affect) で衝突しないこと。
+  // (旧実装は gap_in=`discord:<category>` 固定で 2 件目が UNIQUE 制約違反で throw した。)
+  const mk = (tag: string) => {
+    const sid = core.repos.session.create({
+      workspaceId,
+      title: `discord-session:g1:${tag}`,
+      startedAt: Date.now(),
+      scene: `discord:g1/${tag}`,
+    });
+    const uid = core.repos.utterance.create({
+      workspaceId,
+      sessionId: sid,
+      speakerId: "u1",
+      rawContent: "このゲームのテンポは良いか悪いか議論したい",
+      postedAt: Date.now(),
+    });
+    return { sid, uid };
+  };
+  const a = mk("th-a");
+  const b = mk("th-b");
+  const common = {
+    workspaceId,
+    guildId: "g1",
+    authorId: "u1",
+    content: "このゲームのテンポは良いか悪いか議論したい",
+  };
+  const ra = await startAutoDiscussionForDiscordMessage(core, {
+    ...common, channelId: "th-a", sessionId: a.sid, utteranceId: a.uid,
+  });
+  const rb = await startAutoDiscussionForDiscordMessage(core, {
+    ...common, channelId: "th-b", sessionId: b.sid, utteranceId: b.uid,
+  });
+  assert.equal(ra.started, true);
+  assert.equal(rb.started, true, "2件目も UNIQUE 制約で落ちず議論が立つ");
+  assert.notEqual(ra.gapId, rb.gapId);
+  const rows = core.client.raw
+    .prepare("SELECT gap_in FROM design_gaps WHERE id IN (?, ?)")
+    .all(ra.gapId, rb.gapId) as Array<{ gap_in: string }>;
+  assert.equal(new Set(rows.map((r) => r.gap_in)).size, 2, "gap_in が議論ごとに一意");
+  console.log("ok 同カテゴリの議論が複数立っても dedup 衝突しない");
+}
+
 core.close();
 console.log("auto-discussion.test.ts: all passed");
