@@ -261,7 +261,7 @@ function forumDiscussionExists(
         WHERE s.workspace_id = ?
           AND s.title LIKE 'discussion-of-gap:%'
           AND s.scene = ?
-          AND (g.status IS NULL OR g.status NOT IN ('closed', 'converged'))
+          AND (g.status IS NULL OR g.status NOT IN ('closed', 'converged', 'dismissed'))
         LIMIT 1`
     )
     .get(workspaceId, scene) as { id: string } | undefined;

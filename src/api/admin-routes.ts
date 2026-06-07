@@ -56,6 +56,45 @@ adminRoutes.post("/admin/session/reset", async (c) => {
   return c.json({ ok: true, sessionId: body.sessionId });
 });
 
+// 未処理 (open) DesignGap を「却下」する terminal 状態 (status='dismissed')。
+// dismissed は議論進行 (facilitator/engine)・キュー・結論一覧から除外される
+// = データとして表示せず、学習にも乗せない。closed (収束した結論) とは区別する。
+const DISMISS_GUARD = "status IS NULL OR status NOT IN ('closed','converged','dismissed')";
+
+adminRoutes.post("/admin/gaps/:id/dismiss", async (c) => {
+  const guard = requireAdmin(c);
+  if (guard) return guard;
+  const id = c.req.param("id");
+  const core = createCore();
+  try {
+    const r = core.client.raw
+      .prepare(
+        `UPDATE design_gaps SET status = 'dismissed', updated_at = ? WHERE id = ? AND workspace_id = ? AND (${DISMISS_GUARD})`
+      )
+      .run(Date.now(), id, getConfig().workspace);
+    return c.json({ ok: true, dismissed: r.changes });
+  } finally {
+    core.close();
+  }
+});
+
+// 未処理 DesignGap を一括却下 (バックログ一掃)。
+adminRoutes.post("/admin/gaps/dismiss-open", async (c) => {
+  const guard = requireAdmin(c);
+  if (guard) return guard;
+  const core = createCore();
+  try {
+    const r = core.client.raw
+      .prepare(
+        `UPDATE design_gaps SET status = 'dismissed', updated_at = ? WHERE workspace_id = ? AND (status IS NULL OR status NOT IN ('closed','converged','dismissed','resolved','rejected'))`
+      )
+      .run(Date.now(), getConfig().workspace);
+    return c.json({ ok: true, dismissed: r.changes });
+  } finally {
+    core.close();
+  }
+});
+
 adminRoutes.get("/admin/status", async (c) => {
   const guard = requireAdmin(c);
   if (guard) return guard;

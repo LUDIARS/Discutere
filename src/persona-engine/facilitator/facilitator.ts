@@ -194,7 +194,7 @@ export function createFacilitator(deps: FacilitatorDeps): Facilitator {
         .prepare("SELECT status FROM design_gaps WHERE id = ?")
         .get(gapId) as { status: string | null } | undefined;
       if (!gap) continue;
-      if (gap.status && ["closed", "converged"].includes(gap.status)) continue;
+      if (gap.status && ["closed", "converged", "dismissed"].includes(gap.status)) continue;
       out.push({ sessionId: r.sessionId, gapId });
     }
     return out;
