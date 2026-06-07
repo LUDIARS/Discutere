@@ -95,6 +95,63 @@ adminRoutes.post("/admin/gaps/dismiss-open", async (c) => {
   }
 });
 
+// 進行中の議論 session を「閉じる」。
+// - 同じ Discord スレッド (scene) に紐づく session を全て ended_at で終了
+//   (intake session + discussion-of-gap session が同一 scene を共有するため両方)。
+// - その discussion-of-gap session に紐づく DesignGap を closed にし、 debate を止める
+//   (findDiscussionSession が closed gap を弾くので tick rule が着地しなくなる)。
+// 「却下 (dismissed)」がデータ/学習から外す破棄なのに対し、 こちらは
+// 「議論を結論として終了する」 graceful close (closed は結論一覧に残る)。
+adminRoutes.post("/admin/sessions/:id/close", async (c) => {
+  const guard = requireAdmin(c);
+  if (guard) return guard;
+  const id = c.req.param("id");
+  const ws = getConfig().workspace;
+  const core = createCore();
+  try {
+    const sess = core.client.raw
+      .prepare("SELECT id, scene FROM sessions WHERE id = ? AND workspace_id = ?")
+      .get(id, ws) as { id: string; scene: string | null } | undefined;
+    if (!sess) return c.json({ error: "session not found" }, 404);
+    const now = Date.now();
+
+    // scene 共有 session を一括終了 (scene 無しは自身のみ)。
+    const endedSessions = sess.scene
+      ? core.client.raw
+          .prepare(
+            "UPDATE sessions SET ended_at = ?, updated_at = ? WHERE workspace_id = ? AND scene = ? AND ended_at IS NULL"
+          )
+          .run(now, now, ws, sess.scene).changes
+      : core.client.raw
+          .prepare("UPDATE sessions SET ended_at = ?, updated_at = ? WHERE id = ? AND ended_at IS NULL")
+          .run(now, now, id).changes;
+
+    // 終了した session 群に対応する gap を closed に (title から gapId 抽出)。
+    const gapIds = (
+      core.client.raw
+        .prepare(
+          `SELECT DISTINCT SUBSTR(title, LENGTH('discussion-of-gap:') + 1) AS gap_id
+             FROM sessions
+            WHERE workspace_id = ? AND title LIKE 'discussion-of-gap:%'
+              AND ${sess.scene ? "scene = ?" : "id = ?"}`
+        )
+        .all(ws, sess.scene ?? id) as Array<{ gap_id: string }>
+    ).map((r) => r.gap_id);
+
+    const closeGap = core.client.raw.prepare(
+      `UPDATE design_gaps SET status = 'closed', updated_at = ?
+         WHERE id = ? AND workspace_id = ?
+           AND (status IS NULL OR status NOT IN ('closed','converged','dismissed','resolved','rejected'))`
+    );
+    let closedGaps = 0;
+    for (const gid of gapIds) closedGaps += closeGap.run(now, gid, ws).changes;
+
+    return c.json({ ok: true, endedSessions, closedGaps });
+  } finally {
+    core.close();
+  }
+});
+
 adminRoutes.get("/admin/status", async (c) => {
   const guard = requireAdmin(c);
   if (guard) return guard;

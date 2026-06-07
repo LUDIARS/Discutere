@@ -205,9 +205,10 @@ export function createDiscatierContextProvider(
         .prepare("SELECT status FROM design_gaps WHERE id = ?")
         .get(gapId) as { status: string | null } | undefined;
       if (gap?.status && ["closed", "converged", "dismissed"].includes(gap.status)) return null;
+      // ended_at が入った session (= 管理画面から「閉じた」議論) には着地させない。
       const session = core.client.raw
         .prepare(
-          "SELECT id FROM sessions WHERE workspace_id = ? AND title = ? ORDER BY started_at DESC LIMIT 1"
+          "SELECT id FROM sessions WHERE workspace_id = ? AND title = ? AND ended_at IS NULL ORDER BY started_at DESC LIMIT 1"
         )
         .get(input.workspaceId, `discussion-of-gap:${gapId}`) as { id: string } | undefined;
       return session?.id ?? null;
