@@ -70,4 +70,13 @@ export interface DiscussionContextProvider {
     hypothesisId?: string;
     gapId?: string;
   }): string | null;
+
+  /**
+   * 純 debate 発話 (hypothesis_id も sessionId も無い tick rule) のための着地先。
+   * 「いま進行中の discord-bound 議論 session」 = 最新の open gap (closed/converged/
+   * dismissed でない) の discussion-of-gap session で discord scene かつ未終了のもの。
+   * これが無いと debate ペルソナの post_utterance は session を解決できず skip され、
+   * Discord に発話が一切流れない。 無ければ null。
+   */
+  findActiveDiscussionSession?(input: { workspaceId: string }): string | null;
 }

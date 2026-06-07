@@ -214,6 +214,26 @@ export function createDiscatierContextProvider(
       return session?.id ?? null;
     },
 
+    findActiveDiscussionSession(input: { workspaceId: string }): string | null {
+      // hypothesis も sessionId も無い純 debate 発話の着地先。 進行中 (未終了・未収束)
+      // の discord-bound 議論 session のうち最新のものを 1 件返す。
+      const row = core.client.raw
+        .prepare(
+          `SELECT s.id AS id
+             FROM sessions s
+             JOIN design_gaps g
+               ON g.id = SUBSTR(s.title, LENGTH('discussion-of-gap:') + 1)
+            WHERE s.workspace_id = ?
+              AND s.title LIKE 'discussion-of-gap:%'
+              AND s.scene LIKE 'discord:%'
+              AND s.ended_at IS NULL
+              AND (g.status IS NULL OR g.status NOT IN ('closed','converged','dismissed','resolved','rejected'))
+            ORDER BY s.started_at DESC LIMIT 1`
+        )
+        .get(input.workspaceId) as { id: string } | undefined;
+      return row?.id ?? null;
+    },
+
     postUtterance(input: PostUtteranceInput): { id: string } {
       const sessionId = input.sessionId || options.defaultSessionId;
       if (!sessionId) {
