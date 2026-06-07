@@ -63,7 +63,12 @@ export class WorkerPoolClient implements LLMClient {
   /** claude -p フォールバック。model を worker 定義に沿わせて呼ぶ。 */
   private invokeFallback(args: LLMInvokeArgs, workerId: string): Promise<LLMResult> {
     const cfg = this.pool.getWorkerConfig(workerId);
-    const model = cfg?.model ?? args.model;
+    const rawModel = cfg?.model ?? args.model;
+    // fallback は claude -p。worker が GPT 等の非 claude モデル (provider: codex)
+    // の場合、その model id を `claude --model <gpt-...>` に渡すと CLI が exit 1 で
+    // 落ちる。非 claude モデルは undefined にして claude の既定モデルで発話させる
+    // (= ペルソナの声色は traits/speech_style で保たれる。真の GPT 経路は worker 起動時)。
+    const model = rawModel && /claude/i.test(rawModel) ? rawModel : undefined;
     return this.fallback!.invoke({ ...args, model });
   }
 }

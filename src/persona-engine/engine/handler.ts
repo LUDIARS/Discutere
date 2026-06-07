@@ -95,7 +95,12 @@ export function handleAction(args: HandleActionArgs): HandleActionResult {
     return { kind: "error", detail };
   }
 
-  const action = typeof json.action === "string" ? json.action : "";
+  const rawAction = typeof json.action === "string" ? json.action : "";
+  // LLM が post_utterance を speak/say/utterance 等の別名で返すことがあるので
+  // 発話系の同義語は post_utterance に正規化する (text があれば発話とみなす)。
+  const SPEAK_ALIASES = new Set(["speak", "say", "utter", "utterance", "message", "talk", "reply"]);
+  const action =
+    SPEAK_ALIASES.has(rawAction) && typeof json.text === "string" ? "post_utterance" : rawAction;
 
   if (action === "skip") {
     const reasoning =

@@ -56,7 +56,11 @@ export function buildPrompt(args: BuildPromptArgs): BuiltPrompt {
     "- 1〜3 文程度。 長文の説明にしない。",
     "",
     "出力は **必ず JSON のみ** で、 説明文や前置きを付けないでください。",
-    "確信が無い場合や、 ルールの意図に合わない場合は躊躇なく {\"action\":\"skip\",\"reasoning\":\"<理由>\"} を返してください。",
+    "【応答 JSON の形式 — action は厳密にこの名前】",
+    "- 発言する時: {\"action\":\"post_utterance\",\"text\":\"<あなたの発言>\"}",
+    "  ※ action は必ず \"post_utterance\"。 \"speak\" や \"say\" 等の別名は不可 (エラーになる)。",
+    "- 発言しない時: {\"action\":\"skip\",\"reasoning\":\"<理由>\"}",
+    "確信が無い場合や、 ルールの意図に合わない場合は躊躇なく skip を返してください。",
   ].join("\n");
 
   const hypotheses = args.contextProvider.listActiveHypotheses(
