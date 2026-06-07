@@ -112,7 +112,11 @@ export async function startAutoDiscussionForDiscordMessage(
        WHERE id = ?`
     )
     .run(
-      `discord:${classification.category}`,
+      // gap_in は dedup ユニーク索引 (workspace_id, gap_in, expected_affect, observed_affect) の
+      // キー。discord 議論はスレッド/投稿ごとに独立なので gapId を含めて一意化する。
+      // (`discord:<category>` だけだと同カテゴリ+同 affect の 2 件目で UNIQUE 制約違反 →
+      //  classify 失敗でクラッシュしていた。category は evidence_json.category に保持。)
+      `discord:${classification.category}:${gapId}`,
       classification.expectedAffect ?? null,
       classification.observedAffect ?? null,
       JSON.stringify(evidence),
