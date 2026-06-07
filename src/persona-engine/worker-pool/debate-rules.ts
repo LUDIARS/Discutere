@@ -41,17 +41,21 @@ export const DEBATE_RULE_SEEDS: RuleSeed[] = [
   },
 
   // ── 自走 debate (tick・役割ごとに cooldown をずらして輪番) ──
-  { id: "tick-con-opus", description: "否定派(Opus)が反論する", trigger_type: "tick", target: "con-opus", cooldown_sec: 80, instructions: SPEAK("否定派") },
-  { id: "tick-pro-opus", description: "正論派(Opus)が擁護する", trigger_type: "tick", target: "pro-opus", cooldown_sec: 85, instructions: SPEAK("正論派") },
-  { id: "tick-con-gpt", description: "否定派(GPT)が反論する", trigger_type: "tick", target: "con-gpt", cooldown_sec: 110, instructions: SPEAK("否定派") },
-  { id: "tick-pro-gpt", description: "正論派(GPT)が擁護する", trigger_type: "tick", target: "pro-gpt", cooldown_sec: 115, instructions: SPEAK("正論派") },
-  { id: "tick-opinion-sonnet", description: "意見屋(Sonnet)が独自の角度で", trigger_type: "tick", target: "opinion-sonnet", cooldown_sec: 100, instructions: SPEAK("意見屋") },
-  { id: "tick-opinion-gpt", description: "意見屋(GPT)が独自の角度で", trigger_type: "tick", target: "opinion-gpt", cooldown_sec: 125, instructions: SPEAK("意見屋") },
+  // tick_sec = engine の tick loop が発火候補に上げる間隔 (これが無いと
+  // engine.ts の `if (!r.tick_sec) continue` で永久に skip され議論が始まらない)。
+  // cooldown_sec と同値にして「cooldown 周期ごとに 1 回発火」を意味させる。
+  { id: "tick-con-opus", description: "否定派(Opus)が反論する", trigger_type: "tick", target: "con-opus", tick_sec: 80, cooldown_sec: 80, instructions: SPEAK("否定派") },
+  { id: "tick-pro-opus", description: "正論派(Opus)が擁護する", trigger_type: "tick", target: "pro-opus", tick_sec: 85, cooldown_sec: 85, instructions: SPEAK("正論派") },
+  { id: "tick-con-gpt", description: "否定派(GPT)が反論する", trigger_type: "tick", target: "con-gpt", tick_sec: 110, cooldown_sec: 110, instructions: SPEAK("否定派") },
+  { id: "tick-pro-gpt", description: "正論派(GPT)が擁護する", trigger_type: "tick", target: "pro-gpt", tick_sec: 115, cooldown_sec: 115, instructions: SPEAK("正論派") },
+  { id: "tick-opinion-sonnet", description: "意見屋(Sonnet)が独自の角度で", trigger_type: "tick", target: "opinion-sonnet", tick_sec: 100, cooldown_sec: 100, instructions: SPEAK("意見屋") },
+  { id: "tick-opinion-gpt", description: "意見屋(GPT)が独自の角度で", trigger_type: "tick", target: "opinion-gpt", tick_sec: 125, cooldown_sec: 125, instructions: SPEAK("意見屋") },
   {
     id: "tick-facilitator-steer",
     description: "ファシリテーターが論点を絞る/止揚で収束を促す",
     trigger_type: "tick",
     target: "facilitator",
+    tick_sec: 150,
     cooldown_sec: 150,
     instructions:
       "議論の流れを見て、対立を止揚 (アウフヘーベン) する方向に論点を一つ投げるか、" +

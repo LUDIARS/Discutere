@@ -35,9 +35,43 @@ export class RulesRepo {
       );
   }
 
+  /**
+   * seed rule の「発火制御フィールド」(trigger_type / tick_sec / event_kind /
+   * target / cooldown_sec) を現行 seed 定義に合わせて更新する。
+   *
+   * insertOrIgnore は INSERT OR IGNORE なので、 既存 DB の seed 行は seed 値を
+   * 変えても更新されない。 これにより例えば tick_sec を後から seed に足しても
+   * 既存行は tick_sec=null のままになり、 engine の tick loop が永久に skip して
+   * 議論が始まらない、 という事故が起きる (実際に発生)。 boot 時にこの reconcile を
+   * 走らせて発火パラメータだけ seed に追従させ、 self-heal させる。
+   *
+   * runtime 状態 (last_fired_at / enabled / removed_*) と instructions は保持する
+   * (instructions は別経路の override が source of truth のため触らない)。
+   */
+  reconcileSeed(seed: RuleSeed): void {
+    this.db
+      .prepare(
+        `UPDATE rules SET
+           trigger_type = ?, tick_sec = ?, event_kind = ?, target = ?, cooldown_sec = ?
+         WHERE id = ?`
+      )
+      .run(
+        seed.trigger_type,
+        seed.tick_sec ?? null,
+        seed.event_kind ?? null,
+        seed.target ?? null,
+        seed.cooldown_sec ?? 60,
+        seed.id
+      );
+  }
+
   bulkSeed(seeds: RuleSeed[]): void {
     const insert = this.db.transaction((rows: RuleSeed[]) => {
-      for (const row of rows) this.insertOrIgnore(row);
+      for (const row of rows) {
+        this.insertOrIgnore(row);
+        // INSERT OR IGNORE で既存行は据え置かれるため、 発火パラメータを seed に追従。
+        this.reconcileSeed(row);
+      }
     });
     insert(seeds);
   }
