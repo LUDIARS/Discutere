@@ -18,7 +18,26 @@ function setAnonymous(c: Context): void {
   c.set("userRole" as never, "general" as never);
 }
 
-/** すべての /api ルートに適用する。X-User-Id / X-User-Role ヘッダーから context を作る */
+/** リクエストが loopback (同一ホスト) からか判定する。@hono/node-server の生 socket を見る。 */
+export function isLoopbackRequest(c: Context): boolean {
+  try {
+    const addr = (c.env as { incoming?: { socket?: { remoteAddress?: string } } } | undefined)
+      ?.incoming?.socket?.remoteAddress;
+    if (!addr) return false;
+    return addr === "127.0.0.1" || addr === "::1" || addr === "::ffff:127.0.0.1";
+  } catch {
+    return false;
+  }
+}
+
+/**
+ * すべての /api ルートに適用する。X-User-Id / X-User-Role ヘッダーから context を作る。
+ *
+ * ヘッダー未指定でも **loopback (127.0.0.1/::1) からは admin として信頼**する。Discord-only の
+ * ローカル運用ツールで HTTP admin REST は loopback/VPN 前提 (CLAUDE.md)。これにより同一ホストの
+ * ブラウザから `/api/admin/dashboard` 等を直接開ける (LAN peer には付与しないので公開権限は広がらない)。
+ * 明示ヘッダーがあればそちらを優先。
+ */
 export function userContext() {
   return createMiddleware(async (c, next) => {
     const headerUserId = c.req.header("X-User-Id");
@@ -26,6 +45,9 @@ export function userContext() {
     if (headerUserId) {
       c.set("userId" as never, headerUserId as never);
       c.set("userRole" as never, (headerRole ?? "general") as never);
+    } else if (isLoopbackRequest(c)) {
+      c.set("userId" as never, "loopback-admin" as never);
+      c.set("userRole" as never, "admin" as never);
     } else {
       setAnonymous(c);
     }
