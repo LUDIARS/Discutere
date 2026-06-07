@@ -78,11 +78,14 @@ const HTML = `<!doctype html>
     <thead><tr><th>channel</th><th>guild</th><th>発話</th><th>発火</th><th>最終発話</th></tr></thead>
     <tbody><tr><td colspan="5" class="muted">loading…</td></tr></tbody>
   </table>
-  <h3 style="margin:12px 0 4px;font-size:14px;">未処理 DesignGap (仮説待ち)</h3>
+  <h3 style="margin:12px 0 4px;font-size:14px;">未処理 DesignGap (仮説待ち)
+    <button id="dismiss-all" class="bad" style="float:right;padding:4px 10px;font-size:12px;">未処理を一括却下</button>
+  </h3>
   <table id="queue-gaps">
-    <thead><tr><th>title</th><th>status</th></tr></thead>
-    <tbody><tr><td colspan="2" class="muted">loading…</td></tr></tbody>
+    <thead><tr><th>title</th><th>status</th><th>操作</th></tr></thead>
+    <tbody><tr><td colspan="3" class="muted">loading…</td></tr></tbody>
   </table>
+  <div class="muted" id="dismiss-result"></div>
   <h3 style="margin:12px 0 4px;font-size:14px;">検証待ちの仮説</h3>
   <table id="queue-hyps">
     <thead><tr><th>statement</th><th>status</th></tr></thead>
@@ -362,8 +365,9 @@ function renderQueue(q) {
     : '<tr><td colspan="5" class="muted">進行中の議論なし</td></tr>';
   const gt = document.querySelector("#queue-gaps tbody");
   gt.innerHTML = q.openGaps.length
-    ? q.openGaps.map((g) => \`<tr><td>\${escapeHtml(g.title)}</td><td class="muted">\${escapeHtml(g.status || "open")}</td></tr>\`).join("")
-    : '<tr><td colspan="2" class="muted">未処理 gap なし</td></tr>';
+    ? q.openGaps.map((g) => \`<tr><td>\${escapeHtml(g.title)}</td><td class="muted">\${escapeHtml(g.status || "open")}</td><td><button class="bad dismiss-gap" data-gap-id="\${escapeHtml(g.id)}" style="padding:3px 9px;font-size:12px;">却下</button></td></tr>\`).join("")
+    : '<tr><td colspan="3" class="muted">未処理 gap なし</td></tr>';
+  gt.querySelectorAll(".dismiss-gap").forEach((b) => b.addEventListener("click", () => dismissGap(b.dataset.gapId)));
   const ht = document.querySelector("#queue-hyps tbody");
   ht.innerHTML = q.pendingHypotheses.length
     ? q.pendingHypotheses.map((h) => \`<tr><td>\${escapeHtml(h.statement)}</td><td class="muted">\${escapeHtml(h.status || "open")}</td></tr>\`).join("")
@@ -434,6 +438,30 @@ document.getElementById("reset-form").addEventListener("submit", async (ev) => {
 });
 
 refresh();
+async function dismissGap(id) {
+  if (!id || !confirm("この議論を却下しますか?(データ表示・学習から外れます)")) return;
+  const el = document.getElementById("dismiss-result");
+  try {
+    const res = await fetch("/api/admin/gaps/" + encodeURIComponent(id) + "/dismiss", { method: "POST", credentials: "include" });
+    const j = await res.json();
+    el.textContent = res.ok ? ("却下 " + (j.dismissed ?? 0) + " 件") : ("失敗: " + (j.error || res.status));
+  } catch (e) { el.textContent = "失敗: " + e.message; }
+  fetchQueue().then(renderQueue).catch(() => {});
+}
+
+async function dismissAllOpen() {
+  if (!confirm("未処理の議論を全て却下しますか?(データ表示・学習から外れます)")) return;
+  const el = document.getElementById("dismiss-result");
+  try {
+    const res = await fetch("/api/admin/gaps/dismiss-open", { method: "POST", credentials: "include" });
+    const j = await res.json();
+    el.textContent = res.ok ? ("一括却下 " + (j.dismissed ?? 0) + " 件") : ("失敗: " + (j.error || res.status));
+  } catch (e) { el.textContent = "失敗: " + e.message; }
+  fetchQueue().then(renderQueue).catch(() => {});
+}
+
+document.getElementById("dismiss-all").addEventListener("click", dismissAllOpen);
+
 setInterval(refresh, 5000);
 </script>
 </body>

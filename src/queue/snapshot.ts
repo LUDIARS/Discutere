@@ -108,7 +108,7 @@ export function buildQueueSnapshot(
         `SELECT id, title, status
            FROM design_gaps
           WHERE workspace_id = ?
-            AND (status IS NULL OR status NOT IN ('resolved', 'closed', 'rejected'))
+            AND (status IS NULL OR status NOT IN ('resolved', 'closed', 'rejected', 'converged', 'dismissed'))
           ORDER BY created_at DESC
           LIMIT ?`
       )

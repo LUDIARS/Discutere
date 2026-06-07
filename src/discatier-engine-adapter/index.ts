@@ -204,7 +204,7 @@ export function createDiscatierContextProvider(
       const gap = core.client.raw
         .prepare("SELECT status FROM design_gaps WHERE id = ?")
         .get(gapId) as { status: string | null } | undefined;
-      if (gap?.status && ["closed", "converged"].includes(gap.status)) return null;
+      if (gap?.status && ["closed", "converged", "dismissed"].includes(gap.status)) return null;
       const session = core.client.raw
         .prepare(
           "SELECT id FROM sessions WHERE workspace_id = ? AND title = ? ORDER BY started_at DESC LIMIT 1"
