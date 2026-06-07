@@ -135,8 +135,18 @@ const personaEngineLifecycle = (() => {
   setRuntimeSettings(runtimeSettings);
 
   if (isWorkerPool) {
-    const workers =
+    const allWorkers =
       config.workerPool.workers.length > 0 ? config.workerPool.workers : DEFAULT_WORKERS;
+    // 議論パーティ設定: excludeProviders (例 ["codex"]) の provider を外す。
+    // トークンの無い provider を除外して claude のみで回す等の用途。
+    const excluded = new Set(config.workerPool.excludeProviders);
+    const workers =
+      excluded.size > 0 ? allWorkers.filter((w) => !excluded.has(w.provider)) : allWorkers;
+    if (excluded.size > 0) {
+      console.log(
+        `  worker-pool: excludeProviders=[${[...excluded].join(",")}] → 参加 ${workers.length}/${allWorkers.length} 名`
+      );
+    }
     workerPool = new WorkerPool(
       {
         enabled: config.workerPool.enabled,
@@ -200,19 +210,21 @@ const personaEngineLifecycle = (() => {
     const core = createCore();
     ensureReactionTables(core.client.raw);
     const relayPersonas = new PersonasRepo(peDb);
-    // persona の人間名と、 webhook 投稿の要否を解決する。
-    // facilitator (進行役) は Discutere bot として直接、 議論 persona は webhook で人間名。
+    // persona の人間名を解決する。 全 persona (進行役 facilitator 含む) を
+    // webhook で人間名として投稿する (役割名は出さない)。
     const resolveSpeaker = (byPersonaId: string) => {
       const p = relayPersonas.get(byPersonaId);
       return {
         name: p?.display_name ?? byPersonaId,
-        viaWebhook: byPersonaId !== "facilitator",
+        viaWebhook: true,
       };
     };
     const adapter = createDiscatierContextProvider(core, {
       // PR-I: AI 発話 / hypothesis を Discord channel に post
       async onPostedUtterance(input) {
         const sp = resolveSpeaker(input.byPersonaId);
+        // ログにも人間名を反映 (誰が何を言ったか追える)。
+        console.log(`  [議論] ${sp.name}: ${input.text.replace(/\s+/g, " ").slice(0, 80)}`);
         const r = await postDiscussionToDiscord({
           core,
           workspaceId: input.workspaceId,
@@ -223,7 +235,7 @@ const personaEngineLifecycle = (() => {
           text: input.text,
         });
         if (!r.ok && !r.skipped) {
-          console.warn("  persona-engine: discord utterance post skipped:", r.reason);
+          console.warn(`  persona-engine: discord utterance post skipped (${sp.name}):`, r.reason);
         } else if (r.messageId) {
           recordPostedMessage(core.client.raw, {
             messageId: r.messageId,
@@ -265,19 +277,23 @@ const personaEngineLifecycle = (() => {
         }
       },
     });
+    // 参加 persona の id 集合 (excludeProviders 適用後)。 除外された persona を
+    // target にする rule は seed しない (= GPT 除外時に GPT ルールを出さない)。
+    const activeWorkerIds = new Set((workerPersonaSeeds ?? []).map((p) => p.id));
     const engine = createPersonaEngine({
       db: peDb,
       llm,
       contextProvider: adapter,
       workspaceId,
-      // worker-pool 時は 8 固定キャストを seed (persona id = worker id)。
+      // worker-pool 時は固定キャストを seed (persona id = worker id)。
       personaSeeds: workerPersonaSeeds,
       // worker-pool 時は target=worker id の debate ルールを使う
       // (既存ルールの target=advocate 等は worker と一致せず全 skip になる)。
       // instructions は runtime override (チューニング UI) を適用してから seed する。
       ruleSeeds: isWorkerPool
-        ? applyRuleInstructionOverrides(DEBATE_RULE_SEEDS, (id) =>
-            runtimeSettings.getRuleInstruction(id),
+        ? applyRuleInstructionOverrides(
+            DEBATE_RULE_SEEDS.filter((r) => !r.target || activeWorkerIds.has(r.target)),
+            (id) => runtimeSettings.getRuleInstruction(id),
           )
         : undefined,
       maxFiresPerSession: config.personaEngine.maxFiresPerSession,
@@ -288,6 +304,20 @@ const personaEngineLifecycle = (() => {
       workspaceId,
       pollMs: config.personaEngine.bridgePollMs,
     });
+    // excludeProviders で外した persona の rule が既存 DB に残っていると
+    // 「persona not found」 を吐き続けるので、 active でない target の rule を disable。
+    if (isWorkerPool && config.workerPool.excludeProviders.length > 0) {
+      let disabledCount = 0;
+      for (const r of engine.rules.list({ enabled: true })) {
+        if (r.target && !activeWorkerIds.has(r.target)) {
+          engine.rules.setEnabled(r.id, false);
+          disabledCount++;
+        }
+      }
+      if (disabledCount > 0) {
+        console.log(`  worker-pool: 除外 provider の rule ${disabledCount} 件を無効化`);
+      }
+    }
     setPersonaEngine(engine);
     engine.start();
     bridge.start();

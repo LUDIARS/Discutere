@@ -68,12 +68,15 @@ export function buildPrompt(args: BuildPromptArgs): BuiltPrompt {
     8
   );
   const gaps = args.contextProvider.listRecentGaps(args.workspaceId, 6);
-  const utterances = args.sessionId
-    ? args.contextProvider.listRecentUtterances(
-        args.workspaceId,
-        args.sessionId,
-        10
-      )
+  // tick rule は sessionId を持たないので、 そのままだと直近発話が空になり
+  // ペルソナが議論の流れを見られず同じ意見をループする。 進行中の議論 session を
+  // 解決して直近発話を渡す (= 既出を避けられる)。
+  const effectiveSessionId =
+    args.sessionId ??
+    args.contextProvider.findActiveDiscussionSession?.({ workspaceId: args.workspaceId }) ??
+    null;
+  const utterances = effectiveSessionId
+    ? args.contextProvider.listRecentUtterances(args.workspaceId, effectiveSessionId, 12)
     : [];
 
   const ctx = { hypotheses, gaps, utterances };

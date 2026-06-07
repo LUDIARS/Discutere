@@ -86,18 +86,46 @@ export async function ensureChannelWebhook(
   return v;
 }
 
+/**
+ * webhook 投稿先の解決。 フォーラムスレッド (= channelId が thread) は webhook を
+ * 持てないので、 親フォーラムチャンネルの webhook を使い thread_id でスレッドに流す。
+ * 通常チャンネルはそのまま。 解決に失敗したら channelId をそのまま使う (caller が fallback)。
+ */
+export async function resolveWebhookTarget(
+  botToken: string,
+  channelId: string
+): Promise<{ webhookChannelId: string; threadId?: string }> {
+  try {
+    const res = await fetch(`${DISCORD_API}/channels/${encodeURIComponent(channelId)}`, {
+      headers: { Authorization: `Bot ${botToken}` },
+    });
+    if (!res.ok) return { webhookChannelId: channelId };
+    const ch = (await res.json()) as { type?: number; parent_id?: string | null };
+    // 10=announcement thread, 11=public thread, 12=private thread
+    if ((ch.type === 10 || ch.type === 11 || ch.type === 12) && ch.parent_id) {
+      return { webhookChannelId: ch.parent_id, threadId: channelId };
+    }
+    return { webhookChannelId: channelId };
+  } catch {
+    return { webhookChannelId: channelId };
+  }
+}
+
 export interface DiscordWebhookPostArgs {
   webhookId: string;
   webhookToken: string;
   username: string;
   content: string;
   avatarUrl?: string;
+  /** フォーラムスレッドに流す場合の thread id (親チャンネルの webhook 経由)。 */
+  threadId?: string;
 }
 
 /** webhook で username (= persona の人間名) を変えて投稿。 message id を返す。 */
 export async function postDiscordWebhook(args: DiscordWebhookPostArgs): Promise<{ id: string }> {
+  const threadQuery = args.threadId ? `&thread_id=${encodeURIComponent(args.threadId)}` : "";
   const res = await fetch(
-    `${DISCORD_API}/webhooks/${args.webhookId}/${args.webhookToken}?wait=true`,
+    `${DISCORD_API}/webhooks/${args.webhookId}/${args.webhookToken}?wait=true${threadQuery}`,
     {
       method: "POST",
       headers: { "Content-Type": "application/json" },
