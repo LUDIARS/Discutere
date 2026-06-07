@@ -102,6 +102,12 @@ export interface DiscutereConfig {
     registerTimeoutMs: number;
     /** ワーカー定義 (空なら index.ts が DEFAULT_WORKERS を使う)。 */
     workers: WorkerPoolWorker[];
+    /**
+     * 議論パーティから除外する provider (例 ["codex"] で GPT 系を全除外)。
+     * トークンの無い provider を外して claude のみで回す、 等の用途。
+     * 除外された persona の rule は seed されず、 既存 seed も boot で disabled になる。
+     */
+    excludeProviders: string[];
   };
   discord: {
     /** Gateway 接続用 bot token (未設定なら Gateway 起動を skip) */
@@ -274,6 +280,17 @@ function mergeGuildIds(list: string[], single: string | undefined): string[] {
   return [...set];
 }
 
+/** env (カンマ区切り) → file 配列 の順で読む文字列リスト。 trim + 空除外。 */
+function parseCsvList(envValue: string | undefined, fileValue: unknown): string[] {
+  if (typeof envValue === "string" && envValue.trim().length > 0) {
+    return envValue.split(",").map((s) => s.trim()).filter((s) => s.length > 0);
+  }
+  if (Array.isArray(fileValue)) {
+    return fileValue.filter((s): s is string => typeof s === "string" && s.trim().length > 0).map((s) => s.trim());
+  }
+  return [];
+}
+
 export function loadConfig(): DiscutereConfig {
   const file = readFileConfig();
   const backendRaw = pick(process.env.LLM_BACKEND, file.llm?.backend, "anthropic").toLowerCase();
@@ -357,6 +374,10 @@ export function loadConfig(): DiscutereConfig {
         60_000
       ),
       workers: Array.isArray(file.workerPool?.workers) ? file.workerPool!.workers : [],
+      excludeProviders: parseCsvList(
+        process.env.DISCUTERE_WORKER_POOL_EXCLUDE_PROVIDERS,
+        file.workerPool?.excludeProviders
+      ),
     },
     discord: {
       botToken: pickOpt(process.env.DISCUTERE_DISCORD_BOT_TOKEN, file.discord?.botToken),

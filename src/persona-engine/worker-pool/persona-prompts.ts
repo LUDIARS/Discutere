@@ -29,6 +29,7 @@ export const ROLE_GUIDANCE_DEFAULTS: Record<string, string> = {
   ファシリテーター: [
     "あなたは議論のファシリテーターです。対立する意見を整理し、止揚 (アウフヘーベン) を促し、",
     "人間の発言を最優先で拾う。結論を急がず、論点を一つに絞って次の一手を投げる。",
+    "時々、議論を見ている人間に『あなたはどう感じる?』と意見や具体例を尋ねて巻き込む。",
   ].join("\n"),
   正論派: [
     "あなたは正論派です。テーマの主張を筋の通った形で擁護・補強する。",
@@ -41,6 +42,8 @@ export const ROLE_GUIDANCE_DEFAULTS: Record<string, string> = {
   意見屋: [
     "あなたは意見屋です。賛否どちらにも寄りすぎず、自分の角度から独自の見方や具体例を出す。",
     "他のペルソナが触れていない切り口を一つ持ち込む。",
+    "ただし具体例は必ず議題の対象 (そのゲーム) に即したものにする。",
+    "議題と無関係な別のゲームを例や話題に持ち出さない。",
   ].join("\n"),
 };
 
@@ -54,24 +57,37 @@ export function setRolePromptResolver(fn: ((role: string) => string | undefined)
   rolePromptResolver = fn;
 }
 
-/** モデル ID → 表示用の短縮タグ。 */
-function modelShort(model: string): string {
-  if (model.includes("opus")) return "Opus";
-  if (model.includes("sonnet")) return "Sonnet";
-  if (model.includes("gpt")) return "GPT";
-  return model;
+/**
+ * ペルソナの表示名 (= Discord webhook の username)。 役割名ではなく人名にする。
+ * 既定キャストは固定名、 未知 worker id は FALLBACK から index で割り当てる。
+ */
+const PERSONA_NAMES: Record<string, string> = {
+  facilitator: "ナギ",
+  "pro-opus": "ハルキ",
+  "con-opus": "レン",
+  "pro-gpt": "ソウタ",
+  "con-gpt": "ユウ",
+  "opinion-opus": "ミオ",
+  "opinion-sonnet": "アオイ",
+  "opinion-gpt": "ハル",
+};
+const FALLBACK_NAMES = ["カエデ", "ツバサ", "ヒナタ", "リク", "サクラ", "ノゾミ", "タクミ", "マコト"];
+
+function personaDisplayName(workerId: string, index: number): string {
+  return PERSONA_NAMES[workerId] ?? FALLBACK_NAMES[index % FALLBACK_NAMES.length];
 }
 
 /**
  * ワーカー定義 → persona-engine の PersonaSeed。
  * persona id = worker id にして WorkerPoolClient のルーティングと一致させる。
  * provider/model は WorkerPool が config から知るので persona row には不要。
+ * display_name は人名 (役割名は出さない) — Discord には webhook username として出る。
  */
 export function buildWorkerPersonaSeeds(workers: WorkerConfig[]): PersonaSeed[] {
-  return workers.map((w) => ({
+  return workers.map((w, i) => ({
     id: w.id,
     name: w.role,
-    display_name: `${w.role}・${modelShort(w.model)}`,
+    display_name: personaDisplayName(w.id, i),
     description: roleGuidance(w.role),
     traits: [w.role, w.provider, w.model],
     speech_style: "Discord の自然な口語。ラベルを付けず、一文ごとに改行。1〜3 文。",
@@ -108,6 +124,8 @@ export function buildStandingPrompt(args: { worker: WorkerConfig }): string {
     "- 「反論:」「反例:」「弱点:」のようなラベルや見出しは絶対に付けない。普通の言葉で否定/賛成する。",
     "- 箇条書き・番号は使わず、会話の一言として書く。",
     "- 一文ごとに改行 (。! ? で改行)。1〜3 文程度。長文にしない。",
+    "- 議題に与えられた対象 (ゲーム名など) から逸れない。別のゲームを例や話題に持ち出さない。",
+    "- 直近の発言で既に出た主張・例の繰り返しはしない。新しい点が無ければ skip する。",
     "- 確信が無い、または発言する必要が無いと判断したら text を空文字にして skip してよい。",
     "",
     "## 動作プロトコル (重要 — このとおりに動く)",
