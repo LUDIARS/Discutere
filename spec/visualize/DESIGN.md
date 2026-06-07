@@ -219,6 +219,23 @@ npm run visualize hypothesis <id> --workspace team-alpha
 - ビューア: source 一覧 (発話数・取得単位・対象ゲーム) + ゲーム別の取得元内訳 + 円グラフ
   (青=取込 / 橙=派生 / 灰=内部生成)。
 
+### データソース隔離 (quarantine) — 不要な取得元を議論から外す
+
+「この取得元のデータは議論・学習に使いたくない」と判断したら、**KG から退避ファイルへ丸ごと
+移してから削除**できる (可逆)。実装 `src/crawler/quarantine.ts`、CLI は `scripts/crawl.ts`。
+
+- `crawl.ts quarantine <source> [<slug>] [--dry-run]` — `session.title=<source>:<slug>` に一致する
+  session とその配下 (utterance / reaction / translation_proposal / embedding / opinion_score /
+  discord_message_map / affect) を、ATTACH した別 SQLite (`data/quarantine/<source>[-<slug>]-<ts>.sqlite`
+  + manifest `.json`) に `INSERT...SELECT` で写し、トランザクションで KG から DELETE する。
+  JSON 化しないので steam (数十万 utterance) でもメモリを食わない。`--dry-run` は件数プレビューのみ。
+- slug を省くと **source 全体**を隔離し、dedup 台帳 `data/external/.ingested.sqlite` の該当 source 行も
+  退避+削除する (再取り込み可能に)。slug 指定時は ingested 台帳は触らない (source 単位でしか引けないため)。
+- `crawl.ts quarantine-restore <archive.sqlite>` — 退避ファイルから KG + ingested 台帳へ `INSERT OR IGNORE`
+  で全戻し。`crawl.ts quarantine-list` で退避済み一覧。
+- 隔離/復元は KG への書き込み。**Bot / live `/learning` を止めてから**実行し、後で
+  `npm run build:learning-cache` でデータソース・ビュー / Gap率を焼き直す。
+
 ## 参照
 - Discatier Core schema: `src/core/db/schema.ts`
 - Discatier Core repos: `src/core/repositories/base.ts`
