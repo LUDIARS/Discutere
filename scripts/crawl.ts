@@ -20,6 +20,12 @@ import {
 import { runExtFetch, runExtImport, runExtIngest } from "../src/crawler/sources/cli.js";
 import { analyzeGapRate, formatGapReport } from "../src/analysis/gap-rate.js";
 import {
+  planQuarantine,
+  quarantineSource,
+  restoreQuarantine,
+  listArchives,
+} from "../src/crawler/quarantine.js";
+import {
   AnthropicSdkClient,
   ClaudeCliClient,
   type LLMClient,
@@ -51,8 +57,92 @@ async function main(): Promise<void> {
       return runExtIngest(rest);
     case "gap-rate":
       return runGapRate(rest);
+    // データソース隔離 (退避 + KG から削除 / 復元) — spec/visualize/DESIGN.md
+    case "quarantine":
+      return runQuarantine(rest);
+    case "quarantine-restore":
+      return runQuarantineRestore(rest);
+    case "quarantine-list":
+      return runQuarantineList();
     default:
       printUsageAndExit();
+  }
+}
+
+/** データソース (source[, slug]) を退避ファイルへ移して KG から削除する。--dry-run でプレビュー。 */
+function runQuarantine(args: string[]): void {
+  const flags = args.filter((a) => a.startsWith("--"));
+  const [source, slug] = args.filter((a) => !a.startsWith("--"));
+  if (!source) {
+    console.error("usage: crawl.ts quarantine <source> [<slug>] [--dry-run]");
+    console.error("  source: steam | youtube | niconico | website | fandom | reddit | opencritic ...");
+    process.exit(2);
+  }
+  const core = createCore();
+  try {
+    const ws = getConfig().workspace;
+    if (flags.includes("--dry-run")) {
+      const plan = planQuarantine(core.client.raw, ws, source, slug ?? null);
+      console.log(JSON.stringify({ dryRun: true, ...plan }, null, 2));
+      return;
+    }
+    const result = quarantineSource(core.client.raw, ws, source, slug ?? null);
+    console.log(
+      JSON.stringify(
+        {
+          quarantined: { source, slug: slug ?? null },
+          archive: path.relative(process.cwd(), result.archiveFile),
+          counts: result.counts,
+          note: "学習ビューア反映は `npm run build:learning-cache`、復元は `crawl.ts quarantine-restore <archive>`",
+        },
+        null,
+        2
+      )
+    );
+  } finally {
+    core.close();
+  }
+}
+
+/** 退避ファイルから KG へ復元する。 */
+function runQuarantineRestore(args: string[]): void {
+  const [archiveFile] = args;
+  if (!archiveFile) {
+    console.error("usage: crawl.ts quarantine-restore <archive.sqlite>");
+    process.exit(2);
+  }
+  const core = createCore();
+  try {
+    const result = restoreQuarantine(core.client.raw, path.resolve(archiveFile));
+    console.log(
+      JSON.stringify(
+        {
+          restored: path.relative(process.cwd(), path.resolve(archiveFile)),
+          counts: result.counts,
+          note: "学習ビューア反映は `npm run build:learning-cache`",
+        },
+        null,
+        2
+      )
+    );
+  } finally {
+    core.close();
+  }
+}
+
+/** 退避済みアーカイブの一覧。 */
+function runQuarantineList(): void {
+  const archives = listArchives();
+  if (archives.length === 0) {
+    console.log("(隔離アーカイブはありません)");
+    return;
+  }
+  for (const a of archives) {
+    const when = a.createdAt ? new Date(a.createdAt).toISOString() : "?";
+    console.log(
+      `${path.basename(a.file)}  ${a.source}${a.slug ? "/" + a.slug : " (全体)"}  ` +
+        `session ${a.counts.sessions} / utterance ${a.counts.utterances}  ${when}`
+    );
   }
 }
 
@@ -205,6 +295,9 @@ function printUsageAndExit(): never {
       "  crawl.ts list\n" +
       "  crawl.ts run <gameName> [out-md-path]\n" +
       "  crawl.ts gap-rate <gameSlug> [--json]   # 運営想定 vs 観測のGap率を多角分析\n" +
+      "  crawl.ts quarantine <source> [<slug>] [--dry-run]   # データソースを退避してKGから隔離\n" +
+      "  crawl.ts quarantine-restore <archive.sqlite>        # 隔離したデータを復元\n" +
+      "  crawl.ts quarantine-list                            # 隔離アーカイブ一覧\n" +
       "  crawl.ts ext-fetch steam <gameSlug> <appId> [--lang all] [--max N]\n" +
       '  crawl.ts ext-fetch youtube-videos <gameSlug> --q "<query>" [--max N]\n' +
       "  crawl.ts ext-fetch youtube-comments <gameSlug> <videoId> [--max N]\n" +
