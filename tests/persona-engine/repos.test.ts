@@ -10,6 +10,7 @@ import {
   PersonasRepo,
   RulesRepo,
 } from "../../src/persona-engine/index.js";
+import { DEBATE_RULE_SEEDS } from "../../src/persona-engine/worker-pool/debate-rules.js";
 
 const workDir = path.resolve(".tmp/pe-repos");
 fs.rmSync(workDir, { recursive: true, force: true });
@@ -87,6 +88,30 @@ const removed = rules.get("propose-on-gap");
 assert.equal(removed?.enabled, 0);
 assert.equal(removed?.removed_reason, "trial");
 console.log("ok rule enable/remove");
+
+// 8. DEBATE_RULE_SEEDS の tick rule は必ず tick_sec を持つ (回帰防止)。
+//    tick_sec が無いと engine.ts の `if (!r.tick_sec) continue` で永久 skip され、
+//    自走 debate が一切始まらない (= 「議論が始まらない」 不具合の根因)。
+for (const seed of DEBATE_RULE_SEEDS) {
+  if (seed.trigger_type === "tick") {
+    assert.ok(
+      typeof seed.tick_sec === "number" && seed.tick_sec > 0,
+      `debate tick rule ${seed.id} must have positive tick_sec (got ${seed.tick_sec})`
+    );
+  }
+}
+console.log("ok debate tick rules carry tick_sec");
+
+// 9. reconcileSeed は既存行の発火パラメータを seed に追従させる (self-heal)。
+//    INSERT OR IGNORE では既存 tick_sec=null 行が更新されないので reconcile で直す。
+const stale = { id: "reconcile-target", trigger_type: "tick" as const, target: "advocate", instructions: "x" };
+rules.insertOrIgnore(stale); // tick_sec 無し → null で入る
+assert.equal(rules.get("reconcile-target")?.tick_sec, null);
+rules.reconcileSeed({ ...stale, tick_sec: 90, cooldown_sec: 90 });
+const healed = rules.get("reconcile-target");
+assert.equal(healed?.tick_sec, 90);
+assert.equal(healed?.cooldown_sec, 90);
+console.log("ok reconcileSeed heals tick_sec");
 
 db.close();
 console.log("repos.test.ts: all passed");
