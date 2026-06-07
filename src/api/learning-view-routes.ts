@@ -353,7 +353,7 @@ function renderSources(snap) {
     " / 総発話 " + (totals.utterances || 0) +
     " (うち取込 " + (totals.importUtterances || 0) + ")" +
     " / ゲーム " + (totals.games || 0);
-  document.getElementById("graph-help").textContent = "円の大きさ = 発話数 / 青=取込・橙=派生・灰=内部生成。不要な取得元は CLI `crawl.ts quarantine <source> [<slug>]` で退避+隔離 (復元可)。";
+  document.getElementById("graph-help").textContent = "円の大きさ = 発話数 / 青=取込・橙=派生・灰=内部生成。不要な取得元は CLI crawl.ts quarantine <source> [slug] で退避+隔離 (復元可)。";
   const byGame = snap.byGame || [];
   const gameTable = byGame.length
     ? '<article class="item"><div class="item-title">ゲーム別 取得元内訳</div>' +
