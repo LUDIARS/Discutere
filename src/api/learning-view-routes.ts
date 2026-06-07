@@ -35,6 +35,17 @@ learningViewRoutes.get("/learning/gap/detail", (c) => {
   }
 });
 
+// データソース構成 (どの取得元が何件か) は cache から配信 (build:learning-cache で焼く)。
+learningViewRoutes.get("/learning/sources", (c) => {
+  if (!learningCacheExists()) return c.json({ totals: { sources: 0 }, sources: [], byGame: [] });
+  const reader = openLearningCacheReader();
+  try {
+    return c.json(reader.dataSources() as object);
+  } finally {
+    reader.close();
+  }
+});
+
 // 収束した議論の結論一覧 (#66 — Learning View 統合)
 learningViewRoutes.get("/learning/conclusions", (c) => {
   const config = getConfig();
@@ -117,6 +128,7 @@ export const HTML = `<!doctype html>
     <button data-layer="opinions">話題と意見</button>
     <button data-layer="conclusions">結論</button>
     <button data-layer="gap">Gap率</button>
+    <button data-layer="sources">データソース</button>
   </div>
   <div class="muted" id="totals">loading...</div>
 </header>
@@ -152,6 +164,11 @@ async function load(layer) {
     if (!res.ok) throw new Error("conclusions http " + res.status);
     return res.json();
   }
+  if (layer === "sources") {
+    const res = await fetch("/learning/sources");
+    if (!res.ok) throw new Error("sources http " + res.status);
+    return res.json();
+  }
   const res = await fetch("/learning/data?layer=" + encodeURIComponent(layer) + "&limit=80&detailLimit=8");
   if (!res.ok) throw new Error("learning data http " + res.status);
   return res.json();
@@ -171,6 +188,7 @@ function setActiveLayer(layer) {
 
 function render(snap) {
   if (currentLayer === "gap") return renderGap(snap);
+  if (currentLayer === "sources") return renderSources(snap);
   if (currentLayer === "conclusions") return renderConclusions(snap);
   if (snap.layer === "knowledge") return renderKnowledge(snap);
   if (snap.layer === "games") return renderGames(snap);
@@ -321,6 +339,49 @@ function renderOpinions(snap) {
 }
 
 function pctg(value) { return (Math.round((value || 0) * 1000) / 10) + "%"; }
+
+function kindLabel(kind) {
+  return kind === "import" ? "取込" : kind === "derived" ? "派生" : "内部生成";
+}
+
+function renderSources(snap) {
+  const sources = snap.sources || [];
+  const totals = snap.totals || {};
+  document.getElementById("totals").textContent =
+    "データソース: " + (totals.sources || 0) + "種 (取込 " + (totals.importSources || 0) +
+    " / 内部 " + (totals.internalSources || 0) + ")" +
+    " / 総発話 " + (totals.utterances || 0) +
+    " (うち取込 " + (totals.importUtterances || 0) + ")" +
+    " / ゲーム " + (totals.games || 0);
+  document.getElementById("graph-help").textContent = "円の大きさ = 発話数 / 青=取込・橙=派生・灰=内部生成。";
+  const byGame = snap.byGame || [];
+  const gameTable = byGame.length
+    ? '<article class="item"><div class="item-title">ゲーム別 取得元内訳</div>' +
+      byGame.map((g) =>
+        '<div style="margin-top:8px;"><b>' + esc(g.slug) + '</b> <span class="muted">発話 ' + g.utterances + ' / ' + g.sources.length + 'ソース</span>' +
+        '<ol class="details">' + g.sources.map((s) =>
+          '<li>' + esc(s.label) + ' <span class="muted">[' + kindLabel(s.kind) + '] ' + s.sessions + '件 / 発話 ' + s.utterances + '</span></li>'
+        ).join("") + '</ol></div>'
+      ).join("") + '</article>'
+    : "";
+  document.getElementById("items").innerHTML = (sources.length
+    ? sources.map((s) =>
+        '<article class="item">' +
+          '<div class="item-head">' +
+            '<div class="item-title">' + esc(s.label) + ' <span class="muted">[' + kindLabel(s.kind) + ']</span></div>' +
+            '<div class="item-size muted">発話 ' + s.utterances + '</div>' +
+          '</div>' +
+          '<div class="muted">' + esc(s.source) + ' / ' + esc(s.origin) + '</div>' +
+          '<div class="muted">取得単位(session) ' + s.sessions + ' / 対象ゲーム ' + s.gameCount +
+            (s.games && s.games.length ? ': ' + esc(s.games.join(", ")) : '') + '</div>' +
+        '</article>').join("")
+    : '<div class="muted">データソースがありません</div>') + gameTable;
+  renderGraph(sources.map((s) => ({
+    title: s.label,
+    size: s.utterances,
+    status: s.kind === "import" ? "open" : s.kind === "derived" ? "ambivalent" : "closed",
+  })), "ソースなし");
+}
 
 function renderGap(snap) {
   const games = snap.games || [];

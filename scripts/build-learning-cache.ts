@@ -31,6 +31,7 @@ function main(): void {
         conclusions: result.conclusions,
         details: result.details,
         layers: result.layers,
+        sources: result.sources,
         gapGames: gap.games,
       },
       null,

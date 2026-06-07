@@ -17,6 +17,7 @@ import Database from "better-sqlite3";
 import type { createCore } from "../core/index.js";
 import { buildLearningLayerSnapshot, type LearningLayer } from "./learning-layers.js";
 import { listConclusions, getConclusionDetail } from "./conclusions.js";
+import { buildDataSourceSnapshot } from "./data-sources.js";
 import { analyzeGapRate, type GapRateReport } from "../analysis/gap-rate.js";
 
 type Core = ReturnType<typeof createCore>;
@@ -48,6 +49,7 @@ export interface BuildLearningCacheResult {
   conclusions: number;
   details: number;
   layers: number;
+  sources: number;
 }
 
 /**
@@ -91,8 +93,12 @@ export function buildLearningCache(
         layers += 1;
       }
 
+      // データソース構成 (どの取得元が何件か) を焼く。
+      const dataSources = buildDataSourceSnapshot(core.client.raw, workspaceId, now);
+      put.run("data-sources", JSON.stringify(dataSources), now);
+
       put.run(META_KEY, JSON.stringify({ builtAt: now, workspaceId }), now);
-      return { conclusions: conclusions.length, details, layers };
+      return { conclusions: conclusions.length, details, layers, sources: dataSources.sources.length };
     });
     const counts = run();
     return { path: dbPath, builtAt: now, ...counts };
@@ -172,6 +178,7 @@ export interface LearningCacheReader {
   layer(name: string): unknown | undefined;
   gap(slug: string): unknown | undefined;
   gapSummary(): unknown;
+  dataSources(): unknown;
   builtAt(): number | null;
   close(): void;
 }
@@ -190,6 +197,7 @@ export function openLearningCacheReader(dbPath: string = DEFAULT_CACHE_PATH): Le
     layer: (name) => read(`layer:${name}`),
     gap: (slug) => read(`gap:${slug}`),
     gapSummary: () => read("gap-summary") ?? { games: [] },
+    dataSources: () => read("data-sources") ?? { totals: { sources: 0 }, sources: [], byGame: [] },
     builtAt: () => {
       const meta = read(META_KEY) as { builtAt?: number } | undefined;
       return meta?.builtAt ?? null;

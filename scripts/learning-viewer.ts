@@ -48,6 +48,7 @@ app.get("/learning/gap/detail", (c) => {
   const detail = cache.gap(c.req.query("slug") ?? "");
   return detail ? c.json(detail as object) : c.json({ error: "not found" }, 404);
 });
+app.get("/learning/sources", (c) => c.json(cache.dataSources() as object));
 
 serve({ fetch: app.fetch, port }, (info) => {
   const builtAt = cache.builtAt();
