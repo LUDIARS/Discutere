@@ -28,6 +28,7 @@ import { workerRoutes, setWorkerPool } from "./api/worker.js";
 import { workerPoolControlRoutes, setWorkerPoolControl } from "./api/worker-pool-control.js";
 import { tuningRoutes, setRuntimeSettings } from "./api/tuning-routes.js";
 import { topPageRoutes } from "./api/top-page-routes.js";
+import { createGuideRoutes } from "./api/guide-routes.js";
 import { createRuntimeSettingsStore } from "./runtime-settings/store.js";
 import { setRolePromptResolver, ROLE_GUIDANCE_DEFAULTS } from "./persona-engine/worker-pool/persona-prompts.js";
 import { applyRuleInstructionOverrides, RULE_INSTRUCTION_DEFAULTS } from "./persona-engine/worker-pool/debate-rules.js";
@@ -65,6 +66,9 @@ app.get("/health", (c) => c.json({ status: "ok", service: "discutere" }));
 
 // ─── トップページ (各 Web UI への入口、 認証不要・loopback) ──────────
 app.route("/", topPageRoutes);
+
+// 使い方ガイド (Discord フォーラム / チャンネルの使い方とルール)。実 config を注入。
+app.route("/", createGuideRoutes(config.discord));
 
 app.route("/", learningViewRoutes);
 
