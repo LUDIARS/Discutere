@@ -15,6 +15,7 @@ import { createQuotaTracker } from "../crawler/sources/youtube-quota.js";
 import { fetchWebsiteArticles } from "../crawler/sources/website.js";
 import { getRedditToken, fetchThreadComments, type RedditCredentials } from "../crawler/sources/reddit.js";
 import { importExternalUtterances } from "../crawler/sources/importer.js";
+import { openAttributionStore } from "../crawler/sources/attribution-store.js";
 import { openIngestedStore } from "../crawler/sources/ingested-store.js";
 import { openRawStore } from "../crawler/sources/raw-store.js";
 import { summarizeItems, type Summarizer } from "../crawler/sources/summarize.js";
@@ -188,6 +189,7 @@ export async function ingestCrawlUrls(
     const base: CrawlIngestResult = { url, kind: target.kind, gameSlug, fetched: 0, imported: 0, skipped: 0 };
     const core = deps.createCore();
     const ingested = openIngestedStore();
+    const attribution = openAttributionStore();
     // website (長文) は要約器があれば要約/raw 2 層で取り込む (id=67)。
     const useRawStore = target.kind === "website" && !!deps.summarizer;
     const rawStore = useRawStore ? openRawStore() : undefined;
@@ -197,13 +199,19 @@ export async function ingestCrawlUrls(
       if (target.kind === "website" && deps.summarizer) {
         await summarizeItems(items, deps.summarizer);
       }
-      const r = importExternalUtterances(core, items, { workspaceId: deps.workspaceId, ingested, rawStore });
+      const r = importExternalUtterances(core, items, {
+        workspaceId: deps.workspaceId,
+        ingested,
+        attribution,
+        rawStore,
+      });
       base.imported = r.utterances;
       base.skipped = r.skipped;
     } catch (err) {
       base.error = (err as Error).message;
     } finally {
       rawStore?.close();
+      attribution.close();
       ingested.close();
       core.close();
     }

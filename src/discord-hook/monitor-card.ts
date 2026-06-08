@@ -16,6 +16,8 @@ import {
   type TextChannel,
 } from "discord.js";
 import { createCore } from "../core/index.js";
+import { resolveActiveKgPath } from "../core/kg-registry.js";
+import { getConfig } from "../config.js";
 
 const STATUS_CATEGORY_NAME = "状態";
 const MONITOR_CHANNEL_NAME = "discutere-monitor";
@@ -54,7 +56,7 @@ export class MonitorCard {
   // 集計は core の SQLite (KuzuClient.raw) を read-only に都度開いて行う。
   // command-router と同じく createCore() で取得し、使い終わったら close する。
   private counts(): { activeSessions: number; pendingHypotheses: number } {
-    const core = createCore();
+    const core = createCore(resolveActiveKgPath(getConfig()));
     try {
       const s = core.client.raw
         .prepare("SELECT COUNT(*) AS n FROM sessions WHERE workspace_id = ? AND ended_at IS NULL")

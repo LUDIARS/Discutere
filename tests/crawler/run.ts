@@ -20,6 +20,7 @@ import "./external/website.test.js";
 import "./external/reddit.test.js";
 import "./external/importer.test.js";
 import "./external/summary.test.js";
+import "./external/attribution-store.test.js";
 
 // データソース隔離 (退避 + 復元)
 import "./quarantine.test.js";

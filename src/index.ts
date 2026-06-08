@@ -15,6 +15,7 @@ import { createConsensusScorer, type ConsensusScorer } from "./persona-engine/sc
 import { learningViewRoutes } from "./api/learning-view-routes.js";
 import { startSessionCleanup } from "./machina/mode-state.js";
 import { createCore } from "./core/index.js";
+import { resolveActiveKgPath } from "./core/kg-registry.js";
 import { createDiscatierContextProvider } from "./discatier-engine-adapter/index.js";
 import { createEventBridge } from "./discatier-engine-adapter/event-bridge.js";
 import {
@@ -46,6 +47,7 @@ import { GameFeedbackStore } from "./feedback/store.js";
 import { ensureReactionTables, recordPostedMessage, applyReaction } from "./discord-hook/reactions.js";
 import { queueRoutes } from "./api/queue-routes.js";
 import { createNoiseRoutes } from "./api/noise-routes.js";
+import { datasourceRoutes } from "./api/datasource-routes.js";
 import { buildQueueSnapshot, formatQueueText } from "./queue/snapshot.js";
 import { startBackupScheduler } from "./backup/runner.js";
 import { createLlmSummarizer } from "./crawler/sources/summarize.js";
@@ -109,6 +111,9 @@ app.route("/api", queueRoutes);
 
 // ─── ノイズ管理 (議論データから別ゲーム/煽り等のノイズ発話を除外) ──
 app.route("/api", createNoiseRoutes());
+
+// ─── データ調整 UX (データソース閲覧 / 除外 / active KG 指定、 §13) ──
+app.route("/api", datasourceRoutes);
 
 // ─── 常駐ワーカー制御 UI/API (/api/worker-pool) ────────────────
 app.route("/api", workerPoolControlRoutes);
@@ -276,7 +281,7 @@ const personaEngineLifecycle = (() => {
     const peDbPath = isWorkerPool ? "./data/persona-engine-debate.db" : config.personaEngine.dbPath;
     const workspaceId = config.workspace;
     const peDb = new Database(peDbPath);
-    const core = createCore();
+    const core = createCore(resolveActiveKgPath(config));
     ensureReactionTables(core.client.raw);
     const relayPersonas = new PersonasRepo(peDb);
     // persona の人間名を解決する。 全 persona (進行役 facilitator 含む) を
@@ -512,7 +517,7 @@ const backupScheduler = startBackupScheduler(config);
 
 // 議論キューのサマリ生�E (slash /discutere-queue 用)。core は都度 open/close、E
 function buildQueueText(): string {
-  const core = createCore();
+  const core = createCore(resolveActiveKgPath(config));
   try {
     const peDb = personaEngineLifecycle?.peDb ?? null;
     return formatQueueText(buildQueueSnapshot(core.client.raw, peDb, config.workspace));
@@ -547,7 +552,7 @@ const discordGatewayLifecycle = startDiscordGateway({
     if (r) console.log(`  game-feedback: 収集 [${fb.gameTitle}] ${fb.content.replace(/\s+/g, " ").slice(0, 60)}`);
   },
   crawlDeps: {
-    createCore: () => createCore(),
+    createCore: () => createCore(resolveActiveKgPath(config)),
     workspaceId: config.workspace,
     youtubeApiKey: process.env.DISCUTERE_YOUTUBE_API_KEY ?? null,
     reddit:

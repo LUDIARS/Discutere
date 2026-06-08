@@ -4,6 +4,9 @@ import assert from "node:assert/strict";
 
 import { createCore } from "../../src/core/index.js";
 
+// KG レジストリ解決 (タスク別 KG / 後方互換) の単体検証。
+import "./kg-registry.test.js";
+
 function rmrf(p: string) {
   if (fs.existsSync(p)) fs.rmSync(p, { recursive: true, force: true });
 }

@@ -33,8 +33,21 @@ export interface DiscutereConfig {
   /** 匿名議論 workspace (個人データ非保管) */
   workspace: string;
   discatier: {
-    /** Discatier Core KG (Kuzu) のパス (未設定なら adapter 既定) */
+    /**
+     * Discatier Core KG (Kuzu) のパス (未設定なら adapter 既定)。
+     * 後方互換: knowledgeGraphs 未宣言時はこれが id="default" の単一 KG として扱われる。
+     */
     kuzuPath?: string;
+    /**
+     * 起動時に開く KG の id (タスク別 KG レジストリの active 指定、 §12)。
+     * 未設定なら "default"。 env `DISCATIER_ACTIVE_KG` で上書き可 (反映は再起動)。
+     */
+    activeKg?: string;
+    /**
+     * タスク (収集目的) 別 KG レジストリ (§12)。 config ファイルからのみ宣言する。
+     * 宣言があれば activeKg の id に一致する kuzuPath を採用 (resolveActiveKgPath)。
+     */
+    knowledgeGraphs?: Array<{ id: string; label?: string; kuzuPath: string }>;
   };
   personaEngine: {
     dbPath: string;
@@ -380,6 +393,14 @@ export function loadConfig(): DiscutereConfig {
     workspace: pick(process.env.DISCATIER_WORKSPACE, file.workspace, "knowledge"),
     discatier: {
       kuzuPath: pickOpt(process.env.DISCATIER_KUZU_PATH, file.discatier?.kuzuPath),
+      activeKg: pickOpt(process.env.DISCATIER_ACTIVE_KG, file.discatier?.activeKg),
+      // knowledgeGraphs は config ファイルからのみ (env で配列は受けない)。不正要素は除外。
+      knowledgeGraphs: Array.isArray(file.discatier?.knowledgeGraphs)
+        ? file.discatier!.knowledgeGraphs.filter(
+            (kg): kg is { id: string; label?: string; kuzuPath: string } =>
+              !!kg && typeof kg.id === "string" && typeof kg.kuzuPath === "string"
+          )
+        : undefined,
     },
     personaEngine: {
       dbPath: pick(

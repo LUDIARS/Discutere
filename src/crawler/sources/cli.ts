@@ -11,8 +11,10 @@ import path from "node:path";
 
 import { getConfig } from "../../config.js";
 import { createCore } from "../../core/index.js";
+import { resolveActiveKgPath } from "../../core/kg-registry.js";
 
 import { importExternalUtterances } from "./importer.js";
+import { openAttributionStore } from "./attribution-store.js";
 import { openIngestedStore } from "./ingested-store.js";
 import { openRawStore } from "./raw-store.js";
 import { createLlmSummarizer, summarizeItems, type Summarizer } from "./summarize.js";
@@ -146,13 +148,20 @@ function ytStagePath(gameSlug: string, videoId: string): string {
 
 /** ExternalUtterance[] を Discatier Core に取り込み、結果を返す。 useRawStore=true で要約/raw 2 層化。 */
 function importItems(items: ExternalUtterance[], opts: { useRawStore?: boolean } = {}) {
-  const core = createCore();
+  const core = createCore(resolveActiveKgPath(getConfig()));
   const ingested = openIngestedStore();
+  const attribution = openAttributionStore();
   const rawStore = opts.useRawStore ? openRawStore() : undefined;
   try {
-    return importExternalUtterances(core, items, { workspaceId: getConfig().workspace, ingested, rawStore });
+    return importExternalUtterances(core, items, {
+      workspaceId: getConfig().workspace,
+      ingested,
+      attribution,
+      rawStore,
+    });
   } finally {
     rawStore?.close();
+    attribution.close();
     ingested.close();
     core.close();
   }
@@ -464,17 +473,20 @@ export function runExtImport(rest: string[]): void {
     process.exit(1);
   }
   const items = readJsonl(abs);
-  const core = createCore();
+  const core = createCore(resolveActiveKgPath(getConfig()));
   const ingested = openIngestedStore();
+  const attribution = openAttributionStore();
   try {
     const result = importExternalUtterances(core, items, {
       workspaceId: getConfig().workspace,
       ingested,
+      attribution,
     });
     console.log(
       JSON.stringify({ file: path.relative(process.cwd(), abs), read: items.length, ...result }, null, 2)
     );
   } finally {
+    attribution.close();
     ingested.close();
     core.close();
   }

@@ -14,6 +14,7 @@ import Database from "better-sqlite3";
 
 import { getUserId, getUserRole } from "../middleware/auth.js";
 import { createCore } from "../core/index.js";
+import { resolveActiveKgPath } from "../core/kg-registry.js";
 import { getConfig } from "../config.js";
 import { buildQueueSnapshot } from "../queue/snapshot.js";
 
@@ -24,7 +25,7 @@ queueRoutes.get("/admin/queue", (c) => {
   if (guard) return guard;
 
   const config = getConfig();
-  const core = createCore();
+  const core = createCore(resolveActiveKgPath(getConfig()));
   let peDb: Database.Database | null = null;
   try {
     try {

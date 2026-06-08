@@ -14,6 +14,7 @@
 import type { createCore } from "../../core/index.js";
 
 import { toSpeakerId } from "./persona.js";
+import type { AttributionStore } from "./attribution-store.js";
 import type { IngestedStore } from "./ingested-store.js";
 import type { RawStore } from "./raw-store.js";
 import type { ExternalUtterance } from "./types.js";
@@ -38,6 +39,12 @@ export interface ExternalImportOptions {
    * raw 全文 (content) はこの store に保存する (トークン節約 2 層化)。 未指定なら raw を本文に。
    */
   rawStore?: RawStore;
+  /**
+   * 出所メタ sidecar (§3 / §6)。 渡せば utterance 採番直後に source / sourceUrl /
+   * nativeId / gameSlug を 1 行 upsert する (全 source。 短文コメントも含む)。
+   * 露出 serializer / データ調整 UX (§13) がここから出所を引く。
+   */
+  attribution?: AttributionStore;
   /** session タイトル生成 (既定 `<source>:<gameSlug>`) */
   sessionTitle?: (item: ExternalUtterance) => string;
 }
@@ -96,6 +103,14 @@ export function importExternalUtterances(
       opts.rawStore!.set({ utteranceId, source: item.source, url: item.sourceUrl, rawText: item.content });
       result.summarized += 1;
     }
+    // 出所メタを保持 (全 source)。 露出層が個人をマスクしつつ source/sourceUrl を開示する素 (§6)。
+    opts.attribution?.set({
+      utteranceId,
+      source: item.source,
+      sourceUrl: item.sourceUrl,
+      nativeId: item.nativeId,
+      gameSlug: item.gameSlug,
+    });
     result.utterances += 1;
 
     if (item.signal?.votedUp !== undefined) {
