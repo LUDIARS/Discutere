@@ -48,13 +48,17 @@ const adapter = createDiscatierContextProvider(core);
 const ws = "knowledge";
 const OLD = Date.now() - 5_000;
 
-function makeDiscussion(title: string, personaSpeakers: string[]): { gapId: string; sessionId: string } {
+function makeDiscussion(
+  title: string,
+  personaSpeakers: string[],
+  scene = "discord:1/2"
+): { gapId: string; sessionId: string } {
   const gapId = core.repos.designGap.create({ workspaceId: ws, title });
   const sessionId = core.repos.session.create({
     workspaceId: ws,
     title: `discussion-of-gap:${gapId}`,
     startedAt: OLD,
-    scene: "discord:1/2",
+    scene,
   } as never);
   personaSpeakers.forEach((sp, i) =>
     core.repos.utterance.create({ workspaceId: ws, sessionId, speakerId: sp, rawContent: `発言${i}`, postedAt: OLD })
@@ -62,8 +66,10 @@ function makeDiscussion(title: string, personaSpeakers: string[]): { gapId: stri
   return { gapId, sessionId };
 }
 
-const expandCase = makeDiscussion("拡張テスト", ["persona:advocate"]); // 止揚まだ → expand
-const convergeCase = makeDiscussion("収束テスト", ["persona:advocate"]); // 止揚出る → converge
+// scene を分ける: 収束は scene 単位で session を閉じるため、別議論が同 scene を共有すると
+// 巻き込まれる (intake + discussion-of-gap が同 scene を共有する実運用を模した仕様)。
+const expandCase = makeDiscussion("拡張テスト", ["persona:advocate"], "discord:1/10"); // 止揚まだ → expand
+const convergeCase = makeDiscussion("収束テスト", ["persona:advocate"], "discord:1/20"); // 止揚出る → converge
 
 // mock LLM: prompt 種別を本文で判別 (止揚判定 / 拡張 / まとめ)
 const mockLlm: LLMClient = {
@@ -117,6 +123,18 @@ assert.ok(convUtt?.raw_content.includes("【収束】"), "収束まとめが投�
 const gapStatus = core.client.raw.prepare("SELECT status FROM design_gaps WHERE id = ?").get(convergeCase.gapId) as { status: string };
 assert.equal(gapStatus.status, "closed", "止揚到達で gap が closed");
 console.log("ok facilitator converge (止揚到達)");
+
+// 収束した議論の session は ended_at が入り、 ダッシュボードの「進行中」から外れる
+// (gap closed と session ライフサイクルの一致)。収束していない議論は開いたまま。
+const convSess = core.client.raw
+  .prepare("SELECT ended_at FROM sessions WHERE id = ?")
+  .get(convergeCase.sessionId) as { ended_at: number | null };
+assert.ok(convSess.ended_at != null, "収束した議論の session は ended_at が入る");
+const expandSess = core.client.raw
+  .prepare("SELECT ended_at FROM sessions WHERE id = ?")
+  .get(expandCase.sessionId) as { ended_at: number | null };
+assert.equal(expandSess.ended_at, null, "収束していない議論の session は開いたまま");
+console.log("ok facilitator converge ends session (ended_at)");
 
 peDb.close();
 core.close();
