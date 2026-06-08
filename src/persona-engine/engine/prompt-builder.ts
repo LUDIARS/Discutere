@@ -11,10 +11,14 @@
 import type { PersonaRow, RuleRow } from "../types.js";
 import type {
   DiscussionContextProvider,
+  ContextExternalVoice,
   ContextGap,
   ContextHypothesis,
   ContextUtterance,
 } from "../context-provider.js";
+
+/** prompt に載せる外部の声の最大件数 (RAG / §14)。 粗く動かす段階の既定。 */
+const EXTERNAL_VOICE_TOP_K = 6;
 
 export interface BuildPromptArgs {
   rule: RuleRow;
@@ -33,7 +37,23 @@ export interface BuiltPrompt {
     hypotheses: ContextHypothesis[];
     gaps: ContextGap[];
     utterances: ContextUtterance[];
+    /** 議題に関連する外部の生の声 (RAG / §14)。 出所付き・個人は仮名。 無ければ省略。 */
+    externalVoices?: ContextExternalVoice[];
   };
+}
+
+/**
+ * 議題 (gap title + description) から検索語を粗く抽出する (RAG retrieval 用)。
+ * 日本語は分かち書きできないので、 記号区切りの 2 文字以上トークン + タイトル全体を語にする
+ * (adapter 側は substring 一致なのでこれで機能する)。
+ */
+function extractTopicTerms(gap: ContextGap): string[] {
+  const text = `${gap.title} ${gap.description ?? ""}`;
+  const tokens = text
+    .split(/[\s、。,.!?！？「」『』（）()\/:：;；・\-—\n\r\t]+/)
+    .map((t) => t.trim())
+    .filter((t) => t.length >= 2);
+  return Array.from(new Set([gap.title.trim(), ...tokens])).filter((t) => t.length >= 2);
 }
 
 export function buildPrompt(args: BuildPromptArgs): BuiltPrompt {
@@ -79,13 +99,29 @@ export function buildPrompt(args: BuildPromptArgs): BuiltPrompt {
     ? args.contextProvider.listRecentUtterances(args.workspaceId, effectiveSessionId, 12)
     : [];
 
-  const ctx = { hypotheses, gaps, utterances };
-
   // 議題アンカー: 直近の open gap の title + description (対象ゲーム/ジャンル + 投稿の要点) を
   // 最上部に明示する。これを外すと persona が gap.description を読まず議論が主題から逸れる。
   const primaryGap =
     gaps.find((g) => !["closed", "dismissed", "converged", "resolved"].includes((g.status || "").toLowerCase())) ??
     gaps[0];
+
+  // 外部の声 (RAG / §14): 議題語に関連する実在の外部意見を active KG から取得して注入し、
+  // persona が「実際の声」を出所付きで引用・参照できるようにする。 retrieval 未実装なら空。
+  const externalVoices =
+    primaryGap && args.contextProvider.listRelevantExternalVoices
+      ? args.contextProvider.listRelevantExternalVoices(
+          args.workspaceId,
+          extractTopicTerms(primaryGap),
+          EXTERNAL_VOICE_TOP_K
+        )
+      : [];
+
+  const ctx = {
+    hypotheses,
+    gaps,
+    utterances,
+    ...(externalVoices.length > 0 ? { externalVoices } : {}),
+  };
   const topicBlock = primaryGap
     ? [
         "## 議題 (この前提から絶対に外れない)",
@@ -96,12 +132,24 @@ export function buildPrompt(args: BuildPromptArgs): BuiltPrompt {
       ]
     : [];
 
+  const voiceBlock =
+    externalVoices.length > 0
+      ? [
+          "## 外部の声 (JSON の externalVoices)",
+          "externalVoices は外部から集めた実在の意見 (出所付き / 投稿者は仮名)。",
+          "議論に関連するものは「○○ (source) はこう言ってる」のように**出所(ソース種別)を添えて引用・参照**してよい。",
+          "投稿者個人の特定はしない (表示名は仮名のまま)。関係ない声は無視してよい。",
+          "",
+        ]
+      : [];
+
   const user = [
     `# Rule (triggered by ${args.triggeredBy})`,
     `id: ${args.rule.id}`,
     args.rule.description ? `description: ${args.rule.description}` : "",
     "",
     ...topicBlock,
+    ...voiceBlock,
     "## 指示",
     args.rule.instructions,
     "",
