@@ -86,3 +86,8 @@ env)。`discutere.config.example.json` 参照。詳細は `docs/ws-gateway-confi
 出力 serializer が個人だけマスクし出所は透過する。生 ID 参照は admin のみ。
 これは LUDIARS 利用者の個人データ (Cernere 単一情報源) とは別レイヤー
 ([[project_personal_data_rule]] の対象外 — 外部公開の仮名 platform ID)。
+
+**外部の声 RAG (2026-06-08, §14)**: AI (persona-engine) が議論中に外部の生の声を**出所付きで
+引用・参照**できる。FT は Claude の API/CLI に無いため RAG。`prompt-builder` が議題語で active KG の
+外部発話を検索 (キーワード一致 + opinion-score 順、`listRelevantExternalVoices`) し、出所(source+URL)
+付き・個人仮名で prompt に注入する。embedding 検索 / LLM 関連度判定 / FT は非採用 (follow-up)。

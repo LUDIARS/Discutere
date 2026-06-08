@@ -11,6 +11,7 @@
 
 import type { createCore } from "../core/index.js";
 import type {
+  ContextExternalVoice,
   ContextGap,
   ContextHypothesis,
   ContextUtterance,
@@ -18,6 +19,10 @@ import type {
   PostUtteranceInput,
   ProposeHypothesisInput,
 } from "../persona-engine/context-provider.js";
+import { ensureReactionTables, getOpinionScore } from "../discord-hook/reactions.js";
+import { listExcludedIds } from "../core/noise/exclusions.js";
+import { openAttributionStore } from "../crawler/sources/attribution-store.js";
+import { maskedPersonaLabel } from "../crawler/sources/persona.js";
 
 type Core = ReturnType<typeof createCore>;
 
@@ -149,6 +154,65 @@ export function createDiscatierContextProvider(
         rawContent: r.raw_content,
         postedAt: r.posted_at,
       }));
+    },
+
+    listRelevantExternalVoices(workspaceId, terms, limit): ContextExternalVoice[] {
+      if (limit <= 0) return [];
+      // 候補: 取り込み済み外部発話 (speaker_id が ext:%) を直近から束で取り、 スコアして上位を返す。
+      // active KG に閉じる (workspace_id 一致)。 大量取り込みでも候補数を CAP で抑える。
+      const CANDIDATE_CAP = 300;
+      const CONTENT_CAP = 200; // prompt トークン節約: 1 件の本文上限。
+      const rows = core.client.raw
+        .prepare(
+          `SELECT id, speaker_id, raw_content
+             FROM utterances
+            WHERE workspace_id = ? AND speaker_id LIKE 'ext:%'
+            ORDER BY posted_at DESC LIMIT ?`
+        )
+        .all(workspaceId, CANDIDATE_CAP) as Array<{
+        id: string;
+        speaker_id: string | null;
+        raw_content: string;
+      }>;
+      if (rows.length === 0) return [];
+      // opinion_scores はリアクション系テーブル。 boot 前/単体呼び出しでも落ちないよう冪等保証。
+      ensureReactionTables(core.client.raw);
+      const excluded = listExcludedIds(core.client.raw);
+      const keyTerms = Array.from(
+        new Set(terms.map((t) => t.trim().toLowerCase()).filter((t) => t.length >= 2))
+      );
+      const attribution = openAttributionStore();
+      try {
+        const scored = rows
+          .filter((r) => !excluded.has(r.id))
+          .map((r) => {
+            const content = r.raw_content ?? "";
+            const lc = content.toLowerCase();
+            const hits = keyTerms.reduce((n, t) => (lc.includes(t) ? n + 1 : n), 0);
+            const opinion = getOpinionScore(core.client.raw, r.id);
+            // キーワード一致を主、 opinion-score (合意/支持) を従にした合成スコア。
+            return { r, score: hits * 10 + opinion };
+          })
+          // 関連語ヒットも支持スコアも無い声は議論を薄めるので落とす。
+          .filter((x) => x.score > 0)
+          .sort((a, b) => b.score - a.score)
+          .slice(0, limit);
+        return scored.map(({ r, score }) => {
+          const a = attribution.get(r.id);
+          const content = r.raw_content ?? "";
+          return {
+            id: r.id,
+            content: content.length > CONTENT_CAP ? content.slice(0, CONTENT_CAP) + "…" : content,
+            source: a?.source ?? "external",
+            sourceUrl: a?.sourceUrl ?? null,
+            // §6: 個人 (speaker_id = 公開 ID) はペルソナ名へマスク。 公開 ID は出さない。
+            speakerLabel: r.speaker_id ? maskedPersonaLabel(r.speaker_id) : "外部の声",
+            score,
+          };
+        });
+      } finally {
+        attribution.close();
+      }
     },
 
     proposeHypothesis(input: ProposeHypothesisInput): { id: string } {

@@ -16,5 +16,6 @@ import "./human-utterance.test.js";
 import "./auto-export.test.js";
 import "./learning.test.js";
 import "./rule-self-edit.test.js";
+import "./external-voices.test.js";
 
 console.log("persona-engine tests: all passed");

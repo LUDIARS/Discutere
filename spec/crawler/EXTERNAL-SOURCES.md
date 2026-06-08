@@ -574,3 +574,42 @@ UX が運用価値の中心**になる。 admin dashboard に「データソー�
   (個人マスク・出所透過)。
 - スコープ: 閲覧 + 除外 + active KG 指定まで。 KG 間のデータ移動・マージ・編集 (書き換え) は
   今回非対応 (follow-up)。
+
+## 14. AI が外部の声を引用する (RAG / 2026-06-08)
+
+取り込んだ外部の声を **AI (persona-engine) が議論中に引用・参照して喋れる**ようにする。
+FT (ファインチューニング) は Claude API / CLI 経路に存在しないため不採用 → **RAG (関連データを
+ピックして prompt に注入)** を採る (ユーザ決定 2026-06-08、 選択肢 A)。
+
+### 背景: なぜ間接参照だけでは足りなかったか
+
+従来、 外部発話は `utterances` に取り込まれ **designGap / affect シグナル経由で間接的に**しか
+AI に効かなかった (`prompt-builder` が prompt に載せるのは仮説 + 直近 gap + 現 session の発話
+12 件のみ)。 = AI は「実際の声」を逐語で見ておらず、 出所も意識していなかった。
+
+### retrieval (選択肢 A — キーワード一致 + 既存スコア順)
+
+`context-provider.listRelevantExternalVoices(workspaceId, terms, limit)` を追加
+(`discatier-engine-adapter` が実装):
+
+1. 候補 = active KG の外部取り込み発話 (`speaker_id LIKE 'ext:%'`) を直近から最大 300 件。
+2. スコア = (議題語ヒット数 × 10) + opinion-score (既存 `getOpinionScore`、 合意/支持の重み)。
+   - 議題語 = `prompt-builder.extractTopicTerms(primaryGap)` (gap title + description を
+     記号区切り + タイトル全体、 2 文字以上)。 日本語は substring 一致。
+3. スコア 0 (関連語ヒットも支持も無い) は除外し、 議論を薄めない。 noise 除外
+   ([[utterance_exclusions]]) 済みも除く。 上位 `limit` (既定 6) を返す。
+
+### prompt 注入 + 露出 (§6 準拠)
+
+- `prompt-builder` が `ctx.externalVoices` に積み、 「## 外部の声」 指示で
+  「`○○ (source) はこう言ってる` と**出所を添えて引用・参照してよい**」と persona に促す。
+- **個人はペルソナ名へマスク (`論者#xxxx`)、 出所 (source 種別 + sourceUrl) は開示** —
+  §6「出所は透明 / 個人は仮名」と一致。 公開 ID (authorId) は prompt に出さない。
+- 本文は 1 件 200 字上限・最大 6 件でトークン節約。 retrieval 未実装 / 該当 0 なら従来挙動
+  (外部の声は載らない)。
+
+### 非ゴール / follow-up
+- **FT (ファインチューニング)**: Claude の第一者 API / CLI に学習エンドポイントが無いため不可。
+- **embedding 類似度検索**: embedding 基盤が無いため今回非対応 (選択肢 C、 将来)。
+- **LLM 関連度判定** (選択肢 B): 精度向上の余地。 まず A で運用して物足りなければ追加。
+- topK / 有効化の config 化 (現状 `EXTERNAL_VOICE_TOP_K=6` 定数)。
