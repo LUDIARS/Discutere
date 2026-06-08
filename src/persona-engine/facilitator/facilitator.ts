@@ -391,18 +391,17 @@ export function createFacilitator(deps: FacilitatorDeps): Facilitator {
       byPersonaId: FACILITATOR_PERSONA_ID,
     });
     closeGap(d.gapId);
+    // gap closed と session ライフサイクルを揃える: 収束した議論の session を ended_at で
+    // 閉じる (admin の手動 close と同じ scene 単位)。これをしないと自走収束した議論が
+    // sessions.ended_at=NULL のまま残り、 ダッシュボードの「進行中の議論 session」に
+    // 出続ける (gap は closed なのに session は開きっぱなし、という乖離)。
+    const scene = endConvergedSessions(d.sessionId);
     states.delete(d.sessionId); // 収束したら管理終了 (= ファシリテーター消滅)
     deps.logger.info({ gap_id: d.gapId }, "facilitator converged discussion (gap closed)");
 
     // 収束フック (フォーラム集約: スレッドを締めてまとめを転記)。失敗は議論を止めない。
     if (deps.onConverged) {
       try {
-        const scene =
-          (
-            raw.prepare("SELECT scene FROM sessions WHERE id = ?").get(d.sessionId) as
-              | { scene: string | null }
-              | undefined
-          )?.scene ?? null;
         deps.onConverged({
           gapId: d.gapId,
           sessionId: d.sessionId,
@@ -421,6 +420,33 @@ export function createFacilitator(deps: FacilitatorDeps): Facilitator {
       | { title: string }
       | undefined;
     return g?.title ?? "(無題の議論)";
+  }
+
+  /**
+   * 収束した議論の session を ended_at で閉じる (admin の close と同じ scene 単位)。
+   * intake session と discussion-of-gap session は同一 scene を共有するため両方終了する。
+   * @returns 当該 session の scene (onConverged フックへ引き渡す。 scene 無しは null)
+   */
+  function endConvergedSessions(sessionId: string): string | null {
+    const scene =
+      (
+        raw.prepare("SELECT scene FROM sessions WHERE id = ?").get(sessionId) as
+          | { scene: string | null }
+          | undefined
+      )?.scene ?? null;
+    const now = Date.now();
+    if (scene) {
+      raw
+        .prepare(
+          "UPDATE sessions SET ended_at = ?, updated_at = ? WHERE workspace_id = ? AND scene = ? AND ended_at IS NULL"
+        )
+        .run(now, now, deps.workspaceId, scene);
+    } else {
+      raw
+        .prepare("UPDATE sessions SET ended_at = ?, updated_at = ? WHERE id = ? AND ended_at IS NULL")
+        .run(now, now, sessionId);
+    }
+    return scene;
   }
 
   function closeGap(gapId: string): void {
