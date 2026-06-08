@@ -52,6 +52,12 @@ env)。`discutere.config.example.json` 参照。詳細は `docs/ws-gateway-confi
   `/discutere-queue`。
 - **S3 バックアップ**: `src/backup/` で KG + 全 SQLite を tar.gz 化し S3 (Glacier 系) へ。
   月次自動 (`backup.enabled` + `intervalDays`) + 手動 (`npm run backup` / `/discutere-backup`)。
+- **ローカル LLM backend (2026-06-09, 将来 Gemma 等)**: `llm.backend=local` で OpenAI 互換
+  `/v1/chat/completions` (Ollama/vLLM/LM Studio/llama.cpp server) に繋ぐ `LocalOpenAiClient`。
+  設定は `llm.local{ baseUrl, model, apiKey?, timeoutMs }`(env `LLM_LOCAL_*`、 既定 Ollama
+  `http://localhost:11434/v1` + `gemma3:12b`)。persona/classifier/summarizer の全 dispatch が
+  `backend=local`(classifier は `classifier.backend=local`)で切替可能。FT は Claude API/CLI に
+  無いのでローカル運用はこの backend 経由。疎通確認は `npm run llm:smoke`。既存 Claude 経路は無改変。
 
 ## フォーラム集約 (2026-06-06, `discord.forum`)
 

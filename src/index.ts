@@ -21,6 +21,7 @@ import { createEventBridge } from "./discatier-engine-adapter/event-bridge.js";
 import {
   AnthropicSdkClient,
   ClaudeCliClient,
+  LocalOpenAiClient,
   createPersonaEngine,
   type LLMClient,
   type PersonaSeed,
@@ -156,6 +157,16 @@ function buildClassifierLlm(): LLMClient | null {
     console.log(`  classifier LLM: AnthropicSdkClient (model=${c.model})`);
     return new AnthropicSdkClient({ apiKey, defaultModel: c.model });
   }
+  if (c.backend === "local") {
+    // 分類は llm.local エンドポイントを共用 (model だけ classifier.model で上書き)。
+    console.log(`  classifier LLM: LocalOpenAiClient (${config.llm.local.baseUrl} / model=${c.model})`);
+    return new LocalOpenAiClient({
+      baseUrl: config.llm.local.baseUrl,
+      defaultModel: c.model || config.llm.local.model,
+      apiKey: config.llm.local.apiKey,
+      defaultTimeoutMs: config.classifier.timeoutMs,
+    });
+  }
   // claude-cli = Lictor 経由 spawn。
   console.log(`  classifier LLM: ClaudeCliClient / Lictor 経由 spawn (model=${c.model})`);
   return new ClaudeCliClient({
@@ -248,6 +259,16 @@ const personaEngineLifecycle = (() => {
     llm = new WorkerPoolClient(workerPool, workerFallback);
     console.log(
       `  persona-engine LLM: WorkerPoolClient (定義 ${workers.length} / boot自動起動=${config.workerPool.enabled}, 未起動は claude -p フォールバック)`
+    );
+  } else if (config.llm.backend === "local") {
+    llm = new LocalOpenAiClient({
+      baseUrl: config.llm.local.baseUrl,
+      defaultModel: config.llm.local.model,
+      apiKey: config.llm.local.apiKey,
+      defaultTimeoutMs: config.llm.local.timeoutMs,
+    });
+    console.log(
+      `  persona-engine LLM: LocalOpenAiClient (${config.llm.local.baseUrl} / model=${config.llm.local.model})`
     );
   } else if (config.llm.backend === "claude-cli") {
     llm = new ClaudeCliClient({

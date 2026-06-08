@@ -99,6 +99,7 @@ export type {
 export { AnthropicSdkClient } from "./llm/anthropic.js";
 export { MockLLMClient } from "./llm/mock.js";
 export { ClaudeCliClient, type ClaudeCliClientOptions } from "./llm/claude-cli.js";
+export { LocalOpenAiClient, type LocalOpenAiClientOptions } from "./llm/local-openai.js";
 export type {
   DiscussionContextProvider,
   ContextHypothesis,

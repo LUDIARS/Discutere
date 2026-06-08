@@ -18,7 +18,7 @@ import { openAttributionStore } from "./attribution-store.js";
 import { openIngestedStore } from "./ingested-store.js";
 import { openRawStore } from "./raw-store.js";
 import { createLlmSummarizer, summarizeItems, type Summarizer } from "./summarize.js";
-import { AnthropicSdkClient, ClaudeCliClient } from "../../persona-engine/index.js";
+import { AnthropicSdkClient, ClaudeCliClient, LocalOpenAiClient } from "../../persona-engine/index.js";
 import { fetchSteamReviews } from "./steam.js";
 import { fetchWebsiteArticles } from "./website.js";
 import { fetchRedditDiscussions, type RedditCredentials } from "./reddit.js";
@@ -170,6 +170,17 @@ function importItems(items: ExternalUtterance[], opts: { useRawStore?: boolean }
 /** config から要約器を組み立てる (LLM 未設定なら null = raw のまま取り込み)。 */
 function buildSummarizer(): Summarizer | null {
   const cfg = getConfig();
+  if (cfg.llm.backend === "local") {
+    return createLlmSummarizer(
+      new LocalOpenAiClient({
+        baseUrl: cfg.llm.local.baseUrl,
+        defaultModel: cfg.llm.local.model,
+        apiKey: cfg.llm.local.apiKey,
+        defaultTimeoutMs: cfg.llm.local.timeoutMs,
+      }),
+      { model: cfg.llm.local.model }
+    );
+  }
   if (cfg.llm.backend === "claude-cli") {
     return createLlmSummarizer(
       new ClaudeCliClient({

@@ -14,7 +14,7 @@
 import { existsSync, readFileSync } from "node:fs";
 import path from "node:path";
 
-export type LlmBackend = "claude-cli" | "anthropic" | "mock" | "worker-pool";
+export type LlmBackend = "claude-cli" | "anthropic" | "mock" | "worker-pool" | "local";
 
 /** 常駐ワーカー 1 体 (= 1 ペルソナ) の定義。 */
 export interface WorkerPoolWorker {
@@ -96,6 +96,20 @@ export interface DiscutereConfig {
     claudeCliTimeoutMs: number;
     /** Windows で claude CLI を spawn する際の git-bash パス (Memoria 方式) */
     gitBashPath?: string;
+    /**
+     * local backend (OpenAI 互換ローカル LLM、 将来 Gemma 等)。 backend=local 時に使う。
+     * Ollama/vLLM/LM Studio/llama.cpp server が公開する `/v1/chat/completions` を叩く。
+     */
+    local: {
+      /** OpenAI 互換ベース URL (末尾 `/v1`)。 既定 Ollama `http://localhost:11434/v1`。 */
+      baseUrl: string;
+      /** モデル名 (例 `gemma3:12b`)。 */
+      model: string;
+      /** 任意。 設定時のみ Bearer 認証 (vLLM 等)。 Ollama は不要。 */
+      apiKey?: string;
+      /** 応答待ちタイムアウト ms (ローカルは遅いので長め)。 */
+      timeoutMs: number;
+    };
   };
   /**
    * 投稿→議題化の分類器 (classifyDiscordMessage) 専用 LLM 設定。
@@ -106,9 +120,10 @@ export interface DiscutereConfig {
   classifier: {
     /**
      * "claude-cli" = Lictor 経由 spawn (サブスク・トークン不要) /
-     * "anthropic" = API 直 / "off" = LLM 無効 (regex fallback のみ)。
+     * "anthropic" = API 直 / "local" = ローカル LLM (llm.local 設定を共用) /
+     * "off" = LLM 無効 (regex fallback のみ)。
      */
-    backend: "claude-cli" | "anthropic" | "off";
+    backend: "claude-cli" | "anthropic" | "local" | "off";
     /** 分類モデル ID (既定 Haiku)。精度優先なら Sonnet 等に切替可。 */
     model: string;
     /** claude-cli backend のタイムアウト ms (分類は短文なので短め) */
@@ -368,7 +383,10 @@ export function loadConfig(): DiscutereConfig {
   const file = readFileConfig();
   const backendRaw = pick(process.env.LLM_BACKEND, file.llm?.backend, "anthropic").toLowerCase();
   const backend: LlmBackend =
-    backendRaw === "claude-cli" || backendRaw === "mock" || backendRaw === "worker-pool"
+    backendRaw === "claude-cli" ||
+    backendRaw === "mock" ||
+    backendRaw === "worker-pool" ||
+    backendRaw === "local"
       ? (backendRaw as LlmBackend)
       : "anthropic";
 
@@ -380,7 +398,9 @@ export function loadConfig(): DiscutereConfig {
     process.env.ANTHROPIC_API_KEY ? "anthropic" : "claude-cli"
   ).toLowerCase();
   const classifierBackend: DiscutereConfig["classifier"]["backend"] =
-    classifierBackendRaw === "anthropic" || classifierBackendRaw === "off"
+    classifierBackendRaw === "anthropic" ||
+    classifierBackendRaw === "off" ||
+    classifierBackendRaw === "local"
       ? (classifierBackendRaw as DiscutereConfig["classifier"]["backend"])
       : "claude-cli";
 
@@ -446,6 +466,13 @@ export function loadConfig(): DiscutereConfig {
       model: pickOpt(process.env.ANTHROPIC_MODEL, file.llm?.model),
       claudeCliTimeoutMs: pickNum(process.env.CLAUDE_CLI_TIMEOUT_MS, file.llm?.claudeCliTimeoutMs, 120_000),
       gitBashPath: pickOpt(process.env.CLAUDE_CODE_GIT_BASH_PATH, file.llm?.gitBashPath),
+      local: {
+        // 既定は Ollama の OpenAI 互換エンドポイント。vLLM/LM Studio は baseUrl を差し替え。
+        baseUrl: pick(process.env.LLM_LOCAL_BASE_URL, file.llm?.local?.baseUrl, "http://localhost:11434/v1"),
+        model: pick(process.env.LLM_LOCAL_MODEL, file.llm?.local?.model, "gemma3:12b"),
+        apiKey: pickOpt(process.env.LLM_LOCAL_API_KEY, file.llm?.local?.apiKey),
+        timeoutMs: pickNum(process.env.LLM_LOCAL_TIMEOUT_MS, file.llm?.local?.timeoutMs, 120_000),
+      },
     },
     classifier: {
       backend: classifierBackend,

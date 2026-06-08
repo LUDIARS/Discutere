@@ -20,7 +20,13 @@
     "anthropicApiKey": "",
     "model": "",
     "claudeCliTimeoutMs": 120000,
-    "gitBashPath": ""
+    "gitBashPath": "",
+    "local": {
+      "baseUrl": "http://localhost:11434/v1",
+      "model": "gemma3:12b",
+      "apiKey": "",
+      "timeoutMs": 120000
+    }
   },
   "classifier": {
     "backend": "claude-cli",
