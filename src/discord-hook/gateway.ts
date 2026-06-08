@@ -102,6 +102,17 @@ export interface DiscordGatewayHandle {
     summary: string;
     title: string;
   }): Promise<{ closed: boolean; reason?: string }>;
+  /**
+   * 指定 Discord メッセージに絵文字リアクションを付ける (合意スコアラーの 👍 用)。
+   * channel→message を fetch して react する。失敗は握り潰す (best-effort)。
+   */
+  reactToMessage(channelId: string, messageId: string, emoji: string): Promise<void>;
+  /**
+   * 未検知 (👀 が付いていない) 投稿を種まきする再スイープ (FEATURE ⑤b)。
+   * 監視対象チャンネル + 有効ならフォーラムのアクティブスレッドの直近メッセージを走査し、
+   * MessageCreate と同じ経路でルーティング、議論が立ったら 👀 を付ける。
+   */
+  sweepUnseeded(opts?: { limit?: number }): Promise<{ scanned: number; seeded: number }>;
 }
 
 /**
@@ -351,6 +362,104 @@ export async function startDiscordGateway(
         summaryChannelName: deps.forum?.summaryChannelName,
         categoryName: deps.forum?.managedCategoryName,
       });
+    },
+    async reactToMessage(channelId, messageId, emoji) {
+      try {
+        const channel = await client.channels.fetch(channelId);
+        if (!channel || !("messages" in channel)) return;
+        const message = await (channel as import("discord.js").TextBasedChannel).messages.fetch(
+          messageId
+        );
+        await message.react(emoji);
+      } catch {
+        /* best-effort: メッセージ削除済 / 権限不足等は握り潰す */
+      }
+    },
+    async sweepUnseeded(opts) {
+      const limit = opts?.limit ?? 30;
+      let scanned = 0;
+      let seeded = 0;
+      const botId = client.user?.id;
+
+      /**
+       * 1 チャンネル分の直近メッセージを走査し、 👀 (このボット) が無い非 bot 投稿を
+       * MessageCreate と同じ経路でルーティング。 議論が立ったら 👀 を付ける。
+       */
+      const sweepChannel = async (channelId: string, parentChannelId?: string): Promise<void> => {
+        let channel: import("discord.js").Channel | null;
+        try {
+          channel = await client.channels.fetch(channelId);
+        } catch {
+          return;
+        }
+        if (!channel || !("messages" in channel)) return;
+        let messages;
+        try {
+          messages = await (channel as import("discord.js").TextBasedChannel).messages.fetch({
+            limit,
+          });
+        } catch {
+          return;
+        }
+        for (const msg of messages.values()) {
+          try {
+            if (msg.author?.bot) continue;
+            // 既にこのボットが 👀 を付けている = 検知済なのでスキップ。
+            const eyes = msg.reactions.cache.get("👀");
+            if (eyes?.me) continue;
+            if (botId && eyes && (await eyes.users.fetch()).has(botId)) continue;
+            scanned++;
+            const normalized = normalizeDiscordInboundMessage({
+              id: msg.id,
+              channel_id: msg.channelId,
+              content: msg.content,
+              timestamp: msg.createdAt.toISOString(),
+              author: { id: msg.author.id, username: msg.author.username, bot: msg.author.bot },
+              mentions: msg.mentions.users.map((u) => ({ id: u.id, username: u.username })),
+            });
+            if (!normalized) continue;
+            const { ingested, seed } = routeInboundMessage(
+              normalized,
+              msg.guildId ?? "dm",
+              deps,
+              parentChannelId
+            );
+            if (ingested && seed) {
+              const started = await seed;
+              if (started) {
+                seeded++;
+                await msg.react("👀").catch(() => {});
+              }
+            }
+          } catch (err) {
+            console.warn(`  discord-seed-sweep: message 失敗: ${(err as Error).message}`);
+          }
+        }
+      };
+
+      // 監視対象の平文議論チャンネル。
+      for (const channelId of deps.discussionChannelIds ?? []) {
+        await sweepChannel(channelId);
+      }
+
+      // フォーラム有効時は guild 内のアクティブスレッドも走査 (親=スレッド id を渡す)。
+      if (forumEnabled) {
+        for (const guildId of guildIds) {
+          try {
+            const guild = await client.guilds.fetch(guildId);
+            const active = await guild.channels.fetchActiveThreads();
+            for (const thread of active.threads.values()) {
+              if (isForumThreadChannel(thread)) {
+                await sweepChannel(thread.id, thread.parentId ?? undefined);
+              }
+            }
+          } catch (err) {
+            console.warn(`  discord-seed-sweep: guild ${guildId} thread 走査失敗: ${(err as Error).message}`);
+          }
+        }
+      }
+
+      return { scanned, seeded };
     },
   };
 }

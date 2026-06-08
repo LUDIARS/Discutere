@@ -72,7 +72,10 @@ const HTML = `<!doctype html>
 </div>
 
 <div class="card">
-  <h2>🧭 議論キュー <span class="muted" id="queue-totals">loading…</span></h2>
+  <h2>🧭 議論キュー <span class="muted" id="queue-totals">loading…</span>
+    <button id="seed-sweep" style="float:right;padding:4px 10px;font-size:12px;">未検知から種まき</button>
+  </h2>
+  <div class="muted" id="seed-sweep-result"></div>
   <h3 style="margin:12px 0 4px;font-size:14px;">進行中の議論 session</h3>
   <table id="queue-sessions">
     <thead><tr><th>channel</th><th>guild</th><th>発話</th><th>発火</th><th>最終発話</th><th>操作</th></tr></thead>
@@ -90,6 +93,16 @@ const HTML = `<!doctype html>
   <table id="queue-hyps">
     <thead><tr><th>statement</th><th>status</th></tr></thead>
     <tbody><tr><td colspan="2" class="muted">loading…</td></tr></tbody>
+  </table>
+</div>
+
+<div class="card">
+  <h2>🚨 エラー <span class="muted" id="errors-totals"></span>
+    <button id="errors-clear" class="bad" style="float:right;padding:4px 10px;font-size:12px;">クリア</button>
+  </h2>
+  <table id="errors-table">
+    <thead><tr><th>時刻</th><th>level</th><th>source</th><th>message</th></tr></thead>
+    <tbody><tr><td colspan="4" class="muted">loading…</td></tr></tbody>
   </table>
 </div>
 
@@ -379,6 +392,50 @@ function renderQueue(q) {
 }
 
 
+async function fetchErrors() {
+  const res = await fetch("/api/admin/errors?limit=100", { credentials: "include" });
+  if (!res.ok) throw new Error("errors http " + res.status);
+  return res.json();
+}
+
+function renderErrors(data) {
+  const list = data.errors || [];
+  document.getElementById("errors-totals").textContent = list.length + " 件";
+  const tbody = document.querySelector("#errors-table tbody");
+  if (!list.length) {
+    tbody.innerHTML = '<tr><td colspan="4" class="muted">エラーなし</td></tr>';
+    return;
+  }
+  tbody.innerHTML = list.map((e) => {
+    const dt = new Date(e.ts).toLocaleTimeString();
+    const cls = e.level === "error" ? "action-error" : "action-skip";
+    return '<tr><td>' + dt + '</td><td class="' + cls + '">' + escapeHtml(e.level) +
+      '</td><td>' + escapeHtml(e.source) + '</td><td>' + escapeHtml(e.message) + '</td></tr>';
+  }).join("");
+}
+
+document.getElementById("errors-clear").addEventListener("click", async () => {
+  if (!confirm("エラーバッファをクリアしますか?")) return;
+  try {
+    await fetch("/api/admin/errors/clear", { method: "POST", credentials: "include" });
+    fetchErrors().then(renderErrors).catch(() => {});
+  } catch (e) { /* ignore */ }
+});
+
+document.getElementById("seed-sweep").addEventListener("click", async () => {
+  const btn = document.getElementById("seed-sweep");
+  const el = document.getElementById("seed-sweep-result");
+  btn.disabled = true;
+  el.textContent = "スイープ中…";
+  try {
+    const res = await fetch("/api/admin/seed-sweep", { method: "POST", credentials: "include" });
+    const j = await res.json();
+    el.textContent = res.ok ? ("走査 " + (j.scanned ?? 0) + " 件 / 種まき " + (j.seeded ?? 0) + " 件") : ("失敗: " + (j.error || res.status));
+  } catch (e) { el.textContent = "失敗: " + e.message; }
+  finally { btn.disabled = false; }
+  fetchQueue().then(renderQueue).catch(() => {});
+});
+
 async function fetchLearningTopics() {
   const res = await fetch("/api/admin/learning/topics?limit=20&opinionsPerTopic=3", { credentials: "include" });
   if (!res.ok) throw new Error("learning topics http " + res.status);
@@ -410,6 +467,7 @@ async function refresh() {
     fetchMetrics("personas").then((r) => renderPersonaMetrics(r.metrics)).catch(() => {});
     fetchMetrics("rules").then((r) => renderRuleMetrics(r.metrics)).catch(() => {});
     fetchQueue().then(renderQueue).catch(() => {});
+    fetchErrors().then(renderErrors).catch(() => {});
     fetchLearningTopics().then(renderLearningTopics).catch(() => {});
     refreshRules();
   } catch (err) {

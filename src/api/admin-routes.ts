@@ -25,6 +25,8 @@ import { buildTopicOpinionSnapshot } from "../visualize/topic-opinions.js";
 let engineInstance: PersonaEngineHandle | null = null;
 let facilitatorInstance: Facilitator | null = null;
 let runtimeEnabled = true;
+// FEATURE ⑤b: 未検知投稿の再スイープ (gateway 起動後に index.ts から注入)。
+let gatewaySweeper: ((opts?: { limit?: number }) => Promise<{ scanned: number; seeded: number }>) | null = null;
 
 /** src/index.ts などから注入 (起動時 1 回) */
 export function setPersonaEngine(engine: PersonaEngineHandle | null): void {
@@ -38,6 +40,13 @@ export function getPersonaEngine(): PersonaEngineHandle | null {
 /** facilitator インスタンスを注入 (手動収束 = まとめて閉じる で使う)。 */
 export function setFacilitator(f: Facilitator | null): void {
   facilitatorInstance = f;
+}
+
+/** gateway の sweepUnseeded を注入 (gateway 起動後)。未注入なら seed-sweep は 503。 */
+export function setGatewaySweeper(
+  fn: ((opts?: { limit?: number }) => Promise<{ scanned: number; seeded: number }>) | null
+): void {
+  gatewaySweeper = fn;
 }
 
 export const adminRoutes = new Hono();
@@ -208,6 +217,21 @@ adminRoutes.get("/admin/status", async (c) => {
     rule_count: engineInstance ? engineInstance.rules.list({ enabled: true }).length : 0,
     recent_rule_logs: engineInstance ? engineInstance.rules.recentLogs(10) : [],
   });
+});
+
+// FEATURE ⑤b: 未検知 (👀 無し) 投稿を再スイープして議論の種にする。
+adminRoutes.post("/admin/seed-sweep", async (c) => {
+  const guard = requireAdmin(c);
+  if (guard) return guard;
+  if (!gatewaySweeper) return c.json({ error: "gateway not initialized" }, 503);
+  const body = await c.req.json<{ limit?: number }>().catch(() => ({ limit: undefined }));
+  const limit = body.limit && body.limit > 0 ? Math.min(100, body.limit) : undefined;
+  try {
+    const r = await gatewaySweeper(limit ? { limit } : undefined);
+    return c.json({ ok: true, scanned: r.scanned, seeded: r.seeded });
+  } catch (err) {
+    return c.json({ error: (err as Error).message }, 500);
+  }
 });
 
 adminRoutes.get("/admin/learning/topics", async (c) => {
