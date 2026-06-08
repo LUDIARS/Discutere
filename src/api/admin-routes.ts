@@ -17,11 +17,13 @@ import type { Context } from "hono";
 
 import { getUserId, getUserRole } from "../middleware/auth.js";
 import type { PersonaEngineHandle } from "../persona-engine/index.js";
+import type { Facilitator } from "../persona-engine/facilitator/facilitator.js";
 import { createCore } from "../core/index.js";
 import { getConfig } from "../config.js";
 import { buildTopicOpinionSnapshot } from "../visualize/topic-opinions.js";
 
 let engineInstance: PersonaEngineHandle | null = null;
+let facilitatorInstance: Facilitator | null = null;
 let runtimeEnabled = true;
 
 /** src/index.ts などから注入 (起動時 1 回) */
@@ -31,6 +33,11 @@ export function setPersonaEngine(engine: PersonaEngineHandle | null): void {
 
 export function getPersonaEngine(): PersonaEngineHandle | null {
   return engineInstance;
+}
+
+/** facilitator インスタンスを注入 (手動収束 = まとめて閉じる で使う)。 */
+export function setFacilitator(f: Facilitator | null): void {
+  facilitatorInstance = f;
 }
 
 export const adminRoutes = new Hono();
@@ -147,6 +154,45 @@ adminRoutes.post("/admin/sessions/:id/close", async (c) => {
     for (const gid of gapIds) closedGaps += closeGap.run(now, gid, ws).changes;
 
     return c.json({ ok: true, endedSessions, closedGaps });
+  } finally {
+    core.close();
+  }
+});
+
+// 進行中の議論を「まとめて閉じる」: facilitator.convergeNow で LLM まとめを生成し
+// 【収束】を投稿 → gap closed → onConverged (フォーラムなら lock+archive+まとめ転記)。
+// close (ended_at だけ) と違い、まとめ生成まで行う graceful な収束。
+adminRoutes.post("/admin/sessions/:id/converge", async (c) => {
+  const guard = requireAdmin(c);
+  if (guard) return guard;
+  if (!facilitatorInstance) return c.json({ error: "facilitator not initialized" }, 503);
+  const id = c.req.param("id");
+  const ws = getConfig().workspace;
+  const core = createCore();
+  try {
+    const sess = core.client.raw
+      .prepare("SELECT scene FROM sessions WHERE id = ? AND workspace_id = ?")
+      .get(id, ws) as { scene: string | null } | undefined;
+    if (!sess) return c.json({ error: "session not found" }, 404);
+
+    // scene を共有する discussion-of-gap session 群 (scene 無しは自身のみ)。
+    const targets = core.client.raw
+      .prepare(
+        `SELECT id, title FROM sessions
+          WHERE workspace_id = ? AND title LIKE 'discussion-of-gap:%'
+            AND ${sess.scene ? "scene = ?" : "id = ?"}`
+      )
+      .all(ws, sess.scene ?? id) as Array<{ id: string; title: string }>;
+
+    const results: Array<{ sessionId: string; gapId: string; ok: boolean; error?: string }> = [];
+    let converged = 0;
+    for (const t of targets) {
+      const gapId = t.title.slice("discussion-of-gap:".length);
+      const r = await facilitatorInstance.convergeNow({ sessionId: t.id, gapId });
+      results.push({ sessionId: t.id, gapId, ...r });
+      if (r.ok) converged += 1;
+    }
+    return c.json({ ok: true, converged, results });
   } finally {
     core.close();
   }

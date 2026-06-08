@@ -361,10 +361,12 @@ function renderQueue(q) {
         <td>\${s.utteranceCount}</td>
         <td>\${s.fireCount}</td>
         <td class="muted">\${s.lastUtteranceAt ? new Date(s.lastUtteranceAt).toLocaleTimeString() : "—"}</td>
-        <td><button class="bad close-session" data-session-id="\${escapeHtml(s.sessionId)}" style="padding:3px 9px;font-size:12px;">閉じる</button></td>
+        <td><button class="bad close-session" data-session-id="\${escapeHtml(s.sessionId)}" style="padding:3px 9px;font-size:12px;">閉じる</button>
+          <button class="converge-session" data-session-id="\${escapeHtml(s.sessionId)}" style="padding:3px 9px;font-size:12px;margin-left:4px;">まとめて閉じる</button></td>
       </tr>\`).join("")
     : '<tr><td colspan="6" class="muted">進行中の議論なし</td></tr>';
   st.querySelectorAll(".close-session").forEach((b) => b.addEventListener("click", () => closeSession(b.dataset.sessionId)));
+  st.querySelectorAll(".converge-session").forEach((b) => b.addEventListener("click", () => convergeSession(b.dataset.sessionId)));
   const gt = document.querySelector("#queue-gaps tbody");
   gt.innerHTML = q.openGaps.length
     ? q.openGaps.map((g) => \`<tr><td>\${escapeHtml(g.title)}</td><td class="muted">\${escapeHtml(g.status || "open")}</td><td><button class="bad dismiss-gap" data-gap-id="\${escapeHtml(g.id)}" style="padding:3px 9px;font-size:12px;">却下</button></td></tr>\`).join("")
@@ -469,6 +471,18 @@ async function closeSession(id) {
     const res = await fetch("/api/admin/sessions/" + encodeURIComponent(id) + "/close", { method: "POST", credentials: "include" });
     const j = await res.json();
     el.textContent = res.ok ? ("閉じた session " + (j.endedSessions ?? 0) + " / gap " + (j.closedGaps ?? 0)) : ("失敗: " + (j.error || res.status));
+  } catch (e) { el.textContent = "失敗: " + e.message; }
+  fetchQueue().then(renderQueue).catch(() => {});
+}
+
+async function convergeSession(id) {
+  if (!id || !confirm("この議論を収束させてまとめを生成し、閉じますか?(AIがまとめ文を作成して投稿します)")) return;
+  const el = document.getElementById("dismiss-result");
+  el.textContent = "収束中… (まとめ生成)";
+  try {
+    const res = await fetch("/api/admin/sessions/" + encodeURIComponent(id) + "/converge", { method: "POST", credentials: "include" });
+    const j = await res.json();
+    el.textContent = res.ok ? ("収束 " + (j.converged ?? 0) + " 件") : ("失敗: " + (j.error || res.status));
   } catch (e) { el.textContent = "失敗: " + e.message; }
   fetchQueue().then(renderQueue).catch(() => {});
 }

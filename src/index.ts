@@ -6,7 +6,7 @@ import { cors } from "hono/cors";
 import Database from "better-sqlite3";
 import { machinaRoutes } from "./machina/routes.js";
 import { userContext } from "./middleware/auth.js";
-import { adminRoutes, setPersonaEngine, getPersonaEngine } from "./api/admin-routes.js";
+import { adminRoutes, setPersonaEngine, getPersonaEngine, setFacilitator } from "./api/admin-routes.js";
 import { dashboardRoutes } from "./api/dashboard-routes.js";
 import { learningViewRoutes } from "./api/learning-view-routes.js";
 import { startSessionCleanup } from "./machina/mode-state.js";
@@ -41,6 +41,7 @@ import { startDiscordGateway } from "./discord-hook/gateway.js";
 import { GameFeedbackStore } from "./feedback/store.js";
 import { ensureReactionTables, recordPostedMessage, applyReaction } from "./discord-hook/reactions.js";
 import { queueRoutes } from "./api/queue-routes.js";
+import { createNoiseRoutes } from "./api/noise-routes.js";
 import { buildQueueSnapshot, formatQueueText } from "./queue/snapshot.js";
 import { startBackupScheduler } from "./backup/runner.js";
 import { createLlmSummarizer } from "./crawler/sources/summarize.js";
@@ -91,6 +92,9 @@ app.route("/api", dashboardRoutes);
 
 // ─── 議論キュー可視化 (進行中 session / 未処琁Egap / 検証征E��仮説) ──
 app.route("/api", queueRoutes);
+
+// ─── ノイズ管理 (議論データから別ゲーム/煽り等のノイズ発話を除外) ──
+app.route("/api", createNoiseRoutes());
 
 // ─── 常駐ワーカー制御 UI/API (/api/worker-pool) ────────────────
 app.route("/api", workerPoolControlRoutes);
@@ -372,8 +376,19 @@ const personaEngineLifecycle = (() => {
 
     // ファシリテーター: 停滞→新 persona 投入で拡張、 persona 過多→収束 (gap closed)
     // worker-pool 時は動的 persona 生成 (= ワーカー無しの persona) を避けるため facilitator を止める。
+    // facilitator (司会) の converge/expand は persona ルーティングを伴わない単発生成なので、
+    // worker-pool 時は WorkerPoolClient ではなく直 claude -p を使う。WorkerPoolClient は
+    // personaId を要求し、 facilitator の invoke は personaId を持たないため「ルーティング不能」で
+    // 失敗する (= まとめ生成不可)。非 worker-pool 時は llm (claude-cli/anthropic) をそのまま使う。
+    const facilitatorLlm: LLMClient | null = isWorkerPool
+      ? new ClaudeCliClient({
+          defaultTimeoutMs: config.llm.claudeCliTimeoutMs,
+          gitBashPath: config.workerPool.gitBashPath ?? config.llm.gitBashPath,
+          defaultModel: config.llm.model || undefined,
+        })
+      : llm;
     let facilitator: ReturnType<typeof createFacilitator> | null = null;
-    if (config.facilitator.enabled && llm && !isWorkerPool) {
+    if (config.facilitator.enabled && facilitatorLlm) {
       const facLogger = {
         debug: () => {},
         info: (meta: Record<string, unknown>, msg: string) => console.log(`  [facilitator] ${msg}`, meta),
@@ -382,7 +397,7 @@ const personaEngineLifecycle = (() => {
       };
       facilitator = createFacilitator({
         core,
-        llm,
+        llm: facilitatorLlm,
         contextProvider: adapter,
         personas: new PersonasRepo(peDb),
         workspaceId,
@@ -401,17 +416,24 @@ const personaEngineLifecycle = (() => {
         onConverged: (e) =>
           forumFinalizer?.({ scene: e.scene, summary: e.summary, title: e.title }),
       });
-      facilitator.start();
-      console.log(
-        `  facilitator: started (tick=${config.facilitator.tickMs}ms, idleGap=${config.facilitator.idleGapMs}ms, maxPersonas=${config.facilitator.maxPersonas})`
-      );
+      // worker-pool 時は動的 persona 生成を避けるため auto-tick は止める。
+      // ただしインスタンスは常に生成し、管制 UI の「まとめて閉じる」(手動収束) を可能にする。
+      if (!isWorkerPool) {
+        facilitator.start();
+        console.log(
+          `  facilitator: started (tick=${config.facilitator.tickMs}ms, idleGap=${config.facilitator.idleGapMs}ms, maxPersonas=${config.facilitator.maxPersonas})`
+        );
+      } else {
+        console.log("  facilitator: instance ready (auto-tick off in worker-pool; 手動収束のみ)");
+      }
+      setFacilitator(facilitator);
     }
 
     // 自動シード議論: 定期的にジャンル/ストアトレンドから headless 議論を立てる (#64/#65)。
     // 駆動は上の facilitator が担うので、 facilitator が動いている時だけ有効化する。
     // (worker-pool 時は facilitator を止めているので auto-seed も起動しない)
     let autoSeed: ReturnType<typeof createAutoSeedScheduler> | null = null;
-    if (config.autoSeed.enabled && facilitator) {
+    if (config.autoSeed.enabled && facilitator && !isWorkerPool) {
       autoSeed = createAutoSeedScheduler({
         core,
         personas: new PersonasRepo(peDb),
