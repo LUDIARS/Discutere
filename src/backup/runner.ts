@@ -14,6 +14,7 @@ import path from "node:path";
 import os from "node:os";
 
 import type { DiscutereConfig } from "../config.js";
+import { resolveActiveKgPath } from "../core/kg-registry.js";
 import { createArchive } from "./archive.js";
 import { uploadFileToS3 } from "./s3.js";
 
@@ -39,7 +40,8 @@ const DAY_MS = 24 * 60 * 60 * 1000;
 function resolveTargets(config: DiscutereConfig): string[] {
   const dbPath = process.env.DATABASE_PATH ?? "./data/discutere.db";
   return [
-    config.discatier.kuzuPath ?? "./data/discatier.kuzu",
+    // active KG (§12) をバックアップ対象に。 未解決時は従来既定。
+    resolveActiveKgPath(config) ?? "./data/discatier.kuzu",
     config.personaEngine.dbPath,
     dbPath,
   ];

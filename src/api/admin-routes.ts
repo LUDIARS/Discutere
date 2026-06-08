@@ -19,8 +19,14 @@ import { getUserId, getUserRole } from "../middleware/auth.js";
 import type { PersonaEngineHandle } from "../persona-engine/index.js";
 import type { Facilitator } from "../persona-engine/facilitator/facilitator.js";
 import { createCore } from "../core/index.js";
+import { resolveActiveKgPath } from "../core/kg-registry.js";
 import { getConfig } from "../config.js";
 import { buildTopicOpinionSnapshot } from "../visualize/topic-opinions.js";
+
+/** active KG (§12) を開く Core。 全 admin route で共通。 */
+function openCore() {
+  return createCore(resolveActiveKgPath(getConfig()));
+}
 
 let engineInstance: PersonaEngineHandle | null = null;
 let facilitatorInstance: Facilitator | null = null;
@@ -81,7 +87,7 @@ adminRoutes.post("/admin/gaps/:id/dismiss", async (c) => {
   const guard = requireAdmin(c);
   if (guard) return guard;
   const id = c.req.param("id");
-  const core = createCore();
+  const core = openCore();
   try {
     const r = core.client.raw
       .prepare(
@@ -98,7 +104,7 @@ adminRoutes.post("/admin/gaps/:id/dismiss", async (c) => {
 adminRoutes.post("/admin/gaps/dismiss-open", async (c) => {
   const guard = requireAdmin(c);
   if (guard) return guard;
-  const core = createCore();
+  const core = openCore();
   try {
     const r = core.client.raw
       .prepare(
@@ -123,7 +129,7 @@ adminRoutes.post("/admin/sessions/:id/close", async (c) => {
   if (guard) return guard;
   const id = c.req.param("id");
   const ws = getConfig().workspace;
-  const core = createCore();
+  const core = openCore();
   try {
     const sess = core.client.raw
       .prepare("SELECT id, scene FROM sessions WHERE id = ? AND workspace_id = ?")
@@ -177,7 +183,7 @@ adminRoutes.post("/admin/sessions/:id/converge", async (c) => {
   if (!facilitatorInstance) return c.json({ error: "facilitator not initialized" }, 503);
   const id = c.req.param("id");
   const ws = getConfig().workspace;
-  const core = createCore();
+  const core = openCore();
   try {
     const sess = core.client.raw
       .prepare("SELECT scene FROM sessions WHERE id = ? AND workspace_id = ?")
@@ -240,7 +246,7 @@ adminRoutes.get("/admin/learning/topics", async (c) => {
   const config = getConfig();
   const limit = Number(c.req.query("limit") ?? 40);
   const opinionsPerTopic = Number(c.req.query("opinionsPerTopic") ?? 8);
-  const core = createCore();
+  const core = openCore();
   try {
     return c.json(
       buildTopicOpinionSnapshot(core.client.raw, config.workspace, {

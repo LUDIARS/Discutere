@@ -13,6 +13,8 @@
 
 import type { PersonaEngineHandle } from "../persona-engine/index.js";
 import { createCore } from "../core/index.js";
+import { resolveActiveKgPath } from "../core/kg-registry.js";
+import { getConfig } from "../config.js";
 import { submitMessage } from "../core/projection/message-input.js";
 import {
   listConclusions,
@@ -93,7 +95,7 @@ export function routeSlashCommand(cmd: InboundSlashCommand, deps: CommandRouterD
   }
 
   const commandText = cmd.argsText.length > 0 ? `/${cmd.name} ${cmd.argsText}` : `/${cmd.name}`;
-  const core = createCore();
+  const core = createCore(resolveActiveKgPath(getConfig()));
   try {
     const sessionId = ensureDiscordSession(core, deps.workspaceId, cmd.guildId, cmd.channelId);
     const res = submitMessage({
@@ -142,7 +144,7 @@ export function routeInboundMessage(
   // slash 由来 (先頭 "/") は interaction 経路で処理されるので二重取り込みしない。
   if (text.startsWith("/")) return { ingested: false };
 
-  const core = createCore();
+  const core = createCore(resolveActiveKgPath(getConfig()));
   try {
     const sessionId = ensureDiscordSession(core, deps.workspaceId, guildId, msg.channelId);
     const res = submitMessage({
@@ -202,7 +204,7 @@ export function routeForumPost(
   // slash 由来 (先頭 "/") は interaction 経路で処理されるので二重取り込みしない。
   if (text.startsWith("/")) return { ingested: false };
 
-  const core = createCore();
+  const core = createCore(resolveActiveKgPath(getConfig()));
   try {
     const sessionId = ensureDiscordSession(core, deps.workspaceId, guildId, msg.channelId);
     const res = submitMessage({
@@ -311,7 +313,7 @@ function handleBackupSlash(cmd: InboundSlashCommand, deps: CommandRouterDeps): S
  * 認可不要 (読み取り専用)。 ephemeral で返す。
  */
 function handleConclusionsSlash(cmd: InboundSlashCommand, deps: CommandRouterDeps): SlashReply {
-  const core = createCore();
+  const core = createCore(resolveActiveKgPath(getConfig()));
   try {
     const gapId = cmd.argsText.trim();
     if (gapId) {

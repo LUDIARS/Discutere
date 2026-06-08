@@ -2,11 +2,13 @@ import { Hono } from "hono";
 
 import { getConfig } from "../config.js";
 import { createCore } from "../core/index.js";
+import { resolveActiveKgPath } from "../core/kg-registry.js";
 import {
   buildLearningLayerSnapshot,
   normalizeLearningLayer,
 } from "../visualize/learning-layers.js";
 import { listConclusions, getConclusionDetail } from "../visualize/conclusions.js";
+import { openAttributionStore } from "../crawler/sources/attribution-store.js";
 import { openLearningCacheReader, learningCacheExists } from "../visualize/learning-cache.js";
 
 export const learningViewRoutes = new Hono();
@@ -50,7 +52,7 @@ learningViewRoutes.get("/learning/sources", (c) => {
 learningViewRoutes.get("/learning/conclusions", (c) => {
   const config = getConfig();
   const limit = Number(c.req.query("limit") ?? 100);
-  const core = createCore();
+  const core = createCore(resolveActiveKgPath(getConfig()));
   try {
     return c.json({ conclusions: listConclusions(core, config.workspace, limit) });
   } finally {
@@ -62,12 +64,15 @@ learningViewRoutes.get("/learning/conclusions", (c) => {
 learningViewRoutes.get("/learning/conclusion", (c) => {
   const config = getConfig();
   const gapId = c.req.query("gap") ?? "";
-  const core = createCore();
+  const core = createCore(resolveActiveKgPath(getConfig()));
+  // 出所メタ (source/sourceUrl) を発話に付ける (§6 露出制御。 個人マスクは serializer 側)。
+  const attribution = openAttributionStore();
   try {
-    const detail = getConclusionDetail(core, config.workspace, gapId);
+    const detail = getConclusionDetail(core, config.workspace, gapId, attribution);
     if (!detail) return c.json({ error: "not found" }, 404);
     return c.json(detail);
   } finally {
+    attribution.close();
     core.close();
   }
 });
@@ -77,7 +82,7 @@ learningViewRoutes.get("/learning/data", (c) => {
   const layer = normalizeLearningLayer(c.req.query("layer"));
   const limit = Number(c.req.query("limit") ?? 60);
   const detailLimit = Number(c.req.query("detailLimit") ?? c.req.query("opinionsPerTopic") ?? 8);
-  const core = createCore();
+  const core = createCore(resolveActiveKgPath(getConfig()));
   try {
     return c.json(
       buildLearningLayerSnapshot(core.client.raw, config.workspace, layer, {
@@ -151,6 +156,15 @@ function esc(value) {
 function label(value, max) {
   const text = String(value ?? "");
   return text.length <= max ? text : text.slice(0, max - 1) + "...";
+}
+
+// 出所バッジ (§6: ソース種別 + 元 URL を開示。 個人は仮名のまま)。 出所無しは空。
+function sourceBadge(o) {
+  if (!o || !o.source) return "";
+  const label = ' <span class="muted">[' + esc(o.source) + ' ↗]</span>';
+  return o.sourceUrl
+    ? ' <a href="' + esc(o.sourceUrl) + '" target="_blank" rel="noopener" class="muted">[' + esc(o.source) + ' ↗]</a>'
+    : label;
 }
 
 async function load(layer) {
@@ -230,9 +244,9 @@ async function loadConclusionDetail(btn) {
         d.aufhebungen.map((s) => '<li>' + esc(s) + '</li>').join("") + '</ol></div>' : "";
     const top = (d.topOpinions || []).length
       ? '<div style="margin-top:8px;"><b>高評価意見</b><ol class="details">' +
-        d.topOpinions.map((o) => '<li>+' + o.score + ' ' + esc(o.speaker) + ': ' + esc(o.content) + '</li>').join("") + '</ol></div>' : "";
+        d.topOpinions.map((o) => '<li>+' + o.score + ' ' + esc(o.speaker) + ': ' + esc(o.content) + sourceBadge(o) + '</li>').join("") + '</ol></div>' : "";
     const log = '<div style="margin-top:8px;"><b>議論ログ (' + (d.transcript || []).length + '発話)</b><ol class="details">' +
-      (d.transcript || []).map((u) => '<li><span class="muted">[' + esc(u.speaker) + ']</span> ' + esc(u.content) + '</li>').join("") + '</ol></div>';
+      (d.transcript || []).map((u) => '<li><span class="muted">[' + esc(u.speaker) + ']</span> ' + esc(u.content) + sourceBadge(u) + '</li>').join("") + '</ol></div>';
     slot.innerHTML = auf + top + log;
     btn.style.display = "none";
   } catch (err) {

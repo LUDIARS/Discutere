@@ -18,6 +18,8 @@ import path from "node:path";
 import Database from "better-sqlite3";
 
 import { DEFAULT_INGESTED_PATH } from "./sources/ingested-store.js";
+import { getConfig } from "../config.js";
+import { resolveActiveKgPath } from "../core/kg-registry.js";
 
 /** KG 上で session/utterance を参照する子テーブル群。 */
 const SESSION_KEYED = ["sessions", "utterances", "affects"] as const; // id / session_id
@@ -54,7 +56,8 @@ export interface QuarantinePlan {
 }
 
 function kuzuPath(): string {
-  return process.env.DISCATIER_KUZU_PATH ?? path.resolve("./data/discatier.kuzu");
+  // active KG (§12) を見る。 未解決時は従来既定に倒す (完全後方互換)。
+  return resolveActiveKgPath(getConfig()) ?? process.env.DISCATIER_KUZU_PATH ?? path.resolve("./data/discatier.kuzu");
 }
 
 /** session.title (`<source>:<slug>`) から source/slug を切り出す。 */

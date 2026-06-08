@@ -15,6 +15,7 @@ import type { Context } from "hono";
 
 import { getUserId, getUserRole } from "../middleware/auth.js";
 import { createCore } from "../core/index.js";
+import { resolveActiveKgPath } from "../core/kg-registry.js";
 import { getConfig } from "../config.js";
 import {
   ensureExclusionTable,
@@ -59,7 +60,7 @@ export function createNoiseRoutes(): Hono {
     const guard = requireAdmin(c);
     if (guard) return guard;
     const ws = getConfig().workspace;
-    const core = createCore();
+    const core = createCore(resolveActiveKgPath(getConfig()));
     try {
       const raw = core.client.raw;
       ensureExclusionTable(raw);
@@ -103,7 +104,7 @@ export function createNoiseRoutes(): Hono {
     const sessionId = c.req.query("sessionId");
     const source = c.req.query("source");
     if (!sessionId && !source) return c.json({ error: "sessionId or source required" }, 400);
-    const core = createCore();
+    const core = createCore(resolveActiveKgPath(getConfig()));
     try {
       const raw = core.client.raw;
       const excluded = listExcludedIds(raw);
@@ -146,7 +147,7 @@ export function createNoiseRoutes(): Hono {
       .json<{ utteranceId?: string; reason?: string }>()
       .catch(() => ({}) as { utteranceId?: string; reason?: string });
     if (!body.utteranceId) return c.json({ error: "utteranceId required" }, 400);
-    const core = createCore();
+    const core = createCore(resolveActiveKgPath(getConfig()));
     try {
       excludeUtterance(core.client.raw, body.utteranceId, body.reason);
       return c.json({ ok: true });
@@ -162,7 +163,7 @@ export function createNoiseRoutes(): Hono {
       .json<{ utteranceId?: string }>()
       .catch(() => ({}) as { utteranceId?: string });
     if (!body.utteranceId) return c.json({ error: "utteranceId required" }, 400);
-    const core = createCore();
+    const core = createCore(resolveActiveKgPath(getConfig()));
     try {
       restoreUtterance(core.client.raw, body.utteranceId);
       return c.json({ ok: true });

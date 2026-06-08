@@ -97,6 +97,18 @@ const HTML = `<!doctype html>
 </div>
 
 <div class="card">
+  <h2>🗂️ データソース <span class="muted" id="ds-totals">loading…</span></h2>
+  <div style="margin:8px 0 12px;">
+    <label>active KG</label>
+    <select id="ds-kg-select" style="margin:0 8px;padding:4px 8px;"></select>
+    <button id="ds-kg-apply" style="padding:4px 10px;font-size:12px;">この KG に切替 (再起動要)</button>
+    <span class="muted" id="ds-kg-result"></span>
+  </div>
+  <div id="ds-badges" class="muted">loading…</div>
+  <div id="ds-utterances" style="margin-top:12px;"></div>
+</div>
+
+<div class="card">
   <h2>🚨 エラー <span class="muted" id="errors-totals"></span>
     <button id="errors-clear" class="bad" style="float:right;padding:4px 10px;font-size:12px;">クリア</button>
   </h2>
@@ -461,12 +473,99 @@ function renderLearningTopics(snap) {
   ).join("");
 }
 
+// ─── データソース面 (§13: 閲覧 + 除外 + active KG 指定) ───
+async function fetchDatasources() {
+  const res = await fetch("/api/admin/datasources", { credentials: "include" });
+  if (!res.ok) throw new Error("datasources http " + res.status);
+  return res.json();
+}
+
+function renderDatasources(d) {
+  const sources = d.sources || [];
+  const kgs = d.knowledgeGraphs || [];
+  document.getElementById("ds-totals").textContent =
+    "active KG: " + esc(d.activeKg) + " / source " + sources.length + "種";
+  // KG セレクタ (現在の active を強調)。
+  const sel = document.getElementById("ds-kg-select");
+  if (kgs.length) {
+    sel.innerHTML = kgs.map((k) =>
+      '<option value="' + esc(k.id) + '"' + (k.active ? " selected" : "") + '>' +
+      esc(k.label || k.id) + (k.active ? " (現在)" : "") + '</option>').join("");
+  } else {
+    sel.innerHTML = '<option value="">(KG 未宣言)</option>';
+  }
+  // source 別件数バッジ + 中身を見るボタン。
+  document.getElementById("ds-badges").innerHTML = sources.length
+    ? sources.map((s) =>
+        '<span class="stat" style="cursor:pointer;" data-ds-source="' + esc(s.source) + '">' +
+        esc(s.source) + ': ' + s.count + '件' +
+        (s.gameSlugs && s.gameSlugs.length ? ' <span class="muted">(' + esc(s.gameSlugs.join(", ")) + ')</span>' : '') +
+        ' — 中身を見る</span>').join(" ")
+    : '<span class="muted">取り込み済みデータソースなし</span>';
+  document.querySelectorAll("[data-ds-source]").forEach((b) =>
+    b.addEventListener("click", () => loadSourceUtterances(b.dataset.dsSource)));
+}
+
+async function loadSourceUtterances(source) {
+  const box = document.getElementById("ds-utterances");
+  box.innerHTML = '<div class="muted">読み込み中…</div>';
+  try {
+    const res = await fetch("/api/admin/datasources/" + encodeURIComponent(source) + "/utterances?limit=100", { credentials: "include" });
+    if (!res.ok) throw new Error("http " + res.status);
+    const d = await res.json();
+    const items = d.items || [];
+    if (!items.length) { box.innerHTML = '<div class="muted">発話なし</div>'; return; }
+    box.innerHTML = '<h3 style="font-size:14px;margin:8px 0 4px;">' + esc(source) + ' の取り込み発話</h3>' +
+      '<table><thead><tr><th>論者</th><th>本文</th><th>出所</th><th>操作</th></tr></thead><tbody>' +
+      items.map((u) => {
+        const link = u.sourceUrl
+          ? '<a href="' + esc(u.sourceUrl) + '" target="_blank" rel="noopener">[' + esc(u.source) + ' ↗]</a>'
+          : '<span class="muted">' + esc(u.source) + '</span>';
+        const btn = u.excluded
+          ? '<span class="muted">除外済</span>'
+          : '<button class="bad ds-excl" data-uid="' + esc(u.utteranceId) + '" style="padding:3px 9px;font-size:12px;">除外</button>';
+        return '<tr' + (u.excluded ? ' style="opacity:.5;"' : '') + '><td>' + esc(u.speaker) + '</td>' +
+          '<td>' + esc(u.excerpt) + '</td><td>' + link + '</td><td>' + btn + '</td></tr>';
+      }).join("") + '</tbody></table>';
+    box.querySelectorAll(".ds-excl").forEach((b) =>
+      b.addEventListener("click", () => excludeUtterance(b.dataset.uid, source)));
+  } catch (err) {
+    box.innerHTML = '<div class="muted">' + esc(err.message) + '</div>';
+  }
+}
+
+async function excludeUtterance(utteranceId, source) {
+  if (!confirm("この発話を除外しますか?(学習・議論から外れ、 再取り込みも防ぎます)")) return;
+  try {
+    await fetch("/api/admin/datasources/exclude", {
+      method: "POST", headers: { "Content-Type": "application/json" }, credentials: "include",
+      body: JSON.stringify({ utteranceId }),
+    });
+    loadSourceUtterances(source);
+  } catch (e) { /* ignore */ }
+}
+
+document.getElementById("ds-kg-apply").addEventListener("click", async () => {
+  const id = document.getElementById("ds-kg-select").value;
+  const el = document.getElementById("ds-kg-result");
+  if (!id) { el.textContent = "KG が宣言されていません"; return; }
+  try {
+    const res = await fetch("/api/admin/datasources/active-kg", {
+      method: "POST", headers: { "Content-Type": "application/json" }, credentials: "include",
+      body: JSON.stringify({ id }),
+    });
+    const j = await res.json();
+    el.textContent = res.ok ? "✅ 次回起動から「" + id + "」 (再起動が必要)" : ("失敗: " + (j.error || res.status));
+  } catch (e) { el.textContent = "失敗: " + e.message; }
+});
+
 async function refresh() {
   try {
     renderStatus(await fetchStatus());
     fetchMetrics("personas").then((r) => renderPersonaMetrics(r.metrics)).catch(() => {});
     fetchMetrics("rules").then((r) => renderRuleMetrics(r.metrics)).catch(() => {});
     fetchQueue().then(renderQueue).catch(() => {});
+    fetchDatasources().then(renderDatasources).catch(() => {});
     fetchErrors().then(renderErrors).catch(() => {});
     fetchLearningTopics().then(renderLearningTopics).catch(() => {});
     refreshRules();

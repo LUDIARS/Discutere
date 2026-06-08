@@ -26,3 +26,32 @@ export function maskedPersonaLabel(speakerId: string): string {
   const digest = createHash("sha256").update(speakerId).digest("hex").slice(0, 6);
   return `論者#${digest}`;
 }
+
+/** 出所メタの最小形 (attribution-store の Attribution と互換)。露出時に必要な分だけ。 */
+export interface SourceAttribution {
+  source: string;
+  sourceUrl: string;
+}
+
+/** 出所バッジ (§6 — ソース種別 + 元 URL を end user に開示)。 attribution 無しなら null。 */
+export function sourceBadge(attribution: SourceAttribution | null | undefined): { source: string; url: string } | null {
+  if (!attribution) return null;
+  return { source: attribution.source, url: attribution.sourceUrl };
+}
+
+/**
+ * 露出層の二層シリアライズ (§6「出所は透明 / 個人は仮名」)。
+ * 個人 (speaker_id = 公開 ID アンカー) はペルソナ名へマスクし、 出所 (source / sourceUrl) は
+ * attribution があれば素通しで開示する。 attribution が無い (内部 Discord 発話) なら出所は null。
+ */
+export function maskedSpeakerWithSource(
+  speakerId: string,
+  attribution: SourceAttribution | null | undefined
+): { speaker: string; source: string | null; sourceUrl: string | null } {
+  const badge = sourceBadge(attribution);
+  return {
+    speaker: maskedPersonaLabel(speakerId),
+    source: badge?.source ?? null,
+    sourceUrl: badge?.url ?? null,
+  };
+}

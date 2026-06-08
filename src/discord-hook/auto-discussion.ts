@@ -1,5 +1,7 @@
 import type { LLMClient } from "../persona-engine/index.js";
 import { createCore } from "../core/index.js";
+import { resolveActiveKgPath } from "../core/kg-registry.js";
+import { getConfig } from "../config.js";
 import type { ReturnTypeCreateCore } from "../core/projection/types.js";
 
 export type AutoDiscussionCategory =
@@ -69,7 +71,7 @@ export function createDiscordAutoDiscussionStarter(
   options: DiscordAutoDiscussionStarterOptions = {}
 ): (input: DiscordAutoDiscussionInput) => Promise<{ started: boolean }> {
   return async (input) => {
-    const core = createCore();
+    const core = createCore(resolveActiveKgPath(getConfig()));
     try {
       const r = await startAutoDiscussionForDiscordMessage(core, input, options.getLlm?.() ?? null);
       // started=true は「議論の種(designGap)が新規に立った=開始エントリ」を意味する。

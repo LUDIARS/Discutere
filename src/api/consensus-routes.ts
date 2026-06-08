@@ -14,6 +14,7 @@ import type { Context } from "hono";
 
 import { getUserId, getUserRole } from "../middleware/auth.js";
 import { createCore } from "../core/index.js";
+import { resolveActiveKgPath } from "../core/kg-registry.js";
 import { getConfig } from "../config.js";
 import { FACILITATOR_PERSONA_ID } from "../persona-engine/facilitator/facilitator.js";
 
@@ -47,7 +48,7 @@ consensusRoutes.get("/admin/consensus/gaps", (c) => {
   const guard = requireAdmin(c);
   if (guard) return guard;
   const ws = getConfig().workspace;
-  const core = createCore();
+  const core = createCore(resolveActiveKgPath(getConfig()));
   try {
     const rows = core.client.raw
       .prepare(
@@ -79,7 +80,7 @@ consensusRoutes.get("/admin/consensus/:gapId", (c) => {
   if (guard) return guard;
   const ws = getConfig().workspace;
   const gapId = c.req.param("gapId");
-  const core = createCore();
+  const core = createCore(resolveActiveKgPath(getConfig()));
   try {
     const session = core.client.raw
       .prepare(

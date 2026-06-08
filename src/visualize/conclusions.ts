@@ -7,8 +7,16 @@
 
 import type { createCore } from "../core/index.js";
 import { getOpinionScore } from "../discord-hook/reactions.js";
+import type { AttributionStore } from "../crawler/sources/attribution-store.js";
+import { maskedPersonaLabel } from "../crawler/sources/persona.js";
 
 type Core = ReturnType<typeof createCore>;
+
+/** 発話の出所バッジ (§6 — source/sourceUrl は開示、 内部発話は null)。 */
+export interface SourceRef {
+  source: string;
+  sourceUrl: string;
+}
 
 export interface ConclusionSummary {
   gapId: string;
@@ -23,8 +31,8 @@ export interface ConclusionSummary {
 
 export interface ConclusionDetail extends ConclusionSummary {
   aufhebungen: string[];
-  topOpinions: Array<{ speaker: string; content: string; score: number }>;
-  transcript: Array<{ speaker: string; content: string }>;
+  topOpinions: Array<{ speaker: string; content: string; score: number; source: string | null; sourceUrl: string | null }>;
+  transcript: Array<{ speaker: string; content: string; source: string | null; sourceUrl: string | null }>;
 }
 
 const CONVERGE_PREFIX = "【収束】";
@@ -61,11 +69,15 @@ export function listConclusions(core: Core, workspaceId: string, limit = 20): Co
   }));
 }
 
-/** 1 件の結論の裏にある論述データを取り出す。 gap が無ければ null。 */
+/**
+ * 1 件の結論の裏にある論述データを取り出す。 gap が無ければ null。
+ * attribution を渡すと発話ごとに出所 (source / sourceUrl) を付与する (§6 露出制御)。
+ */
 export function getConclusionDetail(
   core: Core,
   workspaceId: string,
-  gapId: string
+  gapId: string,
+  attribution?: AttributionStore | null
 ): ConclusionDetail | null {
   const raw = core.client.raw;
   const gap = raw
@@ -88,9 +100,16 @@ export function getConclusionDetail(
     aufhebungCount: aufhebungCount(core, gapId),
     updatedAt: gap.updated_at,
     aufhebungen: listAufhebung(core, gapId),
-    topOpinions: sessionId ? topOpinions(core, sessionId, 5) : [],
-    transcript: sessionId ? transcript(core, sessionId) : [],
+    topOpinions: sessionId ? topOpinions(core, sessionId, 5, attribution) : [],
+    transcript: sessionId ? transcript(core, sessionId, attribution) : [],
   };
+}
+
+/** attribution-store から発話の出所を引く (個人マスクとは別レイヤー、 §6)。 無ければ null。 */
+function sourceRef(attribution: AttributionStore | null | undefined, utteranceId: string): SourceRef | null {
+  if (!attribution) return null;
+  const a = attribution.get(utteranceId);
+  return a ? { source: a.source, sourceUrl: a.sourceUrl } : null;
 }
 
 function convergeText(core: Core, sessionId: string): string | null {
@@ -124,20 +143,33 @@ function listAufhebung(core: Core, gapId: string): string[] {
   return rows.map((r) => r.summary);
 }
 
-function transcript(core: Core, sessionId: string): Array<{ speaker: string; content: string }> {
+function transcript(
+  core: Core,
+  sessionId: string,
+  attribution?: AttributionStore | null
+): Array<{ speaker: string; content: string; source: string | null; sourceUrl: string | null }> {
   const rows = core.client.raw
     .prepare(
-      "SELECT speaker_id, raw_content FROM utterances WHERE session_id = ? ORDER BY posted_at ASC"
+      "SELECT id, speaker_id, raw_content FROM utterances WHERE session_id = ? ORDER BY posted_at ASC"
     )
-    .all(sessionId) as Array<{ speaker_id: string | null; raw_content: string }>;
-  return rows.map((r) => ({ speaker: speakerLabel(r.speaker_id), content: r.raw_content }));
+    .all(sessionId) as Array<{ id: string; speaker_id: string | null; raw_content: string }>;
+  return rows.map((r) => {
+    const ref = sourceRef(attribution, r.id);
+    return {
+      speaker: speakerLabel(r.speaker_id),
+      content: r.raw_content,
+      source: ref?.source ?? null,
+      sourceUrl: ref?.sourceUrl ?? null,
+    };
+  });
 }
 
 function topOpinions(
   core: Core,
   sessionId: string,
-  limit: number
-): Array<{ speaker: string; content: string; score: number }> {
+  limit: number,
+  attribution?: AttributionStore | null
+): Array<{ speaker: string; content: string; score: number; source: string | null; sourceUrl: string | null }> {
   const raw = core.client.raw;
   const rows = raw
     .prepare(
@@ -145,19 +177,28 @@ function topOpinions(
     )
     .all(sessionId) as Array<{ id: string; speaker_id: string; raw_content: string }>;
   return rows
-    .map((u) => ({
-      speaker: speakerLabel(u.speaker_id),
-      content: u.raw_content,
-      score: getOpinionScore(raw, u.id),
-    }))
+    .map((u) => {
+      const ref = sourceRef(attribution, u.id);
+      return {
+        speaker: speakerLabel(u.speaker_id),
+        content: u.raw_content,
+        score: getOpinionScore(raw, u.id),
+        source: ref?.source ?? null,
+        sourceUrl: ref?.sourceUrl ?? null,
+      };
+    })
     .filter((u) => u.score > 0)
     .sort((a, b) => b.score - a.score)
     .slice(0, limit);
 }
 
+/**
+ * 露出用の話者ラベル (§6 個人マスク)。 persona は表示名、 ext は不可逆ペルソナ名 (論者#xxxx)。
+ * 公開 ID (speaker_id) を end user に素通ししない。
+ */
 function speakerLabel(speakerId: string | null): string {
   if (!speakerId) return "参加者";
   if (speakerId.startsWith("persona:")) return speakerId.slice("persona:".length);
-  if (speakerId.startsWith("ext:")) return "外部の声";
+  if (speakerId.startsWith("ext:")) return maskedPersonaLabel(speakerId);
   return "人間";
 }

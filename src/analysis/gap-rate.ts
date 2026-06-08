@@ -16,6 +16,8 @@ import Database from "better-sqlite3";
 
 import { parseGameKG } from "../crawler/md-format.js";
 import type { MechanicEntry } from "../crawler/types.js";
+import { getConfig } from "../config.js";
+import { resolveActiveKgPath } from "../core/kg-registry.js";
 import { scoreText, type AffectScore, type ValenceLabel } from "./affect-score.js";
 
 /** 発話 1 件の運営想定に対する分類。 */
@@ -72,7 +74,8 @@ interface IntendedDef {
 }
 
 function kuzuPath(): string {
-  return process.env.DISCATIER_KUZU_PATH ?? path.resolve("./data/discatier.kuzu");
+  // active KG (§12) を見る。 未解決時は従来既定に倒す (完全後方互換)。
+  return resolveActiveKgPath(getConfig()) ?? process.env.DISCATIER_KUZU_PATH ?? path.resolve("./data/discatier.kuzu");
 }
 
 /** GameKG md (運営の定義) を読み、intended プロファイルを組む。 */
