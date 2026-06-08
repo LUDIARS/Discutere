@@ -81,20 +81,37 @@ export function buildPrompt(args: BuildPromptArgs): BuiltPrompt {
 
   const ctx = { hypotheses, gaps, utterances };
 
+  // 議題アンカー: 直近の open gap の title + description (対象ゲーム/ジャンル + 投稿の要点) を
+  // 最上部に明示する。これを外すと persona が gap.description を読まず議論が主題から逸れる。
+  const primaryGap =
+    gaps.find((g) => !["closed", "dismissed", "converged", "resolved"].includes((g.status || "").toLowerCase())) ??
+    gaps[0];
+  const topicBlock = primaryGap
+    ? [
+        "## 議題 (この前提から絶対に外れない)",
+        `題目: ${primaryGap.title}`,
+        primaryGap.description ? primaryGap.description : "",
+        "→ 上の対象ゲーム・ジャンルに即して論じる。別ゲームや別ジャンルの話に逸らさない。",
+        "",
+      ]
+    : [];
+
   const user = [
     `# Rule (triggered by ${args.triggeredBy})`,
     `id: ${args.rule.id}`,
     args.rule.description ? `description: ${args.rule.description}` : "",
     "",
+    ...topicBlock,
     "## 指示",
     args.rule.instructions,
     "",
+    "## これまでの発言 (utterances は時系列。人間の発言があれば最優先で踏まえ、無視しない)",
     "## 議論コンテキスト (JSON)",
     "```json",
     JSON.stringify(ctx, null, 2),
     "```",
     "",
-    "上記コンテキストを踏まえ、 指示に従って応答 JSON のみを返してください。",
+    "上記の議題と発言を必ず踏まえ、 指示に従って応答 JSON のみを返してください。",
   ]
     .filter((s) => s.length > 0)
     .join("\n");

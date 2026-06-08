@@ -73,21 +73,44 @@ const utteranceId = core.repos.utterance.create({
 }
 
 {
+  // gameTitle + genre が特定できれば start_discussion (LLM 経路が効いている)。
   const llm = new MockLLMClient([
     () =>
       JSON.stringify({
         action: "start_discussion",
         category: "opinion",
+        gameTitle: "Vampire Survivors",
+        genre: "ローグライト",
         title: "LLM分類議題",
         description: "LLMで分類した議題",
         reason: "mock",
       }),
   ]);
-  const classification = await classifyDiscordMessage("このゲームはテンポが悪いと思う", llm);
+  const classification = await classifyDiscordMessage("Vampire Survivors はテンポが悪いと思う", llm);
   assert.equal(llm.calls, 1);
   assert.equal(classification.action, "start_discussion");
   assert.equal(classification.title, "LLM分類議題");
-  console.log("ok auto discussion can use LLM classification");
+  assert.equal(classification.gameTitle, "Vampire Survivors");
+  assert.equal(classification.genre, "ローグライト");
+  console.log("ok auto discussion can use LLM classification (gameTitle/genre extracted)");
+}
+
+{
+  // 対象ゲームを特定できない LLM start_discussion は record_only に降格 (判断ゲート)。
+  const llm = new MockLLMClient([
+    () =>
+      JSON.stringify({
+        action: "start_discussion",
+        category: "opinion",
+        gameTitle: "",
+        title: "曖昧な議題",
+        description: "どのゲームか不明",
+        reason: "mock",
+      }),
+  ]);
+  const classification = await classifyDiscordMessage("なんか最近のゲームつまらないよね", llm);
+  assert.equal(classification.action, "record_only", "gameTitle 不明なら開始しない");
+  console.log("ok classifier gates start when gameTitle is unidentified");
 }
 
 {

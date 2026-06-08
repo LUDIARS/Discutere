@@ -94,7 +94,7 @@ export function createDiscatierContextProvider(
     listRecentGaps(workspaceId, limit): ContextGap[] {
       const rows = core.client.raw
         .prepare(
-          `SELECT id, title, status, gap_in, expected_affect, observed_affect, updated_at
+          `SELECT id, title, description, status, gap_in, expected_affect, observed_affect, updated_at
              FROM design_gaps
              WHERE workspace_id = ?
              ORDER BY updated_at DESC LIMIT ?`
@@ -102,6 +102,7 @@ export function createDiscatierContextProvider(
         .all(workspaceId, limit) as Array<{
         id: string;
         title: string;
+        description: string | null;
         status: string | null;
         gap_in: string | null;
         expected_affect: string | null;
@@ -117,6 +118,7 @@ export function createDiscatierContextProvider(
         return {
           id: r.id,
           title: r.title,
+          description: r.description,
           status: r.status ?? "open",
           gapIn: r.gap_in,
           expectedAffect: r.expected_affect,
