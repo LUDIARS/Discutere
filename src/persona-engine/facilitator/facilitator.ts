@@ -13,6 +13,7 @@
 import { randomUUID } from "node:crypto";
 
 import { ensureReactionTables, getOpinionScore } from "../../discord-hook/reactions.js";
+import { ensureExclusionTable } from "../../core/noise/exclusions.js";
 import type { createCore } from "../../core/index.js";
 import type { PersonasRepo } from "../db/personas-repo.js";
 import type { DiscussionContextProvider } from "../context-provider.js";
@@ -133,6 +134,12 @@ export interface Facilitator {
   stop(): void;
   /** 1 周分を手動実行 (テスト / デバッグ) */
   tickOnce(): Promise<void>;
+  /**
+   * 指定議論を即時に強制収束する (管制 UI の「まとめて閉じる」)。
+   * auto-tick (start) が未起動でも動く (内部 converge は自己完結)。
+   * 既に closed/converged/dismissed の gap は何もしない。
+   */
+  convergeNow(input: { sessionId: string; gapId: string }): Promise<{ ok: boolean; error?: string }>;
 }
 
 export function createFacilitator(deps: FacilitatorDeps): Facilitator {
@@ -162,6 +169,8 @@ export function createFacilitator(deps: FacilitatorDeps): Facilitator {
        created_at INTEGER NOT NULL
      )`
   );
+  // ノイズ除外サイドカー表を冪等確保 (まとめ生成時に除外発話を弾くため)。
+  ensureExclusionTable(raw);
 
   // 進行役 persona を登録 (収束のまとめ発言者)
   deps.personas.insertOrIgnore({ ...FACILITATOR_PERSONA, traits: [...FACILITATOR_PERSONA.traits] });
@@ -202,7 +211,9 @@ export function createFacilitator(deps: FacilitatorDeps): Facilitator {
 
   function metricsFor(sessionId: string, now: number): SessionMetrics {
     const rows = raw
-      .prepare("SELECT speaker_id, posted_at FROM utterances WHERE session_id = ?")
+      .prepare(
+        "SELECT speaker_id, posted_at FROM utterances WHERE session_id = ? AND id NOT IN (SELECT utterance_id FROM utterance_exclusions)"
+      )
       .all(sessionId) as Array<{ speaker_id: string | null; posted_at: number }>;
     const personaIds = new Set<string>();
     let lastActivityAt = 0;
@@ -216,7 +227,7 @@ export function createFacilitator(deps: FacilitatorDeps): Facilitator {
   function recentUtterances(sessionId: string, limit: number): RecentUtterance[] {
     const rows = raw
       .prepare(
-        "SELECT speaker_id, raw_content FROM utterances WHERE session_id = ? ORDER BY posted_at DESC LIMIT ?"
+        "SELECT speaker_id, raw_content FROM utterances WHERE session_id = ? AND id NOT IN (SELECT utterance_id FROM utterance_exclusions) ORDER BY posted_at DESC LIMIT ?"
       )
       .all(sessionId, limit) as Array<{ speaker_id: string | null; raw_content: string }>;
     return rows
@@ -275,7 +286,7 @@ export function createFacilitator(deps: FacilitatorDeps): Facilitator {
   function topOpinions(sessionId: string, limit: number): string[] {
     const rows = raw
       .prepare(
-        "SELECT id, speaker_id, raw_content FROM utterances WHERE session_id = ? AND speaker_id IS NOT NULL"
+        "SELECT id, speaker_id, raw_content FROM utterances WHERE session_id = ? AND speaker_id IS NOT NULL AND id NOT IN (SELECT utterance_id FROM utterance_exclusions)"
       )
       .all(sessionId) as Array<{ id: string; speaker_id: string; raw_content: string }>;
     return rows
@@ -472,5 +483,26 @@ export function createFacilitator(deps: FacilitatorDeps): Facilitator {
       timer = null;
     },
     tickOnce,
+    async convergeNow(input: { sessionId: string; gapId: string }): Promise<{ ok: boolean; error?: string }> {
+      const gap = raw
+        .prepare("SELECT status FROM design_gaps WHERE id = ?")
+        .get(input.gapId) as { status: string | null } | undefined;
+      if (!gap) return { ok: false, error: "gap not found" };
+      if (gap.status && ["closed", "converged", "dismissed"].includes(gap.status)) {
+        return { ok: false, error: `already ${gap.status}` };
+      }
+      try {
+        await converge({ sessionId: input.sessionId, gapId: input.gapId });
+      } catch (e) {
+        return { ok: false, error: (e as Error).message };
+      }
+      // converge は LLM 失敗時に早期 return する (gap を閉じない) ので、 実際に
+      // closed になったかで成否を判定する (偽 ok を返さない)。
+      const after = raw
+        .prepare("SELECT status FROM design_gaps WHERE id = ?")
+        .get(input.gapId) as { status: string | null } | undefined;
+      if (after?.status === "closed" || after?.status === "converged") return { ok: true };
+      return { ok: false, error: "まとめ生成に失敗しました (LLM 応答なし)。再試行してください" };
+    },
   };
 }

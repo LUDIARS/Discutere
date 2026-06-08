@@ -16,4 +16,4 @@ discutere.config.json
 frontend/node_modules
 frontend/dist
 .tmp
-bash.exe.stackdump
+*.stackdump
