@@ -265,11 +265,15 @@ function normalizeClassification(
     600
   );
   // スレッドタイトルは対象ゲームの最優先根拠。LLM が gameTitle を返さなければ title を採用。
-  const gameTitle = raw.gameTitle?.trim() || threadTitle?.trim() || undefined;
+  const title0 = threadTitle?.trim();
+  const gameTitle = raw.gameTitle?.trim() || title0 || undefined;
   const genre = raw.genre?.trim() || undefined;
   // 対象ゲームが特定できない議題は噛み合わないので議論を開始しない (record_only に降格)。
+  // FEATURE ⑤(a): ただし threadTitle (フォーラムスレッド題 / 種まきの主題) が非空なら
+  //   それを主題アンカーに使えるので降格しない (= eyes 無し投稿でも種にできる)。
+  //   threadTitle が無い平文チャンネルの LLM 経路は従来どおり降格を維持 (ノイズ防止)。
   const wantsStart = raw.action === "start_discussion";
-  const downgrade = enforceGameTitle && wantsStart && !gameTitle;
+  const downgrade = enforceGameTitle && wantsStart && !gameTitle && !title0;
   const action: AutoDiscussionClassification["action"] =
     wantsStart && !downgrade ? "start_discussion" : "record_only";
   const reason = downgrade

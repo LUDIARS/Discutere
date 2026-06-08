@@ -6,8 +6,12 @@ import { cors } from "hono/cors";
 import Database from "better-sqlite3";
 import { machinaRoutes } from "./machina/routes.js";
 import { userContext } from "./middleware/auth.js";
-import { adminRoutes, setPersonaEngine, getPersonaEngine, setFacilitator } from "./api/admin-routes.js";
+import { adminRoutes, setPersonaEngine, getPersonaEngine, setFacilitator, setGatewaySweeper } from "./api/admin-routes.js";
 import { dashboardRoutes } from "./api/dashboard-routes.js";
+import { errorsRoutes } from "./api/errors-routes.js";
+import { consensusRoutes } from "./api/consensus-routes.js";
+import { installConsoleCapture } from "./observability/console-capture.js";
+import { createConsensusScorer, type ConsensusScorer } from "./persona-engine/scoring/consensus-scorer.js";
 import { learningViewRoutes } from "./api/learning-view-routes.js";
 import { startSessionCleanup } from "./machina/mode-state.js";
 import { createCore } from "./core/index.js";
@@ -50,6 +54,10 @@ import { getConfig } from "./config.js";
 // Initialize DB (triggers schema creation)
 import "./db/connection.js";
 
+// FEATURE ②: console.error/warn を error-buffer に取り込む (admin dashboard 可視化用)。
+// なるべく早く仕掛けて以降の全 console 出力を拾う。
+installConsoleCapture();
+
 const config = getConfig();
 const app = new Hono();
 
@@ -89,6 +97,12 @@ app.route("/api", adminRoutes);
 
 // ─── Admin dashboard HTML (PR-H: 観寁E+ kill switch GUI) ────
 app.route("/api", dashboardRoutes);
+
+// ─── エラー可視化 (FEATURE ②: console.error/warn を dashboard に出す) ──
+app.route("/api", errorsRoutes);
+
+// ─── 合意スコア可視化 (FEATURE ③+④: 意見ごとの 👍/agree/score) ──
+app.route("/api", consensusRoutes);
 
 // ─── 議論キュー可視化 (進行中 session / 未処琁Egap / 検証征E��仮説) ──
 app.route("/api", queueRoutes);
@@ -150,6 +164,12 @@ function buildClassifierLlm(): LLMClient | null {
 // facilitator は gateway より先に生成されるため late-bound (gateway 起動後に結線)。
 let forumFinalizer:
   | ((args: { scene: string | null; summary: string; title: string }) => void)
+  | null = null;
+
+// FEATURE ③+④: 合意スコアラーが 👍 を付けるための react。 gateway 起動後に
+// handle.reactToMessage を late-bind する (forumFinalizer と同じパターン)。
+let consensusReact:
+  | ((channelId: string, messageId: string, emoji: string) => Promise<void>)
   | null = null;
 
 // PR-C / PR-I: persona-engine 起勁Ewiring
@@ -416,17 +436,38 @@ const personaEngineLifecycle = (() => {
         onConverged: (e) =>
           forumFinalizer?.({ scene: e.scene, summary: e.summary, title: e.title }),
       });
-      // worker-pool 時は動的 persona 生成を避けるため auto-tick は止める。
-      // ただしインスタンスは常に生成し、管制 UI の「まとめて閉じる」(手動収束) を可能にする。
-      if (!isWorkerPool) {
-        facilitator.start();
-        console.log(
-          `  facilitator: started (tick=${config.facilitator.tickMs}ms, idleGap=${config.facilitator.idleGapMs}ms, maxPersonas=${config.facilitator.maxPersonas})`
-        );
-      } else {
-        console.log("  facilitator: instance ready (auto-tick off in worker-pool; 手動収束のみ)");
-      }
+      // facilitator は常に auto-tick を回す: 停滞→拡張、 止揚到達/persona 過多→自動収束
+      // (= gap closed + onConverged で Discord フォーラムを lock+archive + まとめ転記)。
+      // worker-pool 時も converge/expand は専用 claude -p で動く (facilitatorLlm)。
+      facilitator.start();
+      console.log(
+        `  facilitator: started (tick=${config.facilitator.tickMs}ms, idleGap=${config.facilitator.idleGapMs}ms, maxPersonas=${config.facilitator.maxPersonas}, workerPool=${isWorkerPool})`
+      );
       setFacilitator(facilitator);
+    }
+
+    // FEATURE ③+④: 合意スコアラー — 各意見 (AI/人間 同一) を AI が評価し、 総意が
+    // 同意する意見に 👍 + 合意スコアを記録する。 facilitator と同じ LLM / tick で回す。
+    // react は gateway 起動後に late-bind される consensusReact に委譲する。
+    let consensusScorer: ConsensusScorer | null = null;
+    if (config.facilitator.enabled && facilitatorLlm) {
+      consensusScorer = createConsensusScorer({
+        core,
+        llm: facilitatorLlm,
+        intervalMs: config.facilitator.tickMs,
+        model: isWorkerPool ? config.llm.model || undefined : config.llm.model,
+        react: async (i) => {
+          if (consensusReact) await consensusReact(i.channelId, i.messageId, i.emoji);
+        },
+        logger: {
+          debug: () => {},
+          info: (meta: Record<string, unknown>, msg: string) => console.log(`  [consensus] ${msg}`, meta),
+          warn: (meta: Record<string, unknown>, msg: string) => console.warn(`  [consensus] ${msg}`, meta),
+          error: (meta: Record<string, unknown>, msg: string) => console.error(`  [consensus] ${msg}`, meta),
+        },
+      });
+      consensusScorer.start();
+      console.log(`  consensus-scorer: started (interval=${config.facilitator.tickMs}ms)`);
     }
 
     // 自動シード議論: 定期的にジャンル/ストアトレンドから headless 議論を立てる (#64/#65)。
@@ -456,7 +497,7 @@ const personaEngineLifecycle = (() => {
       );
     }
 
-    return { engine, bridge, core, peDb, facilitator, autoSeed };
+    return { engine, bridge, core, peDb, facilitator, autoSeed, consensusScorer };
   } catch (err) {
     console.warn("  persona-engine: startup failed:", err);
     return null;
@@ -547,7 +588,17 @@ const discordGatewayLifecycle = startDiscordGateway({
 // フォーラム集約: gateway 起動後に収束 finalizer を結線する (facilitator.onConverged が呼ぶ)。
 discordGatewayLifecycle
   .then((handle) => {
-    if (!handle || !config.discord.forum.enabled) return;
+    if (!handle) return;
+
+    // FEATURE ③+④: 合意スコアラーの 👍 を gateway の reactToMessage に結線。
+    consensusReact = (channelId, messageId, emoji) =>
+      handle.reactToMessage(channelId, messageId, emoji);
+
+    // FEATURE ⑤b: 未検知投稿の再スイープを admin API (/api/admin/seed-sweep) に結線。
+    setGatewaySweeper((opts) => handle.sweepUnseeded(opts));
+    console.log("  discord-seed-sweep / consensus-react: wired to gateway");
+
+    if (!config.discord.forum.enabled) return;
     forumFinalizer = (args) => {
       void handle
         .finalizeForumPost(args)
