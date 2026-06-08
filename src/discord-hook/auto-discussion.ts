@@ -52,6 +52,10 @@ export interface AutoDiscussionClassification {
   category: AutoDiscussionCategory;
   title: string;
   description: string;
+  /** 議題のゲームタイトル (特定できなければ undefined)。議論の主題アンカー。 */
+  gameTitle?: string;
+  /** 議題のジャンル (特定できなければ undefined)。 */
+  genre?: string;
   expectedAffect?: string;
   observedAffect?: string;
   reason?: string;
@@ -87,14 +91,20 @@ export async function startAutoDiscussionForDiscordMessage(
   if (existing) return { started: false, gapId: existing, classification };
   if (classification.action !== "start_discussion") return { started: false, classification };
 
-  // フォーラムタイトル (= 主題) があればそれを gap タイトルにし、本文先頭にも刻む。
-  // 本文にゲーム名が無くても議論が主題から逸れない (ワンダと巨像→ヴァンサバ 誤爆対策)。
+  // 議題のアンカー: 対象ゲーム + ジャンル を gap タイトル/説明の先頭に固定する。
+  // これが persona に渡る (ContextGap.description) ことで、議論が対象ゲームから逸れない。
   const forumTitle = input.forumTitle?.trim();
-  const gapTitle = forumTitle && forumTitle.length > 0 ? forumTitle : classification.title;
-  const baseDescription =
-    forumTitle && forumTitle.length > 0
-      ? `【主題: ${forumTitle}】\n${classification.description}`
-      : classification.description;
+  const gameTitle = classification.gameTitle?.trim() || (forumTitle && forumTitle.length > 0 ? forumTitle : undefined);
+  const genre = classification.genre?.trim();
+  const gapTitle = gameTitle || forumTitle || classification.title;
+  // 主題アンカー (ゲーム + ジャンル) → 投稿の要点 の順で description を組む。
+  const anchorLine = gameTitle
+    ? `【対象ゲーム: ${gameTitle}${genre ? ` / ジャンル: ${genre}` : ""}】` +
+      `この議論は必ずこのゲーム・ジャンルに即して論じる。別ゲームの話や前提のすり替えは持ち込まない。`
+    : forumTitle && forumTitle.length > 0
+      ? `【主題: ${forumTitle}】`
+      : "";
+  const baseDescription = [anchorLine, classification.description].filter(Boolean).join("\n");
 
   // 方向性 (フォーラムタグ由来) があれば議題説明にディレクティブを差し込む。
   // facilitator は gapTopic (title + description) を読むので、これで拡張/収束が方向に沿う。
@@ -112,6 +122,8 @@ export async function startAutoDiscussionForDiscordMessage(
   const evidence = {
     source: "discord:auto-classifier",
     category: classification.category,
+    gameTitle: gameTitle ?? null,
+    genre: genre ?? null,
     reason: classification.reason ?? null,
     direction: input.direction ?? null,
     utteranceIds: [input.utteranceId],
@@ -148,18 +160,30 @@ export async function classifyDiscordMessage(
   threadTitle?: string
 ): Promise<AutoDiscussionClassification> {
   const title = threadTitle?.trim();
-  const fallback = classifyDiscordMessageFallback(content);
+  const fallback = classifyDiscordMessageFallback(content, title);
   if (!llm) return fallback;
 
   const result = await llm.invoke({
     system:
-      "You classify Discord posts for an automatic game-design discussion system. Return only compact JSON.",
+      "You classify Discord posts for an automatic game-design discussion system. " +
+      "You MUST read the post body carefully and identify which game and genre it is about. Return only compact JSON.",
     prompt: [
-      "Classify the post. Start a discussion only when it is a substantive game/design/mechanic question or a debatable opinion.",
+      "Classify the post.",
       // スレッドタイトルは議論の主題 (対象ゲーム等)。本文に主題が無くてもこれを基準にする。
-      title ? `Thread title (議論の主題・対象ゲーム — これを必ず主題にする): ${title}` : "",
+      title ? `Thread title (議論の主題・対象ゲーム — これが対象ゲームの最優先根拠): ${title}` : "",
+      "",
+      "【ゲームタイトル・ジャンルの判定 (最重要)】",
+      "- 投稿本文(とスレッドタイトル)から、議論の対象となる『ゲームタイトル』と『ジャンル』を特定する。",
+      "- gameTitle: 具体的なゲーム名 (例「Vampire Survivors」「ワンダと巨像」)。特定できなければ空文字。",
+      "- genre: そのゲームのジャンル (例「ローグライト」「アクションアドベンチャー」「ヴァンサバ系」)。",
+      "- 整合性を判断する: genre がその gameTitle に実際に合っているか? 投稿が本当にその対象についてか?",
+      "  矛盾する / どのゲーム・ジャンルか特定できない 場合は action=record_only にし、reason に理由を書く。",
+      "  (対象ゲーム・ジャンルが定まらない議題は噛み合わないので議論を開始しない。)",
+      "- start_discussion にするのは、gameTitle が特定でき、genre と整合し、議論に値する内容のときだけ。",
+      "",
       "JSON schema:",
-      '{"action":"start_discussion|record_only","category":"game_design_question|mechanic_question|opinion|noise|command_like","title":"short Japanese title","description":"Japanese summary","expectedAffect":"optional","observedAffect":"optional","reason":"short reason"}',
+      '{"action":"start_discussion|record_only","category":"game_design_question|mechanic_question|opinion|noise|command_like","gameTitle":"対象ゲーム名 or 空","genre":"ジャンル or 空","title":"short Japanese title","description":"本文の要点を踏まえた日本語要約","expectedAffect":"optional","observedAffect":"optional","reason":"short reason (特に開始しない場合は理由)"}',
+      "",
       `Post: ${content}`,
     ]
       .filter((l) => l.length > 0)
@@ -168,10 +192,13 @@ export async function classifyDiscordMessage(
   });
 
   if (!result.ok) return fallback;
-  return normalizeClassification(parseClassificationJson(result.text) ?? fallback, content);
+  return normalizeClassification(parseClassificationJson(result.text) ?? fallback, content, title, true);
 }
 
-export function classifyDiscordMessageFallback(content: string): AutoDiscussionClassification {
+export function classifyDiscordMessageFallback(
+  content: string,
+  threadTitle?: string
+): AutoDiscussionClassification {
   const text = content.trim();
   const lower = text.toLowerCase();
   const isQuestion = /[?？]|とは|なに|何|なぜ|どう|必要|要素|改善|課題|問題|面白|ゲーム|プレイ|ヴァンサバ|vampire/.test(
@@ -184,7 +211,7 @@ export function classifyDiscordMessageFallback(content: string): AutoDiscussionC
       title: "",
       description: "",
       reason: "command-like or link-only content",
-    }, text);
+    }, text, threadTitle);
   }
   if (!isQuestion || text.length < 6) {
     return normalizeClassification({
@@ -193,8 +220,10 @@ export function classifyDiscordMessageFallback(content: string): AutoDiscussionC
       title: "",
       description: "",
       reason: "not enough discussion signal",
-    }, text);
+    }, text, threadTitle);
   }
+  // フォールバックでも gameTitle はスレッドタイトルから採る (正規化側で threadTitle を採用)。
+  // gameTitle が取れない (= 非フォーラム平文) と record_only に降格する。
   return normalizeClassification({
     action: "start_discussion",
     category: /要素|改善|課題|問題|面白|ゲーム|プレイ|ヴァンサバ|vampire/.test(text)
@@ -205,7 +234,7 @@ export function classifyDiscordMessageFallback(content: string): AutoDiscussionC
     expectedAffect: "unknown",
     observedAffect: "question",
     reason: "question or game-design terms detected",
-  }, text);
+  }, text, threadTitle);
 }
 
 function parseClassificationJson(text: string): Partial<AutoDiscussionClassification> | null {
@@ -222,23 +251,40 @@ function parseClassificationJson(text: string): Partial<AutoDiscussionClassifica
 
 function normalizeClassification(
   raw: Partial<AutoDiscussionClassification>,
-  content: string
+  content: string,
+  threadTitle?: string,
+  // LLM 判定時のみ true。LLM はゲーム名を本文から特定できるので、特定できない=議題が
+  // 噛み合わないと判断し record_only に降格する。regex fallback はゲーム名を抽出できない
+  // ので降格しない (非フォーラム平文議論を従来どおり通す)。
+  enforceGameTitle = false
 ): AutoDiscussionClassification {
-  const action = raw.action === "start_discussion" ? "start_discussion" : "record_only";
   const category = normalizeCategory(raw.category);
   const title = truncate((raw.title?.trim() || `Discord議題: ${content.trim()}`), 80);
   const description = truncate(
     raw.description?.trim() || `Discord投稿から自動検出: ${content.trim()}`,
     600
   );
+  // スレッドタイトルは対象ゲームの最優先根拠。LLM が gameTitle を返さなければ title を採用。
+  const gameTitle = raw.gameTitle?.trim() || threadTitle?.trim() || undefined;
+  const genre = raw.genre?.trim() || undefined;
+  // 対象ゲームが特定できない議題は噛み合わないので議論を開始しない (record_only に降格)。
+  const wantsStart = raw.action === "start_discussion";
+  const downgrade = enforceGameTitle && wantsStart && !gameTitle;
+  const action: AutoDiscussionClassification["action"] =
+    wantsStart && !downgrade ? "start_discussion" : "record_only";
+  const reason = downgrade
+    ? `対象ゲームを特定できないため議論を開始しない (${raw.reason?.trim() ?? "gameTitle 不明"})`
+    : raw.reason?.trim() || undefined;
   return {
     action,
     category,
     title,
     description,
+    gameTitle,
+    genre,
     expectedAffect: raw.expectedAffect?.trim() || undefined,
     observedAffect: raw.observedAffect?.trim() || undefined,
-    reason: raw.reason?.trim() || undefined,
+    reason,
   };
 }
 

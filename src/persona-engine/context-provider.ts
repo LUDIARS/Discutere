@@ -17,6 +17,8 @@ export interface ContextHypothesis {
 export interface ContextGap {
   id: string;
   title: string;
+  /** 議題の説明文 (対象ゲーム/ジャンルのアンカー + 投稿の要点)。persona が議論の前提として読む。 */
+  description?: string | null;
   status: string;
   gapIn: string | null;
   expectedAffect: string | null;
