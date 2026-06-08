@@ -129,6 +129,30 @@ interface ExternalUtterance {
 - ※ `utterances` 自体には外部 id 列を足さない (schema 不変) ため、 dedup は
   importer 側の sidecar DB で持つ。
 
+### source / sourceUrl の保持 (露出の透明性用 / 2026-06-08)
+
+§6 露出制御で **ソース種別 + 元 URL を end user に開示**するため、 取り込み時に
+utterance ごとの出所を引けるようにする。 `utterances` schema は不変のまま、
+**sidecar `source_attribution`** に保持する (`data/external/.attribution.sqlite`、
+raw-store と同じ思想):
+
+```sql
+CREATE TABLE source_attribution (
+  utterance_id TEXT PRIMARY KEY,
+  source       TEXT NOT NULL,   -- "youtube" | "niconico" | ...
+  source_url   TEXT NOT NULL,   -- canonical な元 URL (露出時のリンク先)
+  native_id    TEXT NOT NULL,   -- 取得元一意 id (調整 UX の照合用)
+  game_slug    TEXT,            -- どのゲームの議論か (データ調整 UX のフィルタ)
+  imported_at  INTEGER NOT NULL
+);
+```
+
+- external-importer が utterance を採番した直後に 1 行 upsert する (全 source。 短文
+  コメントも含む。 raw-store は長文要約専用なので別物)。
+- 露出 serializer は `speaker_id` をペルソナ名へマスクしつつ、 この sidecar から
+  `source` / `source_url` を引いて出所バッジを付ける。
+- データ調整 UX (§13) はこのテーブルを source / game_slug で集計・一覧する。
+
 ## 4. 取得元ごとの仕様
 
 ### 4.1 Steam レビュー (Phase 1 / 最優先)
@@ -352,9 +376,13 @@ work queue `data/external/youtube/videos/<gameSlug>.jsonl` (`{videoId,title,chan
 > アンカーとして保持** し、 「同じ人物の発話」 を横断同定して persona を積み上げる。
 >
 > **統治原則: 情報精度 > プライバシー**。 persona の精度を最優先し、 同定情報は捨てない。
-> ただしそれは **保管・内部解析レイヤーに限る**。 個人を特定しうる情報は
-> **議論に参加するユーザ (Discord 等の end user) には一切参照させない** (§露出制御)。
-> = 「内部はフル精度で持つ / 外向きには出さない」 の二層で両立させる。
+> ただしそれは **保管・内部解析レイヤーに限る**。
+>
+> **露出方針 (2026-06-08 改訂 — データソースの透明性を上げる)**: 発話の **出所
+> (ソース種別 + 元 URL)** は end user にも **開示する** (どこの誰がどう言ったかを
+> 辿れる透明性 > 出所の秘匿)。 一方、 **個人アンカー (公開 ID = `authorId` /
+> 表示名 = `authorName`) は引き続きマスク**して内部ペルソナ表示名で見せる。
+> = 「**出所は透明 / 個人は仮名**」 の二層。 旧方針 (ソース URL も全マスク) は撤回。
 
 ### なぜ保持するか
 - persona-engine は「**誰が**どんな論調で何を語るか」 を学習する。 同一性 ID が無いと
@@ -369,22 +397,29 @@ work queue `data/external/youtube/videos/<gameSlug>.jsonl` (`{videoId,title,chan
 - **プラットフォーム横断の同一人物紐付けはしない**: SteamID と YouTube channelId は
   別人として扱う (確実な対応付けが不可能なため)。 persona は **platform-identity 単位**。
 
-### 露出制御 (議論ユーザには見せない)
+### 露出制御 (出所は透明 / 個人は仮名)
 
-「情報精度 > プライバシー」 は **内部保管・解析** の原則であって、 **外部露出を許す意味では
-ない**。 個人を特定しうる情報は議論に参加するユーザには参照させない:
+露出面 (Discord 返信・要約・dashboard・API 等 end user が見る面) では、 **出所メタは
+開示し、 個人アンカーはマスクする**:
 
-- **保管レイヤー (DB / 内部解析)**: `authorId` (公開 ID) / `authorName` をフル精度で保持。
-  persona-engine の学習・同定はここで完結する。
-- **露出レイヤー (Discord 返信・要約・dashboard・API 等 end user が見る面)**:
-  `authorId` / `authorName` / `sourceUrl` を **そのまま出さない**。 代わりに persona-engine が
-  発番した **不可逆な内部ペルソナ表示名** (例 `論者#a1b2` や生成ニックネーム) のみを見せる。
+| フィールド | 露出レイヤー (end user) | 根拠 |
+|---|---|---|
+| `source` (種別: youtube/niconico/steam/…) | **開示** | データソースの透明性 |
+| `sourceUrl` (元 URL) | **開示** (原文へのリンク = attribution) | 同上。原文転載ではないので §7 とも整合 |
+| `authorName` (公開表示名) | **マスク** (内部ペルソナ表示名へ置換) | 個人アンカーは仮名化 |
+| `authorId` / `speaker_id` (公開 ID) | **マスク** (素通し禁止) | 同上。逆引き防止 |
+
+- **保管レイヤー (DB / 内部解析)**: `authorId` / `authorName` をフル精度で保持。
+  persona-engine の学習・同定はここで完結する (変更なし)。
+- **露出レイヤー**: 発話を見せる時は `論者#a1b2` 等の **不可逆な内部ペルソナ表示名** +
+  **出所バッジ** (`[YouTube ↗]` など、 リンク先=`sourceUrl`) をセットで提示する。
+  「誰が」 は仮名のまま「どこ発か」 は辿れる。
   - 露出名 → 公開 ID への逆引きは end user 側からは不可能 (対応表は内部のみ)。
-  - 発話原文を引用する場合も「誰が」 は内部ペルソナ表示名に置換する。
 - **実装方針**: utterance に紐づく `speaker_id` (= 公開 ID アンカー) は **API レスポンス /
-  Discord 出力に素通ししない**。 表示用の persona ラベルへ解決してから出す projection を
-  presentation 層に置く (collector/importer は保持、 出力 serializer がマスク)。
-- **admin/運用面**: 生 ID の参照は admin (admin-id allowlist) のみ。 一般議論ユーザには出さない。
+  Discord 出力に素通ししない** → 表示用 persona ラベルへ解決してから出す。 一方
+  `source` / `sourceUrl` は出力に **載せる** (sidecar `source_attribution` から projection、 §3)。
+  presentation 層で「個人だけマスク・出所は透過」の serializer を一本に集約する。
+- **admin/運用面**: 生の `authorId` / `authorName` の参照は admin (admin-id allowlist) のみ。
 
 ### 既存「個人データ禁止」ルールとの関係
 - CLAUDE.md「個人データ」/ [[project_personal_data_rule]] は **LUDIARS 利用者の個人データ**
@@ -455,12 +490,17 @@ npx tsx scripts/crawl.ts ext-run-all
 
 ## 10. 非ゴール
 - ライブ/リアルタイム監視 (バッチのみ)
-- 原文の外部公開・再配布
+- **原文 (本文) の外部公開・再配布** — 出所メタ (source 種別 + `sourceUrl` リンク) の開示は
+  attribution であり可 (§6 改訂)。 ただし発話 **本文そのもの** を LUDIARS Pages / 外部 API へ
+  再掲載することは引き続きしない (§7)。
 - **公開 platform ID → 実世界個人への逆引き / 名寄せ / プロファイリング** (公開仮名 ID を
-  persona アンカーとして保持はするが、 実名特定はしない)
+  persona アンカーとして保持はするが、 実名特定はしない)。 `authorId` / `authorName` は
+  露出面でマスク維持 (§6)。
 - **プラットフォーム横断の同一人物紐付け** (Steam↔YouTube↔Reddit を同一人物と推定しない)
 - X(Twitter) / Discord 他サーバ / 5ch (ToS・コスト・脆さで今回は対象外)
-- `utterances` schema 変更 (既存カラムに収める。 dedup は sidecar DB)
+- `utterances` schema 変更 (既存カラムに収める。 dedup / source 帰属 / KG 選択は sidecar・config 側)
+- **KG ランタイム・ホットスワップ** (無停止での KG 貼り替え) は今回非対応 — KG 切替は
+  config 選択 + 再起動 (§12)。 ホットスワップは follow-up。
 
 ## 11. 参照
 - 既存攻略 KG: `spec/crawler/DESIGN.md`
@@ -468,3 +508,69 @@ npx tsx scripts/crawl.ts ext-run-all
 - 発話 schema: `src/core/db/schema.ts` (`utterances` / `reactions`)
 - 既存 sentiment: `src/crawler/sentiment/`
 - Discord 自然取り込み (内部発話の前例): `src/discord-hook/auto-discussion.ts`
+
+## 12. タスク別 KG (複数 KG 宣言 + 起動時選択 / 2026-06-08)
+
+学習データ KG を **タスク (収集目的) ごとに分割**し、 社内で運用を切り替えられるようにする。
+これまでは `discatier.kuzuPath` 単一に集約していたが、 ゲーム/テーマ別にデータを隔離して
+**調整しやすくする** ため複数 KG を宣言可能にする (データ調整 UX の前提)。
+
+> **方針 (C / 2026-06-08 ユーザー決定)**: spec はタスク別 KG (複数宣言) を正式化する。
+> 実装は **config でレジストリ宣言 + active を指定し、 切替は再起動**で行う (起動時選択)。
+> 無停止ホットスワップは非対応 (§10、 follow-up)。
+
+### config モデル — `discatier.knowledgeGraphs[]` + `activeKg`
+
+```jsonc
+{
+  "discatier": {
+    "activeKg": "default",                 // 起動時に開く KG の id (未設定なら "default")
+    "knowledgeGraphs": [                    // タスク別 KG レジストリ
+      { "id": "default",  "label": "総合",          "kuzuPath": "./data/kg/default.kuzu" },
+      { "id": "hollow",   "label": "Hollow Knight",  "kuzuPath": "./data/kg/hollow.kuzu" },
+      { "id": "trend2026","label": "2026トレンド検証", "kuzuPath": "./data/kg/trend2026.kuzu" }
+    ]
+    // 後方互換: 旧 `kuzuPath` 単独指定は id="default" の 1 KG として吸収する。
+  }
+}
+```
+
+- **解決順**: `knowledgeGraphs` があれば `activeKg` (既定 `"default"`) の `kuzuPath` を採用。
+  無ければ旧 `kuzuPath` (それも無ければ adapter 既定) に倒す (完全後方互換)。
+- env `DISCATIER_ACTIVE_KG` で active を上書き可 (再起動で反映)。
+- **Core を開く全箇所が active KG を見る**: `createCore` 呼び出し / `queue/snapshot` /
+  `analysis/gap-rate` / `crawler/quarantine` / `backup/runner`。 散在する `kuzuPath()` /
+  `config.discatier.kuzuPath` 参照を **`resolveActiveKgPath(config)` 1 関数**に集約する (SRP)。
+- sidecar (`.ingested` / `.raw` / `.attribution`) は KG ごとに分けるか共有かを選べるよう、
+  既定は **active KG のディレクトリ配下**に置く (`<kgDir>/.ingested.sqlite` 等)。 KG を切り替えれば
+  dedup 履歴・source 帰属も一緒に切り替わる (データ隔離が成立)。
+- persona-engine db (`personaEngine.dbPath`) は KG に追従しない (発火制御は KG 非依存)。
+
+### 切替の運用
+
+- 切替 = config の `activeKg` 変更 (or `DISCATIER_ACTIVE_KG`) → **再起動**。
+- データ調整 UX (§13) は現在の active KG と宣言済み KG 一覧を **表示**し、 「次に開く KG」 を
+  config へ書き戻す (実切替は再起動)。 無停止切替は行わない。
+
+## 13. データ調整 UX (admin / 2026-06-08)
+
+「タスク別に KG を分けて運用切替する」 前提では、 **取り込んだデータを見て・絞って・除外できる
+UX が運用価値の中心**になる。 admin dashboard に「データソース」面を新設する。
+
+- **エンドポイント** (`src/api/datasource-routes.ts`、 全て `requireAdmin`):
+  - `GET /api/admin/datasources` — active KG + 宣言済み KG 一覧、 source 別件数
+    (`source_attribution` を source / game_slug で集計)、 直近取り込み時刻。
+  - `GET /api/admin/datasources/:source/utterances?gameSlug=&limit=` — 当該 source の
+    取り込み発話を一覧 (本文抜粋 + 出所 URL + ペルソナ名。 **生 ID は admin のみ可視**)。
+  - `POST /api/admin/datasources/exclude` — 発話単位 or (source[, gameSlug]) 単位で
+    取り込みを **除外**する。 除外は `dismissed` 相当 (学習・議論から外す。 [[既存 noise/quarantine 機構]]
+    に倣う) + `.ingested` に「除外済み」 を残して **再取り込みを防ぐ**。
+  - `POST /api/admin/datasources/active-kg` — 次に開く KG (`activeKg`) を config に書き戻す
+    (再起動で反映。 即時切替はしない旨を返す)。
+- **dashboard カード**: source 別件数バッジ + KG セレクタ (現在の active を強調) +
+  各 source の「中身を見る」→ 発話一覧 (出所バッジ付き) + 行ごと「除外」ボタン。
+- **既存資産の再利用**: 除外は `src/crawler/quarantine.ts` / noise 除去 (`noise-routes.ts`) の
+  仕組みに寄せ、 二重実装しない。 一覧の発話マスクは §6 の露出 serializer を通す
+  (個人マスク・出所透過)。
+- スコープ: 閲覧 + 除外 + active KG 指定まで。 KG 間のデータ移動・マージ・編集 (書き換え) は
+  今回非対応 (follow-up)。

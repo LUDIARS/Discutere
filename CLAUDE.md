@@ -42,8 +42,12 @@ env)。`discutere.config.example.json` 参照。詳細は `docs/ws-gateway-confi
   全平文を utterance に取り込む。👀 リアクションは**取り込み全件ではなく「議論の種(開始エントリ)に
   なった投稿」=auto-discussion が designGap を新規に立てた時だけ**付ける (リアクション=議論が立った
   合図 / persona-engine の返信と対応)。スレッドは親が許可なら継承。
-- **複数サーバ対応**: `discord.guildIds[]` (旧単数 `guildId` は後方互換で統合)。学習データ KG は
-  `discatier.kuzuPath` 単一に集約 (session は guild 別、KG は 1 つ)。
+- **複数サーバ対応**: `discord.guildIds[]` (旧単数 `guildId` は後方互換で統合)。
+- **タスク別 KG (2026-06-08)**: 学習データ KG は **タスク (収集目的) ごとに分割**できる
+  (`discatier.knowledgeGraphs[]` レジストリ + `activeKg` で起動時に 1 つ選択、 切替は再起動)。
+  旧 `discatier.kuzuPath` 単独指定は id=`default` の 1 KG として後方互換で吸収。Core を開く全箇所は
+  `resolveActiveKgPath(config)` 経由で active KG を見る。無停止ホットスワップは非対応
+  (`spec/crawler/EXTERNAL-SOURCES.md` §12)。
 - **議論キュー可視化**: `src/queue/snapshot.ts` → `GET /api/admin/queue` + dashboard カード +
   `/discutere-queue`。
 - **S3 バックアップ**: `src/backup/` で KG + 全 SQLite を tar.gz 化し S3 (Glacier 系) へ。
@@ -74,3 +78,11 @@ env)。`discutere.config.example.json` 参照。詳細は `docs/ws-gateway-confi
 ## 個人データ
 
 匿名 workspace (`DISCATIER_WORKSPACE` 既定 `knowledge`)。攻略 KG / 議論ノードに編集者名・アカウント名を保存しない (`spec/crawler/DESIGN.md` 準拠)。
+
+**外部発話の露出方針 (2026-06-08, `spec/crawler/EXTERNAL-SOURCES.md` §6)**: 出所メタ
+(ソース種別 + 元 URL = attribution) は end user にも **開示**するが、 個人アンカー
+(`authorId` 公開 ID / `authorName` 表示名) は露出面で **マスク**して内部ペルソナ表示名
+(`論者#xxxx`) に置換する =「出所は透明 / 個人は仮名」。保管層はフル精度のまま (persona 学習用)、
+出力 serializer が個人だけマスクし出所は透過する。生 ID 参照は admin のみ。
+これは LUDIARS 利用者の個人データ (Cernere 単一情報源) とは別レイヤー
+([[project_personal_data_rule]] の対象外 — 外部公開の仮名 platform ID)。
