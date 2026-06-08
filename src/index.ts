@@ -97,11 +97,45 @@ app.route("/api", tuningRoutes);
 const stopSessionCleanup = startSessionCleanup();
 
 let autoDiscussionLlm: LLMClient | null = null;
+// 投稿→議題化の分類器専用 LLM (persona engine の worker-pool 経路とは独立)。
+// config.classifier に従い Haiku を Lictor 経由 (claude-cli) / API (anthropic) で呼ぶ。
+let classifierLlm: LLMClient | null = null;
 // backend=worker-pool 時に握る常駐ワーカープール (shutdown で stop する)。
 let workerPool: WorkerPool | null = null;
 // worker-pool 時の 8 ペルソナ seed (persona id = worker id)。
 let workerPersonaSeeds: PersonaSeed[] | undefined;
 const isWorkerPool = config.llm.backend === "worker-pool";
+
+/**
+ * 分類器 (classifyDiscordMessage) 専用 LLM client を config.classifier に従って構築。
+ * persona engine の worker-pool ルーティングとは独立。Haiku を既定とし、
+ *   - backend=claude-cli → ClaudeCliClient (Lictor 経由 spawn、サブスク・トークン不要)
+ *   - backend=anthropic  → AnthropicSdkClient (API 直)
+ *   - backend=off / 資格情報無し → null (classifyDiscordMessage が regex fallback)
+ */
+function buildClassifierLlm(): LLMClient | null {
+  const c = config.classifier;
+  if (c.backend === "off") {
+    console.log("  classifier LLM: off (regex fallback のみ)");
+    return null;
+  }
+  if (c.backend === "anthropic") {
+    const apiKey = config.llm.anthropicApiKey;
+    if (!apiKey) {
+      console.log("  classifier LLM: anthropic 指定だが ANTHROPIC_API_KEY 無し → regex fallback");
+      return null;
+    }
+    console.log(`  classifier LLM: AnthropicSdkClient (model=${c.model})`);
+    return new AnthropicSdkClient({ apiKey, defaultModel: c.model });
+  }
+  // claude-cli = Lictor 経由 spawn。
+  console.log(`  classifier LLM: ClaudeCliClient / Lictor 経由 spawn (model=${c.model})`);
+  return new ClaudeCliClient({
+    defaultModel: c.model,
+    defaultTimeoutMs: c.timeoutMs,
+    gitBashPath: config.workerPool.gitBashPath ?? config.llm.gitBashPath,
+  });
+}
 
 // フォーラム集約: 収束したフォーラムポストを締める finalizer。
 // facilitator は gateway より先に生成されるため late-bound (gateway 起動後に結線)。
@@ -199,6 +233,12 @@ const personaEngineLifecycle = (() => {
     return null;
   }
   autoDiscussionLlm = llm;
+
+  // 分類器 (classifyDiscordMessage) 専用 LLM を persona engine とは別建てで構築する。
+  // persona の WorkerPoolClient は personaId ルーティング前提なので、personaId を持たない
+  // 分類呼び出しを通すと ok:false → regex fallback に落ちてしまう (LLM が効かない)。
+  // ここで Haiku を Lictor 経由 (claude-cli) / API (anthropic) で直接呼べる client を持つ。
+  classifierLlm = buildClassifierLlm();
 
   try {
     // worker-pool は persona DB だけ分離し (8 固定キャスト)、workspace は
@@ -446,7 +486,9 @@ const discordGatewayLifecycle = startDiscordGateway({
   buildQueueText,
   triggerBackup: () => backupScheduler.trigger(),
   classifyInboundMessage: createDiscordAutoDiscussionStarter({
-    getLlm: () => autoDiscussionLlm,
+    // 分類器は専用 LLM (Haiku / Lictor or API)。persona engine の summarizer
+    // (autoDiscussionLlm) とは別系統 — facilitator のモデルには影響しない。
+    getLlm: () => classifierLlm,
   }),
   // 議論意見へのリアクション → 内部スコア加算 (絵文字ごとの重み)。
   onReaction: (info) => {

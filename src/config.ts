@@ -85,6 +85,23 @@ export interface DiscutereConfig {
     gitBashPath?: string;
   };
   /**
+   * 投稿→議題化の分類器 (classifyDiscordMessage) 専用 LLM 設定。
+   * persona engine の worker-pool ルーティングとは独立させ、軽量モデル (Haiku)
+   * を既定とする。Lictor 経由 (claude-cli) でも API 直 (anthropic) でも呼べる。
+   * spec/feature/message-classifier.md。
+   */
+  classifier: {
+    /**
+     * "claude-cli" = Lictor 経由 spawn (サブスク・トークン不要) /
+     * "anthropic" = API 直 / "off" = LLM 無効 (regex fallback のみ)。
+     */
+    backend: "claude-cli" | "anthropic" | "off";
+    /** 分類モデル ID (既定 Haiku)。精度優先なら Sonnet 等に切替可。 */
+    model: string;
+    /** claude-cli backend のタイムアウト ms (分類は短文なので短め) */
+    timeoutMs: number;
+  };
+  /**
    * 常駐ワーカープール (backend=worker-pool 時)。各ペルソナをサブスクの Lictor
    * セッションとして常駐させ、議論ターンを注入して発話を返させる。
    * spec/feature/persistent-worker-pool.md。
@@ -195,6 +212,7 @@ interface RawFileConfig {
   facilitator?: Partial<DiscutereConfig["facilitator"]>;
   autoSeed?: Partial<DiscutereConfig["autoSeed"]>;
   llm?: Partial<DiscutereConfig["llm"]>;
+  classifier?: Partial<DiscutereConfig["classifier"]>;
   workerPool?: Partial<Omit<DiscutereConfig["workerPool"], "workers">> & { workers?: WorkerPoolWorker[] };
   discord?: Partial<
     Omit<DiscutereConfig["discord"], "adminIds" | "discussionChannelIds" | "crawlChannelIds" | "guildIds" | "forum">
@@ -299,6 +317,18 @@ export function loadConfig(): DiscutereConfig {
       ? (backendRaw as LlmBackend)
       : "anthropic";
 
+  // 分類器 backend: 既定は Lictor 経由 (claude-cli)。ANTHROPIC_API_KEY のみ存在する
+  // 環境では API 直 (anthropic) に倒す (CLI が無い CI/headless での後方互換)。
+  const classifierBackendRaw = pick(
+    process.env.DISCUTERE_CLASSIFIER_BACKEND,
+    file.classifier?.backend,
+    process.env.ANTHROPIC_API_KEY ? "anthropic" : "claude-cli"
+  ).toLowerCase();
+  const classifierBackend: DiscutereConfig["classifier"]["backend"] =
+    classifierBackendRaw === "anthropic" || classifierBackendRaw === "off"
+      ? (classifierBackendRaw as DiscutereConfig["classifier"]["backend"])
+      : "claude-cli";
+
   return Object.freeze({
     nodeEnv: pick(process.env.NODE_ENV, undefined, "development"),
     server: {
@@ -353,6 +383,15 @@ export function loadConfig(): DiscutereConfig {
       model: pickOpt(process.env.ANTHROPIC_MODEL, file.llm?.model),
       claudeCliTimeoutMs: pickNum(process.env.CLAUDE_CLI_TIMEOUT_MS, file.llm?.claudeCliTimeoutMs, 120_000),
       gitBashPath: pickOpt(process.env.CLAUDE_CODE_GIT_BASH_PATH, file.llm?.gitBashPath),
+    },
+    classifier: {
+      backend: classifierBackend,
+      model: pick(
+        process.env.DISCUTERE_CLASSIFIER_MODEL,
+        file.classifier?.model,
+        "claude-haiku-4-5-20251001"
+      ),
+      timeoutMs: pickNum(process.env.DISCUTERE_CLASSIFIER_TIMEOUT_MS, file.classifier?.timeoutMs, 30_000),
     },
     workerPool: {
       enabled: pickBool(process.env.DISCUTERE_WORKER_POOL_ENABLED, file.workerPool?.enabled, false),

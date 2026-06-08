@@ -22,6 +22,11 @@
     "claudeCliTimeoutMs": 120000,
     "gitBashPath": ""
   },
+  "classifier": {
+    "backend": "claude-cli",
+    "model": "claude-haiku-4-5-20251001",
+    "timeoutMs": 30000
+  },
   "discord": {
     "botToken": "",
     "applicationId": "",
