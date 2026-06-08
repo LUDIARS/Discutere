@@ -466,6 +466,9 @@ const discordGatewayLifecycle = startDiscordGateway({
   crawlChannelIds: config.discord.crawlChannelIds,
   // フォーラム集約: guild 内の全 Forum 監視 + データ学習依頼/まとめ投稿 を自動作成。
   forum: config.discord.forum,
+  // /debate のパーティ議論 (司会+キーマン+意見、想定発話数で続行/停止)。
+  debate: config.discussion,
+  gitBashPath: config.workerPool.gitBashPath ?? config.llm.gitBashPath,
   crawlDeps: {
     createCore: () => createCore(),
     workspaceId: config.workspace,

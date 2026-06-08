@@ -43,6 +43,7 @@ import {
 } from "./forum-monitor.js";
 import { ensureManagedChannels } from "./managed-channels.js";
 import type { AnyThreadChannel } from "discord.js";
+import { createDebateRunner, type DebateRunner } from "../discussion/director-live.js";
 
 export interface DiscordGatewayDeps extends CommandRouterDeps {
   /** Gateway 接続用 bot token */
@@ -76,6 +77,10 @@ export interface DiscordGatewayDeps extends CommandRouterDeps {
     improvementTagNames: string[];
     funTagNames: string[];
   };
+  /** /debate のパーティ議論設定 (config.discussion)。未設定なら /debate 無効。 */
+  debate?: import("../config.js").DiscutereConfig["discussion"];
+  /** claude -p 用 git-bash パス (Windows)。 */
+  gitBashPath?: string;
 }
 
 export interface DiscordGatewayHandle {
@@ -112,6 +117,16 @@ export async function startDiscordGateway(
     ],
     partials: [Partials.Channel, Partials.Message, Partials.Reaction],
   });
+
+  // /debate のパーティ議論ランナー (config.discussion があれば有効)。
+  const debateRunner: DebateRunner | null = deps.debate
+    ? createDebateRunner({
+        client,
+        botToken: deps.botToken,
+        discussion: deps.debate,
+        gitBashPath: deps.gitBashPath,
+      })
+    : null;
 
   const monitors: MonitorCard[] = [];
   const guildIds = (deps.guildIds ?? []).filter((g) => g && g !== "dm");
@@ -249,7 +264,25 @@ export async function startDiscordGateway(
   });
 
   client.on(Events.InteractionCreate, async (interaction: Interaction) => {
+    // 続行/停止ボタン (debate:cont/stop:<token>)。
+    if (interaction.isButton()) {
+      if (debateRunner) await debateRunner.handleButton(interaction).catch(() => {});
+      return;
+    }
     if (!interaction.isChatInputCommand()) return;
+
+    // /debate: パーティ議論を開始 (非同期、ack だけ即返す)。
+    if (interaction.commandName === "debate") {
+      if (!debateRunner) {
+        await interaction.reply({ content: "議論機能が無効です (config.discussion 未設定)", flags: MessageFlags.Ephemeral }).catch(() => {});
+        return;
+      }
+      const topic = interaction.options.getString("topic", true);
+      await interaction.reply({ content: `🗣️ 議論を開始します: 「${topic}」`, flags: MessageFlags.Ephemeral }).catch(() => {});
+      void debateRunner.start(interaction.channelId, topic);
+      return;
+    }
+
     const cmd = toInboundSlashCommand(interaction);
     try {
       const reply = routeSlashCommand(cmd, deps);

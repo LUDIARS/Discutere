@@ -79,4 +79,16 @@ export const DISCORD_COMMAND_DEFS: RESTPostAPIChatInputApplicationCommandsJSONBo
       },
     ],
   },
+  {
+    name: "debate",
+    description: "議題でパーティ議論を開始 (司会+キーマン+意見、想定発話数で続行/停止を問う)",
+    options: [
+      {
+        name: "topic",
+        description: "議題 (例: ヴァンサバ風ゲームの面白さの核は?)",
+        type: ApplicationCommandOptionType.String,
+        required: true,
+      },
+    ],
+  },
 ];

@@ -27,6 +27,20 @@
     "model": "claude-haiku-4-5-20251001",
     "timeoutMs": 30000
   },
+  "discussion": {
+    "expectedUtterances": 20,
+    "keymanCount": 2,
+    "facilitatorModel": "claude-opus-4-8",
+    "keymanModel": "claude-opus-4-8",
+    "opinionModels": [
+      { "model": "claude-sonnet-4-6", "weight": 6 },
+      { "model": "claude-haiku-4-5-20251001", "weight": 4 }
+    ],
+    "minTotal": 4,
+    "turnDelayMs": 4000,
+    "continueTimeoutMs": 120000,
+    "maxRounds": 5
+  },
   "discord": {
     "botToken": "",
     "applicationId": "",

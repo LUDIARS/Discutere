@@ -102,6 +102,32 @@ export interface DiscutereConfig {
     timeoutMs: number;
   };
   /**
+   * 議論パーティ編成 (DiscussionDirector)。想定発話数から人数を算出し、
+   * 司会/キーマン(Opus 固定) + 意見(Sonnet:Haiku 重み抽選) を編成する。
+   * 賛否はターン時に決定。予算到達でユーザに続行/停止を問い、続行時は半数入替。
+   * spec/feature/discussion-party.md。
+   */
+  discussion: {
+    /** 想定発話数。人数算出 (max(minTotal, ceil(n/4)+1)) と続行ゲートの基準。 */
+    expectedUtterances: number;
+    /** キーマン人数 (Opus 固定、入替後もモデル維持)。 */
+    keymanCount: number;
+    /** 司会のモデル。 */
+    facilitatorModel: string;
+    /** キーマンのモデル。 */
+    keymanModel: string;
+    /** 意見メンバーのモデル重み抽選表 (既定 Sonnet:Haiku = 6:4)。 */
+    opinionModels: Array<{ model: string; weight: number }>;
+    /** 総人数の下限。 */
+    minTotal: number;
+    /** ターン間ディレイ ms (Discord 投稿ペース)。 */
+    turnDelayMs: number;
+    /** 続行/停止ボタンの応答待ち ms (無応答は停止)。 */
+    continueTimeoutMs: number;
+    /** ラウンド上限 (暴走ガード)。 */
+    maxRounds: number;
+  };
+  /**
    * 常駐ワーカープール (backend=worker-pool 時)。各ペルソナをサブスクの Lictor
    * セッションとして常駐させ、議論ターンを注入して発話を返させる。
    * spec/feature/persistent-worker-pool.md。
@@ -213,6 +239,7 @@ interface RawFileConfig {
   autoSeed?: Partial<DiscutereConfig["autoSeed"]>;
   llm?: Partial<DiscutereConfig["llm"]>;
   classifier?: Partial<DiscutereConfig["classifier"]>;
+  discussion?: Partial<DiscutereConfig["discussion"]>;
   workerPool?: Partial<Omit<DiscutereConfig["workerPool"], "workers">> & { workers?: WorkerPoolWorker[] };
   discord?: Partial<
     Omit<DiscutereConfig["discord"], "adminIds" | "discussionChannelIds" | "crawlChannelIds" | "guildIds" | "forum">
@@ -392,6 +419,31 @@ export function loadConfig(): DiscutereConfig {
         "claude-haiku-4-5-20251001"
       ),
       timeoutMs: pickNum(process.env.DISCUTERE_CLASSIFIER_TIMEOUT_MS, file.classifier?.timeoutMs, 30_000),
+    },
+    discussion: {
+      expectedUtterances: pickNum(process.env.DISCUTERE_DISCUSSION_EXPECTED, file.discussion?.expectedUtterances, 20),
+      keymanCount: pickNum(process.env.DISCUTERE_DISCUSSION_KEYMEN, file.discussion?.keymanCount, 2),
+      facilitatorModel: pick(
+        process.env.DISCUTERE_DISCUSSION_FACILITATOR_MODEL,
+        file.discussion?.facilitatorModel,
+        "claude-opus-4-8"
+      ),
+      keymanModel: pick(process.env.DISCUTERE_DISCUSSION_KEYMAN_MODEL, file.discussion?.keymanModel, "claude-opus-4-8"),
+      opinionModels:
+        Array.isArray(file.discussion?.opinionModels) && file.discussion!.opinionModels.length > 0
+          ? file.discussion!.opinionModels
+          : [
+              { model: "claude-sonnet-4-6", weight: 6 },
+              { model: "claude-haiku-4-5-20251001", weight: 4 },
+            ],
+      minTotal: pickNum(process.env.DISCUTERE_DISCUSSION_MIN_TOTAL, file.discussion?.minTotal, 4),
+      turnDelayMs: pickNum(process.env.DISCUTERE_DISCUSSION_TURN_DELAY_MS, file.discussion?.turnDelayMs, 4_000),
+      continueTimeoutMs: pickNum(
+        process.env.DISCUTERE_DISCUSSION_CONTINUE_TIMEOUT_MS,
+        file.discussion?.continueTimeoutMs,
+        120_000
+      ),
+      maxRounds: pickNum(process.env.DISCUTERE_DISCUSSION_MAX_ROUNDS, file.discussion?.maxRounds, 5),
     },
     workerPool: {
       enabled: pickBool(process.env.DISCUTERE_WORKER_POOL_ENABLED, file.workerPool?.enabled, false),
