@@ -202,6 +202,17 @@ export interface DiscutereConfig {
       improvementTagNames: string[];
       funTagNames: string[];
     };
+    /**
+     * ゲーム感想チャンネル。カテゴリ「ゲーム感想」配下のチャンネル (チャンネル名 =
+     * ゲームタイトル) に投稿された感想を、議論にせず意見データとして匿名収集する。
+     * カテゴリが無ければ起動時に作成する。spec/feature/game-feedback.md。
+     */
+    gameFeedback: {
+      /** 有効化 (既定 true)。 */
+      enabled: boolean;
+      /** 感想チャンネルの親カテゴリ名 (既定「ゲーム感想」)。 */
+      categoryName: string;
+    };
   };
   /**
    * 学習データ (Discatier KG + persona-engine.db + discutere.db) の S3 アーカイブ。
@@ -242,13 +253,17 @@ interface RawFileConfig {
   discussion?: Partial<DiscutereConfig["discussion"]>;
   workerPool?: Partial<Omit<DiscutereConfig["workerPool"], "workers">> & { workers?: WorkerPoolWorker[] };
   discord?: Partial<
-    Omit<DiscutereConfig["discord"], "adminIds" | "discussionChannelIds" | "crawlChannelIds" | "guildIds" | "forum">
+    Omit<
+      DiscutereConfig["discord"],
+      "adminIds" | "discussionChannelIds" | "crawlChannelIds" | "guildIds" | "forum" | "gameFeedback"
+    >
   > & {
     adminIds?: string[];
     discussionChannelIds?: string[];
     crawlChannelIds?: string[];
     guildIds?: string[];
     forum?: Partial<DiscutereConfig["discord"]["forum"]>;
+    gameFeedback?: Partial<DiscutereConfig["discord"]["gameFeedback"]>;
     /** 後方互換: 旧 単数 guildId (guildIds に統合される) */
     guildId?: string;
   };
@@ -519,6 +534,14 @@ export function loadConfig(): DiscutereConfig {
         ).length
           ? parseStringList(process.env.DISCUTERE_DISCORD_FORUM_FUN_TAGS, file.discord?.forum?.funTagNames)
           : ["面白さ", "面白い", "おもしろさ", "fun"],
+      },
+      gameFeedback: {
+        enabled: pickBool(process.env.DISCUTERE_DISCORD_GAME_FEEDBACK_ENABLED, file.discord?.gameFeedback?.enabled, true),
+        categoryName: pick(
+          process.env.DISCUTERE_DISCORD_GAME_FEEDBACK_CATEGORY,
+          file.discord?.gameFeedback?.categoryName,
+          "ゲーム感想"
+        ),
       },
     },
     backup: {

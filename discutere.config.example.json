@@ -55,6 +55,10 @@
       "managedCategoryName": "システム",
       "improvementTagNames": ["改善提案", "改善", "提案", "improvement"],
       "funTagNames": ["面白さ", "面白い", "おもしろさ", "fun"]
+    },
+    "gameFeedback": {
+      "enabled": true,
+      "categoryName": "ゲーム感想"
     }
   },
   "backup": {

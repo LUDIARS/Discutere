@@ -44,6 +44,7 @@ import {
 import { ensureManagedChannels } from "./managed-channels.js";
 import type { AnyThreadChannel } from "discord.js";
 import { createDebateRunner, type DebateRunner } from "../discussion/director-live.js";
+import { ensureGameFeedbackCategory, extractGameFeedback } from "./game-feedback-channel.js";
 
 export interface DiscordGatewayDeps extends CommandRouterDeps {
   /** Gateway 接続用 bot token */
@@ -81,6 +82,13 @@ export interface DiscordGatewayDeps extends CommandRouterDeps {
   debate?: import("../config.js").DiscutereConfig["discussion"];
   /** claude -p 用 git-bash パス (Windows)。 */
   gitBashPath?: string;
+  /** ゲーム感想チャンネル設定 (config.discord.gameFeedback)。 */
+  gameFeedback?: import("../config.js").DiscutereConfig["discord"]["gameFeedback"];
+  /**
+   * ゲーム感想の収集コールバック。感想カテゴリ配下のチャンネルに投稿された
+   * 本文を gameTitle (= チャンネル名) と共に渡す。投稿者は渡さない (匿名)。
+   */
+  onGameFeedback?: (input: { gameTitle: string; content: string; createdAt: number }) => void;
 }
 
 export interface DiscordGatewayHandle {
@@ -175,6 +183,13 @@ export async function startDiscordGateway(
         console.warn(`  discord-forum: managed channel 作成失敗: ${(err as Error).message}`);
       }
     }
+
+    // ゲーム感想カテゴリを ensure (無ければ作成)。配下チャンネルへの投稿を感想収集する。
+    if (deps.gameFeedback?.enabled && guildIds.length > 0) {
+      await ensureGameFeedbackCategory(client, guildIds, deps.gameFeedback.categoryName).catch((err) =>
+        console.warn(`  game-feedback: ensure 失敗: ${(err as Error).message}`)
+      );
+    }
   });
 
   // フォーラム新規ポスト (親=GuildForum) の最初の投稿で議論を起こす。
@@ -194,6 +209,20 @@ export async function startDiscordGateway(
 
   client.on(Events.MessageCreate, (msg: Message) => {
     if (msg.author?.bot) return;
+
+    // ゲーム感想チャンネル: カテゴリ「ゲーム感想」配下の投稿は議論にせず感想収集 (匿名)。
+    if (deps.gameFeedback?.enabled) {
+      const fb = extractGameFeedback(msg, deps.gameFeedback.categoryName);
+      if (fb) {
+        try {
+          deps.onGameFeedback?.(fb);
+          void msg.react("📝").catch(() => {});
+        } catch (err) {
+          console.warn(`  game-feedback: 収集失敗: ${(err as Error).message}`);
+        }
+        return; // 感想は議論ルーティングに回さない
+      }
+    }
 
     // フォーラムスレッド内の投稿: starter は ThreadCreate が処理済 → ここでは返信のみ取り込む。
     if (forumEnabled && isForumThreadChannel(msg.channel)) {

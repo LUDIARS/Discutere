@@ -37,6 +37,7 @@ import { createAutoSeedScheduler } from "./discussion-seed/scheduler.js";
 import { postDiscussionToDiscord } from "./discord-hook/discussion-bridge.js";
 import { createDiscordAutoDiscussionStarter } from "./discord-hook/auto-discussion.js";
 import { startDiscordGateway } from "./discord-hook/gateway.js";
+import { GameFeedbackStore } from "./feedback/store.js";
 import { ensureReactionTables, recordPostedMessage, applyReaction } from "./discord-hook/reactions.js";
 import { queueRoutes } from "./api/queue-routes.js";
 import { buildQueueSnapshot, formatQueueText } from "./queue/snapshot.js";
@@ -455,6 +456,9 @@ function buildQueueText(): string {
 
 // WS 再設訁E Discord Gateway 常時接綁E(公閁EURL + 署名検証エンド�Eイント不要E、E
 //   config.discord.botToken 未設定なめEskip 起動、E
+// ゲーム感想の匿名収集ストア (専用 sqlite)。
+const gameFeedbackStore = new GameFeedbackStore(new Database("./data/game-feedback.db"));
+
 const discordGatewayLifecycle = startDiscordGateway({
   botToken: config.discord.botToken ?? "",
   applicationId: config.discord.applicationId,
@@ -469,6 +473,12 @@ const discordGatewayLifecycle = startDiscordGateway({
   // /debate のパーティ議論 (司会+キーマン+意見、想定発話数で続行/停止)。
   debate: config.discussion,
   gitBashPath: config.workerPool.gitBashPath ?? config.llm.gitBashPath,
+  // ゲーム感想チャンネル: カテゴリ「ゲーム感想」配下の投稿を匿名で意見データ収集。
+  gameFeedback: config.discord.gameFeedback,
+  onGameFeedback: (fb) => {
+    const r = gameFeedbackStore.add(fb);
+    if (r) console.log(`  game-feedback: 収集 [${fb.gameTitle}] ${fb.content.replace(/\s+/g, " ").slice(0, 60)}`);
+  },
   crawlDeps: {
     createCore: () => createCore(),
     workspaceId: config.workspace,
