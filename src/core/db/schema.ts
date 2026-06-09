@@ -89,6 +89,22 @@ const MIGRATIONS = [
       )`,
       `CREATE INDEX IF NOT EXISTS idx_hv_session ON hypothesis_validations(workspace_id, session_id, created_at)`
     ]
+  },
+  {
+    // KG 共有同期 (spec/core/KG-SYNC.md): 学習知識テーブルに「共有フラグ」を付与。
+    // master が shared=1 を立てた行だけが follower への配布対象になる。
+    // 注意: CREATE INDEX は ALTER ADD COLUMN の後に置く (既存 DB で no such column 回避)。
+    id: "0006_kg_sharing",
+    sql: [
+      `ALTER TABLE games ADD COLUMN shared INTEGER NOT NULL DEFAULT 0`,
+      `ALTER TABLE mechanics ADD COLUMN shared INTEGER NOT NULL DEFAULT 0`,
+      `ALTER TABLE aesthetics ADD COLUMN shared INTEGER NOT NULL DEFAULT 0`,
+      `ALTER TABLE affects ADD COLUMN shared INTEGER NOT NULL DEFAULT 0`,
+      `CREATE INDEX IF NOT EXISTS idx_games_shared ON games(shared, updated_at)`,
+      `CREATE INDEX IF NOT EXISTS idx_mechanics_shared ON mechanics(shared, updated_at)`,
+      `CREATE INDEX IF NOT EXISTS idx_aesthetics_shared ON aesthetics(shared, updated_at)`,
+      `CREATE INDEX IF NOT EXISTS idx_affects_shared ON affects(shared, updated_at)`
+    ]
   }
 ];
 
