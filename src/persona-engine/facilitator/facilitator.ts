@@ -13,6 +13,11 @@
 import { randomUUID } from "node:crypto";
 
 import { ensureReactionTables, getOpinionScore } from "../../discord-hook/reactions.js";
+import {
+  ensureFacilitatorDirectiveTable,
+  formatDirectivesBlock,
+  listFacilitatorDirectives,
+} from "../../discord-hook/facilitator-directives.js";
 import { ensureExclusionTable } from "../../core/noise/exclusions.js";
 import type { createCore } from "../../core/index.js";
 import type { PersonasRepo } from "../db/personas-repo.js";
@@ -171,6 +176,8 @@ export function createFacilitator(deps: FacilitatorDeps): Facilitator {
   );
   // ノイズ除外サイドカー表を冪等確保 (まとめ生成時に除外発話を弾くため)。
   ensureExclusionTable(raw);
+  // 進行役への調整指示サイドカー表を冪等確保 (gapTopic で読み、 expand/converge に効かせる)。
+  ensureFacilitatorDirectiveTable(raw);
 
   // 進行役 persona を登録 (収束のまとめ発言者)
   deps.personas.insertOrIgnore({ ...FACILITATOR_PERSONA, traits: [...FACILITATOR_PERSONA.traits] });
@@ -253,7 +260,12 @@ export function createFacilitator(deps: FacilitatorDeps): Facilitator {
     const g = raw
       .prepare("SELECT title, description FROM design_gaps WHERE id = ?")
       .get(gapId) as { title: string; description: string | null } | undefined;
-    return g ? `${g.title}\n${g.description ?? ""}`.trim() : "(不明な議題)";
+    const base = g ? `${g.title}\n${g.description ?? ""}`.trim() : "(不明な議題)";
+    // 参加者からの進行調整指示があれば topic 末尾に注入し、 expand/converge/止揚判定の
+    // 全 prompt (gapTopic を読む) に効かせる。
+    const directives = listFacilitatorDirectives(raw, deps.workspaceId, gapId);
+    const block = formatDirectivesBlock(directives);
+    return block ? `${base}\n\n${block}` : base;
   }
 
   function existingPersonaNames(sessionId: string): string[] {

@@ -20,6 +20,7 @@ import type {
   ProposeHypothesisInput,
 } from "../persona-engine/context-provider.js";
 import { ensureReactionTables, getOpinionScore } from "../discord-hook/reactions.js";
+import { listFacilitatorDirectives } from "../discord-hook/facilitator-directives.js";
 import { listExcludedIds } from "../core/noise/exclusions.js";
 import { openAttributionStore } from "../crawler/sources/attribution-store.js";
 import { maskedPersonaLabel } from "../crawler/sources/persona.js";
@@ -213,6 +214,11 @@ export function createDiscatierContextProvider(
       } finally {
         attribution.close();
       }
+    },
+
+    listFacilitatorDirectives(workspaceId, gapId, limit): string[] {
+      // サイドカー表は listFacilitatorDirectives 内で冪等確保される (boot 前でも落ちない)。
+      return listFacilitatorDirectives(core.client.raw, workspaceId, gapId, limit);
     },
 
     proposeHypothesis(input: ProposeHypothesisInput): { id: string } {

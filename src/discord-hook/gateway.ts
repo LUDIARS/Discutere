@@ -42,6 +42,8 @@ import {
   isForumThreadChannel,
 } from "./forum-monitor.js";
 import { ensureManagedChannels } from "./managed-channels.js";
+import { handleDirectiveMessage } from "./directive-handler.js";
+import { stripBotMention } from "./facilitator-directives.js";
 import type { AnyThreadChannel } from "discord.js";
 import { createDebateRunner, type DebateRunner } from "../discussion/director-live.js";
 import { ensureGameFeedbackCategory, extractGameFeedback } from "./game-feedback-channel.js";
@@ -235,6 +237,65 @@ export async function startDiscordGateway(
       }
     }
 
+    // 進行役への調整指示: bot メンション or bot/persona 発言へのリプライを「調整指示」として
+    // 取り込み、 通常の utterance ルーティングには回さない (非同期: リプライ元の fetch を伴う)。
+    void maybeHandleDirective(msg).then((handled) => {
+      if (!handled) routeDiscussionMessage(msg);
+    });
+  });
+
+  /**
+   * bot メンション / bot・persona へのリプライを「進行役への調整指示」として取り込む。
+   * 監視対象 (フォーラムスレッド or 議論チャンネル / その子スレッド) でのみ受ける。
+   * @returns true なら調整指示として処理済 (通常ルーティングを行わない)。
+   */
+  async function maybeHandleDirective(msg: Message): Promise<boolean> {
+    const botId = client.user?.id;
+    // 監視対象でなければ調整指示の文脈ではない (無関係チャンネルのメンションは無視)。
+    if (!isMonitoredDiscussionLocation(msg)) return false;
+
+    const mentioned = !!botId && msg.mentions.users.has(botId);
+    const repliedToOurs = await isReplyToOwnMessage(msg);
+    if (!mentioned && !repliedToOurs) return false;
+
+    const text = stripBotMention(msg.content, botId);
+    try {
+      const result = handleDirectiveMessage({
+        workspaceId: deps.workspaceId,
+        guildId: msg.guildId ?? "dm",
+        channelId: msg.channelId,
+        text,
+        authorId: msg.author?.id ?? null,
+      });
+      await msg.reply(result.reply).catch(() => {});
+    } catch (err) {
+      console.warn(`  discord-directive: failed: ${(err as Error).message}`);
+    }
+    return true;
+  }
+
+  /** メッセージが議論監視対象 (フォーラムスレッド / 議論チャンネル / その子スレッド) か。 */
+  function isMonitoredDiscussionLocation(msg: Message): boolean {
+    if (forumEnabled && isForumThreadChannel(msg.channel)) return true;
+    if (deps.discussionChannelIds.includes(msg.channelId)) return true;
+    const parentId = msg.channel?.isThread?.() ? msg.channel.parentId ?? undefined : undefined;
+    return !!parentId && deps.discussionChannelIds.includes(parentId);
+  }
+
+  /** リプライ先が bot / persona webhook の発言か (= 議論への調整意図とみなす)。 */
+  async function isReplyToOwnMessage(msg: Message): Promise<boolean> {
+    if (!msg.reference?.messageId) return false;
+    try {
+      const ref = await msg.fetchReference();
+      // persona は webhook (author.bot=true) 投稿、 bot 直返信も author.bot=true。
+      return ref.author?.bot === true;
+    } catch {
+      return false; // 取得不可 (削除済等) は調整指示扱いしない
+    }
+  }
+
+  /** 通常の議論ルーティング (フォーラム / クロール / 平文取り込み)。 */
+  function routeDiscussionMessage(msg: Message): void {
     // フォーラムスレッド内の投稿: starter は ThreadCreate が処理済 → ここでは返信のみ取り込む。
     if (forumEnabled && isForumThreadChannel(msg.channel)) {
       if (!isForumStarterMessage(msg)) handleForumReply(msg, { router: deps });
@@ -287,7 +348,7 @@ export async function startDiscordGateway(
     } catch (err) {
       console.warn(`  discord-gateway: message route failed: ${(err as Error).message}`);
     }
-  });
+  }
 
   // 議論意見へのリアクション → スコアリング (deps.onReaction が処理)。
   client.on(Events.MessageReactionAdd, (reaction, user) => {

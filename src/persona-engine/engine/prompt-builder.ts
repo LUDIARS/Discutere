@@ -20,6 +20,9 @@ import type {
 /** prompt に載せる外部の声の最大件数 (RAG / §14)。 粗く動かす段階の既定。 */
 const EXTERNAL_VOICE_TOP_K = 6;
 
+/** prompt に載せる進行役への調整指示の最大件数 (直近の意図を優先)。 */
+const DIRECTIVE_TOP_K = 5;
+
 export interface BuildPromptArgs {
   rule: RuleRow;
   persona: PersonaRow;
@@ -132,6 +135,22 @@ export function buildPrompt(args: BuildPromptArgs): BuiltPrompt {
       ]
     : [];
 
+  // 進行役への調整指示 (参加者が Discord で出したトーン/語り口の指示)。 議題は変えず、
+  // 発話の仕方 (簡単な言葉で / もっと否定的に 等) を steer する。 直近の指示を優先。
+  const directives =
+    primaryGap && args.contextProvider.listFacilitatorDirectives
+      ? args.contextProvider.listFacilitatorDirectives(args.workspaceId, primaryGap.id, DIRECTIVE_TOP_K)
+      : [];
+  const directiveBlock =
+    directives.length > 0
+      ? [
+          "## 進行役への調整指示 (参加者からのリクエスト — 発言で必ず反映する)",
+          ...directives.map((d) => `- ${d}`),
+          "※ 議題そのものは変えない。 議論の進め方・トーン・語り口の調整として従う。",
+          "",
+        ]
+      : [];
+
   const voiceBlock =
     externalVoices.length > 0
       ? [
@@ -149,6 +168,7 @@ export function buildPrompt(args: BuildPromptArgs): BuiltPrompt {
     args.rule.description ? `description: ${args.rule.description}` : "",
     "",
     ...topicBlock,
+    ...directiveBlock,
     ...voiceBlock,
     "## 指示",
     args.rule.instructions,
