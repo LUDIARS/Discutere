@@ -88,6 +88,13 @@ export interface DiscussionContextProvider {
     limit: number
   ): ContextExternalVoice[];
 
+  /**
+   * 指定 gap への「進行役への調整指示」 (参加者が Discord で出したトーン/語り口の指示) を
+   * 新しい順 limit 件、 時系列 (古い→新しい) の本文配列で返す。 prompt の議題ブロックに
+   * 注入し、 発話が指示に沿うようにする。 実装は任意 (未実装なら従来挙動)。
+   */
+  listFacilitatorDirectives?(workspaceId: string, gapId: string, limit: number): string[];
+
   proposeHypothesis(input: ProposeHypothesisInput): { id: string };
   postUtterance(input: PostUtteranceInput): { id: string };
 

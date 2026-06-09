@@ -5,4 +5,5 @@ import "./humanize.test.js";
 import "./reactions.test.js";
 import "./crawl-channel.test.js";
 import "./forum-monitor.test.js";
+import "./facilitator-directives.test.js";
 console.log("discord-hook tests: all passed");
