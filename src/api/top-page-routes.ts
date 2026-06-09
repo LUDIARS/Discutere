@@ -37,6 +37,7 @@ const TOP_HTML = `<!doctype html>
  <h1>Discutere</h1>
  <p class="sub">遊びの議論プラットフォーム — 各 UI の入口</p>
  <div class="grid">
+   <a class="card" href="/chat"><div class="t">チャット議論</div><div class="d">Discord 非依存の軽量チャットで AI 論者と議論する</div></a>
    <a class="card" href="/guide"><div class="t">使い方ガイド</div><div class="d">Discord フォーラム / チャンネルの使い方とルール</div></a>
    <a class="card" href="/learning"><div class="t">学習ビュー</div><div class="d">基礎知識 / ゲーム学習 / 話題と意見の蓄積を閲覧</div></a>
    <a class="card" href="/api/admin/dashboard"><div class="t">管制ダッシュボード</div><div class="d">persona-engine 状態・kill switch・rule log</div></a>
