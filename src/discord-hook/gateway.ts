@@ -237,26 +237,22 @@ export async function startDiscordGateway(
       }
     }
 
-    // 進行役への調整指示: bot メンション or bot/persona 発言へのリプライを「調整指示」として
-    // 取り込み、 通常の utterance ルーティングには回さない (非同期: リプライ元の fetch を伴う)。
-    void maybeHandleDirective(msg).then((handled) => {
-      if (!handled) routeDiscussionMessage(msg);
-    });
+    // 進行役への調整指示: bot (@Discutere) へのメンションを「調整指示」として取り込み、
+    // 通常の utterance ルーティングには回さない。 persona へのリプライは通常の参加発言として
+    // 扱う (= ここでは横取りしない)。
+    if (!maybeHandleDirective(msg)) routeDiscussionMessage(msg);
   });
 
   /**
-   * bot メンション / bot・persona へのリプライを「進行役への調整指示」として取り込む。
+   * bot (@Discutere) へのメンションを「進行役への調整指示」として取り込む。
    * 監視対象 (フォーラムスレッド or 議論チャンネル / その子スレッド) でのみ受ける。
    * @returns true なら調整指示として処理済 (通常ルーティングを行わない)。
    */
-  async function maybeHandleDirective(msg: Message): Promise<boolean> {
+  function maybeHandleDirective(msg: Message): boolean {
     const botId = client.user?.id;
-    // 監視対象でなければ調整指示の文脈ではない (無関係チャンネルのメンションは無視)。
+    // 監視対象 + bot へのメンションがある時だけ調整指示とみなす。
+    if (!botId || !msg.mentions.users.has(botId)) return false;
     if (!isMonitoredDiscussionLocation(msg)) return false;
-
-    const mentioned = !!botId && msg.mentions.users.has(botId);
-    const repliedToOurs = await isReplyToOwnMessage(msg);
-    if (!mentioned && !repliedToOurs) return false;
 
     const text = stripBotMention(msg.content, botId);
     try {
@@ -267,7 +263,7 @@ export async function startDiscordGateway(
         text,
         authorId: msg.author?.id ?? null,
       });
-      await msg.reply(result.reply).catch(() => {});
+      void msg.reply(result.reply).catch(() => {});
     } catch (err) {
       console.warn(`  discord-directive: failed: ${(err as Error).message}`);
     }
@@ -280,18 +276,6 @@ export async function startDiscordGateway(
     if (deps.discussionChannelIds.includes(msg.channelId)) return true;
     const parentId = msg.channel?.isThread?.() ? msg.channel.parentId ?? undefined : undefined;
     return !!parentId && deps.discussionChannelIds.includes(parentId);
-  }
-
-  /** リプライ先が bot / persona webhook の発言か (= 議論への調整意図とみなす)。 */
-  async function isReplyToOwnMessage(msg: Message): Promise<boolean> {
-    if (!msg.reference?.messageId) return false;
-    try {
-      const ref = await msg.fetchReference();
-      // persona は webhook (author.bot=true) 投稿、 bot 直返信も author.bot=true。
-      return ref.author?.bot === true;
-    } catch {
-      return false; // 取得不可 (削除済等) は調整指示扱いしない
-    }
   }
 
   /** 通常の議論ルーティング (フォーラム / クロール / 平文取り込み)。 */
