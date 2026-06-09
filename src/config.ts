@@ -267,6 +267,21 @@ export interface DiscutereConfig {
     /** 最終実行時刻を記録する state ファイル */
     stateFile: string;
   };
+  /** KG 共有同期 (spec/core/KG-SYNC.md)。follower が master の共有知識を pull する。 */
+  kgSync: {
+    /** follower が差分を取得する URL (master endpoint or 静的 publish)。未設定なら pull 無効。 */
+    sourceUrl?: string;
+    /** 配信元が要求する共有シークレット (master の serveToken と一致させる。任意)。 */
+    token?: string;
+    /** 起動時 + 定期 pull を有効化するか (sourceUrl も必要)。 */
+    auto: boolean;
+    /** 定期 pull の周期 (時間)。既定 6。 */
+    intervalHours: number;
+    /** follower の同期状態 (透かし) ファイル。 */
+    stateFile: string;
+    /** master の /api/kg/migrations が要求する共有シークレット (未設定なら誰でも取得可)。 */
+    serveToken?: string;
+  };
 }
 
 interface RawFileConfig {
@@ -296,6 +311,7 @@ interface RawFileConfig {
     guildId?: string;
   };
   backup?: Partial<DiscutereConfig["backup"]>;
+  kgSync?: Partial<DiscutereConfig["kgSync"]>;
 }
 
 function readFileConfig(): RawFileConfig {
@@ -607,6 +623,18 @@ export function loadConfig(): DiscutereConfig {
         file.backup?.stateFile,
         path.resolve("./data/backup-state.json")
       ),
+    },
+    kgSync: {
+      sourceUrl: pickOpt(process.env.DISCUTERE_KG_SYNC_URL, file.kgSync?.sourceUrl),
+      token: pickOpt(process.env.DISCUTERE_KG_SYNC_TOKEN, file.kgSync?.token),
+      auto: pickBool(process.env.DISCUTERE_KG_SYNC_AUTO, file.kgSync?.auto, false),
+      intervalHours: pickNum(process.env.DISCUTERE_KG_SYNC_INTERVAL_HOURS, file.kgSync?.intervalHours, 6),
+      stateFile: pick(
+        process.env.DISCUTERE_KG_SYNC_STATE_FILE,
+        file.kgSync?.stateFile,
+        path.resolve("./data/kg-sync-state.json")
+      ),
+      serveToken: pickOpt(process.env.DISCUTERE_KG_SYNC_SERVE_TOKEN, file.kgSync?.serveToken),
     },
   });
 }

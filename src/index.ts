@@ -48,6 +48,8 @@ import { startDiscordGateway } from "./discord-hook/gateway.js";
 import { GameFeedbackStore } from "./feedback/store.js";
 import { ensureReactionTables, recordPostedMessage, applyReaction } from "./discord-hook/reactions.js";
 import { queueRoutes } from "./api/queue-routes.js";
+import { kgMigrationRoutes } from "./api/kg-migration-routes.js";
+import { startKgSyncScheduler } from "./kg-sync/scheduler.js";
 import { createNoiseRoutes } from "./api/noise-routes.js";
 import { datasourceRoutes } from "./api/datasource-routes.js";
 import { buildQueueSnapshot, formatQueueText } from "./queue/snapshot.js";
@@ -122,6 +124,11 @@ app.route("/api", workerPoolControlRoutes);
 
 // ─── 議論チューニング UI/API (/api/admin/tuning) ───────────────
 app.route("/api", tuningRoutes);
+
+// ─── KG 共有同期: 配信エンドポイント (master) /api/kg/migrations ──────
+app.route("/api", kgMigrationRoutes);
+// follower 側の自動 pull (config.kgSync.auto + sourceUrl のときのみ)。
+const stopKgSync = startKgSyncScheduler(config);
 
 // PR-C: mode-state TTL cleanup めE15 min interval で起勁E(24h 経過 session を回叁E
 const stopSessionCleanup = startSessionCleanup();
@@ -680,6 +687,11 @@ const gracefulShutdown = (sig: string) => {
   }
   try {
     stopSessionCleanup();
+  } catch {
+    /* best-effort */
+  }
+  try {
+    stopKgSync();
   } catch {
     /* best-effort */
   }
