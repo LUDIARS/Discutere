@@ -145,10 +145,9 @@ export async function handleForumThreadCreate(
   if (!guildId) return;
 
   // 適用タグから議論の方向性を決める (タグ無し → 既定 = 面白さ)。
-  const direction = pickForumDirection(
-    threadAppliedTagNames(thread, parentForum),
-    deps.directionConfig
-  );
+  // タグ名自体は結論まとめの絞り込み用に evidence へも持ち回す。
+  const appliedTagNames = threadAppliedTagNames(thread, parentForum);
+  const direction = pickForumDirection(appliedTagNames, deps.directionConfig);
 
   const starter = await fetchStarterWithRetry(thread);
   if (!starter) {
@@ -177,6 +176,8 @@ export async function handleForumThreadCreate(
       direction,
       // スレッド名 = 議論の主題。本文にゲーム名が無くても議題を固定する。
       forumTitle: typeof thread.name === "string" ? thread.name : undefined,
+      // 適用タグ名 → evidence.tags (結論まとめの絞り込み用)。
+      forumTags: appliedTagNames,
     });
     if (ingested && seed) {
       const started = await seed;
