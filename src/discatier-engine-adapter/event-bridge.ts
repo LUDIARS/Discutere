@@ -196,11 +196,12 @@ export function createEventBridge(
   }
 
   /**
-   * 人間の発言を、 同チャンネルで進行中の議論 session にミラーして
+   * 人間の発言を、 同チャンネル (scene) で進行中の議論 session にミラーして
    * HumanUtterance イベントを発火する (人間優先・即応のトリガ)。
    * - ミラーで人間が議論の一次参加者になる (収束まとめ / persona の文脈に乗る)。
    * - source が既に discussion-of-gap session の場合は no-op (ミラーの再帰防止)。
    * - 同チャンネルに open な議論が無ければ何もしない (議論の起動は auto-classifier 側)。
+   * - トランスポートは Discord (`discord:`) と Web チャット (`web:`) を等価に扱う。
    */
   async function handleHumanUtterance(payload: Record<string, unknown> | null): Promise<void> {
     if (!payload) return;
@@ -217,9 +218,10 @@ export function createEventBridge(
     if (!src) return;
     // 既に議論 session 内の発言 (= ミラー済 or persona 議論場) は再処理しない。
     if (src.title.startsWith("discussion-of-gap:")) return;
-    if (!src.scene?.startsWith("discord:")) return;
+    // トランスポート bound な scene (Discord / Web) の入口発話だけミラーする。
+    if (!isBoundScene(src.scene)) return;
 
-    // 同じ Discord チャンネル (scene) の open な議論 session を引く。
+    // 同じチャンネル (scene) の open な議論 session を引く。
     const discussion = core.client.raw
       .prepare(
         `SELECT s.id AS id, s.title AS title
@@ -268,7 +270,7 @@ export function createEventBridge(
       )
       .get(options.workspaceId, title) as { id: string; scene: string | null } | undefined;
     if (existing) {
-      if (scene.startsWith("discord:") && existing.scene !== scene) {
+      if (isBoundScene(scene) && existing.scene !== scene) {
         core.client.raw
           .prepare("UPDATE sessions SET scene = ?, updated_at = ? WHERE id = ?")
           .run(scene, Date.now(), existing.id);
@@ -296,7 +298,8 @@ export function createEventBridge(
       const sourceSession = core.client.raw
         .prepare("SELECT scene FROM sessions WHERE id = ?")
         .get(evidenceSessionId) as { scene: string | null } | undefined;
-      if (sourceSession?.scene?.startsWith("discord:")) return sourceSession.scene;
+      // 入口発話の session が transport bound (Discord / Web) ならその scene を継承する。
+      if (isBoundScene(sourceSession?.scene)) return sourceSession.scene;
     }
     const guildId =
       typeof evidence?.guildId === "string" && evidence.guildId.length > 0
@@ -306,6 +309,8 @@ export function createEventBridge(
       typeof evidence?.channelId === "string" && evidence.channelId.length > 0
         ? evidence.channelId
         : null;
+    // Web チャット由来 (guildId="web") は web:<room> に、 それ以外は discord:<guild>/<channel>。
+    if (guildId === "web" && channelId) return `web:${channelId}`;
     if (guildId && channelId) return `discord:${guildId}/${channelId}`;
     return `gap:${gapId}`;
   }
@@ -331,6 +336,15 @@ export function createEventBridge(
     },
     pollOnce,
   };
+}
+
+/**
+ * transport bound な scene か (Discord = `discord:` / Web チャット = `web:`)。
+ * これらの scene は「進行中議論 session へ scene を継承」「入口の人間発話を議論にミラー」
+ * の対象になる。 headless (`gap:<id>` 等) は対象外。
+ */
+function isBoundScene(scene: string | null | undefined): scene is string {
+  return typeof scene === "string" && (scene.startsWith("discord:") || scene.startsWith("web:"));
 }
 
 function parsePayload(raw: string): Record<string, unknown> | null {

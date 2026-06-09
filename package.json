@@ -28,6 +28,7 @@
     "test:runtime-settings": "tsx tests/runtime-settings/run.ts",
     "test:queue": "tsx tests/queue/run.ts",
     "test:backup": "tsx tests/backup/run.ts",
+    "test:web-chat": "tsx tests/web-chat/run.ts",
     "crawl": "tsx scripts/crawl.ts",
     "visualize": "tsx scripts/visualize.ts",
     "persona-demo": "tsx scripts/persona-engine-demo.ts",

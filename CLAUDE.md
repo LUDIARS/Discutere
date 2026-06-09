@@ -68,6 +68,15 @@ env)。`discutere.config.example.json` 参照。詳細は `docs/ws-gateway-confi
   `backend=local`(classifier は `classifier.backend=local`)で切替可能。FT は Claude API/CLI に
   無いのでローカル運用はこの backend 経由。疎通確認は `npm run llm:smoke`。既存 Claude 経路は無改変。
 
+- **軽量 Web チャット議論 (2026-06-09, `spec/feature/web-chat.md`)**: Discord 非依存で
+  ブラウザの 1 ページチャット (`GET /chat`, loopback) から議論に参加できる。 `scene=web:<room>`
+  という Discord と並ぶトランスポートを導入し、 既存の議論エンジン (分類器 → designGap →
+  persona-engine → facilitator) をそのまま再利用する。 `event-bridge` の scene 判定を
+  `isBoundScene()` (= `discord:` または `web:`) に一般化し、 web room でも「人間優先即応」
+  「収束まとめ」まで回る。 出力は Discord に投稿せず core に永続し、 ブラウザが
+  `GET /api/chat/:room/messages?since=` でポーリング取得する。 個人データは保存しない
+  (author は表示名のみ)。 実装は `src/web-chat/` + `src/api/web-chat-routes.ts`。
+
 ## フォーラム集約 (2026-06-06, `discord.forum`)
 
 議論を Discord **フォーラムチャンネル** に集約する (`docs/forum-aggregation.md`)。フォーラムを

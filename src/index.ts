@@ -34,6 +34,7 @@ import { workerRoutes, setWorkerPool } from "./api/worker.js";
 import { workerPoolControlRoutes, setWorkerPoolControl } from "./api/worker-pool-control.js";
 import { tuningRoutes, setRuntimeSettings } from "./api/tuning-routes.js";
 import { topPageRoutes } from "./api/top-page-routes.js";
+import { webChatRoutes, setWebChatDeps } from "./api/web-chat-routes.js";
 import { createGuideRoutes } from "./api/guide-routes.js";
 import { createRuntimeSettingsStore } from "./runtime-settings/store.js";
 import { setRolePromptResolver, ROLE_GUIDANCE_DEFAULTS } from "./persona-engine/worker-pool/persona-prompts.js";
@@ -529,6 +530,20 @@ const personaEngineLifecycle = (() => {
     return null;
   }
 })();
+
+// ─── 軽量 Web チャット UI (/chat) — Discord 非依存の議論経路 ───
+// scene=web:<room> で同じ議論エンジン (分類器 → designGap → persona/facilitator) を再利用する。
+// 分類器は gateway と同じ starter を共有し、 persona 表示名は peDb から解決する。
+{
+  const webPersonas = personaEngineLifecycle ? new PersonasRepo(personaEngineLifecycle.peDb) : null;
+  setWebChatDeps({
+    workspaceId: config.workspace,
+    classifyInboundMessage: createDiscordAutoDiscussionStarter({ getLlm: () => classifierLlm }),
+    resolveSpeakerName: (personaId) => webPersonas?.get(personaId)?.display_name ?? personaId,
+  });
+  app.route("/", webChatRoutes);
+  console.log("  web-chat: /chat (loopback) — scene=web:<room> で議論可能");
+}
 
 const port = config.server.port;
 
