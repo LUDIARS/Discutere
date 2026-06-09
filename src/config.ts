@@ -103,7 +103,7 @@ export interface DiscutereConfig {
     local: {
       /** OpenAI 互換ベース URL (末尾 `/v1`)。 既定 Ollama `http://localhost:11434/v1`。 */
       baseUrl: string;
-      /** モデル名 (例 `gemma3:12b`)。 */
+      /** モデル名 (例 `gemma4:12b`)。 */
       model: string;
       /** 任意。 設定時のみ Bearer 認証 (vLLM 等)。 Ollama は不要。 */
       apiKey?: string;
@@ -469,7 +469,7 @@ export function loadConfig(): DiscutereConfig {
       local: {
         // 既定は Ollama の OpenAI 互換エンドポイント。vLLM/LM Studio は baseUrl を差し替え。
         baseUrl: pick(process.env.LLM_LOCAL_BASE_URL, file.llm?.local?.baseUrl, "http://localhost:11434/v1"),
-        model: pick(process.env.LLM_LOCAL_MODEL, file.llm?.local?.model, "gemma3:12b"),
+        model: pick(process.env.LLM_LOCAL_MODEL, file.llm?.local?.model, "gemma4:12b"),
         apiKey: pickOpt(process.env.LLM_LOCAL_API_KEY, file.llm?.local?.apiKey),
         timeoutMs: pickNum(process.env.LLM_LOCAL_TIMEOUT_MS, file.llm?.local?.timeoutMs, 120_000),
       },

@@ -28,7 +28,7 @@ interface OpenAiChatResponse {
 export interface LocalOpenAiClientOptions {
   /** OpenAI 互換エンドポイントのベース URL (末尾 `/v1` まで、 例 `http://localhost:11434/v1`)。 */
   baseUrl: string;
-  /** 既定モデル (例 `gemma3:12b`)。 invoke args.model が優先。 */
+  /** 既定モデル (例 `gemma4:12b`)。 invoke args.model が優先。 */
   defaultModel?: string;
   /** 任意。 設定時のみ Authorization: Bearer を送る。 */
   apiKey?: string;
