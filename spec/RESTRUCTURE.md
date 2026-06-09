@@ -77,27 +77,31 @@ gap→hypothesis ライフサイクルを「メカニクス再設計」目的で
 
 ## 2. ステップ詳細
 
-### ① ユーザ嗜好データの蓄積
+### ① ユーザ嗜好データの蓄積 (擬似集団)
 
-**目的**: 「このユーザ (または対象集団) は どのジャンル / どのメカニクスに対して
-どういう感情を持つか」 の事前分布を、継続的に貯める。
+**目的**: 「どのジャンル / どのメカニクスに対して どういう感情が持たれているか」 の
+事前分布を、**擬似集団** (pseudo-collective) として継続的に貯める。
 
+> **決定 (§4-A)**: 嗜好の主体は *個人ではなく擬似集団*。**YouTube コメント / Steam
+> レビュー等の外部の声** (crawler/EXTERNAL-SOURCES + SENTIMENT) を母集団として集約した
+> 「世間の感情分布」 を嗜好プロファイルとする。個人プロファイルは非ゴール (§5)。
+
+- **母集団 (擬似集団の構成)**: 外部レビュー/コメントの集合。
+  - steam (`appreviews`) / youtube (コメント) / reddit / website の外部発話
+    (`crawl-channel` + `crawler/EXTERNAL-SOURCES`、SENTIMENT で 20 次元化済)。
+  - `GameFeedbackStore` (Discord 匿名感想) も同列に混ぜる。
+  - 個人を母集団の 1 サンプルとして数えるだけで、個人軸の保持はしない。
 - **粒度**: 既存 SENTIMENT は *ゲーム単位* の 20 次元ベクトル。本ステップは
   **genre 単位 / mechanic 単位** に集約し直す (別軸)。
-  - `pref(genre)` = そのジャンルのゲーム群の SENTIMENT を加重平均。
+  - `pref(genre)` = そのジャンルのゲーム群の SENTIMENT を `volume_log` 加重平均。
   - `pref(mechanic)` = その mechanic を持つゲーム群の SENTIMENT を、mechanic が
     dominant aspect のクラスタに寄せて集約。
-- **出所** (透明にする / 個人はマスク — `feedback_data_accuracy_over_privacy` 準拠):
-  - `GameFeedbackStore` (Discord 匿名感想)
-  - 外部クロール由来 SENTIMENT (`data/games/<slug>.sentiment.json`)
-  - (任意) 明示的なユーザ評価入力
-- **保存先**: `data/preferences/<scope>.json` (scope = `global` / genre / 個人匿名 ID)。
-  20 次元ベクトル + サンプル数 (`meta.volume_log`) を持つ。
-- **個人データ**: アカウント名は持たない。嗜好は匿名スコープに閉じる
-  (`DISCATIER_WORKSPACE=knowledge`)。
-
-> ⚠ レビュー論点 (§4-A): 「ユーザの感情」 が *個人* か *集団* かで設計が割れる。
-> Di の既存基盤は匿名集合前提。個人プロファイルが要るなら新ストア + 同意境界が要る。
+- **保存先**: `data/preferences/<scope>.json` (scope = `global` / `genre:<name>` /
+  `mechanic:<name>`)。20 次元ベクトル + サンプル数 (`meta.volume_log`) + 出所内訳。
+  active KG (`resolveActiveKgPath`) のタスク別 KG 単位で別々に貯められる。
+- **個人データ**: 「出所は透明 / 個人は仮名」 (`feedback_data_accuracy_over_privacy` /
+  EXTERNAL-SOURCES §6)。出所 (source + URL) は保持・開示するが、`authorId` /
+  `authorName` は露出面でマスク。嗜好は匿名スコープ (`DISCATIER_WORKSPACE=knowledge`)。
 
 ### ② 分析対象の取り込み
 
@@ -120,9 +124,16 @@ gap→hypothesis ライフサイクルを「メカニクス再設計」目的で
 - KG の `(Game)-[HAS_MECHANIC]->(Mechanic)` を全列挙。
 - 各 Mechanic に `playContext` (戦闘 / 探索 / 育成 …) と `intends` (Aesthetic/affect)
   を紐付け。
-- **内部経済の素**: Mechanic 間の資源の授受を `(Mechanic)-[PRODUCES|CONSUMES]->(Resource)`
-  の edge として抽出 (新規)。例: 「敵撃破 → 経験値 (produce)」「レベルアップ →
-  経験値 (consume)」。これが ④ マクロ評価の「内部経済」入力になる。
+- **内部経済はメカニクスから学習生成する** (決定 C): 内部経済は明示入力ではなく、
+  **各 Mechanic の `description` / `intends` / `playContext` から LLM が資源の授受を
+  推論して生成する**。
+  - 生成物: `(Mechanic)-[PRODUCES|CONSUMES]->(Resource)` edge (新規)。例: 「敵撃破 →
+    経験値 (produce)」「レベルアップ → 経験値 (consume)」「ショップ → 通貨 (consume)」。
+  - `Resource` ノードは生成時に立ち上げ (時間 / 通貨 / 経験値 / 体力 / 素材 …)。
+  - 生成は **決定論ではない** ので、Phase 0 はモック差し替え可能にし、生成済み
+    economy グラフを `data/restructure/<slug>/economy.json` にキャッシュして再利用する。
+  - これが ④ マクロ評価の「内部経済」入力になる。生成の不確実性は ④ の評価で
+    収支不整合として顕在化するため、誤生成は下流で検出できる。
 
 ### ④ マクロ / ミクロ評価
 
@@ -140,10 +151,11 @@ gap→hypothesis ライフサイクルを「メカニクス再設計」目的で
 - **出力**: 各評価を `score (0..1)` + `rationale` + 紐づく `affect` ベクトルで出し、
   ネガティブ評価は `bridge/gap/affect-negatives` 経由で `designGap` 化する。
 
-> ⚠ レビュー論点 (§4-B): ここでの「感情曲線」 は *ゲーム進行軸* の曲線で、SENTIMENT の
+> **決定 (§4-B)**: ここでの「感情曲線」 は *ゲーム進行軸* の曲線で、SENTIMENT の
 > `sentiment_curve[]` (*外部レビューの時系列* = カレンダー軸) とは別物。混同しないよう
-> `progression_curve` として区別する。進行軸の曲線は実プレイデータが無いと埋まらないため、
-> Phase 0 では仕様/メカニクス構造からの *推定* に留める。
+> `progression_curve` として区別する。実プレイデータは使わず、**仕様/メカニクス構造 +
+> economy グラフからの推定でよい** (LLM が進行段階ごとに affect を起こす)。推定値である
+> ことを `progression_curve.estimated=true` で明示する。
 
 ### ⑤ コア / オプション分解
 
@@ -218,45 +230,48 @@ ground truth 代わりの期待値を置く。
 
 ---
 
-## 4. フローのレビュー (設計上の論点)
+## 4. フローのレビュー (論点と決定)
 
-依頼の「以上の流れをレビューする」 への回答。実装前に潰すべき曖昧点とリスク。
+依頼の「以上の流れをレビューする」 への回答。論点 A-G を洗い出し、A-F は方針決定済
+(2026-06-09)。各論点に **[決定]** を併記する。
 
-### A. ① の「ユーザの感情」 の主体が未定義 (最重要)
+### A. ① の「ユーザの感情」 の主体 — **[決定] 擬似集団**
 
-Di の既存基盤 (`GameFeedbackStore` / SENTIMENT) は **匿名・集団** の感情である。
-一方フローの「ユーザが分析したい」「ユーザの感情」 は *個人* を示唆する。
+> Di の既存基盤 (`GameFeedbackStore` / SENTIMENT) は匿名・集団。フローの「ユーザの感情」
+> も *個人ではなく擬似集団* と確定。
 
-- 個人プロファイルにするなら **新ストア + 同意/匿名境界** が要り、個人データ規約
-  (`project_personal_data_rule`) と衝突しないか確認が要る。
-- 推奨: Phase 0 は **集団 (匿名集合) プロファイル** で実装し、個人軸は後段の opt-in。
+- **YouTube コメント / Steam レビュー等の外部の声** (crawler/EXTERNAL-SOURCES) を母集団
+  として集約した「世間の感情分布」 を嗜好プロファイルとする (§2-①)。
+- 個人プロファイル・同意境界は **非ゴール** (§5)。個人データ規約
+  (`project_personal_data_rule`) との衝突を回避でき、既存 SENTIMENT 経路にそのまま乗る。
 
-### B. 「感情曲線」 が 2 種類混在
+### B. 「感情曲線」 が 2 種類混在 — **[決定] 推定でよい**
 
-- SENTIMENT の `sentiment_curve[]` = **外部レビューのカレンダー時系列**。
-- ④ マクロの感情曲線 = **ゲーム進行軸の affect 起伏**。
-- これらは別物。後者は実プレイのテレメトリが無いと埋まらず、Phase 0 では
-  メカニクス構造からの **推定** に留まる (精度に注意、`progression_curve` と明示分離)。
+- SENTIMENT の `sentiment_curve[]` (外部レビューのカレンダー時系列) と ④ マクロの
+  **ゲーム進行軸の affect 起伏** (`progression_curve`) は別物。名前で明示分離する。
+- 進行軸の曲線は **実プレイデータを使わず推定でよい** (確定)。メカニクス構造 + economy
+  グラフから LLM が推定し、`progression_curve.estimated=true` を立てる。
 
-### C. 「内部経済」 は現状 KG に無い (新規モデルが要る)
+### C. 「内部経済」 は KG に無い — **[決定] メカニクスから学習生成**
 
-resource の produce/consume edge は既存 schema に無い。④⑤⑦ の中心入力なので、
-ここが無いとマクロ評価が「印象論」 になる。**③ で resource グラフを起こすのが
-パイプラインの肝**。優先実装すべき。
+- resource の produce/consume edge は既存 schema に無い。④⑤⑦ の中心入力。
+- **明示入力ではなく、各 Mechanic の description/intends/playContext から LLM が
+  推論生成する** (確定、§2-③)。生成済みグラフはキャッシュし、誤生成は ④ の収支
+  不整合で下流検出する。③ がパイプラインの肝なので優先実装。
 
-### D. ⑥ の結合は「高評価」 だけでは破綻する
+### D. ⑥ の結合は「高評価」 だけでは破綻する — **[決定] AND 条件を採用**
 
 評価は元ゲームの playContext での値。移植適合は (1) playContext 両立、
 (2) 内部経済の収支、(3) 嗜好適合、の 3 条件を **AND** で課す。単に score 上位を
 繋ぐと ⑦ の破綻が多発し収束しない。
 
-### E. ⑦ の「破綻」 は自動検出が難しいものがある
+### E. ⑦ の「破綻」 は自動検出が難しい — **[決定] 機械判定 + 議論回し採用**
 
 経済収支・重複は機械判定できるが、「面白さの破綻」 は主観。検出ルール (§2-⑦) で
 *機械判定可能なもの* に限定し、主観部分は LLM 評価 + designGap で人間/議論に回す
 (Di の本領)。⑦→④ の収束ループに **反復上限** を置く (無限ループ防止)。
 
-### F. ④⑥⑦ に LLM 主観が入る → ground truth が無い
+### F. ④⑥⑦ に LLM 主観が入る → ground truth が無い — **[決定] 構造 assert 採用**
 
 既知データテスト (§3) は数値一致でなく **構造的不変条件** を検証する設計にした。
 評価の再現性は seed/モデル固定 + 構造 assert で担保する。
@@ -274,7 +289,9 @@ crawler/DESIGN の Phase 0→3 と同様、**「粗く動かす → 分類別リ
 - 実装順の推奨: **③内部経済 → ④評価 → ⑤分解 → ⑥結合 → ⑦修正**、①嗜好と
   ②仕様書類推は並行で先行プロトタイプ可。
 - ⑥⑦ の収束ループは反復上限と構造 assert を必ず付ける。
-- 個人 vs 集団 (論点 A) は実装前に確定が要る (設計が割れるため)。
+- **論点 A-F は方針確定済 (2026-06-09)**: A=擬似集団 (外部レビュー母集団) /
+  B=進行曲線は推定 / C=内部経済はメカニクスから学習生成 / D=AND 条件 /
+  E=機械判定 + 議論回し / F=構造 assert。残る判断は実装時の細部のみ。
 
 ---
 
