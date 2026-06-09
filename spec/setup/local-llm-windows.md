@@ -131,6 +131,11 @@ npm run dev
   既定 49152-16384 へ)。
 - **Di が anthropic のまま**: `config.llm.backend` が `local` になっているか / env `LLM_BACKEND` の
   優先順位を確認(env > config file > default)。
+- **応答が空になる (reasoning モデル)**: **Gemma 4 は思考モデル**。 Ollama の OpenAI 互換応答で
+  `message.reasoning`(思考)と `message.content`(最終回答)が分かれ、 **`max_tokens` が小さいと
+  思考でトークンを使い切り content が空**になる(実機: 128 だと空・512 で回答)。 Di の
+  `LocalOpenAiClient` は既定 `max_tokens=4096` に引き上げ済(空応答防止)。 さらに長い議題で空に
+  なるなら呼び出し側で `maxTokens` を増やす。 `ollama run gemma4:12b "..."` で素の動作確認も可。
 
 ---
 

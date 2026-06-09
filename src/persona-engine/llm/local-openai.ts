@@ -13,7 +13,11 @@
 import type { TokenUsage } from "../types.js";
 import type { LLMClient, LLMInvokeArgs, LLMResult } from "./client.js";
 
-const DEFAULT_MAX_TOKENS = 1024;
+// ローカルは課金が無いので余裕を持たせる。 特に Gemma 4 等の **reasoning モデル**は
+// 思考 (応答の message.reasoning) でトークンを消費するため、 max_tokens が小さいと
+// 最終回答 (message.content) が空になり ok:false になる (実機: 128 だと空 / 512 で回答)。
+// 既定を広く取り空応答を防ぐ。 reasoning を持たないモデルは end_turn で早く止まるので無害。
+const DEFAULT_MAX_TOKENS = 4096;
 const DEFAULT_TIMEOUT_MS = 120_000;
 
 interface OpenAiChatChoice {
