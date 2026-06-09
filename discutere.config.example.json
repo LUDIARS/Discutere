@@ -23,7 +23,7 @@
     "gitBashPath": "",
     "local": {
       "baseUrl": "http://localhost:11434/v1",
-      "model": "gemma3:12b",
+      "model": "gemma4:12b",
       "apiKey": "",
       "timeoutMs": 120000
     }
