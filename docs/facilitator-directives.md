@@ -1,19 +1,20 @@
 # 進行役への調整指示 (facilitator directives)
 
-Discord で **bot に @メンション** するか、 **bot / persona の発言にリプライ** して、
-進行中の議論の **進め方・トーン・語り口** をその場で調整できる機能。
+Discord で **bot (@Discutere) に @メンション** して、進行中の議論の
+**進め方・トーン・語り口** をその場で調整できる機能。
 
-> 例:「もう少し簡単な言葉で話して」「もっと否定的な意見が欲しいな」「具体例を増やして」
+> 例: `@Discutere もう少し簡単な言葉で話して` / `@Discutere もっと否定的な意見が欲しいな`
 
 議題そのもの (対象ゲーム/ジャンル) は変えない。 あくまで **議論の steer** に使う。
+**persona への通常のリプライは「参加発言」として扱い、 調整指示にはしない**
+(調整したいときは bot を明示メンションする)。
 
 ## 動作
 
 1. **検知** (`src/discord-hook/gateway.ts`, `MessageCreate`):
-   監視対象 (フォーラムスレッド / `discord.discussionChannelIds` のチャンネル・その子スレッド) で、
-   - bot への @メンション、 または
-   - bot / persona (= webhook 投稿) の発言へのリプライ
-   を「調整指示」として検知する。 通常の utterance 取り込みには **回さない**。
+   監視対象 (フォーラムスレッド / `discord.discussionChannelIds` のチャンネル・その子スレッド) で
+   **bot (@Discutere) へのメンション**を「調整指示」として検知する。 通常の utterance 取り込みには
+   **回さない**。 メンションの無い投稿 (persona へのリプライ含む) は従来どおり参加発言として取り込む。
 2. **保存** (`directive-handler.ts` → `facilitator-directives.ts`):
    発話場所の scene `discord:<guild>/<channel>` から進行中の議論 (open な
    `discussion-of-gap` session) を引き、 その **design gap に紐付けて** 指示を保存する

@@ -52,9 +52,10 @@ env)。`discutere.config.example.json` 参照。詳細は `docs/ws-gateway-confi
   `/discutere-queue`。
 - **S3 バックアップ**: `src/backup/` で KG + 全 SQLite を tar.gz 化し S3 (Glacier 系) へ。
   月次自動 (`backup.enabled` + `intervalDays`) + 手動 (`npm run backup` / `/discutere-backup`)。
-- **進行役への調整指示 (2026-06-09, `docs/facilitator-directives.md`)**: Discord で bot に
-  @メンション or bot/persona 発言へリプライして「もっと簡単な言葉で」「もっと否定的に」のように
-  **進行の調整**を出せる。 監視対象 (フォーラムスレッド / `discussionChannelIds`) で検知し、
+- **進行役への調整指示 (2026-06-09, `docs/facilitator-directives.md`)**: Discord で bot (@Discutere)
+  へメンションして「もっと簡単な言葉で」「もっと否定的に」のように **進行の調整**を出せる。
+  persona への通常のリプライは参加発言のまま (調整は bot 明示メンションのみ)。
+  監視対象 (フォーラムスレッド / `discussionChannelIds`) で検知し、
   通常の utterance 取り込みには回さず scene→進行中議論 (open な design gap) に紐付けて
   サイドカー表 `facilitator_directives` に保存 → 了解を一言リプライ。 以後 **facilitator**
   (`gapTopic` 経由で expand/converge/止揚) と **persona** (`prompt-builder` の議題ブロック直後)
