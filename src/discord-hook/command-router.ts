@@ -197,7 +197,7 @@ export function routeForumPost(
   msg: DiscordInboundMessage,
   guildId: string,
   deps: CommandRouterDeps,
-  opts: { isStarter: boolean; direction?: ForumDirection; forumTitle?: string }
+  opts: { isStarter: boolean; direction?: ForumDirection; forumTitle?: string; forumTags?: string[] }
 ): InboundRouteResult {
   const text = msg.content.trim();
   if (text.length === 0) return { ingested: false };
@@ -234,6 +234,7 @@ export function routeForumPost(
         content: text,
         forumTitle: opts.forumTitle,
         direction: opts.direction,
+        forumTags: opts.forumTags,
       })
     )
       .then((r) => (r != null && typeof r === "object" ? r.started === true : false))

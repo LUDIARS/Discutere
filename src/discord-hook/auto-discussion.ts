@@ -47,6 +47,11 @@ export interface DiscordAutoDiscussionInput {
    * 非フォーラム経路 (平文議論) は未設定 = 従来挙動。
    */
   direction?: ForumDirection;
+  /**
+   * フォーラムの適用タグ名 (議論のタグ)。フォーラム starter のみ設定。
+   * 結論まとめの絞り込み用に gap evidence (`tags`) へ保存する。無ければ保存しない。
+   */
+  forumTags?: string[];
 }
 
 export interface AutoDiscussionClassification {
@@ -121,11 +126,14 @@ export async function startAutoDiscussionForDiscordMessage(
     status: "open",
   });
 
+  // 適用タグ名 (前後空白除去 + 空要素除去)。結論まとめのフィルタ用。無ければ [] (= 付けない)。
+  const tags = (input.forumTags ?? []).map((t) => t.trim()).filter((t) => t.length > 0);
   const evidence = {
     source: "discord:auto-classifier",
     category: classification.category,
     gameTitle: gameTitle ?? null,
     genre: genre ?? null,
+    tags,
     reason: classification.reason ?? null,
     direction: input.direction ?? null,
     utteranceIds: [input.utteranceId],
