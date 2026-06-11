@@ -91,4 +91,16 @@ export const DISCORD_COMMAND_DEFS: RESTPostAPIChatInputApplicationCommandsJSONBo
       },
     ],
   },
+  {
+    name: "economy-graph",
+    description: "ゲームの内部経済導線と遊びの関係性をグラフ分析する",
+    options: [
+      {
+        name: "game",
+        description: "ゲームタイトル (例: Hades, Hollow Knight, Balatro)",
+        type: ApplicationCommandOptionType.String,
+        required: true,
+      },
+    ],
+  },
 ];
