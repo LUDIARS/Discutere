@@ -25,6 +25,7 @@ const pool = new WorkerPool(
     injectDelayMs: 2500,
     turnTimeoutMs: 180_000,
     registerTimeoutMs: 120_000,
+    registerSettleMs: 4_000,
     turnsDir: "data/worker-turns",
     promptsDir: "data/worker-prompts",
     workers: [WORKER],
@@ -40,8 +41,8 @@ const server = http.createServer((req, res) => {
     try {
       const j = body ? JSON.parse(body) : {};
       if (req.url === "/internal/worker/register") {
-        console.log(`[smoke] register: workerId=${j.workerId} port=${j.lictorPort}`);
-        pool.registerPort(j.workerId, j.lictorPort);
+        console.log(`[smoke] register: workerId=${j.workerId} port=${j.lictorPort} lictorPid=${j.lictorPid ?? "(unknown)"}`);
+        pool.registerPort(j.workerId, j.lictorPort, typeof j.lictorPid === "number" ? j.lictorPid : undefined);
       } else if (req.url === "/internal/worker/utterance") {
         console.log(`[smoke] utterance callback: reqId=${j.reqId}`);
         pool.onUtterance(j.reqId, j.workerId ?? "", j.text ?? "");
@@ -62,13 +63,13 @@ async function main(): Promise<void> {
   console.log("[smoke] spawning 1 worker (con-opus / opus)...");
   pool.start();
 
-  // register 待ち
-  const regDeadline = Date.now() + 120_000;
+  // register + settle 待ち (isReady = register 受領 + registerSettleMs 経過)
+  const regDeadline = Date.now() + 120_000 + 4_000;
   while (!pool.isReady(WORKER.id)) {
-    if (Date.now() > regDeadline) throw new Error("worker register timeout (120s)");
+    if (Date.now() > regDeadline) throw new Error("worker register+settle timeout");
     await new Promise((r) => setTimeout(r, 1500));
   }
-  console.log("[smoke] worker registered, dispatching a turn...");
+  console.log("[smoke] worker idle-ready (registered + settled), dispatching a turn...");
 
   const prompt = [
     "## 議論コンテキスト (JSON)",

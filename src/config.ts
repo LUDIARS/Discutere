@@ -171,6 +171,8 @@ export interface DiscutereConfig {
     injectDelayMs: number;
     turnTimeoutMs: number;
     registerTimeoutMs: number;
+    /** register 受領後 dispatch を解禁するまでの待ち ms (TUI idle 復帰バッファ)。 */
+    registerSettleMs: number;
     /** ワーカー定義 (空なら index.ts が DEFAULT_WORKERS を使う)。 */
     workers: WorkerPoolWorker[];
     /**
@@ -542,6 +544,11 @@ export function loadConfig(): DiscutereConfig {
         process.env.DISCUTERE_WORKER_POOL_REGISTER_TIMEOUT_MS,
         file.workerPool?.registerTimeoutMs,
         60_000
+      ),
+      registerSettleMs: pickNum(
+        process.env.DISCUTERE_WORKER_POOL_REGISTER_SETTLE_MS,
+        file.workerPool?.registerSettleMs,
+        4_000
       ),
       workers: Array.isArray(file.workerPool?.workers) ? file.workerPool!.workers : [],
       excludeProviders: parseCsvList(

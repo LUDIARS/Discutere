@@ -246,6 +246,7 @@ const personaEngineLifecycle = (() => {
         injectDelayMs: config.workerPool.injectDelayMs,
         turnTimeoutMs: config.workerPool.turnTimeoutMs,
         registerTimeoutMs: config.workerPool.registerTimeoutMs,
+        registerSettleMs: config.workerPool.registerSettleMs,
         turnsDir: "data/worker-turns",
         promptsDir: "data/worker-prompts",
         workers,

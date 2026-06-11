@@ -96,8 +96,8 @@ async function refresh(){
   let run=0,reg=0;
   for(const w of j.workers){
     if(w.running)run++; if(w.registered)reg++;
-    const cls=w.registered?'reg':(w.running?'on':'off');
-    const stat=w.registered?'登録済':(w.running?'起動中':'停止');
+    const cls=w.registered?'reg':(w.settling?'on':(w.running?'on':'off'));
+    const stat=w.registered?'登録済':(w.settling?'登録待機中':(w.running?'起動中':'停止'));
     const btn=w.running?'<button class="sm danger" onclick="act(\\'/api/worker-pool/worker/'+w.id+'/stop\\')">停止</button>'
                         :'<button class="sm primary" onclick="act(\\'/api/worker-pool/worker/'+w.id+'/start\\')">起動</button>';
     tb.insertAdjacentHTML('beforeend','<tr><td><span class="dot '+cls+'"></span>'+stat+(w.busy?' <span class="pill">busy</span>':'')+'</td><td>'+w.role+' <span class="muted">'+w.id+'</span></td><td class="muted">'+w.provider+' / '+w.model+'</td><td class="muted">'+(w.port??'-')+'</td><td>'+btn+'</td></tr>');

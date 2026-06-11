@@ -14,7 +14,7 @@ import { join, isAbsolute } from "node:path";
 
 import { buildStandingPrompt } from "./persona-prompts.js";
 import { killWorker, spawnWorker } from "./spawner.js";
-import type { WorkerPoolConfig, WorkerRuntime } from "./types.js";
+import type { WorkerConfig, WorkerPoolConfig, WorkerRuntime } from "./types.js";
 
 export interface PoolLogger {
   info: (msg: string, meta?: unknown) => void;
@@ -68,14 +68,23 @@ export class WorkerPool {
   }
 
   /** 1 ワーカーを spawn して runtime に登録 (既に起動済なら何もしない)。 */
-  private spawnOne(worker: WorkerRuntime["config"]): void {
+  private spawnOne(worker: WorkerConfig): void {
     if (this.workers.has(worker.id)) return;
     const promptPath = join(this.absPromptsDir, `${worker.id}.md`);
     const body = buildStandingPrompt({ worker });
     writeFileSync(promptPath, body, "utf8");
     // ワーカーは worker-home を cwd にして起動 (専用 .claude/settings.json を効かせる)。
     const { pid } = spawnWorker({ worker, promptPath, cwd: this.cfg.workerCwd, cfg: this.cfg });
-    this.workers.set(worker.id, { config: worker, pid, lictorPort: null, busy: false, promptPath });
+    this.workers.set(worker.id, {
+      config: worker,
+      pid,
+      lictorPid: null,
+      lictorPort: null,
+      readyAt: null,
+      settleTimer: null,
+      busy: false,
+      promptPath,
+    });
     this.log.info(`spawned worker ${worker.id} (${worker.provider}/${worker.model}) pid=${pid}`);
   }
 
@@ -98,9 +107,10 @@ export class WorkerPool {
   stopWorker(id: string): boolean {
     const rt = this.workers.get(id);
     if (!rt) return false;
-    killWorker(rt.pid);
+    if (rt.settleTimer) clearTimeout(rt.settleTimer);
+    killWorker(rt.pid, rt.lictorPid);
     this.workers.delete(id);
-    this.log.info(`stopped worker ${id} (pid=${rt.pid})`);
+    this.log.info(`stopped worker ${id} (pid=${rt.pid} lictorPid=${rt.lictorPid ?? "-"})`);
     return true;
   }
 
@@ -112,6 +122,7 @@ export class WorkerPool {
     model: string;
     running: boolean;
     registered: boolean;
+    settling: boolean;
     busy: boolean;
     pid: number | null;
     port: number | null;
@@ -124,7 +135,8 @@ export class WorkerPool {
         provider: w.provider,
         model: w.model,
         running: !!rt,
-        registered: rt?.lictorPort != null,
+        registered: rt?.readyAt != null,
+        settling: rt != null && rt.lictorPort != null && rt.readyAt == null,
         busy: rt?.busy ?? false,
         pid: rt?.pid ?? null,
         port: rt?.lictorPort ?? null,
@@ -141,19 +153,36 @@ export class WorkerPool {
     return this.cfg.workers.find((w) => w.id === id) ?? null;
   }
 
+  /** dispatch 可能か (settle 完了 = TUI が idle に戻っている)。 */
   isReady(id: string): boolean {
-    return this.workers.get(id)?.lictorPort != null;
+    return this.workers.get(id)?.readyAt != null;
   }
 
-  /** ワーカーの自己 register。port を記録。 */
-  registerPort(workerId: string, lictorPort: number): boolean {
+  /**
+   * ワーカーの自己 register。port と lictorPid を記録し、settle timer を開始する。
+   *
+   * register.mjs の POST が来た時点でワーカーの TUI はまだ「登録完了」を生成中。
+   * registerSettleMs 経過後に readyAt を設定して dispatch を解禁することで
+   * busy な TUI へのキー注入を防ぐ (= turn timeout の根本原因)。
+   */
+  registerPort(workerId: string, lictorPort: number, lictorPid?: number): boolean {
     const rt = this.workers.get(workerId);
     if (!rt) {
       this.log.warn(`register from unknown worker ${workerId}`);
       return false;
     }
+    if (rt.settleTimer) clearTimeout(rt.settleTimer);
     rt.lictorPort = lictorPort;
-    this.log.info(`worker ${workerId} registered port=${lictorPort}`);
+    rt.lictorPid = lictorPid ?? null;
+    rt.readyAt = null;
+    rt.settleTimer = setTimeout(() => {
+      rt.readyAt = Date.now();
+      rt.settleTimer = null;
+      this.log.info(`worker ${workerId} idle-ready (settled after ${this.cfg.registerSettleMs}ms)`);
+    }, this.cfg.registerSettleMs);
+    this.log.info(
+      `worker ${workerId} registered port=${lictorPort} lictorPid=${lictorPid ?? "-"} — settling ${this.cfg.registerSettleMs}ms`
+    );
     return true;
   }
 
@@ -169,6 +198,7 @@ export class WorkerPool {
     const rt = this.workers.get(workerId);
     if (!rt) throw new Error(`unknown worker ${workerId}`);
     if (rt.lictorPort == null) throw new Error(`worker ${workerId} not registered (no port)`);
+    if (rt.readyAt == null) throw new Error(`worker ${workerId} still settling after register — retry after registerSettleMs`);
     if (rt.busy) throw new Error(`worker ${workerId} busy`);
 
     const turnPath = join(this.absTurnsDir, `${payload.reqId}.json`);
@@ -228,7 +258,10 @@ export class WorkerPool {
 
   /** 全ワーカーを kill。 */
   stop(): void {
-    for (const rt of this.workers.values()) killWorker(rt.pid);
+    for (const rt of this.workers.values()) {
+      if (rt.settleTimer) clearTimeout(rt.settleTimer);
+      killWorker(rt.pid, rt.lictorPid);
+    }
     for (const p of this.pending.values()) {
       clearTimeout(p.timer);
       p.reject(new Error("pool stopped"));
@@ -238,14 +271,25 @@ export class WorkerPool {
   }
 
   /** 診断用スナップショット。 */
-  snapshot(): Array<{ id: string; provider: string; model: string; port: number | null; busy: boolean; pid: number | null }> {
+  snapshot(): Array<{
+    id: string;
+    provider: string;
+    model: string;
+    port: number | null;
+    settling: boolean;
+    busy: boolean;
+    pid: number | null;
+    lictorPid: number | null;
+  }> {
     return [...this.workers.values()].map((rt) => ({
       id: rt.config.id,
       provider: rt.config.provider,
       model: rt.config.model,
       port: rt.lictorPort,
+      settling: rt.lictorPort != null && rt.readyAt == null,
       busy: rt.busy,
       pid: rt.pid,
+      lictorPid: rt.lictorPid,
     }));
   }
 }
