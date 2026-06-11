@@ -27,12 +27,13 @@ const workerRoutes = new Hono();
 workerRoutes.post("/worker/register", async (c) => {
   if (!pool) return c.json({ error: "worker pool not initialized" }, 503);
   const body = (await c.req.json().catch(() => null)) as
-    | { workerId?: unknown; lictorPort?: unknown }
+    | { workerId?: unknown; lictorPort?: unknown; lictorPid?: unknown }
     | null;
   if (!body || typeof body.workerId !== "string" || typeof body.lictorPort !== "number") {
     return c.json({ error: "workerId (string) and lictorPort (number) required" }, 400);
   }
-  const ok = pool.registerPort(body.workerId, body.lictorPort);
+  const lictorPid = typeof body.lictorPid === "number" && body.lictorPid > 0 ? body.lictorPid : undefined;
+  const ok = pool.registerPort(body.workerId, body.lictorPort, lictorPid);
   return c.json({ ok });
 });
 

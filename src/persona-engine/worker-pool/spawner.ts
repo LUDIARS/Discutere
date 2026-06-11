@@ -97,19 +97,30 @@ export function spawnWorker(args: {
   return { pid: child.pid ?? null };
 }
 
-/** spawn した子プロセスツリーを kill する (best-effort)。 */
-export function killWorker(pid: number | null): void {
-  if (!pid) return;
-  try {
-    if (process.platform === "win32") {
-      spawn("taskkill", ["/PID", String(pid), "/T", "/F"], {
-        stdio: "ignore",
-        windowsHide: true,
-      }).unref();
-    } else {
-      process.kill(-pid, "SIGTERM");
+/**
+ * spawn した子プロセスツリーを kill する (best-effort)。
+ *
+ * Windows では cmd.exe /c で起動した場合 cmd.exe が launcher として即 exit し、
+ * 実際に常駐するのは lictor node.exe とその ConPTY 孫 (claude.exe) である。
+ * `taskkill /PID cmdPid /T /F` は cmd.exe が既に exit した後は空振りするため、
+ * register 時に受け取った lictorPid (= lictor node.exe の PID) を優先して kill する。
+ * cmdPid は lictorPid が得られなかった環境向けのフォールバック。
+ */
+export function killWorker(cmdPid: number | null, lictorPid?: number | null): void {
+  const pids = [lictorPid, cmdPid].filter((p): p is number => !!p);
+  if (!pids.length) return;
+  for (const pid of pids) {
+    try {
+      if (process.platform === "win32") {
+        spawn("taskkill", ["/PID", String(pid), "/T", "/F"], {
+          stdio: "ignore",
+          windowsHide: true,
+        }).unref();
+      } else {
+        process.kill(-pid, "SIGTERM");
+      }
+    } catch {
+      /* best-effort */
     }
-  } catch {
-    /* best-effort */
   }
 }

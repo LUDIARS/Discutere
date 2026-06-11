@@ -15,6 +15,8 @@
 const base = (process.env.DI_CALLBACK_URL ?? "").replace(/\/+$/, "");
 const workerId = process.env.DI_WORKER_ID ?? "";
 const lictorPort = Number(process.env.LICTOR_PORT);
+// Lictor が設定する自身の PID。killWorker で ConPTY 孫を確実に kill するために送る。
+const lictorPid = Number(process.env.LICTOR_PID ?? 0);
 
 if (!base || !workerId || !Number.isFinite(lictorPort)) {
   console.error(
@@ -24,10 +26,11 @@ if (!base || !workerId || !Number.isFinite(lictorPort)) {
   process.exit(1);
 }
 
+const payload = { workerId, lictorPort, ...(lictorPid > 0 ? { lictorPid } : {}) };
 const res = await fetch(`${base}/internal/worker/register`, {
   method: "POST",
   headers: { "content-type": "application/json" },
-  body: JSON.stringify({ workerId, lictorPort }),
+  body: JSON.stringify(payload),
 }).catch((err) => {
   console.error(`[register] fetch failed: ${err.message}`);
   process.exit(1);
@@ -39,4 +42,4 @@ if (!res.ok) {
   process.exit(1);
 }
 
-console.log(`[register] ok worker=${workerId} port=${lictorPort}`);
+console.log(`[register] ok worker=${workerId} port=${lictorPort} lictorPid=${lictorPid || "(unknown)"}`);

@@ -39,6 +39,12 @@ export interface WorkerPoolConfig {
   turnTimeoutMs: number;
   /** spawn 後、ワーカーが自己 register するまでの待ち上限 ms。 */
   registerTimeoutMs: number;
+  /**
+   * register 受領後、dispatch を許可するまでの待ち ms。
+   * register.mjs の POST が来た時点でワーカーの TUI はまだ「登録完了」を
+   * 生成中なので、その完了 + idle 復帰を待つためのバッファ。
+   */
+  registerSettleMs: number;
   /** ターン JSON を書き出すディレクトリ。 */
   turnsDir: string;
   /** standing prompt md を書き出すディレクトリ。 */
@@ -50,10 +56,25 @@ export interface WorkerPoolConfig {
 /** pool が握る 1 ワーカーの実行時状態。 */
 export interface WorkerRuntime {
   config: WorkerConfig;
-  /** spawn した子プロセス (cmd) の pid。kill 用。 */
+  /** spawn した子プロセス (cmd) の pid。kill 用フォールバック。 */
   pid: number | null;
+  /**
+   * register.mjs が env から読んだ Lictor 自身の node プロセス PID。
+   * Windows で ConPTY tree を確実に kill するために cmd.pid より優先する。
+   * Lictor が LICTOR_PID を env に設定していない環境では null のまま。
+   */
+  lictorPid: number | null;
   /** 自己 register で受領した Lictor sidecar port。未登録は null。 */
   lictorPort: number | null;
+  /**
+   * settle 完了時刻 (epoch ms)。null = まだ settle 待ち。
+   * register 受領後 registerSettleMs 経過するまで dispatch を拒否する。
+   * register.mjs の POST 時点ではワーカーの TUI がまだ「登録完了」を
+   * 生成中であり、その間に /v1/keys を注入するとキーが落ちる。
+   */
+  readyAt: number | null;
+  /** readyAt を設定する setTimeout handle。stopWorker/stop でキャンセルする。 */
+  settleTimer: NodeJS.Timeout | null;
   /** 直近ターンが処理中か (二重 dispatch 防止)。 */
   busy: boolean;
   /** standing prompt md path。 */
