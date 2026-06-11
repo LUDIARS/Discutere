@@ -224,6 +224,40 @@ export const ludusMechanicRepo = {
   },
 };
 
+// ─── Economy Graph Cache ──────────────────────────────────────────────────────
+type EconomyGraph = typeof schema.ludusEconomyGraphs.$inferSelect;
+
+export const economyGraphRepo = {
+  async findByGame(workspaceId: string, gameTitle: string): Promise<EconomyGraph | undefined> {
+    const rows = await db
+      .select()
+      .from(schema.ludusEconomyGraphs)
+      .where(and(
+        eq(schema.ludusEconomyGraphs.workspaceId, workspaceId),
+        eq(schema.ludusEconomyGraphs.gameTitle, gameTitle),
+      ));
+    return rows[0];
+  },
+  async upsert(data: typeof schema.ludusEconomyGraphs.$inferInsert): Promise<void> {
+    const existing = await this.findByGame(data.workspaceId as string, data.gameTitle as string);
+    if (existing) {
+      await db
+        .update(schema.ludusEconomyGraphs)
+        .set({ graphJson: data.graphJson, mechanicCount: data.mechanicCount, updatedAt: new Date() })
+        .where(eq(schema.ludusEconomyGraphs.id, existing.id));
+    } else {
+      await db.insert(schema.ludusEconomyGraphs).values(data);
+    }
+  },
+  async listByWorkspace(workspaceId: string): Promise<EconomyGraph[]> {
+    return db
+      .select()
+      .from(schema.ludusEconomyGraphs)
+      .where(eq(schema.ludusEconomyGraphs.workspaceId, workspaceId))
+      .orderBy(desc(schema.ludusEconomyGraphs.updatedAt));
+  },
+};
+
 export const ludusLearningJobRepo = {
   async create(data: typeof schema.ludusLearningJobs.$inferInsert): Promise<void> {
     await db.insert(schema.ludusLearningJobs).values(data);

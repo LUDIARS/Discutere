@@ -237,3 +237,27 @@ export const ludusLearningJobs = sqliteTable(
     index("idx_ludus_jobs_status").on(table.status),
   ]
 );
+
+// ─── Ludus Economy Graph Cache (LLM-generated mechanics graph) ───────────────
+export const ludusEconomyGraphs = sqliteTable(
+  "ludus_economy_graphs",
+  {
+    id: text("id").primaryKey(),
+    workspaceId: text("workspace_id").notNull(),
+    gameTitle: text("game_title").notNull(),
+    /** EconomyGraph JSON */
+    graphJson: text("graph_json").notNull(),
+    mechanicCount: integer("mechanic_count").notNull().default(0),
+    createdAt: integer("created_at", { mode: "timestamp" })
+      .$defaultFn(() => new Date())
+      .notNull(),
+    updatedAt: integer("updated_at", { mode: "timestamp" })
+      .$defaultFn(() => new Date())
+      .notNull(),
+  },
+  (table) => [
+    index("idx_eco_graph_workspace").on(table.workspaceId),
+    index("idx_eco_graph_game").on(table.gameTitle),
+    unique("unique_eco_graph_game").on(table.workspaceId, table.gameTitle),
+  ]
+);

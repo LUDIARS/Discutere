@@ -56,6 +56,8 @@ import { buildQueueSnapshot, formatQueueText } from "./queue/snapshot.js";
 import { startBackupScheduler } from "./backup/runner.js";
 import { createLlmSummarizer } from "./crawler/sources/summarize.js";
 import { getConfig } from "./config.js";
+import { createEconomyGraphRoutes } from "./api/economy-graph-routes.js";
+import { analyzeEconomy, toSlug } from "./ludus/economy-analyzer.js";
 
 // Initialize DB (triggers schema creation)
 import "./db/connection.js";
@@ -539,6 +541,13 @@ const personaEngineLifecycle = (() => {
   }
 })();
 
+// ─── ゲーム経済グラフ (GET /ludus/economy-graph/:slug, POST /api/ludus/analyze-economy) ───
+{
+  const economyApiKey = config.llm.anthropicApiKey ?? process.env.ANTHROPIC_API_KEY ?? "";
+  app.route("/", createEconomyGraphRoutes({ workspaceId: config.workspace, apiKey: economyApiKey }));
+  console.log("  economy-graph: /ludus/economy-graph/:slug — ゲームメカニクス経済グラフ");
+}
+
 // ─── 軽量 Web チャット UI (/chat) — Discord 非依存の議論経路 ───
 // scene=web:<room> で同じ議論エンジン (分類器 → designGap → persona/facilitator) を再利用する。
 // 分類器は gateway と同じ starter を共有し、 persona 表示名は peDb から解決する。
@@ -614,6 +623,13 @@ const discordGatewayLifecycle = startDiscordGateway({
   getEngine: () => getPersonaEngine(),
   buildQueueText,
   triggerBackup: () => backupScheduler.trigger(),
+  triggerEconomyAnalysis: (gameTitle: string) => {
+    const apiKey = config.llm.anthropicApiKey ?? process.env.ANTHROPIC_API_KEY ?? "";
+    void analyzeEconomy(config.workspace, gameTitle, apiKey).catch(
+      (err) => console.error(`  economy-graph: analysis failed: ${(err as Error).message}`),
+    );
+    return { slug: toSlug(gameTitle), port };
+  },
   classifyInboundMessage: createDiscordAutoDiscussionStarter({
     // 分類器は専用 LLM (Haiku / Lictor or API)。persona engine の summarizer
     // (autoDiscussionLlm) とは別系統 — facilitator のモデルには影響しない。

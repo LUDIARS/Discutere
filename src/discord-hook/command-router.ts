@@ -60,6 +60,8 @@ export interface CommandRouterDeps {
   buildQueueText?: () => string;
   /** /discutere-backup 用の手動バックアップトリガ (注入。未設定なら非対応応答) */
   triggerBackup?: () => Promise<{ ok: boolean; key?: string; bucket?: string; error?: string }>;
+  /** /economy-graph 用の LLM 分析トリガ (fire-and-forget)。グラフ URL を返す */
+  triggerEconomyAnalysis?: (gameTitle: string) => { slug: string; port: number };
   /**
    * 平文投稿から議題を自動検出して persona-engine の議論開始イベントにつなぐ。
    * `started=true` は「議論の種(開始エントリ)が新規に立った」ことを表す (caller のリアクション判定用)。
@@ -92,6 +94,9 @@ export function routeSlashCommand(cmd: InboundSlashCommand, deps: CommandRouterD
   }
   if (cmd.name === "discutere-conclusions") {
     return handleConclusionsSlash(cmd, deps);
+  }
+  if (cmd.name === "economy-graph") {
+    return handleEconomyGraphSlash(cmd, deps);
   }
 
   const commandText = cmd.argsText.length > 0 ? `/${cmd.name} ${cmd.argsText}` : `/${cmd.name}`;
@@ -361,6 +366,23 @@ function formatConclusionDetail(d: ConclusionDetail): string {
 function truncateText(value: string, max: number): string {
   const flat = value.replace(/\n+/g, (m) => (m.length > 1 ? "\n" : m));
   return flat.length <= max ? flat : `${flat.slice(0, max - 1)}…`;
+}
+
+/** /economy-graph — LLM 分析を fire-and-forget で起動してグラフ URL を返す。 */
+function handleEconomyGraphSlash(cmd: InboundSlashCommand, deps: CommandRouterDeps): SlashReply {
+  const gameTitle = cmd.argsText.trim();
+  if (!gameTitle) {
+    return { content: "⚠️ game オプションにゲームタイトルを指定してください", ephemeral: true };
+  }
+  if (!deps.triggerEconomyAnalysis) {
+    return { content: "⚠️ economy-graph が構成されていません (ANTHROPIC_API_KEY 未設定?)", ephemeral: true };
+  }
+  const { slug, port } = deps.triggerEconomyAnalysis(gameTitle);
+  const url = `http://localhost:${port}/ludus/economy-graph/${slug}`;
+  return {
+    content: `🎮 **${gameTitle}** の経済分析を開始しました。\n📊 グラフ: ${url}\n_分析完了後にリロードしてください (約 30 秒)_`,
+    ephemeral: true,
+  };
 }
 
 /**
