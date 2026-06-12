@@ -56,9 +56,11 @@
     "kuzu:counts": "tsx scripts/rebuild-kuzu.ts --counts",
     "ft:export": "tsx scripts/export-ft-data.ts",
     "ft:generate": "tsx scripts/generate-training-data.ts",
-    "import:youtube": "tsx scripts/import-youtube-comments.ts"
+    "import:youtube": "tsx scripts/import-youtube-comments.ts",
+    "ext:canalis": "tsx scripts/ext-canalis-run.ts"
   },
   "dependencies": {
+    "@ludiars/canalis": "^0.1.0",
     "@aws-sdk/client-s3": "^3.658.0",
     "@hono/node-server": "^1.14.3",
     "better-sqlite3": "^12.6.0",

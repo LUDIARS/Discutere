@@ -55,6 +55,11 @@ const NODE_DDL_STMTS = [
      integrated BOOLEAN, validated_by_emotion BOOLEAN,
      stale_flagged BOOLEAN, refs_json STRING,
      created_at INT64, updated_at INT64, PRIMARY KEY(id))`,
+  // 外部発話 (YouTube/Reddit 等) の感情ノード — ExternalSentimentTransform が書く。
+  `CREATE NODE TABLE IF NOT EXISTS ExternalSentiment(
+     id STRING, game_slug STRING, source STRING, native_id STRING,
+     polarity STRING, score DOUBLE, confidence DOUBLE, tier INT64,
+     fetched_at STRING, PRIMARY KEY(id))`,
 ];
 
 // §3 関係テーブル DDL
@@ -70,6 +75,7 @@ const REL_DDL_STMTS = [
   `CREATE REL TABLE IF NOT EXISTS ADDRESSES(FROM Hypothesis TO DesignGap)`,
   `CREATE REL TABLE IF NOT EXISTS REFINES(FROM Utterance TO Mechanic)`,
   `CREATE REL TABLE IF NOT EXISTS INTEGRATES_AS(FROM Hypothesis TO Mechanic)`,
+  `CREATE REL TABLE IF NOT EXISTS SENTIMENT_FOR(FROM ExternalSentiment TO Game)`,
 ];
 
 export class KuzuGraphClient {
@@ -123,6 +129,7 @@ export class KuzuGraphClient {
     const tables = [
       "Person", "Game", "Mechanic", "Aesthetic", "Affect",
       "PlayContext", "Session", "Utterance", "Reaction", "DesignGap", "Hypothesis",
+      "ExternalSentiment",
     ];
     const counts: Record<string, number> = {};
     for (const t of tables) {
