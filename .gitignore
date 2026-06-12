@@ -17,3 +17,6 @@ frontend/node_modules
 frontend/dist
 .tmp
 *.stackdump
+# FT モデルバイナリ (GGUF / HuggingFace weights) — Modelfile は追跡する
+models/*.gguf
+models/di-debate-v1/
