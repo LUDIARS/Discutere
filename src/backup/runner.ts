@@ -39,12 +39,16 @@ const DAY_MS = 24 * 60 * 60 * 1000;
 /** バックアップ対象の実ファイル群を config から導出 */
 function resolveTargets(config: DiscutereConfig): string[] {
   const dbPath = process.env.DATABASE_PATH ?? "./data/discutere.db";
-  return [
-    // active KG (§12) をバックアップ対象に。 未解決時は従来既定。
+  const targets = [
+    // active KG SQLite index (§12)。未解決時は従来既定。
     resolveActiveKgPath(config) ?? "./data/discatier.kuzu",
     config.personaEngine.dbPath,
     dbPath,
   ];
+  // Kuzu グラフ DB ディレクトリ (KUZU-MIGRATION §6/§8-6)
+  const kuzuGraphPath = (config.discatier as Record<string, unknown>).kuzuGraphPath as string | undefined;
+  if (kuzuGraphPath) targets.push(kuzuGraphPath);
+  return targets;
 }
 
 function readState(stateFile: string): BackupState {
