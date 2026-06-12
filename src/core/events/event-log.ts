@@ -1,16 +1,24 @@
-﻿import fs from "node:fs";
+import fs from "node:fs";
 import path from "node:path";
 
 import { randomUUID } from "node:crypto";
 
 import type { KuzuClient } from "../db/kuzu-client.js";
+import type { KuzuGraphClient } from "../db/kuzu-graph-client.js";
 import type { DomainEvent, EventPayload, EventType } from "./event-types.js";
 import { applyEventProjection } from "./projection.js";
+import { applyKuzuProjection } from "./kuzu-projection.js";
 
 export class EventLog {
   private readonly jsonlPath: string;
+  /** Kuzu 投影待ちキュー（結果整合 OK / flush() で書き込む）。 */
+  private kuzuPending: DomainEvent[] = [];
 
-  constructor(private readonly client: KuzuClient, jsonlPath = "./data/events.jsonl") {
+  constructor(
+    private readonly client: KuzuClient,
+    jsonlPath = "./data/events.jsonl",
+    private readonly graph?: KuzuGraphClient,
+  ) {
     this.jsonlPath = path.resolve(jsonlPath);
     fs.mkdirSync(path.dirname(this.jsonlPath), { recursive: true });
     if (!fs.existsSync(this.jsonlPath)) fs.writeFileSync(this.jsonlPath, "", "utf8");
@@ -34,7 +42,34 @@ export class EventLog {
     tx();
 
     fs.appendFileSync(this.jsonlPath, `${JSON.stringify(full)}\n`, "utf8");
+
+    // Kuzu へは結果整合（dual-write 期）。失敗してもイベントは SoT なので rebuild で補完可。
+    if (this.graph) this.kuzuPending.push(full);
+
     return full;
+  }
+
+  /**
+   * Kuzu 投影キューをフラッシュする。
+   * API レスポンス完了後やバッチ処理後など、await 可能なタイミングで呼ぶ。
+   * エラーは個別ログだけして継続する（SQLite 側は既に確定済み）。
+   */
+  async flushKuzu(): Promise<{ applied: number; failed: number }> {
+    if (!this.graph || this.kuzuPending.length === 0) return { applied: 0, failed: 0 };
+    const batch = this.kuzuPending.splice(0);
+    let applied = 0;
+    let failed = 0;
+    for (const event of batch) {
+      try {
+        await applyKuzuProjection(this.graph, event);
+        applied++;
+      } catch (err) {
+        failed++;
+        // projection 失敗はログのみ。rebuild で補完可能。
+        console.error(`[kuzu-projection] failed for event ${event.id} (${event.eventType}):`, err);
+      }
+    }
+    return { applied, failed };
   }
 
   loadEventsSince(input: { eventId?: string; timestamp?: number } = {}): DomainEvent[] {
@@ -64,6 +99,7 @@ export class EventLog {
     }));
   }
 
+  /** SQLite read model を events から再構築する（既存 / SQLite 側）。 */
   rebuildFromEventStore(): void {
     const db = this.client.raw;
     const rows = db.prepare("SELECT id, event_type, payload_json, created_at FROM events ORDER BY created_at ASC").all() as Array<{
@@ -85,5 +121,13 @@ export class EventLog {
       }
     });
     tx();
+  }
+
+  /** Kuzu グラフを events から再構築する（kuzu-rebuild スクリプト用）。 */
+  async rebuildKuzu(): Promise<{ applied: number; failed: number }> {
+    if (!this.graph) return { applied: 0, failed: 0 };
+    const { replayEventsToKuzu } = await import("./kuzu-projection.js");
+    const events = this.loadEventsSince();
+    return replayEventsToKuzu(this.graph, events);
   }
 }
