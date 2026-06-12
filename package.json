@@ -33,6 +33,7 @@
     "visualize": "tsx scripts/visualize.ts",
     "persona-demo": "tsx scripts/persona-engine-demo.ts",
     "seed:affects": "tsx scripts/seed-affects.ts",
+    "import:sentiment": "tsx scripts/import-sentiment.ts",
     "investigate:affects": "node scripts/investigate-affects.mjs",
     "wire:affects": "tsx scripts/wire-observed-affects.ts",
     "discord:register": "tsx scripts/register-discord-commands.ts",
