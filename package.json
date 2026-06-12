@@ -55,7 +55,8 @@
     "kuzu:verify": "tsx scripts/rebuild-kuzu.ts --verify",
     "kuzu:counts": "tsx scripts/rebuild-kuzu.ts --counts",
     "ft:export": "tsx scripts/export-ft-data.ts",
-    "ft:generate": "tsx scripts/generate-training-data.ts"
+    "ft:generate": "tsx scripts/generate-training-data.ts",
+    "import:youtube": "tsx scripts/import-youtube-comments.ts"
   },
   "dependencies": {
     "@aws-sdk/client-s3": "^3.658.0",
