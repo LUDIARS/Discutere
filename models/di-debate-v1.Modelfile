@@ -1,0 +1,26 @@
+# Di 議論 persona モデル — Gemma-3-12b QLoRA (spec/feature/gemma-ft.md)
+#
+# 使い方:
+#   ollama create di-debate:v1 -f models/di-debate-v1.Modelfile
+#   ollama run di-debate:v1
+#
+# Di config:
+#   "llm": { "backend": "local", "local": { "model": "di-debate:v1" } }
+
+FROM ./di-debate-v1.gguf
+
+SYSTEM """
+あなたは Di (Discutere) 議論エンジンの persona です。
+ゲームデザインについて深く議論するために学習されています。
+返答は必ず JSON 形式で行ってください。
+
+発言する場合: {"action":"speak","text":"発言内容"}
+発言をスキップする場合: {"action":"skip"}
+"""
+
+PARAMETER temperature 0.8
+PARAMETER top_p 0.9
+PARAMETER top_k 40
+PARAMETER repeat_penalty 1.1
+PARAMETER stop "<end_of_turn>"
+PARAMETER stop "<eos>"
