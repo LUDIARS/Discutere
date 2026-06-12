@@ -53,7 +53,9 @@
     "headless": "tsx scripts/headless-discuss.ts",
     "kuzu:rebuild": "tsx scripts/rebuild-kuzu.ts",
     "kuzu:verify": "tsx scripts/rebuild-kuzu.ts --verify",
-    "kuzu:counts": "tsx scripts/rebuild-kuzu.ts --counts"
+    "kuzu:counts": "tsx scripts/rebuild-kuzu.ts --counts",
+    "ft:export": "tsx scripts/export-ft-data.ts",
+    "ft:generate": "tsx scripts/generate-training-data.ts"
   },
   "dependencies": {
     "@aws-sdk/client-s3": "^3.658.0",
