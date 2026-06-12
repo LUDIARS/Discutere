@@ -231,7 +231,7 @@ async function handleTaskCompletion(
       createdAt: new Date(),
     });
 
-    // TODO: notification events via Cernere relay
+    // 通知は machina → Iv 移管時に Discord DM / Iv 通知として実装予定。
   }
 }
 
@@ -244,7 +244,7 @@ async function resolveAssignee(
 ): Promise<string | null> {
   if (!hint) return null;
 
-  // TODO: resolve workspace members via Cernere
+  // Di は Cernere 非依存。メンバー解決は machina → Iv 移管時に実装。
   const userIds: string[] = [];
 
   // ユーザー名で検索
