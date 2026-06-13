@@ -23,8 +23,26 @@ const { MockLLMClient } = await import("../../src/persona-engine/llm/mock.js");
 const { runRoundVote } = await import("../../src/flow/vote.js");
 const { summarizeRound } = await import("../../src/flow/round-summary.js");
 const { generateConclusion } = await import("../../src/flow/conclusion.js");
-const { runDiscussionFlow } = await import("../../src/flow/director.js");
+const { runDiscussionFlow, isVoteCandidate } = await import("../../src/flow/director.js");
 const { _resetConfig } = await import("../../src/config.js");
+
+// ── 投票候補フィルタ: facilitator 発話は除外 ───────────────────────────────────
+
+{
+  const mk = (over: Record<string, unknown>) => ({
+    id: "x", sessionId: "s", paperId: "p", round: 1, turn: 1,
+    personaId: "pid", personaName: "n", role: "debater", stance: "pro",
+    text: "t", isError: false, ...over,
+  }) as Parameters<typeof isVoteCandidate>[0];
+
+  assert.equal(isVoteCandidate(mk({ role: "debater" }), 1), true, "debater is candidate");
+  assert.equal(isVoteCandidate(mk({ role: "opinion" }), 1), true, "opinion is candidate");
+  assert.equal(isVoteCandidate(mk({ role: "facilitator", turn: 0 }), 1), false, "facilitator opening excluded");
+  assert.equal(isVoteCandidate(mk({ role: "facilitator" }), 1), false, "facilitator excluded");
+  assert.equal(isVoteCandidate(mk({ isError: true }), 1), false, "error utterance excluded");
+  assert.equal(isVoteCandidate(mk({ round: 2 }), 1), false, "other round excluded");
+  console.log("  [ok] isVoteCandidate: facilitator / error / other-round excluded");
+}
 
 // ── 投票 ──────────────────────────────────────────────────────────────────
 

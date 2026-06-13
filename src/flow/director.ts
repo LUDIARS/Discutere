@@ -71,6 +71,15 @@ function defaultRng(): number {
   return Math.random();
 }
 
+/**
+ * 投票候補の判定。
+ * ファシリテーターの発話 (議題提示・進行) は「意見」ではないため投票候補から除外する。
+ * エラー発話・他ラウンドの発話も除く。
+ */
+export function isVoteCandidate(u: FlowUtteranceRecord, round: number): boolean {
+  return u.round === round && !u.isError && u.role !== "facilitator";
+}
+
 /** flow_utterance テーブルにターン発話を永続化する。 */
 function persistUtterance(u: FlowUtteranceRecord): void {
   const db = getFlowDb();
@@ -304,7 +313,7 @@ export async function runDiscussionFlow(
     }
 
     // ── [6] 投票 ──────────────────────────────────────────────────────────
-    const roundUtteranceRecords = allUtterances.filter((u) => u.round === round && !u.isError);
+    const roundUtteranceRecords = allUtterances.filter((u) => isVoteCandidate(u, round));
     const voteResult = await runRoundVote({
       theme,
       sessionId,
