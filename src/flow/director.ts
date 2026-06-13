@@ -1,0 +1,261 @@
+/**
+ * FlowDirector — 議論フロー (discussion.md) の進行オーケストレータ。
+ *
+ * persona-engine を使わず、ターン駆動の同期ループで議論を回す。
+ * すべての LLM 呼び出しは withCostLog 経由で llm_call_log に記録される。
+ * エラーは握り潰さず発話に出す (OVERVIEW §10)。
+ */
+
+import { randomUUID } from "node:crypto";
+import type { LLMClient } from "../persona-engine/llm/client.js";
+import type { FlowTag } from "./tags.js";
+import { getConfig } from "../config.js";
+import { withCostLog } from "./cost-logger.js";
+import { generateFlowPersonas, pickRandomPersona, decideStance, type FlowPersona, type Rng } from "./personas.js";
+import {
+  buildPersonaPaper,
+  paperToPrompt,
+  persistPaper,
+  synthesizeOpinions,
+  type ContextVoice,
+  type DiscussionPaper,
+  type RoundSummary,
+} from "./discussion-paper.js";
+import { investigateTheme, type YoutubeSearchFn, type MechanicSummary } from "./investigate.js";
+import { getFlowDb } from "./db/connection.js";
+
+export interface FlowUtteranceRecord {
+  id: string;
+  sessionId: string;
+  paperId: string;
+  round: number;
+  turn: number;
+  personaId: string;
+  personaName: string;
+  role: string;
+  stance: string;
+  text: string;
+  isError: boolean;
+}
+
+export interface FlowDirectorDeps {
+  /** LLM クライアント (各ターンで withCostLog でラップして使う) */
+  llm: LLMClient;
+  /** ユーザ意見取得 (optional。Kuzu が無い環境や test では空配列を返すスタブを渡す) */
+  listExternalVoices?: (terms: string[], limit: number) => ContextVoice[];
+  /** YouTube 検索 (optional。未設定なら YouTube 補完は走らない) */
+  youtubeSearch?: YoutubeSearchFn;
+  /** 発話後のコールバック (Discord/WebUI への投稿等) */
+  onUtterance?: (u: FlowUtteranceRecord) => void | Promise<void>;
+  /** ログ・警告出力 */
+  log?: (msg: string) => void;
+  warn?: (msg: string) => void;
+  rng?: Rng;
+  /** `data/games/` ディレクトリパス (省略時は既定値) */
+  gamesDir?: string;
+}
+
+export interface FlowDirectorResult {
+  sessionId: string;
+  paperId: string;
+  utterances: FlowUtteranceRecord[];
+  rounds: number;
+}
+
+function defaultRng(): number {
+  return Math.random();
+}
+
+/** flow_utterance テーブルにターン発話を永続化する。 */
+function persistUtterance(u: FlowUtteranceRecord): void {
+  const db = getFlowDb();
+  db.prepare(
+    `INSERT INTO flow_utterance
+       (id, session_id, paper_id, round, turn, persona_id, persona_name, role, stance, text, is_error, created_at)
+     VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`
+  ).run(
+    u.id,
+    u.sessionId,
+    u.paperId,
+    u.round,
+    u.turn,
+    u.personaId,
+    u.personaName,
+    u.role,
+    u.stance,
+    u.text,
+    u.isError ? 1 : 0,
+    Date.now()
+  );
+}
+
+/**
+ * 議論フローを実行する。
+ *
+ * @param theme テーマ文字列
+ * @param tags フロータグ (機密/内部/運用/開発 等)
+ * @param deps 依存注入
+ */
+export async function runDiscussionFlow(
+  theme: string,
+  tags: readonly FlowTag[],
+  deps: FlowDirectorDeps
+): Promise<FlowDirectorResult> {
+  const cfg = getConfig();
+  const {
+    llm,
+    listExternalVoices = () => [],
+    youtubeSearch,
+    onUtterance,
+    log = (m) => console.log(`[flow] ${m}`),
+    warn = (m) => console.warn(`[flow/warn] ${m}`),
+    rng = defaultRng,
+    gamesDir,
+  } = deps;
+
+  const sessionId = randomUUID();
+  const isLocal = cfg.llm.backend === "local";
+
+  // ── [1] 調査 ──────────────────────────────────────────────────────────────
+  log(`調査開始: "${theme}" (タグ: [${tags.join(", ")}])`);
+  const investigation = await investigateTheme({
+    theme,
+    tags,
+    gamesDir,
+    youtubeSearch,
+    youtubeMaxComments: cfg.flow.youtubeMaxComments,
+    warn,
+  });
+  const mechanics: MechanicSummary[] = investigation.mechanics;
+
+  // ── [2] ディスカッションペーパー初期化 ─────────────────────────────────
+  const supplement = (await import("./tags.js")).paperSupplement(tags);
+  const paperId = persistPaper({ sessionId, theme, tags: [...tags], mechanics, supplement });
+  const paper: DiscussionPaper = {
+    paperId,
+    sessionId,
+    theme,
+    tags: [...tags],
+    mechanics,
+    supplement,
+    rounds: [],
+  };
+
+  // ── [3] ペルソナ生成 ────────────────────────────────────────────────────
+  const personas: FlowPersona[] = generateFlowPersonas({
+    count: cfg.flow.personaCount,
+    defaultModel: cfg.llm.model ?? "claude-haiku-4-5-20251001",
+    isLocal,
+    rng,
+  });
+  log(`ペルソナ ${personas.length} 人生成: ${personas.map((p) => `${p.name}(${p.role})`).join(", ")}`);
+
+  // synthetic opinions (機密タグ用)
+  const syntheticOpinions = tags.includes("機密") ? synthesizeOpinions(mechanics) : [];
+
+  const allUtterances: FlowUtteranceRecord[] = [];
+
+  // ── ラウンドループ ────────────────────────────────────────────────────────
+  for (let round = 1; round <= cfg.flow.rounds; round++) {
+    log(`ラウンド ${round}/${cfg.flow.rounds} 開始`);
+    const roundUtterances: Array<{ personaName: string; text: string }> = [];
+
+    // ── ターンループ ─────────────────────────────────────────────────────
+    for (let turn = 1; turn <= cfg.flow.turnsPerRound; turn++) {
+      const persona = pickRandomPersona(personas, rng);
+      const stance = decideStance(persona, rng);
+
+      // ユーザ意見 RAG
+      const userVoices: ContextVoice[] = listExternalVoices([theme], 5);
+
+      // YouTube コメントを userVoices に追加 (補完時のみ)
+      if (investigation.youtubeUsed && investigation.youtubeComments.length > 0) {
+        const ytVoices: ContextVoice[] = investigation.youtubeComments
+          .slice(0, 3)
+          .map((c) => ({ content: c, source: "youtube" }));
+        userVoices.push(...ytVoices);
+      }
+
+      // ペーパー組み立て
+      const personaPaper = buildPersonaPaper({
+        paper,
+        persona,
+        stance,
+        currentRoundUtterances: roundUtterances,
+        userVoices,
+        syntheticOpinions,
+      });
+      const prompt = paperToPrompt(personaPaper, stance, persona);
+
+      // LLM 呼び出し (コストログ付き)
+      const logged = withCostLog(llm, {
+        flow: "discussion",
+        sessionId,
+        round,
+        turn,
+        role: persona.role,
+        persona: persona.name,
+        location: persona.role === "facilitator" ? "facilitator" : "utterance",
+      });
+
+      let utteranceText: string;
+      let isError = false;
+
+      const result = await logged.invoke({
+        prompt,
+        model: persona.model,
+      });
+
+      if (!result.ok) {
+        utteranceText = `[エラー: ${result.error}]`;
+        isError = true;
+        warn(`ターン ${round}-${turn} (${persona.name}) LLM エラー: ${result.error}`);
+      } else {
+        utteranceText = result.text.trim();
+        // 空応答は発話に数えない
+        if (!utteranceText) {
+          log(`ターン ${round}-${turn} (${persona.name}): 空応答 (スキップ)`);
+          continue;
+        }
+      }
+
+      const record: FlowUtteranceRecord = {
+        id: randomUUID(),
+        sessionId,
+        paperId,
+        round,
+        turn,
+        personaId: persona.id,
+        personaName: persona.name,
+        role: persona.role,
+        stance,
+        text: utteranceText,
+        isError,
+      };
+
+      persistUtterance(record);
+      roundUtterances.push({ personaName: persona.name, text: utteranceText });
+      allUtterances.push(record);
+
+      if (onUtterance) await onUtterance(record);
+    }
+
+    // ラウンドサマリ (T3 で本格実装。T2 では placeholder を追記)
+    const roundSummary: RoundSummary = {
+      round,
+      summary: `ラウンド ${round} 完了 (${roundUtterances.length} 発話)`,
+      aufhebung: [],
+    };
+    paper.rounds.push(roundSummary);
+
+    // discussion_paper_round に追記
+    const db = getFlowDb();
+    db.prepare(
+      `INSERT INTO discussion_paper_round (paper_id, round, summary, aufhebung_json, created_at) VALUES (?, ?, ?, ?, ?)`
+    ).run(paperId, round, roundSummary.summary, JSON.stringify(roundSummary.aufhebung), Date.now());
+
+    log(`ラウンド ${round} 終了 (${roundUtterances.length} 発話)`);
+  }
+
+  return { sessionId, paperId, utterances: allUtterances, rounds: cfg.flow.rounds };
+}

@@ -70,6 +70,28 @@ const MIGRATIONS: Array<{ id: string; sql: string[] }> = [
       `CREATE INDEX IF NOT EXISTS idx_llm_call_log_flow ON llm_call_log(flow, created_at)`,
     ],
   },
+  {
+    id: "flow_0002_utterance",
+    sql: [
+      // 議論フロー内の発話 (1 ターン = 1 行)
+      `CREATE TABLE IF NOT EXISTS flow_utterance (
+        id TEXT PRIMARY KEY,
+        session_id TEXT NOT NULL,
+        paper_id TEXT NOT NULL,
+        round INTEGER NOT NULL,
+        turn INTEGER NOT NULL,
+        persona_id TEXT NOT NULL,
+        persona_name TEXT NOT NULL,
+        role TEXT NOT NULL,
+        stance TEXT NOT NULL DEFAULT 'neutral',
+        text TEXT NOT NULL,
+        is_error INTEGER NOT NULL DEFAULT 0,
+        created_at INTEGER NOT NULL
+      )`,
+      `CREATE INDEX IF NOT EXISTS idx_flow_utterance_session ON flow_utterance(session_id, round)`,
+      `CREATE INDEX IF NOT EXISTS idx_flow_utterance_paper ON flow_utterance(paper_id)`,
+    ],
+  },
 ];
 
 export function applyFlowMigrations(db: Database.Database): void {
