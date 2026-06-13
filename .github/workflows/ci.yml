@@ -12,6 +12,7 @@ concurrency:
 
 permissions:
   contents: read
+  packages: read
 
 jobs:
   build-test:
@@ -25,8 +26,12 @@ jobs:
           node-version-file: .nvmrc
           cache: npm
 
+      # .npmrc の @ludiars scope (GitHub Packages) を読むため NODE_AUTH_TOKEN を渡す。
+      # 組織内パッケージ @ludiars/canalis をビルトイン GITHUB_TOKEN (packages:read) で取得。
       - name: Install deps
         run: npm ci
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
       # ビルドチェック (tsc)
       - name: Build (tsc)
