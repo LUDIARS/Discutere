@@ -14,6 +14,7 @@
  */
 
 import {
+  ChannelType,
   Client,
   Events,
   GatewayIntentBits,
@@ -36,8 +37,6 @@ import { handleCrawlMessage } from "./crawl-handler.js";
 import type { CrawlDeps } from "./crawl-channel.js";
 import {
   finalizeForumPost,
-  handleForumReply,
-  handleForumThreadCreate,
   isForumStarterMessage,
   isForumThreadChannel,
 } from "./forum-monitor.js";
@@ -47,6 +46,20 @@ import { stripBotMention } from "./facilitator-directives.js";
 import type { AnyThreadChannel } from "discord.js";
 import { createDebateRunner, type DebateRunner } from "../discussion/director-live.js";
 import { ensureGameFeedbackCategory, extractGameFeedback } from "./game-feedback-channel.js";
+import { parseForumEntry } from "../flow/entry-discord.js";
+import {
+  handleForumFlowReply,
+  startForumFlow,
+  type FlowDiscordDeps,
+  type FlowLiveHooks,
+} from "../flow/discord-live.js";
+import { parseFlowKind } from "../flow/dispatch.js";
+import type { FlowTag } from "../flow/tags.js";
+import {
+  buildFlowPickMenu,
+  ensureDiscussionForum,
+  parseFlowPickCustomId,
+} from "./forum-flow-tags.js";
 
 export interface DiscordGatewayDeps extends CommandRouterDeps {
   /** Gateway 接続用 bot token */
@@ -79,7 +92,15 @@ export interface DiscordGatewayDeps extends CommandRouterDeps {
     managedCategoryName: string;
     improvementTagNames: string[];
     funTagNames: string[];
+    /** 起動時に ensure する議論フォーラム名 (既定「議論」)。全フロータグを用意する。 */
+    discussionForumName: string;
   };
+  /**
+   * 新フロー (議論/改善/学習/壁打ち) の Discord live 実行に必要な依存。
+   * 設定すると forum スレッドは新フローエンジンで起動する (旧 auto-discussion 経路は使わない)。
+   * 未設定なら forum 起動は skip (= LLM backend 無し)。
+   */
+  flowLive?: FlowDiscordDeps;
   /** /debate のパーティ議論設定 (config.discussion)。未設定なら /debate 無効。 */
   debate?: import("../config.js").DiscutereConfig["discussion"];
   /** claude -p 用 git-bash パス (Windows)。 */
@@ -154,6 +175,23 @@ export async function startDiscordGateway(
   // crawl 対象は config 由来 + 起動時に自動作成する「データ学習依頼」チャンネルを足す (mutable)。
   const crawlChannelIds = new Set((deps.crawlChannelIds ?? []).filter(Boolean));
   const forumEnabled = deps.forum?.enabled ?? false;
+  // 新フローエンジンでフォーラム議論を回すか (flowLive が無ければ forum 起動 skip)。
+  const flowLiveEnabled = forumEnabled && !!deps.flowLive;
+  // 議論タイプタグ未指定の投稿に出した select の待ち (threadId → 起動情報)。
+  const pendingFlowPicks = new Map<string, { guildId: string; theme: string; tags: FlowTag[] }>();
+  // 収束時にフォーラムスレッドを締める (lock+archive + まとめ転記)。
+  const flowHooks: FlowLiveHooks = {
+    onConcluded: async ({ scene, title, summary }) => {
+      if (!forumEnabled) return;
+      await finalizeForumPost(client, {
+        scene,
+        summary,
+        title,
+        summaryChannelName: deps.forum?.summaryChannelName,
+        categoryName: deps.forum?.managedCategoryName,
+      }).catch((err) => console.warn(`  flow-live: finalize 失敗: ${(err as Error).message}`));
+    },
+  };
 
   client.once(Events.ClientReady, async (c) => {
     console.log(`  discord-gateway: logged in as ${c.user.tag}`);
@@ -197,6 +235,17 @@ export async function startDiscordGateway(
       }
     }
 
+    // 議論フォーラムを ensure し、定義済みフロータグ (議論/改善/学習/壁打ち + 機密/内部/運用/開発)
+    // を用意する。新フローエンジン有効時のみ。
+    if (flowLiveEnabled && guildIds.length > 0) {
+      const forumName = deps.forum?.discussionForumName || "議論";
+      for (const guildId of guildIds) {
+        await ensureDiscussionForum(client, guildId, forumName).catch((err) =>
+          console.warn(`  forum-tags: ensure 失敗 (guild=${guildId}): ${(err as Error).message}`)
+        );
+      }
+    }
+
     // ゲーム感想カテゴリを ensure (無ければ作成)。配下チャンネルへの投稿を感想収集する。
     if (deps.gameFeedback?.enabled && guildIds.length > 0) {
       await ensureGameFeedbackCategory(client, guildIds, deps.gameFeedback.categoryName).catch((err) =>
@@ -205,19 +254,107 @@ export async function startDiscordGateway(
     }
   });
 
-  // フォーラム新規ポスト (親=GuildForum) の最初の投稿で議論を起こす。
-  if (forumEnabled) {
+  // フォーラム新規ポスト (親=GuildForum) の starter で新フロー (議論/改善/学習/壁打ち) を起こす。
+  if (flowLiveEnabled) {
     client.on(Events.ThreadCreate, (thread: AnyThreadChannel, newlyCreated: boolean) => {
       if (!newlyCreated) return;
-      void handleForumThreadCreate(thread, {
-        router: deps,
-        directionConfig: deps.forum
-          ? { improvementTagNames: deps.forum.improvementTagNames, funTagNames: deps.forum.funTagNames }
-          : undefined,
-      }).catch((err) =>
+      void onForumThreadCreate(thread).catch((err) =>
         console.warn(`  discord-forum: thread-create 失敗: ${(err as Error).message}`)
       );
     });
+  }
+
+  /** スレッドの適用タグ id を親フォーラムの availableTags でタグ名に解決する。 */
+  function resolveAppliedTagNames(thread: AnyThreadChannel, parentForum: unknown): string[] {
+    const applied = (thread as { appliedTags?: string[] }).appliedTags ?? [];
+    if (applied.length === 0) return [];
+    const available =
+      (parentForum as { availableTags?: Array<{ id: string; name: string }> } | null)?.availableTags ?? [];
+    const byId = new Map(available.map((t) => [t.id, t.name]));
+    return applied.map((id) => byId.get(id)).filter((n): n is string => typeof n === "string" && n.length > 0);
+  }
+
+  /** starter message を取得 (作成直後は未確定なことがあるので 1 回リトライ)。 */
+  async function fetchStarterWithRetry(thread: AnyThreadChannel): Promise<Message | null> {
+    for (let attempt = 0; attempt < 2; attempt++) {
+      try {
+        const m = await thread.fetchStarterMessage();
+        if (m) return m;
+      } catch {
+        /* 作成直後は未確定 → リトライ */
+      }
+      await new Promise((r) => setTimeout(r, 500));
+    }
+    return null;
+  }
+
+  /**
+   * フォーラム starter からテーマ + 適用タグ名 + guildId を解決する。
+   * 親が GuildForum でない / starter が bot / guild 不明なら null。
+   */
+  async function resolveForumStarter(
+    thread: AnyThreadChannel
+  ): Promise<{ guildId: string; theme: string; appliedTagNames: string[] } | null> {
+    let parentForum: unknown = thread.parent;
+    let parentType: ChannelType | undefined = thread.parent?.type;
+    if (parentType === undefined && thread.parentId) {
+      try {
+        const parent = await thread.client.channels.fetch(thread.parentId);
+        parentForum = parent;
+        parentType = parent?.type;
+      } catch {
+        /* 取得不可 → 判定不能 */
+      }
+    }
+    if (parentType !== ChannelType.GuildForum) return null;
+    const guildId = thread.guildId ?? thread.guild?.id;
+    if (!guildId) return null;
+
+    const appliedTagNames = resolveAppliedTagNames(thread, parentForum);
+    const starter = await fetchStarterWithRetry(thread);
+    if (!starter) {
+      console.warn(`  discord-forum: starter message 取得不可 (thread=${thread.id})`);
+      return null;
+    }
+    if (starter.author?.bot) return null;
+    // 議題はスレッド名を優先 (本文にゲーム名が無くても議題を固定する)。
+    const theme = (typeof thread.name === "string" && thread.name.trim()) || starter.content.trim();
+    if (!theme) return null;
+    return { guildId, theme, appliedTagNames };
+  }
+
+  /** 議論タイプ select メニューをスレッドに出す。 */
+  async function postFlowPickMenu(threadId: string): Promise<void> {
+    try {
+      const channel = await client.channels.fetch(threadId);
+      if (!channel || !channel.isTextBased() || !("send" in channel)) return;
+      await (channel as { send: (o: unknown) => Promise<unknown> }).send({
+        content:
+          "🏷️ 議論タイプのタグが付いていません。どのフローで進めますか？ (議論/改善/学習/壁打ち)",
+        components: [buildFlowPickMenu(threadId)],
+      });
+    } catch (err) {
+      console.warn(`  discord-forum: flow-pick menu 失敗 (thread=${threadId}): ${(err as Error).message}`);
+    }
+  }
+
+  /** フォーラム starter を解析し、フロー起動 or タグ選択 UI を出す。 */
+  async function onForumThreadCreate(thread: AnyThreadChannel): Promise<void> {
+    if (!deps.flowLive) return;
+    const starter = await resolveForumStarter(thread);
+    if (!starter) return;
+    const { flow, tags } = parseForumEntry(starter.appliedTagNames);
+    if (flow) {
+      void startForumFlow(
+        { guildId: starter.guildId, threadId: thread.id, theme: starter.theme, flow, tags },
+        deps.flowLive,
+        flowHooks
+      );
+      return;
+    }
+    // 議論タイプタグ無し → 選択 UI を出して待つ。
+    pendingFlowPicks.set(thread.id, { guildId: starter.guildId, theme: starter.theme, tags });
+    await postFlowPickMenu(thread.id);
   }
 
   client.on(Events.MessageCreate, (msg: Message) => {
@@ -280,9 +417,18 @@ export async function startDiscordGateway(
 
   /** 通常の議論ルーティング (フォーラム / クロール / 平文取り込み)。 */
   function routeDiscussionMessage(msg: Message): void {
-    // フォーラムスレッド内の投稿: starter は ThreadCreate が処理済 → ここでは返信のみ取り込む。
+    // フォーラムスレッド内の投稿: starter は ThreadCreate が処理済。後続投稿は
+    // 進行中の壁打ちセッションへの返信としてのみ取り込む (議論/改善/学習は完走型で返信不要)。
     if (forumEnabled && isForumThreadChannel(msg.channel)) {
-      if (!isForumStarterMessage(msg)) handleForumReply(msg, { router: deps });
+      if (!isForumStarterMessage(msg) && deps.flowLive) {
+        void handleForumFlowReply(
+          msg.channelId,
+          msg.guildId ?? "dm",
+          msg.content,
+          deps.flowLive,
+          flowHooks
+        ).catch((err) => console.warn(`  discord-forum: flow reply 失敗: ${(err as Error).message}`));
+      }
       return;
     }
 
@@ -354,6 +500,31 @@ export async function startDiscordGateway(
       if (debateRunner) await debateRunner.handleButton(interaction).catch(() => {});
       return;
     }
+
+    // 議論タイプ select (flow-pick:<threadId>) — タグ無し投稿のフロー選択。
+    if (interaction.isStringSelectMenu()) {
+      const threadId = parseFlowPickCustomId(interaction.customId);
+      if (!threadId) return;
+      const pending = pendingFlowPicks.get(threadId);
+      const flow = parseFlowKind(interaction.values[0]);
+      if (!pending || !flow || !deps.flowLive) {
+        await interaction
+          .reply({ content: "この選択は期限切れです。スレッドを作り直してください。", flags: MessageFlags.Ephemeral })
+          .catch(() => {});
+        return;
+      }
+      pendingFlowPicks.delete(threadId);
+      await interaction
+        .update({ content: `✅ 「${interaction.values[0]}」で開始します`, components: [] })
+        .catch(() => {});
+      void startForumFlow(
+        { guildId: pending.guildId, threadId, theme: pending.theme, flow, tags: pending.tags },
+        deps.flowLive,
+        flowHooks
+      );
+      return;
+    }
+
     if (!interaction.isChatInputCommand()) return;
 
     // /debate: パーティ議論を開始 (非同期、ack だけ即返す)。
