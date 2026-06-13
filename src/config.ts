@@ -30,6 +30,23 @@ export interface DiscutereConfig {
     port: number;
     frontendUrl: string;
   };
+  /** 4 フロー共通の進行量設定 */
+  flow: {
+    /** 最大ラウンド数 */
+    rounds: number;
+    /** 1 ラウンドあたりのターン数 */
+    turnsPerRound: number;
+    /** 議論プレイヤー人数 */
+    personaCount: number;
+    /** 投票者数 (中立) */
+    voterCount: number;
+    /** テーマ単位の既定タグ (`機密` `内部` `運用` `開発` など) */
+    tags: string[];
+    /** 壁打ちの暴走ガード上限 */
+    sparringMaxTurns: number;
+    /** 感情データ 0 件時の YouTube コメント取得上限 */
+    youtubeMaxComments: number;
+  };
   /** 匿名議論 workspace (個人データ非保管) */
   workspace: string;
   discatier: {
@@ -288,6 +305,7 @@ export interface DiscutereConfig {
 
 interface RawFileConfig {
   server?: Partial<DiscutereConfig["server"]>;
+  flow?: Partial<DiscutereConfig["flow"]>;
   workspace?: string;
   discatier?: Partial<DiscutereConfig["discatier"]>;
   personaEngine?: Partial<DiscutereConfig["personaEngine"]>;
@@ -427,6 +445,15 @@ export function loadConfig(): DiscutereConfig {
     server: {
       port: pickNum(process.env.BACKEND_PORT, file.server?.port, 3100),
       frontendUrl: pick(process.env.FRONTEND_URL, file.server?.frontendUrl, "http://localhost:5174"),
+    },
+    flow: {
+      rounds: pickNum(process.env.DISCUTERE_FLOW_ROUNDS, file.flow?.rounds, 3),
+      turnsPerRound: pickNum(process.env.DISCUTERE_FLOW_TURNS_PER_ROUND, file.flow?.turnsPerRound, 6),
+      personaCount: pickNum(process.env.DISCUTERE_FLOW_PERSONA_COUNT, file.flow?.personaCount, 4),
+      voterCount: pickNum(process.env.DISCUTERE_FLOW_VOTER_COUNT, file.flow?.voterCount, 3),
+      tags: parseStringList(process.env.DISCUTERE_FLOW_TAGS, file.flow?.tags),
+      sparringMaxTurns: pickNum(process.env.DISCUTERE_FLOW_SPARRING_MAX_TURNS, file.flow?.sparringMaxTurns, 50),
+      youtubeMaxComments: pickNum(process.env.DISCUTERE_FLOW_YOUTUBE_MAX_COMMENTS, file.flow?.youtubeMaxComments, 200),
     },
     workspace: pick(process.env.DISCATIER_WORKSPACE, file.workspace, "knowledge"),
     discatier: {
