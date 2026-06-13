@@ -188,8 +188,14 @@ export function paperToPrompt(p: PersonaPaper, stance: FlowStance, persona: Flow
 
 // ── 永続化 ──────────────────────────────────────────────────────────────────
 
-/** discussion_paper を DB に保存し paperId を返す。 */
-export function persistPaper(paper: Omit<DiscussionPaper, "paperId" | "rounds">): string {
+/**
+ * discussion_paper を DB に保存し paperId を返す。
+ * @param flow フロー種別 ("discussion" / "improvement" 等)。既定 "discussion"。
+ */
+export function persistPaper(
+  paper: Omit<DiscussionPaper, "paperId" | "rounds">,
+  flow = "discussion"
+): string {
   const db = getFlowDb();
   const paperId = randomUUID();
   const now = Date.now();
@@ -198,7 +204,7 @@ export function persistPaper(paper: Omit<DiscussionPaper, "paperId" | "rounds">)
      VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)`
   ).run(
     paperId,
-    "discussion",
+    flow,
     paper.sessionId,
     paper.theme,
     JSON.stringify(paper.tags),

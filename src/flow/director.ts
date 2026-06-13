@@ -67,6 +67,37 @@ export interface FlowDirectorResult {
   concluded: boolean;
 }
 
+/**
+ * ラウンドの世論決定 (discussion.md step 6) を差し替えるための評価コンテキスト。
+ * 議論フローは中立投票 (vote)、改善フローは機械スコア (design_gap) を注入する。
+ */
+export interface RoundEvalContext {
+  theme: string;
+  sessionId: string;
+  paperId: string;
+  round: number;
+  mechanics: MechanicSummary[];
+  tags: readonly FlowTag[];
+  /** 投票/スコア候補 (ファシリテーター発話・エラー発話を除いた当ラウンドの意見) */
+  candidates: Array<{ id: string; personaName: string; text: string }>;
+  llm: LLMClient;
+  warn: (msg: string) => void;
+}
+
+/**
+ * ラウンド世論決定の戦略。返り値は VoteResult 形 ({ tally, winner })。
+ * winner = そのラウンドの主要意見 (世論) の utterance id。
+ */
+export type RoundEvaluator = (ctx: RoundEvalContext) => Promise<VoteResult>;
+
+/** runFlow のオプション (議論フロー/改善フローで共有)。 */
+export interface FlowRunOptions extends FlowDirectorDeps {
+  /** フロー種別 (コストログ / ペーパーに記録)。既定 "discussion"。 */
+  flow?: string;
+  /** ラウンド世論決定の戦略。既定は中立投票 (runRoundVote)。 */
+  evaluateRound?: RoundEvaluator;
+}
+
 function defaultRng(): number {
   return Math.random();
 }
@@ -104,16 +135,17 @@ function persistUtterance(u: FlowUtteranceRecord): void {
 }
 
 /**
- * 議論フローを実行する。
+ * 議論骨格フローを実行する (discussion.md の 9 ステップ)。
+ * step 6 の世論決定は options.evaluateRound で差し替え可能 (議論=投票 / 改善=機械スコア)。
  *
  * @param theme テーマ文字列
  * @param tags フロータグ (機密/内部/運用/開発 等)
- * @param deps 依存注入
+ * @param options 依存注入 + flow 種別 + 世論決定戦略
  */
-export async function runDiscussionFlow(
+export async function runFlow(
   theme: string,
   tags: readonly FlowTag[],
-  deps: FlowDirectorDeps
+  options: FlowRunOptions
 ): Promise<FlowDirectorResult> {
   const cfg = getConfig();
   const {
@@ -125,7 +157,23 @@ export async function runDiscussionFlow(
     warn = (m) => console.warn(`[flow/warn] ${m}`),
     rng = defaultRng,
     gamesDir,
-  } = deps;
+    flow = "discussion",
+  } = options;
+
+  // ラウンド世論決定の戦略。既定は中立投票 (discussion.md step 6)。
+  // 改善フローは机上の機械スコア (design_gap) を注入する (improvement.md)。
+  const evaluateRound: RoundEvaluator =
+    options.evaluateRound ??
+    ((ctx) =>
+      runRoundVote({
+        theme: ctx.theme,
+        sessionId: ctx.sessionId,
+        round: ctx.round,
+        voterCount: cfg.flow.voterCount,
+        utterances: ctx.candidates,
+        llm: ctx.llm,
+        warn: ctx.warn,
+      }));
 
   const sessionId = randomUUID();
   const isLocal = cfg.llm.backend === "local";
@@ -144,7 +192,7 @@ export async function runDiscussionFlow(
 
   // ── [2] ディスカッションペーパー初期化 ─────────────────────────────────
   const supplement = (await import("./tags.js")).paperSupplement(tags);
-  const paperId = persistPaper({ sessionId, theme, tags: [...tags], mechanics, supplement });
+  const paperId = persistPaper({ sessionId, theme, tags: [...tags], mechanics, supplement }, flow);
   const paper: DiscussionPaper = {
     paperId,
     sessionId,
@@ -169,7 +217,7 @@ export async function runDiscussionFlow(
 
   const allUtterances: FlowUtteranceRecord[] = [];
   const allAufhebung: string[] = [];
-  const allVoteResults: VoteResult[] = [];
+  const roundEvaluations: VoteResult[] = [];
 
   // ── ラウンドループ ────────────────────────────────────────────────────────
   const facilitatorPersona = personas.find((p) => p.role === "facilitator") ?? personas[0];
@@ -186,7 +234,7 @@ export async function runDiscussionFlow(
         `参加者が意見を出しやすいよう、1〜2 文で議題を提示してください。`;
 
       const facilitatorLogged = withCostLog(llm, {
-        flow: "discussion",
+        flow,
         sessionId,
         round,
         turn: 0,
@@ -261,7 +309,7 @@ export async function runDiscussionFlow(
 
       // LLM 呼び出し (コストログ付き)
       const logged = withCostLog(llm, {
-        flow: "discussion",
+        flow,
         sessionId,
         round,
         turn,
@@ -312,20 +360,22 @@ export async function runDiscussionFlow(
       if (onUtterance) await onUtterance(record);
     }
 
-    // ── [6] 投票 ──────────────────────────────────────────────────────────
+    // ── [6] 世論決定 (議論=中立投票 / 改善=機械スコア) ──────────────────────
     const roundUtteranceRecords = allUtterances.filter((u) => isVoteCandidate(u, round));
-    const voteResult = await runRoundVote({
+    const evaluation = await evaluateRound({
       theme,
       sessionId,
+      paperId,
       round,
-      voterCount: cfg.flow.voterCount,
-      utterances: roundUtteranceRecords.map((u) => ({ id: u.id, personaName: u.personaName, text: u.text })),
+      mechanics,
+      tags,
+      candidates: roundUtteranceRecords.map((u) => ({ id: u.id, personaName: u.personaName, text: u.text })),
       llm,
       warn,
     });
-    allVoteResults.push(voteResult);
-    if (voteResult.winner) {
-      log(`ラウンド ${round} 世論 (最多得票): ${voteResult.winner}`);
+    roundEvaluations.push(evaluation);
+    if (evaluation.winner) {
+      log(`ラウンド ${round} 世論: ${evaluation.winner}`);
     }
 
     // ── [7] ラウンドサマリ + 止揚 ─────────────────────────────────────────
@@ -338,6 +388,7 @@ export async function runDiscussionFlow(
       stockedAufhebung: [...allAufhebung],
       llm,
       warn,
+      flow,
     });
     allAufhebung.push(...summaryResult.newAufhebung);
 
@@ -365,9 +416,10 @@ export async function runDiscussionFlow(
     paperId,
     allUtterances,
     allAufhebung,
-    voteResults: allVoteResults,
+    voteResults: roundEvaluations,
     llm,
     warn,
+    flow,
   });
   log(`結論: ${conclusionResult.concluded ? conclusionResult.summary.slice(0, 80) : "結論なし"}`);
 
@@ -379,4 +431,20 @@ export async function runDiscussionFlow(
     conclusion: conclusionResult.summary,
     concluded: conclusionResult.concluded,
   };
+}
+
+/**
+ * 議論フローを実行する (discussion.md)。
+ * 世論決定 = 中立投票 (step 6)。runFlow の薄いラッパ。
+ *
+ * @param theme テーマ文字列
+ * @param tags フロータグ (機密/内部/運用/開発 等)
+ * @param deps 依存注入
+ */
+export async function runDiscussionFlow(
+  theme: string,
+  tags: readonly FlowTag[],
+  deps: FlowDirectorDeps
+): Promise<FlowDirectorResult> {
+  return runFlow(theme, tags, { ...deps, flow: "discussion" });
 }
