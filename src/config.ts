@@ -680,3 +680,8 @@ export function getConfig(): DiscutereConfig {
   if (!cached) cached = loadConfig();
   return cached;
 }
+
+/** テスト専用: キャッシュをクリアして次回 getConfig() で再ロードさせる */
+export function _resetConfig(): void {
+  cached = null;
+}
