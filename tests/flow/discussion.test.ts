@@ -30,6 +30,7 @@ const { buildPersonaPaper, synthesizeOpinions } = await import("../../src/flow/d
 const { generateFlowPersonas, pickRandomPersona, decideStance } = await import("../../src/flow/personas.js");
 const { investigateTheme } = await import("../../src/flow/investigate.js");
 const { canCollectExternal } = await import("../../src/flow/tags.js");
+const { _resetConfig } = await import("../../src/config.js");
 
 // ── personas ──────────────────────────────────────────────────────────────────
 
@@ -82,7 +83,6 @@ const { canCollectExternal } = await import("../../src/flow/tags.js");
 // ── discussion-paper ロール別配布 ──────────────────────────────────────────────
 
 {
-  const { default: gm } = await import("gray-matter");
   const paper = {
     paperId: "p1",
     sessionId: "s1",
@@ -261,7 +261,8 @@ const { canCollectExternal } = await import("../../src/flow/tags.js");
   db.close();
 
   assert.ok(rows.length > 0, `utterances persisted (got ${rows.length})`);
-  assert.ok(rows.length <= 6, `max 6 utterances (got ${rows.length})`);
+  // 2 rounds × (3 regular turns + 1 facilitator opening) = 8 max
+  assert.ok(rows.length <= 8, `max 8 utterances (got ${rows.length})`);
   assert.equal(result.rounds, 2, "2 rounds completed");
   console.log(`  [ok] runDiscussionFlow: ${rows.length} utterances persisted over 2 rounds`);
 
@@ -284,6 +285,7 @@ const { canCollectExternal } = await import("../../src/flow/tags.js");
 {
   // LLM 失敗時: エラーが発話に出て llm_call_log に記録される
   _resetFlowDb();
+  _resetConfig();
   process.env.DATABASE_PATH = path.join(TMP_DIR, "error-test.db");
   process.env.DISCUTERE_FLOW_ROUNDS = "1";
   process.env.DISCUTERE_FLOW_TURNS_PER_ROUND = "1";
@@ -319,6 +321,49 @@ const { canCollectExternal } = await import("../../src/flow/tags.js");
   delete process.env.DISCUTERE_FLOW_ROUNDS;
   delete process.env.DISCUTERE_FLOW_TURNS_PER_ROUND;
   delete process.env.DISCUTERE_FLOW_PERSONA_COUNT;
+}
+
+// ── loadMechanics: mechanics が frontmatter の最後のキーでも全件取れる ──────────
+
+{
+  // 最後キー再現ファイル: mechanics の後にキーが無い
+  const testGamesDir = path.join(TMP_DIR, "games-last-key");
+  fs.mkdirSync(testGamesDir, { recursive: true });
+  fs.writeFileSync(
+    path.join(testGamesDir, "test-game.md"),
+    [
+      "---",
+      "id: test-game",
+      "title: テストゲーム",
+      "mechanics:",
+      "  - name: 飛行",
+      "    description: 空を飛ぶ",
+      "    intended_affect: 高揚",
+      "    intended_valence: positive",
+      "  - name: 収集",
+      "    description: アイテムを集める",
+      "    intended_affect: 達成感",
+      "    intended_valence: positive",
+      "---",
+      "",
+      "# 概要",
+      "テスト用のゲームデータ。",
+    ].join("\n")
+  );
+
+  const result = await investigateTheme({
+    theme: "飛行",
+    tags: [],
+    gamesDir: testGamesDir,
+    getSentimentCount: () => 0,
+  });
+
+  // mechanics が最後のキーでも全件ロードされる
+  assert.ok(result.mechanics.length >= 1, `mechanics loaded (got ${result.mechanics.length})`);
+  const names = result.mechanics.map((m) => m.name);
+  assert.ok(names.includes("飛行"), `mechanics includes "飛行" (got ${JSON.stringify(names)})`);
+  assert.ok(names.includes("収集"), `mechanics includes "収集" (got ${JSON.stringify(names)})`);
+  console.log("  [ok] loadMechanics: mechanics as last frontmatter key → all items loaded");
 }
 
 // クリーンアップ

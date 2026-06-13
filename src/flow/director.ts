@@ -71,6 +71,15 @@ function defaultRng(): number {
   return Math.random();
 }
 
+/**
+ * 投票候補の判定。
+ * ファシリテーターの発話 (議題提示・進行) は「意見」ではないため投票候補から除外する。
+ * エラー発話・他ラウンドの発話も除く。
+ */
+export function isVoteCandidate(u: FlowUtteranceRecord, round: number): boolean {
+  return u.round === round && !u.isError && u.role !== "facilitator";
+}
+
 /** flow_utterance テーブルにターン発話を永続化する。 */
 function persistUtterance(u: FlowUtteranceRecord): void {
   const db = getFlowDb();
@@ -163,9 +172,65 @@ export async function runDiscussionFlow(
   const allVoteResults: VoteResult[] = [];
 
   // ── ラウンドループ ────────────────────────────────────────────────────────
+  const facilitatorPersona = personas.find((p) => p.role === "facilitator") ?? personas[0];
+
   for (let round = 1; round <= cfg.flow.rounds; round++) {
     log(`ラウンド ${round}/${cfg.flow.rounds} 開始`);
     const roundUtterances: Array<{ personaName: string; text: string }> = [];
+
+    // ── [4] ファシリテーター開幕ターン (議題提示) ─────────────────────────
+    {
+      const facilitatorPrompt =
+        `あなたは議論の進行役です。\n` +
+        `テーマ「${theme}」について、ラウンド ${round} の議論を始めてください。\n` +
+        `参加者が意見を出しやすいよう、1〜2 文で議題を提示してください。`;
+
+      const facilitatorLogged = withCostLog(llm, {
+        flow: "discussion",
+        sessionId,
+        round,
+        turn: 0,
+        role: facilitatorPersona.role,
+        persona: facilitatorPersona.name,
+        location: "facilitator",
+      });
+
+      const facilitatorResult = await facilitatorLogged.invoke({
+        prompt: facilitatorPrompt,
+        model: facilitatorPersona.model,
+      });
+
+      let facilitatorText: string;
+      let isFacilitatorError = false;
+
+      if (!facilitatorResult.ok) {
+        facilitatorText = `[エラー: ${facilitatorResult.error}]`;
+        isFacilitatorError = true;
+        warn(`ラウンド ${round} ファシリテーター開幕ターン エラー: ${facilitatorResult.error}`);
+      } else {
+        facilitatorText = facilitatorResult.text.trim();
+      }
+
+      if (facilitatorText) {
+        const facilitatorRecord: FlowUtteranceRecord = {
+          id: randomUUID(),
+          sessionId,
+          paperId,
+          round,
+          turn: 0,
+          personaId: facilitatorPersona.id,
+          personaName: facilitatorPersona.name,
+          role: facilitatorPersona.role,
+          stance: "neutral",
+          text: facilitatorText,
+          isError: isFacilitatorError,
+        };
+        persistUtterance(facilitatorRecord);
+        roundUtterances.push({ personaName: facilitatorPersona.name, text: facilitatorText });
+        allUtterances.push(facilitatorRecord);
+        if (onUtterance) await onUtterance(facilitatorRecord);
+      }
+    }
 
     // ── ターンループ ─────────────────────────────────────────────────────
     for (let turn = 1; turn <= cfg.flow.turnsPerRound; turn++) {
@@ -248,7 +313,7 @@ export async function runDiscussionFlow(
     }
 
     // ── [6] 投票 ──────────────────────────────────────────────────────────
-    const roundUtteranceRecords = allUtterances.filter((u) => u.round === round && !u.isError);
+    const roundUtteranceRecords = allUtterances.filter((u) => isVoteCandidate(u, round));
     const voteResult = await runRoundVote({
       theme,
       sessionId,
