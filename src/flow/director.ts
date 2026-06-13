@@ -23,6 +23,9 @@ import {
 } from "./discussion-paper.js";
 import { investigateTheme, type YoutubeSearchFn, type MechanicSummary } from "./investigate.js";
 import { getFlowDb } from "./db/connection.js";
+import { runRoundVote, type VoteResult } from "./vote.js";
+import { summarizeRound } from "./round-summary.js";
+import { generateConclusion } from "./conclusion.js";
 
 export interface FlowUtteranceRecord {
   id: string;
@@ -60,6 +63,8 @@ export interface FlowDirectorResult {
   paperId: string;
   utterances: FlowUtteranceRecord[];
   rounds: number;
+  conclusion: string;
+  concluded: boolean;
 }
 
 function defaultRng(): number {
@@ -154,6 +159,8 @@ export async function runDiscussionFlow(
   const syntheticOpinions = tags.includes("機密") ? synthesizeOpinions(mechanics) : [];
 
   const allUtterances: FlowUtteranceRecord[] = [];
+  const allAufhebung: string[] = [];
+  const allVoteResults: VoteResult[] = [];
 
   // ── ラウンドループ ────────────────────────────────────────────────────────
   for (let round = 1; round <= cfg.flow.rounds; round++) {
@@ -240,22 +247,71 @@ export async function runDiscussionFlow(
       if (onUtterance) await onUtterance(record);
     }
 
-    // ラウンドサマリ (T3 で本格実装。T2 では placeholder を追記)
+    // ── [6] 投票 ──────────────────────────────────────────────────────────
+    const roundUtteranceRecords = allUtterances.filter((u) => u.round === round && !u.isError);
+    const voteResult = await runRoundVote({
+      theme,
+      sessionId,
+      round,
+      voterCount: cfg.flow.voterCount,
+      utterances: roundUtteranceRecords.map((u) => ({ id: u.id, personaName: u.personaName, text: u.text })),
+      llm,
+      warn,
+    });
+    allVoteResults.push(voteResult);
+    if (voteResult.winner) {
+      log(`ラウンド ${round} 世論 (最多得票): ${voteResult.winner}`);
+    }
+
+    // ── [7] ラウンドサマリ + 止揚 ─────────────────────────────────────────
+    const summaryResult = await summarizeRound({
+      theme,
+      sessionId,
+      paperId,
+      round,
+      utterances: roundUtterances,
+      stockedAufhebung: [...allAufhebung],
+      llm,
+      warn,
+    });
+    allAufhebung.push(...summaryResult.newAufhebung);
+
     const roundSummary: RoundSummary = {
       round,
-      summary: `ラウンド ${round} 完了 (${roundUtterances.length} 発話)`,
-      aufhebung: [],
+      summary: summaryResult.summary,
+      aufhebung: summaryResult.newAufhebung,
     };
     paper.rounds.push(roundSummary);
 
-    // discussion_paper_round に追記
-    const db = getFlowDb();
-    db.prepare(
-      `INSERT INTO discussion_paper_round (paper_id, round, summary, aufhebung_json, created_at) VALUES (?, ?, ?, ?, ?)`
-    ).run(paperId, round, roundSummary.summary, JSON.stringify(roundSummary.aufhebung), Date.now());
+    log(`ラウンド ${round} 終了 (${roundUtterances.length} 発話, 止揚: ${summaryResult.newAufhebung.length})`);
 
-    log(`ラウンド ${round} 終了 (${roundUtterances.length} 発話)`);
+    // ── [9] 早期収束チェック: 止揚が facilitator.aufhebungTarget に達したら打ち切り ──
+    if (allAufhebung.length >= cfg.facilitator.aufhebungTarget) {
+      log(`止揚 ${allAufhebung.length} 件が上限 (${cfg.facilitator.aufhebungTarget}) に達したため早期収束`);
+      break;
+    }
   }
 
-  return { sessionId, paperId, utterances: allUtterances, rounds: cfg.flow.rounds };
+  // ── [9] 結論生成 ──────────────────────────────────────────────────────────
+  log("結論生成中...");
+  const conclusionResult = await generateConclusion({
+    theme,
+    sessionId,
+    paperId,
+    allUtterances,
+    allAufhebung,
+    voteResults: allVoteResults,
+    llm,
+    warn,
+  });
+  log(`結論: ${conclusionResult.concluded ? conclusionResult.summary.slice(0, 80) : "結論なし"}`);
+
+  return {
+    sessionId,
+    paperId,
+    utterances: allUtterances,
+    rounds: paper.rounds.length,
+    conclusion: conclusionResult.summary,
+    concluded: conclusionResult.concluded,
+  };
 }

@@ -92,6 +92,23 @@ const MIGRATIONS: Array<{ id: string; sql: string[] }> = [
       `CREATE INDEX IF NOT EXISTS idx_flow_utterance_paper ON flow_utterance(paper_id)`,
     ],
   },
+  {
+    id: "flow_0003_conclusion",
+    sql: [
+      // 議論の結論 (1 セッション = 1 行)
+      `CREATE TABLE IF NOT EXISTS flow_conclusion (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        session_id TEXT NOT NULL,
+        paper_id TEXT NOT NULL,
+        summary TEXT NOT NULL DEFAULT '',
+        aufhebung_json TEXT NOT NULL DEFAULT '[]',
+        top_utterance_ids_json TEXT NOT NULL DEFAULT '[]',
+        concluded INTEGER NOT NULL DEFAULT 0,
+        created_at INTEGER NOT NULL
+      )`,
+      `CREATE UNIQUE INDEX IF NOT EXISTS idx_flow_conclusion_session ON flow_conclusion(session_id)`,
+    ],
+  },
 ];
 
 export function applyFlowMigrations(db: Database.Database): void {
