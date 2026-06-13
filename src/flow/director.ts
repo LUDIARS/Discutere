@@ -112,7 +112,7 @@ export function isVoteCandidate(u: FlowUtteranceRecord, round: number): boolean 
 }
 
 /** flow_utterance テーブルにターン発話を永続化する。 */
-function persistUtterance(u: FlowUtteranceRecord): void {
+export function persistUtterance(u: FlowUtteranceRecord): void {
   const db = getFlowDb();
   db.prepare(
     `INSERT INTO flow_utterance

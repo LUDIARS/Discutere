@@ -12,5 +12,6 @@ await import("./discussion.test.js");
 await import("./vote-conclude.test.js");
 await import("./improvement.test.js");
 await import("./learning.test.js");
+await import("./sparring.test.js");
 
 console.log("flow tests: all passed");
