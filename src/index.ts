@@ -610,6 +610,17 @@ const discordGatewayLifecycle = startDiscordGateway({
   crawlChannelIds: config.discord.crawlChannelIds,
   // フォーラム集約: guild 内の全 Forum 監視 + データ学習依頼/まとめ投稿 を自動作成。
   forum: config.discord.forum,
+  // 新フロー (議論/改善/学習/壁打ち) の Discord live 実行依存。LLM backend がある時のみ。
+  // 設定するとフォーラムスレッドは新フローエンジンで起動する (旧 auto-discussion 経路は不使用)。
+  flowLive: classifierLlm
+    ? {
+        botToken: config.discord.botToken ?? "",
+        llm: classifierLlm,
+        openCore: () => createCore(resolveActiveKgPath(config)),
+        sentimentClients: { main: classifierLlm },
+        workspaceId: config.workspace,
+      }
+    : undefined,
   // /debate のパーティ議論 (司会+キーマン+意見、想定発話数で続行/停止)。
   debate: config.discussion,
   gitBashPath: config.workerPool.gitBashPath ?? config.llm.gitBashPath,

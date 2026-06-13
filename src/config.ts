@@ -248,6 +248,8 @@ export interface DiscutereConfig {
        */
       improvementTagNames: string[];
       funTagNames: string[];
+      /** 起動時に ensure する議論フォーラム名 (既定「議論」)。定義済みフロータグを用意する。 */
+      discussionForumName: string;
     };
     /**
      * ゲーム感想チャンネル。カテゴリ「ゲーム感想」配下のチャンネル (チャンネル名 =
@@ -632,6 +634,11 @@ export function loadConfig(): DiscutereConfig {
         ).length
           ? parseStringList(process.env.DISCUTERE_DISCORD_FORUM_FUN_TAGS, file.discord?.forum?.funTagNames)
           : ["面白さ", "面白い", "おもしろさ", "fun"],
+        discussionForumName: pick(
+          process.env.DISCUTERE_DISCORD_FORUM_NAME,
+          file.discord?.forum?.discussionForumName,
+          "議論"
+        ),
       },
       gameFeedback: {
         enabled: pickBool(process.env.DISCUTERE_DISCORD_GAME_FEEDBACK_ENABLED, file.discord?.gameFeedback?.enabled, true),

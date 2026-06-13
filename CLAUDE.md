@@ -82,22 +82,31 @@ env)。`discutere.config.example.json` 参照。詳細は `docs/ws-gateway-confi
 議論を Discord **フォーラムチャンネル** に集約する (`docs/forum-aggregation.md`)。フォーラムを
 「議論カテゴリ」として使い、guild 内の **全 Forum チャンネル** を監視する。
 
-- **入口**: フォーラム新規ポスト (`ThreadCreate`, 親=`GuildForum`) の **最初の投稿 (starter)**
-  で議論を起こす (`forum-monitor.handleForumThreadCreate` → `command-router.routeForumPost`)。
-  scene を `discord:<guild>/<threadId>` に紐付けるので、AI 返信・収束まとめはそのスレッドに出る。
-  starter 判定は `msg.id === thread.id`。後続投稿は進行中議論への参加発言 (新規 gap は立てない)。
-- **議論の方向性 (タグ)**: フォーラムポストの適用タグで方向を決める。「改善提案」系タグ →
-  課題抽出+改善案、「面白さ」系タグ → 魅力の語り合い。**タグ無しは既定で「面白さ」方向**。
-  方向は gap 説明にディレクティブとして差し込まれ facilitator の拡張/収束を steer する
-  (`forum-monitor.pickForumDirection` → `auto-discussion.forumDirectionDirective`)。
-  タグ名は config `discord.forum.improvementTagNames` / `funTagNames` (部分一致) で調整可。
-- **クローズ**: facilitator が収束し gap を closed にすると `onConverged` フックが発火 →
-  gateway の `finalizeForumPost` がスレッドを **lock + archive** し、まとめを「まとめ投稿」へ転記。
+**Discord の議論エンジンは新フロー (`src/flow/`, T1-T7) に全面集約済み (2026-06-13)**。フォーラム
+スレッドは旧 auto-discussion ではなく `dispatchFlow` (議論/改善/学習/壁打ち) で起動する。
+配線は `gateway.ts` の `ThreadCreate` → `flow/entry-discord.parseForumEntry` → `flow/discord-live.startForumFlow`。
+発話は `onUtterance` を `poster.ts` の webhook 投稿に繋いで persona 名でスレッドに流し、結論は
+bot 名義で締める (収束時 `finalizeForumPost` で lock+archive+まとめ転記)。
+
+- **入口**: フォーラム新規ポスト (`ThreadCreate`, 親=`GuildForum`) の **starter** で議論を起こす。
+  scene = `discord:<guild>/<threadId>`。議題はスレッド名 (無ければ starter 本文)。
+- **議論タイプ (必須) は適用タグから取得**: `議論`/`改善`/`学習`/`壁打ち` のいずれかを `parseFlowKind`
+  で解決して `dispatchFlow` の FlowKind にする。**タグが無い投稿には議論タイプ選択メニュー
+  (StringSelectMenu `flow-pick:<threadId>`) をスレッドに出す**。選択でフローを起動する。
+- **観点タグ (任意・複数)**: `機密`/`内部`/`運用`/`開発` (= `FlowTag`)。外部収集可否・ペーパー補足を決める。
+- **定義済みフォーラムタグの自動用意**: ClientReady で議論フォーラム (`discord.forum.discussionForumName`,
+  既定「議論」) を ensure し、上記 8 タグ (議論タイプ 4 + 観点 4) を `availableTags` に補充する
+  (無ければフォーラム自体を作成、`forum-flow-tags.ensureDiscussionForum`)。Manage Channels 権限が要る。
+- **壁打ち (sparring) のみ対話継続**: session を threadId で保持 (`discord-live`)、スレッドへの後続投稿を
+  `SparringSession.submitUser` に橋渡しする。議論/改善/学習は完走型で後続投稿を取り込まない。
+- **クローズ**: 結論到達 (or 壁打ち終了) で `finalizeForumPost` がスレッドを **lock + archive** し、
+  まとめを「まとめ投稿」へ転記する。
 - **自動作成チャンネル** (ClientReady, guild ごと、Manage Channels 権限が必要):
   - **データ学習依頼** — 貼られた URL を crawl に回す入口 (id は runtime の crawl 集合へ追加)。
   - **まとめ投稿** — 収束まとめの集約先。
-- 既存 `discussionChannelIds` (平文議論) は後方互換で残すが、フォーラムが議論の正路。
-  無効化は `discord.forum.enabled=false` (env `DISCUTERE_DISCORD_FORUM_ENABLED`)。
+- 新フロー実行依存 (`flowLive`: llm/openCore/sentimentClients) が無い (LLM backend 無し) 時は
+  フォーラム起動を skip する。`discussionChannelIds` (平文議論) は旧 auto-discussion のまま後方互換で残す
+  (議論の正路はフォーラム)。無効化は `discord.forum.enabled=false` (env `DISCUTERE_DISCORD_FORUM_ENABLED`)。
 
 ## 個人データ
 
