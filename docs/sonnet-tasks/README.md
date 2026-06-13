@@ -61,15 +61,25 @@
 
 ## 3. 進捗表 (随時更新)
 
-| # | 状態 | base hash | merge hash | PR |
-|---|---|---|---|---|
-| T1 | 未着手 | — | — | — |
-| T2 | 未着手 | — | — | — |
-| T3 | 未着手 | — | — | — |
-| T4 | 未着手 | — | — | — |
-| T5 | 未着手 | — | — | — |
-| T6 | 未着手 | — | — | — |
-| T7 | 未着手 | — | — | — |
+| # | 状態 | 実装 | 備考 |
+|---|---|---|---|
+| T1 | ✅ 完了 | `src/flow/{config,tags,db,cost-logger}` | PR #113 (Sonnet) |
+| T2 | ✅ 完了 | `src/flow/{director,discussion-paper,investigate,personas}` | PR #114 (Sonnet) |
+| T3 | ✅ 完了 | `src/flow/{vote,round-summary,conclusion}` | PR #115 / fix #116 (Sonnet) |
+| T4 | ✅ 完了 | `src/flow/{design-gap,improvement-score,improvement,sentiment-vector}` | runFlow に RoundEvaluator 注入を追加 (Opus) |
+| T5 | ✅ 完了 | `src/flow/{learning,games-md}` + `ExternalSource "feedback"` | Opus |
+| T6 | ✅ 完了 | `src/flow/{sparring,sparring-commands}` | コマンドは文字列一致に確定 (Opus) |
+| T7 | ✅ 完了 | `src/flow/{dispatch,entry-discord,web/}` + index.ts 登録 | gateway 配線は follow-up (Opus) |
+
+> T4-T7 は Opus が一括実装 (元は Sonnet 委託想定だったが速度都合で変更)。spec/flow + 本指示書も
+> 同 PR で main へ載せた (T1-T3 マージ時には未マージだった)。
+
+### 実装時の確定事項 / 残課題
+- **T6 コマンド検出**: 分類器でなく**文字列一致**に確定 (短い命令文限定で誤検知抑制、敬語ゆらぎ許容)。
+- **T7 Discord 配線**: `entry-discord.ts` は純パーサ + ハンドラまで。`gateway.ts` の ThreadCreate への
+  実配線は既存フォーラム経路 (`routeForumPost`) を壊さないよう follow-up とした。
+- **T7 RAG**: WebUI 起動時の `listExternalVoices` 配線は未実施 (flow は未配線でも空で動作)。follow-up。
+- **学習 slug**: `toSlug` は ASCII のみ残すため日本語タイトルは `deps.slug` 明示が必要。
 
 ## 4. 参照
 
