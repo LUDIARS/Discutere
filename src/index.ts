@@ -35,6 +35,7 @@ import { workerPoolControlRoutes, setWorkerPoolControl } from "./api/worker-pool
 import { tuningRoutes, setRuntimeSettings } from "./api/tuning-routes.js";
 import { topPageRoutes } from "./api/top-page-routes.js";
 import { webChatRoutes, setWebChatDeps } from "./api/web-chat-routes.js";
+import { flowRoutes, setFlowWebDeps } from "./flow/web/routes.js";
 import { createGuideRoutes } from "./api/guide-routes.js";
 import { createRuntimeSettingsStore } from "./runtime-settings/store.js";
 import { setRolePromptResolver, ROLE_GUIDANCE_DEFAULTS } from "./persona-engine/worker-pool/persona-prompts.js";
@@ -560,6 +561,20 @@ const personaEngineLifecycle = (() => {
   });
   app.route("/", webChatRoutes);
   console.log("  web-chat: /chat (loopback) — scene=web:<room> で議論可能");
+}
+
+// ─── 議論フロー WebUI (/flow) — 4 フロー (議論/改善/学習/壁打ち) の正式入口 (T7) ───
+// テーマ + 議論タイプ (必須) + タグ を受けて dispatch する。LLM backend がある時のみ有効。
+if (classifierLlm) {
+  const flowLlm = classifierLlm;
+  setFlowWebDeps({
+    workspaceId: config.workspace,
+    llm: flowLlm,
+    openCore: () => createCore(resolveActiveKgPath(config)),
+    sentimentClients: { main: flowLlm },
+  });
+  app.route("/", flowRoutes);
+  console.log("  flow-ui: /flow (loopback) — 議論/改善/学習/壁打ち を起動");
 }
 
 const port = config.server.port;

@@ -56,6 +56,8 @@ export interface FlowDirectorDeps {
   rng?: Rng;
   /** `data/games/` ディレクトリパス (省略時は既定値) */
   gamesDir?: string;
+  /** セッション ID を外部から指定する (WebUI が起動前に id を返してポーリングするため)。既定は randomUUID。 */
+  sessionId?: string;
 }
 
 export interface FlowDirectorResult {
@@ -175,7 +177,7 @@ export async function runFlow(
         warn: ctx.warn,
       }));
 
-  const sessionId = randomUUID();
+  const sessionId = options.sessionId ?? randomUUID();
   const isLocal = cfg.llm.backend === "local";
 
   // ── [1] 調査 ──────────────────────────────────────────────────────────────
