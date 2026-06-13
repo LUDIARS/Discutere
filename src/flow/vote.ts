@@ -25,7 +25,7 @@ export interface VoteResult {
 
 function buildVotePrompt(theme: string, utterances: RoundUtterance[]): string {
   const list = utterances
-    .map((u, i) => `${i + 1}. [ID:${u.id}] ${u.personaName}: ${u.text}`)
+    .map((u, i) => `${i + 1}. [ID:${u.id}] ${u.text}`)
     .join("\n");
   return (
     `議論のテーマ: ${theme}\n\n` +

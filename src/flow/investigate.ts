@@ -7,6 +7,7 @@
 
 import fs from "node:fs";
 import path from "node:path";
+import matter from "gray-matter";
 import type { FlowTag } from "./tags.js";
 import { canCollectExternal } from "./tags.js";
 
@@ -46,7 +47,7 @@ export interface InvestigateArgs {
 }
 
 /**
- * `data/games/` ディレクトリから全メカニクスをロードする (gray-matter を使わず簡易パース)。
+ * `data/games/` ディレクトリから全メカニクスをロードする (gray-matter でフロントマターを解析)。
  * テーマに関連しそうなゲームのメカニクスを抽出する。
  */
 function loadMechanics(gamesDir: string, theme: string): MechanicSummary[] {
@@ -61,36 +62,27 @@ function loadMechanics(gamesDir: string, theme: string): MechanicSummary[] {
 
   for (const file of files) {
     const content = fs.readFileSync(path.join(gamesDir, file), "utf-8");
-    // YAML フロントマターから mechanics を抽出 (簡易パーサー)
-    const match = content.match(/^mechanics:\s*\n([\s\S]*?)(?=^[a-z]|\Z)/m);
-    if (!match) continue;
+    const { data } = matter(content);
+    const mechanicsRaw = data.mechanics as Array<Record<string, unknown>> | undefined;
+    if (!Array.isArray(mechanicsRaw) || mechanicsRaw.length === 0) continue;
 
-    const mechanicsSection = match[1];
-    // - name: ... を解析
-    const items = mechanicsSection.split(/^\s*-\s+name:/m).slice(1);
-
-    for (const item of items) {
-      const nameLine = item.split("\n")[0]?.trim().replace(/^["']|["']$/g, "") ?? "";
-      const descMatch = item.match(/description:\s*["']?([\s\S]*?)["']?\s*\n/);
-      const affectMatch = item.match(/intended_affect:\s*["']?(.*?)["']?\s*\n/);
-      const valenceMatch = item.match(/intended_valence:\s*["']?(.*?)["']?\s*\n/);
-
-      const desc = descMatch?.[1]?.trim() ?? "";
-      const name = nameLine;
+    for (const item of mechanicsRaw) {
+      const name = typeof item.name === "string" ? item.name : "";
+      const description = typeof item.description === "string" ? item.description : "";
 
       if (!name) continue;
 
       // テーマとの関連チェック (ゲームタイトル or メカニクス名の部分一致)
       const relevant =
-        lowerTheme.split(/\s+/).some((word) => word.length >= 2 && (name + desc).toLowerCase().includes(word)) ||
+        lowerTheme.split(/\s+/).some((word) => word.length >= 2 && (name + description).toLowerCase().includes(word)) ||
         file.toLowerCase().includes(lowerTheme.replace(/\s+/g, "-").slice(0, 8));
 
       if (relevant || results.length < 3) {
         results.push({
           name,
-          description: desc,
-          intended_affect: affectMatch?.[1]?.trim(),
-          intended_valence: valenceMatch?.[1]?.trim(),
+          description,
+          intended_affect: typeof item.intended_affect === "string" ? item.intended_affect : undefined,
+          intended_valence: typeof item.intended_valence === "string" ? item.intended_valence : undefined,
         });
       }
     }

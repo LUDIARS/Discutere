@@ -237,8 +237,9 @@ const { _resetConfig } = await import("../../src/config.js");
   process.env.DISCUTERE_FLOW_PERSONA_COUNT = "2";
   process.env.DISCUTERE_FLOW_VOTER_COUNT = "1";
 
-  // ターン2個 + 投票1回 + サマリ + 止揚 + 結論 = 複数の LLM 呼び出し
+  // ファシリ開幕 + ターン2個 + 投票1回 + サマリ + 止揚 + 結論 = 複数の LLM 呼び出し
   const responses = [
+    () => "このラウンドのテーマについて意見をどうぞ。",        // ファシリテーター開幕ターン
     () => "発話A",                                          // ターン1
     () => "発話B",                                          // ターン2
     () => "u-first-id-in-session",                         // 投票 (IDが解析できなくてもokとする)

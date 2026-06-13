@@ -193,6 +193,58 @@ fs.mkdirSync(TMP_DIR, { recursive: true });
   db2.close();
   console.log("  [ok] withCostLog handles missing usage (null)");
 
+  // backend 列: ctx.backend 指定時は記録される
+  _resetFlowDb();
+  process.env.DATABASE_PATH = path.join(TMP_DIR, "costlog-backend.db");
+  const mockBackend = new MockLLMClient([
+    () => ({ ok: true as const, text: "ok" }),
+  ]);
+  const wrappedBackend = withCostLog(mockBackend, {
+    flow: "discussion",
+    sessionId: "sess-backend",
+    location: "utterance",
+    backend: "anthropic",
+  });
+  await wrappedBackend.invoke({ prompt: "p" });
+
+  const dbBackend = new Database(process.env.DATABASE_PATH);
+  const rowBackend = dbBackend
+    .prepare("SELECT * FROM llm_call_log ORDER BY id DESC LIMIT 1")
+    .get() as Record<string, unknown> | undefined;
+  dbBackend.close();
+  assert.ok(rowBackend, "row inserted with backend");
+  assert.equal(rowBackend!.backend, "anthropic", "backend recorded from ctx");
+  console.log("  [ok] withCostLog records backend from CostLogContext");
+
+  // backend 列: ctx.backend 未指定時は getConfig().llm.backend が使われる
+  _resetFlowDb();
+  process.env.DATABASE_PATH = path.join(TMP_DIR, "costlog-backend-default.db");
+  process.env.LLM_BACKEND = "mock";
+  const { _resetConfig: _resetConfigForBackend } = await import("../../src/config.js");
+  _resetConfigForBackend();
+  const mockBackend2 = new MockLLMClient([
+    () => ({ ok: true as const, text: "ok" }),
+  ]);
+  const wrappedBackend2 = withCostLog(mockBackend2, {
+    flow: "discussion",
+    sessionId: "sess-backend-default",
+    location: "utterance",
+    // backend を指定しない → getConfig().llm.backend で解決
+  });
+  await wrappedBackend2.invoke({ prompt: "p" });
+
+  const dbBackend2 = new Database(process.env.DATABASE_PATH);
+  const rowBackend2 = dbBackend2
+    .prepare("SELECT * FROM llm_call_log ORDER BY id DESC LIMIT 1")
+    .get() as Record<string, unknown> | undefined;
+  dbBackend2.close();
+  assert.ok(rowBackend2, "row inserted without explicit backend");
+  assert.equal(rowBackend2!.backend, "mock", "backend resolved from config when ctx.backend omitted");
+  console.log("  [ok] withCostLog resolves backend from getConfig() when ctx.backend omitted");
+
+  delete process.env.LLM_BACKEND;
+  _resetConfigForBackend();
+
   // クリーンアップ
   delete process.env.DATABASE_PATH;
   _resetFlowDb();

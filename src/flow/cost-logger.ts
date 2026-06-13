@@ -7,6 +7,7 @@
  */
 
 import type { LLMClient, LLMInvokeArgs, LLMResult } from "../persona-engine/llm/client.js";
+import { getConfig } from "../config.js";
 import { getFlowDb } from "./db/connection.js";
 
 export interface CostLogContext {
@@ -17,6 +18,8 @@ export interface CostLogContext {
   role?: string;
   persona?: string;
   location: string;
+  /** 記録する backend 名。未指定時は getConfig().llm.backend で解決する。 */
+  backend?: string;
 }
 
 /**
@@ -46,7 +49,7 @@ export function withCostLog(client: LLMClient, ctx: CostLogContext): LLMClient {
         ctx.persona ?? null,
         ctx.location,
         args.model ?? null,
-        null, // backend は呼び出し元の設定から渡すことが多いが LLMClient 境界では不明のため null
+        ctx.backend ?? getConfig().llm.backend,
         latencyMs,
         usage?.input_tokens ?? null,
         usage?.output_tokens ?? null,
