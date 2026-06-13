@@ -24,6 +24,8 @@ export interface RoundSummaryInput {
   stockedAufhebung: string[];
   llm: LLMClient;
   warn?: (msg: string) => void;
+  /** フロー種別 (コストログ用)。既定 "discussion"。 */
+  flow?: string;
 }
 
 export interface RoundSummaryOutput {
@@ -55,6 +57,7 @@ export async function summarizeRound(input: RoundSummaryInput): Promise<RoundSum
     stockedAufhebung,
     llm,
     warn = console.warn,
+    flow = "discussion",
   } = input;
 
   const recent: RecentUtterance[] = utterances.map((u) => ({
@@ -66,7 +69,7 @@ export async function summarizeRound(input: RoundSummaryInput): Promise<RoundSum
   let summary = `ラウンド ${round} 完了 (${utterances.length} 発話)`;
 
   const summaryLogged = withCostLog(llm, {
-    flow: "discussion",
+    flow,
     sessionId,
     round,
     location: "summary",
@@ -93,7 +96,7 @@ export async function summarizeRound(input: RoundSummaryInput): Promise<RoundSum
     });
 
     const aufLogged = withCostLog(llm, {
-      flow: "discussion",
+      flow,
       sessionId,
       round,
       location: "summary",

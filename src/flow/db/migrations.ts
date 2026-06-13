@@ -109,6 +109,22 @@ const MIGRATIONS: Array<{ id: string; sql: string[] }> = [
       `CREATE UNIQUE INDEX IF NOT EXISTS idx_flow_conclusion_session ON flow_conclusion(session_id)`,
     ],
   },
+  {
+    id: "flow_0004_improvement_score",
+    sql: [
+      // 改善フローの機械スコア (1 ラウンド × 意見 = 1 行)。design_gap 射影スコアを監査用に残す
+      `CREATE TABLE IF NOT EXISTS improvement_score (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        session_id TEXT NOT NULL,
+        round INTEGER NOT NULL,
+        utterance_id TEXT NOT NULL,
+        score REAL NOT NULL,
+        is_winner INTEGER NOT NULL DEFAULT 0,
+        created_at INTEGER NOT NULL
+      )`,
+      `CREATE INDEX IF NOT EXISTS idx_improvement_score_session ON improvement_score(session_id, round)`,
+    ],
+  },
 ];
 
 export function applyFlowMigrations(db: Database.Database): void {

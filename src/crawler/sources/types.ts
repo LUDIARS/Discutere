@@ -13,7 +13,10 @@ export type ExternalSource =
   | "reddit"
   | "niconico"
   | "fandom"
-  | "opencritic";
+  | "opencritic"
+  // 内部のゲーム感想チャンネル / 学習フロー収集の匿名意見 (外部クロールではない)。
+  // 出所は透明 (source="feedback")、個人アンカーは持たない (authorId は匿名)。
+  | "feedback";
 
 /** 賛否 / 人気度 (取得元にあれば) */
 export interface ExternalSignal {

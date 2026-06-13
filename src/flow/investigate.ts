@@ -16,6 +16,10 @@ export interface MechanicSummary {
   description: string;
   intended_affect?: string;
   intended_valence?: string;
+  /** メカニクスが狙うアスペクト (asp.* 次元名: fun/story/...)。改善フローの目標ベクトル構築に使う。 */
+  intended_aspects?: string[];
+  /** メカニクスが狙う感情 (emo.* 次元名: joy/trust/...)。改善フローの目標ベクトル構築に使う。 */
+  intended_emotions?: string[];
 }
 
 export interface InvestigateResult {
@@ -83,6 +87,12 @@ function loadMechanics(gamesDir: string, theme: string): MechanicSummary[] {
           description,
           intended_affect: typeof item.intended_affect === "string" ? item.intended_affect : undefined,
           intended_valence: typeof item.intended_valence === "string" ? item.intended_valence : undefined,
+          intended_aspects: Array.isArray(item.intended_aspects)
+            ? item.intended_aspects.filter((x): x is string => typeof x === "string")
+            : undefined,
+          intended_emotions: Array.isArray(item.intended_emotions)
+            ? item.intended_emotions.filter((x): x is string => typeof x === "string")
+            : undefined,
         });
       }
     }

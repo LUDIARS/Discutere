@@ -34,6 +34,8 @@ export interface GenerateConclusionArgs {
   voteResults: VoteResult[];
   llm: LLMClient;
   warn?: (msg: string) => void;
+  /** フロー種別 (コストログ用)。既定 "discussion"。 */
+  flow?: string;
 }
 
 /**
@@ -50,6 +52,7 @@ export async function generateConclusion(args: GenerateConclusionArgs): Promise<
     voteResults,
     llm,
     warn = console.warn,
+    flow = "discussion",
   } = args;
 
   // 世論 (投票で選ばれた発話 = winner utterance)
@@ -72,7 +75,7 @@ export async function generateConclusion(args: GenerateConclusionArgs): Promise<
   });
 
   const logged = withCostLog(llm, {
-    flow: "discussion",
+    flow,
     sessionId,
     location: "summary",
   });
