@@ -109,6 +109,15 @@ export interface DiscutereConfig {
     anthropicApiKey?: string;
     /** anthropic backend のモデル ID (未設定なら client 既定の haiku) */
     model?: string;
+    /**
+     * tier ルーティング用モデル (任意)。設定すると facilitator の重いタスク
+     * (収束/止揚/視点追加) を strong、軽いタスクを cheap に振り分ける
+     * (@ludiars/llm-gateway の pickTier)。未設定なら従来通り単一 model。
+     */
+    tiers?: {
+      cheap?: string;
+      strong?: string;
+    };
     /** claude-cli backend のタイムアウト ms */
     claudeCliTimeoutMs: number;
     /** Windows で claude CLI を spawn する際の git-bash パス (Memoria 方式) */
@@ -511,6 +520,10 @@ export function loadConfig(): DiscutereConfig {
       backend,
       anthropicApiKey: pickOpt(process.env.ANTHROPIC_API_KEY, file.llm?.anthropicApiKey),
       model: pickOpt(process.env.ANTHROPIC_MODEL, file.llm?.model),
+      tiers: {
+        cheap: pickOpt(process.env.LLM_TIER_CHEAP, file.llm?.tiers?.cheap),
+        strong: pickOpt(process.env.LLM_TIER_STRONG, file.llm?.tiers?.strong),
+      },
       claudeCliTimeoutMs: pickNum(process.env.CLAUDE_CLI_TIMEOUT_MS, file.llm?.claudeCliTimeoutMs, 120_000),
       gitBashPath: pickOpt(process.env.CLAUDE_CODE_GIT_BASH_PATH, file.llm?.gitBashPath),
       local: {
