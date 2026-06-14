@@ -466,6 +466,7 @@ const personaEngineLifecycle = (() => {
           maxPersonas: config.facilitator.maxPersonas,
           aufhebungTarget: config.facilitator.aufhebungTarget,
           model: config.llm.model,
+          tierModels: config.llm.tiers,
         },
         // 収束トリガーは tick ごとに runtime-settings から読み、 チューニング UI の
         // 変更 (「20」等 / aufhebung-only ポリシー) を再起動なしで反映する。

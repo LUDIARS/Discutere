@@ -23,6 +23,7 @@ import type { createCore } from "../../core/index.js";
 import type { PersonasRepo } from "../db/personas-repo.js";
 import type { DiscussionContextProvider } from "../context-provider.js";
 import type { LLMClient } from "../llm/client.js";
+import { resolveTierModel, type TierModels } from "../llm/tier-routing.js";
 import type { Logger } from "../types.js";
 import type { FacilitatorTuning } from "../../runtime-settings/store.js";
 
@@ -46,8 +47,13 @@ export interface FacilitatorOptions {
   maxPersonas?: number;
   /** 止揚 (アウフヘーベン) がこの数たまったら収束 (既定 3) */
   aufhebungTarget?: number;
-  /** LLM model 上書き */
+  /** LLM model 上書き (tierModels 未設定時の既定、 または cheap/strong の最終 fallback) */
   model?: string;
+  /**
+   * tier 別モデル (任意)。設定すると facilitator の重いタスク (収束/止揚/視点追加) を
+   * strong に振り分ける。未設定なら従来通り `model` (または backend 既定) を使う。
+   */
+  tierModels?: TierModels;
 }
 
 /** 議論収束イベント (gap closed の直後に発火)。discord 依存は持たせない純データ。 */
@@ -324,7 +330,9 @@ export function createFacilitator(deps: FacilitatorDeps): Facilitator {
       recent: recentUtterances(d.sessionId, 16),
       stockedSummaries: stocked,
     });
-    const res = await deps.llm.invoke({ prompt: user, system, model: deps.options?.model });
+    const model =
+      resolveTierModel({ kind: "aufhebung" }, deps.options?.tierModels) ?? deps.options?.model;
+    const res = await deps.llm.invoke({ prompt: user, system, model });
     if (!res.ok) return stocked.length;
     try {
       const obj = extractJsonObject(res.text) as { found?: unknown; summary?: unknown };
@@ -346,7 +354,9 @@ export function createFacilitator(deps: FacilitatorDeps): Facilitator {
       existingPersonaNames: existingPersonaNames(d.sessionId),
       recent: recentUtterances(d.sessionId, 12),
     });
-    const res = await deps.llm.invoke({ prompt: user, system, model: deps.options?.model });
+    const model =
+      resolveTierModel({ kind: "facilitate" }, deps.options?.tierModels) ?? deps.options?.model;
+    const res = await deps.llm.invoke({ prompt: user, system, model });
     if (!res.ok) {
       deps.logger.warn({ gap_id: d.gapId, err: res.error }, "facilitator expand llm failed");
       return;
@@ -384,7 +394,9 @@ export function createFacilitator(deps: FacilitatorDeps): Facilitator {
       aufhebungen: listAufhebung(d.gapId),
       topOpinions: topOpinions(d.sessionId, 5),
     });
-    const res = await deps.llm.invoke({ prompt: user, system, model: deps.options?.model });
+    const model =
+      resolveTierModel({ kind: "converge" }, deps.options?.tierModels) ?? deps.options?.model;
+    const res = await deps.llm.invoke({ prompt: user, system, model });
     if (!res.ok) {
       deps.logger.warn({ gap_id: d.gapId, err: res.error }, "facilitator converge llm failed");
       return;
