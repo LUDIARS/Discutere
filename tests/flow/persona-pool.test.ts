@@ -151,4 +151,50 @@ const zeros = (): number[] => new Array(DIM as number).fill(0);
   console.log("  [ok] 憑依: selectPossessionByTheme (テーマ類推)");
 }
 
+// ── findPoolPersona (G 相手解決 / F 親解決) ──────────────────────
+{
+  const { findPoolPersona } = await import("../../src/flow/persona-pool.js");
+  assert.equal(findPoolPersona("p-rogue")?.id, "p-rogue", "id 一致");
+  assert.equal(findPoolPersona("ローグ好き太郎")?.id, "p-rogue", "name 一致");
+  assert.equal(findPoolPersona("存在しない"), null, "未解決は null");
+  console.log("  [ok] findPoolPersona: id/name 解決");
+}
+
+// ── F: 合成 (averageVectors + synthesizePersona, mock LLM) ───────
+{
+  const { averageVectors, synthesizePersona } = await import("../../src/flow/persona-synthesize.js");
+  const a = new Array(DIM as number).fill(0);
+  a[0] = 1;
+  const b = new Array(DIM as number).fill(0);
+  b[0] = 0;
+  b[1] = 1;
+  const avg = averageVectors([a, b]);
+  assert.equal(avg[0], 0.5, "平均[0]");
+  assert.equal(avg[1], 0.5, "平均[1]");
+
+  const mockLlm = {
+    async invoke() {
+      return {
+        ok: true as const,
+        text: '{"name":"融合ザムザ","speechStyle":"二面性","traits":["高難度志向","収集欲"]}',
+      };
+    },
+  };
+  const syn = await synthesizePersona({ parentRefs: ["p-rogue", "ソシャゲ花子"], llm: mockLlm });
+  assert.equal(syn.origin, "synthesized", "origin=synthesized");
+  assert.equal(syn.name, "融合ザムザ", "LLM 由来 name");
+  assert.deepEqual(syn.parentIds.sort(), ["p-gacha2", "p-rogue"].sort(), "parentIds");
+  assert.equal(syn.affectVector.length, DIM as number, "affect dim");
+  // 保存され、プールから引ける
+  assert.ok(getPoolPersona(syn.id), "合成ペルソナがプールに保存される");
+  console.log("  [ok] F 合成: averageVectors + synthesizePersona (mock LLM)");
+
+  // 親 2 体未満はエラー
+  await assert.rejects(
+    () => synthesizePersona({ parentRefs: ["p-rogue"], llm: mockLlm }),
+    /親が 2 体以上/,
+    "親不足はエラー"
+  );
+}
+
 console.log("persona-pool tests: all passed");

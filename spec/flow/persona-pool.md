@@ -37,12 +37,13 @@ worker-pool LLM / classifier / peDb / core の構築は維持 (フローが依�
 - `flow_user_affect` / slash は B では未使用 (将来「ユーザ別嗜好」用に残置)。
 - TODO(改善余地): メカニクス `intended_affect` を目標ベクトルに加味する。
 
-## C. ペルソナ生成ワークフロー (method TBD) — 未実装 (スキャフォルド)
+## C. ペルソナ生成ワークフロー (method 考え中) — ✅ スタブのみ
 
-- 生成 IF: `generatePersona(source): PoolPersona` (affect ベクトルは学習データ/メカニクスから導出 or LLM)。
-  実生成ロジックは pluggable。当面のスタブ = 外部の声 (listExternalVoices) の感情平均 + LLM で人物像生成。
-- 起動: `npm run persona:generate -- --source <learningSet>` (将来 admin コマンド)。
-- プールが空なら憑依/壁打ち相手指定は従来生成にフォールバック。
+- 実際の「学習データからの自動生成」は設計中。当面は手動投入 CLI で プールを育てる:
+  `npm run persona:generate -- --name X --affect-text "望む体験" [--style --traits a,b --role --source --label]`
+  (`scripts/persona-generate.ts`、affect は textToVector(affect-text))。
+- TODO: 外部の声 (listExternalVoices) の感情平均 + LLM 人物像生成に置換。
+- プールが空なら憑依 (B) / 壁打ち相手 (G) は従来生成にフォールバック。
 
 ## E. claude-p → SDK 化 + cache-control — ✅ 実装済み
 
@@ -59,21 +60,19 @@ worker-pool LLM / classifier / peDb / core の構築は維持 (フローが依�
 - フロー LLM: worker-pool 主、**フォールバックを claude-p → SDK(OAuth)** に。`usage` が返るので
   cost-logger のトークン計上が有効化 (現在 null)。
 
-## F. ペルソナ合成 — 未実装
+## F. ペルソナ合成 — ✅ 実装済み
 
-- 入力: 2 (以上) の親ペルソナ id。
-- affect: 親ベクトルの (重み付き) 平均。traits/口調/名前: LLM で「ローグライク好き×ソシャゲユーザー」を
-  融合した新人物像を生成。
-- 保存: `insertPoolPersona({origin:"synthesized", parentIds:[...], ...})`。以後プールの一員として
-  憑依/壁打ち相手に使える。
-- 起動: `npm run persona:synthesize -- --parents a,b`(将来 UI/コマンド)。合成ペルソナの意見は
-  通常の議論/壁打ちで聞ける。
+- `src/flow/persona-synthesize.ts`: `synthesizePersona({parentRefs, llm, weights?, label?})`。
+  - affect = `averageVectors` (親ベクトルの重み付き平均)。
+  - name/口調/traits = LLM で融合 (JSON、失敗時は機械フォールバック: name=連結 / traits=和集合)。
+  - `insertPoolPersona({origin:"synthesized", parentIds})` で保存 → 憑依/壁打ち相手/通常議論で使える。
+- 起動: `npm run persona:synthesize -- --parents "親1,親2" [--label ...]` (LLM=SDK OAuth→claude-p)。
 
-## G. 壁打ち相手のペルソナ指定 — 未実装
+## G. 壁打ち相手のペルソナ指定 — ✅ 実装済み
 
-- `SparringSession` に「相手ペルソナ」を渡せるようにする (現在は生成 2 体)。
-- 指定経路: WebUI = プールからセレクト / Discord = starter 本文 `相手:<名前 or id>` をパースしてプール解決。
-- 未指定なら従来通り生成。
+- `SparringSession.deps.opponentPersonaIds` (id/name)。`findPoolPersona` で解決 → 相手に充てる。未解決/未指定は従来生成。
+- 経路: WebUI = テキスト入力「ペルソナ名/ID (カンマ区切り)」/ Discord = starter 本文 `相手:<名前>` (`parseOpponents`)。
+- dispatch `DispatchInput.opponentPersonaIds` → SparringSession に注入。
 
 > 実装メモ: `AnthropicSdkClient` に `getAuthToken`(OAuth)+ `enableCache`(system に cache_control)を追加。
 > `readClaudeCodeToken` が `~/.claude/.credentials.json` を読む。フロー LLM 鎖 =
@@ -84,10 +83,6 @@ worker-pool LLM / classifier / peDb / core の構築は維持 (フローが依�
 > cache_creation=0 のまま (プラミングは正)。facilitator/vote/summary/conclusion は今は system 未使用
 > (follow-up で system 化すれば更にキャッシュ範囲が広がる)。
 
-## 実装順 (残)
+## 実装状況
 
-1. ~~E (SDK/OAuth/caching)~~ ✅
-2. ~~B 憑依配線~~ ✅ (テーマ類推)
-3. G 壁打ち相手指定 — 未実装
-4. F 合成 — 未実装
-5. C 生成スクリプト (スタブ) — 未実装
+A ✅ / D ✅ / 共通基盤 ✅ / B ✅(テーマ類推) / E ✅(SDK OAuth+cache) / G ✅ / F ✅ / C ✅(スタブ・自動生成は考え中)

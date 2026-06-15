@@ -89,6 +89,19 @@ export function parseRoundsTurns(text: string): { rounds?: number; turnsPerRound
   return { rounds, turnsPerRound };
 }
 
+/**
+ * starter 本文から壁打ち相手指定を抽出する (G)。
+ * 例: 「相手:ローグ好き太郎,ソシャゲ花子」「opponent=花子」。カンマ区切り。無ければ undefined。
+ */
+export function parseOpponents(text: string): string[] | undefined {
+  const m = text.match(/(?:相手|opponent)\s*[:：=]\s*(.+)/i);
+  if (!m) return undefined;
+  // 行末まで取り、カンマ区切りで分解 (改行で打ち切り)。
+  const line = m[1].split(/[\r\n]/)[0];
+  const ids = line.split(/[,、]/).map((s) => s.trim()).filter(Boolean);
+  return ids.length ? ids : undefined;
+}
+
 /** フォーラム starter 投稿の最小入力 (gateway/forum-monitor 由来)。 */
 export interface ForumPostInput {
   /** starter 投稿本文 = テーマ。 */

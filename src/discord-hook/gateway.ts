@@ -46,7 +46,7 @@ import { stripBotMention } from "./facilitator-directives.js";
 import type { AnyThreadChannel } from "discord.js";
 import { createDebateRunner, type DebateRunner } from "../discussion/director-live.js";
 import { ensureGameFeedbackCategory, extractGameFeedback } from "./game-feedback-channel.js";
-import { parseForumEntry, parseRoundsTurns } from "../flow/entry-discord.js";
+import { parseForumEntry, parseRoundsTurns, parseOpponents } from "../flow/entry-discord.js";
 import {
   handleForumFlowReply,
   startForumFlow,
@@ -180,7 +180,14 @@ export async function startDiscordGateway(
   // 議論タイプタグ未指定の投稿に出した select の待ち (threadId → 起動情報)。
   const pendingFlowPicks = new Map<
     string,
-    { guildId: string; theme: string; tags: FlowTag[]; rounds?: number; turnsPerRound?: number }
+    {
+      guildId: string;
+      theme: string;
+      tags: FlowTag[];
+      rounds?: number;
+      turnsPerRound?: number;
+      opponentPersonaIds?: string[];
+    }
   >();
   // 収束時にフォーラムスレッドを締める (lock+archive + まとめ転記)。
   const flowHooks: FlowLiveHooks = {
@@ -347,18 +354,19 @@ export async function startDiscordGateway(
     const starter = await resolveForumStarter(thread);
     if (!starter) return;
     const { flow, tags } = parseForumEntry(starter.appliedTagNames);
-    // 本文/タイトルの「ラウンド:N ターン:M」記法で議論ごとの進行量を指定 (任意)。
+    // 本文/タイトルの「ラウンド:N ターン:M」「相手:名前」記法で議論ごとの指定 (任意)。
     const { rounds, turnsPerRound } = parseRoundsTurns(starter.theme);
+    const opponentPersonaIds = parseOpponents(starter.theme);
     if (flow) {
       void startForumFlow(
-        { guildId: starter.guildId, threadId: thread.id, theme: starter.theme, flow, tags, rounds, turnsPerRound },
+        { guildId: starter.guildId, threadId: thread.id, theme: starter.theme, flow, tags, rounds, turnsPerRound, opponentPersonaIds },
         deps.flowLive,
         flowHooks
       );
       return;
     }
     // 議論タイプタグ無し → 選択 UI を出して待つ。
-    pendingFlowPicks.set(thread.id, { guildId: starter.guildId, theme: starter.theme, tags, rounds, turnsPerRound });
+    pendingFlowPicks.set(thread.id, { guildId: starter.guildId, theme: starter.theme, tags, rounds, turnsPerRound, opponentPersonaIds });
     await postFlowPickMenu(thread.id);
   }
 
@@ -531,6 +539,7 @@ export async function startDiscordGateway(
           tags: pending.tags,
           rounds: pending.rounds,
           turnsPerRound: pending.turnsPerRound,
+          opponentPersonaIds: pending.opponentPersonaIds,
         },
         deps.flowLive,
         flowHooks

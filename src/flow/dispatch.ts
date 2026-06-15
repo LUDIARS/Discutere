@@ -102,6 +102,8 @@ export interface DispatchInput {
   rounds?: number;
   /** この議論の 1 ラウンドあたりターン数 (省略時 config.flow.turnsPerRound)。discussion/improvement のみ反映。 */
   turnsPerRound?: number;
+  /** 壁打ち相手に充てるプールペルソナの id/name (G。sparring のみ反映)。 */
+  opponentPersonaIds?: string[];
 }
 
 export type DispatchResult =
@@ -177,6 +179,7 @@ export async function dispatchFlow(input: DispatchInput, deps: DispatchDeps): Pr
         gamesDir: deps.gamesDir,
         log: deps.log,
         warn: deps.warn,
+        opponentPersonaIds: input.opponentPersonaIds,
       });
       await session.start();
       return { kind, flow: kind, session };

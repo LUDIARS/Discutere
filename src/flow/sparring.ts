@@ -34,6 +34,7 @@ import { summarizeRound } from "./round-summary.js";
 import { generateConclusion } from "./conclusion.js";
 import { persistUtterance, type FlowUtteranceRecord } from "./director.js";
 import { detectSparringCommand } from "./sparring-commands.js";
+import { findPoolPersona, toFlowPersona } from "./persona-pool.js";
 
 const FLOW = "sparring";
 
@@ -48,6 +49,11 @@ export interface SparringDeps {
   warn?: (msg: string) => void;
   rng?: Rng;
   gamesDir?: string;
+  /**
+   * 壁打ち相手に充てるプールペルソナの id または name (G)。
+   * 解決できたものを相手として使う。未指定/未解決なら従来の生成ペルソナ。
+   */
+  opponentPersonaIds?: string[];
 }
 
 /** submitUser の返り値。 */
@@ -120,12 +126,25 @@ export class SparringSession {
       rounds: [],
     };
 
-    this.personas = generateFlowPersonas({
-      count: cfg.flow.personaCount,
-      defaultModel: cfg.llm.model ?? "claude-haiku-4-5-20251001",
-      isLocal,
-      rng: this.deps.rng ?? defaultRng,
-    });
+    const defaultModel = cfg.llm.model ?? "claude-haiku-4-5-20251001";
+    // G: 相手ペルソナ指定があればプールから解決して相手に充てる。未指定/未解決なら従来生成。
+    const opponents: FlowPersona[] = [];
+    for (const ref of this.deps.opponentPersonaIds ?? []) {
+      const found = findPoolPersona(ref);
+      if (found) opponents.push(toFlowPersona(found, { role: "debater", defaultModel, isLocal }));
+      else warn(`壁打ち相手「${ref}」がプールに見つかりません (スキップ)`);
+    }
+    if (opponents.length > 0) {
+      this.personas = opponents;
+      log(`壁打ち相手 (指定): ${opponents.map((p) => p.name).join(", ")}`);
+    } else {
+      this.personas = generateFlowPersonas({
+        count: cfg.flow.personaCount,
+        defaultModel,
+        isLocal,
+        rng: this.deps.rng ?? defaultRng,
+      });
+    }
     this.syntheticOpinions = this.tags.includes("機密") ? synthesizeOpinions(investigation.mechanics) : [];
     log(`壁打ち開始: "${this.theme}" (ペルソナ ${this.personas.length} 人, 上限 ${cfg.flow.sparringMaxTurns} ターン)`);
   }

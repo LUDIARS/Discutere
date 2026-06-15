@@ -134,6 +134,21 @@ export function listPoolPersonas(filter?: { origin?: PersonaOrigin; learningSour
   return rows.map(rowToPersona);
 }
 
+/**
+ * id 完全一致 → name 完全一致の順でプールペルソナを探す (壁打ち相手指定 G / 合成 F の親解決)。
+ * 非アーカイブのみ。見つからなければ null。
+ */
+export function findPoolPersona(idOrName: string): PoolPersona | null {
+  const byId = getPoolPersona(idOrName);
+  if (byId) return byId;
+  const key = idOrName.trim();
+  if (!key) return null;
+  const r = getFlowDb()
+    .prepare(`SELECT * FROM flow_persona WHERE name = ? AND archived = 0 ORDER BY created_at ASC LIMIT 1`)
+    .get(key) as PersonaRow | undefined;
+  return r ? rowToPersona(r) : null;
+}
+
 /** ペルソナをアーカイブする (論理削除)。 */
 export function archivePoolPersona(id: string): void {
   getFlowDb().prepare(`UPDATE flow_persona SET archived = 1 WHERE id = ?`).run(id);
