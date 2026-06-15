@@ -12,6 +12,7 @@ import type { FlowTag } from "./tags.js";
 import { getConfig } from "../config.js";
 import { withCostLog } from "./cost-logger.js";
 import { generateFlowPersonas, pickRandomPersona, decideStance, type FlowPersona, type Rng } from "./personas.js";
+import { selectPossessionByTheme, toFlowPersona } from "./persona-pool.js";
 import {
   buildPersonaPaper,
   paperToPrompt,
@@ -62,6 +63,11 @@ export interface FlowDirectorDeps {
   rounds?: number;
   /** このセッションの 1 ラウンドあたりターン数 (省略時は config.flow.turnsPerRound)。1..MAX_TURNS にクランプ。 */
   turnsPerRound?: number;
+  /**
+   * 憑依 (B): テーマから嗜好を類推し、プール最近傍ペルソナを投稿主体の 1 枠 (opinion) に充てる。
+   * 既定 true。プールが空 / 一致なしなら従来生成キャストのまま (no-op)。
+   */
+  possess?: boolean;
 }
 
 /** 都度指定ラウンド/ターン数の暴走ガード上限 (コスト保護)。 */
@@ -223,12 +229,31 @@ export async function runFlow(
   };
 
   // ── [3] ペルソナ生成 ────────────────────────────────────────────────────
+  const defaultModel = cfg.llm.model ?? "claude-haiku-4-5-20251001";
   const personas: FlowPersona[] = generateFlowPersonas({
     count: cfg.flow.personaCount,
-    defaultModel: cfg.llm.model ?? "claude-haiku-4-5-20251001",
+    defaultModel,
     isLocal,
     rng,
   });
+
+  // ── 憑依 (B): テーマから嗜好を類推し、プール最近傍ペルソナを opinion 1 枠に充てる ──
+  // プールが空 / 一致なしなら no-op (従来生成キャストのまま)。投稿主体の代理は 1 体のみ (Q3)。
+  if (options.possess !== false) {
+    try {
+      const hit = selectPossessionByTheme(theme, 1)[0];
+      if (hit) {
+        const seatIdx = personas.findIndex((p) => p.role === "opinion");
+        if (seatIdx >= 0) {
+          personas[seatIdx] = toFlowPersona(hit.persona, { role: "opinion", defaultModel, isLocal });
+          log(`憑依: 「${hit.persona.name}」をテーマ嗜好で投稿主体枠にアサイン (cos=${hit.similarity.toFixed(3)})`);
+        }
+      }
+    } catch (e) {
+      warn(`憑依スキップ (${(e as Error).message})`);
+    }
+  }
+
   log(`ペルソナ ${personas.length} 人生成: ${personas.map((p) => `${p.name}(${p.role})`).join(", ")}`);
 
   // synthetic opinions (機密タグ用)

@@ -201,6 +201,16 @@ export function selectByAffinity(vector: number[], k = 1, candidates?: PoolPerso
     .slice(0, Math.max(0, k));
 }
 
+/**
+ * テーマから嗜好/体験を類推して憑依ペルソナを選ぶ (B)。
+ * 目標ベクトル = textToVector(theme) (+ 任意でメカニクス affect を加味)。
+ * プールが空 / 一致なしなら空配列 → 呼び出し側は従来の生成キャストにフォールバックする。
+ */
+export function selectPossessionByTheme(theme: string, k = 1, candidates?: PoolPersona[]): AffinityHit[] {
+  const vector = textToVector(theme || "");
+  return selectByAffinity(vector, k, candidates);
+}
+
 /** プールペルソナを議論フローの FlowPersona に変換する (憑依/壁打ち相手として参加させる)。 */
 export function toFlowPersona(
   p: PoolPersona,

@@ -26,6 +26,7 @@ const {
   upsertUserAffect,
   getUserAffect,
   selectByAffinity,
+  selectPossessionByTheme,
   toFlowPersona,
 } = await import("../../src/flow/persona-pool.js");
 const { DIM, textToVector } = await import("../../src/flow/sentiment-vector.js");
@@ -128,6 +129,26 @@ const zeros = (): number[] => new Array(DIM as number).fill(0);
   assert.equal(fp.id, "p-rogue");
   assert.equal(fp.model, "claude-haiku-4-5-20251001", "model fallback");
   console.log("  [ok] 憑依: selectByAffinity + toFlowPersona");
+}
+
+// ── 憑依: テーマ類推 (B) ─────────────────────────────────────────
+{
+  // テーマと同義のテキストで作ったベクトルのペルソナが、テーマ類推で選ばれる
+  const themed = textToVector("高難度を上達する達成感");
+  insertPoolPersona({
+    id: "p-themed",
+    name: "達成感おじさん",
+    role: "opinion",
+    speechStyle: "熱血",
+    traits: ["達成感"],
+    affectVector: themed,
+    origin: "generated",
+    parentIds: [],
+  });
+  const hit = selectPossessionByTheme("高難度を上達する達成感について", 1)[0];
+  assert.ok(hit, "テーマ類推でヒット");
+  assert.equal(hit.persona.id, "p-themed", "テーマ最近傍 = 達成感おじさん");
+  console.log("  [ok] 憑依: selectPossessionByTheme (テーマ類推)");
 }
 
 console.log("persona-pool tests: all passed");

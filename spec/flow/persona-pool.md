@@ -28,16 +28,14 @@ worker-pool LLM / classifier / peDb / core の構築は維持 (フローが依�
 - `flow_persona` / `flow_user_affect` テーブル。
 - `insert/get/list/archivePoolPersona`, `upsert/getUserAffect`, `selectByAffinity` (cosine 最近傍), `toFlowPersona`。
 
-## B. 憑依 (投稿主体 1 体) — 未実装
+## B. 憑依 (投稿主体 1 体・テーマ類推) — ✅ 実装済み
 
-1. ユーザ嗜好を登録: `upsertUserAffect(userKey, desiredText)` (text→20次元)。
-   - 入力経路 (**要確認/既定**): Discord slash `/di-憑依` のモーダルで「望む体験」を文章入力。
-     未登録ユーザは憑依しない (= 従来の生成キャストのまま)。
-2. 議論起票時: 投稿主体の `userKey` で `getUserAffect` → `selectByAffinity(vector, 1)` で最近傍 1 体を取得。
-3. その 1 体を `toFlowPersona` 化し、生成キャストの **opinion 役 1 枠を置換**して参加させる
-   (facilitator + 残りは従来生成。Q3「投稿主体の1体だけ」)。
-4. 配線: `runFlow` に `possessedPersona?: FlowPersona` を渡せるようにし、`generateFlowPersonas` 後に 1 枠差し替え。
-   dispatch / discord-live / web routes が `userKey` を解決して注入する。
+**嗜好/体験はテーマから類推** (ユーザ入力プロフィール不要)。
+- 目標ベクトル = `textToVector(theme)` (`selectPossessionByTheme`)。
+- `runFlow` 既定 `possess=true`: 生成キャストの **opinion 1 枠**をテーマ最近傍プールペルソナで置換。
+  プール空 / 一致なしなら no-op (従来生成のまま)。投稿主体の代理は 1 体のみ (Q3)。
+- `flow_user_affect` / slash は B では未使用 (将来「ユーザ別嗜好」用に残置)。
+- TODO(改善余地): メカニクス `intended_affect` を目標ベクトルに加味する。
 
 ## C. ペルソナ生成ワークフロー (method TBD) — 未実装 (スキャフォルド)
 
@@ -51,8 +49,10 @@ worker-pool LLM / classifier / peDb / core の構築は維持 (フローが依�
 - **サブスクのまま SDK 可** (Q1): `AnthropicSdkClient` を OAuth 対応にする。
   `Authorization: Bearer <oauth>` + `anthropic-beta: oauth-2025-04-20` で `/v1/messages` に通る
   (claude-api skill)。`x-api-key` (従量) も併存。
-  - トークン源 (**要確認/既定**): env `ANTHROPIC_AUTH_TOKEN`、無ければ `ant auth print-credentials --access-token`
-    を spawn して取得 (短命なので呼出時に再取得 or TTL キャッシュ)。
+  - トークン源: **Claude Code 認証 `~/.claude/.credentials.json` の `claudeAiOauth.accessToken` を読む**
+    (`refreshToken`/`expiresAt` も保持。Claude Code が背景で鮮度維持)。呼出時に再読込 + `expiresAt` 確認の
+    TTL キャッシュ。期限切れ & 再読込でも失効なら SDK は ok:false → claude-p フォールバックに落とす。
+    (読めない環境では Lictor 経由トークン取得を代替に。)
 - **cache-control**: ディスカッションペーパーの安定部 (テーマ/メカニクス/タグ補足) を `system` ブロックに置き
   `cache_control: {type:"ephemeral"}` を付与、ターン可変部 (前ラウンド要約・指示) を user メッセージへ。
   director / persona prompt / vote / summary / conclusion の invoke を system+prompt 構成に再編。
