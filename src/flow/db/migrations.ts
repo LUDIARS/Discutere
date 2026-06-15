@@ -125,6 +125,39 @@ const MIGRATIONS: Array<{ id: string; sql: string[] }> = [
       `CREATE INDEX IF NOT EXISTS idx_improvement_score_session ON improvement_score(session_id, round)`,
     ],
   },
+  {
+    // ペルソナプール (永続) + ユーザ嗜好ベクトル。
+    //  - flow_persona: 学習データ別に用意/合成した永続ペルソナ。affect_vector で嗜好近傍検索 (憑依/壁打ち相手)。
+    //  - flow_user_affect: ユーザ (Discord id 等) の「ゲームに望む感情/体験」ベクトル。憑依の検索キー。
+    // ベクトルは sentiment-vector.ts の 20 次元 (JSON 配列) を格納する。
+    id: "flow_0005_persona_pool",
+    sql: [
+      `CREATE TABLE IF NOT EXISTS flow_persona (
+        id TEXT PRIMARY KEY,
+        name TEXT NOT NULL,
+        role TEXT NOT NULL DEFAULT 'opinion',
+        speech_style TEXT NOT NULL DEFAULT '',
+        traits_json TEXT NOT NULL DEFAULT '[]',
+        affect_vector_json TEXT NOT NULL DEFAULT '[]',
+        origin TEXT NOT NULL DEFAULT 'seed',
+        parent_ids_json TEXT NOT NULL DEFAULT '[]',
+        learning_source TEXT,
+        label TEXT,
+        model TEXT,
+        archived INTEGER NOT NULL DEFAULT 0,
+        created_at INTEGER NOT NULL
+      )`,
+      `CREATE TABLE IF NOT EXISTS flow_user_affect (
+        user_key TEXT PRIMARY KEY,
+        label TEXT,
+        desired_text TEXT NOT NULL DEFAULT '',
+        vector_json TEXT NOT NULL DEFAULT '[]',
+        updated_at INTEGER NOT NULL
+      )`,
+      `CREATE INDEX IF NOT EXISTS idx_flow_persona_origin ON flow_persona(origin, archived)`,
+      `CREATE INDEX IF NOT EXISTS idx_flow_persona_source ON flow_persona(learning_source)`,
+    ],
+  },
 ];
 
 export function applyFlowMigrations(db: Database.Database): void {
