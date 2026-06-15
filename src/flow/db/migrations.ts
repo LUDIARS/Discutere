@@ -169,6 +169,20 @@ const MIGRATIONS: Array<{ id: string; sql: string[] }> = [
       `CREATE INDEX IF NOT EXISTS idx_flow_persona_speaker ON flow_persona(source_speaker_id)`,
     ],
   },
+  {
+    // C2-b 母数推定値の永続化: 合成ペルソナ (origin=generated) の所属クラスタが実分布で持つ
+    // 母数判定 (大/小) と実近傍比率を flow_persona に書き戻す (estimatePopulations の結果)。
+    // ALTER ADD COLUMN の後に INDEX (既存 DB で no such column を避ける共通ルール)。
+    id: "flow_0007_persona_population",
+    sql: [
+      // 母数判定 ("大" | "小")。NULL = 未推定。
+      `ALTER TABLE flow_persona ADD COLUMN population_verdict TEXT`,
+      // 所属クラスタ centroid の実分布近傍比率 (realNeighbors / 実分布総数)。
+      `ALTER TABLE flow_persona ADD COLUMN population_ratio REAL`,
+      // 推定実行時刻 (epoch ms)。再推定で上書き。
+      `ALTER TABLE flow_persona ADD COLUMN population_estimated_at INTEGER`,
+    ],
+  },
 ];
 
 export function applyFlowMigrations(db: Database.Database): void {
