@@ -79,8 +79,12 @@ YouTube/note/Steam 等。話者アンカー `ext:<source>:<authorId>` (`sources/
    (KG 著者集約→条件フィルタ→affect平均/typicality→`source_speaker_id` upsert/origin=adopted/`論者#`)。
    migration flow_0006 (source_speaker_id/typicality)。テスト済。TODO: affect の opinion-score 重み付け。
 2. C1-b: crawl runner 自動採用フック (任意) — 未実装。
-3. C2-a: アンケートスキーマ + 合成個体 + 感想生成 (プール投入のみ) — 未実装。
-4. C2-b: クラスタリング + C1 実分布突合で母数推定 — 未実装。
+3. **C2-a** ✅: `survey.ts`(アンケート: 嗜好/プレイスタイル/感情の波/年代/課金額 + playProbability)
+   + `persona-survey.ts`(`generateSyntheticPersonas`: 合成個体→プレイ判定→LLM感想→affect平均, origin=generated,
+   learningSource=survey, 未プレイは明示)。`npm run persona:survey -- --count N`。
+4. **C2-b** ✅: `persona-populations.ts`(`estimatePopulations`: 合成を貪欲クラスタ→各クラスタの
+   **実分布(adopted)近傍数で母数大小**判定, realOrigins で身内sample混在可)。`npm run persona:populations`。
+   テスト済。TODO: 母数推定値の persona への永続化。
 
 > プールが空なら憑依 (B) / 壁打ち相手 (G) は従来生成にフォールバック。
 

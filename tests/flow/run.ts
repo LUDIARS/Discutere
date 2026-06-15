@@ -16,5 +16,6 @@ await import("./sparring.test.js");
 await import("./entrypoints.test.js");
 await import("./persona-pool.test.js");
 await import("./claude-code-auth.test.js");
+await import("./persona-survey.test.js");
 
 console.log("flow tests: all passed");
