@@ -58,6 +58,20 @@ export interface FlowDirectorDeps {
   gamesDir?: string;
   /** セッション ID を外部から指定する (WebUI が起動前に id を返してポーリングするため)。既定は randomUUID。 */
   sessionId?: string;
+  /** このセッションのラウンド数 (省略時は config.flow.rounds)。1..MAX_ROUNDS にクランプ。 */
+  rounds?: number;
+  /** このセッションの 1 ラウンドあたりターン数 (省略時は config.flow.turnsPerRound)。1..MAX_TURNS にクランプ。 */
+  turnsPerRound?: number;
+}
+
+/** 都度指定ラウンド/ターン数の暴走ガード上限 (コスト保護)。 */
+export const MAX_ROUNDS = 10;
+export const MAX_TURNS_PER_ROUND = 20;
+
+/** 都度指定値を [1, max] にクランプ。未指定/非有限なら fallback を返す。 */
+export function clampCount(value: number | undefined, fallback: number, max: number): number {
+  if (value == null || !Number.isFinite(value)) return fallback;
+  return Math.max(1, Math.min(max, Math.floor(value)));
 }
 
 export interface FlowDirectorResult {
@@ -179,6 +193,9 @@ export async function runFlow(
 
   const sessionId = options.sessionId ?? randomUUID();
   const isLocal = cfg.llm.backend === "local";
+  // ラウンド/ターン数は議論ごとの指定 (options) を優先し、無ければ config 既定。暴走ガードでクランプ。
+  const rounds = clampCount(options.rounds, cfg.flow.rounds, MAX_ROUNDS);
+  const turnsPerRound = clampCount(options.turnsPerRound, cfg.flow.turnsPerRound, MAX_TURNS_PER_ROUND);
 
   // ── [1] 調査 ──────────────────────────────────────────────────────────────
   log(`調査開始: "${theme}" (タグ: [${tags.join(", ")}])`);
@@ -224,8 +241,8 @@ export async function runFlow(
   // ── ラウンドループ ────────────────────────────────────────────────────────
   const facilitatorPersona = personas.find((p) => p.role === "facilitator") ?? personas[0];
 
-  for (let round = 1; round <= cfg.flow.rounds; round++) {
-    log(`ラウンド ${round}/${cfg.flow.rounds} 開始`);
+  for (let round = 1; round <= rounds; round++) {
+    log(`ラウンド ${round}/${rounds} 開始`);
     const roundUtterances: Array<{ personaName: string; text: string }> = [];
 
     // ── [4] ファシリテーター開幕ターン (議題提示) ─────────────────────────
@@ -283,7 +300,7 @@ export async function runFlow(
     }
 
     // ── ターンループ ─────────────────────────────────────────────────────
-    for (let turn = 1; turn <= cfg.flow.turnsPerRound; turn++) {
+    for (let turn = 1; turn <= turnsPerRound; turn++) {
       const persona = pickRandomPersona(personas, rng);
       const stance = decideStance(persona, rng);
 

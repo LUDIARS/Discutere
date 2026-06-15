@@ -68,6 +68,27 @@ export function parseForumEntry(appliedTagNames: string[], mapping?: ForumTagMap
   return { flow, tags };
 }
 
+/**
+ * starter 本文から議論ごとのラウンド/ターン指定を抽出する (任意)。
+ * 例: 「ラウンド:5 ターン:8」「rounds=3 turns=6」。見つからなければ undefined。
+ * フォーラムタグは数値を載せられないため、本文記法で都度指定する経路 (OVERVIEW §2/§9)。
+ */
+export function parseRoundsTurns(text: string): { rounds?: number; turnsPerRound?: number } {
+  const pick = (patterns: RegExp[]): number | undefined => {
+    for (const re of patterns) {
+      const m = text.match(re);
+      if (m) {
+        const n = Number(m[1]);
+        if (Number.isFinite(n)) return n;
+      }
+    }
+    return undefined;
+  };
+  const rounds = pick([/ラウンド\s*[:：=]\s*(\d+)/i, /\brounds?\s*[:：=]\s*(\d+)/i]);
+  const turnsPerRound = pick([/ターン\s*[:：=]\s*(\d+)/i, /\bturns?\s*[:：=]\s*(\d+)/i]);
+  return { rounds, turnsPerRound };
+}
+
 /** フォーラム starter 投稿の最小入力 (gateway/forum-monitor 由来)。 */
 export interface ForumPostInput {
   /** starter 投稿本文 = テーマ。 */

@@ -36,6 +36,7 @@ import { tuningRoutes, setRuntimeSettings } from "./api/tuning-routes.js";
 import { topPageRoutes } from "./api/top-page-routes.js";
 import { webChatRoutes, setWebChatDeps } from "./api/web-chat-routes.js";
 import { flowRoutes, setFlowWebDeps } from "./flow/web/routes.js";
+import { FallbackLlm } from "./flow/llm-fallback.js";
 import { createGuideRoutes } from "./api/guide-routes.js";
 import { createRuntimeSettingsStore } from "./runtime-settings/store.js";
 import { setRolePromptResolver, ROLE_GUIDANCE_DEFAULTS } from "./persona-engine/worker-pool/persona-prompts.js";
@@ -426,11 +427,19 @@ const personaEngineLifecycle = (() => {
       }
     }
     setPersonaEngine(engine);
-    engine.start();
-    bridge.start();
-    console.log(
-      `  persona-engine: attached (workspace=${workspaceId}, db=${peDbPath})`
-    );
+    // 旧 persona-engine は既定で起動しない (議論は新フロー src/flow に集約済み, OVERVIEW §4)。
+    // LLM クライアント (worker-pool) / peDb / core の構築は上で済ませており enabled に依らず維持する。
+    if (config.personaEngine.enabled) {
+      engine.start();
+      bridge.start();
+      console.log(
+        `  persona-engine: attached (workspace=${workspaceId}, db=${peDbPath})`
+      );
+    } else {
+      console.log(
+        "  persona-engine: disabled (新フロー集約のため起動しない / DISCUTERE_PERSONA_ENGINE_ENABLED=1 で有効化)"
+      );
+    }
 
     // ファシリテーター: 停滞→新 persona 投入で拡張、 persona 過多→収束 (gap closed)
     // worker-pool 時は動的 persona 生成 (= ワーカー無しの persona) を避けるため facilitator を止める。
@@ -446,7 +455,7 @@ const personaEngineLifecycle = (() => {
         })
       : llm;
     let facilitator: ReturnType<typeof createFacilitator> | null = null;
-    if (config.facilitator.enabled && facilitatorLlm) {
+    if (config.personaEngine.enabled && config.facilitator.enabled && facilitatorLlm) {
       const facLogger = {
         debug: () => {},
         info: (meta: Record<string, unknown>, msg: string) => console.log(`  [facilitator] ${msg}`, meta),
@@ -489,7 +498,7 @@ const personaEngineLifecycle = (() => {
     // 同意する意見に 👍 + 合意スコアを記録する。 facilitator と同じ LLM / tick で回す。
     // react は gateway 起動後に late-bind される consensusReact に委譲する。
     let consensusScorer: ConsensusScorer | null = null;
-    if (config.facilitator.enabled && facilitatorLlm) {
+    if (config.personaEngine.enabled && config.facilitator.enabled && facilitatorLlm) {
       consensusScorer = createConsensusScorer({
         core,
         llm: facilitatorLlm,
@@ -564,10 +573,29 @@ const personaEngineLifecycle = (() => {
   console.log("  web-chat: /chat (loopback) — scene=web:<room> で議論可能");
 }
 
+// ─── 議論フローの LLM 解決 (worker-pool 踏襲 + 無ワーカー時 claude -p フォールバック) ───
+// 新フロー (FlowDirector) は invoke に personaId を渡さない呼び出し (facilitator/投票/
+// 結論/要約/感情) が多い。worker-pool backend の WorkerPoolClient (autoDiscussionLlm) は
+// personaId 未指定だと即 ok:false でフォールバックしないため、そのまま繋ぐとフローが壊れる。
+// FallbackLlm で worker-pool を試行 → 外れたら claude -p に回す。worker が起動していれば
+// 発話は worker に流れ、いなければ claude -p。backend が worker-pool 以外なら persona-engine
+// の llm (claude-cli/local/anthropic) をそのまま使い、それも無ければ classifier にフォールバック。
+const flowEngineLlm: LLMClient | null = (() => {
+  if (autoDiscussionLlm && config.llm.backend === "worker-pool") {
+    const cliFallback = new ClaudeCliClient({
+      defaultTimeoutMs: config.llm.claudeCliTimeoutMs,
+      defaultModel: config.llm.model || undefined,
+      gitBashPath: config.workerPool.gitBashPath ?? config.llm.gitBashPath,
+    });
+    return new FallbackLlm(autoDiscussionLlm, cliFallback);
+  }
+  return autoDiscussionLlm ?? classifierLlm;
+})();
+
 // ─── 議論フロー WebUI (/flow) — 4 フロー (議論/改善/学習/壁打ち) の正式入口 (T7) ───
 // テーマ + 議論タイプ (必須) + タグ を受けて dispatch する。LLM backend がある時のみ有効。
-if (classifierLlm) {
-  const flowLlm = classifierLlm;
+if (flowEngineLlm) {
+  const flowLlm = flowEngineLlm;
   setFlowWebDeps({
     workspaceId: config.workspace,
     llm: flowLlm,
@@ -613,12 +641,12 @@ const discordGatewayLifecycle = startDiscordGateway({
   forum: config.discord.forum,
   // 新フロー (議論/改善/学習/壁打ち) の Discord live 実行依存。LLM backend がある時のみ。
   // 設定するとフォーラムスレッドは新フローエンジンで起動する (旧 auto-discussion 経路は不使用)。
-  flowLive: classifierLlm
+  flowLive: flowEngineLlm
     ? {
         botToken: config.discord.botToken ?? "",
-        llm: classifierLlm,
+        llm: flowEngineLlm,
         openCore: () => createCore(resolveActiveKgPath(config)),
-        sentimentClients: { main: classifierLlm },
+        sentimentClients: { main: flowEngineLlm },
         workspaceId: config.workspace,
       }
     : undefined,

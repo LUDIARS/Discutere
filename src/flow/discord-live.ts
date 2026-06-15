@@ -51,6 +51,10 @@ export interface StartForumFlowInput {
   theme: string;
   flow: FlowKind;
   tags: FlowTag[];
+  /** 議論ごとのラウンド数 (任意。discussion/improvement のみ反映、未指定は config 既定)。 */
+  rounds?: number;
+  /** 議論ごとの 1 ラウンドあたりターン数 (任意。discussion/improvement のみ反映)。 */
+  turnsPerRound?: number;
 }
 
 /** 収束時フック (gateway が finalizeForumPost に結線する)。 */
@@ -178,7 +182,14 @@ export async function startForumFlow(
       }`
     );
     const result = await dispatchFlow(
-      { theme: input.theme, tags: input.tags, flow: input.flow, scene },
+      {
+        theme: input.theme,
+        tags: input.tags,
+        flow: input.flow,
+        scene,
+        rounds: input.rounds,
+        turnsPerRound: input.turnsPerRound,
+      },
       dispatchDeps
     );
     if (result.kind === "discussion" || result.kind === "improvement") {

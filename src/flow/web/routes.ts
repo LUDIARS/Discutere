@@ -57,12 +57,19 @@ flowRoutes.post("/api/flow/start", async (c) => {
     theme?: unknown;
     flow?: unknown;
     tags?: unknown;
+    rounds?: unknown;
+    turnsPerRound?: unknown;
   };
   const theme = typeof body.theme === "string" ? body.theme.trim() : "";
   const flowLabel = typeof body.flow === "string" ? body.flow : "";
   const tags = Array.isArray(body.tags)
     ? (body.tags.filter((t) => typeof t === "string") as FlowTag[])
     : [];
+  // 議論ごとのラウンド/ターン数 (任意)。runFlow が config 既定にフォールバック + 上限クランプする。
+  const toNum = (v: unknown): number | undefined =>
+    typeof v === "number" ? v : typeof v === "string" && v.trim() !== "" ? Number(v) : undefined;
+  const rounds = toNum(body.rounds);
+  const turnsPerRound = toNum(body.turnsPerRound);
 
   if (!theme) return c.json({ ok: false, error: "テーマは必須です" }, 400);
   const kind = parseFlowKind(flowLabel);
@@ -99,7 +106,7 @@ flowRoutes.post("/api/flow/start", async (c) => {
 
   // 議論 / 改善: sessionId を先に発番し、バックグラウンドで完走させてポーリングで追う
   const sessionId = randomUUID();
-  void dispatchFlow({ theme, tags, flow: kind }, { ...dispatchDeps, sessionId })
+  void dispatchFlow({ theme, tags, flow: kind, rounds, turnsPerRound }, { ...dispatchDeps, sessionId })
     .catch((e) => console.warn(`[flow-web] ${kind} 実行エラー: ${(e as Error).message}`))
     .finally(() => finished.add(sessionId));
   return c.json({ ok: true, kind, sessionId });

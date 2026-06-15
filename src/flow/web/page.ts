@@ -51,6 +51,11 @@ export const FLOW_HTML = `<!doctype html>
       <label><input type="checkbox" name="tag" value="運用" /> 運用</label>
       <label><input type="checkbox" name="tag" value="開発" /> 開発</label>
     </fieldset>
+    <fieldset class="tags">
+      <legend>進行量 (議論/改善のみ・空欄で既定)</legend>
+      <label>ラウンド数 <input id="rounds" type="number" min="1" max="10" placeholder="既定" style="width:5rem" /></label>
+      <label>ターン数/ラウンド <input id="turnsPerRound" type="number" min="1" max="20" placeholder="既定" style="width:5rem" /></label>
+    </fieldset>
     <button type="submit" id="go">開始</button>
   </form>
 
@@ -72,10 +77,12 @@ $("start").addEventListener("submit", async (e) => {
   const flow = $("flow").value;
   if (!theme || !flow) { alert("テーマと議論タイプは必須です"); return; }
   const tags = [...document.querySelectorAll('input[name=tag]:checked')].map(c => c.value);
+  const rounds = $("rounds").value.trim() === "" ? undefined : Number($("rounds").value);
+  const turnsPerRound = $("turnsPerRound").value.trim() === "" ? undefined : Number($("turnsPerRound").value);
   $("go").disabled = true;
   const res = await fetch("/api/flow/start", {
     method: "POST", headers: { "content-type": "application/json" },
-    body: JSON.stringify({ theme, flow, tags }),
+    body: JSON.stringify({ theme, flow, tags, rounds, turnsPerRound }),
   }).then(r => r.json()).catch(() => ({ ok: false, error: "通信失敗" }));
   if (!res.ok) { alert(res.error || "開始に失敗"); $("go").disabled = false; return; }
   sessionId = res.sessionId; kind = res.kind;
