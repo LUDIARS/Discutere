@@ -61,7 +61,9 @@
     "ext:canalis": "tsx scripts/ext-canalis-run.ts",
     "persona:generate": "tsx scripts/persona-generate.ts",
     "persona:synthesize": "tsx scripts/persona-synthesize.ts",
-    "persona:adopt": "tsx scripts/persona-adopt.ts"
+    "persona:adopt": "tsx scripts/persona-adopt.ts",
+    "persona:survey": "tsx scripts/persona-survey.ts",
+    "persona:populations": "tsx scripts/persona-populations.ts"
   },
   "dependencies": {
     "@aws-sdk/client-s3": "^3.658.0",
