@@ -60,8 +60,16 @@ YouTube/note/Steam 等。話者アンカー `ext:<source>:<authorId>` (`sources/
 **保存**: `flow_persona` に `origin="adopted"` + `source_speaker_id` (= `ext:source:authorId`) で **upsert**
 (再クロールで意見が増えても別個体を量産しない)。露出名は `論者#xxxxxx` (`maskedPersonaLabel`、個人データ方針)。
 
-**起動**: バッチ後処理 `npm run persona:adopt -- [--source steam] [--min-opinions 10]`
+**起動**: バッチ後処理 `npm run persona:adopt -- [--source youtube] [--min-opinions 10] [--dry]`
 (crawl 完了後に KG を集約 → 条件フィルタ → 採用)。crawl runner インラインではなく後処理バッチ。
+
+**取り込み (YouTube)**: `npm run import:youtube -- --input <jsonl> --game-mode video`。
+`--game-mode video` は gameSlug を動画単位 (`yt:<videoId>`) にする → 「複数動画で反応が違う人」が
+gap 条件を満たし採用対象になる (単一 game だと全員 no-game-gap で却下)。
+実績 (2026-06-15 モンスト×ナルト 14万コメント): youtube 話者 67,732 → **採用 1,837**
+(却下: too-few 65,732 / no-game-gap 162 / all-positive 1)。
+**所見**: 短いコメントを 20 次元 lexicon でベクトル化すると中立寄りに丸まり、typicality が
+~0.99 に集中して解像度が低い (avg 0.993, min 0.844)。改善余地 = embedding ベース affect / opinion-score 重み付け。
 
 ### C2. ペルソナ生成エンジン (合成) — C1 の後
 
