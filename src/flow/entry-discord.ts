@@ -68,6 +68,40 @@ export function parseForumEntry(appliedTagNames: string[], mapping?: ForumTagMap
   return { flow, tags };
 }
 
+/**
+ * starter 本文から議論ごとのラウンド/ターン指定を抽出する (任意)。
+ * 例: 「ラウンド:5 ターン:8」「rounds=3 turns=6」。見つからなければ undefined。
+ * フォーラムタグは数値を載せられないため、本文記法で都度指定する経路 (OVERVIEW §2/§9)。
+ */
+export function parseRoundsTurns(text: string): { rounds?: number; turnsPerRound?: number } {
+  const pick = (patterns: RegExp[]): number | undefined => {
+    for (const re of patterns) {
+      const m = text.match(re);
+      if (m) {
+        const n = Number(m[1]);
+        if (Number.isFinite(n)) return n;
+      }
+    }
+    return undefined;
+  };
+  const rounds = pick([/ラウンド\s*[:：=]\s*(\d+)/i, /\brounds?\s*[:：=]\s*(\d+)/i]);
+  const turnsPerRound = pick([/ターン\s*[:：=]\s*(\d+)/i, /\bturns?\s*[:：=]\s*(\d+)/i]);
+  return { rounds, turnsPerRound };
+}
+
+/**
+ * starter 本文から壁打ち相手指定を抽出する (G)。
+ * 例: 「相手:ローグ好き太郎,ソシャゲ花子」「opponent=花子」。カンマ区切り。無ければ undefined。
+ */
+export function parseOpponents(text: string): string[] | undefined {
+  const m = text.match(/(?:相手|opponent)\s*[:：=]\s*(.+)/i);
+  if (!m) return undefined;
+  // 行末まで取り、カンマ区切りで分解 (改行で打ち切り)。
+  const line = m[1].split(/[\r\n]/)[0];
+  const ids = line.split(/[,、]/).map((s) => s.trim()).filter(Boolean);
+  return ids.length ? ids : undefined;
+}
+
 /** フォーラム starter 投稿の最小入力 (gateway/forum-monitor 由来)。 */
 export interface ForumPostInput {
   /** starter 投稿本文 = テーマ。 */

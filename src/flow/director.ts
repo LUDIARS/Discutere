@@ -12,9 +12,11 @@ import type { FlowTag } from "./tags.js";
 import { getConfig } from "../config.js";
 import { withCostLog } from "./cost-logger.js";
 import { generateFlowPersonas, pickRandomPersona, decideStance, type FlowPersona, type Rng } from "./personas.js";
+import { selectPossessionByTheme, toFlowPersona } from "./persona-pool.js";
 import {
   buildPersonaPaper,
-  paperToPrompt,
+  buildPaperSystem,
+  buildPersonaUserPrompt,
   persistPaper,
   synthesizeOpinions,
   type ContextVoice,
@@ -58,6 +60,25 @@ export interface FlowDirectorDeps {
   gamesDir?: string;
   /** セッション ID を外部から指定する (WebUI が起動前に id を返してポーリングするため)。既定は randomUUID。 */
   sessionId?: string;
+  /** このセッションのラウンド数 (省略時は config.flow.rounds)。1..MAX_ROUNDS にクランプ。 */
+  rounds?: number;
+  /** このセッションの 1 ラウンドあたりターン数 (省略時は config.flow.turnsPerRound)。1..MAX_TURNS にクランプ。 */
+  turnsPerRound?: number;
+  /**
+   * 憑依 (B): テーマから嗜好を類推し、プール最近傍ペルソナを投稿主体の 1 枠 (opinion) に充てる。
+   * 既定 true。プールが空 / 一致なしなら従来生成キャストのまま (no-op)。
+   */
+  possess?: boolean;
+}
+
+/** 都度指定ラウンド/ターン数の暴走ガード上限 (コスト保護)。 */
+export const MAX_ROUNDS = 10;
+export const MAX_TURNS_PER_ROUND = 20;
+
+/** 都度指定値を [1, max] にクランプ。未指定/非有限なら fallback を返す。 */
+export function clampCount(value: number | undefined, fallback: number, max: number): number {
+  if (value == null || !Number.isFinite(value)) return fallback;
+  return Math.max(1, Math.min(max, Math.floor(value)));
 }
 
 export interface FlowDirectorResult {
@@ -179,6 +200,9 @@ export async function runFlow(
 
   const sessionId = options.sessionId ?? randomUUID();
   const isLocal = cfg.llm.backend === "local";
+  // ラウンド/ターン数は議論ごとの指定 (options) を優先し、無ければ config 既定。暴走ガードでクランプ。
+  const rounds = clampCount(options.rounds, cfg.flow.rounds, MAX_ROUNDS);
+  const turnsPerRound = clampCount(options.turnsPerRound, cfg.flow.turnsPerRound, MAX_TURNS_PER_ROUND);
 
   // ── [1] 調査 ──────────────────────────────────────────────────────────────
   log(`調査開始: "${theme}" (タグ: [${tags.join(", ")}])`);
@@ -206,12 +230,31 @@ export async function runFlow(
   };
 
   // ── [3] ペルソナ生成 ────────────────────────────────────────────────────
+  const defaultModel = cfg.llm.model ?? "claude-haiku-4-5-20251001";
   const personas: FlowPersona[] = generateFlowPersonas({
     count: cfg.flow.personaCount,
-    defaultModel: cfg.llm.model ?? "claude-haiku-4-5-20251001",
+    defaultModel,
     isLocal,
     rng,
   });
+
+  // ── 憑依 (B): テーマから嗜好を類推し、プール最近傍ペルソナを opinion 1 枠に充てる ──
+  // プールが空 / 一致なしなら no-op (従来生成キャストのまま)。投稿主体の代理は 1 体のみ (Q3)。
+  if (options.possess !== false) {
+    try {
+      const hit = selectPossessionByTheme(theme, 1)[0];
+      if (hit) {
+        const seatIdx = personas.findIndex((p) => p.role === "opinion");
+        if (seatIdx >= 0) {
+          personas[seatIdx] = toFlowPersona(hit.persona, { role: "opinion", defaultModel, isLocal });
+          log(`憑依: 「${hit.persona.name}」をテーマ嗜好で投稿主体枠にアサイン (cos=${hit.similarity.toFixed(3)})`);
+        }
+      }
+    } catch (e) {
+      warn(`憑依スキップ (${(e as Error).message})`);
+    }
+  }
+
   log(`ペルソナ ${personas.length} 人生成: ${personas.map((p) => `${p.name}(${p.role})`).join(", ")}`);
 
   // synthetic opinions (機密タグ用)
@@ -224,8 +267,8 @@ export async function runFlow(
   // ── ラウンドループ ────────────────────────────────────────────────────────
   const facilitatorPersona = personas.find((p) => p.role === "facilitator") ?? personas[0];
 
-  for (let round = 1; round <= cfg.flow.rounds; round++) {
-    log(`ラウンド ${round}/${cfg.flow.rounds} 開始`);
+  for (let round = 1; round <= rounds; round++) {
+    log(`ラウンド ${round}/${rounds} 開始`);
     const roundUtterances: Array<{ personaName: string; text: string }> = [];
 
     // ── [4] ファシリテーター開幕ターン (議題提示) ─────────────────────────
@@ -283,7 +326,7 @@ export async function runFlow(
     }
 
     // ── ターンループ ─────────────────────────────────────────────────────
-    for (let turn = 1; turn <= cfg.flow.turnsPerRound; turn++) {
+    for (let turn = 1; turn <= turnsPerRound; turn++) {
       const persona = pickRandomPersona(personas, rng);
       const stance = decideStance(persona, rng);
 
@@ -307,7 +350,10 @@ export async function runFlow(
         userVoices,
         syntheticOpinions,
       });
-      const prompt = paperToPrompt(personaPaper, stance, persona);
+      // 安定部 (議題/メカニクス) は system に置き SDK の cache_control で session 内再利用 (E)。
+      // 可変部 (前ラウンド/当ラウンド/ユーザの声) + persona 固有は user メッセージへ。
+      const personaSystem = buildPaperSystem(personaPaper);
+      const prompt = buildPersonaUserPrompt(personaPaper, stance, persona);
 
       // LLM 呼び出し (コストログ付き)
       const logged = withCostLog(llm, {
@@ -324,6 +370,7 @@ export async function runFlow(
       let isError = false;
 
       const result = await logged.invoke({
+        system: personaSystem,
         prompt,
         model: persona.model,
       });

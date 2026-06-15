@@ -58,7 +58,9 @@
     "ft:export": "tsx scripts/export-ft-data.ts",
     "ft:generate": "tsx scripts/generate-training-data.ts",
     "import:youtube": "tsx scripts/import-youtube-comments.ts",
-    "ext:canalis": "tsx scripts/ext-canalis-run.ts"
+    "ext:canalis": "tsx scripts/ext-canalis-run.ts",
+    "persona:generate": "tsx scripts/persona-generate.ts",
+    "persona:synthesize": "tsx scripts/persona-synthesize.ts"
   },
   "dependencies": {
     "@aws-sdk/client-s3": "^3.658.0",

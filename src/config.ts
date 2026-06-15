@@ -67,6 +67,12 @@ export interface DiscutereConfig {
     knowledgeGraphs?: Array<{ id: string; label?: string; kuzuPath: string }>;
   };
   personaEngine: {
+    /**
+     * 旧 persona-engine (ルールエンジン司会 / facilitator / consensus-scorer / auto-seed) を
+     * 起動するか。既定 false。議論は新フロー (src/flow) に集約済みで persona-engine は不使用
+     * (OVERVIEW §4)。LLM クライアント (worker-pool) や peDb の構築は enabled に依らず維持する。
+     */
+    enabled: boolean;
     dbPath: string;
     /** 同一 session 内総発火上限 (turn budget) */
     maxFiresPerSession: number;
@@ -479,6 +485,11 @@ export function loadConfig(): DiscutereConfig {
         : undefined,
     },
     personaEngine: {
+      enabled: pickBool(
+        process.env.DISCUTERE_PERSONA_ENGINE_ENABLED,
+        file.personaEngine?.enabled,
+        false
+      ),
       dbPath: pick(
         process.env.DISCUTERE_PERSONA_ENGINE_DB,
         file.personaEngine?.dbPath,

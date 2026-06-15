@@ -14,5 +14,7 @@ await import("./improvement.test.js");
 await import("./learning.test.js");
 await import("./sparring.test.js");
 await import("./entrypoints.test.js");
+await import("./persona-pool.test.js");
+await import("./claude-code-auth.test.js");
 
 console.log("flow tests: all passed");

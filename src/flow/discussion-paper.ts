@@ -149,7 +149,57 @@ export function buildPersonaPaper(args: BuildPersonaPaperArgs): PersonaPaper {
   };
 }
 
-/** PersonaPaper を LLM に渡すプロンプト文字列に変換する。 */
+/**
+ * セッション不変の安定部 (議題 + 観点補足 + メカニクス) を返す。
+ * 全ペルソナ・全ターンで同一バイトになるため SDK の cache_control(system) で再利用できる (E)。
+ */
+export function buildPaperSystem(p: PersonaPaper): string {
+  return [
+    `# 議題\n${p.theme}`,
+    p.supplement ? `# 観点補足\n${p.supplement}` : null,
+    `# ゲームのメカニクス\n${p.mechanicsText}`,
+  ]
+    .filter(Boolean)
+    .join("\n\n");
+}
+
+/**
+ * ペルソナ固有 + 可変部 (前ラウンド結果 / 当ラウンド意見 / ユーザの声) を返す。
+ * 安定部 (buildPaperSystem) は含めない (= user メッセージ側)。
+ */
+export function buildPersonaUserPrompt(p: PersonaPaper, stance: FlowStance, persona: FlowPersona): string {
+  const stanceLine =
+    stance === "neutral"
+      ? "あなたはファシリテーター。対立を整理し議論を前に進める。"
+      : stance === "pro"
+        ? "このターンのあなたの立場は【賛成寄り】。主張を筋の通った形で擁護・補強する。"
+        : stance === "con"
+          ? "このターンのあなたの立場は【反対寄り】。健全な反論・反例・見落とされた弱点を投げる。"
+          : "あなたは意見役。ユーザの声を踏まえつつ自分の角度で意見を述べる。";
+
+  const volatile = [
+    p.previousRoundsText !== "(前ラウンドなし)" ? `# 前ラウンドの結果\n${p.previousRoundsText}` : null,
+    p.currentRoundUtterances.length > 0
+      ? `# 当ラウンドの意見 (これまで)\n${p.currentRoundUtterances.join("\n")}`
+      : null,
+    p.userOpinionsText ? p.userOpinionsText : null,
+  ].filter(Boolean);
+
+  return [
+    `あなたは議論ペルソナ「${persona.name}」。`,
+    `特徴: ${persona.traits.join(" / ")} / 話し方: ${persona.speechStyle}`,
+    stanceLine,
+    "Discord のチャットで実在の人間が話すように、自然な口語で 1〜2 文だけ書く。",
+    "ラベルや箇条書きは使わない。既出の繰り返しは避け、議論を一歩進める。",
+    "発言テキストのみを返す (JSON や前置きは不要)。付け足す事が無ければ空行のみ返す。",
+    ...(volatile.length ? ["", "---", ...volatile] : []),
+  ].join("\n");
+}
+
+/**
+ * PersonaPaper を LLM に渡すプロンプト文字列に変換する (単一文字列・後方互換)。
+ * SDK キャッシュ経路は buildPaperSystem(system) + buildPersonaUserPrompt(user) に分けて使う。
+ */
 export function paperToPrompt(p: PersonaPaper, stance: FlowStance, persona: FlowPersona): string {
   const stanceLine =
     stance === "neutral"

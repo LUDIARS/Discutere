@@ -98,6 +98,12 @@ export interface DispatchInput {
   flow: string;
   /** トランスポート由来の scene (web:<room> / discord:<guild>/<thread>)。記録用。 */
   scene?: string;
+  /** この議論のラウンド数 (省略時 config.flow.rounds)。discussion/improvement のみ反映。 */
+  rounds?: number;
+  /** この議論の 1 ラウンドあたりターン数 (省略時 config.flow.turnsPerRound)。discussion/improvement のみ反映。 */
+  turnsPerRound?: number;
+  /** 壁打ち相手に充てるプールペルソナの id/name (G。sparring のみ反映)。 */
+  opponentPersonaIds?: string[];
 }
 
 export type DispatchResult =
@@ -132,6 +138,9 @@ export async function dispatchFlow(input: DispatchInput, deps: DispatchDeps): Pr
     sessionId: deps.sessionId,
     log: deps.log,
     warn: deps.warn,
+    // 議論ごとのラウンド/ターン数 (discussion/improvement のみ。runFlow が config 既定にフォールバック)。
+    rounds: input.rounds,
+    turnsPerRound: input.turnsPerRound,
   };
 
   switch (kind) {
@@ -170,6 +179,7 @@ export async function dispatchFlow(input: DispatchInput, deps: DispatchDeps): Pr
         gamesDir: deps.gamesDir,
         log: deps.log,
         warn: deps.warn,
+        opponentPersonaIds: input.opponentPersonaIds,
       });
       await session.start();
       return { kind, flow: kind, session };
