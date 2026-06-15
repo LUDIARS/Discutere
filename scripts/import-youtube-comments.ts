@@ -43,7 +43,14 @@ interface YtComment {
   replyCount?: number;
 }
 
-function parseArgs(argv: string[]): { input: string; game: string; limit: number; dryRun: boolean; workspaceId: string } {
+function parseArgs(argv: string[]): {
+  input: string;
+  game: string;
+  gameMode: "fixed" | "video";
+  limit: number;
+  dryRun: boolean;
+  workspaceId: string;
+} {
   const get = (name: string) => {
     const i = argv.indexOf(`--${name}`);
     return i >= 0 ? argv[i + 1] : undefined;
@@ -53,13 +60,22 @@ function parseArgs(argv: string[]): { input: string; game: string; limit: number
     console.error("--input <jsonl path> が必要です");
     process.exit(1);
   }
+  // game-mode=video: gameSlug を動画単位 (yt:<videoId>) にする。1 人が複数動画に書いていれば
+  // 「ゲーム(文脈)ごとに反応が違う」= persona:adopt の gap 条件を満たせる (C1)。
+  // 既定 fixed: --game の単一 slug (従来動作)。
   return {
     input: path.resolve(input),
     game: get("game") ?? "monster-strike",
+    gameMode: get("game-mode") === "video" ? "video" : "fixed",
     limit: Number(get("limit") ?? 0),
     dryRun: argv.includes("--dry-run"),
     workspaceId: get("workspace") ?? "knowledge",
   };
+}
+
+/** コメントの gameSlug を mode で解決する。 */
+function gameSlugOf(c: YtComment, args: { game: string; gameMode: "fixed" | "video" }): string {
+  return args.gameMode === "video" ? `yt:${c.videoId}` : args.game;
 }
 
 function loadComments(jsonlPath: string, limit: number): YtComment[] {
@@ -115,7 +131,7 @@ async function main(): Promise<void> {
 
   if (args.dryRun) {
     // dry-run: 件数確認と先頭 3 件のプレビュー
-    const items = comments.slice(0, 3).map((c) => toExternalUtterance(c, args.game));
+    const items = comments.slice(0, 3).map((c) => toExternalUtterance(c, gameSlugOf(c, args)));
     console.log("\n(dry-run) サンプル:");
     for (const item of items) {
       console.log(`  nativeId=${item.nativeId} threadKey=${item.threadKey}`);
@@ -134,7 +150,7 @@ async function main(): Promise<void> {
   const ingested = openIngestedStore(DEFAULT_INGESTED_PATH);
 
   try {
-    const items = comments.map((c) => toExternalUtterance(c, args.game));
+    const items = comments.map((c) => toExternalUtterance(c, gameSlugOf(c, args)));
     const result = importExternalUtterances(core, items, {
       workspaceId: args.workspaceId,
       ingested,
