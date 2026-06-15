@@ -34,6 +34,12 @@ export interface PoolPersona {
   sourceSpeakerId?: string;
   /** 母集団平均からの近さ (cosine, 高い=典型)。「平均値グループにいるか」の判断材料。 */
   typicality?: number;
+  /** C2-b 母数推定: 所属クラスタの母数判定 ("大" | "小")。未推定なら undefined。 */
+  populationVerdict?: "大" | "小";
+  /** C2-b 母数推定: 所属クラスタ centroid の実分布近傍比率。 */
+  populationRatio?: number;
+  /** C2-b 母数推定の実行時刻 (epoch ms)。 */
+  populationEstimatedAt?: number;
 }
 
 export interface UserAffect {
@@ -67,6 +73,9 @@ interface PersonaRow {
   model: string | null;
   source_speaker_id: string | null;
   typicality: number | null;
+  population_verdict: string | null;
+  population_ratio: number | null;
+  population_estimated_at: number | null;
 }
 
 function rowToPersona(r: PersonaRow): PoolPersona {
@@ -84,6 +93,9 @@ function rowToPersona(r: PersonaRow): PoolPersona {
     model: r.model ?? undefined,
     sourceSpeakerId: r.source_speaker_id ?? undefined,
     typicality: r.typicality ?? undefined,
+    populationVerdict: (r.population_verdict as "大" | "小" | null) ?? undefined,
+    populationRatio: r.population_ratio ?? undefined,
+    populationEstimatedAt: r.population_estimated_at ?? undefined,
   };
 }
 
@@ -158,6 +170,18 @@ export function upsertPoolPersonaBySpeaker(p: PoolPersona): PoolPersona {
 /** typicality を更新する (母集団平均確定後の再計算用)。 */
 export function setPoolPersonaTypicality(id: string, typicality: number): void {
   getFlowDb().prepare(`UPDATE flow_persona SET typicality = ? WHERE id = ?`).run(typicality, id);
+}
+
+/** C2-b 母数推定値 (所属クラスタの判定/比率) をペルソナへ書き戻す。 */
+export function setPoolPersonaPopulation(
+  id: string,
+  population: { verdict: "大" | "小"; ratio: number; estimatedAt: number }
+): void {
+  getFlowDb()
+    .prepare(
+      `UPDATE flow_persona SET population_verdict = ?, population_ratio = ?, population_estimated_at = ? WHERE id = ?`
+    )
+    .run(population.verdict, population.ratio, population.estimatedAt, id);
 }
 
 /** id でプールペルソナを取得する。 */

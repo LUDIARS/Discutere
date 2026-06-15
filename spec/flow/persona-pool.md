@@ -86,13 +86,19 @@ gap 条件を満たし採用対象になる (単一 game だと全員 no-game-ga
 1. **C1-a** ✅: `persona-adopt.ts` (`evaluateSpeakers`/`adoptPersonas`) + `npm run persona:adopt`
    (KG 著者集約→条件フィルタ→affect平均/typicality→`source_speaker_id` upsert/origin=adopted/`論者#`)。
    migration flow_0006 (source_speaker_id/typicality)。テスト済。TODO: affect の opinion-score 重み付け。
-2. C1-b: crawl runner 自動採用フック (任意) — 未実装。
+2. **C1-b** ✅: crawl runner 自動採用フック。`flow.autoAdoptOnCrawl` (env `DISCUTERE_FLOW_AUTO_ADOPT_ON_CRAWL`,
+   既定 false) が有効なら `ext-ingest`/`ext-import` 完了後に C1 採用を自動実行
+   (`src/crawler/sources/cli.ts autoAdoptAfterCrawl` → `src/flow/persona-adopt-runner.ts runAdoptFromKg`、
+   ingest は直近 source のみ filter、採用失敗は crawl 成否に影響させない)。手動バッチ (`persona:adopt`) と
+   集約/採用ロジックを共有する。
 3. **C2-a** ✅: `survey.ts`(アンケート: 嗜好/プレイスタイル/感情の波/年代/課金額 + playProbability)
    + `persona-survey.ts`(`generateSyntheticPersonas`: 合成個体→プレイ判定→LLM感想→affect平均, origin=generated,
    learningSource=survey, 未プレイは明示)。`npm run persona:survey -- --count N`。
 4. **C2-b** ✅: `persona-populations.ts`(`estimatePopulations`: 合成を貪欲クラスタ→各クラスタの
    **実分布(adopted)近傍数で母数大小**判定, realOrigins で身内sample混在可)。`npm run persona:populations`。
-   テスト済。TODO: 母数推定値の persona への永続化。
+   テスト済。母数推定値 (判定 大/小 + 実近傍比率 + 推定時刻) は `persistPopulations` で各合成ペルソナの
+   `population_verdict`/`population_ratio`/`population_estimated_at` (migration flow_0007) に書き戻す
+   (CLI 既定で保存、`--no-persist` で抑止)。
 
 > プールが空なら憑依 (B) / 壁打ち相手 (G) は従来生成にフォールバック。
 
@@ -136,4 +142,5 @@ gap 条件を満たし採用対象になる (単一 game だと全員 no-game-ga
 
 ## 実装状況
 
-A ✅ / D ✅ / 共通基盤 ✅ / B ✅(テーマ類推) / E ✅(SDK OAuth+cache) / G ✅ / F ✅ / C ✅(スタブ・自動生成は考え中)
+A ✅ / D ✅ / 共通基盤 ✅ / B ✅(テーマ類推) / E ✅(SDK OAuth+cache) / G ✅ / F ✅ /
+C ✅(C1-a/C1-b/C2-a/C2-b 全実装。affect 解像度向上は Issue #125 で別途)

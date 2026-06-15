@@ -100,6 +100,25 @@ const { textToVector } = await import("../../src/flow/sentiment-vector.js");
   const big = report.clusters.find((c) => c.verdict === "大");
   assert.ok(big, "実近傍を持つクラスタは大判定");
   console.log("  [ok] C2 estimatePopulations (実分布突合で母数大小)");
+
+  // ── C2-b 永続化: persistPopulations → flow_persona に書き戻し ──
+  const { persistPopulations } = await import("../../src/flow/persona-populations.js");
+  const at = 1_700_000_000_000;
+  const written = persistPopulations(report, at);
+  const expected = report.clusters.reduce((s, c) => s + c.members.length, 0);
+  assert.equal(written, expected, "member 全員に書き戻す");
+  // 各合成ペルソナへ判定/比率/時刻が保存され、所属クラスタ判定と一致する
+  const byId = new Map(listPoolPersonas({ origin: "generated" }).map((p) => [p.id, p]));
+  for (const c of report.clusters) {
+    for (const memberId of c.members) {
+      const p = byId.get(memberId);
+      assert.ok(p, `合成ペルソナ ${memberId} 取得`);
+      assert.equal(p!.populationVerdict, c.verdict, "verdict 一致");
+      assert.equal(p!.populationRatio, c.realRatio, "ratio 一致");
+      assert.equal(p!.populationEstimatedAt, at, "estimatedAt 保存");
+    }
+  }
+  console.log("  [ok] C2-b persistPopulations (判定/比率/時刻を flow_persona へ永続化)");
 }
 
 console.log("persona-survey tests: all passed");

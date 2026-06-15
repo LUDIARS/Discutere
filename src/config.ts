@@ -46,6 +46,11 @@ export interface DiscutereConfig {
     sparringMaxTurns: number;
     /** 感情データ 0 件時の YouTube コメント取得上限 */
     youtubeMaxComments: number;
+    /**
+     * crawl (ext-ingest / ext-import) 完了後に C1 実在採用 (persona:adopt 相当) を
+     * 自動実行するか (C1-b 自動採用フック)。既定 false (手動バッチ運用)。
+     */
+    autoAdoptOnCrawl: boolean;
   };
   /** 匿名議論 workspace (個人データ非保管) */
   workspace: string;
@@ -471,6 +476,11 @@ export function loadConfig(): DiscutereConfig {
       tags: parseStringList(process.env.DISCUTERE_FLOW_TAGS, file.flow?.tags),
       sparringMaxTurns: pickNum(process.env.DISCUTERE_FLOW_SPARRING_MAX_TURNS, file.flow?.sparringMaxTurns, 50),
       youtubeMaxComments: pickNum(process.env.DISCUTERE_FLOW_YOUTUBE_MAX_COMMENTS, file.flow?.youtubeMaxComments, 200),
+      autoAdoptOnCrawl: pickBool(
+        process.env.DISCUTERE_FLOW_AUTO_ADOPT_ON_CRAWL,
+        file.flow?.autoAdoptOnCrawl,
+        false
+      ),
     },
     workspace: pick(process.env.DISCATIER_WORKSPACE, file.workspace, "knowledge"),
     discatier: {

@@ -13,6 +13,7 @@ import { getConfig } from "../../config.js";
 import { createCore } from "../../core/index.js";
 import { resolveActiveKgPath } from "../../core/kg-registry.js";
 
+import { runAdoptFromKg } from "../../flow/persona-adopt-runner.js";
 import { importExternalUtterances } from "./importer.js";
 import { openAttributionStore } from "./attribution-store.js";
 import { openIngestedStore } from "./ingested-store.js";
@@ -472,7 +473,30 @@ export async function runExtFetch(rest: string[]): Promise<void> {
 }
 
 /** ext-import: 中間 JSONL → Discatier Core (dedup + persona アンカー)。 */
+/**
+ * C1-b 自動採用フック: crawl 完了後に `flow.autoAdoptOnCrawl` が有効なら C1 実在採用を走らせる。
+ * sourceFilter を渡せば直近クロールした source のみ対象にする (未指定なら全 source)。
+ * 採用は active KG 全体の集約で行うため取り込み済み話者も評価対象に含む (upsert で冪等)。
+ */
+function autoAdoptAfterCrawl(sourceFilter?: string): void {
+  if (!getConfig().flow.autoAdoptOnCrawl) return;
+  try {
+    const summary = runAdoptFromKg({ sourceFilter });
+    console.log(
+      `[auto-adopt C1-b] 話者 ${summary.speakers} (発話 ${summary.utterances}) → 採用 ${summary.adopted} / 却下 ${summary.rejected}`
+    );
+  } catch (e) {
+    // 採用失敗は crawl の成否に影響させない (取り込みは完了済み)。
+    console.error(`[auto-adopt C1-b] 自動採用に失敗 (取り込みは成功): ${(e as Error).message}`);
+  }
+}
+
 export function runExtImport(rest: string[]): void {
+  runExtImportInner(rest);
+  autoAdoptAfterCrawl();
+}
+
+function runExtImportInner(rest: string[]): void {
   const [jsonlPath] = rest;
   if (!jsonlPath) {
     console.error("usage: crawl.ts ext-import <jsonl-path>");
@@ -505,6 +529,12 @@ export function runExtImport(rest: string[]): void {
 
 /** ext-ingest: fetch → 中間 JSONL 保存 → import を一括 (取得して格納)。 */
 export async function runExtIngest(rest: string[]): Promise<void> {
+  await runExtIngestInner(rest);
+  // 直近クロールした source を対象に C1-b 自動採用 (有効時のみ)。
+  autoAdoptAfterCrawl(rest[0]);
+}
+
+async function runExtIngestInner(rest: string[]): Promise<void> {
   const [source, ...sourceArgs] = rest;
   switch (source) {
     case "steam": {

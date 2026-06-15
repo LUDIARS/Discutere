@@ -10,7 +10,12 @@
  */
 
 import { cosine } from "./sentiment-vector.js";
-import { listPoolPersonas, type PoolPersona, type PersonaOrigin } from "./persona-pool.js";
+import {
+  listPoolPersonas,
+  setPoolPersonaPopulation,
+  type PoolPersona,
+  type PersonaOrigin,
+} from "./persona-pool.js";
 
 export interface PopulationOptions {
   /** 同一クラスタ / 近傍とみなす cosine 閾値 (既定 0.9)。 */
@@ -78,4 +83,24 @@ export function estimatePopulations(opts: PopulationOptions = {}): PopulationRep
     }),
   };
   return report;
+}
+
+/**
+ * 母数推定結果を合成ペルソナ (各クラスタの member) へ書き戻す (C2-b 永続化)。
+ * クラスタ判定 (大/小) と centroid の実近傍比率を、その member 全員の flow_persona に保存する。
+ * 返り値は書き込んだペルソナ件数。
+ */
+export function persistPopulations(report: PopulationReport, estimatedAt: number): number {
+  let written = 0;
+  for (const c of report.clusters) {
+    for (const memberId of c.members) {
+      setPoolPersonaPopulation(memberId, {
+        verdict: c.verdict,
+        ratio: c.realRatio,
+        estimatedAt,
+      });
+      written += 1;
+    }
+  }
+  return written;
 }
