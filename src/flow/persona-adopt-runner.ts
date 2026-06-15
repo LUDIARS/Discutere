@@ -58,13 +58,27 @@ export function runAdoptFromKg(opts: AdoptRunOptions = {}): AdoptRunSummary {
       )
       .all(cfg.workspace) as Array<{ id: string; speaker_id: string; raw_content: string }>;
 
+    // opinion-score (#125 (a)): 発話ごとの positive リアクション (いいね) 合算を weight に使う。
+    const scoreRows = core.client.raw
+      .prepare(
+        `SELECT utterance_id, SUM(intensity) AS likes FROM reactions
+          WHERE workspace_id = ? AND reaction_type = 'positive' GROUP BY utterance_id`
+      )
+      .all(cfg.workspace) as Array<{ utterance_id: string; likes: number }>;
+    const likesById = new Map(scoreRows.map((r) => [r.utterance_id, r.likes ?? 0]));
+
     const bySpeaker = new Map<string, SpeakerOpinions>();
     for (const r of rows) {
       const attr = attribution.get(r.id);
       const source = attr?.source ?? r.speaker_id.split(":")[1];
       if (sourceFilter && source !== sourceFilter) continue;
       const sp = bySpeaker.get(r.speaker_id) ?? { speakerId: r.speaker_id, source, opinions: [] };
-      sp.opinions.push({ text: r.raw_content, gameSlug: attr?.gameSlug ?? null });
+      // weight = 1 + いいね数 (0 いいねでも基準 1 で残す)。
+      sp.opinions.push({
+        text: r.raw_content,
+        gameSlug: attr?.gameSlug ?? null,
+        weight: 1 + (likesById.get(r.id) ?? 0),
+      });
       bySpeaker.set(r.speaker_id, sp);
     }
 

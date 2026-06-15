@@ -209,8 +209,12 @@ const zeros = (): number[] => new Array(DIM as number).fill(0);
       source: "steam",
       opinions: [...mk(6, "great fun awesome", "game-a"), ...mk(6, "boring bad terrible", "game-b")],
     },
-    // 全ポジ → 除外
-    { speakerId: "ext:steam:allpos", source: "steam", opinions: mk(10, "great awesome best", "game-a") },
+    // 全ポジ (2 ゲームとも好評) → all-positive 除外
+    {
+      speakerId: "ext:steam:allpos",
+      source: "steam",
+      opinions: [...mk(5, "great awesome best", "game-a"), ...mk(5, "fun amazing love", "game-b")],
+    },
     // 意見不足 → 除外
     { speakerId: "ext:steam:few", source: "steam", opinions: mk(5, "good", "game-a") },
     // mixed だが 1 ゲーム → gap なし除外
@@ -231,7 +235,11 @@ const zeros = (): number[] => new Array(DIM as number).fill(0);
   assert.equal(reasons["ext:steam:allpos"], "all-positive");
   assert.equal(reasons["ext:steam:few"], "too-few");
   assert.equal(reasons["ext:steam:onegame"], "no-game-gap");
-  console.log("  [ok] C1 evaluateSpeakers: ≥10/全ポジ除外/不足/gap なし");
+  // #125 追加特徴量: 賛否混在 (good) は polarity_bias 低め、ゲーム間ばらつき (dispersion) > 0。
+  const good = ev.candidates[0];
+  assert.ok(good.polarityBias >= 0 && good.polarityBias <= 1, "polarity_bias は 0..1");
+  assert.ok(good.affectDispersion > 0, "2 ゲームで affect_dispersion > 0");
+  console.log("  [ok] C1 evaluateSpeakers: ≥10/全ポジ除外/不足/gap なし + 追加特徴量");
 
   const res = adoptPersonas(speakers, { minOpinions: 10 });
   assert.equal(res.adopted.length, 1, "採用 1 名");
