@@ -10,6 +10,7 @@
  */
 
 import type { LLMClient, LLMInvokeArgs, LLMResult } from "./client.js";
+import { OAUTH_BETA_HEADER } from "./claude-code-auth.js";
 
 const DEFAULT_MODEL = "claude-haiku-4-5-20251001";
 const DEFAULT_MAX_TOKENS = 1024;
@@ -26,22 +27,37 @@ interface AnthropicMessageResponse {
 }
 
 export interface AnthropicSdkClientOptions {
+  /** 従量 API キー (x-api-key)。 */
   apiKey?: string;
+  /**
+   * サブスク OAuth トークンを動的取得する関数 (E)。返り値が非 null なら
+   * Authorization: Bearer + anthropic-beta: oauth-2025-04-20 で叩く (apiKey より優先)。
+   * Claude Code 認証は readClaudeCodeToken を渡す。
+   */
+  getAuthToken?: () => string | null;
   defaultModel?: string;
+  /** system ブロックに cache_control を付与してプロンプトキャッシュを効かせる (既定 true)。 */
+  enableCache?: boolean;
 }
 
 export class AnthropicSdkClient implements LLMClient {
   private readonly apiKey: string;
+  private readonly getAuthToken?: () => string | null;
   private readonly defaultModel: string;
+  private readonly enableCache: boolean;
 
   constructor(options: AnthropicSdkClientOptions = {}) {
     this.apiKey = options.apiKey ?? process.env.ANTHROPIC_API_KEY ?? "";
+    this.getAuthToken = options.getAuthToken;
     this.defaultModel = options.defaultModel ?? DEFAULT_MODEL;
+    this.enableCache = options.enableCache ?? true;
   }
 
   async invoke(args: LLMInvokeArgs): Promise<LLMResult> {
-    if (!this.apiKey) {
-      return { ok: false, error: "ANTHROPIC_API_KEY not set" };
+    // 認証: OAuth (サブスク) を優先し、無ければ x-api-key (従量)。
+    const oauthToken = this.getAuthToken?.() ?? null;
+    if (!oauthToken && !this.apiKey) {
+      return { ok: false, error: "no credentials (OAuth token / ANTHROPIC_API_KEY 共に無し)" };
     }
 
     const model = args.model ?? this.defaultModel;
@@ -51,18 +67,37 @@ export class AnthropicSdkClient implements LLMClient {
     const controller = new AbortController();
     const timer = setTimeout(() => controller.abort(), timeoutMs);
 
+    // 認証ヘッダ。
+    const headers: Record<string, string> = {
+      "content-type": "application/json",
+      "anthropic-version": "2023-06-01",
+    };
+    if (oauthToken) {
+      headers["authorization"] = `Bearer ${oauthToken}`;
+      headers["anthropic-beta"] = OAUTH_BETA_HEADER;
+    } else {
+      headers["x-api-key"] = this.apiKey;
+    }
+
+    // system: cache_control 付きブロックにして session 不変部をキャッシュ (E)。
+    const system = args.system
+      ? [
+          {
+            type: "text",
+            text: args.system,
+            ...(this.enableCache ? { cache_control: { type: "ephemeral" } } : {}),
+          },
+        ]
+      : undefined;
+
     try {
       const res = await fetch("https://api.anthropic.com/v1/messages", {
         method: "POST",
-        headers: {
-          "content-type": "application/json",
-          "x-api-key": this.apiKey,
-          "anthropic-version": "2023-06-01",
-        },
+        headers,
         body: JSON.stringify({
           model,
           max_tokens: maxTokens,
-          system: args.system,
+          system,
           messages: [{ role: "user", content: args.prompt }],
         }),
         signal: controller.signal,

@@ -44,7 +44,7 @@ worker-pool LLM / classifier / peDb / core の構築は維持 (フローが依�
 - 起動: `npm run persona:generate -- --source <learningSet>` (将来 admin コマンド)。
 - プールが空なら憑依/壁打ち相手指定は従来生成にフォールバック。
 
-## E. claude-p → SDK 化 + cache-control — 未実装
+## E. claude-p → SDK 化 + cache-control — ✅ 実装済み
 
 - **サブスクのまま SDK 可** (Q1): `AnthropicSdkClient` を OAuth 対応にする。
   `Authorization: Bearer <oauth>` + `anthropic-beta: oauth-2025-04-20` で `/v1/messages` に通る
@@ -75,10 +75,19 @@ worker-pool LLM / classifier / peDb / core の構築は維持 (フローが依�
 - 指定経路: WebUI = プールからセレクト / Discord = starter 本文 `相手:<名前 or id>` をパースしてプール解決。
 - 未指定なら従来通り生成。
 
-## 実装順
+> 実装メモ: `AnthropicSdkClient` に `getAuthToken`(OAuth)+ `enableCache`(system に cache_control)を追加。
+> `readClaudeCodeToken` が `~/.claude/.credentials.json` を読む。フロー LLM 鎖 =
+> worker-pool → **SDK(OAuth/cache)** → claude-p(FallbackLlm 入れ子, index.ts)。persona 発話は
+> `buildPaperSystem`(安定=system) + `buildPersonaUserPrompt`(可変=user)に分割。
+> ライブ確認済: サブスク OAuth で /v1/messages 成功・usage 返却 (~1s, claude-p の ~5s より速い)。
+> 注意: cache は prefix が各モデルの最小トークン(Haiku 4.5=4096)以上で初めて効く。短いペーパーでは
+> cache_creation=0 のまま (プラミングは正)。facilitator/vote/summary/conclusion は今は system 未使用
+> (follow-up で system 化すれば更にキャッシュ範囲が広がる)。
 
-1. E (SDK/OAuth/caching) — コスト/精度の即効。
-2. B 憑依配線 + slash 入力。
-3. G 壁打ち相手指定。
-4. F 合成。
-5. C 生成スクリプト (スタブ)。
+## 実装順 (残)
+
+1. ~~E (SDK/OAuth/caching)~~ ✅
+2. ~~B 憑依配線~~ ✅ (テーマ類推)
+3. G 壁打ち相手指定 — 未実装
+4. F 合成 — 未実装
+5. C 生成スクリプト (スタブ) — 未実装

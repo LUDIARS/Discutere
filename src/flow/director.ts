@@ -15,7 +15,8 @@ import { generateFlowPersonas, pickRandomPersona, decideStance, type FlowPersona
 import { selectPossessionByTheme, toFlowPersona } from "./persona-pool.js";
 import {
   buildPersonaPaper,
-  paperToPrompt,
+  buildPaperSystem,
+  buildPersonaUserPrompt,
   persistPaper,
   synthesizeOpinions,
   type ContextVoice,
@@ -349,7 +350,10 @@ export async function runFlow(
         userVoices,
         syntheticOpinions,
       });
-      const prompt = paperToPrompt(personaPaper, stance, persona);
+      // 安定部 (議題/メカニクス) は system に置き SDK の cache_control で session 内再利用 (E)。
+      // 可変部 (前ラウンド/当ラウンド/ユーザの声) + persona 固有は user メッセージへ。
+      const personaSystem = buildPaperSystem(personaPaper);
+      const prompt = buildPersonaUserPrompt(personaPaper, stance, persona);
 
       // LLM 呼び出し (コストログ付き)
       const logged = withCostLog(llm, {
@@ -366,6 +370,7 @@ export async function runFlow(
       let isError = false;
 
       const result = await logged.invoke({
+        system: personaSystem,
         prompt,
         model: persona.model,
       });

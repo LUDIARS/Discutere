@@ -26,6 +26,7 @@ import {
   type LLMClient,
   type PersonaSeed,
 } from "./persona-engine/index.js";
+import { readClaudeCodeToken } from "./persona-engine/llm/claude-code-auth.js";
 import { WorkerPool } from "./persona-engine/worker-pool/pool.js";
 import { WorkerPoolClient } from "./persona-engine/worker-pool/client.js";
 import { DEFAULT_WORKERS, buildWorkerPersonaSeeds } from "./persona-engine/worker-pool/persona-prompts.js";
@@ -582,12 +583,22 @@ const personaEngineLifecycle = (() => {
 // の llm (claude-cli/local/anthropic) をそのまま使い、それも無ければ classifier にフォールバック。
 const flowEngineLlm: LLMClient | null = (() => {
   if (autoDiscussionLlm && config.llm.backend === "worker-pool") {
+    // E: SDK (サブスク OAuth + cache_control)。Claude Code 認証トークンを動的に読む。
+    // usage が返るので cost-logger のトークン計上が有効化する。
+    const sdk = new AnthropicSdkClient({
+      getAuthToken: () => readClaudeCodeToken(),
+      apiKey: config.llm.anthropicApiKey || undefined,
+      defaultModel: config.llm.model || undefined,
+      enableCache: true,
+    });
     const cliFallback = new ClaudeCliClient({
       defaultTimeoutMs: config.llm.claudeCliTimeoutMs,
       defaultModel: config.llm.model || undefined,
       gitBashPath: config.workerPool.gitBashPath ?? config.llm.gitBashPath,
     });
-    return new FallbackLlm(autoDiscussionLlm, cliFallback);
+    // 鎖: worker-pool (personaId ルート) → SDK(OAuth/cache) → claude-p。
+    // フローは personaId 無し呼び出しが主なので実質 SDK が効き、トークン無し時のみ claude-p。
+    return new FallbackLlm(autoDiscussionLlm, new FallbackLlm(sdk, cliFallback));
   }
   return autoDiscussionLlm ?? classifierLlm;
 })();
