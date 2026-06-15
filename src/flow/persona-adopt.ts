@@ -7,10 +7,13 @@
  * 採用条件 (全て満たす, spec/flow/persona-pool.md §C1):
  *  - 意見が全ゲーム横断で minOpinions (既定 10) 以上。
  *  - 全ネガ / 全ポジを除外 (polarity が片寄りきっている人は弾く)。
- *  - ゲーム間で affect の差分 (gap) がある (≥2 ゲーム + per-game 平均ベクトルが同一でない)。
+ *  - ゲーム間で affect の差分 (gap) がある (≥2 ゲーム + per-game 連結ベクトルが同一でない)。
  *
- * affect は本人の偏りを保持 (= 本人意見の (重み付き) 平均)。母集団平均からの近さ (typicality) を
- * 併せて記録する。口調は付けない (LLM 不要 = 安価)。露出名は `論者#xxxxxx` (個人データ方針)。
+ * affect 解像度向上 (#125, 非 embedding): 短文は **ゲーム単位で連結してからベクトル化** (粒度) し、
+ * per-game ベクトルを **エンゲージメント (いいね = opinion-score) 重み付け平均** して affect とする。
+ * 母集団平均からの近さ (typicality) に加え、極性偏り (polarity_bias) と ゲーム間ばらつき
+ * (affect_dispersion) を追加特徴量として記録し、中立に潰れたベクトル同士の分離を補う。
+ * 口調は付けない (LLM 不要 = 安価)。露出名は `論者#xxxxxx` (個人データ方針)。
  * 保存は source_speaker_id で upsert (再クロールで別個体を量産しない)。
  */
 
@@ -29,6 +32,7 @@ export interface SpeakerOpinions {
   /** `ext:<source>:<authorId>` */
   speakerId: string;
   source?: string;
+  /** weight = opinion-score (エンゲージメント = いいね数 + 1)。未指定は 1 (等重み)。 */
   opinions: Array<{ text: string; gameSlug: string | null; weight?: number }>;
 }
 
@@ -70,19 +74,39 @@ function euclid(a: number[], b: number[]): number {
   return Math.sqrt(s);
 }
 
-/** 採用判定 (純粋関数)。プール書込はしない。採用候補と却下理由を返す。 */
+/** 採用候補 (純粋関数の出力)。affect + 解像度向上のための追加特徴量 (#125)。 */
+export interface AdoptCandidate {
+  speakerId: string;
+  source?: string;
+  affect: number[];
+  count: number;
+  /** 極性の片寄り |pos-neg|/total (0=均衡 / 1=一方向)。 */
+  polarityBias: number;
+  /** ゲーム間 affect のばらつき (per-game ベクトルの平均対距離)。 */
+  affectDispersion: number;
+}
+
+/**
+ * 採用判定 (純粋関数)。プール書込はしない。採用候補と却下理由を返す。
+ *
+ * affect 解像度向上 (#125, 非 embedding):
+ *  - (b) 粒度: 短文を **ゲーム単位で連結してから 1 回ベクトル化** (per-comment の中立丸まりを緩和)。
+ *  - (a) opinion-score 重み付け: per-game ベクトルを **エンゲージメント (いいね) 合算**で重み付け平均。
+ *  - (c) 追加特徴量: polarity_bias (極性偏り) と affect_dispersion (ゲーム間ばらつき) を算出。
+ * 極性・gap 判定も per-game 連結ベクトルで行う (中立に潰れた per-comment valence より分離が効く)。
+ */
 export function evaluateSpeakers(
   speakers: SpeakerOpinions[],
   opts: AdoptOptions = {}
 ): {
-  candidates: Array<{ speakerId: string; source?: string; affect: number[]; count: number }>;
+  candidates: AdoptCandidate[];
   rejected: AdoptResult["rejected"];
 } {
   const minOpinions = opts.minOpinions ?? 10;
   const eps = opts.polarityEps ?? 0.05;
   const gapEps = opts.gameGapEps ?? 0.05;
 
-  const candidates: Array<{ speakerId: string; source?: string; affect: number[]; count: number }> = [];
+  const candidates: AdoptCandidate[] = [];
   const rejected: AdoptResult["rejected"] = [];
 
   for (const sp of speakers) {
@@ -91,35 +115,63 @@ export function evaluateSpeakers(
       rejected.push({ speakerId: sp.speakerId, reason: "too-few", count });
       continue;
     }
-    const vecs = sp.opinions.map((o) => textToVector(o.text));
-    // polarity (valence = 次元 0, 0.5 が中立)。
-    const pos = vecs.filter((v) => v[0] > 0.5 + eps).length;
-    const neg = vecs.filter((v) => v[0] < 0.5 - eps).length;
-    if (pos === count) {
-      rejected.push({ speakerId: sp.speakerId, reason: "all-positive", count });
-      continue;
-    }
-    if (neg === count) {
-      rejected.push({ speakerId: sp.speakerId, reason: "all-negative", count });
-      continue;
-    }
-    // ゲーム間 gap: per-game 平均ベクトルが ≥2 ゲームで存在し、最大対距離 > gapEps。
-    const byGame = new Map<string, number[][]>();
-    sp.opinions.forEach((o, i) => {
+    // (b) ゲーム単位で本文連結 + (a) エンゲージメント (opinion-score = いいね) を合算。
+    const byGame = new Map<string, { texts: string[]; weight: number }>();
+    for (const o of sp.opinions) {
       const key = o.gameSlug ?? "_none";
-      (byGame.get(key) ?? byGame.set(key, []).get(key)!).push(vecs[i]);
-    });
-    const gameMeans = [...byGame.values()].map((vs) => mean(vs));
-    let maxGap = 0;
-    for (let i = 0; i < gameMeans.length; i++)
-      for (let j = i + 1; j < gameMeans.length; j++) maxGap = Math.max(maxGap, euclid(gameMeans[i], gameMeans[j]));
-    if (gameMeans.length < 2 || maxGap <= gapEps) {
+      const g = byGame.get(key) ?? { texts: [], weight: 0 };
+      g.texts.push(o.text);
+      g.weight += o.weight ?? 1;
+      byGame.set(key, g);
+    }
+    const games = [...byGame.values()];
+    // ゲームを区別している = ≥2 ゲーム必須。
+    if (games.length < 2) {
       rejected.push({ speakerId: sp.speakerId, reason: "no-game-gap", count });
       continue;
     }
-    // affect = 本人意見の重み付け平均 (偏りを保持)。
-    const weights = sp.opinions.map((o) => o.weight ?? 1);
-    candidates.push({ speakerId: sp.speakerId, source: sp.source, affect: weightedMean(vecs, weights), count });
+    // 連結本文を 1 回ずつベクトル化 (短文の中立丸まりを緩和)。
+    const gameVecs = games.map((g) => textToVector(g.texts.join(" \n ")));
+    const gameWeights = games.map((g) => g.weight);
+
+    // polarity は per-game ベクトルの valence (次元 0, 0.5 中立) で判定。
+    const total = gameVecs.length;
+    const pos = gameVecs.filter((v) => v[0] > 0.5 + eps).length;
+    const neg = gameVecs.filter((v) => v[0] < 0.5 - eps).length;
+    if (pos === total) {
+      rejected.push({ speakerId: sp.speakerId, reason: "all-positive", count });
+      continue;
+    }
+    if (neg === total) {
+      rejected.push({ speakerId: sp.speakerId, reason: "all-negative", count });
+      continue;
+    }
+    // ゲーム間 gap (最大対距離) + dispersion (平均対距離) を同時に算出。
+    let maxGap = 0;
+    let sumPair = 0;
+    let pairCount = 0;
+    for (let i = 0; i < gameVecs.length; i++) {
+      for (let j = i + 1; j < gameVecs.length; j++) {
+        const d = euclid(gameVecs[i], gameVecs[j]);
+        maxGap = Math.max(maxGap, d);
+        sumPair += d;
+        pairCount += 1;
+      }
+    }
+    if (maxGap <= gapEps) {
+      rejected.push({ speakerId: sp.speakerId, reason: "no-game-gap", count });
+      continue;
+    }
+    candidates.push({
+      speakerId: sp.speakerId,
+      source: sp.source,
+      // (a) affect = per-game ベクトルのエンゲージメント重み付け平均 (偏りを保持)。
+      affect: weightedMean(gameVecs, gameWeights),
+      count,
+      // (c) 追加特徴量。
+      polarityBias: +(Math.abs(pos - neg) / total).toFixed(4),
+      affectDispersion: pairCount > 0 ? +(sumPair / pairCount).toFixed(4) : 0,
+    });
   }
   return { candidates, rejected };
 }
@@ -127,6 +179,7 @@ export function evaluateSpeakers(
 /**
  * 話者意見群を評価し、採用候補をプールへ upsert する (C1-a)。
  * typicality = 既存採用 + 今回候補の母集団平均への cosine。
+ * polarity_bias / affect_dispersion (#125) も併せて保存する。
  */
 export function adoptPersonas(speakers: SpeakerOpinions[], opts: AdoptOptions = {}): AdoptResult {
   const { candidates, rejected } = evaluateSpeakers(speakers, opts);
@@ -149,6 +202,8 @@ export function adoptPersonas(speakers: SpeakerOpinions[], opts: AdoptOptions = 
       learningSource: c.source,
       sourceSpeakerId: c.speakerId,
       typicality: +cosine(c.affect, popMean).toFixed(4),
+      polarityBias: c.polarityBias,
+      affectDispersion: c.affectDispersion,
     };
     persona.id = randomUUID();
     adopted.push(upsertPoolPersonaBySpeaker(persona));

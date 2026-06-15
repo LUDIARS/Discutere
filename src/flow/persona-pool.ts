@@ -34,6 +34,10 @@ export interface PoolPersona {
   sourceSpeakerId?: string;
   /** 母集団平均からの近さ (cosine, 高い=典型)。「平均値グループにいるか」の判断材料。 */
   typicality?: number;
+  /** 極性の片寄り |pos-neg|/total (0=均衡 / 1=一方向)。affect 解像度向上 (#125)。 */
+  polarityBias?: number;
+  /** ゲーム間 affect のばらつき (per-game ベクトルの平均対距離)。affect 解像度向上 (#125)。 */
+  affectDispersion?: number;
   /** C2-b 母数推定: 所属クラスタの母数判定 ("大" | "小")。未推定なら undefined。 */
   populationVerdict?: "大" | "小";
   /** C2-b 母数推定: 所属クラスタ centroid の実分布近傍比率。 */
@@ -73,6 +77,8 @@ interface PersonaRow {
   model: string | null;
   source_speaker_id: string | null;
   typicality: number | null;
+  polarity_bias: number | null;
+  affect_dispersion: number | null;
   population_verdict: string | null;
   population_ratio: number | null;
   population_estimated_at: number | null;
@@ -93,6 +99,8 @@ function rowToPersona(r: PersonaRow): PoolPersona {
     model: r.model ?? undefined,
     sourceSpeakerId: r.source_speaker_id ?? undefined,
     typicality: r.typicality ?? undefined,
+    polarityBias: r.polarity_bias ?? undefined,
+    affectDispersion: r.affect_dispersion ?? undefined,
     populationVerdict: (r.population_verdict as "大" | "小" | null) ?? undefined,
     populationRatio: r.population_ratio ?? undefined,
     populationEstimatedAt: r.population_estimated_at ?? undefined,
@@ -108,8 +116,9 @@ export function insertPoolPersona(p: PoolPersona): void {
   db.prepare(
     `INSERT INTO flow_persona
        (id, name, role, speech_style, traits_json, affect_vector_json, origin, parent_ids_json,
-        learning_source, label, model, source_speaker_id, typicality, archived, created_at)
-     VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 0, ?)`
+        learning_source, label, model, source_speaker_id, typicality, polarity_bias, affect_dispersion,
+        archived, created_at)
+     VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 0, ?)`
   ).run(
     p.id,
     p.name,
@@ -124,6 +133,8 @@ export function insertPoolPersona(p: PoolPersona): void {
     p.model ?? null,
     p.sourceSpeakerId ?? null,
     p.typicality ?? null,
+    p.polarityBias ?? null,
+    p.affectDispersion ?? null,
     Date.now()
   );
 }
@@ -150,7 +161,7 @@ export function upsertPoolPersonaBySpeaker(p: PoolPersona): PoolPersona {
   getFlowDb()
     .prepare(
       `UPDATE flow_persona SET name=?, role=?, speech_style=?, traits_json=?, affect_vector_json=?,
-         origin=?, learning_source=?, label=?, typicality=? WHERE id=?`
+         origin=?, learning_source=?, label=?, typicality=?, polarity_bias=?, affect_dispersion=? WHERE id=?`
     )
     .run(
       p.name,
@@ -162,6 +173,8 @@ export function upsertPoolPersonaBySpeaker(p: PoolPersona): PoolPersona {
       p.learningSource ?? null,
       p.label ?? null,
       p.typicality ?? null,
+      p.polarityBias ?? null,
+      p.affectDispersion ?? null,
       existing.id
     );
   return { ...p, id: existing.id };

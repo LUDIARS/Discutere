@@ -183,6 +183,18 @@ const MIGRATIONS: Array<{ id: string; sql: string[] }> = [
       `ALTER TABLE flow_persona ADD COLUMN population_estimated_at INTEGER`,
     ],
   },
+  {
+    // affect 解像度向上 (Issue #125): C1 採用の特徴量を拡充。
+    //  - polarity_bias: 極性の片寄り |pos-neg|/total (0=均衡 / 1=一方向)。
+    //  - affect_dispersion: ゲーム間 affect のばらつき (per-game ベクトルの平均対距離)。
+    // 中立寄りに潰れたベクトル同士を分離する追加特徴量 (typicality cosine 単独の補完)。
+    // ALTER ADD COLUMN の後に INDEX (既存 DB で no such column を避ける共通ルール)。
+    id: "flow_0008_persona_affect_features",
+    sql: [
+      `ALTER TABLE flow_persona ADD COLUMN polarity_bias REAL`,
+      `ALTER TABLE flow_persona ADD COLUMN affect_dispersion REAL`,
+    ],
+  },
 ];
 
 export function applyFlowMigrations(db: Database.Database): void {

@@ -53,9 +53,11 @@ YouTube/note/Steam 等。話者アンカー `ext:<source>:<authorId>` (`sources/
 - **ゲーム間でベクトル差分 (gap) が必ずある** (per-game affect が全ゲームで同一でない = ゲームを区別している)。
   → 実質 **≥2 ゲーム** + per-game ベクトルの最大対距離 > ε。
 
-**affect 計算**: 本人の **偏りを保持** (= opinion-score 重み付け平均、丸めすぎない)。
-加えて **母集団平均からの距離 (典型度 typicality)** を保持し「平均値グループにいるか」を判断材料にする。
-口調 (speechStyle) は**重要でないので付けない** (LLM 不要 = 安価・データのみ)。
+**affect 計算** (#125 非 embedding 改善後): 短文の中立丸まりを抑えるため **ゲーム単位で本文を連結してから
+1 回ベクトル化** (粒度) し、per-game ベクトルを **opinion-score (= いいね数 +1) で重み付け平均**する
+(本人の偏り + エンゲージメントを保持)。加えて **母集団平均からの距離 (典型度 typicality)**、
+**極性偏り (polarity_bias)**、**ゲーム間ばらつき (affect_dispersion)** を保持し、中立に潰れたベクトル
+同士の分離を補う。口調 (speechStyle) は**重要でないので付けない** (LLM 不要 = 安価・データのみ)。
 
 **保存**: `flow_persona` に `origin="adopted"` + `source_speaker_id` (= `ext:source:authorId`) で **upsert**
 (再クロールで意見が増えても別個体を量産しない)。露出名は `論者#xxxxxx` (`maskedPersonaLabel`、個人データ方針)。
@@ -69,7 +71,14 @@ gap 条件を満たし採用対象になる (単一 game だと全員 no-game-ga
 実績 (2026-06-15 モンスト×ナルト 14万コメント): youtube 話者 67,732 → **採用 1,837**
 (却下: too-few 65,732 / no-game-gap 162 / all-positive 1)。
 **所見**: 短いコメントを 20 次元 lexicon でベクトル化すると中立寄りに丸まり、typicality が
-~0.99 に集中して解像度が低い (avg 0.993, min 0.844)。改善余地 = embedding ベース affect / opinion-score 重み付け。
+~0.99 に集中して解像度が低い (avg 0.993, min 0.844)。
+**#125 非 embedding 改善後の実測** (2026-06-16, 全 source 335,197 話者再集約 → 採用 1,836):
+ゲーム単位連結 + opinion-score 重み付けでも **cosine-typicality は依然潰れる** (avg 0.9931 / std 0.0121)
+— lexicon の presence-count では連結が共通次元を増やし cosine 方向がむしろ似通うため (構造的限界、
+方向分離は embedding が必要)。一方で **新特徴量が良く分散**し分離材料になった:
+polarity_bias (avg 0.152 / std 0.153 / 0–0.93)、affect_dispersion (avg 0.458 / std 0.270 / 0.02–2.27)。
+→ 「平均値グループ判定」は typicality 単独でなく **(polarity_bias, affect_dispersion) を併用**するのが正。
+残改善余地 = embedding ベース affect (cosine 方向の分離) / これら特徴量の 憑依・クラスタリングへの組込み。
 
 ### C2. ペルソナ生成エンジン (合成) — C1 の後
 
@@ -84,8 +93,10 @@ gap 条件を満たし採用対象になる (単一 game だと全員 no-game-ga
 
 ### 実装フェーズ
 1. **C1-a** ✅: `persona-adopt.ts` (`evaluateSpeakers`/`adoptPersonas`) + `npm run persona:adopt`
-   (KG 著者集約→条件フィルタ→affect平均/typicality→`source_speaker_id` upsert/origin=adopted/`論者#`)。
-   migration flow_0006 (source_speaker_id/typicality)。テスト済。TODO: affect の opinion-score 重み付け。
+   (KG 著者集約→条件フィルタ→affect/typicality→`source_speaker_id` upsert/origin=adopted/`論者#`)。
+   migration flow_0006 (source_speaker_id/typicality)。affect 解像度向上 (#125, 非 embedding) 済:
+   ゲーム単位連結ベクトル化 + opinion-score (いいね) 重み付け + polarity_bias/affect_dispersion
+   特徴量追加 (migration flow_0008、weight は `persona-adopt-runner` が reactions から算出)。テスト済。
 2. **C1-b** ✅: crawl runner 自動採用フック。`flow.autoAdoptOnCrawl` (env `DISCUTERE_FLOW_AUTO_ADOPT_ON_CRAWL`,
    既定 false) が有効なら `ext-ingest`/`ext-import` 完了後に C1 採用を自動実行
    (`src/crawler/sources/cli.ts autoAdoptAfterCrawl` → `src/flow/persona-adopt-runner.ts runAdoptFromKg`、
