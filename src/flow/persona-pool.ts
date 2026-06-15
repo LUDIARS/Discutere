@@ -13,7 +13,7 @@ import { getFlowDb } from "./db/connection.js";
 import { cosine, textToVector, DIM } from "./sentiment-vector.js";
 import type { FlowPersona, FlowRole } from "./personas.js";
 
-export type PersonaOrigin = "seed" | "generated" | "synthesized";
+export type PersonaOrigin = "seed" | "generated" | "synthesized" | "adopted";
 
 export interface PoolPersona {
   id: string;
@@ -30,6 +30,10 @@ export interface PoolPersona {
   learningSource?: string;
   label?: string;
   model?: string;
+  /** C1 実在採用の話者アンカー `ext:<source>:<authorId>` (upsert キー)。 */
+  sourceSpeakerId?: string;
+  /** 母集団平均からの近さ (cosine, 高い=典型)。「平均値グループにいるか」の判断材料。 */
+  typicality?: number;
 }
 
 export interface UserAffect {
@@ -61,6 +65,8 @@ interface PersonaRow {
   learning_source: string | null;
   label: string | null;
   model: string | null;
+  source_speaker_id: string | null;
+  typicality: number | null;
 }
 
 function rowToPersona(r: PersonaRow): PoolPersona {
@@ -76,6 +82,8 @@ function rowToPersona(r: PersonaRow): PoolPersona {
     learningSource: r.learning_source ?? undefined,
     label: r.label ?? undefined,
     model: r.model ?? undefined,
+    sourceSpeakerId: r.source_speaker_id ?? undefined,
+    typicality: r.typicality ?? undefined,
   };
 }
 
@@ -88,8 +96,8 @@ export function insertPoolPersona(p: PoolPersona): void {
   db.prepare(
     `INSERT INTO flow_persona
        (id, name, role, speech_style, traits_json, affect_vector_json, origin, parent_ids_json,
-        learning_source, label, model, archived, created_at)
-     VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 0, ?)`
+        learning_source, label, model, source_speaker_id, typicality, archived, created_at)
+     VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 0, ?)`
   ).run(
     p.id,
     p.name,
@@ -102,8 +110,54 @@ export function insertPoolPersona(p: PoolPersona): void {
     p.learningSource ?? null,
     p.label ?? null,
     p.model ?? null,
+    p.sourceSpeakerId ?? null,
+    p.typicality ?? null,
     Date.now()
   );
+}
+
+/** source_speaker_id (ext:source:authorId) でプールペルソナを引く (C1 採用の upsert キー)。 */
+export function findPoolPersonaBySpeaker(sourceSpeakerId: string): PoolPersona | null {
+  const r = getFlowDb()
+    .prepare(`SELECT * FROM flow_persona WHERE source_speaker_id = ? AND archived = 0 ORDER BY created_at ASC LIMIT 1`)
+    .get(sourceSpeakerId) as PersonaRow | undefined;
+  return r ? rowToPersona(r) : null;
+}
+
+/**
+ * 話者アンカー (source_speaker_id) を upsert する (C1)。
+ * 既存があれば affect/name/traits/typicality を更新、無ければ insert。返り値は確定ペルソナ。
+ */
+export function upsertPoolPersonaBySpeaker(p: PoolPersona): PoolPersona {
+  if (!p.sourceSpeakerId) throw new Error("upsertPoolPersonaBySpeaker: sourceSpeakerId 必須");
+  const existing = findPoolPersonaBySpeaker(p.sourceSpeakerId);
+  if (!existing) {
+    insertPoolPersona(p);
+    return p;
+  }
+  getFlowDb()
+    .prepare(
+      `UPDATE flow_persona SET name=?, role=?, speech_style=?, traits_json=?, affect_vector_json=?,
+         origin=?, learning_source=?, label=?, typicality=? WHERE id=?`
+    )
+    .run(
+      p.name,
+      p.role,
+      p.speechStyle,
+      JSON.stringify(p.traits),
+      JSON.stringify(p.affectVector),
+      p.origin,
+      p.learningSource ?? null,
+      p.label ?? null,
+      p.typicality ?? null,
+      existing.id
+    );
+  return { ...p, id: existing.id };
+}
+
+/** typicality を更新する (母集団平均確定後の再計算用)。 */
+export function setPoolPersonaTypicality(id: string, typicality: number): void {
+  getFlowDb().prepare(`UPDATE flow_persona SET typicality = ? WHERE id = ?`).run(typicality, id);
 }
 
 /** id でプールペルソナを取得する。 */

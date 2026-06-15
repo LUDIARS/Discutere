@@ -37,13 +37,52 @@ worker-pool LLM / classifier / peDb / core の構築は維持 (フローが依�
 - `flow_user_affect` / slash は B では未使用 (将来「ユーザ別嗜好」用に残置)。
 - TODO(改善余地): メカニクス `intended_affect` を目標ベクトルに加味する。
 
-## C. ペルソナ生成ワークフロー (method 考え中) — ✅ スタブのみ
+## C. ペルソナ生成 — 確定設計 (2 系統。2026-06-15 レビュー反映)
 
-- 実際の「学習データからの自動生成」は設計中。当面は手動投入 CLI で プールを育てる:
-  `npm run persona:generate -- --name X --affect-text "望む体験" [--style --traits a,b --role --source --label]`
-  (`scripts/persona-generate.ts`、affect は textToVector(affect-text))。
-- TODO: 外部の声 (listExternalVoices) の感情平均 + LLM 人物像生成に置換。
-- プールが空なら憑依 (B) / 壁打ち相手 (G) は従来生成にフォールバック。
+実在ユーザ採用 (C1) と 合成生成エンジン (C2) の 2 系統。手動投入 CLI
+(`npm run persona:generate`) は当面のシード手段として残す (`scripts/persona-generate.ts`)。
+
+### C1. 実在ユーザ採用 (クロール由来) — まず実装
+
+YouTube/note/Steam 等。話者アンカー `ext:<source>:<authorId>` (`sources/persona.ts toSpeakerId`)
+で意見を集約し、**意思ある人 (ゲーム嗜好あり)** をペルソナ採用する。
+
+**採用条件 (全て満たす)**:
+- 意見 **全ゲーム横断で ≥10**。
+- **全ネガ / 全ポジを除外** (polarity が片寄りきっている人は弾く。pos==total or neg==total を除外)。
+- **ゲーム間でベクトル差分 (gap) が必ずある** (per-game affect が全ゲームで同一でない = ゲームを区別している)。
+  → 実質 **≥2 ゲーム** + per-game ベクトルの最大対距離 > ε。
+
+**affect 計算**: 本人の **偏りを保持** (= opinion-score 重み付け平均、丸めすぎない)。
+加えて **母集団平均からの距離 (典型度 typicality)** を保持し「平均値グループにいるか」を判断材料にする。
+口調 (speechStyle) は**重要でないので付けない** (LLM 不要 = 安価・データのみ)。
+
+**保存**: `flow_persona` に `origin="adopted"` + `source_speaker_id` (= `ext:source:authorId`) で **upsert**
+(再クロールで意見が増えても別個体を量産しない)。露出名は `論者#xxxxxx` (`maskedPersonaLabel`、個人データ方針)。
+
+**起動**: バッチ後処理 `npm run persona:adopt -- [--source steam] [--min-opinions 10]`
+(crawl 完了後に KG を集約 → 条件フィルタ → 採用)。crawl runner インラインではなく後処理バッチ。
+
+### C2. ペルソナ生成エンジン (合成) — C1 の後
+
+アンケート形式の行動基準 (嗜好 / プレイスタイル / 感情の波 / 年代 / 課金額) を構造化スキーマ化 →
+合成個体 = 1 組の回答。ランダム抽選ゲームを「行動基準で“プレイしたか”確率判定」→ プレイ済のみ LLM で
+感想生成 (未プレイは「やってない」と明示) → affect 化。
+
+**母数判断 = 案A (実データ突合)**: 合成個体の意見クラスタを **C1 の実クロール分布と突合**し、
+「この嗜好クラスタは現実で母数が大きい/小さい」を推定する (合成数そのものは母数でない)。
+**身内データは 1 サンプル**として実分布に混ぜる。クラスタリングは affect 20 次元の cosine。
+コスト大 (合成数 × 抽選ゲーム × LLM) → バッチ + キャッシュ前提。
+
+### 実装フェーズ
+1. **C1-a** ✅: `persona-adopt.ts` (`evaluateSpeakers`/`adoptPersonas`) + `npm run persona:adopt`
+   (KG 著者集約→条件フィルタ→affect平均/typicality→`source_speaker_id` upsert/origin=adopted/`論者#`)。
+   migration flow_0006 (source_speaker_id/typicality)。テスト済。TODO: affect の opinion-score 重み付け。
+2. C1-b: crawl runner 自動採用フック (任意) — 未実装。
+3. C2-a: アンケートスキーマ + 合成個体 + 感想生成 (プール投入のみ) — 未実装。
+4. C2-b: クラスタリング + C1 実分布突合で母数推定 — 未実装。
+
+> プールが空なら憑依 (B) / 壁打ち相手 (G) は従来生成にフォールバック。
 
 ## E. claude-p → SDK 化 + cache-control — ✅ 実装済み
 

@@ -158,6 +158,17 @@ const MIGRATIONS: Array<{ id: string; sql: string[] }> = [
       `CREATE INDEX IF NOT EXISTS idx_flow_persona_source ON flow_persona(learning_source)`,
     ],
   },
+  {
+    // C1 実在ユーザ採用: 話者アンカー (ext:source:authorId) で upsert + 典型度。
+    // ALTER ADD COLUMN の後に INDEX (既存 DB で no such column を避ける共通ルール)。
+    id: "flow_0006_persona_adopt",
+    sql: [
+      `ALTER TABLE flow_persona ADD COLUMN source_speaker_id TEXT`,
+      // 母集団平均からの近さ (cosine, 高い=典型 / 低い=外れ)。「平均値グループにいるか」の判断材料。
+      `ALTER TABLE flow_persona ADD COLUMN typicality REAL`,
+      `CREATE INDEX IF NOT EXISTS idx_flow_persona_speaker ON flow_persona(source_speaker_id)`,
+    ],
+  },
 ];
 
 export function applyFlowMigrations(db: Database.Database): void {

@@ -197,4 +197,54 @@ const zeros = (): number[] => new Array(DIM as number).fill(0);
   );
 }
 
+// ── C1 実在ユーザ採用 (evaluateSpeakers + adoptPersonas) ─────────
+{
+  const { evaluateSpeakers, adoptPersonas } = await import("../../src/flow/persona-adopt.js");
+  const mk = (n: number, text: string, game: string) =>
+    Array.from({ length: n }, () => ({ text, gameSlug: game }));
+  const speakers = [
+    // mixed polarity + 2 games + gap → 採用
+    {
+      speakerId: "ext:steam:good",
+      source: "steam",
+      opinions: [...mk(6, "great fun awesome", "game-a"), ...mk(6, "boring bad terrible", "game-b")],
+    },
+    // 全ポジ → 除外
+    { speakerId: "ext:steam:allpos", source: "steam", opinions: mk(10, "great awesome best", "game-a") },
+    // 意見不足 → 除外
+    { speakerId: "ext:steam:few", source: "steam", opinions: mk(5, "good", "game-a") },
+    // mixed だが 1 ゲーム → gap なし除外
+    {
+      speakerId: "ext:steam:onegame",
+      source: "steam",
+      opinions: [...mk(5, "great fun", "game-a"), ...mk(5, "bad boring", "game-a")],
+    },
+  ];
+
+  const ev = evaluateSpeakers(speakers, { minOpinions: 10 });
+  assert.deepEqual(
+    ev.candidates.map((c) => c.speakerId),
+    ["ext:steam:good"],
+    "採用候補は good のみ"
+  );
+  const reasons = Object.fromEntries(ev.rejected.map((r) => [r.speakerId, r.reason]));
+  assert.equal(reasons["ext:steam:allpos"], "all-positive");
+  assert.equal(reasons["ext:steam:few"], "too-few");
+  assert.equal(reasons["ext:steam:onegame"], "no-game-gap");
+  console.log("  [ok] C1 evaluateSpeakers: ≥10/全ポジ除外/不足/gap なし");
+
+  const res = adoptPersonas(speakers, { minOpinions: 10 });
+  assert.equal(res.adopted.length, 1, "採用 1 名");
+  assert.ok(res.adopted[0].name.startsWith("論者#"), "露出名は論者#");
+  assert.equal(res.adopted[0].origin, "adopted", "origin=adopted");
+  assert.equal(res.adopted[0].sourceSpeakerId, "ext:steam:good", "speaker アンカー");
+  assert.ok(typeof res.adopted[0].typicality === "number", "typicality 記録");
+  assert.equal(listPoolPersonas({ origin: "adopted" }).length, 1, "プールに 1 名");
+
+  // upsert 冪等: 再実行で別個体を量産しない
+  adoptPersonas(speakers, { minOpinions: 10 });
+  assert.equal(listPoolPersonas({ origin: "adopted" }).length, 1, "再採用しても 1 名 (upsert)");
+  console.log("  [ok] C1 adoptPersonas: 採用 + 論者#/typicality + speaker upsert 冪等");
+}
+
 console.log("persona-pool tests: all passed");
