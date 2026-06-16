@@ -15,8 +15,13 @@
 import {
   ChannelType,
   ActionRowBuilder,
+  ButtonBuilder,
+  ButtonStyle,
+  ModalBuilder,
   StringSelectMenuBuilder,
   StringSelectMenuOptionBuilder,
+  TextInputBuilder,
+  TextInputStyle,
   type Client,
   type ForumChannel,
   type GuildForumTagData,
@@ -68,6 +73,99 @@ export function parseFlowPickCustomId(customId: string): string | null {
   if (!customId.startsWith(`${FLOW_PICK_PREFIX}:`)) return null;
   const threadId = customId.slice(FLOW_PICK_PREFIX.length + 1);
   return threadId.length > 0 ? threadId : null;
+}
+
+// ── 進行量設定 UI (item1: ラウンド/ターン数を議論ごとに毎回変える) ───────────────
+
+/** 進行量プリセット select の customId 接頭辞 (`flow-settings:<threadId>`)。 */
+export const FLOW_SETTINGS_PREFIX = "flow-settings";
+/** 「数値を指定」ボタンの customId 接頭辞 (`flow-custom:<threadId>`)。 */
+export const FLOW_CUSTOM_BTN_PREFIX = "flow-custom";
+/** 進行量モーダルの customId 接頭辞 (`flow-modal:<threadId>`)。 */
+export const FLOW_MODAL_PREFIX = "flow-modal";
+
+/** 進行量プリセット (rounds×turns)。"default" は config 既定を使う。 */
+const FLOW_SETTINGS_PRESETS: Array<{ value: string; label: string; description: string }> = [
+  { value: "default", label: "標準で開始", description: "設定ファイルの既定ラウンド/ターン数で開始" },
+  { value: "2x4", label: "さくっと (2R×4T)", description: "短時間・低コスト" },
+  { value: "3x6", label: "標準量 (3R×6T)", description: "バランス型" },
+  { value: "5x8", label: "じっくり (5R×8T)", description: "論点を深掘り" },
+  { value: "8x12", label: "とことん (8R×12T)", description: "大ボリューム (高コスト)" },
+];
+
+/**
+ * 進行量設定メッセージの components (プリセット select + 「数値を指定」ボタン)。
+ * discussion/improvement を起動する前に出し、選択/入力でフローを開始する (item1)。
+ */
+export function buildFlowSettingsComponents(
+  threadId: string
+): [ActionRowBuilder<StringSelectMenuBuilder>, ActionRowBuilder<ButtonBuilder>] {
+  const menu = new StringSelectMenuBuilder()
+    .setCustomId(`${FLOW_SETTINGS_PREFIX}:${threadId}`)
+    .setPlaceholder("進行量を選んで開始 (ラウンド数 × ターン数)")
+    .setMinValues(1)
+    .setMaxValues(1)
+    .addOptions(
+      FLOW_SETTINGS_PRESETS.map((p) =>
+        new StringSelectMenuOptionBuilder().setValue(p.value).setLabel(p.label).setDescription(p.description)
+      )
+    );
+  const button = new ButtonBuilder()
+    .setCustomId(`${FLOW_CUSTOM_BTN_PREFIX}:${threadId}`)
+    .setLabel("数値を指定して開始")
+    .setEmoji("⚙️")
+    .setStyle(ButtonStyle.Secondary);
+  return [
+    new ActionRowBuilder<StringSelectMenuBuilder>().addComponents(menu),
+    new ActionRowBuilder<ButtonBuilder>().addComponents(button),
+  ];
+}
+
+/** ラウンド/ターン数を入力するモーダル (item1: 任意の数値指定)。 */
+export function buildFlowSettingsModal(threadId: string): ModalBuilder {
+  const rounds = new TextInputBuilder()
+    .setCustomId("rounds")
+    .setLabel("ラウンド数 (1〜10)")
+    .setPlaceholder("例: 3")
+    .setRequired(false)
+    .setStyle(TextInputStyle.Short);
+  const turns = new TextInputBuilder()
+    .setCustomId("turns")
+    .setLabel("1ラウンドのターン数 (1〜20)")
+    .setPlaceholder("例: 6")
+    .setRequired(false)
+    .setStyle(TextInputStyle.Short);
+  return new ModalBuilder()
+    .setCustomId(`${FLOW_MODAL_PREFIX}:${threadId}`)
+    .setTitle("進行量を指定")
+    .addComponents(
+      new ActionRowBuilder<TextInputBuilder>().addComponents(rounds),
+      new ActionRowBuilder<TextInputBuilder>().addComponents(turns)
+    );
+}
+
+/** `<prefix>:<threadId>` の customId から threadId を取り出す。 */
+function parsePrefixedCustomId(prefix: string, customId: string): string | null {
+  if (!customId.startsWith(`${prefix}:`)) return null;
+  const id = customId.slice(prefix.length + 1);
+  return id.length > 0 ? id : null;
+}
+
+export const parseFlowSettingsCustomId = (id: string): string | null =>
+  parsePrefixedCustomId(FLOW_SETTINGS_PREFIX, id);
+export const parseFlowCustomBtnCustomId = (id: string): string | null =>
+  parsePrefixedCustomId(FLOW_CUSTOM_BTN_PREFIX, id);
+export const parseFlowModalCustomId = (id: string): string | null =>
+  parsePrefixedCustomId(FLOW_MODAL_PREFIX, id);
+
+/**
+ * プリセット値 ("3x6" / "default") を rounds/turns に解決する。
+ * "default" / 不正は {} (= config 既定)。
+ */
+export function parseSettingsPreset(value: string): { rounds?: number; turnsPerRound?: number } {
+  const m = value.match(/^(\d+)x(\d+)$/);
+  if (!m) return {};
+  return { rounds: Number(m[1]), turnsPerRound: Number(m[2]) };
 }
 
 /**

@@ -63,6 +63,12 @@ export interface CommandRouterDeps {
   /** /economy-graph 用の LLM 分析トリガ (fire-and-forget)。グラフ URL を返す */
   triggerEconomyAnalysis?: (gameTitle: string) => { slug: string; port: number };
   /**
+   * /persona-generate 用の憑依対象ペルソナ生成トリガ (item7)。
+   * クロール済み外部発話 (KG) から C1 採用して flow_persona に upsert する。
+   * source で種別を絞れる。未設定なら非対応応答。
+   */
+  triggerPersonaGenerate?: (source?: string) => Promise<{ adopted: number; speakers: number }>;
+  /**
    * 平文投稿から議題を自動検出して persona-engine の議論開始イベントにつなぐ。
    * `started=true` は「議論の種(開始エントリ)が新規に立った」ことを表す (caller のリアクション判定用)。
    */
@@ -97,6 +103,9 @@ export function routeSlashCommand(cmd: InboundSlashCommand, deps: CommandRouterD
   }
   if (cmd.name === "economy-graph") {
     return handleEconomyGraphSlash(cmd, deps);
+  }
+  if (cmd.name === "persona-generate") {
+    return handlePersonaGenerateSlash(cmd, deps);
   }
 
   const commandText = cmd.argsText.length > 0 ? `/${cmd.name} ${cmd.argsText}` : `/${cmd.name}`;
@@ -381,6 +390,33 @@ function handleEconomyGraphSlash(cmd: InboundSlashCommand, deps: CommandRouterDe
   const url = `http://localhost:${port}/ludus/economy-graph/${slug}`;
   return {
     content: `🎮 **${gameTitle}** の経済分析を開始しました。\n📊 グラフ: ${url}\n_分析完了後にリロードしてください (約 30 秒)_`,
+    ephemeral: true,
+  };
+}
+
+/**
+ * /persona-generate — 憑依対象ペルソナを外部データから生成 (admin only, item7)。
+ * KG 集約 → C1 採用は数秒かかり得るので fire-and-forget で起動し即時 ack。結果はサーバログ。
+ */
+function handlePersonaGenerateSlash(cmd: InboundSlashCommand, deps: CommandRouterDeps): SlashReply {
+  if (deps.adminIds.length === 0) {
+    return { content: "⚠️ discord.adminIds 未設定 — admin コマンドは無効", ephemeral: true };
+  }
+  if (!cmd.userId || !deps.adminIds.includes(cmd.userId)) {
+    return { content: "⚠️ admin only", ephemeral: true };
+  }
+  if (!deps.triggerPersonaGenerate) {
+    return { content: "⚠️ ペルソナ生成が構成されていません", ephemeral: true };
+  }
+  const source = cmd.argsText.trim() || undefined;
+  void deps
+    .triggerPersonaGenerate(source)
+    .then((r) =>
+      console.log(`  persona-generate(manual): ${r.adopted} 採用 / ${r.speakers} 話者 (source=${source ?? "all"})`)
+    )
+    .catch((e) => console.warn(`  persona-generate(manual): error: ${(e as Error).message}`));
+  return {
+    content: `🧬 憑依対象ペルソナの生成を開始しました${source ? ` (source=${source})` : ""} (完了はサーバログで確認)`,
     ephemeral: true,
   };
 }

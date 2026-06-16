@@ -12,7 +12,8 @@ import type { FlowTag } from "./tags.js";
 import { getConfig } from "../config.js";
 import { withCostLog } from "./cost-logger.js";
 import { generateFlowPersonas, pickRandomPersona, decideStance, type FlowPersona, type Rng } from "./personas.js";
-import { selectPossessionByTheme, toFlowPersona } from "./persona-pool.js";
+import { selectPossessionByTheme, describePossession } from "./persona-pool.js";
+import { createVoiceCache } from "./voice-cache.js";
 import {
   buildPersonaPaper,
   buildPaperSystem,
@@ -41,6 +42,22 @@ export interface FlowUtteranceRecord {
   stance: string;
   text: string;
   isError: boolean;
+  /** その発話で演じていた憑依ペルソナの露出名 (B, item4)。憑依なしは undefined。 */
+  possessionName?: string;
+}
+
+/**
+ * ラウンド投票結果の通知 (item3)。Discord/Slack はこれを受けて
+ * 各意見メッセージに「投票」リアクションを付け、得票集計を可視化する。
+ */
+export interface VoteEvent {
+  round: number;
+  /** utterance_id ごとの得票数。 */
+  tally: Record<string, number>;
+  /** 最多得票の utterance_id (世論)。null = 無投票。 */
+  winner: string | null;
+  /** 投票対象だった意見 (id → 発話主体名)。表示に使う。 */
+  candidates: Array<{ id: string; personaName: string }>;
 }
 
 export interface FlowDirectorDeps {
@@ -52,6 +69,8 @@ export interface FlowDirectorDeps {
   youtubeSearch?: YoutubeSearchFn;
   /** 発話後のコールバック (Discord/WebUI への投稿等) */
   onUtterance?: (u: FlowUtteranceRecord) => void | Promise<void>;
+  /** ラウンド投票後のコールバック (item3: リアクションで得票を可視化する)。 */
+  onVote?: (e: VoteEvent) => void | Promise<void>;
   /** ログ・警告出力 */
   log?: (msg: string) => void;
   warn?: (msg: string) => void;
@@ -139,8 +158,8 @@ export function persistUtterance(u: FlowUtteranceRecord): void {
   const db = getFlowDb();
   db.prepare(
     `INSERT INTO flow_utterance
-       (id, session_id, paper_id, round, turn, persona_id, persona_name, role, stance, text, is_error, created_at)
-     VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`
+       (id, session_id, paper_id, round, turn, persona_id, persona_name, role, stance, text, is_error, possession_name, created_at)
+     VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`
   ).run(
     u.id,
     u.sessionId,
@@ -153,6 +172,7 @@ export function persistUtterance(u: FlowUtteranceRecord): void {
     u.stance,
     u.text,
     u.isError ? 1 : 0,
+    u.possessionName ?? null,
     Date.now()
   );
 }
@@ -182,6 +202,10 @@ export async function runFlow(
     gamesDir,
     flow = "discussion",
   } = options;
+
+  // 発話時の DB 参照キャッシュ (item5): 同一テーマ/語の外部の声 lookup を
+  // セッション内で 1 回に集約し、全ペルソナのターンで使い回す。
+  const voiceCache = createVoiceCache(listExternalVoices);
 
   // ラウンド世論決定の戦略。既定は中立投票 (discussion.md step 6)。
   // 改善フローは机上の機械スコア (design_gap) を注入する (improvement.md)。
@@ -238,7 +262,9 @@ export async function runFlow(
     rng,
   });
 
-  // ── 憑依 (B): テーマから嗜好を類推し、プール最近傍ペルソナを opinion 1 枠に充てる ──
+  // ── 憑依 (B, item4): テーマから嗜好を類推し、プール最近傍ペルソナを opinion 1 枠に「憑依」させる ──
+  // casual な生成ペルソナ名は保持したまま、データ由来の人物像になりきって発言させる。
+  // 露出名は `名前 (意見屋/論者#xxxx)` と表示し、人物像 descriptor を prompt に注入する。
   // プールが空 / 一致なしなら no-op (従来生成キャストのまま)。投稿主体の代理は 1 体のみ (Q3)。
   if (options.possess !== false) {
     try {
@@ -246,8 +272,13 @@ export async function runFlow(
       if (hit) {
         const seatIdx = personas.findIndex((p) => p.role === "opinion");
         if (seatIdx >= 0) {
-          personas[seatIdx] = toFlowPersona(hit.persona, { role: "opinion", defaultModel, isLocal });
-          log(`憑依: 「${hit.persona.name}」をテーマ嗜好で投稿主体枠にアサイン (cos=${hit.similarity.toFixed(3)})`);
+          personas[seatIdx] = {
+            ...personas[seatIdx],
+            possession: { label: hit.persona.name, descriptor: describePossession(hit.persona) },
+          };
+          log(
+            `憑依: 「${personas[seatIdx].name}」が「${hit.persona.name}」の人物像を憑依 (cos=${hit.similarity.toFixed(3)})`
+          );
         }
       }
     } catch (e) {
@@ -330,8 +361,8 @@ export async function runFlow(
       const persona = pickRandomPersona(personas, rng);
       const stance = decideStance(persona, rng);
 
-      // ユーザ意見 RAG
-      const userVoices: ContextVoice[] = listExternalVoices([theme], 5);
+      // ユーザ意見 RAG (item5: セッションキャッシュ経由で全ペルソナ共有)
+      const userVoices: ContextVoice[] = voiceCache.lookup([theme], 5);
 
       // YouTube コメントを userVoices に追加 (補完時のみ)
       if (investigation.youtubeUsed && investigation.youtubeComments.length > 0) {
@@ -400,6 +431,7 @@ export async function runFlow(
         stance,
         text: utteranceText,
         isError,
+        possessionName: persona.possession?.label,
       };
 
       persistUtterance(record);
@@ -425,6 +457,20 @@ export async function runFlow(
     roundEvaluations.push(evaluation);
     if (evaluation.winner) {
       log(`ラウンド ${round} 世論: ${evaluation.winner}`);
+    }
+
+    // ── 投票結果の通知 (item3): Discord/Slack がリアクションで得票を可視化する ──
+    if (options.onVote) {
+      try {
+        await options.onVote({
+          round,
+          tally: evaluation.tally,
+          winner: evaluation.winner,
+          candidates: roundUtteranceRecords.map((u) => ({ id: u.id, personaName: u.personaName })),
+        });
+      } catch (e) {
+        warn(`ラウンド ${round} onVote 通知失敗: ${(e as Error).message}`);
+      }
     }
 
     // ── [7] ラウンドサマリ + 止揚 ─────────────────────────────────────────
@@ -458,6 +504,7 @@ export async function runFlow(
   }
 
   // ── [9] 結論生成 ──────────────────────────────────────────────────────────
+  log(`発話時 RAG: lookup ${voiceCache.misses()} 回 / キャッシュ再利用 ${voiceCache.hits()} 回 (item5)`);
   log("結論生成中...");
   const conclusionResult = await generateConclusion({
     theme,

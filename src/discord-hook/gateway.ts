@@ -53,12 +53,18 @@ import {
   type FlowDiscordDeps,
   type FlowLiveHooks,
 } from "../flow/discord-live.js";
-import { parseFlowKind } from "../flow/dispatch.js";
+import { parseFlowKind, type FlowKind } from "../flow/dispatch.js";
 import type { FlowTag } from "../flow/tags.js";
 import {
   buildFlowPickMenu,
+  buildFlowSettingsComponents,
+  buildFlowSettingsModal,
   ensureDiscussionForum,
+  parseFlowCustomBtnCustomId,
+  parseFlowModalCustomId,
   parseFlowPickCustomId,
+  parseFlowSettingsCustomId,
+  parseSettingsPreset,
 } from "./forum-flow-tags.js";
 
 export interface DiscordGatewayDeps extends CommandRouterDeps {
@@ -188,6 +194,11 @@ export async function startDiscordGateway(
       turnsPerRound?: number;
       opponentPersonaIds?: string[];
     }
+  >();
+  // 進行量設定 select/modal の待ち (threadId → フロー解決済みの起動情報、item1)。
+  const pendingFlowSettings = new Map<
+    string,
+    { guildId: string; theme: string; flow: FlowKind; tags: FlowTag[]; opponentPersonaIds?: string[] }
   >();
   // 収束時にフォーラムスレッドを締める (lock+archive + まとめ転記)。
   const flowHooks: FlowLiveHooks = {
@@ -348,6 +359,88 @@ export async function startDiscordGateway(
     }
   }
 
+  /** 進行量設定 UI (プリセット select + 数値指定ボタン) をスレッドに出す (item1)。 */
+  async function postFlowSettingsMenu(threadId: string): Promise<void> {
+    try {
+      const channel = await client.channels.fetch(threadId);
+      if (!channel || !channel.isTextBased() || !("send" in channel)) return;
+      await (channel as { send: (o: unknown) => Promise<unknown> }).send({
+        content: "⚙️ 進行量を選んで議論を開始してください (ラウンド数 × ターン数)。「数値を指定」で任意の値も設定できます。",
+        components: buildFlowSettingsComponents(threadId),
+      });
+    } catch (err) {
+      console.warn(`  discord-forum: flow-settings menu 失敗 (thread=${threadId}): ${(err as Error).message}`);
+    }
+  }
+
+  /**
+   * フロー起動の入口 (item1)。discussion/improvement で進行量が本文未指定なら
+   * 進行量設定 UI を出して待つ。それ以外 (learning/sparring、または本文指定済み) は即起動。
+   */
+  async function beginFlow(info: {
+    guildId: string;
+    threadId: string;
+    theme: string;
+    flow: FlowKind;
+    tags: FlowTag[];
+    rounds?: number;
+    turnsPerRound?: number;
+    opponentPersonaIds?: string[];
+  }): Promise<void> {
+    if (!deps.flowLive) return;
+    const wantsSettings =
+      (info.flow === "discussion" || info.flow === "improvement") &&
+      info.rounds == null &&
+      info.turnsPerRound == null;
+    if (wantsSettings) {
+      pendingFlowSettings.set(info.threadId, {
+        guildId: info.guildId,
+        theme: info.theme,
+        flow: info.flow,
+        tags: info.tags,
+        opponentPersonaIds: info.opponentPersonaIds,
+      });
+      await postFlowSettingsMenu(info.threadId);
+      return;
+    }
+    void startForumFlow(
+      {
+        guildId: info.guildId,
+        threadId: info.threadId,
+        theme: info.theme,
+        flow: info.flow,
+        tags: info.tags,
+        rounds: info.rounds,
+        turnsPerRound: info.turnsPerRound,
+        opponentPersonaIds: info.opponentPersonaIds,
+      },
+      deps.flowLive,
+      flowHooks
+    );
+  }
+
+  /** 進行量設定 (select/modal) を受けて pending を起動する。期限切れなら false。 */
+  function startFromSettings(threadId: string, rounds?: number, turnsPerRound?: number): boolean {
+    const pending = pendingFlowSettings.get(threadId);
+    if (!pending || !deps.flowLive) return false;
+    pendingFlowSettings.delete(threadId);
+    void startForumFlow(
+      {
+        guildId: pending.guildId,
+        threadId,
+        theme: pending.theme,
+        flow: pending.flow,
+        tags: pending.tags,
+        rounds,
+        turnsPerRound,
+        opponentPersonaIds: pending.opponentPersonaIds,
+      },
+      deps.flowLive,
+      flowHooks
+    );
+    return true;
+  }
+
   /** フォーラム starter を解析し、フロー起動 or タグ選択 UI を出す。 */
   async function onForumThreadCreate(thread: AnyThreadChannel): Promise<void> {
     if (!deps.flowLive) return;
@@ -358,11 +451,16 @@ export async function startDiscordGateway(
     const { rounds, turnsPerRound } = parseRoundsTurns(starter.theme);
     const opponentPersonaIds = parseOpponents(starter.theme);
     if (flow) {
-      void startForumFlow(
-        { guildId: starter.guildId, threadId: thread.id, theme: starter.theme, flow, tags, rounds, turnsPerRound, opponentPersonaIds },
-        deps.flowLive,
-        flowHooks
-      );
+      await beginFlow({
+        guildId: starter.guildId,
+        threadId: thread.id,
+        theme: starter.theme,
+        flow,
+        tags,
+        rounds,
+        turnsPerRound,
+        opponentPersonaIds,
+      });
       return;
     }
     // 議論タイプタグ無し → 選択 UI を出して待つ。
@@ -508,14 +606,63 @@ export async function startDiscordGateway(
   });
 
   client.on(Events.InteractionCreate, async (interaction: Interaction) => {
-    // 続行/停止ボタン (debate:cont/stop:<token>)。
+    // ボタン: 進行量「数値を指定」(flow-custom:<threadId>) → モーダル表示 (item1) / 続行・停止ボタン。
     if (interaction.isButton()) {
+      const customThreadId = parseFlowCustomBtnCustomId(interaction.customId);
+      if (customThreadId) {
+        if (pendingFlowSettings.has(customThreadId)) {
+          await interaction.showModal(buildFlowSettingsModal(customThreadId)).catch(() => {});
+        } else {
+          await interaction
+            .reply({ content: "この設定は期限切れです。スレッドを作り直してください。", flags: MessageFlags.Ephemeral })
+            .catch(() => {});
+        }
+        return;
+      }
       if (debateRunner) await debateRunner.handleButton(interaction).catch(() => {});
       return;
     }
 
-    // 議論タイプ select (flow-pick:<threadId>) — タグ無し投稿のフロー選択。
+    // 進行量モーダル送信 (flow-modal:<threadId>) → 任意の rounds/turns で起動 (item1)。
+    if (interaction.isModalSubmit()) {
+      const modalThreadId = parseFlowModalCustomId(interaction.customId);
+      if (!modalThreadId) return;
+      const toNum = (s: string): number | undefined => {
+        const n = Number(s.trim());
+        return Number.isFinite(n) && n > 0 ? n : undefined;
+      };
+      const rounds = toNum(interaction.fields.getTextInputValue("rounds"));
+      const turnsPerRound = toNum(interaction.fields.getTextInputValue("turns"));
+      const started = startFromSettings(modalThreadId, rounds, turnsPerRound);
+      await interaction
+        .reply({
+          content: started
+            ? `✅ 進行量 (ラウンド ${rounds ?? "既定"} × ターン ${turnsPerRound ?? "既定"}) で開始します`
+            : "この設定は期限切れです。スレッドを作り直してください。",
+          ...(started ? {} : { flags: MessageFlags.Ephemeral }),
+        })
+        .catch(() => {});
+      return;
+    }
+
     if (interaction.isStringSelectMenu()) {
+      // 進行量プリセット (flow-settings:<threadId>) → rounds/turns を決めて起動 (item1)。
+      const settingsThreadId = parseFlowSettingsCustomId(interaction.customId);
+      if (settingsThreadId) {
+        const { rounds, turnsPerRound } = parseSettingsPreset(interaction.values[0]);
+        const started = startFromSettings(settingsThreadId, rounds, turnsPerRound);
+        await interaction
+          .update({
+            content: started
+              ? `✅ 進行量「${interaction.values[0]}」で開始します`
+              : "この設定は期限切れです。スレッドを作り直してください。",
+            components: [],
+          })
+          .catch(() => {});
+        return;
+      }
+
+      // 議論タイプ select (flow-pick:<threadId>) — タグ無し投稿のフロー選択。
       const threadId = parseFlowPickCustomId(interaction.customId);
       if (!threadId) return;
       const pending = pendingFlowPicks.get(threadId);
@@ -528,22 +675,19 @@ export async function startDiscordGateway(
       }
       pendingFlowPicks.delete(threadId);
       await interaction
-        .update({ content: `✅ 「${interaction.values[0]}」で開始します`, components: [] })
+        .update({ content: `✅ 「${interaction.values[0]}」を選択`, components: [] })
         .catch(() => {});
-      void startForumFlow(
-        {
-          guildId: pending.guildId,
-          threadId,
-          theme: pending.theme,
-          flow,
-          tags: pending.tags,
-          rounds: pending.rounds,
-          turnsPerRound: pending.turnsPerRound,
-          opponentPersonaIds: pending.opponentPersonaIds,
-        },
-        deps.flowLive,
-        flowHooks
-      );
+      // discussion/improvement は進行量 UI を経由、それ以外は即起動 (beginFlow)。
+      await beginFlow({
+        guildId: pending.guildId,
+        threadId,
+        theme: pending.theme,
+        flow,
+        tags: pending.tags,
+        rounds: pending.rounds,
+        turnsPerRound: pending.turnsPerRound,
+        opponentPersonaIds: pending.opponentPersonaIds,
+      });
       return;
     }
 

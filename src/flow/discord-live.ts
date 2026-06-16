@@ -18,7 +18,9 @@ import type { CascadeClients } from "../crawler/sentiment/cascade.js";
 import type { createCore } from "../core/index.js";
 import type { ContextVoice } from "./discussion-paper.js";
 import type { FlowTag } from "./tags.js";
-import type { FlowUtteranceRecord } from "./director.js";
+import type { FlowUtteranceRecord, VoteEvent } from "./director.js";
+import type { FlowRole, FlowStance } from "./personas.js";
+import { composeDisplayName } from "./persona-display.js";
 import { dispatchFlow, type DispatchDeps, type FlowKind } from "./dispatch.js";
 import type { SparringSession } from "./sparring.js";
 import {
@@ -26,8 +28,13 @@ import {
   humanizeForDiscord,
   postDiscordChannel,
   postDiscordWebhook,
+  reactDiscord,
   resolveWebhookTarget,
 } from "../discord-hook/poster.js";
+
+/** 投票の可視化に使う絵文字 (item3)。 */
+const VOTE_WINNER_EMOJI = "🏆";
+const VOTE_EMOJI = "👍";
 
 type Core = ReturnType<typeof createCore>;
 
@@ -77,22 +84,83 @@ export function hasSparringSession(threadId: string): boolean {
   return sparringByThread.has(threadId);
 }
 
-/** フォーラムスレッドへ persona 名で発話を流す onUtterance を作る。 */
-function makeThreadUtterancePoster(deps: FlowDiscordDeps, threadId: string) {
+/** 1 議論ぶんの投稿コンテキスト (utterance_id → 投稿 message_id を保持し、投票で参照する)。 */
+interface ThreadPostCtx {
+  /** utterance_id → 投稿した Discord message_id (リアクション付与先)。 */
+  messageIdByUtterance: Map<string, string>;
+  /** utterance_id → 露出名 (得票集計の表示用)。 */
+  displayNameByUtterance: Map<string, string>;
+}
+
+function newThreadPostCtx(): ThreadPostCtx {
+  return { messageIdByUtterance: new Map(), displayNameByUtterance: new Map() };
+}
+
+/**
+ * フォーラムスレッドへ persona 名で発話を流す onUtterance を作る。
+ * 露出名は「名前 (ロール/憑依ペルソナ)」(item2/4)。投稿 message_id を ctx に控え、投票で使う (item3)。
+ */
+function makeThreadUtterancePoster(deps: FlowDiscordDeps, threadId: string, ctx: ThreadPostCtx) {
   return async (u: FlowUtteranceRecord): Promise<void> => {
+    const displayName = composeDisplayName({
+      name: u.personaName,
+      stance: u.stance as FlowStance,
+      role: u.role as FlowRole,
+      possessionName: u.possessionName,
+    });
     try {
       const target = await resolveWebhookTarget(deps.botToken, threadId);
       const wh = await ensureChannelWebhook(deps.botToken, target.webhookChannelId);
       const text = u.isError ? u.text : humanizeForDiscord(u.text);
-      await postDiscordWebhook({
+      const posted = await postDiscordWebhook({
         webhookId: wh.id,
         webhookToken: wh.token,
-        username: u.personaName,
+        username: displayName,
         content: text,
         threadId: target.threadId ?? threadId,
       });
+      if (posted.id) ctx.messageIdByUtterance.set(u.id, posted.id);
+      ctx.displayNameByUtterance.set(u.id, displayName);
     } catch (err) {
       console.warn(`  flow-live: utterance post 失敗 (thread=${threadId}): ${(err as Error).message}`);
+    }
+  };
+}
+
+/**
+ * ラウンド投票の可視化 (item3)。bot は同一ユーザなので「得票数ぶんのリアクション」は付けられないため、
+ *  - 世論 (winner) の発話に 🏆、得票のあった発話に 👍 を付け、
+ *  - 得票集計テキストをスレッドに投稿する (誰の意見が何票か)。
+ */
+function makeThreadVoteReactor(deps: FlowDiscordDeps, threadId: string, ctx: ThreadPostCtx) {
+  return async (e: VoteEvent): Promise<void> => {
+    const totalVotes = Object.values(e.tally).reduce((s, n) => s + n, 0);
+    if (totalVotes === 0) return; // 全員棄権 → 可視化しない
+
+    // 🏆/👍 を付与 (message_id が取れている発話のみ)。
+    for (const [utteranceId, votes] of Object.entries(e.tally)) {
+      if (votes <= 0) continue;
+      const messageId = ctx.messageIdByUtterance.get(utteranceId);
+      if (!messageId) continue;
+      const emoji = utteranceId === e.winner ? VOTE_WINNER_EMOJI : VOTE_EMOJI;
+      try {
+        await reactDiscord({ botToken: deps.botToken, channelId: threadId, messageId, emoji });
+      } catch (err) {
+        console.warn(`  flow-live: 投票リアクション失敗 (thread=${threadId}): ${(err as Error).message}`);
+      }
+    }
+
+    // 得票集計テキスト (降順)。
+    const ranked = Object.entries(e.tally)
+      .filter(([, n]) => n > 0)
+      .sort((a, b) => b[1] - a[1])
+      .map(([id, n], i) => {
+        const name = ctx.displayNameByUtterance.get(id) ?? "(不明)";
+        const medal = id === e.winner ? "🏆" : `${i + 1}.`;
+        return `${medal} ${name} — ${n}票`;
+      });
+    if (ranked.length > 0) {
+      await postThreadNotice(deps, threadId, `🗳️ **ラウンド ${e.round} 投票結果**\n${ranked.join("\n")}`);
     }
   };
 }
@@ -107,13 +175,15 @@ async function postThreadNotice(deps: FlowDiscordDeps, threadId: string, content
 }
 
 function buildDispatchDeps(deps: FlowDiscordDeps, threadId: string): DispatchDeps {
+  const ctx = newThreadPostCtx();
   return {
     llm: deps.llm,
     listExternalVoices: deps.listExternalVoices,
     sentimentClients: deps.sentimentClients,
     gamesDir: deps.gamesDir,
     workspaceId: deps.workspaceId,
-    onUtterance: makeThreadUtterancePoster(deps, threadId),
+    onUtterance: makeThreadUtterancePoster(deps, threadId, ctx),
+    onVote: makeThreadVoteReactor(deps, threadId, ctx),
     log: (m) => console.log(`  [flow-live ${threadId}] ${m}`),
     warn: (m) => console.warn(`  [flow-live/warn ${threadId}] ${m}`),
   };

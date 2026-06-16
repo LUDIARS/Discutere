@@ -332,3 +332,30 @@ export function toFlowPersona(
     isLocal: opts.isLocal,
   };
 }
+
+/**
+ * 憑依対象ペルソナの「人物像」を prompt 用の短い説明文にする (B)。
+ * C1 採用ペルソナは口調/traits を持たない (affect ベクトルのみ) ため、
+ * 出所・典型度・極性偏り・ゲーム間ばらつき等のメタから人物像を言語化する。
+ */
+export function describePossession(p: PoolPersona): string {
+  const parts: string[] = [];
+  if (p.traits.length > 0) parts.push(`特徴: ${p.traits.join(" / ")}`);
+  if (p.speechStyle) parts.push(`話し方: ${p.speechStyle}`);
+  if (p.learningSource) parts.push(`出所: ${p.learningSource}`);
+  if (typeof p.typicality === "number") {
+    parts.push(p.typicality >= 0.9 ? "多数派寄りの感性" : "やや独自の感性");
+  }
+  if (typeof p.polarityBias === "number") {
+    parts.push(p.polarityBias >= 0.5 ? "好き嫌いがはっきりしている" : "是々非々で評価する");
+  }
+  if (typeof p.affectDispersion === "number" && p.affectDispersion >= 0.1) {
+    parts.push("ゲームによって評価が大きく変わる");
+  }
+  if (p.populationVerdict) {
+    parts.push(p.populationVerdict === "大" ? "ボリューム層に近い嗜好" : "ニッチ層に近い嗜好");
+  }
+  return parts.length > 0
+    ? `この人物像は実データ由来。${parts.join("、")}。この感性になりきって発言する。`
+    : "この人物像は実データ由来の感性を持つ。その立場になりきって発言する。";
+}

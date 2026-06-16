@@ -92,6 +92,18 @@ export const DISCORD_COMMAND_DEFS: RESTPostAPIChatInputApplicationCommandsJSONBo
     ],
   },
   {
+    name: "persona-generate",
+    description: "外部データ (クロール済の声) から憑依対象ペルソナを生成/更新する (admin only)",
+    options: [
+      {
+        name: "source",
+        description: "source 種別で絞る (例: youtube / steam。省略で全体)",
+        type: ApplicationCommandOptionType.String,
+        required: false,
+      },
+    ],
+  },
+  {
     name: "economy-graph",
     description: "ゲームの内部経済導線と遊びの関係性をグラフ分析する",
     options: [

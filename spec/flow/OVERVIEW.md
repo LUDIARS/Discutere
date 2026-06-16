@@ -197,7 +197,10 @@ Discutere の「議論」を **4 つのフロー** に分けて定義するド�
    テーマ入力時に**議論タイプ (フロー) を必須選択** + タグ選択。
 2. **Discord のフォーラム投稿を UI とする** (現 Gateway / フォーラム starter / `forum-monitor` を流用)。
    フォーラムの**適用タグ**から **議論タイプ (フロー) とタグ (機密/内部/運用/開発) の両方**を取得する。
-   (Slack 対応は後続。)
+3. **Slack (Socket Mode)** (`src/slack/`, 2026-06-16 実装)。公開 URL 不要の常時 WS。設定チャンネルへの
+   トップレベル投稿をテーマに、スレッドへ Block Kit の select で議論タイプ → 進行量を選んで起動する。
+   発話は `chat.postMessage` を persona 表示名で投稿、投票は `reactions.add` で可視化 (§12)。
+   有効化は `slack.enabled` + `slack.appToken`(xapp-) + `slack.botToken`(xoxb-) + `slack.channelIds`。
 
 - **議論タイプ (議論 / 改善 / 学習 / 壁打ち) はテーマ投稿時に必須選択**。WebUI は選択 UI、Discord は
   フォーラムタグで指定する。
@@ -228,3 +231,24 @@ Discutere の「議論」を **4 つのフロー** に分けて定義するド�
 - **swapHalf 廃止**: 全メンバーをその場生成するため不要。
 - **prompt-builder**: 当ラウンド優先のコンテキストスコープ変更で対応 (§discussion step 8)。
 - **結論 (step 9)**: 既存の結論ビュー (`src/visualize/conclusions.ts`) に倣ってまとめる。
+
+## 12. 議論精度・UX 改善 (2026-06-16)
+
+ユーザ要望に基づく 7 点の改善。トランスポート非依存の表示/投票/憑依ロジックは `src/flow/` に集約し、
+Discord (`src/flow/discord-live.ts`) と Slack (`src/slack/slack-live.ts`) の両露出面で共有する。
+
+1. **進行量を議論ごとに毎回設定 (item1)**: WebUI (`/flow`) は数値入力。Discord/Slack は議論/改善の起動前に
+   進行量 (ラウンド×ターン) の **select (プリセット) + 数値モーダル** を出して都度指定する。本文記法
+   `ラウンド:N ターン:M` での明示指定があればそれを優先 (UI スキップ)。上限は `MAX_ROUNDS`/`MAX_TURNS_PER_ROUND`。
+2. **表示名「名前 (ロール名/憑依ペルソナ)」(item2)**: `src/flow/persona-display.ts` の `composeDisplayName`。
+   ロール名はそのターンのスタンス (賛成派/反対派/意見屋/進行役)。憑依が無ければ括弧内はロールのみ。
+3. **投票をリアクションで可視化 (item3)**: ラウンド投票後 `onVote` 通知 → 世論に 🏆、得票意見に 👍 を付け、
+   得票集計テキストをスレッドに投稿。LLM 投票者は実ユーザではないため「得票数=リアクション可視化 + 集計」で表す。
+4. **憑依の可視化 (item4)**: 憑依は casual 生成ペルソナ名を保ったまま、データ由来ペルソナの人物像 (descriptor)
+   を prompt に注入し、表示名の括弧内とログに憑依対象名を出す。`flow_utterance.possession_name` に永続。
+5. **発話時の DB 参照キャッシュ (item5)**: `src/flow/voice-cache.ts`。同一テーマ/語の外部の声 lookup を
+   セッション内で 1 回に集約し、全ペルソナのターンで使い回す。
+6. **Slack 対応 (item6)**: §9-3 (Socket Mode)。
+7. **憑依対象ペルソナの生成 (item7)**: 既存 C1 採用 (`runAdoptFromKg`) / C2 合成を、`/admin/personas` WebUI に加え
+   Discord `/persona-generate` (admin) / Slack からも起動できるよう配線。クロール済み外部発話から生成し
+   `flow_persona` に upsert (個人は `論者#xxxxxx` で仮名化)。

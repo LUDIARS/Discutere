@@ -284,6 +284,23 @@ export interface DiscutereConfig {
     };
   };
   /**
+   * Slack Socket Mode トランスポート (Discord と並ぶ第2入口)。
+   * 公開 URL 不要・常時 WS で議論/改善/学習/壁打ちをスレッド上で回す。
+   * appToken/botToken/channelIds が揃い enabled の時のみ起動 (安全 default)。
+   */
+  slack: {
+    /** Slack 連携を有効化 (既定 false)。 */
+    enabled: boolean;
+    /** app-level token (xapp-、Socket Mode)。空なら無効。 */
+    appToken: string;
+    /** bot token (xoxb-、Web API)。空なら無効。 */
+    botToken: string;
+    /** 議論を起こす Slack channel id。空なら起動しない (安全 default)。 */
+    channelIds: string[];
+    /** 将来の管理コマンド用 allowlist (現状は保持のみ)。 */
+    adminIds: string[];
+  };
+  /**
    * 学習データ (Discatier KG + persona-engine.db + discutere.db) の S3 アーカイブ。
    * tar.gz 化して S3 (Glacier 系ストレージクラス想定) に push する。月次自動 + 手動。
    */
@@ -351,6 +368,10 @@ interface RawFileConfig {
     gameFeedback?: Partial<DiscutereConfig["discord"]["gameFeedback"]>;
     /** 後方互換: 旧 単数 guildId (guildIds に統合される) */
     guildId?: string;
+  };
+  slack?: Partial<Omit<DiscutereConfig["slack"], "channelIds" | "adminIds">> & {
+    channelIds?: string[];
+    adminIds?: string[];
   };
   backup?: Partial<DiscutereConfig["backup"]>;
   kgSync?: Partial<DiscutereConfig["kgSync"]>;
@@ -682,6 +703,13 @@ export function loadConfig(): DiscutereConfig {
           "ゲーム感想"
         ),
       },
+    },
+    slack: {
+      enabled: pickBool(process.env.DISCUTERE_SLACK_ENABLED, file.slack?.enabled, false),
+      appToken: pickOpt(process.env.DISCUTERE_SLACK_APP_TOKEN, file.slack?.appToken) ?? "",
+      botToken: pickOpt(process.env.DISCUTERE_SLACK_BOT_TOKEN, file.slack?.botToken) ?? "",
+      channelIds: parseStringList(process.env.DISCUTERE_SLACK_CHANNEL_IDS, file.slack?.channelIds),
+      adminIds: parseStringList(process.env.DISCUTERE_SLACK_ADMIN_IDS, file.slack?.adminIds),
     },
     backup: {
       enabled: pickBool(process.env.DISCUTERE_BACKUP_ENABLED, file.backup?.enabled, false),

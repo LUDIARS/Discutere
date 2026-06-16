@@ -47,6 +47,27 @@ function truncate(s: string, max: number): string {
   return s.slice(0, max - 1) + "…";
 }
 
+/**
+ * bot 名義で message に絵文字リアクションを付ける (item3: 投票の可視化)。
+ * Unicode 絵文字をそのまま渡す (URL エンコードして送る)。失敗は throw (caller が握る)。
+ */
+export async function reactDiscord(args: {
+  botToken: string;
+  channelId: string;
+  messageId: string;
+  emoji: string;
+}): Promise<void> {
+  const res = await fetch(
+    `${DISCORD_API}/channels/${encodeURIComponent(args.channelId)}/messages/${encodeURIComponent(
+      args.messageId
+    )}/reactions/${encodeURIComponent(args.emoji)}/@me`,
+    { method: "PUT", headers: { Authorization: `Bot ${args.botToken}` } }
+  );
+  if (!res.ok) {
+    throw new Error(`discord react ${res.status}: ${(await res.text().catch(() => "")).slice(0, 200)}`);
+  }
+}
+
 // ───────── Webhook (persona を人間名で投稿するため) ─────────
 
 const WEBHOOK_NAME = "Discutere議論";

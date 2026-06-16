@@ -195,6 +195,12 @@ const MIGRATIONS: Array<{ id: string; sql: string[] }> = [
       `ALTER TABLE flow_persona ADD COLUMN affect_dispersion REAL`,
     ],
   },
+  {
+    // 憑依 (B, item4): その発話で演じていたデータ由来ペルソナの露出名を残す。
+    // 露出面の表示名「名前 (ロール/憑依)」と WebUI 復元に使う。NULL = 憑依なし。
+    id: "flow_0009_utterance_possession",
+    sql: [`ALTER TABLE flow_utterance ADD COLUMN possession_name TEXT`],
+  },
 ];
 
 export function applyFlowMigrations(db: Database.Database): void {
