@@ -53,6 +53,13 @@ const { _resetConfig } = await import("../../src/config.js");
 }
 
 {
+  const personas = generateFlowPersonas({ count: 1, defaultModel: "m", isLocal: false, rng: () => 0 });
+  assert.equal(personas.length, 1, "count=1 returns exactly one persona");
+  assert.equal(personas[0].role, "facilitator", "single persona is facilitator");
+  console.log("  [ok] generateFlowPersonas: count=1 respected");
+}
+
+{
   // ランダム選択の分布確認
   let pick0 = 0, pick1 = 0, pick2 = 0;
   let seed = 12345;

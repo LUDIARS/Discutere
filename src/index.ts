@@ -34,6 +34,7 @@ import { DEBATE_RULE_SEEDS } from "./persona-engine/worker-pool/debate-rules.js"
 import { workerRoutes, setWorkerPool } from "./api/worker.js";
 import { workerPoolControlRoutes, setWorkerPoolControl } from "./api/worker-pool-control.js";
 import { tuningRoutes, setRuntimeSettings } from "./api/tuning-routes.js";
+import { personaRoutes } from "./api/persona-routes.js";
 import { topPageRoutes } from "./api/top-page-routes.js";
 import { webChatRoutes, setWebChatDeps } from "./api/web-chat-routes.js";
 import { flowRoutes, setFlowWebDeps } from "./flow/web/routes.js";
@@ -135,6 +136,7 @@ app.route("/api", workerPoolControlRoutes);
 
 // ─── 議論チューニング UI/API (/api/admin/tuning) ───────────────
 app.route("/api", tuningRoutes);
+app.route("/api", personaRoutes);
 
 // ─── KG 共有同期: 配信エンドポイント (master) /api/kg/migrations ──────
 app.route("/api", kgMigrationRoutes);
