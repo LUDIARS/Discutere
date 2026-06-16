@@ -108,6 +108,25 @@ bot 名義で締める (収束時 `finalizeForumPost` で lock+archive+まとめ
   フォーラム起動を skip する。`discussionChannelIds` (平文議論) は旧 auto-discussion のまま後方互換で残す
   (議論の正路はフォーラム)。無効化は `discord.forum.enabled=false` (env `DISCUTERE_DISCORD_FORUM_ENABLED`)。
 
+## 学習ビュー × 新フロー (結論統合 / md エクスポート / 議論前自動クロール)
+
+- **新フロー結論を学習ビューに統合**: 「結論」タブは旧 `design_gaps` だけでなく新フローの
+  `flow_conclusion` も読む。`src/visualize/flow-conclusions.ts` が `flow_conclusion`+`discussion_paper`+
+  `flow_utterance`+`vote` を旧 `conclusions.ts` と同形 (`ConclusionSummary`/`ConclusionDetail`) で返し、
+  `/learning/conclusions` が両者をマージ (新しい順)。一意キーは旧=`design_gap.id` / 新=`flow:<sessionId>`、
+  `/learning/conclusion?gap=` は prefix でルートする。一覧に `[新フロー]`/`[旧]` バッジ。
+- **議論の md エクスポート**: `src/visualize/conclusion-markdown.ts` が `ConclusionDetail` を 1 本の md
+  (frontmatter + 結論/止揚/高評価/議論ログ) にする純関数。UI の「md エクスポート」DL
+  (`GET /learning/conclusion/export?gap=`) と CLI `npm run export:discussions`
+  (`scripts/export-discussion.ts`、ディスクへ個別書き出し) が同じレンダラを使う。
+- **議論前の自動学習クロール (事前学習の UI 化)**: 議論/改善の開始時にテーマの学習データ
+  (= 議論と同じ `listExternalVoices` の件数) が `flow.autoCrawl.minVoices` 未満なら、指定ソースで
+  クロール → KG 取込してから議論を始める (`src/flow/learning-autocrawl.ts` の `ensureLearningData`)。
+  ソースは UI (`/flow` の「学習データ自動取得」欄) で議論ごとに上書き、既定は `flow.autoCrawl`
+  (既定 niconico=テーマ検索・キー不要)。対応 source = niconico / youtube / steam(appId) / website(URL)。
+  collector は DI 境界 (`DEFAULT_COLLECTORS`) でテスト可能。クロール失敗は議論を止めない (graceful)。
+  入口は Web UI (`flow/web/routes.ts`) と Discord フォーラム (`flow/discord-live.ts`、config 既定ソース)。
+
 ## 個人データ
 
 匿名 workspace (`DISCATIER_WORKSPACE` 既定 `knowledge`)。攻略 KG / 議論ノードに編集者名・アカウント名を保存しない (`spec/crawler/DESIGN.md` 準拠)。

@@ -60,6 +60,21 @@ export const FLOW_HTML = `<!doctype html>
       <legend>壁打ち相手 (壁打ちのみ・任意)</legend>
       <label>ペルソナ名/ID (カンマ区切り) <input id="opponent" type="text" placeholder="例: ローグ好き太郎,ソシャゲ花子" style="width:60%" /></label>
     </fieldset>
+    <fieldset class="tags">
+      <legend>学習データ自動取得 (議論/改善のみ・学習データ不足時だけ実行)</legend>
+      <label>ソース
+        <select id="learningSource" style="width:auto">
+          <option value="">既定 (config)</option>
+          <option value="niconico">ニコニコ (テーマ検索・キー不要)</option>
+          <option value="youtube">YouTube (テーマ検索・APIキー要)</option>
+          <option value="steam">Steam (appId 指定)</option>
+          <option value="website">Web サイト (URL 指定)</option>
+        </select>
+      </label>
+      <label>検索クエリ (niconico/youtube・空欄でテーマ) <input id="learningQuery" type="text" placeholder="既定: テーマ文字列" style="width:60%" /></label>
+      <label>Steam appId (steam 選択時) <input id="learningAppId" type="number" min="1" placeholder="例: 1145360" style="width:10rem" /></label>
+      <label>URL (website 選択時・カンマ/改行区切り) <input id="learningUrls" type="text" placeholder="https://example.com/article" style="width:60%" /></label>
+    </fieldset>
     <button type="submit" id="go">開始</button>
   </form>
 
@@ -84,10 +99,14 @@ $("start").addEventListener("submit", async (e) => {
   const rounds = $("rounds").value.trim() === "" ? undefined : Number($("rounds").value);
   const turnsPerRound = $("turnsPerRound").value.trim() === "" ? undefined : Number($("turnsPerRound").value);
   const opponent = $("opponent").value.trim() || undefined;
+  const learningSource = $("learningSource").value || undefined;
+  const learningQuery = $("learningQuery").value.trim() || undefined;
+  const learningAppId = $("learningAppId").value.trim() === "" ? undefined : Number($("learningAppId").value);
+  const learningUrls = $("learningUrls").value.trim() || undefined;
   $("go").disabled = true;
   const res = await fetch("/api/flow/start", {
     method: "POST", headers: { "content-type": "application/json" },
-    body: JSON.stringify({ theme, flow, tags, rounds, turnsPerRound, opponent }),
+    body: JSON.stringify({ theme, flow, tags, rounds, turnsPerRound, opponent, learningSource, learningQuery, learningAppId, learningUrls }),
   }).then(r => r.json()).catch(() => ({ ok: false, error: "通信失敗" }));
   if (!res.ok) { alert(res.error || "開始に失敗"); $("go").disabled = false; return; }
   sessionId = res.sessionId; kind = res.kind;
