@@ -18,8 +18,19 @@ export interface SourceRef {
   sourceUrl: string;
 }
 
+/**
+ * 結論の出自。 "gap" = 旧 auto-discussion (design_gaps)、 "flow" = 新フロー (flow_conclusion)。
+ * 学習ビューは両者をマージして「結論」タブに並べる (新フロー結論統合)。
+ */
+export type ConclusionKind = "gap" | "flow";
+
 export interface ConclusionSummary {
+  /**
+   * 結論の一意キー。 旧フローは design_gap の id、 新フローは "flow:<sessionId>"。
+   * 詳細取得 (/learning/conclusion?gap=) と md エクスポートはこの id でルートする。
+   */
   gapId: string;
+  kind: ConclusionKind;
   sessionId: string;
   title: string;
   /** 【収束】まとめ本文 (プレフィックス除去済)。 無ければ null。 */
@@ -60,6 +71,7 @@ export function listConclusions(core: Core, workspaceId: string, limit = 20): Co
   }>;
   return rows.map((r) => ({
     gapId: r.gapId,
+    kind: "gap" as const,
     sessionId: r.sessionId,
     title: r.title,
     conclusion: convergeText(core, r.sessionId),
@@ -93,6 +105,7 @@ export function getConclusionDetail(
 
   return {
     gapId,
+    kind: "gap" as const,
     sessionId,
     title: gap.title,
     conclusion: sessionId ? convergeText(core, sessionId) : null,

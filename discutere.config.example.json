@@ -8,6 +8,15 @@
   "discatier": {
     "kuzuPath": "./data/discatier.kuzu"
   },
+  "flow": {
+    "$comment": "autoCrawl: 議論/改善の開始時にテーマの学習データが不足していたら指定ソースで自動クロール→KG取込してから議論する (事前学習のUI化)。UI(/flow)で議論ごとに source/query/appId/urls を上書きでき、ここはその既定値。source は niconico|youtube|steam|website。",
+    "autoCrawl": {
+      "enabled": true,
+      "source": "niconico",
+      "minVoices": 3,
+      "maxItems": 200
+    }
+  },
   "personaEngine": {
     "dbPath": "./data/persona-engine.db",
     "maxFiresPerSession": 20,

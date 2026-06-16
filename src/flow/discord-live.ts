@@ -22,6 +22,8 @@ import type { FlowUtteranceRecord, VoteEvent } from "./director.js";
 import type { FlowRole, FlowStance } from "./personas.js";
 import { composeDisplayName } from "./persona-display.js";
 import { dispatchFlow, type DispatchDeps, type FlowKind } from "./dispatch.js";
+import { ensureLearningData, isAutoCrawlSource, deriveSlug } from "./learning-autocrawl.js";
+import { getConfig } from "../config.js";
 import type { SparringSession } from "./sparring.js";
 import {
   ensureChannelWebhook,
@@ -190,6 +192,44 @@ function buildDispatchDeps(deps: FlowDiscordDeps, threadId: string): DispatchDep
 }
 
 /**
+ * 議論/改善の開始前に、テーマの学習データが不足していれば config 既定ソースでクロール →
+ * 取込する (事前学習の UI 化)。Discord フォーラムは投稿ごとのパラメータ UI が無いため
+ * 既定ソース (config.flow.autoCrawl.source) のみを使う。失敗は議論を止めない (graceful)。
+ */
+async function autoCrawlBeforeForumFlow(
+  input: StartForumFlowInput,
+  deps: FlowDiscordDeps
+): Promise<void> {
+  const cfg = getConfig().flow.autoCrawl;
+  if (!cfg.enabled || !deps.openCore || !isAutoCrawlSource(cfg.source)) return;
+  const core = deps.openCore();
+  try {
+    const result = await ensureLearningData({
+      core,
+      theme: input.theme,
+      slug: deriveSlug(input.theme),
+      workspaceId: deps.workspaceId ?? getConfig().workspace,
+      spec: { source: cfg.source },
+      minVoices: cfg.minVoices,
+      maxItems: cfg.maxItems,
+      listExternalVoices: deps.listExternalVoices,
+      youtubeApiKey: process.env.DISCUTERE_YOUTUBE_API_KEY,
+      log: (m) => console.log(`  [forum-autocrawl ${input.threadId}] ${m}`),
+      warn: (m) => console.warn(`  [forum-autocrawl ${input.threadId}] ${m}`),
+    });
+    if (result.crawled) {
+      await postThreadNotice(deps, input.threadId, `📚 ${result.message}`);
+    }
+  } catch (e) {
+    console.warn(
+      `  [forum-autocrawl ${input.threadId}] クロール失敗 (議論は続行): ${(e as Error).message}`
+    );
+  } finally {
+    core.close?.();
+  }
+}
+
+/**
  * フォーラム投稿を新フローで起動する。
  * discussion/improvement/learning は完走させ結論を投稿。sparring は session を登録して返信を待つ。
  * gateway は `void startForumFlow(...)` で呼ぶ (完走を待たない)。
@@ -253,6 +293,8 @@ export async function startForumFlow(
         input.tags.length ? `\nタグ: ${input.tags.join(" / ")}` : ""
       }`
     );
+    // 学習データが不足していれば config 既定ソースでクロール → 取込してから議論する (事前学習の UI 化)。
+    await autoCrawlBeforeForumFlow(input, deps);
     const result = await dispatchFlow(
       {
         theme: input.theme,

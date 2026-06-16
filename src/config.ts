@@ -51,6 +51,21 @@ export interface DiscutereConfig {
      * 自動実行するか (C1-b 自動採用フック)。既定 false (手動バッチ運用)。
      */
     autoAdoptOnCrawl: boolean;
+    /**
+     * 議論/改善フロー開始時、テーマの学習データが不足していたら指定ソースで
+     * 学習クロール → KG 取込してから議論を始める (事前学習の UI 化)。
+     * UI (`/flow`) は議論ごとにソース/パラメータを上書きでき、ここはその既定値。
+     */
+    autoCrawl: {
+      /** 有効化。既定 true。 */
+      enabled: boolean;
+      /** 既定クロールソース。テーマ文字列だけで引ける niconico を既定 (API キー不要)。 */
+      source: string;
+      /** 学習データ充足とみなす外部の声の最小件数。これ未満ならクロールする。既定 3。 */
+      minVoices: number;
+      /** 1 回のクロールで取り込む最大件数。既定 200。 */
+      maxItems: number;
+    };
   };
   /** 匿名議論 workspace (個人データ非保管) */
   workspace: string;
@@ -502,6 +517,28 @@ export function loadConfig(): DiscutereConfig {
         file.flow?.autoAdoptOnCrawl,
         false
       ),
+      autoCrawl: {
+        enabled: pickBool(
+          process.env.DISCUTERE_FLOW_AUTOCRAWL_ENABLED,
+          file.flow?.autoCrawl?.enabled,
+          true
+        ),
+        source: pick(
+          process.env.DISCUTERE_FLOW_AUTOCRAWL_SOURCE,
+          file.flow?.autoCrawl?.source,
+          "niconico"
+        ),
+        minVoices: pickNum(
+          process.env.DISCUTERE_FLOW_AUTOCRAWL_MIN_VOICES,
+          file.flow?.autoCrawl?.minVoices,
+          3
+        ),
+        maxItems: pickNum(
+          process.env.DISCUTERE_FLOW_AUTOCRAWL_MAX_ITEMS,
+          file.flow?.autoCrawl?.maxItems,
+          200
+        ),
+      },
     },
     workspace: pick(process.env.DISCATIER_WORKSPACE, file.workspace, "knowledge"),
     discatier: {

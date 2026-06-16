@@ -30,6 +30,7 @@
     "test:backup": "tsx tests/backup/run.ts",
     "test:web-chat": "tsx tests/web-chat/run.ts",
     "crawl": "tsx scripts/crawl.ts",
+    "export:discussions": "tsx scripts/export-discussion.ts",
     "visualize": "tsx scripts/visualize.ts",
     "persona-demo": "tsx scripts/persona-engine-demo.ts",
     "seed:affects": "tsx scripts/seed-affects.ts",

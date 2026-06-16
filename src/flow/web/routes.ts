@@ -20,12 +20,81 @@ import type { ContextVoice } from "../discussion-paper.js";
 
 type Core = ReturnType<typeof createCore>;
 import { getFlowDb } from "../db/connection.js";
-import { dispatchFlow, parseFlowKind, type DispatchDeps } from "../dispatch.js";
+import { dispatchFlow, parseFlowKind, type DispatchDeps, type FlowKind } from "../dispatch.js";
 import type { SparringSession } from "../sparring.js";
 import type { FlowTag } from "../tags.js";
 import { composeDisplayName } from "../persona-display.js";
 import type { FlowRole, FlowStance } from "../personas.js";
+import {
+  ensureLearningData,
+  isAutoCrawlSource,
+  deriveSlug,
+  type AutoCrawlSpec,
+} from "../learning-autocrawl.js";
+import { getConfig } from "../../config.js";
 import { FLOW_HTML } from "./page.js";
+
+/** リクエストボディ + config 既定から自動クロール指定を組み立てる。 enabled=false / 不正ソースは null。 */
+function buildAutoCrawlSpec(body: {
+  learningSource?: unknown;
+  learningQuery?: unknown;
+  learningAppId?: unknown;
+  learningUrls?: unknown;
+}): AutoCrawlSpec | null {
+  const cfg = getConfig().flow.autoCrawl;
+  if (!cfg.enabled) return null;
+  const requested = typeof body.learningSource === "string" ? body.learningSource.trim() : "";
+  const source = requested || cfg.source;
+  if (!isAutoCrawlSource(source)) return null;
+  const query = typeof body.learningQuery === "string" ? body.learningQuery.trim() : undefined;
+  const appId =
+    typeof body.learningAppId === "number"
+      ? body.learningAppId
+      : typeof body.learningAppId === "string" && body.learningAppId.trim() !== ""
+        ? Number(body.learningAppId)
+        : undefined;
+  const urls = Array.isArray(body.learningUrls)
+    ? body.learningUrls.filter((u): u is string => typeof u === "string" && u.trim() !== "")
+    : typeof body.learningUrls === "string" && body.learningUrls.trim() !== ""
+      ? body.learningUrls.split(/[\s,]+/).filter(Boolean)
+      : undefined;
+  return { source, query, appId, urls };
+}
+
+/**
+ * 議論/改善の開始前に学習データが不足していれば指定ソースでクロール → 取込する。
+ * core 未設定 / 自動クロール無効ならスキップ。クロール失敗は議論を止めない (graceful)。
+ */
+async function autoCrawlBeforeFlow(
+  kind: FlowKind,
+  theme: string,
+  spec: AutoCrawlSpec | null,
+  d: FlowWebDeps
+): Promise<void> {
+  if (!spec || !d.openCore || (kind !== "discussion" && kind !== "improvement")) return;
+  const cfg = getConfig().flow.autoCrawl;
+  const core = d.openCore();
+  try {
+    const result = await ensureLearningData({
+      core,
+      theme,
+      slug: deriveSlug(theme),
+      workspaceId: d.workspaceId,
+      spec,
+      minVoices: cfg.minVoices,
+      maxItems: cfg.maxItems,
+      listExternalVoices: d.listExternalVoices,
+      youtubeApiKey: process.env.DISCUTERE_YOUTUBE_API_KEY,
+      log: (m) => console.log(`[flow-autocrawl] ${m}`),
+      warn: (m) => console.warn(`[flow-autocrawl] ${m}`),
+    });
+    if (!result.skipped) console.log(`[flow-autocrawl] ${result.message}`);
+  } catch (e) {
+    console.warn(`[flow-autocrawl] クロール失敗 (議論は続行): ${(e as Error).message}`);
+  } finally {
+    core.close?.();
+  }
+}
 
 export interface FlowWebDeps {
   workspaceId: string;
@@ -55,6 +124,7 @@ flowRoutes.get("/flow", (c) => c.html(FLOW_HTML));
 
 flowRoutes.post("/api/flow/start", async (c) => {
   if (!deps) return c.json({ ok: false, error: "flow web 未初期化" }, 500);
+  const webDeps = deps; // module-level let を closure で使うため const に束ねる
   const body = (await c.req.json().catch(() => ({}))) as {
     theme?: unknown;
     flow?: unknown;
@@ -62,6 +132,10 @@ flowRoutes.post("/api/flow/start", async (c) => {
     rounds?: unknown;
     turnsPerRound?: unknown;
     opponent?: unknown;
+    learningSource?: unknown;
+    learningQuery?: unknown;
+    learningAppId?: unknown;
+    learningUrls?: unknown;
   };
   const theme = typeof body.theme === "string" ? body.theme.trim() : "";
   const flowLabel = typeof body.flow === "string" ? body.flow : "";
@@ -115,9 +189,14 @@ flowRoutes.post("/api/flow/start", async (c) => {
     }
   }
 
-  // 議論 / 改善: sessionId を先に発番し、バックグラウンドで完走させてポーリングで追う
+  // 議論 / 改善: sessionId を先に発番し、バックグラウンドで完走させてポーリングで追う。
+  // 学習データが不足していれば、議論を始める前に指定ソースでクロール → 取込する (事前学習の UI 化)。
   const sessionId = randomUUID();
-  void dispatchFlow({ theme, tags, flow: kind, rounds, turnsPerRound }, { ...dispatchDeps, sessionId })
+  const autoCrawlSpec = buildAutoCrawlSpec(body);
+  void (async () => {
+    await autoCrawlBeforeFlow(kind, theme, autoCrawlSpec, webDeps);
+    await dispatchFlow({ theme, tags, flow: kind, rounds, turnsPerRound }, { ...dispatchDeps, sessionId });
+  })()
     .catch((e) => console.warn(`[flow-web] ${kind} 実行エラー: ${(e as Error).message}`))
     .finally(() => finished.add(sessionId));
   return c.json({ ok: true, kind, sessionId });

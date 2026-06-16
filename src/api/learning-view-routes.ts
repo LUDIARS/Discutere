@@ -7,7 +7,15 @@ import {
   buildLearningLayerSnapshot,
   normalizeLearningLayer,
 } from "../visualize/learning-layers.js";
-import { listConclusions, getConclusionDetail } from "../visualize/conclusions.js";
+import { listConclusions, getConclusionDetail, type ConclusionDetail } from "../visualize/conclusions.js";
+import {
+  listFlowConclusions,
+  getFlowConclusionDetail,
+  isFlowConclusionId,
+  flowSessionIdFromGapId,
+} from "../visualize/flow-conclusions.js";
+import { renderConclusionMarkdown, safeSlug } from "../visualize/conclusion-markdown.js";
+import { getFlowDb } from "../flow/db/connection.js";
 import { openAttributionStore } from "../crawler/sources/attribution-store.js";
 import { openLearningCacheReader, learningCacheExists } from "../visualize/learning-cache.js";
 
@@ -48,22 +56,34 @@ learningViewRoutes.get("/learning/sources", (c) => {
   }
 });
 
-// 収束した議論の結論一覧 (#66 — Learning View 統合)
+// 収束した議論の結論一覧 (#66 — Learning View 統合)。
+// 旧フロー (design_gaps) と 新フロー (flow_conclusion) をマージして新しい順に並べる。
 learningViewRoutes.get("/learning/conclusions", (c) => {
   const config = getConfig();
   const limit = Number(c.req.query("limit") ?? 100);
   const core = createCore(resolveActiveKgPath(getConfig()));
   try {
-    return c.json({ conclusions: listConclusions(core, config.workspace, limit) });
+    const gapConclusions = listConclusions(core, config.workspace, limit);
+    const flowConclusions = listFlowConclusions(getFlowDb(), limit);
+    const merged = [...gapConclusions, ...flowConclusions]
+      .sort((a, b) => b.updatedAt - a.updatedAt)
+      .slice(0, limit);
+    return c.json({ conclusions: merged });
   } finally {
     core.close();
   }
 });
 
-// 1 件の結論の裏の論述データ (議論ログ / 止揚 / 高評価意見)
+// 1 件の結論の裏の論述データ (議論ログ / 止揚 / 高評価意見)。
+// gap="flow:<sessionId>" は新フロー、それ以外は旧フロー (design_gap) としてルートする。
 learningViewRoutes.get("/learning/conclusion", (c) => {
   const config = getConfig();
   const gapId = c.req.query("gap") ?? "";
+  if (isFlowConclusionId(gapId)) {
+    const detail = getFlowConclusionDetail(getFlowDb(), flowSessionIdFromGapId(gapId));
+    if (!detail) return c.json({ error: "not found" }, 404);
+    return c.json(detail);
+  }
   const core = createCore(resolveActiveKgPath(getConfig()));
   // 出所メタ (source/sourceUrl) を発話に付ける (§6 露出制御。 個人マスクは serializer 側)。
   const attribution = openAttributionStore();
@@ -74,6 +94,36 @@ learningViewRoutes.get("/learning/conclusion", (c) => {
   } finally {
     attribution.close();
     core.close();
+  }
+});
+
+// 1 件の議論を単体 md ファイルとしてダウンロードする (議論 md エクスポート)。
+learningViewRoutes.get("/learning/conclusion/export", (c) => {
+  const config = getConfig();
+  const gapId = c.req.query("gap") ?? "";
+  let detail: ConclusionDetail | null;
+  let core: ReturnType<typeof createCore> | null = null;
+  let attribution: ReturnType<typeof openAttributionStore> | null = null;
+  try {
+    if (isFlowConclusionId(gapId)) {
+      detail = getFlowConclusionDetail(getFlowDb(), flowSessionIdFromGapId(gapId));
+    } else {
+      core = createCore(resolveActiveKgPath(getConfig()));
+      attribution = openAttributionStore();
+      detail = getConclusionDetail(core, config.workspace, gapId, attribution);
+    }
+    if (!detail) return c.json({ error: "not found" }, 404);
+    const md = renderConclusionMarkdown(detail);
+    const filename = `${safeSlug(detail.title, detail.sessionId || "discussion")}.md`;
+    c.header("Content-Type", "text/markdown; charset=utf-8");
+    c.header(
+      "Content-Disposition",
+      `attachment; filename="discussion.md"; filename*=UTF-8''${encodeURIComponent(filename)}`
+    );
+    return c.body(md);
+  } finally {
+    attribution?.close();
+    core?.close();
   }
 });
 
@@ -109,6 +159,8 @@ export const HTML = `<!doctype html>
   main { padding: 18px 24px 28px; display: grid; grid-template-columns: minmax(0, 1.1fr) minmax(340px, .9fr); gap: 18px; }
   button { border: 1px solid var(--line); border-radius: 6px; padding: 7px 12px; background: transparent; color: inherit; cursor: pointer; }
   button.active { border-color: var(--accent); background: color-mix(in srgb, var(--accent) 18%, transparent); font-weight: 700; }
+  a.md-btn { display: inline-block; border: 1px solid var(--line); border-radius: 6px; padding: 6px 11px; text-decoration: none; color: inherit; font-size: 13px; }
+  a.md-btn:hover { border-color: var(--accent); }
   .tabs { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 8px; }
   .muted { color: var(--muted); font-size: 12px; }
   .items { display: grid; gap: 10px; }
@@ -217,11 +269,13 @@ function renderConclusions(snap) {
     ? list.map((c) =>
         '<article class="item" data-gap="' + esc(c.gapId) + '">' +
           '<div class="item-head">' +
-            '<div class="item-title">' + esc(c.title) + '</div>' +
+            '<div class="item-title">' + esc(c.title) +
+              ' <span class="muted">[' + (c.kind === "flow" ? "新フロー" : "旧") + ']</span></div>' +
             '<div class="item-size muted">発話 ' + c.utteranceCount + ' / 止揚 ' + c.aufhebungCount + '</div>' +
           '</div>' +
           '<div style="margin-top:6px;">' + esc(c.conclusion || "(まとめ未生成)") + '</div>' +
-          '<button class="detail-btn" data-gap="' + esc(c.gapId) + '" style="margin-top:8px;">論述データを見る</button>' +
+          '<button class="detail-btn" data-gap="' + esc(c.gapId) + '" style="margin-top:8px;">論述データを見る</button> ' +
+          '<a class="md-btn" href="/learning/conclusion/export?gap=' + encodeURIComponent(c.gapId) + '" download>md エクスポート</a>' +
           '<div class="detail-slot"></div>' +
         '</article>').join("")
     : '<div class="muted">まだ収束した議論はありません</div>';
