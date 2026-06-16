@@ -22,6 +22,15 @@ export {
   type YoutubeCommentsOptions,
 } from "./youtube-comments.js";
 export {
+  mapLiveChatRenderer,
+  parseLiveChatJsonl,
+  parseLiveChatFile,
+  fetchLiveChatReplay,
+  type LiveChatTextRenderer,
+  type LiveChatPaidRenderer,
+  type LiveChatFetchOptions,
+} from "./youtube-livechat.js";
+export {
   extractArticle,
   mapWebsiteArticle,
   normalizeUrl,
