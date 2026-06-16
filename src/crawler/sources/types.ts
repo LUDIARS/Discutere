@@ -9,6 +9,7 @@
 export type ExternalSource =
   | "steam"
   | "youtube"
+  | "youtube-livechat"
   | "website"
   | "reddit"
   | "niconico"

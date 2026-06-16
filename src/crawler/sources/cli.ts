@@ -29,6 +29,7 @@ import { fetchOpenCriticReviews } from "./opencritic.js";
 import { fetchVideoComments } from "./youtube-comments.js";
 import { createQuotaTracker } from "./youtube-quota.js";
 import { discoverVideosBySearch, type VideoRef } from "./youtube-videos.js";
+import { fetchLiveChatReplay, parseLiveChatFile } from "./youtube-livechat.js";
 import type { ExternalUtterance } from "./types.js";
 
 const STAGE_DIR = path.resolve("./data/external");
@@ -464,9 +465,42 @@ export async function runExtFetch(rest: string[]): Promise<void> {
       console.log(JSON.stringify({ source, gameSlug: args.gameSlug, query: args.query, fetched: items.length, out: path.relative(process.cwd(), out) }, null, 2));
       return;
     }
+    case "youtube-livechat": {
+      const [gameSlug, videoId, ...flags] = sourceArgs;
+      if (!gameSlug || !videoId) {
+        console.error(
+          "usage: crawl.ts ext-fetch youtube-livechat <gameSlug> <videoId> [--ytdlp <path>] [--file <live_chat.json>]"
+        );
+        process.exit(2);
+      }
+      let filePath: string | undefined;
+      let ytdlpPath: string | undefined;
+      for (let i = 0; i < flags.length; i += 1) {
+        if (flags[i] === "--file") filePath = flags[++i];
+        else if (flags[i] === "--ytdlp") ytdlpPath = flags[++i];
+      }
+      const items = filePath
+        ? parseLiveChatFile(filePath, videoId, gameSlug)
+        : fetchLiveChatReplay({
+            videoId,
+            gameSlug,
+            ytdlpPath,
+            onProgress: (msg) => process.stderr.write(`  ${msg}\n`),
+          });
+      const out = path.join(STAGE_DIR, "youtube-livechat", gameSlug, `${videoId}.jsonl`);
+      writeJsonl(out, items);
+      console.log(
+        JSON.stringify(
+          { source: "youtube-livechat", gameSlug, videoId, fetched: items.length, out: path.relative(process.cwd(), out) },
+          null,
+          2
+        )
+      );
+      return;
+    }
     default:
       console.error(
-        "ext-fetch: source は steam | youtube-videos | youtube-comments | website | reddit | fandom | niconico | opencritic"
+        "ext-fetch: source は steam | youtube-videos | youtube-comments | youtube-livechat | website | reddit | fandom | niconico | opencritic"
       );
       process.exit(2);
   }
@@ -614,9 +648,43 @@ async function runExtIngestInner(rest: string[]): Promise<void> {
       console.log(JSON.stringify({ source, gameSlug: args.gameSlug, query: args.query, fetched: items.length, stage: path.relative(process.cwd(), out), ...result }, null, 2));
       return;
     }
+    case "youtube-livechat": {
+      const [gameSlug, videoId, ...flags] = sourceArgs;
+      if (!gameSlug || !videoId) {
+        console.error(
+          "usage: crawl.ts ext-ingest youtube-livechat <gameSlug> <videoId> [--ytdlp <path>] [--file <live_chat.json>]"
+        );
+        process.exit(2);
+      }
+      let filePath: string | undefined;
+      let ytdlpPath: string | undefined;
+      for (let i = 0; i < flags.length; i += 1) {
+        if (flags[i] === "--file") filePath = flags[++i];
+        else if (flags[i] === "--ytdlp") ytdlpPath = flags[++i];
+      }
+      const items = filePath
+        ? parseLiveChatFile(filePath, videoId, gameSlug)
+        : fetchLiveChatReplay({
+            videoId,
+            gameSlug,
+            ytdlpPath,
+            onProgress: (msg) => process.stderr.write(`  ${msg}\n`),
+          });
+      const out = path.join(STAGE_DIR, "youtube-livechat", gameSlug, `${videoId}.jsonl`);
+      writeJsonl(out, items);
+      const result = importItems(items);
+      console.log(
+        JSON.stringify(
+          { source: "youtube-livechat", gameSlug, videoId, fetched: items.length, stage: path.relative(process.cwd(), out), ...result },
+          null,
+          2
+        )
+      );
+      return;
+    }
     default:
       console.error(
-        "ext-ingest: source は steam | youtube | website | reddit | fandom | niconico | opencritic"
+        "ext-ingest: source は steam | youtube | youtube-livechat | website | reddit | fandom | niconico | opencritic"
       );
       process.exit(2);
   }
