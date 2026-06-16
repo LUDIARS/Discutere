@@ -120,7 +120,7 @@ async function poll() {
     since = Math.max(since, u.createdAt);
     const div = document.createElement("div");
     div.className = "u" + (u.role === "user" ? " user" : "") + (u.isError ? " err" : "");
-    div.innerHTML = '<div class="who">' + escapeHtml(u.personaName) + '</div>' + escapeHtml(u.text);
+    div.innerHTML = '<div class="who">' + escapeHtml(u.displayName || u.personaName) + '</div>' + escapeHtml(u.text);
     $("log").appendChild(div);
   }
   if (res.conclusion) {

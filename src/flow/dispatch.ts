@@ -19,7 +19,7 @@ import type { CascadeClients } from "../crawler/sentiment/cascade.js";
 import type { FlowTag } from "./tags.js";
 import type { ContextVoice } from "./discussion-paper.js";
 import type { YoutubeSearchFn } from "./investigate.js";
-import { runDiscussionFlow, runFlow, type FlowDirectorResult, type FlowUtteranceRecord } from "./director.js";
+import { runDiscussionFlow, runFlow, type FlowDirectorResult, type FlowUtteranceRecord, type VoteEvent } from "./director.js";
 import { runImprovementFlow } from "./improvement.js";
 import { runLearningFlow, type LearningFlowResult, type LearningOpinion } from "./learning.js";
 import { SparringSession } from "./sparring.js";
@@ -72,6 +72,8 @@ export interface DispatchDeps {
   /** 壁打ちの 1 ユーザ発話あたり応答数。 */
   responsesPerTurn?: number;
   onUtterance?: (u: FlowUtteranceRecord) => void | Promise<void>;
+  /** ラウンド投票後の通知 (item3: リアクションで得票を可視化)。discussion/improvement のみ。 */
+  onVote?: (e: VoteEvent) => void | Promise<void>;
   rng?: () => number;
   gamesDir?: string;
   workspaceId?: string;
@@ -133,6 +135,7 @@ export async function dispatchFlow(input: DispatchInput, deps: DispatchDeps): Pr
     listExternalVoices: deps.listExternalVoices,
     youtubeSearch: deps.youtubeSearch,
     onUtterance: deps.onUtterance,
+    onVote: deps.onVote,
     rng: deps.rng,
     gamesDir: deps.gamesDir,
     sessionId: deps.sessionId,

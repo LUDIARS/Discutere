@@ -185,9 +185,17 @@ export function buildPersonaUserPrompt(p: PersonaPaper, stance: FlowStance, pers
     p.userOpinionsText ? p.userOpinionsText : null,
   ].filter(Boolean);
 
+  // 憑依 (B, item4): データ由来の人物像を演じている場合、その感性を prompt に注入する。
+  const possessionLine = persona.possession
+    ? `あなたは今、データ由来の人物像「${persona.possession.label}」を憑依している。${
+        persona.possession.descriptor ?? ""
+      }`
+    : null;
+
   return [
     `あなたは議論ペルソナ「${persona.name}」。`,
     `特徴: ${persona.traits.join(" / ")} / 話し方: ${persona.speechStyle}`,
+    ...(possessionLine ? [possessionLine] : []),
     stanceLine,
     "Discord のチャットで実在の人間が話すように、自然な口語で 1〜2 文だけ書く。",
     "ラベルや箇条書きは使わない。既出の繰り返しは避け、議論を一歩進める。",

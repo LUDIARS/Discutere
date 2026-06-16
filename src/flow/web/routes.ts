@@ -23,6 +23,8 @@ import { getFlowDb } from "../db/connection.js";
 import { dispatchFlow, parseFlowKind, type DispatchDeps } from "../dispatch.js";
 import type { SparringSession } from "../sparring.js";
 import type { FlowTag } from "../tags.js";
+import { composeDisplayName } from "../persona-display.js";
+import type { FlowRole, FlowStance } from "../personas.js";
 import { FLOW_HTML } from "./page.js";
 
 export interface FlowWebDeps {
@@ -140,7 +142,7 @@ flowRoutes.get("/api/flow/:session/status", (c) => {
 
   const utterances = db
     .prepare(
-      `SELECT persona_name, role, text, is_error, created_at
+      `SELECT persona_name, role, stance, possession_name, text, is_error, created_at
          FROM flow_utterance
         WHERE session_id = ? AND created_at > ?
         ORDER BY created_at ASC`
@@ -148,6 +150,8 @@ flowRoutes.get("/api/flow/:session/status", (c) => {
     .all(sessionId, since) as Array<{
     persona_name: string;
     role: string;
+    stance: string;
+    possession_name: string | null;
     text: string;
     is_error: number;
     created_at: number;
@@ -164,7 +168,16 @@ flowRoutes.get("/api/flow/:session/status", (c) => {
     ok: true,
     utterances: utterances.map((u) => ({
       personaName: u.persona_name,
+      // 「名前 (ロール/憑依ペルソナ)」(item2/4)。憑依なしは括弧内ロールのみ。
+      displayName: composeDisplayName({
+        name: u.persona_name,
+        stance: u.stance as FlowStance,
+        role: u.role as FlowRole,
+        possessionName: u.possession_name,
+      }),
       role: u.role,
+      stance: u.stance,
+      possessionName: u.possession_name,
       text: u.text,
       isError: u.is_error === 1,
       createdAt: u.created_at,

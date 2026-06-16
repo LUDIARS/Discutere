@@ -37,6 +37,7 @@ import { tuningRoutes, setRuntimeSettings } from "./api/tuning-routes.js";
 import { topPageRoutes } from "./api/top-page-routes.js";
 import { webChatRoutes, setWebChatDeps } from "./api/web-chat-routes.js";
 import { flowRoutes, setFlowWebDeps } from "./flow/web/routes.js";
+import { runAdoptFromKg } from "./flow/persona-adopt-runner.js";
 import { FallbackLlm } from "./flow/llm-fallback.js";
 import { createGuideRoutes } from "./api/guide-routes.js";
 import { createRuntimeSettingsStore } from "./runtime-settings/store.js";
@@ -48,6 +49,8 @@ import { createAutoSeedScheduler } from "./discussion-seed/scheduler.js";
 import { postDiscussionToDiscord } from "./discord-hook/discussion-bridge.js";
 import { createDiscordAutoDiscussionStarter } from "./discord-hook/auto-discussion.js";
 import { startDiscordGateway } from "./discord-hook/gateway.js";
+import { startSocketMode } from "./slack/socket-mode.js";
+import { createSlackRouter } from "./slack/slack-router.js";
 import { GameFeedbackStore } from "./feedback/store.js";
 import { ensureReactionTables, recordPostedMessage, applyReaction } from "./discord-hook/reactions.js";
 import { queueRoutes } from "./api/queue-routes.js";
@@ -696,6 +699,11 @@ const discordGatewayLifecycle = startDiscordGateway({
     );
     return { slug: toSlug(gameTitle), port };
   },
+  // 憑依対象ペルソナの生成 (item7): クロール済み外部発話から C1 採用して flow_persona へ upsert。
+  triggerPersonaGenerate: async (source?: string) => {
+    const summary = runAdoptFromKg({ sourceFilter: source, dry: false });
+    return { adopted: summary.adopted, speakers: summary.speakers };
+  },
   classifyInboundMessage: createDiscordAutoDiscussionStarter({
     // 分類器は専用 LLM (Haiku / Lictor or API)。persona engine の summarizer
     // (autoDiscussionLlm) とは別系統 — facilitator のモデルには影響しない。
@@ -742,6 +750,34 @@ discordGatewayLifecycle
   })
   .catch(() => {});
 
+// ─── Slack Socket Mode 起動 (Discord と並ぶ第2トランスポート) ───
+//   appToken/botToken/channelIds が揃い enabled かつ LLM backend がある時のみ起動。
+let slackSocket: { stop(): void } | null = null;
+if (
+  config.slack.enabled &&
+  config.slack.appToken &&
+  config.slack.botToken &&
+  config.slack.channelIds.length > 0 &&
+  flowEngineLlm
+) {
+  const slackRouter = createSlackRouter({
+    channelIds: config.slack.channelIds,
+    deps: {
+      botToken: config.slack.botToken,
+      llm: flowEngineLlm,
+      openCore: () => createCore(resolveActiveKgPath(config)),
+      sentimentClients: { main: flowEngineLlm },
+      workspaceId: config.workspace,
+    },
+  });
+  slackSocket = startSocketMode({
+    appToken: config.slack.appToken,
+    onEvent: slackRouter.onEvent,
+    onInteractive: slackRouter.onInteractive,
+  });
+  console.log("  slack: Socket Mode 起動 (議論/改善/学習/壁打ち)");
+}
+
 console.log(`Discutere listening on http://localhost:${port}`);
 console.log(`  Auth:     Discord Gateway (bot token + admin-id allowlist) / HTTP は X-User-Id・X-User-Role ヘッダー`);
 console.log(`  Tasks:    /api/groups/:id/tasks`);
@@ -775,6 +811,11 @@ const gracefulShutdown = (sig: string) => {
   }
   try {
     stopKgSync();
+  } catch {
+    /* best-effort */
+  }
+  try {
+    slackSocket?.stop();
   } catch {
     /* best-effort */
   }

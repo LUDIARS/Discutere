@@ -12,6 +12,18 @@ export type FlowRole = "facilitator" | "debater" | "opinion";
 export type FlowStance = "pro" | "con" | "neutral" | "opinion";
 export type Rng = () => number;
 
+/**
+ * 憑依 (B): データ由来のプールペルソナを「人物像」として演じている状態。
+ * casual な flow ペルソナ名は保持したまま、この人物像になりきって発言する。
+ * 露出面では `名前 (ロール/label)` と表示し、prompt には descriptor を注入する。
+ */
+export interface PersonaPossession {
+  /** 憑依対象の露出名 (論者#xxxxxx 等)。表示名の括弧内に出す。 */
+  label: string;
+  /** prompt に注入する人物像の説明 (嗜好・傾向)。 */
+  descriptor?: string;
+}
+
 export interface FlowPersona {
   id: string;
   name: string;
@@ -20,6 +32,8 @@ export interface FlowPersona {
   traits: string[];
   model: string;
   isLocal: boolean;
+  /** 憑依しているデータ由来ペルソナ (B)。無ければ通常の生成ペルソナ。 */
+  possession?: PersonaPossession;
 }
 
 // ── 人格プール (composition.ts と同じプールを流用) ──────────────────────────
