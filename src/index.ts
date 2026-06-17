@@ -60,6 +60,8 @@ import { createNoiseRoutes } from "./api/noise-routes.js";
 import { datasourceRoutes } from "./api/datasource-routes.js";
 import { buildQueueSnapshot, formatQueueText } from "./queue/snapshot.js";
 import { startBackupScheduler } from "./backup/runner.js";
+import { startCostRelay } from "./flow/cost-relay.js";
+import { getFlowDb } from "./flow/db/connection.js";
 import { createLlmSummarizer } from "./crawler/sources/summarize.js";
 import { getConfig } from "./config.js";
 import { createEconomyGraphRoutes } from "./api/economy-graph-routes.js";
@@ -625,6 +627,20 @@ const port = config.server.port;
 // ─── S3 バックアチE�E: 月次自動スケジューラ起勁E(enabled かつ bucket 設定時のみ) ──
 //   手動トリガ (slash /discutere-backup・npm run backup) は scheduler.trigger() を�E有、E
 const backupScheduler = startBackupScheduler(config);
+
+// ─── LLM コストの Anatomia への定期 relay (cost.relay.enabled + URL 設定時のみ) ──
+//   llm_call_log のセッション別累積を Anatomia コスト削減UI (POST /api/cost-feed) へ PUSH。
+//   手動は npm run cost-relay。送信失敗は議論を止めない (graceful)。
+if (config.cost.relay.enabled && config.cost.relay.anatomiaUrl) {
+  startCostRelay(getFlowDb(), {
+    baseUrl: config.cost.relay.anatomiaUrl,
+    service: config.cost.relay.service,
+    intervalMs: config.cost.relay.intervalMs,
+  });
+  console.log(
+    `  cost-relay: started (-> ${config.cost.relay.anatomiaUrl}, interval=${config.cost.relay.intervalMs}ms)`
+  );
+}
 
 // 議論キューのサマリ生�E (slash /discutere-queue 用)。core は都度 open/close、E
 function buildQueueText(): string {
