@@ -32,6 +32,7 @@
     "crawl": "tsx scripts/crawl.ts",
     "export:discussions": "tsx scripts/export-discussion.ts",
     "cost-report": "tsx scripts/cost-report.ts",
+    "cost-relay": "tsx scripts/cost-relay.ts",
     "visualize": "tsx scripts/visualize.ts",
     "persona-demo": "tsx scripts/persona-engine-demo.ts",
     "seed:affects": "tsx scripts/seed-affects.ts",

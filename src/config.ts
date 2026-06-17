@@ -355,6 +355,23 @@ export interface DiscutereConfig {
     /** master の /api/kg/migrations が要求する共有シークレット (未設定なら誰でも取得可)。 */
     serveToken?: string;
   };
+  /**
+   * LLM コストの横断集約 (Anatomia コスト削減UIへの relay)。
+   * llm_call_log のセッション別集計を Anatomia の POST /api/cost-feed へ PUSH する。
+   * 既定 OFF。`anatomiaUrl` + `enabled` が揃った時のみ起動時に定期 relay する。
+   */
+  cost: {
+    relay: {
+      /** 定期 relay を有効化するか (anatomiaUrl も必要)。既定 false。 */
+      enabled: boolean;
+      /** Anatomia のベース URL (例 http://localhost:4200)。未設定なら relay しない。 */
+      anatomiaUrl?: string;
+      /** 定期 PUSH 周期 ms。既定 300_000 (5分)。 */
+      intervalMs: number;
+      /** cost-feed の service ラベル。既定 "discutere"。 */
+      service: string;
+    };
+  };
 }
 
 interface RawFileConfig {
@@ -390,6 +407,7 @@ interface RawFileConfig {
   };
   backup?: Partial<DiscutereConfig["backup"]>;
   kgSync?: Partial<DiscutereConfig["kgSync"]>;
+  cost?: { relay?: Partial<DiscutereConfig["cost"]["relay"]> };
 }
 
 function readFileConfig(): RawFileConfig {
@@ -775,6 +793,18 @@ export function loadConfig(): DiscutereConfig {
         path.resolve("./data/kg-sync-state.json")
       ),
       serveToken: pickOpt(process.env.DISCUTERE_KG_SYNC_SERVE_TOKEN, file.kgSync?.serveToken),
+    },
+    cost: {
+      relay: {
+        enabled: pickBool(process.env.DISCUTERE_COST_RELAY_ENABLED, file.cost?.relay?.enabled, false),
+        anatomiaUrl: pickOpt(process.env.DISCUTERE_COST_RELAY_URL, file.cost?.relay?.anatomiaUrl),
+        intervalMs: pickNum(
+          process.env.DISCUTERE_COST_RELAY_INTERVAL_MS,
+          file.cost?.relay?.intervalMs,
+          300_000
+        ),
+        service: pick(process.env.DISCUTERE_COST_RELAY_SERVICE, file.cost?.relay?.service, "discutere"),
+      },
     },
   });
 }

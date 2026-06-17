@@ -31,8 +31,13 @@ export interface CostReport {
 export interface CostReportFilter {
   /** 単一セッションに絞る。 */
   sessionId?: string;
-  /** created_at >= since (epoch ms)。 */
+  /** 行を created_at >= since (epoch ms) で絞る。 */
   since?: number;
+  /**
+   * since 以降に活動した「セッション」を対象に、そのセッションの全行を含める
+   * (= 累積サマリを保ったまま最近活動分だけ送る relay 用)。`since` の行フィルタとは別。
+   */
+  activeSince?: number;
 }
 
 interface RawAgg {
@@ -76,6 +81,10 @@ function whereClause(filter: CostReportFilter): { sql: string; params: unknown[]
     conds.push("created_at >= ?");
     params.push(filter.since);
   }
+  if (typeof filter.activeSince === "number") {
+    conds.push("session_id IN (SELECT session_id FROM llm_call_log WHERE created_at >= ?)");
+    params.push(filter.activeSince);
+  }
   return { sql: conds.length ? `WHERE ${conds.join(" AND ")}` : "", params };
 }
 
@@ -106,6 +115,55 @@ export function summarizeCost(
     byFlow: groupBy("flow"),
     byBackend: groupBy("backend"),
   };
+}
+
+/** Anatomia cost-feed への PUSH 1 行 = (session × model × backend) 別サマリ。 */
+export interface CostFeedRow {
+  sessionId: string;
+  model?: string;
+  backend?: string;
+  calls: number;
+  inputTokens: number;
+  outputTokens: number;
+  cacheReadTokens: number;
+  cacheCreationTokens: number;
+  costUsd: number;
+}
+
+interface RawFeedAgg extends Omit<RawAgg, "key"> {
+  session_id: string;
+  model: string | null;
+  backend: string | null;
+}
+
+/**
+ * llm_call_log を (session_id, model, backend) 別に集計し、Anatomia の
+ * POST /api/cost-feed が受け取る行形に変換する。filter で since/session を絞れる。
+ */
+export function costFeedRows(
+  db: Database.Database,
+  filter: CostReportFilter = {}
+): CostFeedRow[] {
+  const { sql: where, params } = whereClause(filter);
+  const rows = db
+    .prepare(
+      `SELECT session_id, model, backend, ${SELECT_SUMS}
+       FROM llm_call_log ${where}
+       GROUP BY session_id, model, backend
+       ORDER BY session_id`
+    )
+    .all(...params) as RawFeedAgg[];
+  return rows.map((r) => ({
+    sessionId: r.session_id,
+    model: r.model ?? undefined,
+    backend: r.backend ?? undefined,
+    calls: r.calls,
+    inputTokens: r.input_tokens ?? 0,
+    outputTokens: r.output_tokens ?? 0,
+    cacheReadTokens: r.cache_read_input_tokens ?? 0,
+    cacheCreationTokens: r.cache_creation_input_tokens ?? 0,
+    costUsd: r.cost_usd ?? 0,
+  }));
 }
 
 /** CostReport を人間可読の文字列にする (CLI 出力用)。 */
