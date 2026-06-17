@@ -102,4 +102,14 @@ export interface Logger {
 export interface TokenUsage {
   input_tokens?: number;
   output_tokens?: number;
+  /** プロンプトキャッシュ読込トークン (cache hit 分)。backend が返す時のみ。 */
+  cache_read_input_tokens?: number;
+  /** プロンプトキャッシュ書込トークン。backend が返す時のみ。 */
+  cache_creation_input_tokens?: number;
+  /**
+   * このコールの推定コスト (USD)。
+   * claude-cli (サブスク) は等価 API 換算の推定値 (実課金ではない / サブスクは定額)、
+   * anthropic 従量経路では未取得 (raw API は返さない) なので通常 undefined。
+   */
+  cost_usd?: number;
 }

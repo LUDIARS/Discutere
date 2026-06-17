@@ -37,9 +37,11 @@ export function withCostLog(client: LLMClient, ctx: CostLogContext): LLMClient {
       const usage = result.ok ? result.usage : undefined;
       db.prepare(
         `INSERT INTO llm_call_log
-          (flow, session_id, round, turn, role, persona, location, model, backend, latency_ms, input_tokens, output_tokens, prompt, response, created_at)
+          (flow, session_id, round, turn, role, persona, location, model, backend, latency_ms,
+           input_tokens, output_tokens, cache_read_input_tokens, cache_creation_input_tokens, cost_usd,
+           prompt, response, created_at)
          VALUES
-          (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`
+          (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`
       ).run(
         ctx.flow,
         ctx.sessionId,
@@ -53,6 +55,9 @@ export function withCostLog(client: LLMClient, ctx: CostLogContext): LLMClient {
         latencyMs,
         usage?.input_tokens ?? null,
         usage?.output_tokens ?? null,
+        usage?.cache_read_input_tokens ?? null,
+        usage?.cache_creation_input_tokens ?? null,
+        usage?.cost_usd ?? null,
         args.prompt,
         result.ok ? result.text : null,
         Date.now()

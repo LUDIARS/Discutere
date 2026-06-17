@@ -201,6 +201,18 @@ const MIGRATIONS: Array<{ id: string; sql: string[] }> = [
     id: "flow_0009_utterance_possession",
     sql: [`ALTER TABLE flow_utterance ADD COLUMN possession_name TEXT`],
   },
+  {
+    // LLM コスト計装: プロンプトキャッシュ usage + コスト推定を llm_call_log に追加。
+    //  - cache_read/creation_input_tokens: backend が返す時のみ (claude-cli json / anthropic)。
+    //  - cost_usd: claude-cli(サブスク) は等価 API 換算推定、他 backend は通常 NULL。
+    // ALTER ADD COLUMN のみ (新規 INDEX 不要)。既存 DB で no such column を避ける共通ルール。
+    id: "flow_0010_llm_cost",
+    sql: [
+      `ALTER TABLE llm_call_log ADD COLUMN cache_read_input_tokens INTEGER`,
+      `ALTER TABLE llm_call_log ADD COLUMN cache_creation_input_tokens INTEGER`,
+      `ALTER TABLE llm_call_log ADD COLUMN cost_usd REAL`,
+    ],
+  },
 ];
 
 export function applyFlowMigrations(db: Database.Database): void {
