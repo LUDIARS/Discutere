@@ -21,5 +21,6 @@ await import("./persona-display.test.js");
 await import("./voice-cache.test.js");
 await import("./possession-vote.test.js");
 await import("./learning-autocrawl.test.js");
+await import("./cost-instrumentation.test.js");
 
 console.log("flow tests: all passed");

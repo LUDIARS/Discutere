@@ -16,6 +16,7 @@ import { spawn } from "node:child_process";
 import { existsSync } from "node:fs";
 
 import type { LLMClient, LLMInvokeArgs, LLMResult } from "./client.js";
+import type { TokenUsage } from "../types.js";
 
 export interface ClaudeCliClientOptions {
   /** 任意 — claude CLI のフルパス (PATH に乗ってる場合は不要) */
@@ -92,7 +93,10 @@ function spawnClaude(args: SpawnArgs): Promise<LLMResult> {
     delete env.CONCORDIA_HOOK;
     delete env.LICTOR_PORT;
 
-    const cliArgs = ["-p"];
+    // --output-format json: stdout を JSON エンベロープにし、result(本文) +
+    // usage(cache_read/creation 含む) + total_cost_usd を取得できるようにする。
+    // サブスク(OAuth) でも total_cost_usd は等価 API 換算で populated される。
+    const cliArgs = ["-p", "--output-format", "json"];
     if (args.model) cliArgs.push("--model", args.model);
     let child;
     try {
@@ -135,15 +139,84 @@ function spawnClaude(args: SpawnArgs): Promise<LLMResult> {
         });
         return;
       }
-      const text = out.trim();
-      if (text.length === 0) {
+      const raw = out.trim();
+      if (raw.length === 0) {
         resolve({ ok: false, error: "claude cli empty output" });
         return;
       }
-      resolve({ ok: true, text });
+      resolve(parseClaudeCliResult(raw));
     });
 
     // stdin で prompt 渡し (LUDIARS feedback_claude_cli_long_prompt)
     child.stdin.end(args.prompt);
   });
+}
+
+/** claude -p --output-format json の result エンベロープ (必要分のみ)。 */
+interface ClaudeCliResultEnvelope {
+  type?: string;
+  subtype?: string;
+  is_error?: boolean;
+  result?: string;
+  total_cost_usd?: number;
+  usage?: {
+    input_tokens?: number;
+    output_tokens?: number;
+    cache_read_input_tokens?: number;
+    cache_creation_input_tokens?: number;
+  };
+}
+
+/**
+ * `claude -p --output-format json` の stdout をパースして LLMResult にする。
+ *
+ * CLI のバージョンにより出力は (a) 単一の result オブジェクト か
+ * (b) イベント配列 (末尾に type:"result") のどちらか。両方に対応する。
+ * パース失敗・result 非 success・本文空は ok:false。
+ * 純関数なのでテストから直接叩ける。
+ */
+export function parseClaudeCliResult(raw: string): LLMResult {
+  let parsed: unknown;
+  try {
+    parsed = JSON.parse(raw);
+  } catch (e) {
+    return {
+      ok: false,
+      error: `claude cli json parse failed: ${(e as Error).message}: ${raw.slice(0, 200)}`,
+    };
+  }
+
+  // 配列なら type:"result" の要素 (無ければ末尾) を採る。
+  let env: ClaudeCliResultEnvelope | undefined;
+  if (Array.isArray(parsed)) {
+    const arr = parsed as ClaudeCliResultEnvelope[];
+    env = arr.find((e) => e?.type === "result") ?? arr[arr.length - 1];
+  } else if (parsed && typeof parsed === "object") {
+    env = parsed as ClaudeCliResultEnvelope;
+  }
+
+  if (!env) {
+    return { ok: false, error: "claude cli json: no result envelope" };
+  }
+  if (env.is_error || (env.subtype && env.subtype !== "success")) {
+    return {
+      ok: false,
+      error: `claude cli result error (${env.subtype ?? "unknown"}): ${(env.result ?? "").slice(0, 200)}`,
+    };
+  }
+
+  const text = typeof env.result === "string" ? env.result.trim() : "";
+  if (text.length === 0) {
+    return { ok: false, error: "claude cli json: empty result text" };
+  }
+
+  const u = env.usage ?? {};
+  const usage: TokenUsage = {
+    input_tokens: u.input_tokens,
+    output_tokens: u.output_tokens,
+    cache_read_input_tokens: u.cache_read_input_tokens,
+    cache_creation_input_tokens: u.cache_creation_input_tokens,
+    cost_usd: typeof env.total_cost_usd === "number" ? env.total_cost_usd : undefined,
+  };
+  return { ok: true, text, usage };
 }

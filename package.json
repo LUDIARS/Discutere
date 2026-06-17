@@ -31,6 +31,7 @@
     "test:web-chat": "tsx tests/web-chat/run.ts",
     "crawl": "tsx scripts/crawl.ts",
     "export:discussions": "tsx scripts/export-discussion.ts",
+    "cost-report": "tsx scripts/cost-report.ts",
     "visualize": "tsx scripts/visualize.ts",
     "persona-demo": "tsx scripts/persona-engine-demo.ts",
     "seed:affects": "tsx scripts/seed-affects.ts",
