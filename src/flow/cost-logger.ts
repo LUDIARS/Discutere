@@ -4,9 +4,14 @@
  * LLMClient をラップする高階関数 withCostLog を提供する。
  * 呼び出しごとに llm_call_log へ 1 行書き込む。
  * トークン数を返さない backend (claude-cli / worker-pool) は null 許容 (best-effort)。
+ *
+ * cost_usd: claude-cli は envelope の total_cost_usd をそのまま使う。token はあるが
+ * cost_usd を返さない backend (worker-pool / anthropic) は token × 単価で等価 API コストを
+ * 推定して補完し、サブスク経路でもコスト比較ができるようにする (estimateCostUsd)。
  */
 
 import type { LLMClient, LLMInvokeArgs, LLMResult } from "../persona-engine/llm/client.js";
+import { estimateCostUsd } from "../persona-engine/llm/pricing.js";
 import { getConfig } from "../config.js";
 import { getFlowDb } from "./db/connection.js";
 
@@ -35,6 +40,9 @@ export function withCostLog(client: LLMClient, ctx: CostLogContext): LLMClient {
 
       const db = getFlowDb();
       const usage = result.ok ? result.usage : undefined;
+      // cost_usd が backend から来ない (worker-pool / anthropic) 場合は token × 単価で補完。
+      // claude-cli は envelope の値があるのでそのまま使う。
+      const costUsd = usage?.cost_usd ?? estimateCostUsd(args.model, usage);
       db.prepare(
         `INSERT INTO llm_call_log
           (flow, session_id, round, turn, role, persona, location, model, backend, latency_ms,
@@ -57,7 +65,7 @@ export function withCostLog(client: LLMClient, ctx: CostLogContext): LLMClient {
         usage?.output_tokens ?? null,
         usage?.cache_read_input_tokens ?? null,
         usage?.cache_creation_input_tokens ?? null,
-        usage?.cost_usd ?? null,
+        costUsd ?? null,
         args.prompt,
         result.ok ? result.text : null,
         Date.now()

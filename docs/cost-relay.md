@@ -47,10 +47,25 @@ worker-pool backend(常駐 Lictor ワーカー)は utterance callback で usage 
 4. `/internal/worker/utterance` が `usage` を受け、`WorkerPool.onUtterance` → `WorkerPoolClient` →
    `LLMResult.usage` → `withCostLog` が `llm_call_log` に記録 → cost-relay が Anatomia へ。
 
+## cost_usd の補完(サブスクでもコストを出す)
+
+claude-cli 経路は envelope の `total_cost_usd` を持つが、**worker-pool / anthropic 経路は token
+しか得られず cost_usd が NULL** になり、サブスク横断のコスト比較ができなかった。
+`src/persona-engine/llm/pricing.ts` の `estimateCostUsd(model, usage)` が **token × モデル単価**で
+等価 API コストを推定し、`withCostLog` が cost_usd 未取得時に補完する:
+
+- 単価は Anthropic の公開 list price(opus $5/$25・sonnet $3/$15・haiku $1/$5 /MTok)に揃えてあり、
+  claude-cli の `total_cost_usd`(= 等価 API 換算)と**同じ基準なので直接比較できる**。
+- cache は Claude Code が打つ 5 分 ephemeral 前提(write=入力×1.25 / read=入力×0.1)。
+- claude-cli は envelope 値を優先(推定で上書きしない)。単価表に無いモデル(ローカル LLM 等)は
+  NULL のまま(ローカルは実質無料)。
+- いずれも**実課金ではなく等価 API 換算の推定値**(サブスクは定額、実制約は rate-limit クォータ)。
+
 ### 残る制約
 
-- **cost_usd は取れない**: Claude Code transcript の `message.usage` は token(input/output/cache)
-  のみで `total_cost_usd` を行に持たない。worker-pool 経路は **token のみ**、`cost_usd` は NULL。
+- **transcript は token のみ**: worker-pool の cost_usd は transcript の token から**推定**した値
+  (claude-cli のような Anthropic 算出の envelope 値ではない)。比較は同一単価基準で成立するが、
+  Anthropic の内部計算と完全一致は保証しない。
 - **per-turn lag**: send 実行時点で当該ターンの usage 行が未フラッシュなら、そのデルタは次回 send で
   拾う(落とさないがセッション末尾の最終ターンが 1 つ遅れることがある)。
 - worker-pool は config 既定 OFF。未起動時は claude-cli フォールバックがコスト計装済み。
