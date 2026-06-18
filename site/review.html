@@ -1,0 +1,181 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>仕様レビュー — Discutere</title>
+<link rel="stylesheet" href="style.css">
+<style>
+  .scoreboard{ display:flex; gap:14px; flex-wrap:wrap; margin:20px 0 8px; }
+  .score{ background:var(--bg-card); border:1px solid var(--border); border-radius:12px; padding:16px 22px; text-align:center; min-width:120px; }
+  .score .n{ font-size:34px; font-weight:700; line-height:1; }
+  .score .l{ font-size:13px; color:var(--fg-dim); margin-top:6px; }
+  .score.ok .n{ color:var(--green); }
+  .score.warn .n{ color:var(--amber); }
+  .score.bad .n{ color:var(--red); }
+  td .doc{ font-family:var(--mono); font-size:12.5px; }
+  details.disc{ border:1px solid var(--border); border-radius:10px; margin:10px 0; background:var(--bg-card); }
+  details.disc > summary{ cursor:pointer; padding:12px 16px; font-weight:600; }
+  details.disc .inner{ padding:0 16px 14px; }
+</style>
+</head>
+<body>
+<header class="site">
+  <div class="inner">
+    <span class="brand">Discutere <small>遊びの議論プラットフォーム</small></span>
+    <nav>
+      <a href="index.html">概要</a>
+      <a href="graph.html">ドメイン関連図</a>
+      <a href="api.html">API</a>
+      <a href="review.html" class="active">仕様レビュー</a>
+    </nav>
+  </div>
+</header>
+
+<main>
+  <div class="hero" style="padding-bottom:18px;">
+    <h1>仕様 ↔ コード レビュー</h1>
+    <p class="tagline"><code>spec/</code> 配下の全 32 設計ドキュメントを <code>src/</code> の実装と突き合わせた対応・乖離レポート。</p>
+  </div>
+
+  <div class="scoreboard">
+    <div class="score ok"><div class="n">25</div><div class="l">✅ 一致</div></div>
+    <div class="score warn"><div class="n">4</div><div class="l">⚠️ 部分的</div></div>
+    <div class="score"><div class="n">0</div><div class="l">❌ 欠落</div></div>
+    <div class="score"><div class="n">0</div><div class="l">📝 陳腐化</div></div>
+  </div>
+
+  <div class="callout">
+    <strong>総評：</strong>対応関係は良好。32 件中 25 件が完全一致し、<em>実装が存在しない仕様（ベーパーウェア）はゼロ</em>。
+    乖離はいずれも「<strong>コードが先行し、ドキュメントが追従できていない</strong>」種類のもので、SENTIMENT の DB 配線のみが
+    実装側の未完（仕様自身が follow-up と明記）。
+  </div>
+
+  <h2>サマリ一覧</h2>
+  <table>
+    <thead><tr><th>仕様ドキュメント</th><th>判定</th><th>備考</th></tr></thead>
+    <tbody id="rows"></tbody>
+  </table>
+
+  <h2>乖離の詳細（⚠️ 部分的の 4 件）</h2>
+
+  <details class="disc" open>
+    <summary><span class="pill warn">PARTIAL</span> &nbsp;spec/OVERVIEW.md</summary>
+    <div class="inner">
+      <ul class="tight">
+        <li>仕様は <code>src/persona-engine/engine/engine.ts</code> を議論の主オーケストレータとして描くが、現行の Discord/フォーラム経路は
+          <code>src/flow/</code>（<code>director.ts</code> / <code>dispatch.ts</code>）の FlowDirector を通る。persona-engine は <code>config.ts</code> の
+          <code>personaEngine.enabled</code> でゲートされる。<strong>両方のサブシステムが存在</strong>するため欠落ではなく、視点（鮮度）のギャップ。</li>
+        <li>設定名のドリフト：仕様は <code>discussion.maxRounds</code> に言及するが flow は <code>flow.rounds</code> を使う
+          （両キーとも <code>src/config.ts</code> に存在。<code>discussion.maxRounds</code> は別機能 <code>src/discussion/</code> = debate-party 用）。</li>
+      </ul>
+      <p class="muted">→ 推奨：OVERVIEW を flow アーキテクチャ中心に refresh。</p>
+    </div>
+  </details>
+
+  <details class="disc">
+    <summary><span class="pill warn">PARTIAL</span> &nbsp;spec/crawler/SENTIMENT.md</summary>
+    <div class="inner">
+      <ul class="tight">
+        <li>感情分析パイプライン本体は存在：<code>src/crawler/sentiment/analyze.mjs</code> / <code>cascade.ts</code> /
+          <code>lexicon.json</code> / <code>affect-resolver.mjs</code>。</li>
+        <li>仕様が記す DB 配線（感情ベクトルを <code>core.repos.affect</code> / <code>core.registerEmbedding</code> へ書き込み、Kuzu embedding 射影、
+          月次 <code>sentiment_curve</code> 集計）は <code>src/crawler/</code> 内に見当たらない。<strong>唯一の実装側の未完</strong>だが、
+          仕様自身が follow-up（後回し）と明記しているため整合的。</li>
+      </ul>
+    </div>
+  </details>
+
+  <details class="disc">
+    <summary><span class="pill warn">PARTIAL</span> &nbsp;spec/visualize/DESIGN.md</summary>
+    <div class="inner">
+      <ul class="tight">
+        <li><code>src/visualize/wikilink.ts</code> は仕様の型テーブル（<code>utt|hyp|gap|mch|aes|aff|ses|game</code>）に無い
+          <code>persona</code> リンク型（+ <code>persona-exporter.ts</code>）を実装。<strong>コードが仕様に先行</strong>している軽微なドキュメント遅れ。</li>
+      </ul>
+    </div>
+  </details>
+
+  <details class="disc">
+    <summary><span class="pill warn">PARTIAL</span> &nbsp;spec/setup/config-reference.md</summary>
+    <div class="inner">
+      <ul class="tight">
+        <li><code>src/config.ts</code> に存在するが reference に未記載のセクション：
+          <code>classifier</code> / <code>discussion</code> / <code>facilitator</code> / <code>flow</code> / <code>slack</code> /
+          <code>workerPool</code> / <code>autoSeed</code> / <code>kgSync</code> / <code>cost</code> / <code>personaEngine.enabled</code>。</li>
+        <li>ドキュメントの <code>llm.backend</code> 列挙（<code>anthropic / claude-cli / mock</code>）に、コードが対応する
+          <code>worker-pool</code> と <code>local</code> が欠けている。</li>
+      </ul>
+      <p class="muted">→ 推奨：<code>config-reference.md</code> を <code>src/config.ts</code> から再生成。</p>
+    </div>
+  </details>
+
+  <h2>レビュー時の補正メモ</h2>
+  <div class="callout">
+    探索の途中で <code>spec/crawler/EXTERNAL-SOURCES.md §14</code>（<code>listRelevantExternalVoices</code> による RAG 検索）を
+    一旦「欠落」と疑ったが、実装を確認した結果 <strong>存在</strong>：<code>src/persona-engine/context-provider.ts:85</code> に定義され
+    <code>src/persona-engine/engine/prompt-builder.ts</code> が消費、<code>src/flow/external-voices.ts</code> の
+    <code>listExternalVoices</code> が web/Discord 経路に配線。よって EXTERNAL-SOURCES.md は <span class="pill ok">MATCHED</span>。
+  </div>
+
+  <h2>全体所見</h2>
+  <ul class="tight">
+    <li>対応は堅牢：32 件中 25 件がクリーンに一致し、まるごと未実装の仕様は存在しない。</li>
+    <li>恒常的なドリフトは「ベーパーウェア仕様」ではなく「<strong>より進んだコードにドキュメントが遅れている</strong>」型。</li>
+    <li>唯一の構造的な鮮度問題は OVERVIEW.md が依然 persona-engine 中心であること（本番の議論エンジンは <code>src/flow/</code> へ移行済み = CLAUDE.md の Discord→flow pivot）。</li>
+    <li>SENTIMENT.md の DB/Kuzu 配線が唯一の実装ギャップで、仕様自身が follow-up とマーク済み。</li>
+    <li>セットアップ系は <code>config-reference.md</code> を除き正確。同ファイルは <code>src/config.ts</code> から再生成すべき。</li>
+  </ul>
+</main>
+
+<footer class="site">
+  Discutere — 自動生成ドキュメント / GitHub Pages。レビュー基準日 2026-06-18。
+</footer>
+
+<script>
+const rows = [
+  ['spec/OVERVIEW.md','warn','persona-engine 中心の記述だが本番経路は src/flow/（FlowDirector）。設定名も一部陳腐化。'],
+  ['spec/RESTRUCTURE.md','ok','7 ステップ + pipeline.ts が src/restructure/ に存在。'],
+  ['spec/flow/OVERVIEW.md','ok','director/tags/cost-logger/discussion-paper/persona-display/voice-cache/persona-pool すべて存在。'],
+  ['spec/flow/discussion.md','ok','director.ts の runFlow/runDiscussionFlow、vote/round-summary/conclusion 完備。'],
+  ['spec/flow/improvement.md','ok','improvement.ts + design-gap.ts + improvement-score.ts + sentiment-vector.ts。'],
+  ['spec/flow/learning.md','ok','learning.ts + learning-autocrawl.ts + crawler importer/cascade。'],
+  ['spec/flow/persona-pool.md','ok','A–G の機能がすべて persona-*.ts に対応。'],
+  ['spec/flow/sparring.md','ok','sparring.ts（SparringSession）+ sparring-commands.ts。'],
+  ['spec/core/DESIGN.md','ok','layers/repos/events/bridges/jobs/vectors すべて存在。'],
+  ['spec/core/KG-SYNC.md','ok','export/import/pull/state/shared-tables/scheduler すべて存在。'],
+  ['spec/core/KUZU-MIGRATION.md','ok','KuzuGraphClient + DDL + kuzu-projection.ts の dual-write。'],
+  ['spec/crawler/DESIGN.md','ok','md-format/types/importer/runner 存在。'],
+  ['spec/crawler/EXTERNAL-SOURCES.md','ok','全 collector + sidecar + §14 RAG 存在（補正済み）。'],
+  ['spec/crawler/SENTIMENT.md','warn','分析パイプラインは完備、ベクトルの DB/Kuzu 配線が crawler に未配線（follow-up）。'],
+  ['spec/persona-engine/DESIGN.md','ok','engine/db/seeds/llm/adapter すべて存在。'],
+  ['spec/facilitator/DESIGN.md','ok','facilitator + 3 prompt builder + config + converged event。'],
+  ['spec/visualize/DESIGN.md','warn','コードが仕様の 8 型表に無い persona wikilink 型を追加。'],
+  ['spec/backup/DESIGN.md','ok','archive/s3/runner + state + config キー。'],
+  ['spec/feature/discussion-party.md','ok','composition/director/director-live + /debate。'],
+  ['spec/feature/game-feedback.md','ok','feedback/store.ts + game-feedback-channel.ts。'],
+  ['spec/feature/gemma-ft.md','ok','headless runner + generate/export scripts + unsloth_train.py。'],
+  ['spec/feature/headless-auto-discussion.md','ok','discussion-seed/* + conclusions viewer + scene routing。'],
+  ['spec/feature/message-classifier.md','ok','classifyDiscordMessage + buildClassifierLlm + backends。'],
+  ['spec/feature/persistent-worker-pool.md','ok','worker-pool/* + api/worker.ts + worker-home/。'],
+  ['spec/feature/web-chat.md','ok','web-chat/* + web-chat-routes.ts + isBoundScene。'],
+  ['spec/setup/README.md','ok','設定の優先順が一致。'],
+  ['spec/setup/backup.md','ok','キー/env/npm run backup を確認。'],
+  ['spec/setup/config-reference.md','warn','live な config セクション ~9 個が未記載。llm.backend 列挙も不足。'],
+  ['spec/setup/discord.md','ok','キー/env + discord:register を確認。'],
+  ['spec/setup/llm.md','ok','backend/model/llm:smoke を確認。'],
+  ['spec/setup/local-llm-windows.md','ok','llm.local.* + Gemma default を確認。'],
+  ['spec/setup/multi-server.md','ok','guildIds + 後方互換を確認。'],
+];
+const labels = { ok:'✅ 一致', warn:'⚠️ 部分的', bad:'❌ 欠落' };
+const tb = document.getElementById('rows');
+for (const [doc, st, note] of rows) {
+  const tr = document.createElement('tr');
+  tr.innerHTML = `<td><span class="doc">${doc}</span></td>`+
+    `<td><span class="pill ${st}">${labels[st]}</span></td>`+
+    `<td class="muted">${note}</td>`;
+  tb.appendChild(tr);
+}
+</script>
+</body>
+</html>

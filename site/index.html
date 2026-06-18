@@ -1,0 +1,180 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Discutere — 遊びの議論プラットフォーム</title>
+<link rel="stylesheet" href="style.css">
+<style>
+  .flow-diagram{ background:var(--bg-soft); border:1px solid var(--border); border-radius:12px;
+    padding:18px; overflow-x:auto; font-family:var(--mono); font-size:12.5px; line-height:1.5; color:var(--fg-dim); }
+  .axis-card .axis-n{ font-size:13px; color:var(--accent); font-weight:700; }
+  .stat-row{ display:flex; gap:14px; flex-wrap:wrap; margin:24px 0; }
+  .stat{ flex:1; min-width:130px; background:var(--bg-card); border:1px solid var(--border);
+    border-radius:12px; padding:16px; }
+  .stat .n{ font-size:28px; font-weight:700; color:var(--accent); }
+  .stat .l{ font-size:13px; color:var(--fg-dim); }
+  .llm-tag{ display:inline-block; background:rgba(167,139,250,.16); color:var(--accent-2);
+    font-size:11px; padding:1px 7px; border-radius:5px; font-weight:600; }
+</style>
+</head>
+<body>
+<header class="site">
+  <div class="inner">
+    <span class="brand">Discutere <small>遊びの議論プラットフォーム</small></span>
+    <nav>
+      <a href="index.html" class="active">概要</a>
+      <a href="graph.html">ドメイン関連図</a>
+      <a href="api.html">API</a>
+      <a href="review.html">仕様レビュー</a>
+    </nav>
+  </div>
+</header>
+
+<main>
+  <div class="hero">
+    <h1>Discutere</h1>
+    <p class="tagline">ゲームデザインの「意図された体験」と「観測された体験」を弁証法的対話で突き合わせる、
+      <strong>Discord-only の自走議論 ChatBot</strong>（コードネーム Discatier）。</p>
+    <div class="badge-row">
+      <span class="badge accent">Node.js 22+ / TypeScript (ESM)</span>
+      <span class="badge">discord.js v14 — Gateway 常時接続</span>
+      <span class="badge">Hono :3100</span>
+      <span class="badge">Kuzu(SQLite) + Event Log</span>
+      <span class="badge">Anthropic SDK / Claude CLI / local LLM</span>
+    </div>
+  </div>
+
+  <p class="lead">
+    Discutere は「遊び（ゲーム）」をテーマに <strong>AI ペルソナ同士が自走で議論し、結論・止揚（アウフヘーベン）を生み出す</strong>
+    プラットフォームです。人間は Discord のフォーラムや平文チャットで議題を投げるだけ。分類器 → 議論エンジン → ファシリテーターが
+    自動で議論を立て、進め、まとめます。生み出された議論はすべて <strong>次の議論の学習データ</strong>として知識グラフ（KG）に蓄積されます。
+  </p>
+
+  <div class="stat-row">
+    <div class="stat"><div class="n">4</div><div class="l">議論フロー<br>議論 / 改善 / 学習 / 壁打ち</div></div>
+    <div class="stat"><div class="n">3</div><div class="l">LLM 呼出し箇所<br>分類器 / ファシリ / 発話</div></div>
+    <div class="stat"><div class="n">71</div><div class="l">HTTP ルート<br>API + 管理画面</div></div>
+    <div class="stat"><div class="n">24</div><div class="l">src ドメイン<br>モジュール群</div></div>
+  </div>
+
+  <h2>役割 — 何をするサービスか</h2>
+  <div class="grid cols-3">
+    <div class="card">
+      <h3><span class="ico">🗣️</span> 自走議論</h3>
+      <p>賛成派・反対派・意見屋の AI ペルソナが輪番で意見をぶつけ、複数ラウンドで論点を深掘りする。人間発言には最優先で即応。</p>
+    </div>
+    <div class="card">
+      <h3><span class="ico">⚖️</span> ファシリテーション</h3>
+      <p>論点を絞り、対立を止揚で統合し、収束を促す。収束したら Discord スレッドを lock + archive してまとめを転記。</p>
+    </div>
+    <div class="card">
+      <h3><span class="ico">🧠</span> 学習データ蓄積</h3>
+      <p>全フローの成果物・発話を Kuzu 知識グラフ + コーパスに蓄積。外部の生の声を出所付き・個人仮名で RAG 参照する。</p>
+    </div>
+    <div class="card">
+      <h3><span class="ico">🕸️</span> 外部クロール</h3>
+      <p>ゲーム攻略 KG クローラと、Steam / YouTube / Reddit 等の外部議論クローラ。議論前に情報密度を評価して自動学習。</p>
+    </div>
+    <div class="card">
+      <h3><span class="ico">📊</span> 可視化 / エクスポート</h3>
+      <p>学習ビュー・議論キュー・経済グラフ・ダッシュボード。議論を Markdown で 1 本にエクスポート。</p>
+    </div>
+    <div class="card">
+      <h3><span class="ico">💾</span> バックアップ</h3>
+      <p>KG + 全 SQLite を tar.gz 化して S3（Glacier 系）へ。月次自動 + 手動（CLI / slash）。</p>
+    </div>
+  </div>
+
+  <h2>コンセプト — Discatier の 3 軸対話</h2>
+  <p>単一のデータ基盤（Kuzu グラフ + イベントログ）上で、3 つの軸が弁証法的ループを形成します。</p>
+  <table>
+    <thead><tr><th>軸</th><th>モード</th><th>役割</th><th>生成物</th></tr></thead>
+    <tbody>
+      <tr><td class="axis-card"><span class="axis-n">Axis 1</span> 学習対話</td><td><code>learning</code></td><td>語彙 / メカニクスの定義を精緻化</td><td><code>Mechanic.intended_affect</code></td></tr>
+      <tr><td class="axis-card"><span class="axis-n">Axis 2</span> 感情会話</td><td><code>emotion</code></td><td>プレイヤーが理論用語を介さず生の感情を報告</td><td><code>expressed_affect</code>（観測）</td></tr>
+      <tr><td class="axis-card"><span class="axis-n">Axis 3</span> 統合</td><td><code>synthesis</code></td><td>Axis 1↔2 のズレに仮説を提示・検証</td><td><code>DesignGap</code> → <code>Hypothesis</code></td></tr>
+    </tbody>
+  </table>
+
+  <h2>設計 — データの流れ</h2>
+  <p>LLM が呼ばれるのは <strong>3 か所だけ</strong>（<span class="llm-tag">①分類器</span>
+    <span class="llm-tag">②ファシリテーター</span> <span class="llm-tag">③ペルソナ発話</span>）。
+    発火制御（どのルールが・いつ・cooldown）は LLM ではなく <code>engine.ts</code> の決定論処理が担います。</p>
+  <div class="flow-diagram">Discord（人間 / 外部URL）
+   │  MessageCreate（bot発言は破棄）
+   ▼
+┌──────────────┐  start_discussion?   ┌──────────────────────┐
+│ 分類器 #LLM① │ ───────────────────▶ │ Discatier Core (KG)  │ designGap / hypothesis / utterance
+│ Haiku        │  record_only は記録のみ└──────────────────────┘
+└──────────────┘                              ▲
+   │ designGap 新規 → 👀                       │ read/write は context-provider 経由
+   ▼                                          │
+┌──────────────────────────────────────────┴───────────────┐
+│ persona-engine / flow（決定論ルールエンジン: tick/event/cooldown）│
+│   tryFire → buildPrompt → llm.invoke → handler(action dispatch)  │
+└───────────┬────────────────────────────┬──────────────────┘
+   発話 #LLM③ │ worker-pool（常駐 CLI）     │ facilitator #LLM②
+             ▼                            ▼
+       con/pro/opinion ペルソナ      拡張 / 収束 / 止揚 + まとめ
+             │ webhook で人間名投稿
+             ▼
+        Discord（議論が流れる）</div>
+
+  <h2>議論フロー（4 種）</h2>
+  <table>
+    <thead><tr><th>フロー</th><th>一言</th><th>LLM 議論</th></tr></thead>
+    <tbody>
+      <tr><td><strong>議論</strong></td><td>テーマに対し AI が複数ラウンドで意見をぶつけ結論を出す</td><td>あり</td></tr>
+      <tr><td><strong>改善</strong></td><td>議論と同骨格。投票/感情評価を機械計算に置換</td><td>あり</td></tr>
+      <tr><td><strong>学習</strong></td><td>テーマ即応のユーザ意見/メカニクスを発話・記録（議論しない）</td><td>なし</td></tr>
+      <tr><td><strong>壁打ち</strong></td><td>ユーザターン起点・不定期発話・上限付き無制限ラウンド</td><td>あり</td></tr>
+    </tbody>
+  </table>
+  <p class="muted">すべての議論の成果物・発話は次の議論の学習データとして KG / コーパスに蓄積される（横断原則）。</p>
+
+  <h2>認証モデル（意図的設計）</h2>
+  <div class="callout">
+    Discutere は <strong>半ローカルツール（Discord ギルド内限定の議論 ChatBot）</strong>。公開 SaaS ではないため
+    <strong>Cernere 認証は使わず、認証を Discord に依存</strong>させる。transport は Discord Gateway（WebSocket）常時接続で、
+    WS 接続自体が bot token 認証。認証境界 = <strong>bot token + admin-id allowlist</strong>（<code>DISCUTERE_DISCORD_ADMIN_IDS</code>）。
+    HTTP Interactions Endpoint / Ed25519 署名検証は撤去済み（2026-05-30 WS 再設計）。
+  </div>
+
+  <h2>技術スタック</h2>
+  <table>
+    <thead><tr><th>レイヤ</th><th>技術</th></tr></thead>
+    <tbody>
+      <tr><td>Runtime</td><td>Node.js 22+ / TypeScript (ESM)</td></tr>
+      <tr><td>Discord</td><td>discord.js v14 — Gateway (WS) 常時接続</td></tr>
+      <tr><td>HTTP（管理 / dashboard）</td><td>Hono + @hono/node-server（port 3100）</td></tr>
+      <tr><td>データ基盤</td><td>Discatier Core = Kuzu(SQLite) + イベントログ / MACHINA = SQLite + Drizzle</td></tr>
+      <tr><td>LLM</td><td>Anthropic SDK 直叩き / Claude CLI（Lictor spawn）/ local OpenAI 互換</td></tr>
+      <tr><td>設定</td><td>src/config.ts 単一 typed config（default &lt; discutere.config.json &lt; env）</td></tr>
+      <tr><td>バックアップ</td><td>tar.gz → S3（@aws-sdk/client-s3、Glacier 系）</td></tr>
+    </tbody>
+  </table>
+
+  <h2>もっと見る</h2>
+  <div class="grid cols-3">
+    <a class="card" href="graph.html" style="text-decoration:none;">
+      <h3><span class="ico">🕸️</span> ドメイン関連図</h3>
+      <p>ドメイン / 機能のリストと相互関係をインタラクティブなグラフで表示。</p>
+    </a>
+    <a class="card" href="api.html" style="text-decoration:none;">
+      <h3><span class="ico">🔌</span> API リファレンス</h3>
+      <p>HTTP ルート全 71 件。トグル展開でパラメータ・ボディ・レスポンスを確認。</p>
+    </a>
+    <a class="card" href="review.html" style="text-decoration:none;">
+      <h3><span class="ico">🔍</span> 仕様レビュー</h3>
+      <p>spec/ 全 32 ドキュメントと実装の対応・乖離レポート。</p>
+    </a>
+  </div>
+</main>
+
+<footer class="site">
+  Discutere — 自動生成ドキュメント / GitHub Pages。
+  ソース: <code>README.md</code> · <code>CLAUDE.md</code> · <code>spec/</code> · <code>src/</code>。
+</footer>
+</body>
+</html>
