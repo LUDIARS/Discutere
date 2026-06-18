@@ -1,13 +1,15 @@
 /**
- * LLM コストの Anatomia への relay (Push 型集約)。
+ * LLM コストの横断 relay (Push 型集約)。
  *
- * llm_call_log を (session × model × backend) 別に集計し、Anatomia の
- * POST /api/cost-feed へ PUSH する。Anatomia は (service,session,model,backend)
- * で latest-wins dedupe するので、各 PUSH は「そのセッションの累積サマリ」で
- * なければならない。よって定期 relay は activeSince で「最近活動したセッション」
- * を選び、そのセッションの全行を集計して送る (delta ではなく累積)。
+ * llm_call_log を (session × model × backend) 別に集計し、コスト表示面 (Anatomia /
+ * Concordia) の cost-feed エンドポイントへ PUSH する。受信側は
+ * (service,session,model,backend) で latest-wins dedupe するので、各 PUSH は
+ * 「そのセッションの累積サマリ」でなければならない。よって定期 relay は activeSince で
+ * 「最近活動したセッション」を選び、そのセッションの全行を集計して送る (delta ではなく累積)。
  *
- * 送信失敗は議論を止めない (graceful、ログのみ)。
+ * **複数サービスへ同時 push** する: 同じ集計を全 target に書き込む (push 先複数化)。
+ * Anatomia と Concordia でエンドポイントのパスが異なる ({@link COST_FEED_PATHS}) ため、
+ * target は baseUrl + path を持つ。送信失敗は議論を止めない (graceful、ログのみ)。
  *
  * SRP: 集計→HTTP push と定期実行のみ。集計 SQL は cost-report.ts。
  */
@@ -17,21 +19,55 @@ import { costFeedRows, type CostFeedRow } from "./cost-report.js";
 
 type FetchLike = (input: string, init: RequestInit) => Promise<Response>;
 
+/** 各コスト表示面の cost-feed エンドポイントのパス (受信側 API で固定)。 */
+export const COST_FEED_PATHS = {
+  anatomia: "/api/cost-feed",
+  concordia: "/v1/cost-feed",
+} as const;
+
+/** push 先 1 つ。baseUrl + path で完全なエンドポイントを成す。 */
+export interface CostFeedTarget {
+  /** ベース URL (例 http://localhost:4200)。末尾スラッシュは無視。 */
+  baseUrl: string;
+  /** cost-feed エンドポイントのパス ({@link COST_FEED_PATHS} 参照)。 */
+  path: string;
+  /** ログ表示用ラベル (例 "anatomia")。省略時は baseUrl。 */
+  label?: string;
+}
+
+/**
+ * 既知のサービス URL から target 配列を組み立てる (設定 → target の変換)。
+ * 指定された URL の分だけ target を作る。両方指定すれば両方へ push。
+ */
+export function buildCostFeedTargets(urls: {
+  anatomiaUrl?: string;
+  concordiaUrl?: string;
+}): CostFeedTarget[] {
+  const targets: CostFeedTarget[] = [];
+  if (urls.anatomiaUrl) {
+    targets.push({ baseUrl: urls.anatomiaUrl, path: COST_FEED_PATHS.anatomia, label: "anatomia" });
+  }
+  if (urls.concordiaUrl) {
+    targets.push({ baseUrl: urls.concordiaUrl, path: COST_FEED_PATHS.concordia, label: "concordia" });
+  }
+  return targets;
+}
+
 export interface PushResult {
   ok: boolean;
   recorded?: number;
   error?: string;
 }
 
-/** rows を Anatomia の POST /api/cost-feed に送る。例外は ok:false に畳む。 */
+/** rows を 1 つの target の cost-feed エンドポイントに送る。例外は ok:false に畳む。 */
 export async function pushCostFeed(
-  baseUrl: string,
+  target: CostFeedTarget,
   service: string,
   rows: CostFeedRow[],
   ts: number,
   fetchImpl: FetchLike = fetch,
 ): Promise<PushResult> {
-  const endpoint = baseUrl.replace(/\/+$/, "") + "/api/cost-feed";
+  const endpoint = target.baseUrl.replace(/\/+$/, "") + target.path;
   try {
     const res = await fetchImpl(endpoint, {
       method: "POST",
@@ -47,7 +83,8 @@ export async function pushCostFeed(
 }
 
 export interface RelayOnceOptions {
-  baseUrl: string;
+  /** push 先 (複数)。空なら何もしない。 */
+  targets: CostFeedTarget[];
   service: string;
   /** since 以降に活動したセッションのみ送る (未指定なら全セッション)。 */
   activeSince?: number;
@@ -56,12 +93,25 @@ export interface RelayOnceOptions {
   fetchImpl?: FetchLike;
 }
 
-export interface RelayResult extends PushResult {
-  /** 送ったセッション行数 (0 = 送るものなし)。 */
-  pushed: number;
+/** target 別の push 結果。 */
+export interface TargetPushResult {
+  target: CostFeedTarget;
+  push: PushResult;
 }
 
-/** 一回分の relay: 行を集計して push する。送るものが無ければ pushed:0 で成功。 */
+export interface RelayResult {
+  /** 集計して送ろうとしたセッション行数 (0 = 送るものなし)。 */
+  pushed: number;
+  /** target 別の結果。 */
+  results: TargetPushResult[];
+  /** 全 target 成功か (rows=0 なら true)。 */
+  ok: boolean;
+}
+
+/**
+ * 一回分の relay: 行を一度だけ集計し、全 target へ同じ payload を push する。
+ * 送るものが無ければ pushed:0 / results:[] / ok:true。
+ */
 export async function relayCostOnce(
   db: Database.Database,
   opts: RelayOnceOptions,
@@ -70,13 +120,20 @@ export async function relayCostOnce(
     db,
     opts.activeSince != null ? { activeSince: opts.activeSince } : {},
   );
-  if (rows.length === 0) return { ok: true, pushed: 0 };
-  const res = await pushCostFeed(opts.baseUrl, opts.service, rows, opts.ts, opts.fetchImpl);
-  return { ...res, pushed: res.ok ? rows.length : 0 };
+  if (rows.length === 0 || opts.targets.length === 0) {
+    return { ok: true, pushed: 0, results: [] };
+  }
+  const results: TargetPushResult[] = [];
+  for (const target of opts.targets) {
+    const push = await pushCostFeed(target, opts.service, rows, opts.ts, opts.fetchImpl);
+    results.push({ target, push });
+  }
+  return { ok: results.every((r) => r.push.ok), pushed: rows.length, results };
 }
 
 export interface StartCostRelayOptions {
-  baseUrl: string;
+  /** push 先 (複数)。 */
+  targets: CostFeedTarget[];
   service: string;
   intervalMs: number;
   /** 失敗ログ用 (既定 console.error)。 */
@@ -88,8 +145,10 @@ export interface StartCostRelayOptions {
 
 /**
  * 定期 relay を開始する。返り値を呼ぶと停止。
- * 各 tick は「前回 tick から 1 interval 重ねた時刻」以降に活動したセッションを送る
- * (取りこぼし回避)。初回は intervalMs×4 分さかのぼる。
+ * 各 tick は「前回 tick から 1 interval 重ねた時刻」以降に活動したセッションを
+ * 全 target へ送る (取りこぼし回避)。初回は intervalMs×4 分さかのぼる。
+ * カーソル前進は全 target 成功時のみ — 一部失敗した window は次 tick で再送する
+ * (累積 push なので再送は idempotent)。
  */
 export function startCostRelay(
   db: Database.Database,
@@ -103,16 +162,17 @@ export function startCostRelay(
     const start = now();
     const since = nextSince;
     const r = await relayCostOnce(db, {
-      baseUrl: opts.baseUrl,
+      targets: opts.targets,
       service: opts.service,
       activeSince: since,
       ts: start,
       fetchImpl: opts.fetchImpl,
     });
+    for (const { target, push } of r.results) {
+      if (!push.ok) onError(`push to ${target.label ?? target.baseUrl} failed: ${push.error}`);
+    }
     if (r.ok) {
       nextSince = start - opts.intervalMs; // 次回は 1 interval 重ねる
-    } else {
-      onError(`push failed: ${r.error}`);
     }
   };
 

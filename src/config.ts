@@ -375,16 +375,19 @@ export interface DiscutereConfig {
     serveToken?: string;
   };
   /**
-   * LLM コストの横断集約 (Anatomia コスト削減UIへの relay)。
-   * llm_call_log のセッション別集計を Anatomia の POST /api/cost-feed へ PUSH する。
-   * 既定 OFF。`anatomiaUrl` + `enabled` が揃った時のみ起動時に定期 relay する。
+   * LLM コストの横断集約 (コスト表示面への relay)。
+   * llm_call_log のセッション別集計を各サービスの cost-feed エンドポイントへ PUSH する。
+   * 既定 OFF。`enabled` + URL が 1 つ以上揃った時のみ起動時に定期 relay する。
+   * `anatomiaUrl` / `concordiaUrl` の両方を設定すると同じコストを両サービスへ送る。
    */
   cost: {
     relay: {
-      /** 定期 relay を有効化するか (anatomiaUrl も必要)。既定 false。 */
+      /** 定期 relay を有効化するか (URL も 1 つ以上必要)。既定 false。 */
       enabled: boolean;
-      /** Anatomia のベース URL (例 http://localhost:4200)。未設定なら relay しない。 */
+      /** Anatomia のベース URL (例 http://localhost:4200)。POST /api/cost-feed へ送る。 */
       anatomiaUrl?: string;
+      /** Concordia のベース URL (例 http://localhost:17330)。POST /v1/cost-feed へ送る。 */
+      concordiaUrl?: string;
       /** 定期 PUSH 周期 ms。既定 300_000 (5分)。 */
       intervalMs: number;
       /** cost-feed の service ラベル。既定 "discutere"。 */
@@ -840,6 +843,7 @@ export function loadConfig(): DiscutereConfig {
       relay: {
         enabled: pickBool(process.env.DISCUTERE_COST_RELAY_ENABLED, file.cost?.relay?.enabled, false),
         anatomiaUrl: pickOpt(process.env.DISCUTERE_COST_RELAY_URL, file.cost?.relay?.anatomiaUrl),
+        concordiaUrl: pickOpt(process.env.DISCUTERE_COST_RELAY_CONCORDIA_URL, file.cost?.relay?.concordiaUrl),
         intervalMs: pickNum(
           process.env.DISCUTERE_COST_RELAY_INTERVAL_MS,
           file.cost?.relay?.intervalMs,

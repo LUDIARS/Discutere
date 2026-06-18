@@ -104,7 +104,10 @@ async function seed(dbPath: string): Promise<void> {
   const rows = [
     { sessionId: "S1", model: "opus", backend: "claude-cli", calls: 2, inputTokens: 20, outputTokens: 8, cacheReadTokens: 200, cacheCreationTokens: 40, costUsd: 0.03 },
   ];
-  const res = await pushCostFeed("http://anatomia:4200/", "discutere", rows, 12345, fakeFetch as unknown as typeof fetch);
+  const res = await pushCostFeed(
+    { baseUrl: "http://anatomia:4200/", path: "/api/cost-feed", label: "anatomia" },
+    "discutere", rows, 12345, fakeFetch as unknown as typeof fetch,
+  );
   assert.ok(res.ok, "push ok");
   assert.equal(res.recorded, 1);
   assert.equal(captured!.url, "http://anatomia:4200/api/cost-feed", "trailing slash trimmed + path");
@@ -114,14 +117,39 @@ async function seed(dbPath: string): Promise<void> {
   assert.equal(body.sessions.length, 1);
   console.log("  [ok] pushCostFeed builds endpoint + body");
 
+  // Concordia は別パス
+  const conc = await pushCostFeed(
+    { baseUrl: "http://concordia:17330", path: "/v1/cost-feed", label: "concordia" },
+    "discutere", rows, 1, fakeFetch as unknown as typeof fetch,
+  );
+  assert.ok(conc.ok);
+  assert.equal(captured!.url, "http://concordia:17330/v1/cost-feed", "concordia path");
+  console.log("  [ok] pushCostFeed uses per-target path");
+
+  const bad500 = { baseUrl: "http://x", path: "/api/cost-feed" };
   // 非 ok レスポンス
-  const bad = await pushCostFeed("http://x", "s", rows, 1, (() => Promise.resolve(new Response("", { status: 500 }))) as unknown as typeof fetch);
+  const bad = await pushCostFeed(bad500, "s", rows, 1, (() => Promise.resolve(new Response("", { status: 500 }))) as unknown as typeof fetch);
   assert.ok(!bad.ok && /http 500/.test(bad.error!), "non-ok → error");
 
   // 例外
-  const threw = await pushCostFeed("http://x", "s", rows, 1, (() => Promise.reject(new Error("boom"))) as unknown as typeof fetch);
+  const threw = await pushCostFeed(bad500, "s", rows, 1, (() => Promise.reject(new Error("boom"))) as unknown as typeof fetch);
   assert.ok(!threw.ok && /boom/.test(threw.error!), "throw → ok:false");
   console.log("  [ok] pushCostFeed folds non-ok and exceptions into ok:false");
+}
+
+// ── buildCostFeedTargets ────────────────────────────────────────
+
+{
+  const { buildCostFeedTargets } = await import("../../src/flow/cost-relay.js");
+  assert.equal(buildCostFeedTargets({}).length, 0, "no urls → no targets");
+  const both = buildCostFeedTargets({ anatomiaUrl: "http://a", concordiaUrl: "http://c" });
+  assert.equal(both.length, 2, "both urls → 2 targets");
+  assert.equal(both[0].path, "/api/cost-feed");
+  assert.equal(both[1].path, "/v1/cost-feed");
+  const onlyConc = buildCostFeedTargets({ concordiaUrl: "http://c" });
+  assert.equal(onlyConc.length, 1, "only concordia → 1 target");
+  assert.equal(onlyConc[0].label, "concordia");
+  console.log("  [ok] buildCostFeedTargets maps configured urls to per-service targets");
 }
 
 // ── relayCostOnce ───────────────────────────────────────────────
@@ -133,18 +161,31 @@ async function seed(dbPath: string): Promise<void> {
   const db = new Database(dbPath);
 
   let calls = 0;
-  const fakeFetch = () => { calls++; return Promise.resolve(new Response(JSON.stringify({ ok: true, recorded: 2 }), { status: 200 })); };
+  const seen: string[] = [];
+  const fakeFetch = (url: string) => { calls++; seen.push(url); return Promise.resolve(new Response(JSON.stringify({ ok: true, recorded: 2 }), { status: 200 })); };
 
-  const r = await relayCostOnce(db, { baseUrl: "http://a", service: "discutere", ts: 1, fetchImpl: fakeFetch as unknown as typeof fetch });
+  // 2 target (Anatomia + Concordia) へ同じ集計を送る
+  const targets = [
+    { baseUrl: "http://a", path: "/api/cost-feed", label: "anatomia" },
+    { baseUrl: "http://c", path: "/v1/cost-feed", label: "concordia" },
+  ];
+  const r = await relayCostOnce(db, { targets, service: "discutere", ts: 1, fetchImpl: fakeFetch as unknown as typeof fetch });
   assert.ok(r.ok && r.pushed === 2, "2 session-rows pushed (S1,S2)");
-  assert.equal(calls, 1, "single POST for the batch");
+  assert.equal(calls, 2, "one POST per target (multiplexed)");
+  assert.deepEqual(seen.sort(), ["http://a/api/cost-feed", "http://c/v1/cost-feed"], "pushed to both targets");
+  assert.equal(r.results.length, 2, "per-target results");
 
   // 該当無し (未来 activeSince) → POST しない
-  const empty = await relayCostOnce(db, { baseUrl: "http://a", service: "discutere", activeSince: Date.now() + 1_000_000, ts: 1, fetchImpl: fakeFetch as unknown as typeof fetch });
+  const empty = await relayCostOnce(db, { targets, service: "discutere", activeSince: Date.now() + 1_000_000, ts: 1, fetchImpl: fakeFetch as unknown as typeof fetch });
   assert.ok(empty.ok && empty.pushed === 0, "nothing active → pushed 0");
-  assert.equal(calls, 1, "no extra POST when empty");
+  assert.equal(calls, 2, "no extra POST when empty");
+
+  // target 無し → POST しない
+  const noTarget = await relayCostOnce(db, { targets: [], service: "discutere", ts: 1, fetchImpl: fakeFetch as unknown as typeof fetch });
+  assert.ok(noTarget.ok && noTarget.pushed === 0, "no targets → pushed 0");
+  assert.equal(calls, 2, "no POST when no targets");
   db.close();
-  console.log("  [ok] relayCostOnce batches rows + skips empty");
+  console.log("  [ok] relayCostOnce multiplexes to all targets + skips empty/no-target");
 
   delete process.env.DATABASE_PATH;
   const { _resetFlowDb } = await import("../../src/flow/db/connection.js");
