@@ -127,6 +127,16 @@ bot 名義で締める (収束時 `finalizeForumPost` で lock+archive+まとめ
   collector は DI 境界 (`DEFAULT_COLLECTORS`) でテスト可能。クロール失敗は議論を止めない (graceful)。
   入口は Web UI (`flow/web/routes.ts`) と Discord フォーラム (`flow/discord-live.ts`、config 既定ソース)。
 
+- **議論前の情報ゲート (情報密度評価フェーズ, `docs/information-gate.md`)**: 旧 autoCrawl の単純カウント
+  閾値に代わり、議論/改善フロー開始の直前に **LLM が情報密度 (sparse/moderate/rich) と不足観点 (gaps) を
+  評価** し、不足なら不足観点を狙って学習 (クロール) → 再評価する自己改善ループを挟む。**自動モード固定**
+  (不足なら自動学習 → 十分になり次第そのまま議論を開始)。LLM 障害時は件数ベース fallback で degrade し
+  議論を止めない。設定 `flow.informationGating` (`enabled`/`minDensity`/`maxLearnIterations`/
+  `maxGapsPerIteration`、既定 ON・moderate・2・2)。`enabled=false` で旧 autoCrawl にフォールバック。
+  クロールのソース/maxItems は `flow.autoCrawl` を流用。本体 `src/flow/information-gate.ts` (DB 非依存・
+  単体テスト可) + グルー `information-gate-runner.ts` + 配線 `external-voices.ts`
+  (`listExternalVoices` を web/discord 経路に配線した T7 follow-up)。
+
 ## 個人データ
 
 匿名 workspace (`DISCATIER_WORKSPACE` 既定 `knowledge`)。攻略 KG / 議論ノードに編集者名・アカウント名を保存しない (`spec/crawler/DESIGN.md` 準拠)。

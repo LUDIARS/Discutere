@@ -66,6 +66,25 @@ export interface DiscutereConfig {
       /** 1 回のクロールで取り込む最大件数。既定 200。 */
       maxItems: number;
     };
+    /**
+     * 情報ゲート (議論/改善フロー開始前の情報密度評価フェーズ)。
+     * 旧 autoCrawl の単純カウント閾値に代わり、LLM が情報密度 (sparse/moderate/rich) と
+     * 不足観点を評価し、不足なら不足観点を狙って学習 → 再評価する。自動モード固定
+     * (不足なら自動学習 → 十分になり次第そのまま議論を開始)。enabled=false で従来の
+     * autoCrawl にフォールバックする。
+     */
+    informationGating: {
+      /** 有効化。既定 true。 */
+      enabled: boolean;
+      /** これ以上の密度なら十分とみなす閾値 (sparse|moderate|rich)。既定 moderate。 */
+      minDensity: string;
+      /** 不足時に学習を回す最大反復回数。既定 2。 */
+      maxLearnIterations: number;
+      /** 1 反復で狙い撃ちする不足観点の最大数 (= クロール回数の上限)。既定 2。 */
+      maxGapsPerIteration: number;
+      /** 評価に使うモデル ("" なら LLM の既定モデル)。 */
+      model: string;
+    };
   };
   /** 匿名議論 workspace (個人データ非保管) */
   workspace: string;
@@ -556,6 +575,29 @@ export function loadConfig(): DiscutereConfig {
           file.flow?.autoCrawl?.maxItems,
           200
         ),
+      },
+      informationGating: {
+        enabled: pickBool(
+          process.env.DISCUTERE_FLOW_INFOGATE_ENABLED,
+          file.flow?.informationGating?.enabled,
+          true
+        ),
+        minDensity: pick(
+          process.env.DISCUTERE_FLOW_INFOGATE_MIN_DENSITY,
+          file.flow?.informationGating?.minDensity,
+          "moderate"
+        ),
+        maxLearnIterations: pickNum(
+          process.env.DISCUTERE_FLOW_INFOGATE_MAX_ITERATIONS,
+          file.flow?.informationGating?.maxLearnIterations,
+          2
+        ),
+        maxGapsPerIteration: pickNum(
+          process.env.DISCUTERE_FLOW_INFOGATE_MAX_GAPS,
+          file.flow?.informationGating?.maxGapsPerIteration,
+          2
+        ),
+        model: pick(process.env.DISCUTERE_FLOW_INFOGATE_MODEL, file.flow?.informationGating?.model, ""),
       },
     },
     workspace: pick(process.env.DISCATIER_WORKSPACE, file.workspace, "knowledge"),

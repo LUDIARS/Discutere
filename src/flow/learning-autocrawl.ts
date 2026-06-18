@@ -177,6 +177,60 @@ function defaultImport(core: Core, items: ExternalUtterance[], workspaceId: stri
   }
 }
 
+export interface CollectAndImportDeps {
+  core: Core;
+  theme: string;
+  /** クロール発話に付ける gameSlug。 */
+  slug: string;
+  workspaceId: string;
+  spec: AutoCrawlSpec;
+  /** 1 回の取込上限。既定 200。 */
+  maxItems?: number;
+  youtubeApiKey?: string;
+  /** collector 差し替え (テスト用)。 */
+  collectors?: Partial<Record<AutoCrawlSource, Collector>>;
+  /** 取込関数 差し替え (テスト用)。 */
+  importItems?: (core: Core, items: ExternalUtterance[], workspaceId: string) => number;
+  log?: (msg: string) => void;
+  warn?: (msg: string) => void;
+}
+
+export interface CollectAndImportResult {
+  /** collector が取得した件数。 */
+  collected: number;
+  /** KG に取り込んだ件数。 */
+  imported: number;
+}
+
+/**
+ * 充足判定を挟まず、指定ソース/クエリで「取得 → 取込」だけを行う (情報ゲートの狙い撃ち学習で流用)。
+ * 充足ゲート付きの入口は ensureLearningData。
+ */
+export async function collectAndImport(deps: CollectAndImportDeps): Promise<CollectAndImportResult> {
+  const {
+    core,
+    theme,
+    slug,
+    workspaceId,
+    spec,
+    maxItems = 200,
+    youtubeApiKey,
+    log = () => {},
+    warn = () => {},
+  } = deps;
+  const importItems = deps.importItems ?? defaultImport;
+  const collector = (deps.collectors ?? {})[spec.source] ?? DEFAULT_COLLECTORS[spec.source];
+  if (!collector) {
+    warn(`未対応のクロールソース: ${spec.source}`);
+    return { collected: 0, imported: 0 };
+  }
+  const items = await collector({ gameSlug: slug, theme, spec, maxItems, youtubeApiKey });
+  if (items.length === 0) return { collected: 0, imported: 0 };
+  const imported = importItems(core, items, workspaceId);
+  log(`${spec.source}: ${items.length} 件取得 → ${imported} 件を KG に取込`);
+  return { collected: items.length, imported };
+}
+
 /**
  * テーマの学習データが不足していれば指定ソースでクロール → 取込する。
  * 充分なら no-op (skipped=true)。
@@ -217,8 +271,20 @@ export async function ensureLearningData(
   }
 
   log(`学習データ不足 (外部の声 ${voicesBefore} 件 < ${minVoices}) → ${spec.source} でクロール開始`);
-  const items = await collector({ gameSlug: slug, theme, spec, maxItems, youtubeApiKey });
-  if (items.length === 0) {
+  const { collected, imported } = await collectAndImport({
+    core,
+    theme,
+    slug,
+    workspaceId,
+    spec,
+    maxItems,
+    youtubeApiKey,
+    collectors: deps.collectors,
+    importItems,
+    log,
+    warn,
+  });
+  if (collected === 0) {
     return {
       crawled: false,
       voicesBefore,
@@ -227,13 +293,11 @@ export async function ensureLearningData(
       message: `${spec.source}: 取得 0 件 (議論はそのまま開始)`,
     };
   }
-  const imported = importItems(core, items, workspaceId);
-  log(`${spec.source}: ${items.length} 件取得 → ${imported} 件を KG に取込`);
   return {
     crawled: imported > 0,
     voicesBefore,
     imported,
     skipped: false,
-    message: `${spec.source} で ${items.length} 件取得 → ${imported} 件を学習データに追加`,
+    message: `${spec.source} で ${collected} 件取得 → ${imported} 件を学習データに追加`,
   };
 }
