@@ -36,18 +36,19 @@ export class WorkerPoolClient implements LLMClient {
     if (ready) {
       const reqId = randomUUID();
       try {
-        const text = await this.pool.dispatch(workerId, {
+        const { text, usage } = await this.pool.dispatch(workerId, {
           reqId,
           system: args.system ?? "",
           prompt: args.prompt,
         });
         // engine の handler は {action,...} JSON 前提。ワーカーは素の発話テキストを
-        // 返すので、ここで action JSON に包む (空応答は skip)。
+        // 返すので、ここで action JSON に包む (空応答は skip)。usage は action ラップに
+        // 関係なく LLMResult に載せ、withCostLog が llm_call_log に記録する (#135)。
         const trimmed = text.trim();
         if (trimmed.length === 0) {
-          return { ok: true, text: JSON.stringify({ action: "skip", reasoning: "worker skip (空応答)" }) };
+          return { ok: true, text: JSON.stringify({ action: "skip", reasoning: "worker skip (空応答)" }), usage };
         }
-        return { ok: true, text: JSON.stringify({ action: "post_utterance", text: trimmed }) };
+        return { ok: true, text: JSON.stringify({ action: "post_utterance", text: trimmed }), usage };
       } catch (err) {
         // worker 経路で失敗 → fallback があれば claude -p に回す。
         if (this.fallback) return this.invokeFallback(args, workerId);

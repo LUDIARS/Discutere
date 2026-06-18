@@ -12,6 +12,7 @@
 import { mkdirSync, writeFileSync } from "node:fs";
 import { join, isAbsolute } from "node:path";
 
+import type { TokenUsage } from "../types.js";
 import { buildStandingPrompt } from "./persona-prompts.js";
 import { killWorker, spawnWorker } from "./spawner.js";
 import type { WorkerConfig, WorkerPoolConfig, WorkerRuntime } from "./types.js";
@@ -21,9 +22,16 @@ export interface PoolLogger {
   warn: (msg: string, meta?: unknown) => void;
 }
 
+/** 1 ターンの callback 結果 (発話本文 + 任意の token usage)。 */
+export interface DispatchResult {
+  text: string;
+  /** worker-home の send.mjs が transcript から拾った token (任意, #135)。 */
+  usage?: TokenUsage;
+}
+
 interface PendingTurn {
   workerId: string;
-  resolve: (text: string) => void;
+  resolve: (result: DispatchResult) => void;
   reject: (err: Error) => void;
   timer: NodeJS.Timeout;
 }
@@ -194,7 +202,7 @@ export class WorkerPool {
   async dispatch(
     workerId: string,
     payload: { reqId: string; system: string; prompt: string }
-  ): Promise<string> {
+  ): Promise<DispatchResult> {
     const rt = this.workers.get(workerId);
     if (!rt) throw new Error(`unknown worker ${workerId}`);
     if (rt.lictorPort == null) throw new Error(`worker ${workerId} not registered (no port)`);
@@ -219,7 +227,7 @@ export class WorkerPool {
     await this.injectKeys(rt.lictorPort, "\r");
 
     rt.busy = true;
-    return new Promise<string>((resolve, reject) => {
+    return new Promise<DispatchResult>((resolve, reject) => {
       const timer = setTimeout(() => {
         this.pending.delete(payload.reqId);
         rt.busy = false;
@@ -229,8 +237,11 @@ export class WorkerPool {
     });
   }
 
-  /** callback 受信。対応する pending を resolve し、ワーカーを idle に戻す。 */
-  onUtterance(reqId: string, _workerId: string, text: string): void {
+  /**
+   * callback 受信。対応する pending を resolve し、ワーカーを idle に戻す。
+   * usage は send.mjs が transcript から拾った token (任意, #135)。
+   */
+  onUtterance(reqId: string, _workerId: string, text: string, usage?: TokenUsage): void {
     const p = this.pending.get(reqId);
     if (!p) {
       this.log.warn(`utterance for unknown/expired reqId ${reqId}`);
@@ -240,7 +251,7 @@ export class WorkerPool {
     this.pending.delete(reqId);
     const rt = this.workers.get(p.workerId);
     if (rt) rt.busy = false;
-    p.resolve(text);
+    p.resolve({ text, usage });
   }
 
   /** Lictor sidecar の /v1/keys に raw キーを送る。 */
