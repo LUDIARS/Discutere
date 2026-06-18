@@ -1,0 +1,47 @@
+name: Deploy docs site to GitHub Pages
+
+on:
+  push:
+    branches: [main, claude/nifty-einstein-0axl9u]
+    paths:
+      - "site/**"
+      - ".github/workflows/pages.yml"
+  workflow_dispatch:
+
+# Allow the GITHUB_TOKEN to deploy to Pages
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+# Allow one concurrent deployment; cancel in-progress runs
+concurrency:
+  group: pages
+  cancel-in-progress: true
+
+jobs:
+  deploy:
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      # NOTE: Pages must be enabled once in repo settings
+      # (Settings -> Pages -> Build and deployment -> Source: GitHub Actions).
+      # This org restricts the workflow GITHUB_TOKEN from enabling Pages via API
+      # (enablement: true returns "Resource not accessible by integration"),
+      # so the toggle is a one-time manual step by a repo admin.
+      - name: Setup Pages
+        uses: actions/configure-pages@v5
+
+      - name: Upload static site (./site)
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: ./site
+
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4

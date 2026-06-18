@@ -1,0 +1,283 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>ドメイン関連図 — Discutere</title>
+<link rel="stylesheet" href="style.css">
+<script src="https://unpkg.com/cytoscape@3.30.2/dist/cytoscape.min.js"></script>
+<style>
+  .graph-wrap{ display:grid; grid-template-columns: 1fr 320px; gap:18px; margin-top:18px; }
+  @media (max-width:980px){ .graph-wrap{ grid-template-columns:1fr; } }
+  #cy{ height:640px; background:var(--bg-soft); border:1px solid var(--border); border-radius:12px; }
+  .side{ display:flex; flex-direction:column; gap:14px; }
+  .panel{ background:var(--bg-card); border:1px solid var(--border); border-radius:12px; padding:16px; }
+  .panel h3{ margin:0 0 10px; font-size:15px; }
+  .legend-item{ display:flex; align-items:center; gap:8px; font-size:13px; margin:5px 0; cursor:pointer; }
+  .legend-item .dot{ width:13px; height:13px; border-radius:4px; flex:0 0 auto; }
+  .legend-item.off{ opacity:.4; }
+  #info .ititle{ font-weight:700; font-size:15px; margin-bottom:4px; }
+  #info .imeta{ font-family:var(--mono); font-size:12px; color:var(--fg-dim); margin-bottom:8px; }
+  #info .idesc{ font-size:13.5px; color:var(--fg); }
+  #info .empty{ color:var(--fg-dim); font-size:13px; }
+  .ctrls{ display:flex; gap:8px; flex-wrap:wrap; margin-top:8px; }
+  .ctrls button{ background:var(--bg-soft); border:1px solid var(--border); color:var(--fg-dim);
+    padding:6px 12px; border-radius:8px; font-size:13px; cursor:pointer; }
+  .ctrls button:hover{ color:var(--fg); }
+  .domlist details{ border-top:1px solid var(--border); padding:8px 0; }
+  .domlist details:first-child{ border-top:none; }
+  .domlist summary{ cursor:pointer; font-weight:600; font-size:14px; display:flex; align-items:center; gap:8px; }
+  .domlist summary .dot{ width:11px; height:11px; border-radius:3px; }
+  .domlist ul{ margin:6px 0 4px; padding-left:26px; }
+  .domlist li{ font-size:13px; color:var(--fg-dim); margin:3px 0; }
+  .domlist li code{ font-size:12px; }
+</style>
+</head>
+<body>
+<header class="site">
+  <div class="inner">
+    <span class="brand">Discutere <small>遊びの議論プラットフォーム</small></span>
+    <nav>
+      <a href="index.html">概要</a>
+      <a href="graph.html" class="active">ドメイン関連図</a>
+      <a href="api.html">API</a>
+      <a href="review.html">仕様レビュー</a>
+    </nav>
+  </div>
+</header>
+
+<main class="wide">
+  <div class="hero" style="padding-bottom:18px;">
+    <h1>ドメイン関連図</h1>
+    <p class="tagline">主要ドメインと機能、そして「データがどう流れて議論になるか」の依存関係をインタラクティブに表示。
+      ノードをクリックで詳細、凡例で色（ドメイン）を絞り込み。</p>
+  </div>
+
+  <div class="ctrls">
+    <button id="fit">全体表示</button>
+    <button id="relayout">再レイアウト</button>
+    <span class="muted" style="align-self:center;font-size:13px;">ドラッグで移動 / ホイールでズーム</span>
+  </div>
+
+  <div class="graph-wrap">
+    <div id="cy"></div>
+    <div class="side">
+      <div class="panel" id="info">
+        <div class="empty">ノードをクリックすると、ここに役割・対応パス・主な関連が表示されます。</div>
+      </div>
+      <div class="panel">
+        <h3>凡例（クリックで絞り込み）</h3>
+        <div id="legend"></div>
+      </div>
+    </div>
+  </div>
+
+  <h2>ドメイン / 機能リスト</h2>
+  <div class="panel domlist" id="domlist"></div>
+</main>
+
+<footer class="site">
+  Discutere — 自動生成ドキュメント / GitHub Pages。グラフは <code>src/</code> 構成と <code>spec/</code> を基に手編集。
+</footer>
+
+<script>
+// ---- domain categories ----
+const cats = {
+  transport: { label:'transport (Discord)', color:'#5865F2' },
+  intake:    { label:'分類 / 取り込み',      color:'#3fb950' },
+  engine:    { label:'議論エンジン (flow / persona)', color:'#6ea8fe' },
+  facil:     { label:'ファシリテーター',      color:'#d29922' },
+  data:      { label:'データ基盤 (Core/KG)',  color:'#a78bfa' },
+  crawl:     { label:'クローラ / 学習',       color:'#2dd4bf' },
+  view:      { label:'可視化 / API',          color:'#f0883e' },
+  ops:       { label:'運用 (backup/sync/config)', color:'#8b949e' },
+  legacy:    { label:'MACHINA (Iv 移管予定)', color:'#6e7681' },
+};
+
+// ---- nodes: id, label, cat, path, desc ----
+const N = [
+  ['gateway','Discord Gateway','transport','src/discord-hook/gateway.ts','discord.js の WS 常時接続。MessageCreate / ThreadCreate / ReactionAdd を捌く入口。bot 発言は破棄。'],
+  ['slash','slash 自動登録','transport','src/discord-hook/command-defs.ts','ClientReady で application command を登録。command-defs が single source of truth。'],
+  ['forum','フォーラム集約','transport','src/discord-hook/(forum)','guild 内の全 Forum チャンネルを「議論カテゴリ」として監視。タグで議論タイプ/観点を解決。'],
+  ['poster','webhook poster','transport','src/flow/poster.ts','persona 発話を人間名（webhook）でスレッドに投稿。結論は bot 名義で締める。'],
+  ['directives','進行役への調整指示','transport','docs/facilitator-directives.md','@Discutere メンションで「もっと簡単に」等の進行調整を facilitator/persona prompt に注入。'],
+
+  ['classifier','分類器 #LLM①','intake','src/discussion-seed/ (classifier)','Haiku で start_discussion / record_only を判定。worker-pool は使わず専用 client。'],
+  ['intake','平文取り込み','intake','src/discord-hook','discussionChannelIds の平文を utterance 化。designGap が立った種にだけ 👀。'],
+
+  ['flow','FlowDirector','engine','src/flow/director.ts','本番の議論オーケストレータ。議論/改善/学習/壁打ちの 4 フローを dispatch。'],
+  ['f_disc','議論フロー','engine','src/flow/director.ts','複数ラウンドで意見をぶつけ投票→結論。'],
+  ['f_impr','改善フロー','engine','src/flow/improvement.ts','投票/感情評価を機械計算に置換（design-gap / improvement-score）。'],
+  ['f_learn','学習フロー','engine','src/flow/learning.ts','テーマ即応のユーザ意見/メカニクスを記録（議論しない）。'],
+  ['f_spar','壁打ちフロー','engine','src/flow/sparring.ts','ユーザターン起点・上限付き無制限ラウンド。session を threadId で保持。'],
+  ['infogate','情報ゲート','engine','src/flow/information-gate.ts','議論開始前に LLM が情報密度を評価し、不足なら学習→再評価する自己改善ループ。'],
+  ['autocrawl','議論前自動クロール','engine','src/flow/learning-autocrawl.ts','学習データが閾値未満なら指定ソースでクロール→KG 取込してから議論開始。'],
+  ['persona','persona-engine','engine','src/persona-engine/engine/engine.ts','1 秒 tick + event 駆動の決定論ルールエンジン。mutex で並列禁止 / cooldown / kill switch。'],
+  ['promptb','prompt-builder','engine','src/persona-engine/engine/prompt-builder.ts','persona identity + 議論コンテキスト + 外部の声 RAG を prompt 化。'],
+  ['ctxprov','context-provider','engine','src/persona-engine/context-provider.ts','persona-engine と Core の境界。構造化データだけ read/write。RAG の listRelevantExternalVoices。'],
+  ['wpool','worker-pool','engine','src/persona-engine/worker-pool/pool.ts','各ペルソナを常駐 CLI（Lictor）ワーカーとして spawn。/api/worker-pool で制御。'],
+
+  ['facil','facilitator #LLM②','facil','src/persona-engine (facilitator)','論点を絞る / 止揚で対立統合 / 収束を促す。tick + human 即応。'],
+  ['converge','収束まとめ','facil','src/flow (finalizeForumPost)','gap を closed にしてスレッドを lock+archive、まとめを「まとめ投稿」へ転記。'],
+
+  ['core','Discatier Core','data','src/core/','Event Sourcing の議論データモデル。DesignGap → Hypothesis → Utterance。'],
+  ['kuzu','Kuzu 射影','data','src/core/kuzu-projection.ts','イベントを Kuzu(SQLite) グラフへ dual-write。'],
+  ['kgreg','タスク別 KG','data','src/config.ts (knowledgeGraphs)','学習 KG を収集目的ごとに分割。activeKg で起動時に 1 つ選択。'],
+
+  ['crawlA','ゲーム KG クローラ','crawl','src/crawler/','著名ゲーム攻略を構造化抽出し Game/Mechanic/Aesthetic ノードへ。要約のみ。'],
+  ['crawlB','外部議論クローラ','crawl','src/crawler/ (external)','URL を steam/youtube/reddit 等に分類して取り込む。'],
+  ['sentiment','感情分析','crawl','src/crawler/sentiment/','lexicon + cascade で感情ベクトル化（DB 配線は follow-up）。'],
+  ['rag','外部の声 RAG','crawl','src/flow/external-voices.ts','議題語で外部発話を検索し出所付き・個人仮名で prompt 注入。'],
+
+  ['api','HTTP API (Hono)','view','src/api/ + src/index.ts','71 ルート。admin 制御 / dashboard / queue / 学習ビュー等。'],
+  ['webchat','Web チャット議論','view','src/web-chat/','Discord 非依存の 1 ページチャット。scene=web:<room>。'],
+  ['visualize','Visualize (md export)','view','src/visualize/','ノードを 1 ノード=1 md に wikilink で書き出し。結論 md エクスポート。'],
+  ['ludus','Ludus 経済グラフ','view','src/api/economy-graph-routes.ts','メカニクスの経済関係を vis-network で可視化。'],
+  ['queue','議論キュー可視化','view','src/queue/snapshot.ts','進行中 session / open gap / 検証待ち hypothesis のスナップショット。'],
+
+  ['kgsync','KG-Sync','ops','src/kg-sync/','KG を master から NDJSON で配信・取込（/api/kg/migrations）。'],
+  ['backup','S3 バックアップ','ops','src/backup/','KG + 全 SQLite を tar.gz 化し S3(Glacier) へ。月次自動 + 手動。'],
+  ['config','config.ts','ops','src/config.ts','単一 typed config（default < discutere.config.json < env）。全ドメインの設定源。'],
+
+  ['machina','MACHINA','legacy','src/machina/','旧 Chat-to-Task 自動化。Imperativus(Iv) へ移管予定。議論とは独立。'],
+];
+
+// ---- edges: source, target, label ----
+const E = [
+  ['gateway','classifier','MessageCreate'],
+  ['gateway','intake','平文'],
+  ['gateway','forum','ThreadCreate'],
+  ['gateway','slash',''],
+  ['gateway','directives','@mention'],
+  ['classifier','core','designGap'],
+  ['intake','core','utterance'],
+  ['forum','flow','dispatchFlow'],
+  ['webchat','flow','web:room'],
+  ['flow','f_disc',''],['flow','f_impr',''],['flow','f_learn',''],['flow','f_spar',''],
+  ['flow','infogate','開始前'],
+  ['infogate','autocrawl','不足時'],
+  ['autocrawl','crawlB','学習'],
+  ['flow','persona','発話駆動'],
+  ['persona','promptb',''],
+  ['promptb','ctxprov',''],
+  ['ctxprov','core','read/write'],
+  ['persona','wpool','spawn'],
+  ['persona','facil',''],
+  ['facil','converge','収束'],
+  ['converge','core','gap closed'],
+  ['flow','poster','onUtterance'],
+  ['facil','poster','まとめ'],
+  ['poster','gateway','webhook 投稿'],
+  ['crawlA','core','KG import'],
+  ['crawlB','core','KG import'],
+  ['crawlB','sentiment',''],
+  ['rag','ctxprov','外部の声'],
+  ['promptb','rag','検索'],
+  ['core','kuzu',''],
+  ['core','kgreg',''],
+  ['core','visualize','md export'],
+  ['core','kgsync','配信'],
+  ['core','backup','tar.gz'],
+  ['core','queue','snapshot'],
+  ['api','core','制御'],
+  ['api','persona','admin'],
+  ['api','flow','起動'],
+  ['ludus','core','mechanics'],
+  ['config','flow','設定'],
+  ['config','persona','設定'],
+  ['config','gateway','設定'],
+];
+
+const byId = Object.fromEntries(N.map(n=>[n[0],n]));
+const elements = [];
+for (const [id,label,cat,path,desc] of N) {
+  elements.push({ data:{ id, label, cat, path, desc, color:cats[cat].color } });
+}
+for (const [s,t,label] of E) {
+  elements.push({ data:{ id:`${s}__${t}`, source:s, target:t, label } });
+}
+
+const cy = cytoscape({
+  container: document.getElementById('cy'),
+  elements,
+  style: [
+    { selector:'node', style:{
+      'background-color':'data(color)',
+      'label':'data(label)',
+      'color':'#e6edf3',
+      'font-size':'11px',
+      'font-family':'-apple-system, "Noto Sans JP", sans-serif',
+      'text-valign':'bottom','text-halign':'center','text-margin-y':4,
+      'width':18,'height':18,'border-width':2,'border-color':'#0d1117',
+      'text-outline-width':2,'text-outline-color':'#0d1117',
+    }},
+    { selector:'node:selected', style:{ 'border-color':'#fff','border-width':3,'width':24,'height':24 }},
+    { selector:'edge', style:{
+      'width':1.4,'line-color':'#3a4452','target-arrow-color':'#3a4452',
+      'target-arrow-shape':'triangle','curve-style':'bezier','arrow-scale':0.8,
+      'label':'data(label)','font-size':'8.5px','color':'#7d8896',
+      'text-outline-width':2,'text-outline-color':'#0d1117','text-rotation':'autorotate',
+    }},
+    { selector:'.dim', style:{ 'opacity':0.12 }},
+    { selector:'.hl', style:{ 'line-color':'#6ea8fe','target-arrow-color':'#6ea8fe','width':2.4,'opacity':1 }},
+  ],
+  layout: { name:'cose', animate:false, nodeRepulsion:9000, idealEdgeLength:90, padding:30 },
+  wheelSensitivity:0.25,
+});
+
+// info panel
+const info = document.getElementById('info');
+function showInfo(d){
+  const ins = cy.edges(`[target="${d.id}"]`).map(e=>byId[e.data('source')][1]);
+  const outs = cy.edges(`[source="${d.id}"]`).map(e=>byId[e.data('target')][1]);
+  info.innerHTML =
+    `<div class="ititle" style="color:${d.color}">${d.label}</div>`+
+    `<div class="imeta">${cats[d.cat].label} · ${d.path}</div>`+
+    `<div class="idesc">${d.desc}</div>`+
+    (ins.length?`<div class="idesc" style="margin-top:10px"><span class="muted">← 入力元:</span> ${ins.join(', ')}</div>`:'')+
+    (outs.length?`<div class="idesc" style="margin-top:4px"><span class="muted">→ 出力先:</span> ${outs.join(', ')}</div>`:'');
+}
+cy.on('tap','node', evt=>{
+  const n = evt.target;
+  cy.elements().addClass('dim');
+  n.removeClass('dim'); n.neighborhood().removeClass('dim');
+  n.connectedEdges().removeClass('dim').addClass('hl');
+  showInfo(n.data());
+});
+cy.on('tap', evt=>{ if(evt.target===cy){ cy.elements().removeClass('dim hl'); } });
+
+// legend + filter
+const legend = document.getElementById('legend');
+const offCats = new Set();
+for (const [key,c] of Object.entries(cats)) {
+  const el = document.createElement('div');
+  el.className='legend-item';
+  el.innerHTML = `<span class="dot" style="background:${c.color}"></span><span>${c.label}</span>`;
+  el.addEventListener('click', ()=>{
+    if(offCats.has(key)){ offCats.delete(key); el.classList.remove('off'); }
+    else { offCats.add(key); el.classList.add('off'); }
+    cy.nodes().forEach(n=>{
+      n.style('display', offCats.has(n.data('cat')) ? 'none' : 'element');
+    });
+  });
+  legend.appendChild(el);
+}
+
+// domain list
+const domlist = document.getElementById('domlist');
+for (const [key,c] of Object.entries(cats)) {
+  const items = N.filter(n=>n[2]===key);
+  const det = document.createElement('details');
+  if (['transport','engine','data'].includes(key)) det.open = true;
+  det.innerHTML = `<summary><span class="dot" style="background:${c.color}"></span>${c.label} <span class="muted" style="font-weight:400">(${items.length})</span></summary>`+
+    `<ul>${items.map(n=>`<li><strong style="color:var(--fg)">${n[1]}</strong> — ${n[4]} <code>${n[3]}</code></li>`).join('')}</ul>`;
+  domlist.appendChild(det);
+}
+
+document.getElementById('fit').addEventListener('click', ()=>cy.fit(null,30));
+document.getElementById('relayout').addEventListener('click', ()=>{
+  cy.layout({ name:'cose', animate:true, nodeRepulsion:9000, idealEdgeLength:90, padding:30 }).run();
+});
+</script>
+</body>
+</html>

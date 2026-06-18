@@ -1,0 +1,278 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>API リファレンス — Discutere</title>
+<link rel="stylesheet" href="style.css">
+<style>
+  .api-controls { display:flex; gap:10px; flex-wrap:wrap; align-items:center; margin:8px 0 24px; }
+  .api-controls input[type=search]{
+    flex:1; min-width:220px; background:var(--bg-soft); border:1px solid var(--border);
+    color:var(--fg); border-radius:8px; padding:9px 12px; font-size:14px; font-family:var(--sans);
+  }
+  .filterbtn{ background:var(--bg-soft); border:1px solid var(--border); color:var(--fg-dim);
+    padding:7px 13px; border-radius:8px; font-size:13px; cursor:pointer; }
+  .filterbtn.active{ background:var(--bg-card); color:var(--fg); border-color:#2d4a7a; }
+  .grp { margin:30px 0 0; }
+  .grp > h3 { display:flex; align-items:center; gap:10px; }
+  .grp .gcount{ font-size:12px; color:var(--fg-dim); font-weight:400; }
+  .ep { border:1px solid var(--border); border-radius:10px; margin:8px 0; background:var(--bg-card); overflow:hidden; }
+  .ep > summary {
+    list-style:none; cursor:pointer; padding:11px 14px; display:flex; align-items:center; gap:12px;
+  }
+  .ep > summary::-webkit-details-marker{ display:none; }
+  .ep > summary:hover{ background:var(--bg-soft); }
+  .ep .path{ font-family:var(--mono); font-size:13.5px; color:var(--fg); }
+  .ep .purpose{ color:var(--fg-dim); font-size:13px; margin-left:auto; text-align:right; }
+  .ep .chev{ color:var(--fg-dim); transition:transform .15s; }
+  .ep[open] .chev{ transform:rotate(90deg); }
+  .ep .body{ padding:4px 16px 16px; border-top:1px solid var(--border); }
+  .ep .body dl{ display:grid; grid-template-columns:120px 1fr; gap:6px 16px; margin:14px 0 0; font-size:14px; }
+  .ep .body dt{ color:var(--fg-dim); font-size:13px; }
+  .ep .body dd{ margin:0; }
+  .ep .body dd code{ font-size:13px; }
+  .typetag{ font-size:10.5px; padding:2px 7px; border-radius:5px; font-weight:600; }
+  .typetag.json{ background:rgba(167,139,250,.16); color:var(--accent-2); }
+  .typetag.html{ background:rgba(154,167,180,.16); color:var(--fg-dim); }
+  .typetag.stream{ background:rgba(210,153,34,.16); color:var(--amber); }
+  @media (max-width:700px){ .ep .purpose{ display:none; } .ep .body dl{ grid-template-columns:1fr; } }
+</style>
+</head>
+<body>
+<header class="site">
+  <div class="inner">
+    <span class="brand">Discutere <small>遊びの議論プラットフォーム</small></span>
+    <nav>
+      <a href="index.html">概要</a>
+      <a href="graph.html">ドメイン関連図</a>
+      <a href="api.html" class="active">API</a>
+      <a href="review.html">仕様レビュー</a>
+    </nav>
+  </div>
+</header>
+
+<main>
+  <div class="hero" style="padding-bottom:18px;">
+    <h1>API リファレンス</h1>
+    <p class="tagline">HTTP ルート全 71 件。JSON API / HTML 管理画面 / ストリームを横断で一覧。</p>
+    <div class="badge-row">
+      <span class="badge accent">Hono + @hono/node-server</span>
+      <span class="badge">:3100 listen</span>
+      <span class="badge">大半は loopback / admin allowlist</span>
+    </div>
+  </div>
+
+  <div class="callout">
+    すべてのルーターは <code>src/index.ts</code> でマウントされる。<code>/api/admin/*</code> の多くは
+    <code>requireAdmin</code>（<code>X-User-Id</code> ヘッダ + admin role）で保護。<code>/internal/*</code> /
+    <code>/chat</code> / <code>/flow</code> / <code>/ludus</code> / <code>/health</code> は loopback 前提で未認証。
+    Webhook（Slack/Discord）は署名検証（HMAC / Ed25519）あり。各エントリをクリックで詳細展開。
+  </div>
+
+  <div class="api-controls">
+    <input id="search" type="search" placeholder="パス・用途で絞り込み (例: queue, flow, monitors)…">
+    <button class="filterbtn active" data-f="all">すべて</button>
+    <button class="filterbtn" data-f="json">JSON API</button>
+    <button class="filterbtn" data-f="html">HTML 画面</button>
+  </div>
+
+  <div id="apiroot"></div>
+</main>
+
+<footer class="site">
+  Discutere — 自動生成ドキュメント / GitHub Pages。
+  実装の真実は <code>src/api/</code> と <code>src/index.ts</code>。
+</footer>
+
+<script>
+const T = { json:'JSON', html:'HTML', stream:'STREAM' };
+const groups = [
+  { name:'Root / Health', file:'src/index.ts', eps:[
+    {m:'GET', p:'/health', t:'json', purpose:'ヘルスチェック', resp:'{status:"ok", service:"discutere"}', auth:'なし', loc:'index.ts:91'},
+  ]},
+  { name:'トップ / ガイド', file:'src/api/top-page-routes.ts, guide-routes.ts', eps:[
+    {m:'GET', p:'/', t:'html', purpose:'全 Web UI へのランディングページ', auth:'なし', loc:'top-page-routes.ts:20'},
+    {m:'GET', p:'/guide', t:'html', purpose:'Discord フォーラム/チャンネルの使い方・ルール', auth:'なし', loc:'guide-routes.ts:155'},
+  ]},
+  { name:'学習ビュー (Learning View)', file:'src/api/learning-view-routes.ts', eps:[
+    {m:'GET', p:'/learning', t:'html', purpose:'学習ビュー SPA', auth:'なし', loc:'learning-view-routes.ts:24'},
+    {m:'GET', p:'/learning/gap', t:'json', purpose:'ギャップ率サマリ（事前ビルドキャッシュ）', resp:'{games:[]}', auth:'なし', loc:':27'},
+    {m:'GET', p:'/learning/gap/detail', t:'json', purpose:'1 ゲームのギャップ詳細', q:'?slug=', auth:'なし', loc:':37'},
+    {m:'GET', p:'/learning/sources', t:'json', purpose:'データソース構成', resp:'{totals,sources,byGame}', auth:'なし', loc:':49'},
+    {m:'GET', p:'/learning/conclusions', t:'json', purpose:'旧 design_gap + 新フロー結論をマージ', q:'?limit=100', resp:'{conclusions:[]}', auth:'なし', loc:':61'},
+    {m:'GET', p:'/learning/conclusion', t:'json', purpose:'結論詳細（gap が flow: prefix なら新フロー）', q:'?gap=', auth:'なし', loc:':79'},
+    {m:'GET', p:'/learning/conclusion/export', t:'stream', purpose:'議論を Markdown でダウンロード', q:'?gap=', resp:'text/markdown attachment', auth:'なし', loc:':101'},
+    {m:'GET', p:'/learning/data', t:'json', purpose:'学習レイヤーのスナップショット', q:'?layer=&limit=60&detailLimit=8', auth:'なし', loc:':130'},
+  ]},
+  { name:'Worker コールバック (internal)', file:'src/api/worker.ts', eps:[
+    {m:'POST', p:'/internal/worker/register', t:'json', purpose:'ワーカー自己登録', body:'{workerId:string, lictorPort:number, lictorPid?:number}', resp:'{ok}', auth:'loopback', loc:'worker.ts:55'},
+    {m:'POST', p:'/internal/worker/utterance', t:'json', purpose:'ワーカー 1 ターンの発話', body:'{reqId:string, workerId?:string, text?:string, usage?:TokenUsage}', resp:'{ok}', auth:'loopback', loc:'worker.ts:68'},
+  ]},
+  { name:'MACHINA (タスク / モニタ / Webhook)', file:'src/machina/routes.ts', note:'Iv へ移管予定。group-access ガード（Webhook は署名検証）', eps:[
+    {m:'GET', p:'/api/groups/:workspaceId/tasks', t:'json', purpose:'タスク一覧', q:'?status=', resp:'{tasks:[]}', auth:'group', loc:':86'},
+    {m:'GET', p:'/api/groups/:workspaceId/tasks/:taskId', t:'json', purpose:'タスク詳細', resp:'{task,logs}', auth:'group', loc:':118'},
+    {m:'POST', p:'/api/groups/:workspaceId/tasks', t:'json', purpose:'タスク作成', body:'{title, description?, priority?, assigneeId?, dueDate?}', auth:'group', loc:':147'},
+    {m:'PUT', p:'/api/groups/:workspaceId/tasks/:taskId', t:'json', purpose:'タスク更新', body:'{title?, description?, status?, priority?, assigneeId?, dueDate?, isCriticalPath?}', auth:'group', loc:':217'},
+    {m:'DELETE', p:'/api/groups/:workspaceId/tasks/:taskId', t:'json', purpose:'タスク削除', resp:'{deleted}', auth:'group', loc:':317'},
+    {m:'GET', p:'/api/groups/:workspaceId/tasks/:taskId/logs', t:'json', purpose:'タスクログ', resp:'{logs}', auth:'group', loc:':342'},
+    {m:'POST', p:'/api/groups/:workspaceId/tasks/:taskId/relay', t:'json', purpose:'PM への手動リレー (M2)', auth:'group', loc:':365'},
+    {m:'GET', p:'/api/groups/:workspaceId/monitors', t:'json', purpose:'チャンネルモニタ一覧（秘密はマスク）', resp:'{monitors}', auth:'group', loc:':419'},
+    {m:'POST', p:'/api/groups/:workspaceId/monitors', t:'json', purpose:'モニタ追加', body:'{platform, channelId, channelName, webhookEndpointId?, botToken?, botWorkspaceId?, botSigningSecret?, captureMessages?, mode?, discussionDelayMinutes?, githubRepo?, githubDiscussionCategoryId?}', auth:'group', loc:':449'},
+    {m:'PUT', p:'/api/groups/:workspaceId/monitors/:id', t:'json', purpose:'モニタ更新', body:'{channelName?, isActive?, webhookEndpointId?, botToken?, captureMessages?, mode?, …}', auth:'group', loc:':514'},
+    {m:'DELETE', p:'/api/groups/:workspaceId/monitors/:id', t:'json', purpose:'モニタ削除', resp:'{deleted}', auth:'group', loc:':568'},
+    {m:'GET', p:'/api/groups/:workspaceId/monitors/:id/messages', t:'json', purpose:'チャットログ', q:'?limit=100', resp:'{messages,total}', auth:'group', loc:':593'},
+    {m:'GET', p:'/api/groups/:workspaceId/monitors/:id/summaries', t:'json', purpose:'要約一覧', resp:'{summaries}', auth:'group', loc:':620'},
+    {m:'POST', p:'/api/groups/:workspaceId/monitors/:id/summaries', t:'json', purpose:'要約生成', body:'{periodStart?, periodEnd?, hours?}', auth:'group', loc:':641'},
+    {m:'DELETE', p:'/api/groups/:workspaceId/monitors/:id/summaries/:summaryId', t:'json', purpose:'要約削除', resp:'{deleted}', auth:'group', loc:':721'},
+    {m:'POST', p:'/api/webhook/slack', t:'json', purpose:'Slack Events 受信（HMAC 検証 / url_verification 対応）', q:'?workspaceId=', auth:'HMAC 署名', loc:':748'},
+    {m:'POST', p:'/api/webhook/discord', t:'json', purpose:'Discord Webhook 受信（Ed25519 検証）', q:'?workspaceId=', auth:'Ed25519 署名', loc:':802'},
+    {m:'POST', p:'/api/analyze', t:'json', purpose:'メッセージ分析', body:'{text, platform?}', resp:'{analysis}', auth:'group', loc:':850'},
+    {m:'POST', p:'/api/groups/:workspaceId/ludus/learn', t:'json', purpose:'メカニクス学習ジョブ開始', body:'{gameTitle, query, limit?}', resp:'202 {ok,jobId}', auth:'group', loc:':872'},
+    {m:'GET', p:'/api/groups/:workspaceId/ludus/jobs', t:'json', purpose:'ludus 学習ジョブ一覧', resp:'{jobs}', auth:'group', loc:':902'},
+    {m:'GET', p:'/api/groups/:workspaceId/ludus/mechanics', t:'json', purpose:'メカニクス一覧/検索', q:'?gameTitle=', resp:'{mechanics}', auth:'group', loc:':914'},
+    {m:'GET', p:'/api/status', t:'json', purpose:'MACHINA モジュール状態', auth:'group', loc:':932'},
+    {m:'GET', p:'/api/groups/:workspaceId/mode-sessions', t:'json', purpose:'進行中タスク/議論セッション', resp:'{taskSessions,discussionSessions}', auth:'group', loc:':953'},
+    {m:'POST', p:'/api/groups/:workspaceId/mode-sessions/task/:sessionId/resume', t:'json', purpose:'ヒアリング補足を注入し再分類', body:'{supplement}', auth:'group', loc:':990'},
+    {m:'DELETE', p:'/api/groups/:workspaceId/mode-sessions/task/:sessionId', t:'json', purpose:'タスクセッション破棄', resp:'{dismissed}', auth:'group', loc:':1021'},
+    {m:'POST', p:'/api/groups/:workspaceId/mode-sessions/discussion/:sessionId/flush', t:'json', purpose:'議論セッションを即時実行', resp:'{result}', auth:'group', loc:':1046'},
+    {m:'DELETE', p:'/api/groups/:workspaceId/mode-sessions/discussion/:sessionId', t:'json', purpose:'議論セッション破棄', resp:'{dismissed}', auth:'group', loc:':1070'},
+  ]},
+  { name:'Admin (persona-engine 制御)', file:'src/api/admin-routes.ts', note:'admin role 必須', eps:[
+    {m:'POST', p:'/api/admin/rules/enabled', t:'json', purpose:'自走 debate のオン/オフ', body:'{enabled:boolean}', resp:'{ok,enabled}', auth:'admin', loc:':60'},
+    {m:'POST', p:'/api/admin/session/reset', t:'json', purpose:'safety cap を解除', body:'{sessionId:string}', auth:'admin', loc:':71'},
+    {m:'POST', p:'/api/admin/gaps/:id/dismiss', t:'json', purpose:'open な DesignGap を 1 件却下', resp:'{ok,dismissed}', auth:'admin', loc:':86'},
+    {m:'POST', p:'/api/admin/gaps/dismiss-open', t:'json', purpose:'open gap を一括却下', auth:'admin', loc:':104'},
+    {m:'POST', p:'/api/admin/sessions/:id/close', t:'json', purpose:'セッション + gap をクローズ', resp:'{ok,endedSessions,closedGaps}', auth:'admin', loc:':127'},
+    {m:'POST', p:'/api/admin/sessions/:id/converge', t:'json', purpose:'facilitator を即収束（LLM 要約）', resp:'{ok,converged,results}', auth:'admin', loc:':180'},
+    {m:'GET', p:'/api/admin/status', t:'json', purpose:'kill-switch 状態 + rule-log 件数', auth:'admin', loc:':216'},
+    {m:'POST', p:'/api/admin/seed-sweep', t:'json', purpose:'未検出投稿を再スイープ', body:'{limit?}', resp:'{ok,scanned,seeded}', auth:'admin', loc:':229'},
+    {m:'GET', p:'/api/admin/learning/topics', t:'json', purpose:'トピック別意見スナップショット', q:'?limit=40&opinionsPerTopic=8', auth:'admin', loc:':243'},
+    {m:'GET', p:'/api/admin/metrics/personas', t:'json', purpose:'ペルソナ採用メトリクス', resp:'{metrics}', auth:'admin', loc:':263'},
+    {m:'GET', p:'/api/admin/metrics/rules', t:'json', purpose:'ルールメトリクス', resp:'{metrics}', auth:'admin', loc:':275'},
+    {m:'GET', p:'/api/admin/rules', t:'json', purpose:'全ルール + 注釈', q:'?includeRemoved=1', resp:'{rules}', auth:'admin', loc:':284'},
+    {m:'GET', p:'/api/admin/rules/:id/logs', t:'json', purpose:'ルール発火ログ', q:'?limit=50', resp:'{rule_id,logs}', auth:'admin', loc:':314'},
+  ]},
+  { name:'ダッシュボード / エラー / 合意度', file:'src/api/dashboard-routes.ts, errors-routes.ts, consensus-routes.ts', note:'admin', eps:[
+    {m:'GET', p:'/api/admin/dashboard', t:'html', purpose:'persona-engine ダッシュボード（SSR + polling）', auth:'admin', loc:'dashboard-routes.ts:22'},
+    {m:'GET', p:'/api/admin/errors', t:'json', purpose:'直近の console.error/warn', q:'?limit=100', resp:'{errors}', auth:'admin', loc:'errors-routes.ts:19'},
+    {m:'POST', p:'/api/admin/errors/clear', t:'json', purpose:'エラーバッファをクリア', resp:'{ok}', auth:'admin', loc:'errors-routes.ts:26'},
+    {m:'GET', p:'/api/admin/consensus', t:'html', purpose:'合意度スコア制御ページ', auth:'admin', loc:'consensus-routes.ts:41'},
+    {m:'GET', p:'/api/admin/consensus/gaps', t:'json', purpose:'直近 debate gap（dropdown 用）', resp:'{gaps}', auth:'admin', loc:':47'},
+    {m:'GET', p:'/api/admin/consensus/:gapId', t:'json', purpose:'gap の意見 + consensus_scores', resp:'{gapId,opinions}', auth:'admin', loc:':78'},
+  ]},
+  { name:'議論キュー / ノイズ / データソース', file:'src/api/queue-routes.ts, noise-routes.ts, datasource-routes.ts', note:'admin', eps:[
+    {m:'GET', p:'/api/admin/queue', t:'json', purpose:'議論キュー snapshot（session/gap/hypothesis）', auth:'admin', loc:'queue-routes.ts:23'},
+    {m:'GET', p:'/api/admin/noise', t:'html', purpose:'ノイズ管理 UI', auth:'admin', loc:'noise-routes.ts:52'},
+    {m:'GET', p:'/api/admin/noise/groups', t:'json', purpose:'セッション + ソースグループ', resp:'{sessions,sources}', auth:'admin', loc:':59'},
+    {m:'GET', p:'/api/admin/noise/utterances', t:'json', purpose:'除外フラグ付き発話', q:'?sessionId= | ?source=', auth:'admin', loc:':100'},
+    {m:'POST', p:'/api/admin/noise/exclude', t:'json', purpose:'発話を除外', body:'{utteranceId, reason?}', resp:'{ok}', auth:'admin', loc:':143'},
+    {m:'POST', p:'/api/admin/noise/restore', t:'json', purpose:'発話を復元', body:'{utteranceId}', resp:'{ok}', auth:'admin', loc:':159'},
+    {m:'GET', p:'/api/admin/datasources', t:'json', purpose:'ソース別件数 + KG レジストリ', resp:'{activeKg,knowledgeGraphs,sources}', auth:'admin', loc:'datasource-routes.ts:49'},
+    {m:'GET', p:'/api/admin/datasources/:source/utterances', t:'json', purpose:'ソース別発話', q:'?gameSlug=&limit=200', resp:'{source,gameSlug,items}', auth:'admin', loc:':72'},
+    {m:'POST', p:'/api/admin/datasources/exclude', t:'json', purpose:'発話/ソース単位で除外', body:'{utteranceId?, source?, gameSlug?}', resp:'{ok,excluded}', auth:'admin', loc:':116'},
+    {m:'POST', p:'/api/admin/datasources/active-kg', t:'json', purpose:'次回 active KG を設定（要再起動）', body:'{id}', resp:'{ok,activeKg,restartRequired:true}', auth:'admin', loc:':153'},
+  ]},
+  { name:'Worker-pool 制御', file:'src/api/worker-pool-control.ts', note:'backend=worker-pool 時のみ有効（他は 503）', eps:[
+    {m:'GET', p:'/api/worker-pool/status', t:'json', purpose:'プール状態', resp:'{enabled,workers}', auth:'admin', loc:':29'},
+    {m:'POST', p:'/api/worker-pool/start', t:'json', purpose:'プール起動', resp:'{ok,workers}', auth:'admin', loc:':34'},
+    {m:'POST', p:'/api/worker-pool/stop', t:'json', purpose:'プール停止', resp:'{ok}', auth:'admin', loc:':40'},
+    {m:'POST', p:'/api/worker-pool/worker/:id/start', t:'json', purpose:'ワーカー 1 つ起動', resp:'{ok} (200/404)', auth:'admin', loc:':46'},
+    {m:'POST', p:'/api/worker-pool/worker/:id/stop', t:'json', purpose:'ワーカー 1 つ停止', resp:'{ok} (200/404)', auth:'admin', loc:':52'},
+    {m:'GET', p:'/api/worker-pool', t:'html', purpose:'Worker-pool 制御 UI', auth:'admin', loc:':58'},
+  ]},
+  { name:'チューニング', file:'src/api/tuning-routes.ts', note:'requireAdmin なし（store 準備のみ確認）', eps:[
+    {m:'GET', p:'/api/admin/tuning/data', t:'json', purpose:'現行チューニング設定', resp:'{enabled,facilitator,rolePrompts,ruleInstructions,costRelay}', auth:'なし*', loc:':40'},
+    {m:'PUT', p:'/api/admin/tuning/cost-relay', t:'json', purpose:'コストリレー設定', body:'{enabled?, anatomiaUrl?, concordiaUrl?, service?}', resp:'{ok,costRelay}', auth:'なし*', loc:':51'},
+    {m:'PUT', p:'/api/admin/tuning/facilitator', t:'json', purpose:'facilitator 設定', body:'{tickMs?, idleGapMs?, maxPersonas?, aufhebungTarget?, convergePolicy?}', auth:'なし*', loc:':63'},
+    {m:'PUT', p:'/api/admin/tuning/role', t:'json', purpose:'ロール別プロンプト', body:'{role, text?}', auth:'なし*', loc:':75'},
+    {m:'PUT', p:'/api/admin/tuning/rule', t:'json', purpose:'ルール別指示', body:'{ruleId, text?}', auth:'なし*', loc:':83'},
+    {m:'GET', p:'/api/admin/tuning', t:'html', purpose:'チューニング UI', auth:'なし*', loc:':92'},
+  ]},
+  { name:'KG 同期', file:'src/api/kg-migration-routes.ts', eps:[
+    {m:'GET', p:'/api/kg/migrations', t:'stream', purpose:'KG-sync 配信（master）— NDJSON', q:'?since=<epochMs>&token= / x-kg-token ヘッダ', resp:'application/x-ndjson（x-kg-watermark / x-kg-count ヘッダ付き）', auth:'token（任意）', loc:':29'},
+  ]},
+  { name:'Economy グラフ (Ludus)', file:'src/api/economy-graph-routes.ts', eps:[
+    {m:'POST', p:'/api/ludus/analyze-economy', t:'json', purpose:'経済分析を開始', body:'{gameTitle?, slug?, force?}', resp:'{ok,slug,message}', auth:'なし', loc:':234'},
+    {m:'GET', p:'/api/ludus/economy-graphs', t:'json', purpose:'グラフ一覧', resp:'[{slug,gameTitle,mechanicCount,updatedAt}]', auth:'なし', loc:':255'},
+    {m:'GET', p:'/api/ludus/economy-graph/:slug', t:'json', purpose:'1 つの EconomyGraph JSON', resp:'EconomyGraph (404 if absent)', auth:'なし', loc:':267'},
+    {m:'GET', p:'/ludus/economy-graph/:slug', t:'html', purpose:'インタラクティブ経済グラフ（vis-network）', auth:'なし', loc:':275'},
+  ]},
+  { name:'Web チャット議論', file:'src/api/web-chat-routes.ts', note:'loopback', eps:[
+    {m:'GET', p:'/chat', t:'html', purpose:'1 ページ Web チャット議論 UI', auth:'loopback', loc:':49'},
+    {m:'GET', p:'/api/chat/:room/messages', t:'json', purpose:'トランスクリプトをポーリング', q:'?since=', resp:'{ok,room,discussing,messages}', auth:'loopback', loc:':52'},
+    {m:'POST', p:'/api/chat/:room/messages', t:'json', purpose:'人間メッセージ投稿', body:'{text, author?}', resp:'{ok,room,utteranceId?,seeded}', auth:'loopback', loc:':69'},
+  ]},
+  { name:'Flow Web (4 フロー起動)', file:'src/flow/web/routes.ts', note:'LLM backend がある時のみマウント', eps:[
+    {m:'GET', p:'/flow', t:'html', purpose:'フロー起動 UI（議論/改善/学習/壁打ち）', auth:'loopback', loc:':160'},
+    {m:'POST', p:'/api/flow/start', t:'json', purpose:'フロー開始', body:'{theme, flow, tags?, rounds?, turnsPerRound?, opponent?, learningSource?, learningQuery?, learningAppId?, learningUrls?}', resp:'{ok,kind,sessionId,result?}', auth:'loopback', loc:':162'},
+    {m:'POST', p:'/api/flow/:session/say', t:'json', purpose:'壁打ち継続発話', body:'{text}', resp:'{ok,result:{kind}} (404 if no session)', auth:'loopback', loc:':242'},
+    {m:'GET', p:'/api/flow/:session/status', t:'json', purpose:'フロー状態をポーリング', q:'?since=', resp:'{ok,utterances,…}', auth:'loopback', loc:':254'},
+  ]},
+];
+
+const root = document.getElementById('apiroot');
+function esc(s){ return (s==null?'':String(s)).replace(/[&<>]/g, c=>({'&':'&amp;','<':'&lt;','>':'&gt;'}[c])); }
+
+for (const g of groups) {
+  const sec = document.createElement('section');
+  sec.className = 'grp';
+  const jsonN = g.eps.filter(e=>e.t==='json').length;
+  sec.innerHTML = `<h3>${esc(g.name)} <span class="gcount">— ${g.eps.length} 件 · <code>${esc(g.file)}</code></span></h3>` +
+    (g.note ? `<p class="muted" style="margin:2px 0 6px;font-size:13px;">${esc(g.note)}</p>` : '');
+  for (const e of g.eps) {
+    const det = document.createElement('details');
+    det.className = 'ep';
+    det.dataset.type = e.t === 'html' ? 'html' : 'json';
+    det.dataset.search = (e.p + ' ' + (e.purpose||'')).toLowerCase();
+    let dl = '';
+    const row = (k,v)=> v ? `<dt>${k}</dt><dd>${v}</dd>` : '';
+    dl += row('用途', esc(e.purpose));
+    dl += row('クエリ', e.q ? `<code>${esc(e.q)}</code>` : '');
+    dl += row('リクエスト', e.body ? `<code>${esc(e.body)}</code>` : '');
+    dl += row('レスポンス', e.resp ? `<code>${esc(e.resp)}</code>` : (e.t==='html'?'HTML ページ':''));
+    dl += row('認証', esc(e.auth));
+    dl += row('定義', `<code>${esc(e.loc)}</code>`);
+    det.innerHTML =
+      `<summary>
+        <span class="method ${e.m.toLowerCase()}">${e.m}</span>
+        <span class="typetag ${e.t}">${T[e.t]}</span>
+        <span class="path">${esc(e.p)}</span>
+        <span class="purpose">${esc(e.purpose||'')}</span>
+        <span class="chev">▸</span>
+      </summary>
+      <div class="body"><dl>${dl}</dl></div>`;
+    sec.appendChild(det);
+  }
+  root.appendChild(sec);
+}
+
+// search + filter
+const search = document.getElementById('search');
+let curFilter = 'all';
+function apply(){
+  const q = search.value.trim().toLowerCase();
+  for (const sec of document.querySelectorAll('.grp')) {
+    let shown = 0;
+    for (const ep of sec.querySelectorAll('.ep')) {
+      const okType = curFilter==='all' || ep.dataset.type===curFilter;
+      const okQ = !q || ep.dataset.search.includes(q);
+      const vis = okType && okQ;
+      ep.style.display = vis ? '' : 'none';
+      if (vis) shown++;
+    }
+    sec.style.display = shown ? '' : 'none';
+  }
+}
+search.addEventListener('input', apply);
+for (const b of document.querySelectorAll('.filterbtn')) {
+  b.addEventListener('click', ()=>{
+    document.querySelectorAll('.filterbtn').forEach(x=>x.classList.remove('active'));
+    b.classList.add('active');
+    curFilter = b.dataset.f;
+    apply();
+  });
+}
+</script>
+</body>
+</html>
