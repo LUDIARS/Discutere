@@ -22,9 +22,8 @@ cd site && python3 -m http.server 8080   # → http://localhost:8080
 ## 公開 (GitHub Pages)
 
 `.github/workflows/pages.yml` が `site/` を Pages にデプロイする。
-**初回のみ** リポジトリ設定で Pages のソースを有効化する必要がある:
+ワークフローは `actions/configure-pages` の `enablement: true` で Pages を**自動有効化**するため、
+原則として手動設定は不要（組織ポリシーで Pages が無効な場合のみ Settings → Pages で許可が必要）。
 
-> Settings → Pages → Build and deployment → **Source: GitHub Actions**
-
-設定後、`site/**` への push（または Actions の手動実行 `workflow_dispatch`）で自動デプロイされる。
+`site/**` への push（または Actions の手動実行 `workflow_dispatch`）で自動デプロイされる。
 公開 URL は `https://<org>.github.io/<repo>/`。
