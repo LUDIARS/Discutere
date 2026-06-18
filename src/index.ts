@@ -61,7 +61,7 @@ import { createNoiseRoutes } from "./api/noise-routes.js";
 import { datasourceRoutes } from "./api/datasource-routes.js";
 import { buildQueueSnapshot, formatQueueText } from "./queue/snapshot.js";
 import { startBackupScheduler } from "./backup/runner.js";
-import { startCostRelay } from "./flow/cost-relay.js";
+import { startCostRelay, buildCostFeedTargets } from "./flow/cost-relay.js";
 import { getFlowDb } from "./flow/db/connection.js";
 import { createLlmSummarizer } from "./crawler/sources/summarize.js";
 import { getConfig } from "./config.js";
@@ -631,17 +631,24 @@ const port = config.server.port;
 //   手動トリガ (slash /discutere-backup・npm run backup) は scheduler.trigger() を�E有、E
 const backupScheduler = startBackupScheduler(config);
 
-// ─── LLM コストの Anatomia への定期 relay (cost.relay.enabled + URL 設定時のみ) ──
-//   llm_call_log のセッション別累積を Anatomia コスト削減UI (POST /api/cost-feed) へ PUSH。
+// ─── LLM コストの定期 relay (cost.relay.enabled + URL が 1 つ以上設定時のみ) ──
+//   llm_call_log のセッション別累積をコスト表示面 (Anatomia /api/cost-feed,
+//   Concordia /v1/cost-feed) へ PUSH。両方設定すれば同じコストを両方へ送る。
 //   手動は npm run cost-relay。送信失敗は議論を止めない (graceful)。
-if (config.cost.relay.enabled && config.cost.relay.anatomiaUrl) {
+const costRelayTargets = buildCostFeedTargets({
+  anatomiaUrl: config.cost.relay.anatomiaUrl,
+  concordiaUrl: config.cost.relay.concordiaUrl,
+});
+if (config.cost.relay.enabled && costRelayTargets.length > 0) {
   startCostRelay(getFlowDb(), {
-    baseUrl: config.cost.relay.anatomiaUrl,
+    targets: costRelayTargets,
     service: config.cost.relay.service,
     intervalMs: config.cost.relay.intervalMs,
   });
   console.log(
-    `  cost-relay: started (-> ${config.cost.relay.anatomiaUrl}, interval=${config.cost.relay.intervalMs}ms)`
+    `  cost-relay: started (-> ${costRelayTargets
+      .map((t) => t.label ?? t.baseUrl)
+      .join(", ")}, interval=${config.cost.relay.intervalMs}ms)`
   );
 }
 
