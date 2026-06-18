@@ -23,6 +23,7 @@ import type { FlowRole, FlowStance } from "./personas.js";
 import { composeDisplayName } from "./persona-display.js";
 import { dispatchFlow, type DispatchDeps, type FlowKind } from "./dispatch.js";
 import { ensureLearningData, isAutoCrawlSource, deriveSlug } from "./learning-autocrawl.js";
+import { gateBeforeFlow } from "./information-gate-runner.js";
 import { getConfig } from "../config.js";
 import type { SparringSession } from "./sparring.js";
 import {
@@ -192,11 +193,52 @@ function buildDispatchDeps(deps: FlowDiscordDeps, threadId: string): DispatchDep
 }
 
 /**
- * 議論/改善の開始前に、テーマの学習データが不足していれば config 既定ソースでクロール →
- * 取込する (事前学習の UI 化)。Discord フォーラムは投稿ごとのパラメータ UI が無いため
- * 既定ソース (config.flow.autoCrawl.source) のみを使う。失敗は議論を止めない (graceful)。
+ * 議論/改善の開始前に情報を整える。
+ *   1. 情報ゲート (LLM が情報密度を評価し、不足観点を狙って学習 → 再評価) が有効ならそれを実行し、
+ *      学習が走ったらスレッドに進捗を通知する。
+ *   2. ゲート対象外なら、従来のカウント閾値 autoCrawl にフォールバックする。
+ * 失敗は議論を止めない (graceful)。
  */
-async function autoCrawlBeforeForumFlow(
+async function prepareInformationBeforeForumFlow(
+  input: StartForumFlowInput,
+  deps: FlowDiscordDeps
+): Promise<void> {
+  // 情報ゲート優先 (LLM 評価 + 不足観点クロール)。Discord は scene=threadId をコストログキーにする。
+  try {
+    const gate = await gateBeforeFlow({
+      kind: input.flow,
+      theme: input.theme,
+      tags: input.tags,
+      llm: deps.llm,
+      openCore: deps.openCore,
+      workspaceId: deps.workspaceId ?? getConfig().workspace,
+      listExternalVoices: deps.listExternalVoices,
+      sessionId: input.threadId,
+      log: (m) => console.log(`  [forum-gate ${input.threadId}] ${m}`),
+      warn: (m) => console.warn(`  [forum-gate ${input.threadId}] ${m}`),
+    });
+    if (gate) {
+      // 学習が走った時のみ通知 (充分で no-op の時は黙る)。
+      if (gate.crawls > 0) {
+        await postThreadNotice(deps, input.threadId, `📊 ${gate.message}`);
+      }
+      return;
+    }
+  } catch (e) {
+    console.warn(
+      `  [forum-gate ${input.threadId}] 情報ゲート失敗 (議論は続行): ${(e as Error).message}`
+    );
+  }
+  // フォールバック: 従来のカウント閾値 autoCrawl。
+  await legacyAutoCrawlBeforeForumFlow(input, deps);
+}
+
+/**
+ * 旧来の自動クロール (テーマの学習データが不足していれば config 既定ソースでクロール → 取込)。
+ * Discord フォーラムは投稿ごとのパラメータ UI が無いため既定ソース
+ * (config.flow.autoCrawl.source) のみを使う。失敗は議論を止めない (graceful)。
+ */
+async function legacyAutoCrawlBeforeForumFlow(
   input: StartForumFlowInput,
   deps: FlowDiscordDeps
 ): Promise<void> {
@@ -293,8 +335,8 @@ export async function startForumFlow(
         input.tags.length ? `\nタグ: ${input.tags.join(" / ")}` : ""
       }`
     );
-    // 学習データが不足していれば config 既定ソースでクロール → 取込してから議論する (事前学習の UI 化)。
-    await autoCrawlBeforeForumFlow(input, deps);
+    // 議論前の情報ゲート (LLM 密度評価 + 不足観点学習) / フォールバック autoCrawl で材料を整える。
+    await prepareInformationBeforeForumFlow(input, deps);
     const result = await dispatchFlow(
       {
         theme: input.theme,

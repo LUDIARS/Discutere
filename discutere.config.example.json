@@ -15,6 +15,14 @@
       "source": "niconico",
       "minVoices": 3,
       "maxItems": 200
+    },
+    "$comment2": "informationGating: 議論/改善の開始前に LLM が情報密度(sparse/moderate/rich)と不足観点を評価し、不足なら不足観点を狙って学習→再評価する情報ゲート。自動モード固定(不足なら自動学習→十分になり次第そのまま議論を開始)。enabled=false で従来の autoCrawl(単純カウント閾値)にフォールバック。クロールのソース/maxItems は autoCrawl の設定を流用する。",
+    "informationGating": {
+      "enabled": true,
+      "minDensity": "moderate",
+      "maxLearnIterations": 2,
+      "maxGapsPerIteration": 2,
+      "model": ""
     }
   },
   "personaEngine": {

@@ -37,6 +37,7 @@ import { tuningRoutes, setRuntimeSettings } from "./api/tuning-routes.js";
 import { topPageRoutes } from "./api/top-page-routes.js";
 import { webChatRoutes, setWebChatDeps } from "./api/web-chat-routes.js";
 import { flowRoutes, setFlowWebDeps } from "./flow/web/routes.js";
+import { makeListExternalVoices } from "./flow/external-voices.js";
 import { runAdoptFromKg } from "./flow/persona-adopt-runner.js";
 import { FallbackLlm } from "./flow/llm-fallback.js";
 import { createGuideRoutes } from "./api/guide-routes.js";
@@ -616,6 +617,8 @@ if (flowEngineLlm) {
     workspaceId: config.workspace,
     llm: flowLlm,
     openCore: () => createCore(resolveActiveKgPath(config)),
+    // 外部の声 RAG + 情報ゲートの密度評価に active KG の実材料を流す (T7 follow-up 配線)。
+    listExternalVoices: makeListExternalVoices(() => createCore(resolveActiveKgPath(config)), config.workspace),
     sentimentClients: { main: flowLlm },
   });
   app.route("/", flowRoutes);
@@ -676,6 +679,8 @@ const discordGatewayLifecycle = startDiscordGateway({
         botToken: config.discord.botToken ?? "",
         llm: flowEngineLlm,
         openCore: () => createCore(resolveActiveKgPath(config)),
+        // 外部の声 RAG + 情報ゲートの密度評価に active KG の実材料を流す (T7 follow-up 配線)。
+        listExternalVoices: makeListExternalVoices(() => createCore(resolveActiveKgPath(config)), config.workspace),
         sentimentClients: { main: flowEngineLlm },
         workspaceId: config.workspace,
       }

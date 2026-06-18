@@ -31,6 +31,7 @@ import {
   deriveSlug,
   type AutoCrawlSpec,
 } from "../learning-autocrawl.js";
+import { gateBeforeFlow } from "../information-gate-runner.js";
 import { getConfig } from "../../config.js";
 import { FLOW_HTML } from "./page.js";
 
@@ -62,10 +63,46 @@ function buildAutoCrawlSpec(body: {
 }
 
 /**
- * 議論/改善の開始前に学習データが不足していれば指定ソースでクロール → 取込する。
+ * 議論/改善の開始前に情報を整える。
+ *   1. 情報ゲート (LLM が情報密度を評価し、不足観点を狙って学習 → 再評価) が有効ならそれを実行。
+ *   2. ゲート対象外 (無効/フロー違い/Core 無し) なら、従来のカウント閾値 autoCrawl にフォールバック。
+ * いずれも失敗は議論を止めない (graceful)。
+ */
+async function prepareInformationBeforeFlow(
+  kind: FlowKind,
+  theme: string,
+  tags: readonly FlowTag[],
+  sessionId: string,
+  spec: AutoCrawlSpec | null,
+  d: FlowWebDeps
+): Promise<void> {
+  // 情報ゲート優先 (LLM 評価 + 不足観点クロール)。
+  try {
+    const gate = await gateBeforeFlow({
+      kind,
+      theme,
+      tags,
+      llm: d.llm,
+      openCore: d.openCore,
+      workspaceId: d.workspaceId,
+      listExternalVoices: d.listExternalVoices,
+      sessionId,
+      log: (m) => console.log(`[flow-gate] ${m}`),
+      warn: (m) => console.warn(`[flow-gate] ${m}`),
+    });
+    if (gate) return; // ゲートが学習まで担った
+  } catch (e) {
+    console.warn(`[flow-gate] 情報ゲート失敗 (議論は続行): ${(e as Error).message}`);
+  }
+  // フォールバック: 従来のカウント閾値 autoCrawl。
+  await legacyAutoCrawlBeforeFlow(kind, theme, spec, d);
+}
+
+/**
+ * 旧来の自動クロール (テーマの外部の声が minVoices 件未満なら指定ソースでクロール → 取込)。
  * core 未設定 / 自動クロール無効ならスキップ。クロール失敗は議論を止めない (graceful)。
  */
-async function autoCrawlBeforeFlow(
+async function legacyAutoCrawlBeforeFlow(
   kind: FlowKind,
   theme: string,
   spec: AutoCrawlSpec | null,
@@ -194,7 +231,7 @@ flowRoutes.post("/api/flow/start", async (c) => {
   const sessionId = randomUUID();
   const autoCrawlSpec = buildAutoCrawlSpec(body);
   void (async () => {
-    await autoCrawlBeforeFlow(kind, theme, autoCrawlSpec, webDeps);
+    await prepareInformationBeforeFlow(kind, theme, tags, sessionId, autoCrawlSpec, webDeps);
     await dispatchFlow({ theme, tags, flow: kind, rounds, turnsPerRound }, { ...dispatchDeps, sessionId });
   })()
     .catch((e) => console.warn(`[flow-web] ${kind} 実行エラー: ${(e as Error).message}`))
