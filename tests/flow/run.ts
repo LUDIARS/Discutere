@@ -24,5 +24,6 @@ await import("./learning-autocrawl.test.js");
 await import("./cost-instrumentation.test.js");
 await import("./cost-relay.test.js");
 await import("./worker-pool-usage.test.js");
+await import("./cost-estimate.test.js");
 
 console.log("flow tests: all passed");
