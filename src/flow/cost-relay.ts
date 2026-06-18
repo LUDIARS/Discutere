@@ -131,10 +131,23 @@ export async function relayCostOnce(
   return { ok: results.every((r) => r.push.ok), pushed: rows.length, results };
 }
 
-export interface StartCostRelayOptions {
-  /** push 先 (複数)。 */
+/** 毎 tick 評価される実効設定 (設定 UI からのライブ変更を反映する)。 */
+export interface CostRelayLive {
+  /** false なら push せず cursor だけ near-now に保つ (有効化時に backlog を出さない)。 */
+  enabled: boolean;
+  /** push 先 (複数)。空なら push しない。 */
   targets: CostFeedTarget[];
+  /** cost-feed の service ラベル。 */
   service: string;
+}
+
+export interface StartCostRelayOptions {
+  /**
+   * 毎 tick 呼ぶ設定リゾルバ。enabled / targets / service を返す。
+   * runtime-settings から読むことで、再起動なしで UI の変更が次 tick に効く。
+   */
+  resolve: () => CostRelayLive;
+  /** timer 周期 ms (起動時固定。変更は再起動)。 */
   intervalMs: number;
   /** 失敗ログ用 (既定 console.error)。 */
   onError?: (msg: string) => void;
@@ -144,11 +157,13 @@ export interface StartCostRelayOptions {
 }
 
 /**
- * 定期 relay を開始する。返り値を呼ぶと停止。
+ * 定期 relay を開始する。返り値を呼ぶと停止。timer は常に回り、各 tick で
+ * {@link StartCostRelayOptions.resolve} を評価する (= UI でのライブ有効化/無効化に対応)。
  * 各 tick は「前回 tick から 1 interval 重ねた時刻」以降に活動したセッションを
  * 全 target へ送る (取りこぼし回避)。初回は intervalMs×4 分さかのぼる。
  * カーソル前進は全 target 成功時のみ — 一部失敗した window は次 tick で再送する
- * (累積 push なので再送は idempotent)。
+ * (累積 push なので再送は idempotent)。無効/送信先なしの間は cursor を near-now に
+ * 保ち、有効化した瞬間に過去の backlog を一気に送らない。
  */
 export function startCostRelay(
   db: Database.Database,
@@ -160,10 +175,15 @@ export function startCostRelay(
 
   const tick = async (): Promise<void> => {
     const start = now();
+    const live = opts.resolve();
+    if (!live.enabled || live.targets.length === 0) {
+      nextSince = start - opts.intervalMs; // 無効中は cursor を near-now に保つ
+      return;
+    }
     const since = nextSince;
     const r = await relayCostOnce(db, {
-      targets: opts.targets,
-      service: opts.service,
+      targets: live.targets,
+      service: live.service,
       activeSince: since,
       ts: start,
       fetchImpl: opts.fetchImpl,

@@ -41,7 +41,7 @@ import { makeListExternalVoices } from "./flow/external-voices.js";
 import { runAdoptFromKg } from "./flow/persona-adopt-runner.js";
 import { FallbackLlm } from "./flow/llm-fallback.js";
 import { createGuideRoutes } from "./api/guide-routes.js";
-import { createRuntimeSettingsStore } from "./runtime-settings/store.js";
+import { createRuntimeSettingsStore, type RuntimeSettingsStore } from "./runtime-settings/store.js";
 import { setRolePromptResolver, ROLE_GUIDANCE_DEFAULTS } from "./persona-engine/worker-pool/persona-prompts.js";
 import { applyRuleInstructionOverrides, RULE_INSTRUCTION_DEFAULTS } from "./persona-engine/worker-pool/debate-rules.js";
 import { PersonasRepo } from "./persona-engine/db/personas-repo.js";
@@ -211,6 +211,10 @@ let consensusReact:
 //   LLM backend は config.llm.backend で刁E��: "anthropic" (= anthropicApiKey)
 //   また�E "claude-cli" (= Lictor 経由 spawn、E環墁E�� claude CLI が忁E��E、E
 //   または "worker-pool" (= サブスク Lictor 常駐ワーカー、 spec/feature/persistent-worker-pool.md)
+// runtime-settings ストアは IIFE 内で作るが、cost-relay の起動 (IIFE 後) からも
+// ライブ参照したいので外スコープに持つ。
+let runtimeSettings: RuntimeSettingsStore | undefined;
+
 const personaEngineLifecycle = (() => {
   let llm: LLMClient | null = null;
 
@@ -218,7 +222,7 @@ const personaEngineLifecycle = (() => {
   // override を SQLite 永続)。 役割プロンプト override を persona seed / standing
   // prompt 生成より前に効かせるため、 ここで最初に作って resolver を注入する。
   const settingsDb = new Database("./data/discutere-settings.db");
-  const runtimeSettings = createRuntimeSettingsStore(settingsDb, {
+  runtimeSettings = createRuntimeSettingsStore(settingsDb, {
     facilitator: {
       tickMs: config.facilitator.tickMs,
       idleGapMs: config.facilitator.idleGapMs,
@@ -228,8 +232,14 @@ const personaEngineLifecycle = (() => {
     },
     rolePrompts: ROLE_GUIDANCE_DEFAULTS,
     ruleInstructions: RULE_INSTRUCTION_DEFAULTS,
+    costRelay: {
+      enabled: config.cost.relay.enabled,
+      anatomiaUrl: config.cost.relay.anatomiaUrl ?? "",
+      concordiaUrl: config.cost.relay.concordiaUrl ?? "",
+      service: config.cost.relay.service,
+    },
   });
-  setRolePromptResolver((role) => runtimeSettings.getRolePrompt(role));
+  setRolePromptResolver((role) => runtimeSettings!.getRolePrompt(role));
   setRuntimeSettings(runtimeSettings);
 
   if (isWorkerPool) {
@@ -408,7 +418,7 @@ const personaEngineLifecycle = (() => {
       ruleSeeds: isWorkerPool
         ? applyRuleInstructionOverrides(
             DEBATE_RULE_SEEDS.filter((r) => !r.target || activeWorkerIds.has(r.target)),
-            (id) => runtimeSettings.getRuleInstruction(id),
+            (id) => runtimeSettings!.getRuleInstruction(id),
           )
         : undefined,
       maxFiresPerSession: config.personaEngine.maxFiresPerSession,
@@ -486,7 +496,7 @@ const personaEngineLifecycle = (() => {
         },
         // 収束トリガーは tick ごとに runtime-settings から読み、 チューニング UI の
         // 変更 (「20」等 / aufhebung-only ポリシー) を再起動なしで反映する。
-        tuning: () => runtimeSettings.getFacilitatorTuning(),
+        tuning: () => runtimeSettings!.getFacilitatorTuning(),
         // 収束したらフォーラムポストを締める (gateway 起動後に forumFinalizer が結線される)。
         onConverged: (e) =>
           forumFinalizer?.({ scene: e.scene, summary: e.summary, title: e.title }),
@@ -631,24 +641,40 @@ const port = config.server.port;
 //   手動トリガ (slash /discutere-backup・npm run backup) は scheduler.trigger() を�E有、E
 const backupScheduler = startBackupScheduler(config);
 
-// ─── LLM コストの定期 relay (cost.relay.enabled + URL が 1 つ以上設定時のみ) ──
+// ─── LLM コストの定期 relay ──
 //   llm_call_log のセッション別累積をコスト表示面 (Anatomia /api/cost-feed,
 //   Concordia /v1/cost-feed) へ PUSH。両方設定すれば同じコストを両方へ送る。
+//   有効化/送信先/service は runtime-settings から毎 tick 読むため、設定 UI
+//   (/api/admin/tuning) の変更が再起動なしで次 tick に反映される (interval は除く)。
+//   timer は常に回り、無効時は push せず cursor を near-now に保つ。
 //   手動は npm run cost-relay。送信失敗は議論を止めない (graceful)。
-const costRelayTargets = buildCostFeedTargets({
-  anatomiaUrl: config.cost.relay.anatomiaUrl,
-  concordiaUrl: config.cost.relay.concordiaUrl,
+startCostRelay(getFlowDb(), {
+  intervalMs: config.cost.relay.intervalMs,
+  resolve: () => {
+    const s = runtimeSettings?.getCostRelay() ?? {
+      enabled: config.cost.relay.enabled,
+      anatomiaUrl: config.cost.relay.anatomiaUrl ?? "",
+      concordiaUrl: config.cost.relay.concordiaUrl ?? "",
+      service: config.cost.relay.service,
+    };
+    return {
+      enabled: s.enabled,
+      service: s.service,
+      targets: buildCostFeedTargets({ anatomiaUrl: s.anatomiaUrl, concordiaUrl: s.concordiaUrl }),
+    };
+  },
 });
-if (config.cost.relay.enabled && costRelayTargets.length > 0) {
-  startCostRelay(getFlowDb(), {
-    targets: costRelayTargets,
-    service: config.cost.relay.service,
-    intervalMs: config.cost.relay.intervalMs,
-  });
+{
+  const s = runtimeSettings?.getCostRelay();
+  const where = s
+    ? buildCostFeedTargets({ anatomiaUrl: s.anatomiaUrl, concordiaUrl: s.concordiaUrl })
+        .map((t) => t.label ?? t.baseUrl)
+        .join(", ") || "(none)"
+    : "(none)";
   console.log(
-    `  cost-relay: started (-> ${costRelayTargets
-      .map((t) => t.label ?? t.baseUrl)
-      .join(", ")}, interval=${config.cost.relay.intervalMs}ms)`
+    `  cost-relay: timer started (interval=${config.cost.relay.intervalMs}ms, enabled=${
+      s?.enabled ?? config.cost.relay.enabled
+    }, -> ${where}); 設定は /api/admin/tuning でライブ編集可`
   );
 }
 

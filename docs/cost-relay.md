@@ -23,12 +23,14 @@ Discutere の LLM コスト (`llm_call_log`) を **コスト表示面**へ集約
 
 ## 経路
 
-- **定期**: サーバ起動時、`cost.relay.enabled` かつ URL が 1 つ以上揃っていれば
-  `startCostRelay`(`src/flow/cost-relay.ts`)が回る。各 tick は
+- **定期**: サーバ起動時に `startCostRelay`(`src/flow/cost-relay.ts`)の timer が**常駐**する。
+  各 tick で実効設定(enabled / 送信先 / service)を runtime-settings から読み直し、有効かつ
+  URL が 1 つ以上ある時だけ Push する(= 設定 UI のライブ変更が次 tick に効く)。各 tick は
   「前回から 1 interval 重ねた時刻以降に活動したセッション」を `activeSince` で選び、
   そのセッションの累積を**全 target へ** Push(取りこぼし回避 / delta ではない)。
   カーソル前進は全 target 成功時のみ — 一部失敗した window は次 tick で再送する
-  (累積 Push なので idempotent)。送信失敗は議論を止めない。
+  (累積 Push なので idempotent)。無効中は cursor を near-now に保ち、有効化した瞬間に
+  過去 backlog を一気に送らない。送信失敗は議論を止めない。
 - **手動/cron**: `npm run cost-relay`(`scripts/cost-relay.ts`)。
   `--url`(Anatomia) / `--concordia-url`(Concordia) / `--since` / `--service`。
 
@@ -43,6 +45,17 @@ Discutere の LLM コスト (`llm_call_log`) を **コスト表示面**へ集約
 | `service` | `DISCUTERE_COST_RELAY_SERVICE` | `discutere` | cost-feed の service ラベル |
 
 `anatomiaUrl` と `concordiaUrl` は独立。片方だけ・両方どちらでも可。両方設定すれば両方へ送る。
+
+### 設定 UI でライブ管理 (`/api/admin/tuning`)
+
+`enabled` / `anatomiaUrl` / `concordiaUrl` / `service` は **議論チューニング UI**(`/api/admin/tuning`、
+loopback)から再起動なしで編集できる。値は runtime-settings(SQLite `discutere-settings.db`)に
+override として永続し、`startCostRelay` が毎 tick `resolve()` で読み直すため次 tick に反映される。
+config(`cost.relay.*`)は UI override の**デフォルト**(UI 未編集なら config どおり)。
+`intervalMs`(timer 周期)だけは起動時固定で UI 対象外(変更は再起動)。
+
+- API: `GET /api/admin/tuning/data`(現在値)/ `PUT /api/admin/tuning/cost-relay`
+  (`{enabled?, anatomiaUrl?, concordiaUrl?, service?}` 部分更新)。
 
 ## worker-pool 経路の usage 回収 (#135)
 

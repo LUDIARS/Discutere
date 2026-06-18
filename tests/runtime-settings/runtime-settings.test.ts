@@ -4,7 +4,9 @@ import Database from "better-sqlite3";
 import {
   createRuntimeSettingsStore,
   mergeFacilitatorTuning,
+  mergeCostRelay,
   type FacilitatorTuning,
+  type CostRelaySettings,
 } from "../../src/runtime-settings/store.js";
 import { applyRuleInstructionOverrides } from "../../src/persona-engine/worker-pool/debate-rules.js";
 import type { RuleSeed } from "../../src/persona-engine/types.js";
@@ -16,6 +18,24 @@ const DEF: FacilitatorTuning = {
   aufhebungTarget: 3,
   convergePolicy: "default",
 };
+
+const CR_DEF: CostRelaySettings = {
+  enabled: false,
+  anatomiaUrl: "",
+  concordiaUrl: "",
+  service: "discutere",
+};
+
+// ── mergeCostRelay: 部分 override + trim + 型ガード ──
+assert.deepEqual(mergeCostRelay(CR_DEF, null), CR_DEF);
+assert.equal(mergeCostRelay(CR_DEF, { enabled: true }).enabled, true);
+assert.equal(mergeCostRelay(CR_DEF, { anatomiaUrl: " http://a " }).anatomiaUrl, "http://a"); // trim
+assert.equal(mergeCostRelay(CR_DEF, { service: "" }).service, "discutere"); // 空 service → default 維持
+assert.equal(
+  mergeCostRelay(CR_DEF, { enabled: "yes" as never }).enabled,
+  false,
+); // 非 boolean → default
+console.log("ok mergeCostRelay");
 
 // ── mergeFacilitatorTuning: 部分 override + クランプ + policy 検証 ──
 assert.deepEqual(mergeFacilitatorTuning(DEF, null), DEF);
@@ -39,6 +59,7 @@ console.log("ok mergeFacilitatorTuning");
     facilitator: DEF,
     rolePrompts: { ファシリテーター: "司会の既定", 意見屋: "意見屋の既定" },
     ruleInstructions: { "tick-con-opus": "否定の既定" },
+    costRelay: CR_DEF,
   });
 
   assert.deepEqual(store.getFacilitatorTuning(), DEF); // override 無し → default
@@ -52,9 +73,33 @@ console.log("ok mergeFacilitatorTuning");
     facilitator: DEF,
     rolePrompts: {},
     ruleInstructions: {},
+    costRelay: CR_DEF,
   });
   assert.equal(store2.getFacilitatorTuning().maxPersonas, 12);
   console.log("ok store facilitator persist");
+
+  // ── cost relay override の永続 + 部分更新 ──
+  assert.deepEqual(store.getCostRelay(), CR_DEF); // override 無し → default
+  const cr = store.setCostRelay({ enabled: true, concordiaUrl: "http://localhost:17330" });
+  assert.equal(cr.enabled, true);
+  assert.equal(cr.concordiaUrl, "http://localhost:17330");
+  assert.equal(cr.anatomiaUrl, ""); // 他は default 維持
+  assert.equal(cr.service, "discutere");
+  // 部分更新で他フィールド保持 (実効値を override 保存しているため)
+  const cr2 = store.setCostRelay({ anatomiaUrl: "http://localhost:4200" });
+  assert.equal(cr2.enabled, true, "前回の enabled が保持される");
+  assert.equal(cr2.concordiaUrl, "http://localhost:17330");
+  assert.equal(cr2.anatomiaUrl, "http://localhost:4200");
+  // 別 store で永続確認
+  const store3 = createRuntimeSettingsStore(db, {
+    facilitator: DEF,
+    rolePrompts: {},
+    ruleInstructions: {},
+    costRelay: CR_DEF,
+  });
+  assert.equal(store3.getCostRelay().anatomiaUrl, "http://localhost:4200");
+  assert.equal(store3.getCostRelay().enabled, true);
+  console.log("ok store cost relay persist + partial update");
 
   // ── role prompt override / reset ──
   assert.equal(store.getRolePrompt("ファシリテーター"), "司会の既定");

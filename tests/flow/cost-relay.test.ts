@@ -191,3 +191,47 @@ async function seed(dbPath: string): Promise<void> {
   const { _resetFlowDb } = await import("../../src/flow/db/connection.js");
   _resetFlowDb();
 }
+
+// ── startCostRelay: resolve() をライブ評価 (UI 有効化/無効化に対応) ──
+
+{
+  const dbPath = path.join(TMP_DIR, "live.db");
+  await seed(dbPath);
+  process.env.DATABASE_PATH = dbPath;
+  const { _resetFlowDb, getFlowDb } = await import("../../src/flow/db/connection.js");
+  _resetFlowDb();
+  const { startCostRelay } = await import("../../src/flow/cost-relay.js");
+
+  let calls = 0;
+  const fakeFetch = () => { calls++; return Promise.resolve(new Response(JSON.stringify({ ok: true, recorded: 1 }), { status: 200 })); };
+
+  // 手動 tick 制御のため now を固定し、 setInterval は unref で放置 (初回 tick のみ評価)。
+  let enabled = false;
+  const targets = [{ baseUrl: "http://a", path: "/api/cost-feed", label: "anatomia" }];
+  const stop = startCostRelay(getFlowDb(), {
+    intervalMs: 10_000,
+    resolve: () => ({ enabled, targets, service: "discutere" }),
+    now: () => 1_000_000,
+    fetchImpl: fakeFetch as unknown as typeof fetch,
+  });
+  // 初回 tick (enabled=false) は push しない
+  await new Promise((r) => setTimeout(r, 30));
+  assert.equal(calls, 0, "disabled → no push on first tick");
+  stop();
+
+  // enabled=true で再起動すると push する
+  enabled = true;
+  const stop2 = startCostRelay(getFlowDb(), {
+    intervalMs: 10_000,
+    resolve: () => ({ enabled, targets, service: "discutere" }),
+    now: () => 1_000_000,
+    fetchImpl: fakeFetch as unknown as typeof fetch,
+  });
+  await new Promise((r) => setTimeout(r, 30));
+  assert.ok(calls >= 1, "enabled → push on tick");
+  stop2();
+  console.log("  [ok] startCostRelay honors live resolve() enabled flag");
+
+  delete process.env.DATABASE_PATH;
+  _resetFlowDb();
+}
