@@ -8,9 +8,14 @@
  * usage: node scripts/send.mjs <reply.json への相対 or 絶対パス>
  * 環境変数:
  *   - DI_CALLBACK_URL : Discutere の base URL (例 http://127.0.0.1:3100)
+ *   - LICTOR_TRANSCRIPT_FILE : (任意) Lictor が --session-id で固定した transcript JSONL。
+ *     在れば assistant usage のデルタを reply body の `usage` に載せて送る (#135)。
  */
 
 import { readFile } from "node:fs/promises";
+import { existsSync, readFileSync } from "node:fs";
+
+import { usageDeltaFromTranscript, readUsageCursor, writeUsageCursor } from "./usage.mjs";
 
 const base = (process.env.DI_CALLBACK_URL ?? "").replace(/\/+$/, "");
 const file = process.argv[2];
@@ -20,10 +25,32 @@ if (!base || !file) {
   process.exit(1);
 }
 
-const body = await readFile(file).catch((err) => {
+let body = await readFile(file).catch((err) => {
   console.error(`[send] cannot read ${file}: ${err.message}`);
   process.exit(1);
 });
+
+// worker-pool 経路の usage 回収 (#135): transcript が固定されていれば、前回 send 以降に
+// 増えた assistant usage を合算して body.usage に載せる。カーソルの前進は POST 成功後に行い、
+// 失敗時に取りこぼさない (at-least-once)。usage 添付時のみ body を JSON 再エンコードする
+// (それ以外は raw Buffer 送出を保ち mojibake 経路を温存)。
+const transcriptFile = process.env.LICTOR_TRANSCRIPT_FILE;
+let cursorAdvance = null; // { path, count }
+if (transcriptFile && existsSync(transcriptFile)) {
+  try {
+    const cursorPath = `${transcriptFile}.di-usage-cursor`;
+    const prev = readUsageCursor(cursorPath);
+    const { usage, count } = usageDeltaFromTranscript(readFileSync(transcriptFile, "utf8"), prev);
+    if (usage) {
+      const obj = JSON.parse(body.toString("utf8"));
+      obj.usage = usage;
+      body = Buffer.from(JSON.stringify(obj), "utf8");
+      cursorAdvance = { path: cursorPath, count };
+    }
+  } catch (err) {
+    console.error(`[send] usage attach skipped: ${err.message}`);
+  }
+}
 
 const res = await fetch(`${base}/internal/worker/utterance`, {
   method: "POST",
@@ -39,5 +66,8 @@ if (!res.ok) {
   console.error(`[send] HTTP ${res.status}: ${text.slice(0, 200)}`);
   process.exit(1);
 }
+
+// POST 成功後にカーソルを前進 (このデルタを計上済みとする)。
+if (cursorAdvance) writeUsageCursor(cursorAdvance.path, cursorAdvance.count);
 
 console.log(`[send] ok ${file}`);

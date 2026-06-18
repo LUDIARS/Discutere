@@ -32,8 +32,25 @@ Anatomia は `(service, sessionId, model, backend)` で **latest-wins dedupe** �
 | `intervalMs` | `DISCUTERE_COST_RELAY_INTERVAL_MS` | `300000` | 定期 Push 周期 |
 | `service` | `DISCUTERE_COST_RELAY_SERVICE` | `discutere` | cost-feed の service ラベル |
 
-## 既知の制約
+## worker-pool 経路の usage 回収 (#135)
 
-- **worker-pool backend のコストはまだ NULL**(常駐 Lictor ワーカーが usage を返さない)。
-  Lictor 改修で transcript から usage を回収 → callback に載せる対応が必要(follow-up)。
-  それまで relay には anthropic / claude-cli 経路のコストのみ乗る。
+worker-pool backend(常駐 Lictor ワーカー)は utterance callback で usage を返さない。
+代わりに **transcript から token を拾って callback に載せる**:
+
+1. ワーカー spawn 時に `LICTOR_PIN_TRANSCRIPT=1` を渡す(`worker-pool/spawner.ts`)。
+2. Lictor は Concordia 無効でも `--session-id` でセッションを固定し、その transcript JSONL
+   の絶対パスを `LICTOR_TRANSCRIPT_FILE` として wrapped Claude の env に公開する(Lictor `wrap.ts`)。
+3. ワーカーが 1 ターンごとに `node scripts/send.mjs` を実行する際、`worker-home/scripts/usage.mjs`
+   が transcript の assistant `message.usage` のうち**前回 send 以降に増えた分(デルタ)**を合算し、
+   callback body の `usage` に載せる。デルタはカーソル(`<transcript>.di-usage-cursor`)で持ち越し、
+   各 assistant 行を一度だけ計上する(`llm_call_log` は SUM 集計なので累積を送ると二重計上になる)。
+4. `/internal/worker/utterance` が `usage` を受け、`WorkerPool.onUtterance` → `WorkerPoolClient` →
+   `LLMResult.usage` → `withCostLog` が `llm_call_log` に記録 → cost-relay が Anatomia へ。
+
+### 残る制約
+
+- **cost_usd は取れない**: Claude Code transcript の `message.usage` は token(input/output/cache)
+  のみで `total_cost_usd` を行に持たない。worker-pool 経路は **token のみ**、`cost_usd` は NULL。
+- **per-turn lag**: send 実行時点で当該ターンの usage 行が未フラッシュなら、そのデルタは次回 send で
+  拾う(落とさないがセッション末尾の最終ターンが 1 つ遅れることがある)。
+- worker-pool は config 既定 OFF。未起動時は claude-cli フォールバックがコスト計装済み。

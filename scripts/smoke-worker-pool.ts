@@ -45,7 +45,7 @@ const server = http.createServer((req, res) => {
         pool.registerPort(j.workerId, j.lictorPort, typeof j.lictorPid === "number" ? j.lictorPid : undefined);
       } else if (req.url === "/internal/worker/utterance") {
         console.log(`[smoke] utterance callback: reqId=${j.reqId}`);
-        pool.onUtterance(j.reqId, j.workerId ?? "", j.text ?? "");
+        pool.onUtterance(j.reqId, j.workerId ?? "", j.text ?? "", j.usage);
       }
       res.writeHead(200, { "content-type": "application/json" });
       res.end('{"ok":true}');
@@ -90,9 +90,10 @@ async function main(): Promise<void> {
     "上記の議論に、あなたの役割で発言を1つ返してください。",
   ].join("\n");
 
-  const text = await pool.dispatch(WORKER.id, { reqId: "smoke-1", system: "", prompt });
+  const { text, usage } = await pool.dispatch(WORKER.id, { reqId: "smoke-1", system: "", prompt });
   console.log("\n================ WORKER UTTERANCE ================");
   console.log(text);
+  if (usage) console.log(`[usage] ${JSON.stringify(usage)}`);
   console.log("=================================================\n");
 
   pool.stop();

@@ -66,6 +66,9 @@ export function spawnWorker(args: {
     LICTOR_DISABLE_CONCORDIA: "1",
     DI_WORKER_ID: worker.id,
     DI_CALLBACK_URL: cfg.callbackBaseUrl,
+    // Concordia 無効でも Lictor に session-id 固定 + transcript path 公開を依頼する
+    // (= LICTOR_TRANSCRIPT_FILE)。send.mjs がそれを読み usage を回収する (#135)。
+    LICTOR_PIN_TRANSCRIPT: "1",
   };
   const gb = resolveGitBash(cfg.gitBashPath);
   if (gb) env.CLAUDE_CODE_GIT_BASH_PATH = gb;
@@ -75,6 +78,9 @@ export function spawnWorker(args: {
   delete env.LICTOR_PID;
   delete env.LICTOR_SESSION_ID;
   delete env.CONCORDIA_SESSION_ID;
+  // 親が Lictor 配下なら親の transcript path が継承されている。ワーカーの Lictor が
+  // 自分の値で上書きするが、念のため剥がして send.mjs が親の transcript を読む事故を防ぐ。
+  delete env.LICTOR_TRANSCRIPT_FILE;
 
   const isWin = process.platform === "win32";
   // Windows: lictor は .cmd shim なので cmd.exe 経由。detached + stdio ignore で
