@@ -34,6 +34,22 @@ export interface FacilitatorTuning {
   convergePolicy: ConvergePolicy;
 }
 
+/**
+ * コスト relay 設定 (Anatomia / Concordia への push)。再起動なしで Web UI から
+ * 有効化・送信先を編集するため runtime-settings に持つ。`intervalMs` (timer 周期)
+ * は startCostRelay 起動時に固定するので含めない (変更は再起動)。
+ */
+export interface CostRelaySettings {
+  /** 定期 relay を有効化するか。 */
+  enabled: boolean;
+  /** Anatomia ベース URL (空 = 送らない)。POST /api/cost-feed。 */
+  anatomiaUrl: string;
+  /** Concordia ベース URL (空 = 送らない)。POST /v1/cost-feed。 */
+  concordiaUrl: string;
+  /** cost-feed の service ラベル。 */
+  service: string;
+}
+
 /** hardcoded デフォルト群 (config / 各 seed から注入)。 */
 export interface RuntimeSettingsDefaults {
   facilitator: FacilitatorTuning;
@@ -41,6 +57,8 @@ export interface RuntimeSettingsDefaults {
   rolePrompts: Record<string, string>;
   /** ルール id → 既定 instructions 本文。 */
   ruleInstructions: Record<string, string>;
+  /** コスト relay の既定 (config 由来)。 */
+  costRelay: CostRelaySettings;
 }
 
 /** UI 表示用: デフォルト / override / 実効値 の 3 点セット。 */
@@ -71,6 +89,11 @@ export interface RuntimeSettingsStore {
   /** ルール instructions override を設定。 null/空文字でデフォルトに戻す。 */
   setRuleInstruction(ruleId: string, text: string | null): void;
 
+  /** コスト relay の実効設定 (デフォルト + override)。 */
+  getCostRelay(): CostRelaySettings;
+  /** コスト relay override を部分更新して永続化。 実効値を返す。 */
+  setCostRelay(patch: Partial<CostRelaySettings>): CostRelaySettings;
+
   /** DB から cache を読み直す。 */
   reload(): void;
 }
@@ -78,6 +101,26 @@ export interface RuntimeSettingsStore {
 const FACILITATOR_KEY = "facilitator";
 const ROLE_PREFIX = "rolePrompt:";
 const RULE_PREFIX = "ruleInstruction:";
+const COST_RELAY_KEY = "costRelay";
+
+/**
+ * cost relay override (部分) をデフォルトにマージして実効設定を作る (pure)。
+ * URL は trim、文字列以外はデフォルトに落とす。
+ */
+export function mergeCostRelay(
+  def: CostRelaySettings,
+  override: Partial<CostRelaySettings> | null,
+): CostRelaySettings {
+  if (!override) return { ...def };
+  const str = (v: unknown, fallback: string): string =>
+    typeof v === "string" ? v.trim() : fallback;
+  return {
+    enabled: typeof override.enabled === "boolean" ? override.enabled : def.enabled,
+    anatomiaUrl: str(override.anatomiaUrl, def.anatomiaUrl),
+    concordiaUrl: str(override.concordiaUrl, def.concordiaUrl),
+    service: str(override.service, def.service) || def.service,
+  };
+}
 
 function clampInt(v: unknown, min: number, fallback: number): number {
   const n = typeof v === "number" ? v : Number(v);
@@ -156,6 +199,16 @@ export function createRuntimeSettingsStore(
     }
   }
 
+  function parseCostRelayOverride(): Partial<CostRelaySettings> | null {
+    const raw = cache.get(COST_RELAY_KEY);
+    if (!raw) return null;
+    try {
+      return JSON.parse(raw) as Partial<CostRelaySettings>;
+    } catch {
+      return null;
+    }
+  }
+
   function overrideView(key: string, def: string): OverrideView {
     const override = cache.get(key) ?? null;
     return { key, default: def, override, effective: override ?? def };
@@ -199,6 +252,17 @@ export function createRuntimeSettingsStore(
       const key = RULE_PREFIX + ruleId;
       if (text === null || text.trim() === "") del(key);
       else put(key, text, nowMs(db));
+    },
+
+    getCostRelay(): CostRelaySettings {
+      return mergeCostRelay(defaults.costRelay, parseCostRelayOverride());
+    },
+    setCostRelay(patch: Partial<CostRelaySettings>): CostRelaySettings {
+      const cur = parseCostRelayOverride() ?? {};
+      const merged = mergeCostRelay(defaults.costRelay, { ...cur, ...patch });
+      // 実効値そのものを override として保存 (常に完全な設定を持たせる)。
+      put(COST_RELAY_KEY, JSON.stringify(merged), nowMs(db));
+      return merged;
     },
 
     reload(): void {

@@ -12,6 +12,7 @@
  *   PUT  /api/admin/tuning/facilitator  収束トリガー更新 (Partial<FacilitatorTuning>)
  *   PUT  /api/admin/tuning/role         役割プロンプト override {role, text|null}
  *   PUT  /api/admin/tuning/rule         debate instructions override {ruleId, text|null}
+ *   PUT  /api/admin/tuning/cost-relay   コスト relay 設定 {enabled?, anatomiaUrl?, concordiaUrl?, service?}
  *
  * 認可は :3100 の他の操作 UI (worker-pool-control) と同じく loopback 運用前提で
  * guard を置かない (ブラウザ直開きでヘッダ注入不要)。 store は index.ts が
@@ -43,7 +44,20 @@ tuningRoutes.get("/admin/tuning/data", (c) => {
     facilitator: store.getFacilitatorTuning(),
     rolePrompts: store.listRolePrompts(),
     ruleInstructions: store.listRuleInstructions(),
+    costRelay: store.getCostRelay(),
   });
+});
+
+tuningRoutes.put("/admin/tuning/cost-relay", async (c) => {
+  if (!store) return c.json({ error: "settings store not ready" }, 503);
+  const body = (await c.req.json().catch(() => ({}))) as Record<string, unknown>;
+  const patch: Record<string, unknown> = {};
+  if (body.enabled !== undefined) patch.enabled = Boolean(body.enabled);
+  for (const k of ["anatomiaUrl", "concordiaUrl", "service"] as const) {
+    if (body[k] !== undefined) patch[k] = String(body[k]);
+  }
+  const effective = store.setCostRelay(patch);
+  return c.json({ ok: true, costRelay: effective });
 });
 
 tuningRoutes.put("/admin/tuning/facilitator", async (c) => {
@@ -119,6 +133,19 @@ const TUNING_HTML = `<!doctype html>
    <span id="facMsg" class="ok"></span>
  </div>
 
+ <h2>コスト relay (Anatomia / Concordia へ Push)</h2>
+ <div class="card">
+   <p class="muted" style="margin:0 0 8px">LLM コストの累積を各サービスの cost-feed パネルへ送る。有効化・送信先・service ラベルは即時反映 (次 tick)。送信周期 (interval) は config 由来で変更は再起動。空 URL のサービスへは送りません。</p>
+   <label><input id="cr_enabled" type="checkbox" style="width:auto;margin-right:6px;vertical-align:middle">定期 relay を有効化</label>
+   <div class="row">
+     <div><label>Anatomia URL (→ /api/cost-feed)</label><input id="cr_anatomiaUrl" type="text" placeholder="http://localhost:4200"></div>
+     <div><label>Concordia URL (→ /v1/cost-feed)</label><input id="cr_concordiaUrl" type="text" placeholder="http://localhost:17330"></div>
+   </div>
+   <label>service ラベル</label><input id="cr_service" type="text" placeholder="discutere">
+   <button onclick="saveCostRelay()">コスト relay を保存</button>
+   <span id="crMsg" class="ok"></span>
+ </div>
+
  <h2>役割プロンプト</h2>
  <div id="roles"></div>
 
@@ -134,6 +161,11 @@ async function load(){
   const f=DATA.facilitator;
   for(const k of ['maxPersonas','aufhebungTarget','idleGapMs','tickMs']) document.getElementById(k).value=f[k];
   document.getElementById('convergePolicy').value=f.convergePolicy;
+  const cr=DATA.costRelay||{};
+  document.getElementById('cr_enabled').checked=!!cr.enabled;
+  document.getElementById('cr_anatomiaUrl').value=cr.anatomiaUrl||'';
+  document.getElementById('cr_concordiaUrl').value=cr.concordiaUrl||'';
+  document.getElementById('cr_service').value=cr.service||'';
   document.getElementById('roles').innerHTML=DATA.rolePrompts.map((p,i)=>roleCard(p,i)).join('');
   document.getElementById('rules').innerHTML=DATA.ruleInstructions.map((p,i)=>ruleCard(p,i)).join('');
 }
@@ -162,6 +194,16 @@ async function saveFacil(){
   body.convergePolicy=document.getElementById('convergePolicy').value;
   await put('/api/admin/tuning/facilitator',body);
   flash('facMsg','保存しました'); load();
+}
+async function saveCostRelay(){
+  const body={
+    enabled:document.getElementById('cr_enabled').checked,
+    anatomiaUrl:document.getElementById('cr_anatomiaUrl').value,
+    concordiaUrl:document.getElementById('cr_concordiaUrl').value,
+    service:document.getElementById('cr_service').value,
+  };
+  await put('/api/admin/tuning/cost-relay',body);
+  flash('crMsg','保存しました (次 tick で反映)'); load();
 }
 async function saveRole(role,i){ await put('/api/admin/tuning/role',{role,text:document.getElementById('role_'+i).value}); flash('roleMsg_'+i,'保存'); load(); }
 async function resetRole(role){ await put('/api/admin/tuning/role',{role,text:null}); load(); }
