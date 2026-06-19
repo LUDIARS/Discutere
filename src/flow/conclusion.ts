@@ -16,6 +16,7 @@ import { withCostLog } from "./cost-logger.js";
 import { getFlowDb } from "./db/connection.js";
 import type { FlowUtteranceRecord } from "./director.js";
 import type { VoteResult } from "./vote.js";
+import { writeThroughFlowConclusion } from "../visualize/conclusion-cache.js";
 
 /** src/visualize/conclusions.ts の CONVERGE_PREFIX に倣う */
 const CONVERGE_PREFIX = "【収束】";
@@ -109,6 +110,7 @@ export async function generateConclusion(args: GenerateConclusionArgs): Promise<
 
   // DB に保存
   const db = getFlowDb();
+  const now = Date.now();
   db.prepare(
     `INSERT OR REPLACE INTO flow_conclusion
        (session_id, paper_id, summary, aufhebung_json, top_utterance_ids_json, concluded, created_at)
@@ -120,8 +122,23 @@ export async function generateConclusion(args: GenerateConclusionArgs): Promise<
     JSON.stringify(allAufhebung),
     JSON.stringify([...winnerIds]),
     concluded ? 1 : 0,
-    Date.now()
+    now
   );
+
+  // 結論一覧キャッシュへ write-through (議論が収束するたびに発話数=議論ボリュームを更新)。
+  // KG を引かない軽量更新。materialCount は別途 build:conclusion-cache で算出する。
+  try {
+    writeThroughFlowConclusion(db, {
+      sessionId,
+      title: theme,
+      conclusion: concluded ? summary.slice(CONVERGE_PREFIX.length).trim() : null,
+      utteranceCount: allUtterances.length,
+      aufhebungCount: allAufhebung.length,
+      updatedAt: now,
+    });
+  } catch (e) {
+    warn(`結論キャッシュ更新 失敗 (議論は継続): ${(e as Error).message}`);
+  }
 
   return { summary, concluded };
 }

@@ -115,6 +115,16 @@ bot 名義で締める (収束時 `finalizeForumPost` で lock+archive+まとめ
   `flow_utterance`+`vote` を旧 `conclusions.ts` と同形 (`ConclusionSummary`/`ConclusionDetail`) で返し、
   `/learning/conclusions` が両者をマージ (新しい順)。一意キーは旧=`design_gap.id` / 新=`flow:<sessionId>`、
   `/learning/conclusion?gap=` は prefix でルートする。一覧に `[新フロー]`/`[旧]` バッジ。
+- **結論一覧の SQLite キャッシュ (高速化)**: `/learning/conclusions` (まとめ一覧) は従来
+  毎リクエストで KG (481MB) を開き行ごとにサブクエリを撃って重かった。`conclusion_cache`
+  テーブル (discutere.db, `src/visualize/conclusion-cache.ts`) に結論サマリ + 話題のサイズを
+  焼き、一覧はこれだけ読む (KG 非タッチ)。**論述データ詳細 / md エクスポートは従来通り
+  グラフ (KG) を引く** (重い遍歴は閲覧時オンデマンドのまま)。話題のサイズは 2 軸:
+  `discussion_volume` (発話数。議論収束ごとに `flow/conclusion.ts` が write-through 更新) と
+  `material_count` (話題語を含む外部クロール材料の件数 = KG 直 COUNT の重い計算なので
+  `npm run build:conclusion-cache` で別途算出、未算出は -1)。一覧経路は
+  `ensureConclusionCacheFresh` で新フロー結論を KG 非依存で追いつかせる (自己修復)。旧
+  `design_gaps` 結論 + materialCount のフルバックフィルは build スクリプトで行う。
 - **議論の md エクスポート**: `src/visualize/conclusion-markdown.ts` が `ConclusionDetail` を 1 本の md
   (frontmatter + 結論/止揚/高評価/議論ログ) にする純関数。UI の「md エクスポート」DL
   (`GET /learning/conclusion/export?gap=`) と CLI `npm run export:discussions`
