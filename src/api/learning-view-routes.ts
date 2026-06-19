@@ -15,6 +15,11 @@ import {
   flowSessionIdFromGapId,
 } from "../visualize/flow-conclusions.js";
 import { renderConclusionMarkdown, safeSlug } from "../visualize/conclusion-markdown.js";
+import {
+  conclusionCacheCount,
+  ensureConclusionCacheFresh,
+  listCachedConclusions,
+} from "../visualize/conclusion-cache.js";
 import { getFlowDb } from "../flow/db/connection.js";
 import { openAttributionStore } from "../crawler/sources/attribution-store.js";
 import { openLearningCacheReader, learningCacheExists } from "../visualize/learning-cache.js";
@@ -57,18 +62,30 @@ learningViewRoutes.get("/learning/sources", (c) => {
 });
 
 // 収束した議論の結論一覧 (#66 — Learning View 統合)。
-// 旧フロー (design_gaps) と 新フロー (flow_conclusion) をマージして新しい順に並べる。
+// 既定は SQLite キャッシュ (conclusion_cache) から読む = KG (481MB) 非タッチで高速
+// (議論収束ごとに write-through 更新 + build:conclusion-cache で材料件数算出)。
+// キャッシュ未構築 (0 件) のときだけ従来の live マージ (KG 直読) にフォールバックする。
 learningViewRoutes.get("/learning/conclusions", (c) => {
   const config = getConfig();
   const limit = Number(c.req.query("limit") ?? 100);
+  const flowDb = getFlowDb();
+
+  // 新フロー結論をキャッシュへ追いつかせる (KG 非依存・追いついていれば COUNT 2 回で即 return)。
+  ensureConclusionCacheFresh(flowDb);
+
+  if (conclusionCacheCount(flowDb) > 0) {
+    return c.json({ conclusions: listCachedConclusions(flowDb, limit), cached: true });
+  }
+
+  // フォールバック: キャッシュ未構築。live で KG + flow をマージ (重い)。
   const core = createCore(resolveActiveKgPath(getConfig()));
   try {
     const gapConclusions = listConclusions(core, config.workspace, limit);
-    const flowConclusions = listFlowConclusions(getFlowDb(), limit);
+    const flowConclusions = listFlowConclusions(flowDb, limit);
     const merged = [...gapConclusions, ...flowConclusions]
       .sort((a, b) => b.updatedAt - a.updatedAt)
       .slice(0, limit);
-    return c.json({ conclusions: merged });
+    return c.json({ conclusions: merged, cached: false });
   } finally {
     core.close();
   }

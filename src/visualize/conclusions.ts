@@ -38,6 +38,17 @@ export interface ConclusionSummary {
   utteranceCount: number;
   aufhebungCount: number;
   updatedAt: number;
+  /**
+   * 話題のサイズ — 議論ボリューム (発話数)。結論キャッシュ (conclusion_cache) で
+   * write-through 更新する値。live 経路 (KG 直読) では undefined。
+   */
+  discussionVolume?: number;
+  /**
+   * 話題のサイズ — 話題に紐づく外部クロール材料 (steam/youtube/niconico 等) の件数。
+   * KG を引く重い計算なので別途 (build:conclusion-cache) で算出しキャッシュする。
+   * -1 = 未算出、undefined = キャッシュ非経由。
+   */
+  materialCount?: number;
 }
 
 export interface ConclusionDetail extends ConclusionSummary {

@@ -213,6 +213,32 @@ const MIGRATIONS: Array<{ id: string; sql: string[] }> = [
       `ALTER TABLE llm_call_log ADD COLUMN cost_usd REAL`,
     ],
   },
+  {
+    // 結論一覧 (まとめ) の読み取りキャッシュ。学習ビューの「結論」タブは従来 KG (481MB) を
+    // 開いて行ごとにサブクエリを撃っていて重かった。議論が収束するたびにこの行を
+    // write-through 更新し、一覧閲覧はこのキャッシュだけ読む (KG 非タッチ)。論述データ
+    // 詳細 / md エクスポートは従来通りグラフ (KG) を引く。
+    //  - discussion_volume: 議論ボリューム (発話数)。収束時に write-through 更新。
+    //  - material_count: 話題に紐づく外部クロール材料の件数。KG を引く重い計算なので
+    //    別途 (build:conclusion-cache) でまとめて算出する。未算出は -1。
+    id: "flow_0011_conclusion_cache",
+    sql: [
+      `CREATE TABLE IF NOT EXISTS conclusion_cache (
+        gap_id TEXT PRIMARY KEY,
+        kind TEXT NOT NULL,
+        session_id TEXT NOT NULL,
+        title TEXT NOT NULL DEFAULT '',
+        conclusion TEXT,
+        utterance_count INTEGER NOT NULL DEFAULT 0,
+        aufhebung_count INTEGER NOT NULL DEFAULT 0,
+        discussion_volume INTEGER NOT NULL DEFAULT 0,
+        material_count INTEGER NOT NULL DEFAULT -1,
+        updated_at INTEGER NOT NULL,
+        cached_at INTEGER NOT NULL
+      )`,
+      `CREATE INDEX IF NOT EXISTS idx_conclusion_cache_updated ON conclusion_cache(updated_at DESC)`,
+    ],
+  },
 ];
 
 export function applyFlowMigrations(db: Database.Database): void {
