@@ -14,6 +14,8 @@ import { usageDeltaFromTranscript } from "../../worker-home/scripts/usage.mjs";
 const asLine = (obj: unknown): string => JSON.stringify(obj);
 const assistant = (u: Record<string, number>): string =>
   asLine({ type: "assistant", message: { role: "assistant", usage: u } });
+const assistantWithModel = (u: Record<string, number>, model: string): string =>
+  asLine({ type: "assistant", message: { role: "assistant", model, usage: u } });
 
 {
   // 空 transcript → usage:null, count:0
@@ -78,6 +80,36 @@ const assistant = (u: Record<string, number>): string =>
   const sumIn = (d1.usage!.input_tokens ?? 0) + (d2.usage!.input_tokens ?? 0);
   assert.equal(sumIn, 30, "delta の合計 = transcript 総 input (10+20)");
   console.log("  [ok] summed deltas equal transcript total");
+}
+
+{
+  // message.model が在れば usage.model に載る (cost 補完がモデル単価を引けるように)
+  const text = [
+    assistantWithModel({ input_tokens: 12, output_tokens: 7 }, "claude-haiku-4-5-20251001"),
+  ].join("\n");
+  const r = usageDeltaFromTranscript(text, 0);
+  assert.equal(r.usage!.model, "claude-haiku-4-5-20251001", "model captured from transcript");
+  assert.equal(r.usage!.input_tokens, 12);
+  console.log("  [ok] message.model captured into usage.model");
+}
+
+{
+  // model 無しの assistant 行は usage に model キーを付けない (後方互換: deepEqual が崩れない)
+  const r = usageDeltaFromTranscript(assistant({ input_tokens: 5, output_tokens: 2 }), 0);
+  assert.ok(!("model" in r.usage!), "no model key when transcript omits model");
+  console.log("  [ok] no model key when transcript omits it");
+}
+
+{
+  // fresh 行が複数モデルを跨いだら最後の model を採る (1 ターンは単一モデル想定)
+  const text = [
+    assistantWithModel({ input_tokens: 10, output_tokens: 3 }, "claude-haiku-4-5-20251001"),
+    assistantWithModel({ input_tokens: 20, output_tokens: 4 }, "claude-opus-4-8"),
+  ].join("\n");
+  const r = usageDeltaFromTranscript(text, 0);
+  assert.equal(r.usage!.model, "claude-opus-4-8", "last fresh model wins");
+  assert.equal(r.usage!.input_tokens, 30, "tokens still summed across fresh lines");
+  console.log("  [ok] last fresh model wins, tokens summed");
 }
 
 console.log("worker-pool-usage tests: all passed");

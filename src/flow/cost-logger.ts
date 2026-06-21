@@ -40,9 +40,13 @@ export function withCostLog(client: LLMClient, ctx: CostLogContext): LLMClient {
 
       const db = getFlowDb();
       const usage = result.ok ? result.usage : undefined;
+      // 実モデル: usage.model (worker-pool が transcript から拾った ground truth) を優先し、
+      // 無ければ呼び出し時の args.model。worker-pool は args.model が claude id とは限らない
+      // (非 claude provider は undefined) ため、これで記録列と単価引きの両方が正しくなる。
+      const model = usage?.model ?? args.model;
       // cost_usd が backend から来ない (worker-pool / anthropic) 場合は token × 単価で補完。
       // claude-cli は envelope の値があるのでそのまま使う。
-      const costUsd = usage?.cost_usd ?? estimateCostUsd(args.model, usage);
+      const costUsd = usage?.cost_usd ?? estimateCostUsd(model, usage);
       db.prepare(
         `INSERT INTO llm_call_log
           (flow, session_id, round, turn, role, persona, location, model, backend, latency_ms,
@@ -58,7 +62,7 @@ export function withCostLog(client: LLMClient, ctx: CostLogContext): LLMClient {
         ctx.role ?? null,
         ctx.persona ?? null,
         ctx.location,
-        args.model ?? null,
+        model ?? null,
         ctx.backend ?? getConfig().llm.backend,
         latencyMs,
         usage?.input_tokens ?? null,
