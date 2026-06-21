@@ -35,6 +35,8 @@ function pickUsage(raw: unknown): TokenUsage | undefined {
   };
   const cost = num(r.cost_usd);
   if (cost !== undefined) u.cost_usd = cost;
+  // 実モデル id (transcript の message.model 由来)。cost 補完がモデル単価を引くのに使う。
+  if (typeof r.model === "string" && r.model) u.model = r.model;
   const hasAny =
     u.input_tokens !== undefined ||
     u.output_tokens !== undefined ||

@@ -176,6 +176,42 @@ fs.mkdirSync(TMP_DIR, { recursive: true });
   assert.equal(row2.cache_read_input_tokens, null, "cache_read null when absent");
   assert.equal(row2.cost_usd, null, "cost_usd null when absent");
   console.log("  [ok] withCostLog leaves cache/cost NULL when backend omits them");
+
+  // worker-pool: usage.model (transcript 由来) が args.model 不在でも記録列と単価引きを駆動する (#246)
+  _resetFlowDb();
+  const dbPath3 = path.join(TMP_DIR, "costlog-wp-model.db");
+  process.env.DATABASE_PATH = dbPath3;
+  const mock3 = new MockLLMClient([
+    () => ({
+      ok: true as const,
+      text: "y",
+      usage: {
+        input_tokens: 1000,
+        output_tokens: 200,
+        model: "claude-haiku-4-5-20251001",
+      },
+    }),
+  ]);
+  // args.model を渡さない (非 claude provider / worker-pool で起こる状況)。
+  await withCostLog(mock3, {
+    flow: "discussion",
+    sessionId: "sess-wp",
+    location: "utterance",
+    backend: "worker-pool",
+  }).invoke({ prompt: "p" });
+
+  const db3 = new Database(dbPath3);
+  const row3 = db3
+    .prepare("SELECT * FROM llm_call_log ORDER BY id DESC LIMIT 1")
+    .get() as Record<string, unknown>;
+  db3.close();
+  assert.equal(row3.model, "claude-haiku-4-5-20251001", "usage.model recorded when args.model absent");
+  // haiku 単価: input 1/MTok, output 5/MTok → 1000*1e-6 + 200*5e-6 = 0.001 + 0.001 = 0.002
+  assert.ok(
+    typeof row3.cost_usd === "number" && Math.abs((row3.cost_usd as number) - 0.002) < 1e-9,
+    "cost estimated from usage.model haiku rate (not NULL)"
+  );
+  console.log("  [ok] withCostLog prices worker-pool rows via usage.model (#246)");
 }
 
 // ── summarizeCost 集計 ───────────────────────────────────────────

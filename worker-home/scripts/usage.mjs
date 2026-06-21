@@ -25,11 +25,14 @@ import { readFileSync, writeFileSync } from "node:fs";
  * @param {string} transcriptText  transcript JSONL の全文
  * @param {number} alreadyCounted  前回までに計上済みの usage 持ち assistant 行数
  * @returns {{ usage: object|null, count: number }}
- *   usage = 未計上 assistant の token 合算 (新規が無ければ null)。
+ *   usage = 未計上 assistant の token 合算 (新規が無ければ null)。assistant
+ *           `message.model` が在れば `usage.model` に最後の fresh 行のモデルを載せる
+ *           (cost 補完がモデル単価を引けるようにする)。
  *   count = 現時点での usage 持ち assistant 行の総数 (次回カーソル)。
  */
 export function usageDeltaFromTranscript(transcriptText, alreadyCounted) {
-  const usages = [];
+  /** @type {{usage: object, model: string|undefined}[]} */
+  const lines = [];
   for (const line of transcriptText.split("\n")) {
     const t = line.trim();
     if (!t) continue;
@@ -41,13 +44,16 @@ export function usageDeltaFromTranscript(transcriptText, alreadyCounted) {
     }
     if (!msg || msg.type !== "assistant") continue;
     const u = msg.message?.usage;
-    if (u && typeof u === "object") usages.push(u);
+    if (u && typeof u === "object") {
+      const model = typeof msg.message?.model === "string" ? msg.message.model : undefined;
+      lines.push({ usage: u, model });
+    }
   }
 
-  const total = usages.length;
+  const total = lines.length;
   const start =
     Number.isFinite(alreadyCounted) && alreadyCounted > 0 ? Math.min(alreadyCounted, total) : 0;
-  const fresh = usages.slice(start);
+  const fresh = lines.slice(start);
   if (fresh.length === 0) return { usage: null, count: total };
 
   const sum = {
@@ -63,13 +69,17 @@ export function usageDeltaFromTranscript(transcriptText, alreadyCounted) {
       any = true;
     }
   };
-  for (const u of fresh) {
+  let model; // fresh 行で最後に観測した model (1 ターンは単一モデル想定、最後を採る)
+  for (const { usage: u, model: m } of fresh) {
     add("input_tokens", u.input_tokens);
     add("output_tokens", u.output_tokens);
     add("cache_read_input_tokens", u.cache_read_input_tokens);
     add("cache_creation_input_tokens", u.cache_creation_input_tokens);
+    if (m) model = m;
   }
-  return { usage: any ? sum : null, count: total };
+  if (!any) return { usage: null, count: total };
+  if (model) sum.model = model;
+  return { usage: sum, count: total };
 }
 
 /** カーソルファイル (整数 1 行) を読む。読めなければ 0。best-effort。 */

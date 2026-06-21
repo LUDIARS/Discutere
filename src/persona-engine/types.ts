@@ -112,4 +112,11 @@ export interface TokenUsage {
    * anthropic 従量経路では未取得 (raw API は返さない) なので通常 undefined。
    */
   cost_usd?: number;
+  /**
+   * このコールを実際に処理したモデル id (例 "claude-haiku-4-5-20251001")。
+   * worker-pool 経路は呼び出し時の `args.model` が常に claude id とは限らない
+   * (非 claude provider は undefined) ため、transcript の assistant `message.model`
+   * を ground truth として載せ、cost 補完 (estimateCostUsd) がモデル単価を引けるようにする。
+   */
+  model?: string;
 }
