@@ -15,7 +15,7 @@ import {
   composeDisplayName,
 } from "../flow/persona-display.js";
 import type { FlowRole, FlowStance } from "../flow/personas.js";
-import type { ConclusionSummary, ConclusionDetail } from "./conclusions.js";
+import type { ConclusionSummary, ConclusionDetail, ConclusionPaper } from "./conclusions.js";
 
 /** flow_conclusion.summary の収束プレフィックス (flow/conclusion.ts と一致)。 */
 const CONVERGE_PREFIX = "【収束】";
@@ -40,6 +40,48 @@ interface ConclusionRow {
   concluded: number;
   created_at: number;
   theme: string | null;
+  // 詳細取得時のみ JOIN で引く (一覧では未選択 = undefined)。
+  tags_json?: string | null;
+  mechanics_json?: string | null;
+  supplement?: string | null;
+}
+
+/** discussion_paper 由来の生 mechanics JSON 1 要素を表示用に正規化する。 */
+function normalizeMechanic(raw: unknown): { name: string; description: string; intendedAffect?: string } | null {
+  if (!raw || typeof raw !== "object") return null;
+  const m = raw as Record<string, unknown>;
+  const name = typeof m.name === "string" ? m.name : "";
+  if (!name) return null;
+  return {
+    name,
+    description: typeof m.description === "string" ? m.description : "",
+    intendedAffect: typeof m.intended_affect === "string" ? m.intended_affect : undefined,
+  };
+}
+
+function parseMechanics(raw: string | null | undefined): Array<{ name: string; description: string; intendedAffect?: string }> {
+  if (!raw) return [];
+  try {
+    const parsed = JSON.parse(raw);
+    if (!Array.isArray(parsed)) return [];
+    return parsed.map(normalizeMechanic).filter((m): m is { name: string; description: string; intendedAffect?: string } => m !== null);
+  } catch {
+    return [];
+  }
+}
+
+/**
+ * discussion_paper の列からディスカッションペーパーを組み立てる。
+ * paper が JOIN できなかった (paper_id 不一致 = theme null) 場合は null を返す。
+ */
+function buildPaper(r: ConclusionRow): ConclusionPaper | null {
+  if (r.theme === null && !r.tags_json && !r.mechanics_json && !r.supplement) return null;
+  return {
+    theme: r.theme ?? "",
+    tags: parseJsonArray(r.tags_json ?? "[]"),
+    supplement: (r.supplement ?? "").trim(),
+    mechanics: parseMechanics(r.mechanics_json),
+  };
 }
 
 interface FlowUtteranceRow {
@@ -121,7 +163,8 @@ export function getFlowConclusionDetail(db: Database.Database, sessionId: string
   const row = db
     .prepare(
       `SELECT c.session_id, c.paper_id, c.summary, c.aufhebung_json, c.top_utterance_ids_json,
-              c.concluded, c.created_at, p.theme AS theme
+              c.concluded, c.created_at, p.theme AS theme,
+              p.tags_json AS tags_json, p.mechanics_json AS mechanics_json, p.supplement AS supplement
          FROM flow_conclusion c
          LEFT JOIN discussion_paper p ON p.id = c.paper_id
         WHERE c.session_id = ?`
@@ -154,6 +197,7 @@ export function getFlowConclusionDetail(db: Database.Database, sessionId: string
 
   return {
     ...summary,
+    paper: buildPaper(row),
     aufhebungen: parseJsonArray(row.aufhebung_json),
     topOpinions,
     transcript: transcriptRows

@@ -51,7 +51,26 @@ export interface ConclusionSummary {
   materialCount?: number;
 }
 
+/**
+ * ディスカッションペーパー (議論開始時にペルソナへ配布した「議題ブリーフ」)。
+ * 新フロー (flow_conclusion → discussion_paper) のみ持つ。 旧 design_gap 議論には無い (null)。
+ */
+export interface ConclusionPaper {
+  /** 議題 (paper.theme)。 title と同値だが paper の一部として保持する。 */
+  theme: string;
+  /** 観点タグ (機密 / 内部 / 運用 / 開発 等)。 */
+  tags: string[];
+  /** 観点補足 (タグ由来のペーパー補足文)。 無ければ空文字。 */
+  supplement: string;
+  /** 議題に紐づくゲームのメカニクス一覧。 */
+  mechanics: Array<{ name: string; description: string; intendedAffect?: string }>;
+}
+
 export interface ConclusionDetail extends ConclusionSummary {
+  /**
+   * 議論ペーパー (議題ブリーフ)。 新フロー結論のみ。 旧 design_gap 議論は null。
+   */
+  paper: ConclusionPaper | null;
   aufhebungen: string[];
   topOpinions: Array<{ speaker: string; content: string; score: number; source: string | null; sourceUrl: string | null }>;
   transcript: Array<{ speaker: string; content: string; source: string | null; sourceUrl: string | null }>;
@@ -123,6 +142,7 @@ export function getConclusionDetail(
     utteranceCount: sessionId ? utteranceCount(core, sessionId) : 0,
     aufhebungCount: aufhebungCount(core, gapId),
     updatedAt: gap.updated_at,
+    paper: null, // 旧 design_gap 議論にはディスカッションペーパーが無い (新フローのみ)。
     aufhebungen: listAufhebung(core, gapId),
     topOpinions: sessionId ? topOpinions(core, sessionId, 5, attribution) : [],
     transcript: sessionId ? transcript(core, sessionId, attribution) : [],
