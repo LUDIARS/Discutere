@@ -170,4 +170,24 @@ const NONEXISTENT_GAMES = path.join(os.tmpdir(), "discutere-no-such-games-dir");
   delete process.env.DATABASE_PATH;
 }
 
+// ── config: paperReview.timeoutMs (自動開始タイムアウト) の env 配線 ──────────
+{
+  const { loadConfig } = await import("../../src/config.js");
+  const before = process.env.DISCUTERE_FLOW_PAPER_REVIEW_TIMEOUT_MS;
+  delete process.env.DISCUTERE_FLOW_PAPER_REVIEW_TIMEOUT_MS;
+  assert.equal(loadConfig().flow.paperReview.timeoutMs, 0, "既定 0 = 無期限に承認を待つ");
+  process.env.DISCUTERE_FLOW_PAPER_REVIEW_TIMEOUT_MS = "120000";
+  assert.equal(loadConfig().flow.paperReview.timeoutMs, 120000, "env で上書きできる");
+  if (before === undefined) delete process.env.DISCUTERE_FLOW_PAPER_REVIEW_TIMEOUT_MS;
+  else process.env.DISCUTERE_FLOW_PAPER_REVIEW_TIMEOUT_MS = before;
+}
+
+// ── Discord: handlePaperReviewApproval は承認待ちが無ければ no-op (false) ────
+{
+  const { handlePaperReviewApproval, _resetFlowLive } = await import("../../src/flow/discord-live.js");
+  _resetFlowLive();
+  const r = await handlePaperReviewApproval("no-such-thread", { botToken: "x", llm: new MockLLMClient([]) });
+  assert.equal(r, false, "レビュー待ちが無ければ承認は no-op で false");
+}
+
 console.log("paper-review.test.ts: all passed");

@@ -91,12 +91,15 @@ interface PendingPaperReview {
   draft: PaperDraft;
   info: PaperReviewInfo;
   hooks?: FlowLiveHooks;
+  /** 無操作の自動開始タイマー (timeoutMs>0 時のみ。承認/調整で張り直す)。 */
+  timer?: ReturnType<typeof setTimeout>;
 }
 const paperReviewByThread = new Map<string, PendingPaperReview>();
 
 /** テスト用: 登録セッションをクリアする。 */
 export function _resetFlowLive(): void {
   sparringByThread.clear();
+  for (const p of paperReviewByThread.values()) if (p.timer) clearTimeout(p.timer);
   paperReviewByThread.clear();
 }
 
@@ -393,11 +396,45 @@ async function startPaperReview(
   });
   paperReviewByThread.set(input.threadId, { input, draft, info, hooks });
   await postThreadNotice(deps, input.threadId, renderPaperReview(draft, info));
-  await postThreadNotice(
-    deps,
-    input.threadId,
-    "✏️ 調整があればこのスレッドに返信してください (例:「メカニクスにガチャを追加」「観点補足を初心者向けに」)。\nよければ **「開始」** と返信すると議論を始めます。"
-  );
+  await postThreadNotice(deps, input.threadId, approvalGuide());
+  scheduleReviewAutoStart(input.threadId, deps);
+}
+
+/** レビュー承認の案内文 (タイムアウト設定があれば併記)。 */
+function approvalGuide(): string {
+  const timeoutMs = getConfig().flow.paperReview.timeoutMs;
+  const base =
+    "✏️ 調整があればこのスレッドに返信してください (例:「メカニクスにガチャを追加」「観点補足を初心者向けに」)。\n" +
+    "よければ **「開始」** と返信するか ✅ を付けると議論を始めます。";
+  if (timeoutMs > 0) {
+    const min = Math.round(timeoutMs / 60000);
+    return `${base}\n(${min > 0 ? `${min} 分` : `${Math.round(timeoutMs / 1000)} 秒`}無操作なら草案のまま自動で始めます)`;
+  }
+  return base;
+}
+
+/** 無操作の自動開始タイマーを (張り直して) 仕掛ける。timeoutMs<=0 なら何もしない。 */
+function scheduleReviewAutoStart(threadId: string, deps: FlowDiscordDeps): void {
+  const pending = paperReviewByThread.get(threadId);
+  if (!pending) return;
+  const timeoutMs = getConfig().flow.paperReview.timeoutMs;
+  if (timeoutMs <= 0) return;
+  if (pending.timer) clearTimeout(pending.timer);
+  pending.timer = setTimeout(() => {
+    void (async () => {
+      const p = paperReviewByThread.get(threadId);
+      if (!p) return;
+      paperReviewByThread.delete(threadId);
+      await postThreadNotice(deps, threadId, "⏱️ 無操作のため草案のまま議論を始めます…");
+      await runDiscussionDispatch(p.input, deps, p.hooks, {
+        mechanics: p.draft.mechanics,
+        supplement: p.draft.supplement,
+      });
+    })().catch((err) =>
+      console.warn(`  flow-live: ペーパー自動開始失敗 (thread=${threadId}): ${(err as Error).message}`)
+    );
+  }, timeoutMs);
+  pending.timer.unref?.();
 }
 
 /** 確定ペーパー (任意) で議論/改善を完走させ、結論を投稿する。 */
@@ -449,12 +486,7 @@ export async function handlePaperReviewReply(
   try {
     // 承認 → 確定ペーパーで議論開始。
     if (isApprovalText(trimmed)) {
-      paperReviewByThread.delete(threadId);
-      await postThreadNotice(deps, threadId, "✅ ペーパーを承認しました。議論を始めます…");
-      await runDiscussionDispatch(pending.input, deps, pending.hooks ?? hooks, {
-        mechanics: pending.draft.mechanics,
-        supplement: pending.draft.supplement,
-      });
+      await handlePaperReviewApproval(threadId, deps, hooks);
       return true;
     }
 
@@ -467,16 +499,38 @@ export async function handlePaperReviewReply(
     // 議題/タグの編集は dispatch 引数に反映する (override はメカニクス/観点補足のみ運ぶ)。
     pending.input = { ...pending.input, theme: edited.draft.theme, tags: edited.draft.tags };
     paperReviewByThread.set(threadId, pending);
+    scheduleReviewAutoStart(threadId, deps); // 調整があったら自動開始を延長
 
     await postThreadNotice(deps, threadId, `📝 ${edited.changeSummary}`);
     if (edited.applied) {
       await postThreadNotice(deps, threadId, renderPaperReview(pending.draft, pending.info));
-      await postThreadNotice(deps, threadId, "他に調整があれば返信、よければ **「開始」** と返信してください。");
+      await postThreadNotice(deps, threadId, "他に調整があれば返信、よければ **「開始」** と返信 (または ✅) してください。");
     }
   } catch (err) {
     console.warn(`  flow-live: ペーパーレビュー返信処理失敗 (thread=${threadId}): ${(err as Error).message}`);
     await postThreadNotice(deps, threadId, `⚠️ 調整の反映に失敗しました: ${(err as Error).message}`);
   }
+  return true;
+}
+
+/**
+ * レビュー中ペーパーを承認して議論を開始する (テキスト「開始」/ ✅ リアクション 共通)。
+ * @returns 承認待ちがあって処理したら true。
+ */
+export async function handlePaperReviewApproval(
+  threadId: string,
+  deps: FlowDiscordDeps,
+  hooks?: FlowLiveHooks
+): Promise<boolean> {
+  const pending = paperReviewByThread.get(threadId);
+  if (!pending) return false;
+  if (pending.timer) clearTimeout(pending.timer);
+  paperReviewByThread.delete(threadId);
+  await postThreadNotice(deps, threadId, "✅ ペーパーを承認しました。議論を始めます…");
+  await runDiscussionDispatch(pending.input, deps, pending.hooks ?? hooks, {
+    mechanics: pending.draft.mechanics,
+    supplement: pending.draft.supplement,
+  });
   return true;
 }
 

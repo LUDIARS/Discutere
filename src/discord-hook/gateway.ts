@@ -50,6 +50,8 @@ import { parseForumEntry, parseRoundsTurns, parseOpponents } from "../flow/entry
 import {
   handleForumFlowReply,
   handlePaperReviewReply,
+  handlePaperReviewApproval,
+  hasPaperReview,
   startForumFlow,
   type FlowDiscordDeps,
   type FlowLiveHooks,
@@ -602,6 +604,14 @@ export async function startDiscordGateway(
       const messageId = reaction.message?.id;
       const channelId = reaction.message?.channelId ?? "";
       if (!messageId || !emoji) return;
+      // ペーパーレビュー承認: ✅ をレビュー中スレッドに付けたら議論を開始する (スコアリングより優先)。
+      if (emoji === "✅" && deps.flowLive && hasPaperReview(channelId)) {
+        const flowLive = deps.flowLive;
+        void handlePaperReviewApproval(channelId, flowLive, flowHooks).catch((err) =>
+          console.warn(`  discord-forum: ペーパー承認 (reaction) 失敗: ${(err as Error).message}`)
+        );
+        return;
+      }
       deps.onReaction?.({ messageId, channelId, emoji, userId: user?.id ?? "" });
     } catch (err) {
       console.warn(`  discord-gateway: reaction handle failed: ${(err as Error).message}`);

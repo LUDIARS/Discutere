@@ -158,10 +158,12 @@ bot 名義で締める (収束時 `finalizeForumPost` で lock+archive+まとめ
   `src/flow/paper-review.ts` (`buildPaperDraft`/`applyPaperEdit`/`coercePaperDraft`/`renderPaperReview`/
   `isApprovalText`) を Discord/Web 両トランスポートが使う。確定ペーパーは `runFlow(paperOverride)` に渡り
   investigate (step 1) を省略してそのメカニクス/観点補足で議論する (議題/タグは通常引数)。Discord は
-  スレッド返信で調整 (例「メカニクスにガチャを追加」)+「開始」で承認 (`discord-live` の
-  `paperReviewByThread` / `handlePaperReviewReply`、gateway で壁打ちより優先ルート)。Web は
+  スレッド返信で調整 (例「メカニクスにガチャを追加」)+「開始」返信 or ✅ リアクションで承認
+  (`discord-live` の `paperReviewByThread` / `handlePaperReviewReply` / `handlePaperReviewApproval`、
+  gateway で壁打ちより優先ルート + `MessageReactionAdd` の ✅ 検知)。Web は
   `/api/flow/:session/paper`(取得ポーリング)+`/paper/edit`(NL 調整)+`/paper/approve`(承認・body の
-  直接編集ペーパー可) で確認フォーム調整。無効時は従来どおり情報ゲート後に自動開始。
+  直接編集ペーパー可) で確認フォーム調整。`flow.paperReview.timeoutMs`>0 で無操作の自動開始
+  (既定 0=無期限・調整で延長、Discord/Web ともサーバ側タイマー)。無効時は従来どおり情報ゲート後に自動開始。
 
 ## 個人データ
 
