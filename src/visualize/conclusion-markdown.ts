@@ -47,6 +47,32 @@ export function renderConclusionMarkdown(detail: ConclusionDetail): string {
   lines.push("");
   lines.push(detail.conclusion ?? "(まとめ未生成)");
 
+  // ディスカッションペーパー (議題ブリーフ)。 新フロー結論のみ持つ。
+  if (detail.paper) {
+    const p = detail.paper;
+    lines.push("");
+    lines.push("## ディスカッションペーパー");
+    if (p.tags.length > 0) {
+      lines.push("");
+      lines.push(`観点タグ: ${p.tags.join(" / ")}`);
+    }
+    if (p.supplement) {
+      lines.push("");
+      lines.push("### 観点補足");
+      lines.push("");
+      lines.push(p.supplement);
+    }
+    if (p.mechanics.length > 0) {
+      lines.push("");
+      lines.push("### ゲームのメカニクス");
+      lines.push("");
+      for (const m of p.mechanics) {
+        const affect = m.intendedAffect ? ` → 期待感情: ${m.intendedAffect}` : "";
+        lines.push(`- **${m.name}**: ${m.description}${affect}`);
+      }
+    }
+  }
+
   if (detail.aufhebungen.length > 0) {
     lines.push("");
     lines.push("## 止揚ストック");

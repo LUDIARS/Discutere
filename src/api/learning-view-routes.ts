@@ -236,6 +236,27 @@ function sourceBadge(o) {
     : label;
 }
 
+// ディスカッションペーパー (議題ブリーフ)。 新フロー結論のみ持つ (旧議論は paper=null → 空)。
+function paperBlock(paper) {
+  if (!paper) return "";
+  const parts = [];
+  if ((paper.tags || []).length) {
+    parts.push('<div class="muted" style="margin-top:4px;">観点タグ: ' + paper.tags.map(esc).join(" / ") + '</div>');
+  }
+  if (paper.supplement) {
+    parts.push('<div style="margin-top:4px;"><span class="muted">観点補足:</span> ' + esc(paper.supplement) + '</div>');
+  }
+  if ((paper.mechanics || []).length) {
+    parts.push('<div style="margin-top:4px;"><span class="muted">ゲームのメカニクス</span><ol class="details">' +
+      paper.mechanics.map((m) =>
+        '<li><b>' + esc(m.name) + '</b>' + (m.description ? ': ' + esc(m.description) : '') +
+        (m.intendedAffect ? ' <span class="muted">→ 期待感情: ' + esc(m.intendedAffect) + '</span>' : '') + '</li>'
+      ).join("") + '</ol></div>');
+  }
+  if (!parts.length) return "";
+  return '<div style="margin-top:8px;"><b>ディスカッションペーパー</b>' + parts.join("") + '</div>';
+}
+
 async function load(layer) {
   if (layer === "gap") {
     const res = await fetch("/learning/gap");
@@ -318,7 +339,7 @@ async function loadConclusionDetail(btn) {
         d.topOpinions.map((o) => '<li>+' + o.score + ' ' + esc(o.speaker) + ': ' + esc(o.content) + sourceBadge(o) + '</li>').join("") + '</ol></div>' : "";
     const log = '<div style="margin-top:8px;"><b>議論ログ (' + (d.transcript || []).length + '発話)</b><ol class="details">' +
       (d.transcript || []).map((u) => '<li><span class="muted">[' + esc(u.speaker) + ']</span> ' + esc(u.content) + sourceBadge(u) + '</li>').join("") + '</ol></div>';
-    slot.innerHTML = auf + top + log;
+    slot.innerHTML = paperBlock(d.paper) + auf + top + log;
     btn.style.display = "none";
   } catch (err) {
     slot.innerHTML = '<div class="muted">' + esc(err.message) + '</div>';

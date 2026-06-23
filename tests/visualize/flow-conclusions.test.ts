@@ -13,7 +13,10 @@ const db = new Database(":memory:");
 db.exec(`
   CREATE TABLE discussion_paper (
     id TEXT PRIMARY KEY,
-    theme TEXT NOT NULL
+    theme TEXT NOT NULL,
+    tags_json TEXT NOT NULL DEFAULT '[]',
+    mechanics_json TEXT NOT NULL DEFAULT '[]',
+    supplement TEXT NOT NULL DEFAULT ''
   );
   CREATE TABLE flow_conclusion (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -51,7 +54,18 @@ db.exec(`
 `);
 
 // 議論 1: 収束済み
-db.prepare("INSERT INTO discussion_paper VALUES (?,?)").run("p1", "ローグライトの周回設計");
+db.prepare(
+  "INSERT INTO discussion_paper (id, theme, tags_json, mechanics_json, supplement) VALUES (?,?,?,?,?)"
+).run(
+  "p1",
+  "ローグライトの周回設計",
+  JSON.stringify(["開発", "内部"]),
+  JSON.stringify([
+    { name: "ビルド選択", description: "周回ごとに構成を変える", intended_affect: "発見" },
+    { name: "難度上昇", description: "周回で敵が強くなる" },
+  ]),
+  "社外秘の数値には触れない。"
+);
 db.prepare(
   "INSERT INTO flow_conclusion (session_id, paper_id, summary, aufhebung_json, top_utterance_ids_json, concluded, created_at) VALUES (?,?,?,?,?,?,?)"
 ).run(
@@ -117,6 +131,21 @@ assert.equal(detail.transcript[0].source, null);
 assert.equal(detail.topOpinions.length, 1);
 assert.equal(detail.topOpinions[0].score, 2);
 assert.equal(detail.topOpinions[0].speaker, "ミナ (反対派)");
+
+// ディスカッションペーパー (議題ブリーフ) が JOIN で組み立つ
+assert.ok(detail.paper);
+assert.equal(detail.paper.theme, "ローグライトの周回設計");
+assert.deepEqual(detail.paper.tags, ["開発", "内部"]);
+assert.equal(detail.paper.supplement, "社外秘の数値には触れない。");
+assert.equal(detail.paper.mechanics.length, 2);
+assert.equal(detail.paper.mechanics[0].name, "ビルド選択");
+assert.equal(detail.paper.mechanics[0].intendedAffect, "発見");
+assert.equal(detail.paper.mechanics[1].intendedAffect, undefined);
+
+// paper が JOIN できない (paper_id 不一致) 議論は paper=null
+const detail2 = getFlowConclusionDetail(db, "sess-2");
+assert.ok(detail2);
+assert.equal(detail2.paper, null);
 
 // 存在しない session → null
 assert.equal(getFlowConclusionDetail(db, "nope"), null);

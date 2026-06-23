@@ -19,6 +19,15 @@ const detail: ConclusionDetail = {
   utteranceCount: 2,
   aufhebungCount: 1,
   updatedAt: 1700000000000,
+  paper: {
+    theme: "周回設計",
+    tags: ["開発", "内部"],
+    supplement: "社外秘の数値には触れない。",
+    mechanics: [
+      { name: "ビルド選択", description: "周回ごとに構成を変える", intendedAffect: "発見" },
+      { name: "難度上昇", description: "周回で敵が強くなる" },
+    ],
+  },
   aufhebungen: ["難度と報酬の対応を保つ"],
   topOpinions: [
     { speaker: "ミナ (反対派)", content: "分岐で多様性", score: 2, source: null, sourceUrl: null },
@@ -50,6 +59,18 @@ assert.ok(parsed.content.includes("+2 ミナ (反対派)"));
 assert.ok(parsed.content.includes("## 議論ログ (2 発話)"));
 // 出所リンク付与
 assert.ok(parsed.content.includes("([youtube-livechat](https://youtu.be/x))"));
+
+// ディスカッションペーパー (新フロー結論のみ)
+assert.ok(parsed.content.includes("## ディスカッションペーパー"));
+assert.ok(parsed.content.includes("観点タグ: 開発 / 内部"));
+assert.ok(parsed.content.includes("### 観点補足"));
+assert.ok(parsed.content.includes("社外秘の数値には触れない。"));
+assert.ok(parsed.content.includes("### ゲームのメカニクス"));
+assert.ok(parsed.content.includes("**ビルド選択**: 周回ごとに構成を変える → 期待感情: 発見"));
+
+// paper=null (旧 design_gap 議論) はペーパー節を出さない
+const noPaper = renderConclusionMarkdown({ ...detail, paper: null });
+assert.ok(!matter(noPaper).content.includes("## ディスカッションペーパー"));
 
 // 結論未生成 (null) は (まとめ未生成) になり concluded=false
 const noConc = renderConclusionMarkdown({ ...detail, conclusion: null });

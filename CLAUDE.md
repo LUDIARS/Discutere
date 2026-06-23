@@ -115,6 +115,11 @@ bot 名義で締める (収束時 `finalizeForumPost` で lock+archive+まとめ
   `flow_utterance`+`vote` を旧 `conclusions.ts` と同形 (`ConclusionSummary`/`ConclusionDetail`) で返し、
   `/learning/conclusions` が両者をマージ (新しい順)。一意キーは旧=`design_gap.id` / 新=`flow:<sessionId>`、
   `/learning/conclusion?gap=` は prefix でルートする。一覧に `[新フロー]`/`[旧]` バッジ。
+- **結論にディスカッションペーパーを併載**: 結論詳細 (`/learning/conclusion` / md エクスポート) に
+  議論開始時にペルソナへ配布した**ディスカッションペーパー (議題ブリーフ)** = 観点タグ / 観点補足 /
+  ゲームのメカニクス を載せる。新フロー結論のみ (`flow_conclusion` → `discussion_paper` を JOIN で
+  `tags_json`/`mechanics_json`/`supplement` も引く)。`ConclusionDetail.paper` (新フロー=値 / 旧
+  design_gap=null) に持たせ、UI の論述データ詳細・md (`## ディスカッションペーパー` 節) の両方に出す。
 - **結論一覧の SQLite キャッシュ (高速化)**: `/learning/conclusions` (まとめ一覧) は従来
   毎リクエストで KG (481MB) を開き行ごとにサブクエリを撃って重かった。`conclusion_cache`
   テーブル (discutere.db, `src/visualize/conclusion-cache.ts`) に結論サマリ + 話題のサイズを
@@ -126,7 +131,7 @@ bot 名義で締める (収束時 `finalizeForumPost` で lock+archive+まとめ
   `ensureConclusionCacheFresh` で新フロー結論を KG 非依存で追いつかせる (自己修復)。旧
   `design_gaps` 結論 + materialCount のフルバックフィルは build スクリプトで行う。
 - **議論の md エクスポート**: `src/visualize/conclusion-markdown.ts` が `ConclusionDetail` を 1 本の md
-  (frontmatter + 結論/止揚/高評価/議論ログ) にする純関数。UI の「md エクスポート」DL
+  (frontmatter + 結論/ディスカッションペーパー/止揚/高評価/議論ログ) にする純関数。UI の「md エクスポート」DL
   (`GET /learning/conclusion/export?gap=`) と CLI `npm run export:discussions`
   (`scripts/export-discussion.ts`、ディスクへ個別書き出し) が同じレンダラを使う。
 - **議論前の自動学習クロール (事前学習の UI 化)**: 議論/改善の開始時にテーマの学習データ
