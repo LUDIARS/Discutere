@@ -59,11 +59,17 @@ export interface DiscutereConfig {
     autoCrawl: {
       /** 有効化。既定 true。 */
       enabled: boolean;
-      /** 既定クロールソース。テーマ文字列だけで引ける niconico を既定 (API キー不要)。 */
+      /** 既定クロールソース (後方互換の単数指定)。テーマ文字列だけで引ける niconico を既定。 */
       source: string;
+      /**
+       * 自動クロールで使うソース群 (情報ゲートが複数ソースから集める)。既定 ["niconico"]。
+       * youtube は API キーがあれば自動で加わる (gateBeforeFlow)。website/steam は URL/appId が
+       * テーマだけからは決まらないため自動経路では skip される (UI/Discord で明示指定時に使う)。
+       */
+      sources: string[];
       /** 学習データ充足とみなす外部の声の最小件数。これ未満ならクロールする。既定 3。 */
       minVoices: number;
-      /** 1 回のクロールで取り込む最大件数。既定 200。 */
+      /** 1 回のクロールで取り込む最大件数。既定 300。 */
       maxItems: number;
     };
     /**
@@ -598,6 +604,16 @@ export function loadConfig(): DiscutereConfig {
           file.flow?.autoCrawl?.source,
           "niconico"
         ),
+        sources: (() => {
+          const list = parseStringList(
+            process.env.DISCUTERE_FLOW_AUTOCRAWL_SOURCES,
+            file.flow?.autoCrawl?.sources
+          );
+          if (list.length > 0) return list;
+          // 後方互換: sources 未指定なら単数 source を 1 要素として使う。
+          const single = pick(process.env.DISCUTERE_FLOW_AUTOCRAWL_SOURCE, file.flow?.autoCrawl?.source, "niconico");
+          return [single];
+        })(),
         minVoices: pickNum(
           process.env.DISCUTERE_FLOW_AUTOCRAWL_MIN_VOICES,
           file.flow?.autoCrawl?.minVoices,
@@ -606,7 +622,7 @@ export function loadConfig(): DiscutereConfig {
         maxItems: pickNum(
           process.env.DISCUTERE_FLOW_AUTOCRAWL_MAX_ITEMS,
           file.flow?.autoCrawl?.maxItems,
-          200
+          300
         ),
       },
       informationGating: {

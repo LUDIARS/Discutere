@@ -187,8 +187,10 @@ export interface InformationGateDeps {
   llm: LLMClient;
   /** 議論と同じ外部の声検索 (= 密度評価の材料)。 未指定なら材料 0 件扱い。 */
   listExternalVoices?: (terms: string[], limit: number) => ContextVoice[];
-  /** クロールに使う既定ソース (config.flow.autoCrawl.source)。 */
-  crawlSource: AutoCrawlSource;
+  /** クロールに使う既定ソース (後方互換の単数指定)。crawlSources 未指定時のフォールバック。 */
+  crawlSource?: AutoCrawlSource;
+  /** クロールに使うソース群 (複数ソース横断学習)。未指定なら [crawlSource]。 */
+  crawlSources?: AutoCrawlSource[];
   maxItems?: number;
   youtubeApiKey?: string;
   config: InformationGateConfig;
@@ -226,7 +228,6 @@ export async function runInformationGate(deps: InformationGateDeps): Promise<Inf
     workspaceId,
     llm,
     listExternalVoices,
-    crawlSource,
     maxItems = 200,
     youtubeApiKey,
     config,
@@ -234,6 +235,13 @@ export async function runInformationGate(deps: InformationGateDeps): Promise<Inf
     warn = () => {},
   } = deps;
   const doCollect = deps.collectAndImportFn ?? collectAndImport;
+  // クロール対象ソース: crawlSources 優先、無ければ単数 crawlSource にフォールバック。
+  const crawlSources: AutoCrawlSource[] =
+    deps.crawlSources && deps.crawlSources.length > 0
+      ? deps.crawlSources
+      : deps.crawlSource
+        ? [deps.crawlSource]
+        : [];
 
   const listVoices = (): ContextVoice[] => {
     if (!listExternalVoices) return [];
@@ -261,23 +269,26 @@ export async function runInformationGate(deps: InformationGateDeps): Promise<Inf
         ` (反復 ${crawls + 1}/${config.maxLearnIterations})`
     );
     for (const query of queries) {
-      const spec: AutoCrawlSpec = { source: crawlSource, query };
-      try {
-        const r = await doCollect({
-          core,
-          theme,
-          slug: deriveSlug(theme),
-          workspaceId,
-          spec,
-          maxItems,
-          youtubeApiKey,
-          log,
-          warn,
-        });
-        importedTotal += r.imported;
-        crawledQueries.push(query);
-      } catch (e) {
-        warn(`学習クロール失敗 (query="${query}"): ${(e as Error).message}`);
+      // 各不足観点を全ソース横断で集める (niconico + youtube 等)。
+      for (const source of crawlSources) {
+        const spec: AutoCrawlSpec = { source, query };
+        try {
+          const r = await doCollect({
+            core,
+            theme,
+            slug: deriveSlug(theme),
+            workspaceId,
+            spec,
+            maxItems,
+            youtubeApiKey,
+            log,
+            warn,
+          });
+          importedTotal += r.imported;
+          crawledQueries.push(`${source}:${query}`);
+        } catch (e) {
+          warn(`学習クロール失敗 (source=${source} query="${query}"): ${(e as Error).message}`);
+        }
       }
     }
     crawls++;
