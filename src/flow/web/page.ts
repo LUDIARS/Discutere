@@ -81,6 +81,12 @@ export const FLOW_HTML = `<!doctype html>
       <label>Steam appId (steam 選択時) <input id="learningAppId" type="number" min="1" placeholder="例: 1145360" style="width:10rem" /></label>
       <label>URL (website 選択時・カンマ/改行区切り) <input id="learningUrls" type="text" placeholder="https://example.com/article" style="width:60%" /></label>
     </fieldset>
+    <fieldset class="tags">
+      <legend>仕様書の解析学習 (学習のみ・任意)</legend>
+      <label>仕様書テキスト (貼り付け → 遊びのメカニクスを LLM 抽出して記録)
+        <textarea id="specText" rows="6" placeholder="ゲーム仕様書を貼り付け (空欄なら解析しない)"></textarea>
+      </label>
+    </fieldset>
     <button type="submit" id="go">開始</button>
   </form>
 
@@ -129,15 +135,16 @@ $("start").addEventListener("submit", async (e) => {
   const learningQuery = $("learningQuery").value.trim() || undefined;
   const learningAppId = $("learningAppId").value.trim() === "" ? undefined : Number($("learningAppId").value);
   const learningUrls = $("learningUrls").value.trim() || undefined;
+  const specText = $("specText").value.trim() || undefined;
   $("go").disabled = true;
   const res = await fetch("/api/flow/start", {
     method: "POST", headers: { "content-type": "application/json" },
-    body: JSON.stringify({ theme, flow, tags, rounds, turnsPerRound, opponent, learningSource, learningQuery, learningAppId, learningUrls }),
+    body: JSON.stringify({ theme, flow, tags, rounds, turnsPerRound, opponent, learningSource, learningQuery, learningAppId, learningUrls, specText }),
   }).then(r => r.json()).catch(() => ({ ok: false, error: "通信失敗" }));
   if (!res.ok) { alert(res.error || "開始に失敗"); $("go").disabled = false; return; }
   sessionId = res.sessionId; kind = res.kind;
   if (kind === "learning") {
-    $("log").innerHTML = '<div class="u">学習収集 完了: 意見 ' + (res.result?.opinionsRecorded ?? 0) + ' 件 / メカニクス ' + (res.result?.mechanicsRecorded ?? 0) + ' 件</div>';
+    $("log").innerHTML = '<div class="u">学習収集 完了: 意見 ' + (res.result?.opinionsRecorded ?? 0) + ' 件 / メカニクス ' + (res.result?.mechanicsRecorded ?? 0) + ' 件 / 自動収集 ' + (res.result?.crawledImported ?? 0) + ' 件</div>';
     $("go").disabled = false;
     return;
   }

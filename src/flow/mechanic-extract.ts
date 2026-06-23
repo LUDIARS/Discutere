@@ -29,7 +29,7 @@ export interface EnrichMechanicsArgs {
 }
 
 /** 文字列から最初の JSON 配列を取り出す (コードフェンス/前置き混入に耐える)。 */
-function extractJsonArray(raw: string): unknown[] | null {
+export function extractJsonArray(raw: string): unknown[] | null {
   const start = raw.indexOf("[");
   if (start < 0) return null;
   // まず素直に全体パース (正常時はこれで通る)。

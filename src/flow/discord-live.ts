@@ -23,6 +23,8 @@ import type { FlowRole, FlowStance } from "./personas.js";
 import { composeDisplayName } from "./persona-display.js";
 import { dispatchFlow, type DispatchDeps, type FlowKind } from "./dispatch.js";
 import { ensureLearningData, isAutoCrawlSource, resolveAutoCrawlSources, deriveSlug } from "./learning-autocrawl.js";
+import { analyzeSpecMechanics } from "./spec-analyze.js";
+import type { GameMechanicEntry } from "./games-md.js";
 import { gateBeforeFlow } from "./information-gate-runner.js";
 import {
   buildPaperDraft,
@@ -76,6 +78,8 @@ export interface StartForumFlowInput {
   turnsPerRound?: number;
   /** 壁打ち相手のプールペルソナ id/name (任意。sparring のみ反映)。 */
   opponentPersonaIds?: string[];
+  /** starter 本文 (任意。学習で仕様書解析 ② に使う。タイトルと別物のときだけ渡る)。 */
+  specText?: string;
 }
 
 /** 収束時フック (gateway が finalizeForumPost に結線する)。 */
@@ -346,19 +350,30 @@ export async function startForumFlow(
         crawlSources.length > 0
           ? { sources: crawlSources, maxItems: crawlCfg.maxItems, youtubeApiKey }
           : undefined;
+      // 仕様書解析 (② specText): starter 本文があれば LLM 解析 → mechanics として記録。
+      let mechanics: GameMechanicEntry[] | undefined;
+      if (input.specText) {
+        mechanics = await analyzeSpecMechanics({
+          theme: input.theme,
+          specText: input.specText,
+          llm: deps.llm,
+          warn: (m) => console.warn(`  [spec-analyze ${input.threadId}] ${m}`),
+        });
+      }
       const core = deps.openCore();
       try {
         const result = await dispatchFlow(
           { theme: input.theme, tags: input.tags, flow: input.flow, scene },
-          { ...dispatchDeps, core, learningCrawl }
+          { ...dispatchDeps, core, learningCrawl, mechanics }
         );
         if (result.kind === "learning") {
           const r = result.result;
-          const collected = r.opinionsRecorded + r.crawledImported;
-          const detail =
-            r.crawledImported > 0
-              ? ` (自動収集 ${r.crawledImported} 件 / ${Object.keys(r.crawledBySource).join("/")})`
-              : "";
+          const collected = r.opinionsRecorded + r.crawledImported + r.mechanicsRecorded;
+          const parts: string[] = [];
+          if (r.mechanicsRecorded > 0) parts.push(`仕様書メカニクス ${r.mechanicsRecorded} 件`);
+          if (r.crawledImported > 0)
+            parts.push(`自動収集 ${r.crawledImported} 件 (${Object.keys(r.crawledBySource).join("/")})`);
+          const detail = parts.length > 0 ? ` (${parts.join(" / ")})` : "";
           await postThreadNotice(
             deps,
             input.threadId,
