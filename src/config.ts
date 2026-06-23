@@ -101,6 +101,20 @@ export interface DiscutereConfig {
        */
       timeoutMs: number;
     };
+    /**
+     * ディスカッションペーパーの分量 (メカニクス・感想の厚み)。
+     * 感想は KG から、メカニクスは investigate (game md) を LLM で増補して目標件数に近づける。
+     */
+    paperRichness: {
+      /** ペルソナ/ペーパーに載せる感想 (外部の声) の件数。既定 15。 */
+      voices: number;
+      /** メカニクスの目標件数。investigate が満たさなければ LLM で増補する。既定 30。 */
+      mechanicsTarget: number;
+      /** LLM によるメカニクス増補を有効化。既定 true (LLM 無し/失敗時は既存件数のまま degrade)。 */
+      enrichMechanics: boolean;
+      /** 増補に使うモデル ("" なら LLM の既定モデル)。 */
+      enrichModel: string;
+    };
   };
   /** 匿名議論 workspace (個人データ非保管) */
   workspace: string;
@@ -629,6 +643,24 @@ export function loadConfig(): DiscutereConfig {
           process.env.DISCUTERE_FLOW_PAPER_REVIEW_TIMEOUT_MS,
           file.flow?.paperReview?.timeoutMs,
           0
+        ),
+      },
+      paperRichness: {
+        voices: pickNum(process.env.DISCUTERE_FLOW_PAPER_VOICES, file.flow?.paperRichness?.voices, 15),
+        mechanicsTarget: pickNum(
+          process.env.DISCUTERE_FLOW_PAPER_MECHANICS_TARGET,
+          file.flow?.paperRichness?.mechanicsTarget,
+          30
+        ),
+        enrichMechanics: pickBool(
+          process.env.DISCUTERE_FLOW_PAPER_ENRICH_MECHANICS,
+          file.flow?.paperRichness?.enrichMechanics,
+          true
+        ),
+        enrichModel: pick(
+          process.env.DISCUTERE_FLOW_PAPER_ENRICH_MODEL,
+          file.flow?.paperRichness?.enrichModel,
+          ""
         ),
       },
     },

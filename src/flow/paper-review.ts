@@ -19,13 +19,14 @@ import type { LLMClient } from "../persona-engine/llm/client.js";
 import type { FlowTag } from "./tags.js";
 import { paperSupplement } from "./tags.js";
 import { investigateTheme, type MechanicSummary, type YoutubeSearchFn } from "./investigate.js";
+import { enrichMechanics } from "./mechanic-extract.js";
 import type { ContextVoice } from "./discussion-paper.js";
 
 /** 有効な観点タグ (編集で受理する集合)。 */
 export const VALID_FLOW_TAGS: readonly FlowTag[] = ["機密", "内部", "運用", "開発"];
 
 /** 情報サマリのサンプル件数 / 件数カウントの上限。 */
-const SAMPLE_LIMIT = 3;
+const SAMPLE_LIMIT = 9;
 const COUNT_LIMIT = 50;
 
 /**
@@ -54,6 +55,12 @@ export interface BuildPaperDraftDeps {
   youtubeMaxComments?: number;
   gamesDir?: string;
   listExternalVoices?: (terms: string[], limit: number) => ContextVoice[];
+  /** メカニクス LLM 増補に使う LLM (省略時は増補しない)。 */
+  llm?: LLMClient;
+  /** メカニクスの目標件数 (llm 指定時のみ有効。既定 30)。 */
+  mechanicsTarget?: number;
+  /** 増補に使うモデル ("" / 未指定なら LLM 既定)。 */
+  enrichModel?: string;
   warn?: (msg: string) => void;
 }
 
@@ -83,11 +90,25 @@ export async function buildPaperDraft(
 
   const voices = deps.listExternalVoices ? deps.listExternalVoices([theme], COUNT_LIMIT) : [];
 
+  // メカニクスを LLM で目標件数まで増補 (感想を根拠に。llm 未指定なら investigate の件数のまま)。
+  let mechanics = investigation.mechanics;
+  if (deps.llm) {
+    mechanics = await enrichMechanics({
+      theme,
+      existing: investigation.mechanics,
+      voices,
+      llm: deps.llm,
+      target: deps.mechanicsTarget ?? 30,
+      model: deps.enrichModel || undefined,
+      warn: deps.warn,
+    });
+  }
+
   const draft: PaperDraft = {
     theme,
     tags: [...tags],
     supplement: paperSupplement(tags),
-    mechanics: investigation.mechanics,
+    mechanics,
   };
   const info: PaperReviewInfo = {
     voiceCount: voices.length,
