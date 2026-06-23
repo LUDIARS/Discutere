@@ -19,7 +19,7 @@ import type { CascadeClients } from "../crawler/sentiment/cascade.js";
 import { cascadeSentiment } from "../crawler/sentiment/cascade.js";
 import { importExternalUtterances } from "../crawler/sources/importer.js";
 import type { ExternalUtterance } from "../crawler/sources/types.js";
-import { toSlug } from "../ludus/economy-analyzer.js";
+import { deriveSlug } from "./learning-autocrawl.js";
 import { upsertGameMechanics, type GameMechanicEntry } from "./games-md.js";
 
 type Core = ReturnType<typeof createCore>;
@@ -44,8 +44,9 @@ export interface LearningFlowDeps {
   /** ワークスペース ID (既定 knowledge)。 */
   workspaceId?: string;
   /**
-   * slug 明示指定。省略時は toSlug(gameTitle)。toSlug は ASCII のみ残すため、
-   * 日本語タイトルは空 slug になる → その場合は本フィールドで明示する。
+   * slug 明示指定。省略時は deriveSlug(gameTitle)。deriveSlug は ASCII 化を試み、空なら
+   * 元タイトル (空白→ハイフン) にフォールバックするため日本語タイトルでも非空になる
+   * (autocrawl / 情報ゲートと同じ slug 規約。材料が同じ slug に揃う)。
    */
   slug?: string;
   /** data/games ディレクトリ (既定 ./data/games)。 */
@@ -81,11 +82,10 @@ export async function runLearningFlow(
     warn = (m) => console.warn(`[learning/warn] ${m}`),
   } = deps;
 
-  const slug = deps.slug ?? toSlug(gameTitle);
+  // deriveSlug は ASCII 化に失敗しても元タイトル等にフォールバックするため非空 (日本語 OK)。
+  const slug = deps.slug ?? deriveSlug(gameTitle);
   if (!slug) {
-    throw new Error(
-      `slug を導出できません (title="${gameTitle}")。日本語等 ASCII 外タイトルは deps.slug を明示してください。`
-    );
+    throw new Error(`slug を導出できません (title="${gameTitle}")。deps.slug を明示してください。`);
   }
   log(`学習フロー開始: "${gameTitle}" (slug=${slug}, テーマ="${theme}")`);
 
