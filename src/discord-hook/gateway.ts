@@ -196,6 +196,8 @@ export async function startDiscordGateway(
       rounds?: number;
       turnsPerRound?: number;
       opponentPersonaIds?: string[];
+      /** starter 本文 (学習で仕様書解析に使う、② specText)。 */
+      specText?: string;
     }
   >();
   // 進行量設定 select/modal の待ち (threadId → フロー解決済みの起動情報、item1)。
@@ -318,7 +320,7 @@ export async function startDiscordGateway(
    */
   async function resolveForumStarter(
     thread: AnyThreadChannel
-  ): Promise<{ guildId: string; theme: string; appliedTagNames: string[] } | null> {
+  ): Promise<{ guildId: string; theme: string; appliedTagNames: string[]; starterContent: string } | null> {
     let parentForum: unknown = thread.parent;
     let parentType: ChannelType | undefined = thread.parent?.type;
     if (parentType === undefined && thread.parentId) {
@@ -342,9 +344,10 @@ export async function startDiscordGateway(
     }
     if (starter.author?.bot) return null;
     // 議題はスレッド名を優先 (本文にゲーム名が無くても議題を固定する)。
-    const theme = (typeof thread.name === "string" && thread.name.trim()) || starter.content.trim();
+    const starterContent = starter.content.trim();
+    const theme = (typeof thread.name === "string" && thread.name.trim()) || starterContent;
     if (!theme) return null;
-    return { guildId, theme, appliedTagNames };
+    return { guildId, theme, appliedTagNames, starterContent };
   }
 
   /** 議論タイプ select メニューをスレッドに出す。 */
@@ -389,6 +392,8 @@ export async function startDiscordGateway(
     rounds?: number;
     turnsPerRound?: number;
     opponentPersonaIds?: string[];
+    /** starter 本文 (学習で仕様書解析に使う、② specText)。 */
+    specText?: string;
   }): Promise<void> {
     if (!deps.flowLive) return;
     const wantsSettings =
@@ -416,6 +421,7 @@ export async function startDiscordGateway(
         rounds: info.rounds,
         turnsPerRound: info.turnsPerRound,
         opponentPersonaIds: info.opponentPersonaIds,
+        specText: info.specText,
       },
       deps.flowLive,
       flowHooks
@@ -453,6 +459,11 @@ export async function startDiscordGateway(
     // 本文/タイトルの「ラウンド:N ターン:M」「相手:名前」記法で議論ごとの指定 (任意)。
     const { rounds, turnsPerRound } = parseRoundsTurns(starter.theme);
     const opponentPersonaIds = parseOpponents(starter.theme);
+    // starter 本文がタイトル (議題) と別物なら仕様書解析の材料にする (② 学習のみで使用)。
+    const specText =
+      starter.starterContent && starter.starterContent !== starter.theme
+        ? starter.starterContent
+        : undefined;
     if (flow) {
       await beginFlow({
         guildId: starter.guildId,
@@ -463,11 +474,12 @@ export async function startDiscordGateway(
         rounds,
         turnsPerRound,
         opponentPersonaIds,
+        specText,
       });
       return;
     }
     // 議論タイプタグ無し → 選択 UI を出して待つ。
-    pendingFlowPicks.set(thread.id, { guildId: starter.guildId, theme: starter.theme, tags, rounds, turnsPerRound, opponentPersonaIds });
+    pendingFlowPicks.set(thread.id, { guildId: starter.guildId, theme: starter.theme, tags, rounds, turnsPerRound, opponentPersonaIds, specText });
     await postFlowPickMenu(thread.id);
   }
 
@@ -700,6 +712,7 @@ export async function startDiscordGateway(
         rounds: pending.rounds,
         turnsPerRound: pending.turnsPerRound,
         opponentPersonaIds: pending.opponentPersonaIds,
+        specText: pending.specText,
       });
       return;
     }

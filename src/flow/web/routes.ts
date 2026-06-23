@@ -33,6 +33,8 @@ import {
   type AutoCrawlSpec,
 } from "../learning-autocrawl.js";
 import type { LearningCrawlSpec } from "../learning.js";
+import { analyzeSpecMechanics } from "../spec-analyze.js";
+import type { GameMechanicEntry } from "../games-md.js";
 import { gateBeforeFlow } from "../information-gate-runner.js";
 import {
   buildPaperDraft,
@@ -286,6 +288,7 @@ flowRoutes.post("/api/flow/start", async (c) => {
     learningQuery?: unknown;
     learningAppId?: unknown;
     learningUrls?: unknown;
+    specText?: unknown;
   };
   const theme = typeof body.theme === "string" ? body.theme.trim() : "";
   const flowLabel = typeof body.flow === "string" ? body.flow : "";
@@ -326,13 +329,28 @@ flowRoutes.post("/api/flow/start", async (c) => {
     return c.json({ ok: true, kind, sessionId: result.session.sessionId });
   }
 
-  // 学習: 短時間で完走するため await して結果を返す。opinions 未供給でも自動収集モードでクロールする。
+  // 学習: 短時間で完走するため await して結果を返す。
+  //   - 自動収集モード (① 類似ゲーム): opinions 未供給でも横断クロール。
+  //   - 仕様書解析 (② specText): 貼付仕様書を LLM 解析 → mechanics として記録。
   if (kind === "learning") {
     if (!deps.openCore) return c.json({ ok: false, error: "learning は Core 未設定のため不可" }, 400);
     const learningCrawl = buildLearningCrawl({ ...body, youtubeApiKey: deps.youtubeApiKey });
+    const specText = typeof body.specText === "string" ? body.specText.trim() : "";
     const core = deps.openCore();
     try {
-      const result = await dispatchFlow({ theme, tags, flow: kind }, { ...dispatchDeps, core, learningCrawl });
+      let mechanics: GameMechanicEntry[] | undefined;
+      if (specText) {
+        mechanics = await analyzeSpecMechanics({
+          theme,
+          specText,
+          llm: webDeps.llm,
+          warn: (m) => console.warn(`[flow-web/spec] ${m}`),
+        });
+      }
+      const result = await dispatchFlow(
+        { theme, tags, flow: kind },
+        { ...dispatchDeps, core, learningCrawl, mechanics }
+      );
       if (result.kind !== "learning") return c.json({ ok: false, error: "internal" }, 500);
       return c.json({ ok: true, kind, sessionId: result.result.gameSlug, result: result.result });
     } finally {
