@@ -90,4 +90,16 @@ const cols = core.client.raw.prepare("PRAGMA table_info(utterances)").all() as A
 assert.ok(!cols.some((c) => /author|name/i.test(c.name)), "utterances に author 名カラムが無い");
 console.log("  [ok] learning: 個人データ (author) を保存しない");
 
+// ── 日本語タイトル + slug 未指定でも 500 にならない (deriveSlug フォールバック) ──
+// 旧実装は toSlug("モンスターストライク")="" → throw → web /api/flow/start が 500。
+const ja = await runLearningFlow("モンスターストライク", "モンスターストライクの面白さ", {
+  core,
+  gamesDir,
+  sentimentClients: { main: guardLlm },
+  opinions: [{ content: "モンストは引っ張りが楽しい、神ゲー" }],
+});
+assert.equal(ja.gameSlug, "モンスターストライク", "日本語タイトルは deriveSlug で非空 slug になる");
+assert.equal(ja.opinionsRecorded, 1, "日本語 slug でも意見を記録できる (旧実装は slug 空で throw)");
+console.log("  [ok] learning: 日本語タイトル + slug 未指定でも throw しない (500 修正)");
+
 console.log("learning (T5) tests: all passed");
