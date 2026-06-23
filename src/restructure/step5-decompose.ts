@@ -2,7 +2,7 @@
  * ⑤ コア / オプション分解。
  *
  * resource グラフの次数中心性 + LLM の反実仮想判定で各 Mechanic に role を付与する。
- * spec/RESTRUCTURE.md §2-⑤。
+ * spec/plan/RESTRUCTURE.md §2-⑤。
  */
 
 import type { GameIntake, EconomyPhase0, Step5Output } from "./types.js";

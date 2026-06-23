@@ -1,5 +1,5 @@
 /**
- * Website (Web 記事) collector — spec/crawler/EXTERNAL-SOURCES.md §4.5。
+ * Website (Web 記事) collector — spec/feature/crawler/EXTERNAL-SOURCES.md §4.5。
  *
  * 任意の URL (レビュー / 考察ブログ / ニュース記事) を 1 件取得し、 本文を抽出して
  * 1 つの ExternalUtterance に正規化する。 記事 = ひとりの論者の 1 意見として扱う。

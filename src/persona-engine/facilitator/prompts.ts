@@ -1,5 +1,5 @@
 /**
- * Facilitator の LLM プロンプト + JSON 抽出 — spec/facilitator/DESIGN.md。
+ * Facilitator の LLM プロンプト + JSON 抽出 — spec/feature/facilitator/DESIGN.md。
  *
  * - expand: 議論が停滞した時、 新しい視点の persona を 1 体生成し開口一番を出す
  * - converge: persona が十分出揃った時、 議論を要約して結論を 1 本出す

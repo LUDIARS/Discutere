@@ -1,5 +1,5 @@
 /**
- * Steam レビュー collector (Phase 1) — spec/crawler/EXTERNAL-SOURCES.md §4.1.
+ * Steam レビュー collector (Phase 1) — spec/feature/crawler/EXTERNAL-SOURCES.md §4.1.
  *
  * 公開エンドポイント `store.steampowered.com/appreviews/{appid}?json=1` を
  * cursor ページングで全件取得し、ExternalUtterance に正規化する。API キー不要。

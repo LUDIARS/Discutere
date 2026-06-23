@@ -3,7 +3,7 @@
 無料で取得できる **外部のゲーム議論データ** (ユーザー発話) を収集し、 Discatier Core
 の `utterances` / `reactions` に **匿名化して取り込む** ためのモジュール。
 
-`spec/crawler/DESIGN.md` (攻略 KG ビルダー) とは **目的が異なる**:
+`spec/feature/crawler/DESIGN.md` (攻略 KG ビルダー) とは **目的が異なる**:
 
 | | DESIGN.md (既存) | 本書 (EXTERNAL-SOURCES) |
 |---|---|---|
@@ -503,7 +503,7 @@ npx tsx scripts/crawl.ts ext-run-all
   config 選択 + 再起動 (§12)。 ホットスワップは follow-up。
 
 ## 11. 参照
-- 既存攻略 KG: `spec/crawler/DESIGN.md`
+- 既存攻略 KG: `spec/feature/crawler/DESIGN.md`
 - Utterance 取り込み API: `src/core/repositories/base.ts` (`createUtteranceRepo`)
 - 発話 schema: `src/core/db/schema.ts` (`utterances` / `reactions`)
 - 既存 sentiment: `src/crawler/sentiment/`

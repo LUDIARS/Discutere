@@ -1,6 +1,6 @@
 # T4: 改善フロー (design_gap 機械スコア)
 
-設計参照: `spec/flow/improvement.md` / `spec/flow/OVERVIEW.md` §11-c。依存: **T2, T3**。
+設計参照: `spec/feature/flow/improvement.md` / `spec/feature/flow/OVERVIEW.md` §11-c。依存: **T2, T3**。
 
 ## ゴール
 

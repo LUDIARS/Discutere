@@ -1,6 +1,6 @@
 /**
  * Facilitator — 議論の活性化と収束を司る per-discussion オーケストレータ。
- * spec/facilitator/DESIGN.md。
+ * spec/feature/facilitator/DESIGN.md。
  *
  * 各 discussion-of-gap session を独自 tick で見張り:
  *  - 発言間隔が空いた (idle) → 新しい視点の persona を 1 体生成して投入し議論を広げる

@@ -1,7 +1,7 @@
 # 議論フロー (4 フロー) 実装タスク — Sonnet 用指示書
 
-`spec/flow/` の 4 フロー (議論 / 改善 / 学習 / 壁打ち) を Sonnet が逐次実装するための
-タスク分解。設計の正本は **`spec/flow/OVERVIEW.md` + 各フロー spec**。本ディレクトリは
+`spec/feature/flow/` の 4 フロー (議論 / 改善 / 学習 / 壁打ち) を Sonnet が逐次実装するための
+タスク分解。設計の正本は **`spec/feature/flow/OVERVIEW.md` + 各フロー spec**。本ディレクトリは
 それを実装可能な粒度に割ったもの。
 
 ## 0. 前提・方針
@@ -83,8 +83,8 @@
 
 ## 4. 参照
 
-- 設計正本: [`../../spec/flow/OVERVIEW.md`](../../spec/flow/OVERVIEW.md) +
-  [discussion](../../spec/flow/discussion.md) / [improvement](../../spec/flow/improvement.md) /
-  [learning](../../spec/flow/learning.md) / [sparring](../../spec/flow/sparring.md)
-- 既存基盤: `spec/persona-engine/DESIGN.md` / `spec/facilitator/DESIGN.md` /
-  `spec/crawler/SENTIMENT.md` / `spec/feature/discussion-party.md` / `spec/feature/web-chat.md`
+- 設計正本: [`../../spec/feature/flow/OVERVIEW.md`](../../spec/feature/flow/OVERVIEW.md) +
+  [discussion](../../spec/feature/flow/discussion.md) / [improvement](../../spec/feature/flow/improvement.md) /
+  [learning](../../spec/feature/flow/learning.md) / [sparring](../../spec/feature/flow/sparring.md)
+- 既存基盤: `spec/feature/persona-engine/DESIGN.md` / `spec/feature/facilitator/DESIGN.md` /
+  `spec/feature/crawler/SENTIMENT.md` / `spec/feature/discussion-party.md` / `spec/feature/web-chat.md`

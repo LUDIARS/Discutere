@@ -91,7 +91,7 @@ const MIGRATIONS = [
     ]
   },
   {
-    // KG 共有同期 (spec/core/KG-SYNC.md): 学習知識テーブルに「共有フラグ」を付与。
+    // KG 共有同期 (spec/data/core/KG-SYNC.md): 学習知識テーブルに「共有フラグ」を付与。
     // master が shared=1 を立てた行だけが follower への配布対象になる。
     // 注意: CREATE INDEX は ALTER ADD COLUMN の後に置く (既存 DB で no such column 回避)。
     id: "0006_kg_sharing",

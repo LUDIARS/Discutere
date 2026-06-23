@@ -1,6 +1,6 @@
 # T3: 議論フロー — 投票 + 感情ベクトル評価 + ラウンドサマリ/止揚 + 結論
 
-設計参照: `spec/flow/discussion.md` step 6〜9 / `spec/flow/OVERVIEW.md` §1 (投票/世論) / §11-b。
+設計参照: `spec/feature/flow/discussion.md` step 6〜9 / `spec/feature/flow/OVERVIEW.md` §1 (投票/世論) / §11-b。
 依存: **T1, T2**。
 
 ## ゴール

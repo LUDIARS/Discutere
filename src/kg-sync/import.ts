@@ -1,5 +1,5 @@
 /**
- * 共有 KG の取り込み (follower 側) — spec/core/KG-SYNC.md。
+ * 共有 KG の取り込み (follower 側) — spec/data/core/KG-SYNC.md。
  *
  * NDJSON を解析し、共有テーブルへ id で upsert する。競合は updated_at の
  * last-write-wins (受信行の updated_at が既存以上のときだけ上書き)。

@@ -48,7 +48,7 @@ async function main(): Promise<void> {
         console.error((err as Error).message);
         process.exit(1);
       });
-    // 外部議論ソース (Phase 1) — spec/crawler/EXTERNAL-SOURCES.md
+    // 外部議論ソース (Phase 1) — spec/feature/crawler/EXTERNAL-SOURCES.md
     case "ext-fetch":
       return runExtFetch(rest);
     case "ext-import":
@@ -57,7 +57,7 @@ async function main(): Promise<void> {
       return runExtIngest(rest);
     case "gap-rate":
       return runGapRate(rest);
-    // データソース隔離 (退避 + KG から削除 / 復元) — spec/visualize/DESIGN.md
+    // データソース隔離 (退避 + KG から削除 / 復元) — spec/feature/visualize/DESIGN.md
     case "quarantine":
       return runQuarantine(rest);
     case "quarantine-restore":

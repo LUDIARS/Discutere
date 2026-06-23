@@ -1,5 +1,5 @@
 /**
- * source-attribution sidecar — spec/crawler/EXTERNAL-SOURCES.md §3 / §6.
+ * source-attribution sidecar — spec/feature/crawler/EXTERNAL-SOURCES.md §3 / §6.
  *
  * 露出制御で「ソース種別 + 元 URL を end user に開示」するため、 取り込み時に
  * utterance ごとの出所 (source / source_url / native_id / game_slug) を引けるようにする。

@@ -1,5 +1,5 @@
 /**
- * YouTube Data API quota トラッカー (Phase 1) — spec/crawler/EXTERNAL-SOURCES.md §4.2。
+ * YouTube Data API quota トラッカー (Phase 1) — spec/feature/crawler/EXTERNAL-SOURCES.md §4.2。
  *
  * 無料枠 = 10,000 units/日 をプロセス内で加算管理する。上限超過で canSpend が false。
  * search.list は 100 units、 list 系 (commentThreads/playlistItems/videos/channels) は 1 unit。

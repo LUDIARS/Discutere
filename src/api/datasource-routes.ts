@@ -1,5 +1,5 @@
 /**
- * データ調整 UX (admin) — spec/crawler/EXTERNAL-SOURCES.md §13。
+ * データ調整 UX (admin) — spec/feature/crawler/EXTERNAL-SOURCES.md §13。
  *
  * 「タスク別に KG を分けて運用切替する」前提では、 取り込んだデータを見て・絞って・除外できる
  * UX が運用価値の中心になる。 admin dashboard の「データソース」面の API を提供する。

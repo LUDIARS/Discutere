@@ -4,7 +4,7 @@
  * 機械判定可能な破綻 (経済収支・重複) は即時検出。
  * 主観的破綻 (面白さ) は LLM 評価 + designGap 化 (収束ループ上限付き)。
  *
- * spec/RESTRUCTURE.md §2-⑦ / §4-E。
+ * spec/plan/RESTRUCTURE.md §2-⑦ / §4-E。
  */
 
 import type {

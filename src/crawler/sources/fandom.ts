@@ -1,5 +1,5 @@
 /**
- * Fandom (旧 Wikia) collector (Phase 1) — spec/crawler/EXTERNAL-SOURCES.md §「5 Fandom」。
+ * Fandom (旧 Wikia) collector (Phase 1) — spec/feature/crawler/EXTERNAL-SOURCES.md §「5 Fandom」。
  *
  * MediaWiki API (`action=parse`) で wiki 記事本文を取得し、HTML を素朴に plaintext 化して
  * ExternalUtterance に正規化する。API キー不要 (CC-BY-SA)。記事=ゲームの lore/設計文脈 (Axis1

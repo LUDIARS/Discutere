@@ -1,5 +1,5 @@
 /**
- * YouTube コメントクローラ — spec/crawler/EXTERNAL-SOURCES.md §4.2(b)。
+ * YouTube コメントクローラ — spec/feature/crawler/EXTERNAL-SOURCES.md §4.2(b)。
  *
  * 動画 id → コメント本文。commentThreads.list (1 unit/100 thread) でトップレベル +
  * 一部返信を取得し、ExternalUtterance に正規化する (返信は responds_to=トップコメント)。

@@ -1,7 +1,7 @@
 /**
  * Magic-link `[[<type>:<id>]]` の parse / format / 検証。
  *
- * 仕様: spec/visualize/DESIGN.md「マジックリンク規約」 セクション。
+ * 仕様: spec/feature/visualize/DESIGN.md「マジックリンク規約」 セクション。
  * 形式が崩れた link (typo / 未知 prefix / 空 id) は **失敗ではなく valid: false**
  * を返す (viewer 側で「dangling link」 として警告表示できるよう生かす方針)。
  */

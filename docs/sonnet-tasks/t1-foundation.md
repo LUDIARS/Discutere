@@ -1,6 +1,6 @@
 # T1: 共通基盤 (設定 + タグ + DB スキーマ + コスト/transcript ログ)
 
-設計参照: `spec/flow/OVERVIEW.md` §2 (設定) / §3 (タグ) / §8 (コスト計測)。
+設計参照: `spec/feature/flow/OVERVIEW.md` §2 (設定) / §3 (タグ) / §8 (コスト計測)。
 
 ## ゴール
 

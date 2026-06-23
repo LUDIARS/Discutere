@@ -1,5 +1,5 @@
 /**
- * External importer (Phase 1) — spec/crawler/EXTERNAL-SOURCES.md §3.
+ * External importer (Phase 1) — spec/feature/crawler/EXTERNAL-SOURCES.md §3.
  *
  * ExternalUtterance[] を Discatier Core の sessions / utterances / reactions に
  * 格納する。決定的 id (`ext:<source>:<nativeId>`) と dedup sidecar で冪等。

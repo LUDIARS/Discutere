@@ -1,5 +1,5 @@
 /**
- * 話者の同一性 (persona アンカー) と露出マスク — spec/crawler/EXTERNAL-SOURCES.md §6.
+ * 話者の同一性 (persona アンカー) と露出マスク — spec/feature/crawler/EXTERNAL-SOURCES.md §6.
  *
  * 統治原則「情報精度 > プライバシー」を二層で実装する:
  *  - 保管層: 公開・安定 ID をそのまま speaker_id にする (toSpeakerId)。persona 精度を保つ。

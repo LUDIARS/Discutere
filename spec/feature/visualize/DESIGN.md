@@ -239,5 +239,5 @@ npm run visualize hypothesis <id> --workspace team-alpha
 ## 参照
 - Discatier Core schema: `src/core/db/schema.ts`
 - Discatier Core repos: `src/core/repositories/base.ts`
-- crawler との接続: `spec/crawler/DESIGN.md`
+- crawler との接続: `spec/feature/crawler/DESIGN.md`
 - LUDIARS ダッシュボード: <https://ludiars.github.io/LUDIARS/>

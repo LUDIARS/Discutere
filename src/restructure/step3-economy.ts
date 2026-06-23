@@ -5,7 +5,7 @@
  * RESTRUCTURE の ResourceEdge 表現に変換して使う。
  * analyzeEconomy が DB キャッシュを持つためここでは再利用する。
  *
- * spec/RESTRUCTURE.md §2-③ / §4-C。
+ * spec/plan/RESTRUCTURE.md §2-③ / §4-C。
  */
 
 import { join } from "node:path";

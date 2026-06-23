@@ -1,5 +1,5 @@
 /**
- * 共有 KG の差分エクスポート (master 側) — spec/core/KG-SYNC.md。
+ * 共有 KG の差分エクスポート (master 側) — spec/data/core/KG-SYNC.md。
  *
  * 各共有テーブルの `shared=1 AND updated_at > since` の行を NDJSON で返す。
  * 1 行目は manifest (watermark = 含めた行の最大 updated_at)。 follower はこの watermark を

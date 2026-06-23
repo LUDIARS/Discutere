@@ -1,14 +1,14 @@
 # Discatier KG ストア二層化 — index=SQLite / KG本体=Kuzu
 
-> 対象: `src/core/` のストレージ層。`spec/core/DESIGN.md`（イベントソーシング+グラフDB）の
+> 対象: `src/core/` のストレージ層。`spec/data/core/DESIGN.md`（イベントソーシング+グラフDB）の
 > 「グラフDB」を、プレースホルダの SQLite から **本物の Kuzu** へ昇格させる移行設計。
 > 関連: 取込基盤 [Canalis](https://github.com/LUDIARS/Canalis)（`KgBatch`→`KuzuSink` で接合）/
-> `spec/crawler/SENTIMENT.md`（感情は 0+1 カスケード）/ `spec/backup/DESIGN.md`。
+> `spec/feature/crawler/SENTIMENT.md`（感情は 0+1 カスケード）/ `spec/feature/backup/DESIGN.md`。
 
 ## 1. 背景と決定
 
 - 現状の `KuzuClient`（`src/core/db/kuzu-client.ts`）は **名前だけ Kuzu で中身 better-sqlite3**。
-  `kuzu` npm は未導入。一方 `spec/core/DESIGN.md` は明確に「イベントソーシング + **グラフ DB**」と
+  `kuzu` npm は未導入。一方 `spec/data/core/DESIGN.md` は明確に「イベントソーシング + **グラフ DB**」と
   謳い、横断クエリ（`docs/codex-tasks/phase-6-cross-queries.md` の `/lineage` `/find`）は
   **既に Cypher 前提**。＝ グラフDB化は設計の既定路線で、SQLite は暫定実装だった。
 - **決定（2026-06-09）**: ストアを二層に分ける。
@@ -141,7 +141,7 @@ Canalis ③ KuzuSink (MERGE) → 本 Kuzu
   起動時に「Kuzu スキーマ版数 < 現行」なら自動再構築も可。
 - **検証**: replay 後、SQLite read model（現行テーブル）件数と Kuzu ノード件数を type 別に照合。
   移行期は両投影を並走させ差分ゼロを確認してから SQLite KG read テーブルを撤去。
-- **バックアップ**（`spec/backup/DESIGN.md`）: tar 対象に **Kuzu DB ディレクトリ**を追加
+- **バックアップ**（`spec/feature/backup/DESIGN.md`）: tar 対象に **Kuzu DB ディレクトリ**を追加
   （Kuzu はディレクトリ単位の DB）。SQLite と合わせて 1 アーカイブ。
 
 ## 7. クラス/配線の変更

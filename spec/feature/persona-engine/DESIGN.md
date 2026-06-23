@@ -235,4 +235,4 @@ table 名はすべて `pe_` prefix を付けずに置く (= 同じ DB に他テ�
 
 - Concordia の起点コード: `LUDIARS/Concordia/src/{personas,rules,db/personas-repo.ts,db/rules-repo.ts}`
 - Discatier Core: `src/core/repositories/base.ts`
-- visualize との接続: `[[persona:<id>]]` を wikilink に追加 (`spec/visualize/DESIGN.md` 更新)
+- visualize との接続: `[[persona:<id>]]` を wikilink に追加 (`spec/feature/visualize/DESIGN.md` 更新)

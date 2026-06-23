@@ -60,7 +60,7 @@
   <h2>乖離の詳細（⚠️ 部分的の 4 件）</h2>
 
   <details class="disc" open>
-    <summary><span class="pill warn">PARTIAL</span> &nbsp;spec/OVERVIEW.md</summary>
+    <summary><span class="pill warn">PARTIAL</span> &nbsp;spec/README.md</summary>
     <div class="inner">
       <ul class="tight">
         <li>仕様は <code>src/persona-engine/engine/engine.ts</code> を議論の主オーケストレータとして描くが、現行の Discord/フォーラム経路は
@@ -74,7 +74,7 @@
   </details>
 
   <details class="disc">
-    <summary><span class="pill warn">PARTIAL</span> &nbsp;spec/crawler/SENTIMENT.md</summary>
+    <summary><span class="pill warn">PARTIAL</span> &nbsp;spec/feature/crawler/SENTIMENT.md</summary>
     <div class="inner">
       <ul class="tight">
         <li>感情分析パイプライン本体は存在：<code>src/crawler/sentiment/analyze.mjs</code> / <code>cascade.ts</code> /
@@ -87,7 +87,7 @@
   </details>
 
   <details class="disc">
-    <summary><span class="pill warn">PARTIAL</span> &nbsp;spec/visualize/DESIGN.md</summary>
+    <summary><span class="pill warn">PARTIAL</span> &nbsp;spec/feature/visualize/DESIGN.md</summary>
     <div class="inner">
       <ul class="tight">
         <li><code>src/visualize/wikilink.ts</code> は仕様の型テーブル（<code>utt|hyp|gap|mch|aes|aff|ses|game</code>）に無い
@@ -112,7 +112,7 @@
 
   <h2>レビュー時の補正メモ</h2>
   <div class="callout">
-    探索の途中で <code>spec/crawler/EXTERNAL-SOURCES.md §14</code>（<code>listRelevantExternalVoices</code> による RAG 検索）を
+    探索の途中で <code>spec/feature/crawler/EXTERNAL-SOURCES.md §14</code>（<code>listRelevantExternalVoices</code> による RAG 検索）を
     一旦「欠落」と疑ったが、実装を確認した結果 <strong>存在</strong>：<code>src/persona-engine/context-provider.ts:85</code> に定義され
     <code>src/persona-engine/engine/prompt-builder.ts</code> が消費、<code>src/flow/external-voices.ts</code> の
     <code>listExternalVoices</code> が web/Discord 経路に配線。よって EXTERNAL-SOURCES.md は <span class="pill ok">MATCHED</span>。
@@ -134,24 +134,24 @@
 
 <script>
 const rows = [
-  ['spec/OVERVIEW.md','warn','persona-engine 中心の記述だが本番経路は src/flow/（FlowDirector）。設定名も一部陳腐化。'],
-  ['spec/RESTRUCTURE.md','ok','7 ステップ + pipeline.ts が src/restructure/ に存在。'],
-  ['spec/flow/OVERVIEW.md','ok','director/tags/cost-logger/discussion-paper/persona-display/voice-cache/persona-pool すべて存在。'],
-  ['spec/flow/discussion.md','ok','director.ts の runFlow/runDiscussionFlow、vote/round-summary/conclusion 完備。'],
-  ['spec/flow/improvement.md','ok','improvement.ts + design-gap.ts + improvement-score.ts + sentiment-vector.ts。'],
-  ['spec/flow/learning.md','ok','learning.ts + learning-autocrawl.ts + crawler importer/cascade。'],
-  ['spec/flow/persona-pool.md','ok','A–G の機能がすべて persona-*.ts に対応。'],
-  ['spec/flow/sparring.md','ok','sparring.ts（SparringSession）+ sparring-commands.ts。'],
-  ['spec/core/DESIGN.md','ok','layers/repos/events/bridges/jobs/vectors すべて存在。'],
-  ['spec/core/KG-SYNC.md','ok','export/import/pull/state/shared-tables/scheduler すべて存在。'],
-  ['spec/core/KUZU-MIGRATION.md','ok','KuzuGraphClient + DDL + kuzu-projection.ts の dual-write。'],
-  ['spec/crawler/DESIGN.md','ok','md-format/types/importer/runner 存在。'],
-  ['spec/crawler/EXTERNAL-SOURCES.md','ok','全 collector + sidecar + §14 RAG 存在（補正済み）。'],
-  ['spec/crawler/SENTIMENT.md','warn','分析パイプラインは完備、ベクトルの DB/Kuzu 配線が crawler に未配線（follow-up）。'],
-  ['spec/persona-engine/DESIGN.md','ok','engine/db/seeds/llm/adapter すべて存在。'],
-  ['spec/facilitator/DESIGN.md','ok','facilitator + 3 prompt builder + config + converged event。'],
-  ['spec/visualize/DESIGN.md','warn','コードが仕様の 8 型表に無い persona wikilink 型を追加。'],
-  ['spec/backup/DESIGN.md','ok','archive/s3/runner + state + config キー。'],
+  ['spec/README.md','warn','persona-engine 中心の記述だが本番経路は src/flow/（FlowDirector）。設定名も一部陳腐化。'],
+  ['spec/plan/RESTRUCTURE.md','ok','7 ステップ + pipeline.ts が src/restructure/ に存在。'],
+  ['spec/feature/flow/OVERVIEW.md','ok','director/tags/cost-logger/discussion-paper/persona-display/voice-cache/persona-pool すべて存在。'],
+  ['spec/feature/flow/discussion.md','ok','director.ts の runFlow/runDiscussionFlow、vote/round-summary/conclusion 完備。'],
+  ['spec/feature/flow/improvement.md','ok','improvement.ts + design-gap.ts + improvement-score.ts + sentiment-vector.ts。'],
+  ['spec/feature/flow/learning.md','ok','learning.ts + learning-autocrawl.ts + crawler importer/cascade。'],
+  ['spec/feature/flow/persona-pool.md','ok','A–G の機能がすべて persona-*.ts に対応。'],
+  ['spec/feature/flow/sparring.md','ok','sparring.ts（SparringSession）+ sparring-commands.ts。'],
+  ['spec/data/core/DESIGN.md','ok','layers/repos/events/bridges/jobs/vectors すべて存在。'],
+  ['spec/data/core/KG-SYNC.md','ok','export/import/pull/state/shared-tables/scheduler すべて存在。'],
+  ['spec/data/core/KUZU-MIGRATION.md','ok','KuzuGraphClient + DDL + kuzu-projection.ts の dual-write。'],
+  ['spec/feature/crawler/DESIGN.md','ok','md-format/types/importer/runner 存在。'],
+  ['spec/feature/crawler/EXTERNAL-SOURCES.md','ok','全 collector + sidecar + §14 RAG 存在（補正済み）。'],
+  ['spec/feature/crawler/SENTIMENT.md','warn','分析パイプラインは完備、ベクトルの DB/Kuzu 配線が crawler に未配線（follow-up）。'],
+  ['spec/feature/persona-engine/DESIGN.md','ok','engine/db/seeds/llm/adapter すべて存在。'],
+  ['spec/feature/facilitator/DESIGN.md','ok','facilitator + 3 prompt builder + config + converged event。'],
+  ['spec/feature/visualize/DESIGN.md','warn','コードが仕様の 8 型表に無い persona wikilink 型を追加。'],
+  ['spec/feature/backup/DESIGN.md','ok','archive/s3/runner + state + config キー。'],
   ['spec/feature/discussion-party.md','ok','composition/director/director-live + /debate。'],
   ['spec/feature/game-feedback.md','ok','feedback/store.ts + game-feedback-channel.ts。'],
   ['spec/feature/gemma-ft.md','ok','headless runner + generate/export scripts + unsloth_train.py。'],

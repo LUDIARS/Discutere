@@ -4,7 +4,7 @@
  * Phase 1 では Claude API (WebSearch tool use) で
  *   gameName → 攻略サイト巡回 → 構造化抽出 → md (frontmatter + 本文)
  * を返す実装を入れる。
- * 制約は spec/crawler/DESIGN.md「制約」セクションを参照。
+ * 制約は spec/feature/crawler/DESIGN.md「制約」セクションを参照。
  */
 
 import type { GameKG } from "./types.js";

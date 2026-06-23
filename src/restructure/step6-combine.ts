@@ -4,7 +4,7 @@
  * KG 横断で高評価な mechanic を候補として抽出し、
  * (1) playContext 両立 (2) 嗜好適合 (3) 機能的補完 の AND 条件でフィルタする。
  *
- * spec/RESTRUCTURE.md §2-⑥ / §4-D。
+ * spec/plan/RESTRUCTURE.md §2-⑥ / §4-D。
  */
 
 import { readdir, readFile } from "node:fs/promises";

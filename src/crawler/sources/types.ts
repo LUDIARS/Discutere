@@ -3,7 +3,7 @@
  *
  * 外部の公開ゲーム議論 (Steam レビュー / YouTube コメント等) を収集し、
  * Discatier Core の utterances / reactions に格納するための正規化済み 1 発話。
- * 仕様は spec/crawler/EXTERNAL-SOURCES.md。
+ * 仕様は spec/feature/crawler/EXTERNAL-SOURCES.md。
  */
 
 export type ExternalSource =

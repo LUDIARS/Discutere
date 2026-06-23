@@ -1,5 +1,5 @@
 /**
- * タスク別 KG レジストリの解決 — spec/crawler/EXTERNAL-SOURCES.md §12.
+ * タスク別 KG レジストリの解決 — spec/feature/crawler/EXTERNAL-SOURCES.md §12.
  *
  * 学習データ KG を「タスク (収集目的) 別」に複数宣言し、 起動時に 1 つを active として開く。
  * Core を開く全箇所はここの `resolveActiveKgPath` を経由して active KG を見る (SRP / 散在解消)。

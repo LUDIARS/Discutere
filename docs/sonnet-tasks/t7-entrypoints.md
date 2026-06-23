@@ -1,6 +1,6 @@
 # T7: 起動経路 (簡素 WebUI + Discord/Slack トリガ + フロー選択)
 
-設計参照: `spec/flow/OVERVIEW.md` §9 (起動経路) / `spec/flow/discussion.md` step 1。依存: **T2**
+設計参照: `spec/feature/flow/OVERVIEW.md` §9 (起動経路) / `spec/feature/flow/discussion.md` step 1。依存: **T2**
 (T3-T6 完了後が望ましいが、入口だけなら T2 後に着手可)。
 
 ## ゴール
