@@ -147,6 +147,13 @@ export interface DiscordGatewayHandle {
   sweepUnseeded(opts?: { limit?: number }): Promise<{ scanned: number; seeded: number }>;
 }
 
+/** 仕様書解析 (③) に回せるテキスト系添付か (画像/動画/バイナリは除外)。 */
+function isTextLikeAttachment(name: string, contentType: string | null): boolean {
+  if (contentType && contentType.startsWith("text/")) return true;
+  if (contentType && /^(application\/(json|xml|x-yaml)|text\/markdown)/.test(contentType)) return true;
+  return /\.(md|markdown|txt|text|json|ya?ml|csv|rst|adoc)$/i.test(name);
+}
+
 /**
  * Gateway を起動する。botToken が空なら null を返して skip (= HTTP health 等は従来通り)。
  */
@@ -198,6 +205,8 @@ export async function startDiscordGateway(
       opponentPersonaIds?: string[];
       /** starter 本文 (学習で仕様書解析に使う、② specText)。 */
       specText?: string;
+      /** starter 添付ファイル URL (学習で仕様書解析に使う、③)。 */
+      specAttachmentUrls?: string[];
     }
   >();
   // 進行量設定 select/modal の待ち (threadId → フロー解決済みの起動情報、item1)。
@@ -320,7 +329,13 @@ export async function startDiscordGateway(
    */
   async function resolveForumStarter(
     thread: AnyThreadChannel
-  ): Promise<{ guildId: string; theme: string; appliedTagNames: string[]; starterContent: string } | null> {
+  ): Promise<{
+    guildId: string;
+    theme: string;
+    appliedTagNames: string[];
+    starterContent: string;
+    specAttachmentUrls: string[];
+  } | null> {
     let parentForum: unknown = thread.parent;
     let parentType: ChannelType | undefined = thread.parent?.type;
     if (parentType === undefined && thread.parentId) {
@@ -347,7 +362,11 @@ export async function startDiscordGateway(
     const starterContent = starter.content.trim();
     const theme = (typeof thread.name === "string" && thread.name.trim()) || starterContent;
     if (!theme) return null;
-    return { guildId, theme, appliedTagNames, starterContent };
+    // テキスト系の添付ファイル URL を仕様書解析 (③) の材料にする (画像/バイナリは除外)。
+    const specAttachmentUrls = [...starter.attachments.values()]
+      .filter((a) => isTextLikeAttachment(a.name ?? "", a.contentType ?? null))
+      .map((a) => a.url);
+    return { guildId, theme, appliedTagNames, starterContent, specAttachmentUrls };
   }
 
   /** 議論タイプ select メニューをスレッドに出す。 */
@@ -394,6 +413,8 @@ export async function startDiscordGateway(
     opponentPersonaIds?: string[];
     /** starter 本文 (学習で仕様書解析に使う、② specText)。 */
     specText?: string;
+    /** starter 添付ファイル URL (学習で仕様書解析に使う、③)。 */
+    specAttachmentUrls?: string[];
   }): Promise<void> {
     if (!deps.flowLive) return;
     const wantsSettings =
@@ -422,6 +443,7 @@ export async function startDiscordGateway(
         turnsPerRound: info.turnsPerRound,
         opponentPersonaIds: info.opponentPersonaIds,
         specText: info.specText,
+        specAttachmentUrls: info.specAttachmentUrls,
       },
       deps.flowLive,
       flowHooks
@@ -464,6 +486,8 @@ export async function startDiscordGateway(
       starter.starterContent && starter.starterContent !== starter.theme
         ? starter.starterContent
         : undefined;
+    // 添付ファイル (テキスト系) も仕様書解析の材料にする (③ 学習のみで使用)。
+    const specAttachmentUrls = starter.specAttachmentUrls.length > 0 ? starter.specAttachmentUrls : undefined;
     if (flow) {
       await beginFlow({
         guildId: starter.guildId,
@@ -475,11 +499,12 @@ export async function startDiscordGateway(
         turnsPerRound,
         opponentPersonaIds,
         specText,
+        specAttachmentUrls,
       });
       return;
     }
     // 議論タイプタグ無し → 選択 UI を出して待つ。
-    pendingFlowPicks.set(thread.id, { guildId: starter.guildId, theme: starter.theme, tags, rounds, turnsPerRound, opponentPersonaIds, specText });
+    pendingFlowPicks.set(thread.id, { guildId: starter.guildId, theme: starter.theme, tags, rounds, turnsPerRound, opponentPersonaIds, specText, specAttachmentUrls });
     await postFlowPickMenu(thread.id);
   }
 
@@ -713,6 +738,7 @@ export async function startDiscordGateway(
         turnsPerRound: pending.turnsPerRound,
         opponentPersonaIds: pending.opponentPersonaIds,
         specText: pending.specText,
+        specAttachmentUrls: pending.specAttachmentUrls,
       });
       return;
     }

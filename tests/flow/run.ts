@@ -29,6 +29,7 @@ await import("./cost-estimate.test.js");
 await import("./paper-review.test.js");
 await import("./mechanic-extract.test.js");
 await import("./spec-analyze.test.js");
+await import("./spec-source.test.js");
 await import("./persona-routes.test.js");
 
 console.log("flow tests: all passed");
