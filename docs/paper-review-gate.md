@@ -6,7 +6,9 @@
 
 - 設定: `flow.paperReview.enabled` (既定 **false** = opt-in)。`enabled=true` で有効化。
   `flow.paperReview.model` はペーパー編集に使うモデル (空なら LLM の既定モデル)。
-  env: `DISCUTERE_FLOW_PAPER_REVIEW_ENABLED` / `DISCUTERE_FLOW_PAPER_REVIEW_MODEL`。
+  `flow.paperReview.timeoutMs` は無操作の自動開始タイムアウト (既定 **0** = 無期限に承認を待つ。
+  `>0` なら提示から `timeoutMs` 経過で草案のまま自動開始し、調整があるたび延長)。
+  env: `DISCUTERE_FLOW_PAPER_REVIEW_ENABLED` / `_MODEL` / `_TIMEOUT_MS`。
 - 対象フロー: `discussion` / `improvement`。`learning` / `sparring` は対象外。
 - 無効時は従来どおり、情報ゲート (クロール) のあとそのまま議論を自動開始する。
 
@@ -41,11 +43,13 @@
 1. フォーラム投稿で議論/改善が起動 → 情報ゲート後、`startPaperReview` が草案 + 情報サマリを
    スレッドに投稿し、`paperReviewByThread` にレビュー待ちで登録する。
 2. スレッド返信を `handlePaperReviewReply` が処理 (壁打ちより優先):
-   - 承認語 (「開始」等) → 確定ペーパーで `runDiscussionDispatch` (= 議論開始)。
-   - それ以外 → `applyPaperEdit` で反映し、更新版ペーパーを再掲。
+   - 承認語 (「開始」等) → `handlePaperReviewApproval` → 確定ペーパーで `runDiscussionDispatch` (= 議論開始)。
+   - それ以外 → `applyPaperEdit` で反映し、更新版ペーパーを再掲 (自動開始タイマーを延長)。
 3. 承認後は従来どおり完走 → 収束まとめを投稿。
 
-承認は **スレッド返信**で行う (`✅` と返信しても可)。リアクションによる承認は未対応 (follow-up)。
+承認は **スレッド返信「開始」** または **✅ リアクション** で行う。✅ は `gateway` の
+`MessageReactionAdd` がレビュー中スレッド (`hasPaperReview`) を検知して `handlePaperReviewApproval`
+に回す (スコアリングより優先)。`timeoutMs>0` なら無操作で `timeoutMs` 経過後に草案のまま自動開始する。
 
 ## Web (`/flow`)
 
@@ -60,11 +64,12 @@
 
 ブラウザは確認フォームで議題・タグ・観点補足・メカニクス (1 行 1 件 `名前 :: 説明 :: 期待感情`) を
 直接編集でき、自然文の「調整を反映」も併用できる。「この内容で開始」で承認→議論開始→通常の
-ポーリング表示に切り替わる。
+ポーリング表示に切り替わる。`timeoutMs>0` なら無操作で経過後にサーバ側タイマーが草案のまま自動開始する
+(調整があるたび延長)。
 
 ## 制約 / follow-up
 
-- タイムアウトなし: レビューは人間の承認を待ち続ける (opt-in 機能のため)。自動開始のタイムアウトは follow-up。
+- 自動開始タイムアウトは `timeoutMs` で設定可 (既定 0 = 無期限に待つ)。Discord/Web ともサーバ側タイマー。
 - 承認/調整は誰でも可 (匿名 workspace 方針。admin ゲートは設けない)。
-- Discord のリアクション承認 (`✅` でのワンタップ承認) は未対応 (テキスト「開始」で代替)。
+- 承認は Discord = テキスト「開始」 or ✅ リアクション、Web = フォームのボタン。
 - 個人データは扱わない (情報サマリは出所付き・個人仮名のまま)。

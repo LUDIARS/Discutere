@@ -177,8 +177,50 @@ interface WebPaperReview {
   error?: string;
   draft?: PaperDraft;
   info?: PaperReviewInfo;
+  /** 無操作の自動開始タイマー (timeoutMs>0 時のみ。調整があるたび張り直す)。 */
+  timer?: ReturnType<typeof setTimeout>;
 }
 const paperReviews = new Map<string, WebPaperReview>();
+
+/** 確定ペーパーで議論を起動する (承認エンドポイント / 自動開始タイマー 共通)。 */
+function startApprovedFlow(
+  sessionId: string,
+  entry: WebPaperReview,
+  finalPaper: PaperDraft,
+  webDeps: FlowWebDeps
+): void {
+  if (entry.timer) clearTimeout(entry.timer);
+  paperReviews.delete(sessionId);
+  const dispatchDeps: DispatchDeps = {
+    llm: webDeps.llm,
+    listExternalVoices: webDeps.listExternalVoices,
+    sentimentClients: webDeps.sentimentClients,
+    gamesDir: webDeps.gamesDir,
+    workspaceId: webDeps.workspaceId,
+  };
+  void dispatchFlow(
+    { theme: finalPaper.theme, tags: finalPaper.tags, flow: entry.flow, rounds: entry.rounds, turnsPerRound: entry.turnsPerRound },
+    { ...dispatchDeps, sessionId, paperOverride: { mechanics: finalPaper.mechanics, supplement: finalPaper.supplement } }
+  )
+    .catch((e) => console.warn(`[flow-web] ${entry.flow} 実行エラー: ${(e as Error).message}`))
+    .finally(() => finished.add(sessionId));
+}
+
+/** 無操作の自動開始タイマーを (張り直して) 仕掛ける。timeoutMs<=0 なら何もしない。 */
+function scheduleWebAutoApprove(sessionId: string, webDeps: FlowWebDeps): void {
+  const entry = paperReviews.get(sessionId);
+  if (!entry || !entry.ready || !entry.draft) return;
+  const timeoutMs = getConfig().flow.paperReview.timeoutMs;
+  if (timeoutMs <= 0) return;
+  if (entry.timer) clearTimeout(entry.timer);
+  entry.timer = setTimeout(() => {
+    const e = paperReviews.get(sessionId);
+    if (!e || !e.draft) return;
+    console.log(`[flow-web/paper ${sessionId}] 無操作のため草案のまま自動開始`);
+    startApprovedFlow(sessionId, e, e.draft, webDeps);
+  }, timeoutMs);
+  entry.timer.unref?.();
+}
 
 export const flowRoutes = new Hono();
 
@@ -267,7 +309,10 @@ flowRoutes.post("/api/flow/start", async (c) => {
         warn: (m) => console.warn(`[flow-web/paper ${sessionId}] ${m}`),
       });
       const entry = paperReviews.get(sessionId);
-      if (entry) Object.assign(entry, { ready: true, draft, info });
+      if (entry) {
+        Object.assign(entry, { ready: true, draft, info });
+        scheduleWebAutoApprove(sessionId, webDeps); // 無操作タイムアウト (timeoutMs>0 時のみ)
+      }
     })().catch((e) => {
       const entry = paperReviews.get(sessionId);
       if (entry) Object.assign(entry, { ready: true, error: (e as Error).message });
@@ -313,6 +358,7 @@ flowRoutes.post("/api/flow/:session/paper/edit", async (c) => {
     warn: (m) => console.warn(`[flow-web/paper ${sessionId}] ${m}`),
   });
   entry.draft = edited.draft;
+  scheduleWebAutoApprove(sessionId, deps); // 調整があったら自動開始を延長
   return c.json({ ok: true, paper: edited.draft, changeSummary: edited.changeSummary, applied: edited.applied });
 });
 
@@ -326,25 +372,7 @@ flowRoutes.post("/api/flow/:session/paper/approve", async (c) => {
   const body = (await c.req.json().catch(() => ({}))) as { paper?: unknown };
   // body.paper があれば Web フォームの直接編集を確定値に採用 (なければ蓄積済みドラフト)。
   const finalPaper = coercePaperDraft(body.paper, entry.draft);
-  paperReviews.delete(sessionId);
-
-  const dispatchDeps: DispatchDeps = {
-    llm: webDeps.llm,
-    listExternalVoices: webDeps.listExternalVoices,
-    sentimentClients: webDeps.sentimentClients,
-    gamesDir: webDeps.gamesDir,
-    workspaceId: webDeps.workspaceId,
-  };
-  void dispatchFlow(
-    { theme: finalPaper.theme, tags: finalPaper.tags, flow: entry.flow, rounds: entry.rounds, turnsPerRound: entry.turnsPerRound },
-    {
-      ...dispatchDeps,
-      sessionId,
-      paperOverride: { mechanics: finalPaper.mechanics, supplement: finalPaper.supplement },
-    }
-  )
-    .catch((e) => console.warn(`[flow-web] ${entry.flow} 実行エラー: ${(e as Error).message}`))
-    .finally(() => finished.add(sessionId));
+  startApprovedFlow(sessionId, entry, finalPaper, webDeps);
   return c.json({ ok: true, sessionId });
 });
 
@@ -417,5 +445,6 @@ flowRoutes.get("/api/flow/:session/status", (c) => {
 export function _resetFlowWeb(): void {
   sparringSessions.clear();
   finished.clear();
+  for (const r of paperReviews.values()) if (r.timer) clearTimeout(r.timer);
   paperReviews.clear();
 }

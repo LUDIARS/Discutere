@@ -95,6 +95,11 @@ export interface DiscutereConfig {
       enabled: boolean;
       /** ペーパー編集に使うモデル ("" なら LLM の既定モデル)。 */
       model: string;
+      /**
+       * 無操作の自動開始タイムアウト (ms)。0 (既定) = 無期限に承認を待つ。
+       * >0 ならレビュー提示から timeoutMs 経過で草案のまま自動開始する (調整があるたび延長)。
+       */
+      timeoutMs: number;
     };
   };
   /** 匿名議論 workspace (個人データ非保管) */
@@ -620,6 +625,11 @@ export function loadConfig(): DiscutereConfig {
           false
         ),
         model: pick(process.env.DISCUTERE_FLOW_PAPER_REVIEW_MODEL, file.flow?.paperReview?.model, ""),
+        timeoutMs: pickNum(
+          process.env.DISCUTERE_FLOW_PAPER_REVIEW_TIMEOUT_MS,
+          file.flow?.paperReview?.timeoutMs,
+          0
+        ),
       },
     },
     workspace: pick(process.env.DISCATIER_WORKSPACE, file.workspace, "knowledge"),
