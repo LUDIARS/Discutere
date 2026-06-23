@@ -10,8 +10,10 @@
  *   npm run ext:canalis -- --source reddit  --subreddit HollowKnight --slug hollow-knight
  *   npm run ext:canalis -- --dry-run   # クロールのみ (Kuzu 書込なし)
  *
- * 必要な環境変数:
+ * 必要な暗号化 config:
  *   DISCUTERE_YOUTUBE_API_KEY    (youtube のみ)
+ *
+ * 任意の環境変数:
  *   LLM_LOCAL_BASE_URL           (Tier 1 ローカル LLM。省略時は Tier 0 + Residual のみ)
  *   ANTHROPIC_API_KEY            (Residual LLM。省略時は Tier 0/1 で打ち止め)
  */
@@ -25,6 +27,7 @@ import { AnthropicSdkClient } from "../src/persona-engine/llm/anthropic.js";
 import type { LLMClient } from "../src/persona-engine/llm/client.js";
 import { resolveActiveKgPath } from "../src/core/kg-registry.js";
 import { loadConfig } from "../src/config.js";
+import { getInfisicalRuntimeSecret } from "../src/secrets/infisical-runtime.js";
 
 function parseArgs(argv: string[]): {
   source: string;
@@ -51,8 +54,8 @@ function parseArgs(argv: string[]): {
 
 async function crawl(args: ReturnType<typeof parseArgs>): Promise<RawRecord[]> {
   if (args.source === "youtube") {
-    const apiKey = process.env.DISCUTERE_YOUTUBE_API_KEY;
-    if (!apiKey) throw new Error("DISCUTERE_YOUTUBE_API_KEY is not set");
+    const apiKey = await getInfisicalRuntimeSecret("DISCUTERE_YOUTUBE_API_KEY");
+    if (!apiKey) throw new Error("DISCUTERE_YOUTUBE_API_KEY is not set in encrypted config");
     if (!args.videoId) throw new Error("--video-id is required for source=youtube");
     const src = new YouTubeSource();
     return src.crawl({ videoId: args.videoId, apiKey, maxResults: args.maxResults ?? 200 });

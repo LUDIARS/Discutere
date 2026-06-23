@@ -60,6 +60,7 @@ export interface FlowDiscordDeps {
   sentimentClients?: CascadeClients;
   gamesDir?: string;
   workspaceId?: string;
+  youtubeApiKey?: string | null;
 }
 
 export interface StartForumFlowInput {
@@ -242,6 +243,7 @@ async function prepareInformationBeforeForumFlow(
       sessionId: input.threadId,
       log: (m) => console.log(`  [forum-gate ${input.threadId}] ${m}`),
       warn: (m) => console.warn(`  [forum-gate ${input.threadId}] ${m}`),
+      youtubeApiKey: deps.youtubeApiKey,
     });
     if (gate) {
       // 学習が走った時のみ通知 (充分で no-op の時は黙る)。
@@ -281,7 +283,7 @@ async function legacyAutoCrawlBeforeForumFlow(
       minVoices: cfg.minVoices,
       maxItems: cfg.maxItems,
       listExternalVoices: deps.listExternalVoices,
-      youtubeApiKey: process.env.DISCUTERE_YOUTUBE_API_KEY,
+      youtubeApiKey: deps.youtubeApiKey ?? undefined,
       log: (m) => console.log(`  [forum-autocrawl ${input.threadId}] ${m}`),
       warn: (m) => console.warn(`  [forum-autocrawl ${input.threadId}] ${m}`),
     });
@@ -336,7 +338,7 @@ export async function startForumFlow(
       await postThreadNotice(deps, input.threadId, "📚 **学習** (外部の声の収集) を開始します…");
       // 自動収集モード: config.flow.autoCrawl の自動経路ソース横断でテーマをクロール → KG 取込。
       const crawlCfg = getConfig().flow.autoCrawl;
-      const youtubeApiKey = process.env.DISCUTERE_YOUTUBE_API_KEY;
+      const youtubeApiKey = deps.youtubeApiKey ?? undefined;
       const crawlSources = crawlCfg.enabled
         ? resolveAutoCrawlSources(crawlCfg.sources, youtubeApiKey)
         : [];

@@ -82,10 +82,11 @@ function buildLearningCrawl(body: {
   learningQuery?: unknown;
   learningAppId?: unknown;
   learningUrls?: unknown;
+  youtubeApiKey?: string | null;
 }): LearningCrawlSpec | undefined {
   const cfg = getConfig().flow.autoCrawl;
   if (!cfg.enabled) return undefined;
-  const youtubeApiKey = process.env.DISCUTERE_YOUTUBE_API_KEY;
+  const youtubeApiKey = body.youtubeApiKey ?? undefined;
   const requested = typeof body.learningSource === "string" ? body.learningSource.trim() : "";
 
   // UI 明示ソース: buildAutoCrawlSpec の解決 (appId/urls 込み) をそのまま単一ソースに倒す。
@@ -139,6 +140,7 @@ async function prepareInformationBeforeFlow(
       sessionId,
       log: (m) => console.log(`[flow-gate] ${m}`),
       warn: (m) => console.warn(`[flow-gate] ${m}`),
+      youtubeApiKey: d.youtubeApiKey,
     });
     if (gate) return; // ゲートが学習まで担った
   } catch (e) {
@@ -171,7 +173,7 @@ async function legacyAutoCrawlBeforeFlow(
       minVoices: cfg.minVoices,
       maxItems: cfg.maxItems,
       listExternalVoices: d.listExternalVoices,
-      youtubeApiKey: process.env.DISCUTERE_YOUTUBE_API_KEY,
+      youtubeApiKey: d.youtubeApiKey ?? undefined,
       log: (m) => console.log(`[flow-autocrawl] ${m}`),
       warn: (m) => console.warn(`[flow-autocrawl] ${m}`),
     });
@@ -192,6 +194,7 @@ export interface FlowWebDeps {
   listExternalVoices?: (terms: string[], limit: number) => ContextVoice[];
   sentimentClients?: CascadeClients;
   gamesDir?: string;
+  youtubeApiKey?: string | null;
 }
 
 let deps: FlowWebDeps | null = null;
@@ -326,7 +329,7 @@ flowRoutes.post("/api/flow/start", async (c) => {
   // 学習: 短時間で完走するため await して結果を返す。opinions 未供給でも自動収集モードでクロールする。
   if (kind === "learning") {
     if (!deps.openCore) return c.json({ ok: false, error: "learning は Core 未設定のため不可" }, 400);
-    const learningCrawl = buildLearningCrawl(body);
+    const learningCrawl = buildLearningCrawl({ ...body, youtubeApiKey: deps.youtubeApiKey });
     const core = deps.openCore();
     try {
       const result = await dispatchFlow({ theme, tags, flow: kind }, { ...dispatchDeps, core, learningCrawl });

@@ -38,6 +38,7 @@ export interface FlowGateArgs {
   sessionId: string;
   log?: (msg: string) => void;
   warn?: (msg: string) => void;
+  youtubeApiKey?: string | null;
 }
 
 /** config の minDensity (string) を厳格な InformationDensity に倒す。 */
@@ -59,8 +60,7 @@ export async function gateBeforeFlow(args: FlowGateArgs): Promise<InformationGat
   if (kind !== "discussion" && kind !== "improvement") return null;
   if (!openCore) return null;
 
-  // クロール対象ソース: config.flow.autoCrawl.sources の自動経路で使える分 (youtube はキーがあれば追加)。
-  const youtubeApiKey = process.env.DISCUTERE_YOUTUBE_API_KEY;
+  const youtubeApiKey = args.youtubeApiKey ?? undefined;
   const crawlSources = resolveAutoCrawlSources(crawl.sources, youtubeApiKey);
   if (crawlSources.length === 0) return null;
 
