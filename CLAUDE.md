@@ -181,3 +181,12 @@ bot 名義で締める (収束時 `finalizeForumPost` で lock+archive+まとめ
 引用・参照**できる。FT は Claude の API/CLI に無いため RAG。`prompt-builder` が議題語で active KG の
 外部発話を検索 (キーワード一致 + opinion-score 順、`listRelevantExternalVoices`) し、出所(source+URL)
 付き・個人仮名で prompt に注入する。embedding 検索 / LLM 関連度判定 / FT は非採用 (follow-up)。
+
+**外部の声検索の取りこぼし修正 (2026-06-23)**: `listRelevantExternalVoices` は元々 (a) 直近 300 件
+(CANDIDATE_CAP) しか候補にせず + (b) 議題文をフル 1 語で `includes` 照合していたため、材料が
+KG に大量 (41 万件超) あっても新着に埋もれた + 日本語フル議題文が一致せず **常時 0 件**になっていた
+(情報ゲートが永遠に sparse 判定で無駄クロール、ペーパーレビューの「集めた情報 0 件」表示の主因)。
+修正: `keyword-terms.ts` の `extractKeyTerms` で議題を検索語に分解 (句読点/助詞分割・依存ゼロの素朴
+規則) し、関連語があれば **全件を SQL LIKE で照合** (直近 N 件制限を撤廃)、無ければ従来どおり直近 N 件を
+opinion-score で拾う。実 DB で 0→数十〜数百件に改善。**略称⇄正式名** (モンスト⇄モンスターストライク
+等) のエイリアス辞書は未対応 (= 既知 follow-up [[task #301]])。

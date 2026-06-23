@@ -24,6 +24,7 @@ import { listFacilitatorDirectives } from "../discord-hook/facilitator-directive
 import { listExcludedIds } from "../core/noise/exclusions.js";
 import { openAttributionStore } from "../crawler/sources/attribution-store.js";
 import { maskedPersonaLabel } from "../crawler/sources/persona.js";
+import { extractKeyTerms } from "./keyword-terms.js";
 
 type Core = ReturnType<typeof createCore>;
 
@@ -159,29 +160,46 @@ export function createDiscatierContextProvider(
 
     listRelevantExternalVoices(workspaceId, terms, limit): ContextExternalVoice[] {
       if (limit <= 0) return [];
-      // 候補: 取り込み済み外部発話 (speaker_id が ext:%) を直近から束で取り、 スコアして上位を返す。
-      // active KG に閉じる (workspace_id 一致)。 大量取り込みでも候補数を CAP で抑える。
-      const CANDIDATE_CAP = 300;
+      // 候補: 取り込み済み外部発話 (speaker_id が ext:%) を集めてスコアし上位を返す。active KG に閉じる。
+      //
+      // 議題語は extractKeyTerms で検索キーワードに分解する (フル議題文を 1 語で includes 照合すると
+      // 日本語議題はほぼ一致せず 0 件になる実害を回避)。関連語があれば **全件を SQL LIKE で照合**し
+      // (直近 N 件しか見ない旧 CANDIDATE_CAP の盲点 — 大半のゲームの材料が新着 300 件に入らず 0 件に
+      // なっていた事故の修正)、無ければ直近 N 件を opinion-score だけで拾う (従来動作の保持)。
+      const RECENT_CAP = 300; // 関連語が無い時に opinion で拾う直近件数。
+      const KEYWORD_CAP = 2000; // LIKE 一致候補の上限 (早期打ち切りで全件 LIKE でも軽い)。
       const CONTENT_CAP = 200; // prompt トークン節約: 1 件の本文上限。
-      const rows = core.client.raw
-        .prepare(
-          `SELECT id, speaker_id, raw_content
-             FROM utterances
-            WHERE workspace_id = ? AND speaker_id LIKE 'ext:%'
-            ORDER BY posted_at DESC LIMIT ?`
-        )
-        .all(workspaceId, CANDIDATE_CAP) as Array<{
-        id: string;
-        speaker_id: string | null;
-        raw_content: string;
-      }>;
-      if (rows.length === 0) return [];
+      const keyTerms = extractKeyTerms(terms);
       // opinion_scores はリアクション系テーブル。 boot 前/単体呼び出しでも落ちないよう冪等保証。
       ensureReactionTables(core.client.raw);
       const excluded = listExcludedIds(core.client.raw);
-      const keyTerms = Array.from(
-        new Set(terms.map((t) => t.trim().toLowerCase()).filter((t) => t.length >= 2))
-      );
+
+      type VoiceRow = { id: string; speaker_id: string | null; raw_content: string };
+      let rows: VoiceRow[];
+      if (keyTerms.length === 0) {
+        rows = core.client.raw
+          .prepare(
+            `SELECT id, speaker_id, raw_content
+               FROM utterances
+              WHERE workspace_id = ? AND speaker_id LIKE 'ext:%'
+              ORDER BY posted_at DESC LIMIT ?`
+          )
+          .all(workspaceId, RECENT_CAP) as VoiceRow[];
+      } else {
+        // LIKE のワイルドカード (% _ \) をエスケープして部分一致に倒す。
+        const escapeLike = (t: string): string => t.replace(/[\\%_]/g, (c) => `\\${c}`);
+        const likeClauses = keyTerms.map(() => `raw_content LIKE ? ESCAPE '\\'`).join(" OR ");
+        rows = core.client.raw
+          .prepare(
+            `SELECT id, speaker_id, raw_content
+               FROM utterances
+              WHERE workspace_id = ? AND speaker_id LIKE 'ext:%' AND (${likeClauses})
+              LIMIT ?`
+          )
+          .all(workspaceId, ...keyTerms.map((t) => `%${escapeLike(t)}%`), KEYWORD_CAP) as VoiceRow[];
+      }
+      if (rows.length === 0) return [];
+
       const attribution = openAttributionStore();
       try {
         const scored = rows
