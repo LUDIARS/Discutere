@@ -218,4 +218,59 @@ assert.equal(isDensity(3), false);
   assert.deepEqual(queries, ["テーマX"]); // gap 無し → テーマで学習
 }
 
+// --- gate: 複数ソース横断 — 1 つの不足観点を全ソースで集める ---
+{
+  const voices = growingVoices();
+  const calls: Array<{ source: string; query: string }> = [];
+  const fn = (async (deps: { spec: { source: string; query?: string } }) => {
+    calls.push({ source: deps.spec.source, query: deps.spec.query ?? "" });
+    voices.add(5);
+    return { collected: 5, imported: 5 };
+  }) as Parameters<typeof runInformationGate>[0]["collectAndImportFn"];
+  const { client } = llmReturning([
+    evalJson("sparse", [{ aspect: "否定", reason: "r", query: "t 否定" }]),
+    evalJson("rich", []),
+  ]);
+  const r = await runInformationGate({
+    core: dummyCore,
+    theme: "t",
+    tags: [],
+    workspaceId: "knowledge",
+    llm: client,
+    listExternalVoices: voices.list,
+    crawlSources: ["niconico", "youtube"],
+    config: baseConfig(),
+    collectAndImportFn: fn,
+  });
+  assert.equal(r.crawls, 1);
+  // 1 観点 × 2 ソース = 2 回クロール
+  assert.equal(calls.length, 2, "全ソースでクロールする");
+  assert.deepEqual(calls.map((c) => c.source).sort(), ["niconico", "youtube"]);
+  assert.ok(calls.every((c) => c.query === "t 否定"));
+  assert.equal(r.importedTotal, 10, "2 ソース分の取込が積算される");
+}
+
+// --- gate: crawlSources 未指定なら単数 crawlSource にフォールバック (後方互換) ---
+{
+  const voices = growingVoices();
+  const { fn, queries } = fakeCollect(voices);
+  const { client } = llmReturning([
+    evalJson("sparse", [{ aspect: "a", reason: "r", query: "q" }]),
+    evalJson("rich", []),
+  ]);
+  const r = await runInformationGate({
+    core: dummyCore,
+    theme: "t",
+    tags: [],
+    workspaceId: "knowledge",
+    llm: client,
+    listExternalVoices: voices.list,
+    crawlSource: "niconico", // crawlSources 無し
+    config: baseConfig(),
+    collectAndImportFn: fn,
+  });
+  assert.equal(r.crawls, 1);
+  assert.deepEqual(queries, ["q"], "単数 crawlSource で従来どおり 1 回");
+}
+
 console.log("information-gate.test.ts: all passed");

@@ -9,12 +9,13 @@
     "kuzuPath": "./data/discatier.kuzu"
   },
   "flow": {
-    "$comment": "autoCrawl: 議論/改善の開始時にテーマの学習データが不足していたら指定ソースで自動クロール→KG取込してから議論する (事前学習のUI化)。UI(/flow)で議論ごとに source/query/appId/urls を上書きでき、ここはその既定値。source は niconico|youtube|steam|website。",
+    "$comment": "autoCrawl: 議論/改善の開始時にテーマの学習データが不足していたら指定ソースで自動クロール→KG取込してから議論する (事前学習のUI化)。UI(/flow)で議論ごとに source/query/appId/urls を上書きでき、ここはその既定値。sources は情報ゲートが横断する自動ソース群 (テーマだけで引ける niconico が既定、youtube は DISCUTERE_YOUTUBE_API_KEY があれば自動追加)。website/steam は URL/appId 要のため自動経路では使われない (UI/Discord で明示指定時のみ)。source は後方互換の単数指定。maxItems は1ソース1クロールの取込上限。",
     "autoCrawl": {
       "enabled": true,
       "source": "niconico",
+      "sources": ["niconico"],
       "minVoices": 3,
-      "maxItems": 200
+      "maxItems": 300
     },
     "$comment2": "informationGating: 議論/改善の開始前に LLM が情報密度(sparse/moderate/rich)と不足観点を評価し、不足なら不足観点を狙って学習→再評価する情報ゲート。自動モード固定(不足なら自動学習→十分になり次第そのまま議論を開始)。enabled=false で従来の autoCrawl(単純カウント閾値)にフォールバック。クロールのソース/maxItems は autoCrawl の設定を流用する。",
     "informationGating": {

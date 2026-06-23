@@ -152,6 +152,13 @@ bot 名義で締める (収束時 `finalizeForumPost` で lock+archive+まとめ
   単体テスト可) + グルー `information-gate-runner.ts` + 配線 `external-voices.ts`
   (`listExternalVoices` を web/discord 経路に配線した T7 follow-up)。
 
+- **複数ソース横断クロール (2026-06-23)**: 情報ゲートのクロールを単一ソースから **複数ソース横断**に強化。
+  `flow.autoCrawl.sources` (既定 `["niconico"]`) を `runInformationGate(crawlSources[])` に渡し、各不足観点を
+  全ソースで集める。**`DISCUTERE_YOUTUBE_API_KEY` があれば youtube を自動追加**(キー設定だけで YouTube
+  学習が有効化)。website/steam は URL/appId がテーマだけからは決まらないため自動経路では除外 (UI/Discord
+  の明示指定時のみ)。`maxItems` 既定 200→300。後方互換: `sources` 未指定なら単数 `source` を流用、
+  `crawlSources` 未指定の `runInformationGate` は `crawlSource` にフォールバック。
+
 - **ディスカッションペーパー レビューゲート (`docs/paper-review-gate.md`)**: 議論/改善の開始 **直前**に、
   ペーパー (議題ブリーフ=議題/観点/メカニクス) と集めた情報を **人間が確認 → 自然文で調整 → 承認**
   してから議論を始めるゲート。設定 `flow.paperReview.enabled` (既定 **false** = opt-in)。共有コア
