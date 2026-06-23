@@ -31,14 +31,49 @@ export interface EnrichMechanicsArgs {
 /** 文字列から最初の JSON 配列を取り出す (コードフェンス/前置き混入に耐える)。 */
 function extractJsonArray(raw: string): unknown[] | null {
   const start = raw.indexOf("[");
+  if (start < 0) return null;
+  // まず素直に全体パース (正常時はこれで通る)。
   const end = raw.lastIndexOf("]");
-  if (start < 0 || end <= start) return null;
-  try {
-    const parsed = JSON.parse(raw.slice(start, end + 1));
-    return Array.isArray(parsed) ? parsed : null;
-  } catch {
-    return null;
+  if (end > start) {
+    try {
+      const parsed = JSON.parse(raw.slice(start, end + 1));
+      if (Array.isArray(parsed)) return parsed;
+    } catch {
+      // 救済へ
+    }
   }
+  // 救済: 配列内の {...} を 1 個ずつブレースマッチで取り出し個別パースする
+  // (文字列内ブレースは無視。 maxTokens 到達等で途中で切れた末尾オブジェクトは自然に落ちる)。
+  const objs: unknown[] = [];
+  let depth = 0;
+  let objStart = -1;
+  let inStr = false;
+  let esc = false;
+  for (let i = start; i < raw.length; i++) {
+    const ch = raw[i];
+    if (inStr) {
+      if (esc) esc = false;
+      else if (ch === "\\") esc = true;
+      else if (ch === '"') inStr = false;
+      continue;
+    }
+    if (ch === '"') inStr = true;
+    else if (ch === "{") {
+      if (depth === 0) objStart = i;
+      depth++;
+    } else if (ch === "}") {
+      if (depth > 0) depth--;
+      if (depth === 0 && objStart >= 0) {
+        try {
+          objs.push(JSON.parse(raw.slice(objStart, i + 1)));
+        } catch {
+          // 壊れたオブジェクトは捨てる
+        }
+        objStart = -1;
+      }
+    }
+  }
+  return objs.length > 0 ? objs : null;
 }
 
 function normalizeMechanic(raw: unknown): MechanicSummary | null {
@@ -105,7 +140,9 @@ export async function enrichMechanics(args: EnrichMechanicsArgs): Promise<Mechan
   let res;
   try {
     const { system, prompt } = buildPrompt(args, need);
-    res = await llm.invoke({ system, prompt, model });
+    // need 件の詳細メカニクスを途中で切らさないよう余裕を持たせる (~250 tokens/件 目安 + 下限)。
+    const maxTokens = Math.min(8000, Math.max(2000, need * 280));
+    res = await llm.invoke({ system, prompt, model, maxTokens });
   } catch (e) {
     warn(`メカニクス増補で例外: ${(e as Error).message}`);
     return existing;
