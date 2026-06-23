@@ -303,9 +303,13 @@ flowRoutes.post("/api/flow/start", async (c) => {
     paperReviews.set(sessionId, { flow: kind, rounds, turnsPerRound, ready: false });
     void (async () => {
       await prepareInformationBeforeFlow(kind, theme, tags, sessionId, autoCrawlSpec, webDeps);
+      const richness = getConfig().flow.paperRichness;
       const { draft, info } = await buildPaperDraft(theme, tags, {
         gamesDir: webDeps.gamesDir,
         listExternalVoices: webDeps.listExternalVoices,
+        llm: richness.enrichMechanics ? webDeps.llm : undefined,
+        mechanicsTarget: richness.mechanicsTarget,
+        enrichModel: richness.enrichModel || undefined,
         warn: (m) => console.warn(`[flow-web/paper ${sessionId}] ${m}`),
       });
       const entry = paperReviews.get(sessionId);

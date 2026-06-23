@@ -165,6 +165,15 @@ bot 名義で締める (収束時 `finalizeForumPost` で lock+archive+まとめ
   直接編集ペーパー可) で確認フォーム調整。`flow.paperReview.timeoutMs`>0 で無操作の自動開始
   (既定 0=無期限・調整で延長、Discord/Web ともサーバ側タイマー)。無効時は従来どおり情報ゲート後に自動開始。
 
+- **ペーパーの分量増強 (感想3倍 + メカニクスLLM増補, 2026-06-23)**: ペーパーが薄い問題への対処。
+  設定 `flow.paperRichness` (`voices` 既定15 / `mechanicsTarget` 既定30 / `enrichMechanics` 既定true /
+  `enrichModel`)。**感想**はペルソナ/ペーパーに載せる件数を 5→`voices` に増やす (director の voiceCache
+  lookup + `buildUserOpinionsText`、レビュー表示サンプルは 3→9)。**メカニクス**は供給源 (data/games の
+  md が 1 ゲーム ~10 件) が目標に満たないため、`src/flow/mechanic-extract.ts` の `enrichMechanics` が
+  集めた感想を根拠に LLM で追加抽出して `mechanicsTarget` 件まで増やす (name で重複除去 + クランプ)。
+  配線: paper-review 経路 (`buildPaperDraft`) と非レビューの `runFlow` 投資ゲート後の両方。**材料 (感想)
+  が無ければ増補しない**・LLM 失敗時は既存件数で degrade (議論を止めない)。LLM コスト=議論ごとに 1 回増。
+
 ## 個人データ
 
 匿名 workspace (`DISCATIER_WORKSPACE` 既定 `knowledge`)。攻略 KG / 議論ノードに編集者名・アカウント名を保存しない (`spec/crawler/DESIGN.md` 準拠)。

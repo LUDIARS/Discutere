@@ -29,6 +29,13 @@
       "enabled": false,
       "model": "",
       "timeoutMs": 0
+    },
+    "$comment4": "paperRichness: ディスカッションペーパーの分量。voices=ペルソナ/ペーパーに載せる感想件数(既定15)。mechanicsTarget=メカニクス目標件数(既定30)。enrichMechanics=true なら投資ゲート後の investigate(game md)が目標に満たない分を、集めた感想を根拠に LLM で増補する(材料=感想が無ければ増補しない/失敗時は既存件数で degrade)。enrichModel は増補に使うモデル(空=既定)。",
+    "paperRichness": {
+      "voices": 15,
+      "mechanicsTarget": 30,
+      "enrichMechanics": true,
+      "enrichModel": ""
     }
   },
   "personaEngine": {

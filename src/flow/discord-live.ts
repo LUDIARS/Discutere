@@ -389,9 +389,13 @@ async function startPaperReview(
   deps: FlowDiscordDeps,
   hooks?: FlowLiveHooks
 ): Promise<void> {
+  const richness = getConfig().flow.paperRichness;
   const { draft, info } = await buildPaperDraft(input.theme, input.tags, {
     gamesDir: deps.gamesDir,
     listExternalVoices: deps.listExternalVoices,
+    llm: richness.enrichMechanics ? deps.llm : undefined,
+    mechanicsTarget: richness.mechanicsTarget,
+    enrichModel: richness.enrichModel || undefined,
     warn: (m) => console.warn(`  [paper-review ${input.threadId}] ${m}`),
   });
   paperReviewByThread.set(input.threadId, { input, draft, info, hooks });

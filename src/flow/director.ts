@@ -262,6 +262,21 @@ export async function runFlow(
     });
     mechanics = investigation.mechanics;
     supplement = (await import("./tags.js")).paperSupplement(tags);
+    // メカニクスを LLM で目標件数まで増補 (感想を根拠に。paperOverride 経路は増補済みなので対象外)。
+    // 材料 (感想) が無ければ増補しない (抽出根拠が無く LLM コストの無駄)。
+    const enrichVoices = voiceCache.lookup([theme], cfg.flow.paperRichness.voices);
+    if (cfg.flow.paperRichness.enrichMechanics && enrichVoices.length > 0) {
+      mechanics = await (await import("./mechanic-extract.js")).enrichMechanics({
+        theme,
+        existing: mechanics,
+        voices: enrichVoices,
+        llm,
+        target: cfg.flow.paperRichness.mechanicsTarget,
+        model: cfg.flow.paperRichness.enrichModel || undefined,
+        warn,
+      });
+      log(`メカニクス増補後: ${mechanics.length} 件`);
+    }
   }
 
   // ── [2] ディスカッションペーパー初期化 ─────────────────────────────────
@@ -385,7 +400,7 @@ export async function runFlow(
       const stance = decideStance(persona, rng);
 
       // ユーザ意見 RAG (item5: セッションキャッシュ経由で全ペルソナ共有)
-      const userVoices: ContextVoice[] = voiceCache.lookup([theme], 5);
+      const userVoices: ContextVoice[] = voiceCache.lookup([theme], cfg.flow.paperRichness.voices);
 
       // YouTube コメントを userVoices に追加 (補完時のみ。確定ペーパー経路は investigation=null)
       if (investigation && investigation.youtubeUsed && investigation.youtubeComments.length > 0) {

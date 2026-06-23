@@ -66,11 +66,11 @@ export function synthesizeOpinions(mechanics: MechanicSummary[]): string[] {
     );
 }
 
-/** ユーザ意見テキストを構築する (RAG 用)。 */
+/** ユーザ意見テキストを構築する (RAG 用)。件数の上限は呼び出し側 (director の lookup 件数) で決まる。 */
 function buildUserOpinionsText(voices: ContextVoice[]): string {
   if (voices.length === 0) return "";
   const lines = voices
-    .slice(0, 5)
+    .slice(0, 20)
     .map(
       (v, i) => `${i + 1}. ${v.content.slice(0, 200)}${v.content.length > 200 ? "…" : ""}（出所: ${v.source}）`
     );

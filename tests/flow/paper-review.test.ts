@@ -22,23 +22,23 @@ const NONEXISTENT_GAMES = path.join(os.tmpdir(), "discutere-no-such-games-dir");
 
 // ── buildPaperDraft ──────────────────────────────────────────────────────────
 {
-  const voices = [
-    { content: "周回が楽しい", source: "niconico" },
-    { content: "ビルドの幅がある", source: "youtube" },
-    { content: "難度が理不尽", source: "steam" },
-    { content: "4 件目 (サンプル外)", source: "niconico" },
-  ];
+  // SAMPLE_LIMIT(9) を超える件数でサンプル上限を検証する。
+  const voices = Array.from({ length: 12 }, (_, i) => ({
+    content: `感想 ${i}`,
+    source: i === 0 ? "niconico" : "youtube",
+  }));
   const { draft, info } = await buildPaperDraft("ローグライト", ["開発"], {
     gamesDir: NONEXISTENT_GAMES, // メカニクスは空 (investigate は外部呼びなし)
     listExternalVoices: () => voices,
+    // llm 未指定 → メカニクス増補は走らない (draft.mechanics は investigate のまま空)
   });
   assert.equal(draft.theme, "ローグライト");
   assert.deepEqual(draft.tags, ["開発"]);
   assert.ok(draft.supplement.includes("開発者観点"), "観点補足がタグから生成される");
-  assert.deepEqual(draft.mechanics, []);
-  assert.equal(info.voiceCount, 4);
+  assert.deepEqual(draft.mechanics, [], "llm 未指定なら増補なし");
+  assert.equal(info.voiceCount, 12);
   assert.equal(info.countCapped, false);
-  assert.equal(info.samples.length, 3, "サンプルは 3 件まで");
+  assert.equal(info.samples.length, 9, "サンプルは 9 件まで (SAMPLE_LIMIT)");
   assert.equal(info.samples[0].source, "niconico");
 }
 
