@@ -57,6 +57,22 @@ console.log("ok enrichMechanics target clamp");
 }
 console.log("ok enrichMechanics skips LLM when full");
 
+// ── コードフェンス + 途中で切れた (truncation) 配列も救済 ───────────────────
+{
+  // ```json フェンス付き + 末尾オブジェクトが途中で切れて closing ] も欠落。
+  const truncated =
+    '```json\n[\n' +
+    '  {"name":"友情コンボ","description":"味方の固有技が連鎖","intended_affect":"爽快"},\n' +
+    '  {"name":"運極周回","description":"同キャラ収集で強化"},\n' +
+    '  {"name":"わくわくの実","description":"ステータス厳';
+  const llm = new MockLLMClient([() => truncated]);
+  const out = await enrichMechanics({ theme: "モンスト", existing: [], voices, llm, target: 30 });
+  assert.equal(out.length, 2, "完結した 2 件は救済し、切れた 3 件目は捨てる");
+  assert.equal(out[0].name, "友情コンボ");
+  assert.equal(out[1].name, "運極周回");
+}
+console.log("ok enrichMechanics salvages fenced/truncated array");
+
 // ── パース不能 / LLM 失敗は既存のまま degrade ──────────────────────────────
 {
   const llm = new MockLLMClient([() => "JSONじゃない返答"]);
