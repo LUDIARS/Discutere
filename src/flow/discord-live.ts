@@ -24,6 +24,14 @@ import { composeDisplayName } from "./persona-display.js";
 import { dispatchFlow, type DispatchDeps, type FlowKind } from "./dispatch.js";
 import { ensureLearningData, isAutoCrawlSource, deriveSlug } from "./learning-autocrawl.js";
 import { gateBeforeFlow } from "./information-gate-runner.js";
+import {
+  buildPaperDraft,
+  applyPaperEdit,
+  renderPaperReview,
+  isApprovalText,
+  type PaperDraft,
+  type PaperReviewInfo,
+} from "./paper-review.js";
 import { getConfig } from "../config.js";
 import type { SparringSession } from "./sparring.js";
 import {
@@ -77,14 +85,29 @@ export interface FlowLiveHooks {
 /** 進行中の壁打ちセッション (threadId → session)。スレッド返信を submitUser へ橋渡しする。 */
 const sparringByThread = new Map<string, SparringSession>();
 
+/** レビュー待ちのディスカッションペーパー (threadId → 草案 + 起動入力)。スレッド返信で調整/承認する。 */
+interface PendingPaperReview {
+  input: StartForumFlowInput;
+  draft: PaperDraft;
+  info: PaperReviewInfo;
+  hooks?: FlowLiveHooks;
+}
+const paperReviewByThread = new Map<string, PendingPaperReview>();
+
 /** テスト用: 登録セッションをクリアする。 */
 export function _resetFlowLive(): void {
   sparringByThread.clear();
+  paperReviewByThread.clear();
 }
 
 /** そのスレッドで進行中の壁打ちがあるか。 */
 export function hasSparringSession(threadId: string): boolean {
   return sparringByThread.has(threadId);
+}
+
+/** そのスレッドでペーパーレビュー待ちか。 */
+export function hasPaperReview(threadId: string): boolean {
+  return paperReviewByThread.has(threadId);
 }
 
 /** 1 議論ぶんの投稿コンテキスト (utterance_id → 投稿 message_id を保持し、投票で参照する)。 */
@@ -327,37 +350,134 @@ export async function startForumFlow(
       return;
     }
 
-    // ── 議論 / 改善: 完走させて結論を投稿 ──
+    // ── 議論 / 改善 ──
+    const flowLabel = input.flow === "improvement" ? "改善" : "議論";
+    // 議論前の情報ゲート (LLM 密度評価 + 不足観点学習) / フォールバック autoCrawl で材料を整える。
+    const reviewEnabled = getConfig().flow.paperReview.enabled;
     await postThreadNotice(
       deps,
       input.threadId,
-      `🗣️ **${input.flow === "improvement" ? "改善" : "議論"}**を始めます: 「${input.theme}」${
+      `🗣️ **${flowLabel}**の${reviewEnabled ? "準備をしています" : "を始めます"}: 「${input.theme}」${
         input.tags.length ? `\nタグ: ${input.tags.join(" / ")}` : ""
       }`
     );
-    // 議論前の情報ゲート (LLM 密度評価 + 不足観点学習) / フォールバック autoCrawl で材料を整える。
     await prepareInformationBeforeForumFlow(input, deps);
-    const result = await dispatchFlow(
-      {
-        theme: input.theme,
-        tags: input.tags,
-        flow: input.flow,
-        scene,
-        rounds: input.rounds,
-        turnsPerRound: input.turnsPerRound,
-      },
-      dispatchDeps
-    );
-    if (result.kind === "discussion" || result.kind === "improvement") {
-      const r = result.result;
-      const summary = r.concluded ? r.conclusion : "(明確な結論には至りませんでした)";
-      await postThreadNotice(deps, input.threadId, `✅ **結論**\n${summary}`);
-      await hooks?.onConcluded?.({ scene, title: input.theme, summary });
+
+    // ペーパーレビューゲート (有効時): 草案 + 集めた情報を出し、調整/承認をスレッド返信で待つ。
+    if (reviewEnabled) {
+      await startPaperReview(input, deps, hooks);
+      return;
     }
+
+    // 通常: そのまま完走させて結論を投稿。
+    await runDiscussionDispatch(input, deps, hooks);
   } catch (err) {
     console.warn(`  flow-live: ${input.flow} 起動失敗 (thread=${input.threadId}): ${(err as Error).message}`);
     await postThreadNotice(deps, input.threadId, `⚠️ フロー実行中にエラーが発生しました: ${(err as Error).message}`);
   }
+}
+
+/**
+ * ペーパー草案 (議題ブリーフ + 集めた情報) を作ってスレッドに出し、レビュー待ちに登録する。
+ * 以後のスレッド返信は handlePaperReviewReply が「調整」または「承認 (=議論開始)」として処理する。
+ */
+async function startPaperReview(
+  input: StartForumFlowInput,
+  deps: FlowDiscordDeps,
+  hooks?: FlowLiveHooks
+): Promise<void> {
+  const { draft, info } = await buildPaperDraft(input.theme, input.tags, {
+    gamesDir: deps.gamesDir,
+    listExternalVoices: deps.listExternalVoices,
+    warn: (m) => console.warn(`  [paper-review ${input.threadId}] ${m}`),
+  });
+  paperReviewByThread.set(input.threadId, { input, draft, info, hooks });
+  await postThreadNotice(deps, input.threadId, renderPaperReview(draft, info));
+  await postThreadNotice(
+    deps,
+    input.threadId,
+    "✏️ 調整があればこのスレッドに返信してください (例:「メカニクスにガチャを追加」「観点補足を初心者向けに」)。\nよければ **「開始」** と返信すると議論を始めます。"
+  );
+}
+
+/** 確定ペーパー (任意) で議論/改善を完走させ、結論を投稿する。 */
+async function runDiscussionDispatch(
+  input: StartForumFlowInput,
+  deps: FlowDiscordDeps,
+  hooks?: FlowLiveHooks,
+  paperOverride?: { mechanics: PaperDraft["mechanics"]; supplement: string }
+): Promise<void> {
+  const scene = `discord:${input.guildId}/${input.threadId}`;
+  const dispatchDeps = buildDispatchDeps(deps, input.threadId);
+  const result = await dispatchFlow(
+    {
+      theme: input.theme,
+      tags: input.tags,
+      flow: input.flow,
+      scene,
+      rounds: input.rounds,
+      turnsPerRound: input.turnsPerRound,
+    },
+    { ...dispatchDeps, paperOverride }
+  );
+  if (result.kind === "discussion" || result.kind === "improvement") {
+    const r = result.result;
+    const summary = r.concluded ? r.conclusion : "(明確な結論には至りませんでした)";
+    await postThreadNotice(deps, input.threadId, `✅ **結論**\n${summary}`);
+    await hooks?.onConcluded?.({ scene, title: input.theme, summary });
+  }
+}
+
+/**
+ * ペーパーレビュー中のスレッド返信を処理する (壁打ちより優先で呼ぶ)。
+ *   - 承認語 (「開始」等) → 確定ペーパーで議論を開始する。
+ *   - それ以外 → 自然文の調整指示として LLM でペーパーに反映し、更新版を再掲する。
+ * @returns レビュー返信として処理したら true (= 通常ルーティング不要)。
+ */
+export async function handlePaperReviewReply(
+  threadId: string,
+  _guildId: string,
+  text: string,
+  deps: FlowDiscordDeps,
+  hooks?: FlowLiveHooks
+): Promise<boolean> {
+  const pending = paperReviewByThread.get(threadId);
+  if (!pending) return false;
+  const trimmed = text.trim();
+  if (!trimmed) return true; // 空返信は無視 (レビューは継続)
+
+  try {
+    // 承認 → 確定ペーパーで議論開始。
+    if (isApprovalText(trimmed)) {
+      paperReviewByThread.delete(threadId);
+      await postThreadNotice(deps, threadId, "✅ ペーパーを承認しました。議論を始めます…");
+      await runDiscussionDispatch(pending.input, deps, pending.hooks ?? hooks, {
+        mechanics: pending.draft.mechanics,
+        supplement: pending.draft.supplement,
+      });
+      return true;
+    }
+
+    // 調整 → LLM でペーパーに反映し、更新版を再掲。
+    const edited = await applyPaperEdit(pending.draft, trimmed, deps.llm, {
+      model: getConfig().flow.paperReview.model || undefined,
+      warn: (m) => console.warn(`  [paper-review ${threadId}] ${m}`),
+    });
+    pending.draft = edited.draft;
+    // 議題/タグの編集は dispatch 引数に反映する (override はメカニクス/観点補足のみ運ぶ)。
+    pending.input = { ...pending.input, theme: edited.draft.theme, tags: edited.draft.tags };
+    paperReviewByThread.set(threadId, pending);
+
+    await postThreadNotice(deps, threadId, `📝 ${edited.changeSummary}`);
+    if (edited.applied) {
+      await postThreadNotice(deps, threadId, renderPaperReview(pending.draft, pending.info));
+      await postThreadNotice(deps, threadId, "他に調整があれば返信、よければ **「開始」** と返信してください。");
+    }
+  } catch (err) {
+    console.warn(`  flow-live: ペーパーレビュー返信処理失敗 (thread=${threadId}): ${(err as Error).message}`);
+    await postThreadNotice(deps, threadId, `⚠️ 調整の反映に失敗しました: ${(err as Error).message}`);
+  }
+  return true;
 }
 
 /**

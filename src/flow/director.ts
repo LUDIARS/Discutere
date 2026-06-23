@@ -88,6 +88,18 @@ export interface FlowDirectorDeps {
    * 既定 true。プールが空 / 一致なしなら従来生成キャストのまま (no-op)。
    */
   possess?: boolean;
+  /**
+   * 確定済みディスカッションペーパー (人間レビューゲートで調整・承認したもの)。
+   * 指定時は investigate (step 1) を **省略**し、このメカニクス/観点補足で議論を回す。
+   * theme / tags は通常の引数で渡す (= 人間が直した値をそのまま渡す)。
+   */
+  paperOverride?: PaperOverride;
+}
+
+/** 人間が調整・承認した確定ペーパーの上書き値 (investigate の出力を置き換える)。 */
+export interface PaperOverride {
+  mechanics: MechanicSummary[];
+  supplement: string;
 }
 
 /** 都度指定ラウンド/ターン数の暴走ガード上限 (コスト保護)。 */
@@ -229,19 +241,30 @@ export async function runFlow(
   const turnsPerRound = clampCount(options.turnsPerRound, cfg.flow.turnsPerRound, MAX_TURNS_PER_ROUND);
 
   // ── [1] 調査 ──────────────────────────────────────────────────────────────
-  log(`調査開始: "${theme}" (タグ: [${tags.join(", ")}])`);
-  const investigation = await investigateTheme({
-    theme,
-    tags,
-    gamesDir,
-    youtubeSearch,
-    youtubeMaxComments: cfg.flow.youtubeMaxComments,
-    warn,
-  });
-  const mechanics: MechanicSummary[] = investigation.mechanics;
+  // 確定ペーパー (人間レビュー済) があれば investigate を省略し、その内容で議論する。
+  const override = options.paperOverride;
+  let investigation: Awaited<ReturnType<typeof investigateTheme>> | null = null;
+  let mechanics: MechanicSummary[];
+  let supplement: string;
+  if (override) {
+    mechanics = override.mechanics;
+    supplement = override.supplement;
+    log(`確定ペーパー使用: investigate スキップ (メカニクス ${mechanics.length} 件)`);
+  } else {
+    log(`調査開始: "${theme}" (タグ: [${tags.join(", ")}])`);
+    investigation = await investigateTheme({
+      theme,
+      tags,
+      gamesDir,
+      youtubeSearch,
+      youtubeMaxComments: cfg.flow.youtubeMaxComments,
+      warn,
+    });
+    mechanics = investigation.mechanics;
+    supplement = (await import("./tags.js")).paperSupplement(tags);
+  }
 
   // ── [2] ディスカッションペーパー初期化 ─────────────────────────────────
-  const supplement = (await import("./tags.js")).paperSupplement(tags);
   const paperId = persistPaper({ sessionId, theme, tags: [...tags], mechanics, supplement }, flow);
   const paper: DiscussionPaper = {
     paperId,
@@ -364,8 +387,8 @@ export async function runFlow(
       // ユーザ意見 RAG (item5: セッションキャッシュ経由で全ペルソナ共有)
       const userVoices: ContextVoice[] = voiceCache.lookup([theme], 5);
 
-      // YouTube コメントを userVoices に追加 (補完時のみ)
-      if (investigation.youtubeUsed && investigation.youtubeComments.length > 0) {
+      // YouTube コメントを userVoices に追加 (補完時のみ。確定ペーパー経路は investigation=null)
+      if (investigation && investigation.youtubeUsed && investigation.youtubeComments.length > 0) {
         const ytVoices: ContextVoice[] = investigation.youtubeComments
           .slice(0, 3)
           .map((c) => ({ content: c, source: "youtube" }));

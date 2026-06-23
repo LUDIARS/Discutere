@@ -85,6 +85,17 @@ export interface DiscutereConfig {
       /** 評価に使うモデル ("" なら LLM の既定モデル)。 */
       model: string;
     };
+    /**
+     * ディスカッションペーパー レビューゲート (議論/改善の開始前に、ペーパー (議題ブリーフ) と
+     * 集めた情報を人間が確認 → 自然文で調整 → 承認してから議論を始める)。
+     * 既定 false (= 従来どおり情報ゲート後に自動開始)。有効時は Discord スレッド返信 / Web UI で調整できる。
+     */
+    paperReview: {
+      /** 有効化。既定 false (opt-in)。 */
+      enabled: boolean;
+      /** ペーパー編集に使うモデル ("" なら LLM の既定モデル)。 */
+      model: string;
+    };
   };
   /** 匿名議論 workspace (個人データ非保管) */
   workspace: string;
@@ -601,6 +612,14 @@ export function loadConfig(): DiscutereConfig {
           2
         ),
         model: pick(process.env.DISCUTERE_FLOW_INFOGATE_MODEL, file.flow?.informationGating?.model, ""),
+      },
+      paperReview: {
+        enabled: pickBool(
+          process.env.DISCUTERE_FLOW_PAPER_REVIEW_ENABLED,
+          file.flow?.paperReview?.enabled,
+          false
+        ),
+        model: pick(process.env.DISCUTERE_FLOW_PAPER_REVIEW_MODEL, file.flow?.paperReview?.model, ""),
       },
     },
     workspace: pick(process.env.DISCATIER_WORKSPACE, file.workspace, "knowledge"),

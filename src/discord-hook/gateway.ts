@@ -49,6 +49,7 @@ import { ensureGameFeedbackCategory, extractGameFeedback } from "./game-feedback
 import { parseForumEntry, parseRoundsTurns, parseOpponents } from "../flow/entry-discord.js";
 import {
   handleForumFlowReply,
+  handlePaperReviewReply,
   startForumFlow,
   type FlowDiscordDeps,
   type FlowLiveHooks,
@@ -529,16 +530,18 @@ export async function startDiscordGateway(
   /** 通常の議論ルーティング (フォーラム / クロール / 平文取り込み)。 */
   function routeDiscussionMessage(msg: Message): void {
     // フォーラムスレッド内の投稿: starter は ThreadCreate が処理済。後続投稿は
-    // 進行中の壁打ちセッションへの返信としてのみ取り込む (議論/改善/学習は完走型で返信不要)。
+    // (1) ペーパーレビュー中なら調整/承認、(2) 壁打ちなら相手発話、として取り込む
+    // (議論/改善/学習はレビュー無し時は完走型で返信不要)。
     if (forumEnabled && isForumThreadChannel(msg.channel)) {
       if (!isForumStarterMessage(msg) && deps.flowLive) {
-        void handleForumFlowReply(
-          msg.channelId,
-          msg.guildId ?? "dm",
-          msg.content,
-          deps.flowLive,
-          flowHooks
-        ).catch((err) => console.warn(`  discord-forum: flow reply 失敗: ${(err as Error).message}`));
+        const flowLive = deps.flowLive;
+        void (async () => {
+          // ペーパーレビュー返信を最優先 (壁打ちより先)。
+          if (await handlePaperReviewReply(msg.channelId, msg.guildId ?? "dm", msg.content, flowLive, flowHooks)) {
+            return;
+          }
+          await handleForumFlowReply(msg.channelId, msg.guildId ?? "dm", msg.content, flowLive, flowHooks);
+        })().catch((err) => console.warn(`  discord-forum: flow reply 失敗: ${(err as Error).message}`));
       }
       return;
     }

@@ -23,6 +23,11 @@
       "maxLearnIterations": 2,
       "maxGapsPerIteration": 2,
       "model": ""
+    },
+    "$comment3": "paperReview: 議論/改善の開始前に、ディスカッションペーパー(議題ブリーフ=議題/観点/メカニクス)と集めた情報を人間が確認→自然文で調整→承認してから議論を始めるレビューゲート。enabled=false(既定)なら情報ゲート後にそのまま自動開始。Discord はスレッド返信で調整(「メカニクスにガチャを追加」等)+「開始」で承認、Web は /flow の確認フォームで調整+「この内容で開始」。model はペーパー編集に使うモデル(空=既定)。",
+    "paperReview": {
+      "enabled": false,
+      "model": ""
     }
   },
   "personaEngine": {

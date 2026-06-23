@@ -25,6 +25,12 @@ export const FLOW_HTML = `<!doctype html>
   .err { color: #b91c1c; }
   #conclusion { margin-top: 1rem; padding: 0.8rem; background: #f0fdf4; border: 1px solid #bbf7d0; border-radius: 8px; white-space: pre-wrap; }
   #say { display: none; margin-top: 1rem; }
+  .muted { color: #64748b; font-size: 0.85rem; }
+  #review { margin-top: 1rem; padding: 0.8rem; background: #fffbeb; border: 1px solid #fde68a; border-radius: 8px; }
+  #review h2 { font-size: 1rem; margin: 0 0 0.5rem; }
+  #review input[type=text] { padding: 0.4rem; border: 1px solid #ccc; border-radius: 6px; font: inherit; }
+  #review .row { margin: 0.5rem 0; }
+  #rvApprove { margin-top: 0.6rem; }
 </style>
 </head>
 <body>
@@ -83,6 +89,26 @@ export const FLOW_HTML = `<!doctype html>
     <button id="sayBtn">送信</button>
   </div>
 
+  <div id="review" style="display:none">
+    <h2>📝 ディスカッションペーパー 確認・調整</h2>
+    <div id="reviewInfo" class="muted">準備中…</div>
+    <div class="row"><label>議題<textarea id="rvTheme" rows="2"></textarea></label></div>
+    <div class="row tags">観点タグ:
+      <label><input type="checkbox" value="機密" /> 機密</label>
+      <label><input type="checkbox" value="内部" /> 内部</label>
+      <label><input type="checkbox" value="運用" /> 運用</label>
+      <label><input type="checkbox" value="開発" /> 開発</label>
+    </div>
+    <div class="row"><label>観点補足<textarea id="rvSupp" rows="2"></textarea></label></div>
+    <div class="row"><label>メカニクス (1 行 1 件・<code>名前 :: 説明 :: 期待感情</code>)<textarea id="rvMech" rows="6"></textarea></label></div>
+    <div class="row">
+      <input id="rvEdit" type="text" placeholder="自然文で調整 (例: メカニクスにガチャを追加)" style="width:60%" />
+      <button id="rvEditBtn" type="button">調整を反映</button>
+    </div>
+    <button id="rvApprove" type="button">この内容で開始</button>
+    <div id="rvMsg" class="muted"></div>
+  </div>
+
   <div id="log"></div>
   <div id="conclusion" style="display:none"></div>
 
@@ -115,7 +141,73 @@ $("start").addEventListener("submit", async (e) => {
     $("go").disabled = false;
     return;
   }
+  // ペーパーレビューゲート: 草案が ready になるまで待ち、確認・調整 UI を出す。
+  if (res.review) { pollPaper(); return; }
   if (kind === "sparring") { $("say").style.display = "block"; }
+  poll();
+  timer = setInterval(poll, 1500);
+});
+
+// ── ペーパーレビュー (議論開始前の確認・調整) ──
+function renderMechanics(mechs) {
+  return (mechs || []).map(m => [m.name, m.description || "", m.intended_affect || ""].join(" :: ")).join("\\n");
+}
+function parseMechanics(text) {
+  return String(text || "").split(/\\n/).map(l => l.trim()).filter(Boolean).map(line => {
+    const p = line.split("::").map(s => s.trim());
+    return { name: p[0] || "", description: p[1] || "", intended_affect: p[2] || undefined };
+  }).filter(m => m.name);
+}
+function showReview(paper, info) {
+  $("review").style.display = "block";
+  $("rvTheme").value = paper.theme || "";
+  $("rvSupp").value = paper.supplement || "";
+  $("rvMech").value = renderMechanics(paper.mechanics);
+  for (const cb of document.querySelectorAll('#review .tags input')) cb.checked = (paper.tags || []).includes(cb.value);
+  if (info) {
+    $("reviewInfo").textContent = "集めた情報: 外部の声 " + (info.voiceCount || 0) + (info.countCapped ? "+" : "") + " 件";
+  }
+}
+function collectPaper() {
+  return {
+    theme: $("rvTheme").value.trim(),
+    supplement: $("rvSupp").value.trim(),
+    tags: [...document.querySelectorAll('#review .tags input:checked')].map(c => c.value),
+    mechanics: parseMechanics($("rvMech").value),
+  };
+}
+async function pollPaper() {
+  if (!sessionId) return;
+  const res = await fetch("/api/flow/" + sessionId + "/paper").then(r => r.json()).catch(() => null);
+  if (!res || !res.ok) { setTimeout(pollPaper, 1500); return; }
+  if (!res.ready) { setTimeout(pollPaper, 1500); return; }
+  if (res.error) { $("review").style.display = "block"; $("rvMsg").textContent = "草案作成に失敗: " + res.error; return; }
+  showReview(res.paper, res.info);
+}
+$("rvEditBtn").addEventListener("click", async () => {
+  const instruction = $("rvEdit").value.trim();
+  if (!instruction || !sessionId) return;
+  $("rvMsg").textContent = "反映中…";
+  const res = await fetch("/api/flow/" + sessionId + "/paper/edit", {
+    method: "POST", headers: { "content-type": "application/json" },
+    body: JSON.stringify({ instruction }),
+  }).then(r => r.json()).catch(() => null);
+  if (!res || !res.ok) { $("rvMsg").textContent = "反映に失敗しました"; return; }
+  $("rvEdit").value = "";
+  showReview(res.paper, null);
+  $("rvMsg").textContent = (res.applied ? "✏️ " : "⚠️ ") + (res.changeSummary || "");
+});
+$("rvApprove").addEventListener("click", async () => {
+  const paper = collectPaper();
+  if (!paper.theme) { alert("議題は必須です"); return; }
+  if (!sessionId) return;
+  $("rvApprove").disabled = true;
+  const res = await fetch("/api/flow/" + sessionId + "/paper/approve", {
+    method: "POST", headers: { "content-type": "application/json" },
+    body: JSON.stringify({ paper }),
+  }).then(r => r.json()).catch(() => null);
+  if (!res || !res.ok) { alert("開始に失敗しました"); $("rvApprove").disabled = false; return; }
+  $("review").style.display = "none";
   poll();
   timer = setInterval(poll, 1500);
 });

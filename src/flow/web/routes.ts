@@ -32,6 +32,13 @@ import {
   type AutoCrawlSpec,
 } from "../learning-autocrawl.js";
 import { gateBeforeFlow } from "../information-gate-runner.js";
+import {
+  buildPaperDraft,
+  applyPaperEdit,
+  coercePaperDraft,
+  type PaperDraft,
+  type PaperReviewInfo,
+} from "../paper-review.js";
 import { getConfig } from "../../config.js";
 import { FLOW_HTML } from "./page.js";
 
@@ -155,6 +162,24 @@ const sparringSessions = new Map<string, SparringSession>();
 /** discussion/improvement の完了状態 (status の done 判定用)。 */
 const finished = new Set<string>();
 
+/**
+ * ペーパーレビュー待ち (sessionId → 草案 + 起動入力)。
+ * /start で草案構築をバックグラウンド起動し、ready になったら ブラウザが /paper で取得して
+ * 調整 (/paper/edit or 直接編集) → /paper/approve で議論を開始する。
+ */
+interface WebPaperReview {
+  flow: FlowKind;
+  rounds?: number;
+  turnsPerRound?: number;
+  /** 草案構築が完了したか (false の間はブラウザは待つ)。 */
+  ready: boolean;
+  /** 構築失敗時のメッセージ (あれば)。 */
+  error?: string;
+  draft?: PaperDraft;
+  info?: PaperReviewInfo;
+}
+const paperReviews = new Map<string, WebPaperReview>();
+
 export const flowRoutes = new Hono();
 
 flowRoutes.get("/flow", (c) => c.html(FLOW_HTML));
@@ -230,6 +255,27 @@ flowRoutes.post("/api/flow/start", async (c) => {
   // 学習データが不足していれば、議論を始める前に指定ソースでクロール → 取込する (事前学習の UI 化)。
   const sessionId = randomUUID();
   const autoCrawlSpec = buildAutoCrawlSpec(body);
+
+  // ペーパーレビューゲート (有効時): 情報整備後に草案を作り、ブラウザの調整/承認を待つ。
+  if (getConfig().flow.paperReview.enabled) {
+    paperReviews.set(sessionId, { flow: kind, rounds, turnsPerRound, ready: false });
+    void (async () => {
+      await prepareInformationBeforeFlow(kind, theme, tags, sessionId, autoCrawlSpec, webDeps);
+      const { draft, info } = await buildPaperDraft(theme, tags, {
+        gamesDir: webDeps.gamesDir,
+        listExternalVoices: webDeps.listExternalVoices,
+        warn: (m) => console.warn(`[flow-web/paper ${sessionId}] ${m}`),
+      });
+      const entry = paperReviews.get(sessionId);
+      if (entry) Object.assign(entry, { ready: true, draft, info });
+    })().catch((e) => {
+      const entry = paperReviews.get(sessionId);
+      if (entry) Object.assign(entry, { ready: true, error: (e as Error).message });
+      console.warn(`[flow-web] ${kind} ペーパー草案エラー: ${(e as Error).message}`);
+    });
+    return c.json({ ok: true, kind, sessionId, review: true });
+  }
+
   void (async () => {
     await prepareInformationBeforeFlow(kind, theme, tags, sessionId, autoCrawlSpec, webDeps);
     await dispatchFlow({ theme, tags, flow: kind, rounds, turnsPerRound }, { ...dispatchDeps, sessionId });
@@ -237,6 +283,69 @@ flowRoutes.post("/api/flow/start", async (c) => {
     .catch((e) => console.warn(`[flow-web] ${kind} 実行エラー: ${(e as Error).message}`))
     .finally(() => finished.add(sessionId));
   return c.json({ ok: true, kind, sessionId });
+});
+
+/** ペーパーレビュー草案の取得 (ready になるまでブラウザがポーリング)。 */
+flowRoutes.get("/api/flow/:session/paper", (c) => {
+  const sessionId = c.req.param("session");
+  const entry = paperReviews.get(sessionId);
+  if (!entry) return c.json({ ok: false, error: "レビュー対象が見つかりません" }, 404);
+  return c.json({
+    ok: true,
+    ready: entry.ready,
+    error: entry.error ?? null,
+    paper: entry.draft ?? null,
+    info: entry.info ?? null,
+  });
+});
+
+/** 自然文の調整指示をペーパーに反映する (Web の NL 編集)。 */
+flowRoutes.post("/api/flow/:session/paper/edit", async (c) => {
+  if (!deps) return c.json({ ok: false, error: "flow web 未初期化" }, 500);
+  const sessionId = c.req.param("session");
+  const entry = paperReviews.get(sessionId);
+  if (!entry || !entry.ready || !entry.draft) return c.json({ ok: false, error: "レビュー準備中です" }, 409);
+  const body = (await c.req.json().catch(() => ({}))) as { instruction?: unknown };
+  const instruction = typeof body.instruction === "string" ? body.instruction.trim() : "";
+  if (!instruction) return c.json({ ok: false, error: "調整指示が空です" }, 400);
+  const edited = await applyPaperEdit(entry.draft, instruction, deps.llm, {
+    model: getConfig().flow.paperReview.model || undefined,
+    warn: (m) => console.warn(`[flow-web/paper ${sessionId}] ${m}`),
+  });
+  entry.draft = edited.draft;
+  return c.json({ ok: true, paper: edited.draft, changeSummary: edited.changeSummary, applied: edited.applied });
+});
+
+/** ペーパーを承認して議論を開始する (body に編集後ペーパーがあればそれを確定値にする)。 */
+flowRoutes.post("/api/flow/:session/paper/approve", async (c) => {
+  if (!deps) return c.json({ ok: false, error: "flow web 未初期化" }, 500);
+  const webDeps = deps;
+  const sessionId = c.req.param("session");
+  const entry = paperReviews.get(sessionId);
+  if (!entry || !entry.ready || !entry.draft) return c.json({ ok: false, error: "レビュー準備中です" }, 409);
+  const body = (await c.req.json().catch(() => ({}))) as { paper?: unknown };
+  // body.paper があれば Web フォームの直接編集を確定値に採用 (なければ蓄積済みドラフト)。
+  const finalPaper = coercePaperDraft(body.paper, entry.draft);
+  paperReviews.delete(sessionId);
+
+  const dispatchDeps: DispatchDeps = {
+    llm: webDeps.llm,
+    listExternalVoices: webDeps.listExternalVoices,
+    sentimentClients: webDeps.sentimentClients,
+    gamesDir: webDeps.gamesDir,
+    workspaceId: webDeps.workspaceId,
+  };
+  void dispatchFlow(
+    { theme: finalPaper.theme, tags: finalPaper.tags, flow: entry.flow, rounds: entry.rounds, turnsPerRound: entry.turnsPerRound },
+    {
+      ...dispatchDeps,
+      sessionId,
+      paperOverride: { mechanics: finalPaper.mechanics, supplement: finalPaper.supplement },
+    }
+  )
+    .catch((e) => console.warn(`[flow-web] ${entry.flow} 実行エラー: ${(e as Error).message}`))
+    .finally(() => finished.add(sessionId));
+  return c.json({ ok: true, sessionId });
 });
 
 flowRoutes.post("/api/flow/:session/say", async (c) => {
@@ -308,4 +417,5 @@ flowRoutes.get("/api/flow/:session/status", (c) => {
 export function _resetFlowWeb(): void {
   sparringSessions.clear();
   finished.clear();
+  paperReviews.clear();
 }
