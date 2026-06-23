@@ -1,6 +1,6 @@
 # T6: 壁打ちフロー (ユーザターン起点・上限付き)
 
-設計参照: `spec/flow/sparring.md`。依存: **T2, T3**。
+設計参照: `spec/feature/flow/sparring.md`。依存: **T2, T3**。
 
 ## ゴール
 

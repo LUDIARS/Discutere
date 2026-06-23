@@ -1,5 +1,5 @@
 /**
- * YouTube 動画クローラ (discovery) — spec/crawler/EXTERNAL-SOURCES.md §4.2(a)。
+ * YouTube 動画クローラ (discovery) — spec/feature/crawler/EXTERNAL-SOURCES.md §4.2(a)。
  *
  * ゲーム名 → コメントを取りに行く候補 動画 id リスト (VideoRef) を作る。
  * quota 節約のため、 チャンネルが分かるなら uploads playlist (1 unit/page) を優先し、

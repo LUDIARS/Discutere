@@ -1,5 +1,5 @@
 /**
- * Reddit collector (Phase 2) — spec/crawler/EXTERNAL-SOURCES.md §4.3。
+ * Reddit collector (Phase 2) — spec/feature/crawler/EXTERNAL-SOURCES.md §4.3。
  *
  * OAuth2 (script app, client_credentials grant) で app-only token を取り、
  * subreddit / 全体検索でスレッドを漁り、 各スレッドのコメントツリーを

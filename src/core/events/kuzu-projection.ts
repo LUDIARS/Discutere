@@ -1,5 +1,5 @@
 /**
- * Kuzu グラフへのイベント投影 — spec/core/KUZU-MIGRATION.md §4。
+ * Kuzu グラフへのイベント投影 — spec/data/core/KUZU-MIGRATION.md §4。
  *
  * `applyEventProjection`（SQLite 側）と対になる Kuzu 版。
  * 全 MERGE は冪等（同一 id を再実行しても安全）。

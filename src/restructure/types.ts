@@ -1,6 +1,6 @@
 /**
  * RESTRUCTURE パイプライン共有型定義。
- * spec/RESTRUCTURE.md §0-§2 に対応する中間表現とドメイン型。
+ * spec/plan/RESTRUCTURE.md §0-§2 に対応する中間表現とドメイン型。
  *
  * Phase 0 方針: DB schema 変更なし。resource edge / role / evaluation は
  * sidecar JSON で表現 (spec §5 非ゴール)。
@@ -8,7 +8,7 @@
 
 // ── ①嗜好プロファイル ────────────────────────────────────────────────────────
 
-/** SENTIMENT 固定 20 次元ベクトル (0..1)。spec/crawler/SENTIMENT.md に準拠。 */
+/** SENTIMENT 固定 20 次元ベクトル (0..1)。spec/feature/crawler/SENTIMENT.md に準拠。 */
 export type SentimentVector = [
   number, number, number, number, number, // emo: valence arousal joy trust fear
   number, number, number, number, number, // emo: surprise sadness disgust anger anticipation

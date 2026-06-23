@@ -1,5 +1,5 @@
 /**
- * dedup sidecar — spec/crawler/EXTERNAL-SOURCES.md §3 dedup.
+ * dedup sidecar — spec/feature/crawler/EXTERNAL-SOURCES.md §3 dedup.
  *
  * 取り込み済み (source, nativeId) を記録する小さな SQLite。utterances 本体には
  * 外部 id 列を足さない (schema 不変) ため、冪等性はこの sidecar が担保する。

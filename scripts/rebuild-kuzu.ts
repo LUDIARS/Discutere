@@ -1,5 +1,5 @@
 /**
- * Kuzu グラフを events から再構築する — spec/core/KUZU-MIGRATION.md §6/§8-3。
+ * Kuzu グラフを events から再構築する — spec/data/core/KUZU-MIGRATION.md §6/§8-3。
  *
  * 使い方:
  *   npx tsx scripts/rebuild-kuzu.ts              # events → Kuzu に全 replay

@@ -93,5 +93,5 @@ tick (既定 30s 間隔)
 
 ## 関連
 
-- 議論の素 (designGap) を立てるのは Discatier Core の gap 検出 → `spec/core/DESIGN.md`
-- persona 駆動の返信ループ → `spec/persona-engine/DESIGN.md`
+- 議論の素 (designGap) を立てるのは Discatier Core の gap 検出 → `spec/data/core/DESIGN.md`
+- persona 駆動の返信ループ → `spec/feature/persona-engine/DESIGN.md`

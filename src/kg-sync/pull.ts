@@ -1,5 +1,5 @@
 /**
- * 共有 KG の pull オーケストレーション (follower 側) — spec/core/KG-SYNC.md。
+ * 共有 KG の pull オーケストレーション (follower 側) — spec/data/core/KG-SYNC.md。
  *
  * 設定 URL に `?since=<watermark>` を付けて GET → NDJSON を import → 透かしを保存。
  * URL は master の生エンドポイント / 静的 publish ファイルのどちらでも良い (どちらも

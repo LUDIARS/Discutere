@@ -64,4 +64,4 @@ npm run headless -- --persist          # 本番 DB (data/) に書く
 ## 個人データ
 
 匿名 workspace。 headless 議論は AI persona と進行役のみで、 編集者名・アカウント名を残さない
-(CLAUDE.md / spec/crawler/DESIGN.md 準拠)。
+(CLAUDE.md / spec/feature/crawler/DESIGN.md 準拠)。

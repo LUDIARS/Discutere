@@ -97,6 +97,6 @@ draft ──submit──▶ proposed ──validate_theory──▶ under_theory
 
 ## 関連
 
-- 議論の自走 (停滞打開・収束) → `spec/facilitator/DESIGN.md`
-- persona の返信ループ → `spec/persona-engine/DESIGN.md`
+- 議論の自走 (停滞打開・収束) → `spec/feature/facilitator/DESIGN.md`
+- persona の返信ループ → `spec/feature/persona-engine/DESIGN.md`
 - Discord 入口・認証境界 → `CLAUDE.md` (認証モデル)

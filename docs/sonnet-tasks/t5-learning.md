@@ -1,6 +1,6 @@
 # T5: 学習フロー (議論前のユーザ意見/メカニクス収集)
 
-設計参照: `spec/flow/learning.md`。依存: **T1**。
+設計参照: `spec/feature/flow/learning.md`。依存: **T1**。
 
 ## ゴール
 

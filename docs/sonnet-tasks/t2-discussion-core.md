@@ -1,6 +1,6 @@
 # T2: 議論フロー — FlowDirector + ディスカッションペーパー + 調査/YouTube
 
-設計参照: `spec/flow/discussion.md` step 1〜5 / `spec/flow/OVERVIEW.md` §4 (駆動) / §5 (ペーパー)
+設計参照: `spec/feature/flow/discussion.md` step 1〜5 / `spec/feature/flow/OVERVIEW.md` §4 (駆動) / §5 (ペーパー)
 / §6 (RAG)。依存: **T1**。
 
 ## ゴール
@@ -38,7 +38,7 @@
    - ペーパーは T1 の `discussion_paper` に永続。ラウンドサマリ追記は T3 が
      `discussion_paper_round` へ。
 
-3. **調査** (`src/flow/investigate.ts`, `spec/flow/discussion.md` step 2):
+3. **調査** (`src/flow/investigate.ts`, `spec/feature/flow/discussion.md` step 2):
    - テーマ関連の**メカニクス** (Discatier Core `mechanics` / `data/games/<slug>.md`) と
      **感情データ** (`*.sentiment.json` / `affects` / `cascade.ts`) を集める。
    - **0 件時 YouTube 補完** (step 2-1):

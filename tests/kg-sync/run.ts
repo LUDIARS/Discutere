@@ -1,5 +1,5 @@
 /**
- * KG 共有同期の単体テスト — spec/core/KG-SYNC.md。
+ * KG 共有同期の単体テスト — spec/data/core/KG-SYNC.md。
  * export → import の round-trip / 共有フラグ絞り込み / LWW / whitelist 拒否 を確認する。
  * 実 DB (in-memory better-sqlite3) を使い、ネットワークには触れない。
  */

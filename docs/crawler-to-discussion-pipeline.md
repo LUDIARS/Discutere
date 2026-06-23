@@ -53,7 +53,7 @@ Translation Bridge・Gap Detection の入力になる。
 - **認証キーはリポジトリに保存しない**(`--env-file=collectors/.env`、値は AI/ログに残さない)。
 - **取得済みは再取得しない**(URL/レスポンス単位キャッシュ)。
 - **ソース管理は RDBMS(`sources.db`)**。識別キーは **`UNIQUE(site, fetched_date)`** = 「(サイト × 取得日)が同一なら同一 import_id、取得日が違えば別ソース」。
-- **summary-only / 個人データ非保管**: レビュー/コメント原文は転載せず、author/アカウント名は出力しない(`spec/crawler/DESIGN.md` 準拠)。
+- **summary-only / 個人データ非保管**: レビュー/コメント原文は転載せず、author/アカウント名は出力しない(`spec/feature/crawler/DESIGN.md` 準拠)。
 
 ---
 

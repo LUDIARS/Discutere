@@ -47,7 +47,7 @@ env)。`discutere.config.example.json` 参照。詳細は `docs/ws-gateway-confi
   (`discatier.knowledgeGraphs[]` レジストリ + `activeKg` で起動時に 1 つ選択、 切替は再起動)。
   旧 `discatier.kuzuPath` 単独指定は id=`default` の 1 KG として後方互換で吸収。Core を開く全箇所は
   `resolveActiveKgPath(config)` 経由で active KG を見る。無停止ホットスワップは非対応
-  (`spec/crawler/EXTERNAL-SOURCES.md` §12)。
+  (`spec/feature/crawler/EXTERNAL-SOURCES.md` §12)。
 - **議論キュー可視化**: `src/queue/snapshot.ts` → `GET /api/admin/queue` + dashboard カード +
   `/discutere-queue`。
 - **S3 バックアップ**: `src/backup/` で KG + 全 SQLite を tar.gz 化し S3 (Glacier 系) へ。
@@ -183,9 +183,9 @@ bot 名義で締める (収束時 `finalizeForumPost` で lock+archive+まとめ
 
 ## 個人データ
 
-匿名 workspace (`DISCATIER_WORKSPACE` 既定 `knowledge`)。攻略 KG / 議論ノードに編集者名・アカウント名を保存しない (`spec/crawler/DESIGN.md` 準拠)。
+匿名 workspace (`DISCATIER_WORKSPACE` 既定 `knowledge`)。攻略 KG / 議論ノードに編集者名・アカウント名を保存しない (`spec/feature/crawler/DESIGN.md` 準拠)。
 
-**外部発話の露出方針 (2026-06-08, `spec/crawler/EXTERNAL-SOURCES.md` §6)**: 出所メタ
+**外部発話の露出方針 (2026-06-08, `spec/feature/crawler/EXTERNAL-SOURCES.md` §6)**: 出所メタ
 (ソース種別 + 元 URL = attribution) は end user にも **開示**するが、 個人アンカー
 (`authorId` 公開 ID / `authorName` 表示名) は露出面で **マスク**して内部ペルソナ表示名
 (`論者#xxxx`) に置換する =「出所は透明 / 個人は仮名」。保管層はフル精度のまま (persona 学習用)、

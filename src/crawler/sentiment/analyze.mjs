@@ -8,7 +8,7 @@
 // ゲーム全体・議論クラスタ・月次バケットを全て同一 20 次元で表現 → cosine 比較・時系列(感情曲線)可能。
 // number[] なので Discatier embeddings(vector_json) に格納可、emo ブロックは affects(mood/valence/score) に対応。
 //
-// 仕様準拠(spec/crawler/DESIGN.md): summary-only(原文非転載) / author 非保管 / sources[].fetched_at。
+// 仕様準拠(spec/feature/crawler/DESIGN.md): summary-only(原文非転載) / author 非保管 / sources[].fetched_at。
 // ベクトルは外部 embedding API を使わず本コード内(Claude Code)で算出。
 //
 // 使い方:

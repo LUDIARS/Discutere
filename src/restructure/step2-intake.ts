@@ -4,7 +4,7 @@
  * slug が data/games/ に存在すれば KG md frontmatter から取得。
  * 存在しなければ spec テキストから LLM 類推 (Phase 0 は LLM 類推ルートをモック可)。
  *
- * spec/RESTRUCTURE.md §2-②。
+ * spec/plan/RESTRUCTURE.md §2-②。
  */
 
 import { readFile } from "node:fs/promises";

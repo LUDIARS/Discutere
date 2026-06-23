@@ -1,5 +1,5 @@
 /**
- * 0+1 感情カスケード — spec/crawler/EXTERNAL-SOURCES.md §§4.2-4.3 参照。
+ * 0+1 感情カスケード — spec/feature/crawler/EXTERNAL-SOURCES.md §§4.2-4.3 参照。
  *
  * Tier 0: 辞書 (lexicon.json) + 信号 (upvotes/votedUp)。決定論的・無コスト。
  * Tier 1: ローカル LLM (Ollama/Gemma 等の OpenAI 互換)。Tier 0 が不確かな時のみ。

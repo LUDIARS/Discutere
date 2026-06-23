@@ -6,7 +6,7 @@
  *   clusters[]  → embeddings テーブル nodeType="discussion_cluster"
  *   game_vector → embeddings テーブル nodeType="game_sentiment"
  *
- * spec/crawler/SENTIMENT.md §TODO: "DB import 配線"
+ * spec/feature/crawler/SENTIMENT.md §TODO: "DB import 配線"
  *
  * Usage:
  *   npx tsx scripts/import-sentiment.ts                # data/games/*.sentiment.json 全件

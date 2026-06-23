@@ -158,7 +158,7 @@ export interface DiscutereConfig {
     /** events table polling 周期 ms */
     bridgePollMs: number;
   };
-  /** 議論ファシリテーター (停滞→拡張 / persona 過多→収束)。spec/facilitator/DESIGN.md */
+  /** 議論ファシリテーター (停滞→拡張 / persona 過多→収束)。spec/feature/facilitator/DESIGN.md */
   facilitator: {
     /** 有効化 (既定 true) */
     enabled: boolean;
@@ -395,7 +395,7 @@ export interface DiscutereConfig {
     /** 最終実行時刻を記録する state ファイル */
     stateFile: string;
   };
-  /** KG 共有同期 (spec/core/KG-SYNC.md)。follower が master の共有知識を pull する。 */
+  /** KG 共有同期 (spec/data/core/KG-SYNC.md)。follower が master の共有知識を pull する。 */
   kgSync: {
     /** follower が差分を取得する URL (master endpoint or 静的 publish)。未設定なら pull 無効。 */
     sourceUrl?: string;

@@ -1,5 +1,5 @@
 /**
- * KG 共有同期で扱う「共有資産」テーブルの定義 — spec/core/KG-SYNC.md。
+ * KG 共有同期で扱う「共有資産」テーブルの定義 — spec/data/core/KG-SYNC.md。
  *
  * master が `shared=1` を立てた行だけが follower へ配布される (学習知識のみ。
  * 議論ローカルデータ = sessions / utterances / design_gaps 等は同期しない)。

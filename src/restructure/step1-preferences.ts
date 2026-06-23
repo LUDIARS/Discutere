@@ -4,7 +4,7 @@
  * data/games/*.sentiment.json を全走査し、genre / mechanic 粒度に集約した
  * PreferenceProfile を生成する。個人データは保持しない (集団のみ)。
  *
- * spec/RESTRUCTURE.md §2-① / §4-A。
+ * spec/plan/RESTRUCTURE.md §2-① / §4-A。
  */
 
 import { readdir, readFile, writeFile, mkdir } from "node:fs/promises";

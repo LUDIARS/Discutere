@@ -3,7 +3,7 @@
  *
  * ベクトル空間は `src/crawler/sentiment/` の固定 20 次元 (VECTOR_SPEC) と同一。
  * 正本は `src/crawler/sentiment/analyze.mjs` の `VECTOR_SPEC` /
- * `spec/crawler/SENTIMENT.md`。本モジュールは新しい感情空間を定義せず既存 20 次元を使う
+ * `spec/feature/crawler/SENTIMENT.md`。本モジュールは新しい感情空間を定義せず既存 20 次元を使う
  * (t4-improvement.md の out スコープ準拠)。
  *
  * textToVector は analyze.mjs の features()+buildVector() を「テキスト 1 件」に特化して

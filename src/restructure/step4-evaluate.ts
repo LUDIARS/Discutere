@@ -5,7 +5,7 @@
  * マクロ: M 全体 + 内部経済 + 感情曲線を LLM で評価。
  * ネガティブ評価は designGap の種として negativeGapCandidates に出す。
  *
- * spec/RESTRUCTURE.md §2-④ / §4-B / §4-F。
+ * spec/plan/RESTRUCTURE.md §2-④ / §4-B / §4-F。
  */
 
 import type {

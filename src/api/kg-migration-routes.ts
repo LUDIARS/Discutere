@@ -1,5 +1,5 @@
 /**
- * KG 共有同期の配信エンドポイント (master 側) — spec/core/KG-SYNC.md。
+ * KG 共有同期の配信エンドポイント (master 側) — spec/data/core/KG-SYNC.md。
  *
  * GET /api/kg/migrations?since=<epochMs>[&token=<secret>]
  *   共有テーブルの shared=1 かつ updated_at>since の行を NDJSON で返す。

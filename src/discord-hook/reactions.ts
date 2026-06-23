@@ -1,5 +1,5 @@
 /**
- * 議論意見へのリアクション → 内部スコアリング (spec/facilitator/DESIGN.md)。
+ * 議論意見へのリアクション → 内部スコアリング (spec/feature/facilitator/DESIGN.md)。
  *
  * - Discord に投稿した persona 発話 / 仮説の message_id ↔ 対象(utterance/hypothesis) を記録
  * - その message にリアクションが付いたら、 絵文字ごとの重みで対象のスコアを加算

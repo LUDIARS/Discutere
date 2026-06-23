@@ -1,5 +1,5 @@
 /**
- * follower 側の同期状態 (source URL ごとの透かし) — spec/core/KG-SYNC.md。
+ * follower 側の同期状態 (source URL ごとの透かし) — spec/data/core/KG-SYNC.md。
  *
  * 取得済みの最大 updated_at を URL ごとに JSON ファイルに保存し、次回 since に渡して
  * 増分のみ取得する。 backup-state.json と同じ単純な JSON ファイル方式。

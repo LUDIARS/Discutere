@@ -1,6 +1,6 @@
 # Crawler — Review/Comment → Sentiment & Discussion (Phase 0)
 
-`spec/crawler/DESIGN.md` の Game KG に対し、**ユーザーの反応(レビュー/コメント)** を
+`spec/feature/crawler/DESIGN.md` の Game KG に対し、**ユーザーの反応(レビュー/コメント)** を
 Discatier Core の **affect(感情) / discussion 埋め込み(議論ベクトル)** に変換して付与するモジュール。
 
 ## 入力

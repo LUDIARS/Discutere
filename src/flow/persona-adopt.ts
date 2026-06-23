@@ -4,7 +4,7 @@
  * クロール済みの外部発話を話者アンカー (`ext:<source>:<authorId>`) で集約し、
  * 「意思ある人 (ゲーム嗜好あり)」をペルソナとしてプールに採用する。
  *
- * 採用条件 (全て満たす, spec/flow/persona-pool.md §C1):
+ * 採用条件 (全て満たす, spec/feature/flow/persona-pool.md §C1):
  *  - 意見が全ゲーム横断で minOpinions (既定 10) 以上。
  *  - 全ネガ / 全ポジを除外 (polarity が片寄りきっている人は弾く)。
  *  - ゲーム間で affect の差分 (gap) がある (≥2 ゲーム + per-game 連結ベクトルが同一でない)。

@@ -206,7 +206,7 @@ npm run visualize gap <id>          # gap / mechanic / aesthetic / utterance / s
 ```
 
 ノード間参照は `[[hyp:abc123]]` / `[[utt:550e8400]]` 形式の magic-link md。詳細は
-[`spec/crawler/DESIGN.md`](spec/crawler/DESIGN.md) / [`spec/visualize/DESIGN.md`](spec/visualize/DESIGN.md)。
+[`spec/feature/crawler/DESIGN.md`](spec/feature/crawler/DESIGN.md) / [`spec/feature/visualize/DESIGN.md`](spec/feature/visualize/DESIGN.md)。
 
 ## ディレクトリ構成 (抜粋)
 

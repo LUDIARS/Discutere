@@ -1,5 +1,5 @@
 /**
- * Kuzu グラフ DB クライアント — spec/core/KUZU-MIGRATION.md §3/§7。
+ * Kuzu グラフ DB クライアント — spec/data/core/KUZU-MIGRATION.md §3/§7。
  *
  * `KuzuClient`（名前だけ Kuzu で実体は better-sqlite3）の後継。
  * KG 本体（ノード + 関係）を本物の Kuzu embedded DB で管理する。

@@ -4,7 +4,7 @@
  * step1〜7 を順に実行し、各ステップの中間 JSON を
  * data/restructure/<slug>/step{1..7}.json に保存する。
  *
- * spec/RESTRUCTURE.md §3 テストハーネス仕様に準拠。
+ * spec/plan/RESTRUCTURE.md §3 テストハーネス仕様に準拠。
  */
 
 import { readFile, writeFile, mkdir } from "node:fs/promises";

@@ -1,5 +1,5 @@
 /**
- * follower 側の自動 pull スケジューラ — spec/core/KG-SYNC.md。
+ * follower 側の自動 pull スケジューラ — spec/data/core/KG-SYNC.md。
  *
  * config.kgSync.auto かつ sourceUrl がある場合のみ起動。起動直後に 1 回 + intervalHours ごとに
  * 共有 KG を pull する。master では通常 auto=false (配信側なので pull しない)。

@@ -1,5 +1,5 @@
 /**
- * RAG retrieval (外部の声) のテスト — spec/crawler/EXTERNAL-SOURCES.md §14。
+ * RAG retrieval (外部の声) のテスト — spec/feature/crawler/EXTERNAL-SOURCES.md §14。
  *
  * adapter.listRelevantExternalVoices が:
  *  - 議題語に一致する外部取り込み発話 (speaker_id ext:%) を拾う
