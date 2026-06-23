@@ -1,0 +1,241 @@
+/**
+ * Persona generation/admin UI.
+ *
+ * The C1/C2 persona generation pipeline already exists as CLI scripts. This
+ * route exposes the same operations from the loopback WebUI.
+ */
+
+import { existsSync, readFileSync, readdirSync, writeFileSync } from "node:fs";
+import path from "node:path";
+import { Hono } from "hono";
+
+import { getConfig, _resetConfig } from "../config.js";
+import { FallbackLlm } from "../flow/llm-fallback.js";
+import { estimatePopulations, persistPopulations } from "../flow/persona-populations.js";
+import { generateSyntheticPersonas, type SurveyGame } from "../flow/persona-survey.js";
+import { runAdoptFromKg } from "../flow/persona-adopt-runner.js";
+import { AnthropicSdkClient } from "../persona-engine/llm/anthropic.js";
+import { ClaudeCliClient } from "../persona-engine/llm/claude-cli.js";
+import { readClaudeCodeToken } from "../persona-engine/llm/claude-code-auth.js";
+
+const personaRoutes = new Hono();
+
+function configPath(): string {
+  return path.resolve(process.env.DISCUTERE_CONFIG ?? "./discutere.config.json");
+}
+
+function readConfigFile(): Record<string, unknown> {
+  const file = configPath();
+  if (!existsSync(file)) return {};
+  return JSON.parse(readFileSync(file, "utf8")) as Record<string, unknown>;
+}
+
+function writeFlowConfig(patch: Record<string, unknown>): void {
+  const current = readConfigFile();
+  const flow = (current.flow && typeof current.flow === "object" ? current.flow : {}) as Record<string, unknown>;
+  current.flow = { ...flow, ...patch };
+  writeFileSync(configPath(), JSON.stringify(current, null, 2) + "\n", "utf8");
+  _resetConfig();
+}
+
+function loadGames(): SurveyGame[] {
+  const dir = path.resolve("data/games");
+  if (!existsSync(dir)) return [];
+  return readdirSync(dir)
+    .filter((f) => f.endsWith(".md"))
+    .map((f) => {
+      const slug = f.replace(/\.md$/, "");
+      return { slug, title: slug };
+    });
+}
+
+function createPersonaLlm() {
+  const cfg = getConfig();
+  return new FallbackLlm(
+    new AnthropicSdkClient({
+      getAuthToken: () => readClaudeCodeToken(),
+      apiKey: cfg.llm.anthropicApiKey || undefined,
+      defaultModel: cfg.llm.model || undefined,
+    }),
+    new ClaudeCliClient({
+      defaultTimeoutMs: cfg.llm.claudeCliTimeoutMs,
+      defaultModel: cfg.llm.model || undefined,
+      gitBashPath: cfg.workerPool.gitBashPath ?? cfg.llm.gitBashPath,
+    })
+  );
+}
+
+function boolValue(v: unknown, fallback: boolean): boolean {
+  if (typeof v === "boolean") return v;
+  if (typeof v === "string") return /^(1|true|yes|on)$/i.test(v.trim());
+  return fallback;
+}
+
+function numValue(v: unknown, fallback: number, min: number, max: number): number {
+  const n = typeof v === "number" ? v : Number(v);
+  if (!Number.isFinite(n)) return fallback;
+  return Math.max(min, Math.min(max, Math.floor(n)));
+}
+
+personaRoutes.get("/admin/personas", (c) => c.html(PERSONA_HTML));
+
+personaRoutes.get("/admin/personas/data", (c) => {
+  const cfg = getConfig();
+  return c.json({
+    autoAdoptOnCrawl: cfg.flow.autoAdoptOnCrawl,
+    envOverride: process.env.DISCUTERE_FLOW_AUTO_ADOPT_ON_CRAWL ?? null,
+    configPath: configPath(),
+    games: loadGames().length,
+  });
+});
+
+personaRoutes.put("/admin/personas/auto-adopt", async (c) => {
+  const body = (await c.req.json().catch(() => ({}))) as { enabled?: unknown };
+  if (body.enabled === undefined) return c.json({ error: "enabled required" }, 400);
+  try {
+    writeFlowConfig({ autoAdoptOnCrawl: boolValue(body.enabled, false) });
+  } catch (err) {
+    return c.json({ error: `config write failed: ${(err as Error).message}` }, 500);
+  }
+  return c.json({
+    ok: true,
+    autoAdoptOnCrawl: getConfig().flow.autoAdoptOnCrawl,
+    envOverride: process.env.DISCUTERE_FLOW_AUTO_ADOPT_ON_CRAWL ?? null,
+    configPath: configPath(),
+  });
+});
+
+personaRoutes.post("/admin/personas/adopt", async (c) => {
+  const body = (await c.req.json().catch(() => ({}))) as {
+    source?: unknown;
+    minOpinions?: unknown;
+    dry?: unknown;
+  };
+  const sourceFilter = typeof body.source === "string" && body.source.trim() ? body.source.trim() : undefined;
+  const minOpinions = numValue(body.minOpinions, 10, 1, 10_000);
+  const dry = boolValue(body.dry, true);
+  try {
+    const summary = runAdoptFromKg({ sourceFilter, minOpinions, dry });
+    return c.json({ ok: true, dry, sourceFilter: sourceFilter ?? null, minOpinions, ...summary });
+  } catch (err) {
+    return c.json({ error: (err as Error).message }, 500);
+  }
+});
+
+personaRoutes.post("/admin/personas/survey", async (c) => {
+  const body = (await c.req.json().catch(() => ({}))) as {
+    count?: unknown;
+    gamesPerIndividual?: unknown;
+  };
+  const games = loadGames();
+  if (games.length === 0) return c.json({ error: "data/games/*.md not found" }, 400);
+  const count = numValue(body.count, 1, 1, 100);
+  const gamesPerIndividual =
+    body.gamesPerIndividual === undefined ? undefined : numValue(body.gamesPerIndividual, 8, 1, 100);
+  try {
+    const result = await generateSyntheticPersonas({ count, games, gamesPerIndividual, llm: createPersonaLlm() });
+    const totalPlayed = result.breakdown.reduce((sum, b) => sum + b.played, 0);
+    const totalUnplayed = result.breakdown.reduce((sum, b) => sum + b.unplayed, 0);
+    return c.json({
+      ok: true,
+      requested: count,
+      saved: result.personas.length,
+      totalPlayed,
+      totalUnplayed,
+      personas: result.personas.map((p) => ({ id: p.id, name: p.name, label: p.label })),
+    });
+  } catch (err) {
+    return c.json({ error: (err as Error).message }, 500);
+  }
+});
+
+personaRoutes.post("/admin/personas/populations", async (c) => {
+  const body = (await c.req.json().catch(() => ({}))) as {
+    threshold?: unknown;
+    bigRatio?: unknown;
+    realOrigins?: unknown;
+    persist?: unknown;
+  };
+  const threshold = Number(body.threshold ?? 0.9);
+  const bigRatio = Number(body.bigRatio ?? 0.15);
+  const realOrigins =
+    typeof body.realOrigins === "string" && body.realOrigins.trim()
+      ? body.realOrigins.split(",").map((s) => s.trim()).filter(Boolean)
+      : undefined;
+  const persist = boolValue(body.persist, true);
+  try {
+    const report = estimatePopulations({
+      simThreshold: Number.isFinite(threshold) ? threshold : 0.9,
+      bigRatio: Number.isFinite(bigRatio) ? bigRatio : 0.15,
+      realOrigins: realOrigins as never,
+    });
+    const written = persist && report.syntheticCount > 0 ? persistPopulations(report, Date.now()) : 0;
+    return c.json({ ok: true, persist, written, ...report });
+  } catch (err) {
+    return c.json({ error: (err as Error).message }, 500);
+  }
+});
+
+const PERSONA_HTML = `<!doctype html>
+<html lang="ja"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Discutere ペルソナ生成</title>
+<style>
+ body{font-family:system-ui,'Segoe UI',sans-serif;margin:0;background:#0f1115;color:#e6e6e6}
+ .wrap{max-width:920px;margin:0 auto;padding:24px}
+ a{color:#7aa2ff} h1{font-size:20px;margin:0 0 6px} h2{font-size:15px;margin:22px 0 8px;color:#cbd3e1}
+ .sub,.muted{color:#8b94a3;font-size:13px}.card{background:#161922;border:1px solid #232733;border-radius:8px;padding:14px 16px;margin-bottom:14px}
+ label{display:block;font-size:12px;color:#9aa3b2;margin:8px 0 3px}
+ input{width:100%;box-sizing:border-box;background:#0c0e13;color:#e6e6e6;border:1px solid #2a2f3a;border-radius:7px;padding:8px 10px;font-size:13px}
+ .row{display:flex;gap:12px;flex-wrap:wrap}.row>div{flex:1;min-width:150px}
+ button{border:0;border-radius:8px;padding:8px 15px;font-size:13px;cursor:pointer;background:#2563eb;color:#fff;margin-top:10px}
+ button.ghost{background:#2a2f3a;color:#cbd3e1}.ok{color:#22c55e}.bad{color:#f87171}
+ pre{white-space:pre-wrap;background:#0c0e13;border:1px solid #252a35;border-radius:8px;padding:10px;max-height:300px;overflow:auto}
+ .switch{display:flex;align-items:center;gap:10px}.switch input{width:auto}
+</style></head><body><div class="wrap">
+ <p><a href="/">トップ</a></p>
+ <h1>ペルソナ生成</h1>
+ <p class="sub">C1 実在ユーザ採用、C2 合成生成、母数推定を試験できます。</p>
+ <div class="card">
+   <h2>クロール後の自動採用</h2>
+   <label class="switch"><input id="auto" type="checkbox"> flow.autoAdoptOnCrawl を有効にする</label>
+   <p class="muted" id="autoMeta"></p>
+   <button onclick="saveAuto()">設定を保存</button> <span id="autoMsg"></span>
+ </div>
+ <div class="card">
+   <h2>C1 実在ユーザ採用</h2>
+   <div class="row"><div><label>source</label><input id="source" placeholder="youtube / steam / 空なら全体"></div><div><label>min opinions</label><input id="minOpinions" type="number" value="10" min="1"></div></div>
+   <label class="switch"><input id="dry" type="checkbox" checked> dry-run</label>
+   <button onclick="runAdopt()">採用を試す</button>
+ </div>
+ <div class="card">
+   <h2>C2 合成生成</h2>
+   <div class="row"><div><label>count</label><input id="surveyCount" type="number" value="1" min="1" max="100"></div><div><label>games per individual</label><input id="gamesPer" type="number" placeholder="既定"></div></div>
+   <button onclick="runSurvey()">合成生成を実行</button>
+ </div>
+ <div class="card">
+   <h2>C2-b 母数推定</h2>
+   <div class="row"><div><label>threshold</label><input id="threshold" value="0.9"></div><div><label>big ratio</label><input id="bigRatio" value="0.15"></div><div><label>real origins</label><input id="realOrigins" value="adopted"></div></div>
+   <label class="switch"><input id="persist" type="checkbox" checked> 結果を書き戻す</label>
+   <button onclick="runPop()">母数推定を実行</button>
+ </div>
+ <pre id="out"></pre>
+</div><script>
+const $=id=>document.getElementById(id);
+function show(x){ $('out').textContent=typeof x==='string'?x:JSON.stringify(x,null,2); }
+async function load(){
+ const j=await fetch('/api/admin/personas/data').then(r=>r.json());
+ $('auto').checked=!!j.autoAdoptOnCrawl;
+ $('autoMeta').textContent='config: '+j.configPath+' / games: '+j.games+(j.envOverride!==null?' / env override: '+j.envOverride:'');
+}
+async function post(url,body){ const r=await fetch(url,{method:'POST',headers:{'content-type':'application/json'},body:JSON.stringify(body)}); const j=await r.json(); show(j); return j; }
+async function saveAuto(){
+ const r=await fetch('/api/admin/personas/auto-adopt',{method:'PUT',headers:{'content-type':'application/json'},body:JSON.stringify({enabled:$('auto').checked})});
+ const j=await r.json(); $('autoMsg').className=j.ok?'ok':'bad'; $('autoMsg').textContent=j.ok?'保存しました':'失敗'; show(j); load();
+}
+async function runAdopt(){ await post('/api/admin/personas/adopt',{source:$('source').value,minOpinions:Number($('minOpinions').value),dry:$('dry').checked}); }
+async function runSurvey(){ await post('/api/admin/personas/survey',{count:Number($('surveyCount').value),gamesPerIndividual:$('gamesPer').value?Number($('gamesPer').value):undefined}); }
+async function runPop(){ await post('/api/admin/personas/populations',{threshold:Number($('threshold').value),bigRatio:Number($('bigRatio').value),realOrigins:$('realOrigins').value,persist:$('persist').checked}); }
+load();
+</script></body></html>`;
+
+export { personaRoutes };

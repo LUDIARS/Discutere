@@ -118,6 +118,21 @@ fs.mkdirSync(TMP_DIR, { recursive: true });
   console.log("  [ok] migration idempotent");
 }
 
+{
+  // 想定外の SQL 失敗を migration 済みにしない
+  const dbPath = path.join(TMP_DIR, "broken.db");
+  const db = new Database(dbPath);
+  db.exec("CREATE VIEW discussion_paper AS SELECT 1 AS id");
+  const { applyFlowMigrations } = await import("../../src/flow/db/migrations.js");
+  assert.throws(() => applyFlowMigrations(db), /discussion_paper|view|table/i, "unexpected migration errors throw");
+  const recorded = db
+    .prepare("SELECT id FROM _flow_migrations WHERE id = 'flow_0001_initial'")
+    .get() as { id: string } | undefined;
+  assert.equal(recorded, undefined, "failed migration is not recorded");
+  db.close();
+  console.log("  [ok] migration unexpected errors are not swallowed");
+}
+
 // ── withCostLog ──────────────────────────────────────────────────
 
 {

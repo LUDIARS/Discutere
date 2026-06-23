@@ -14,6 +14,7 @@
  */
 
 import { randomUUID } from "node:crypto";
+import { pathToFileURL } from "node:url";
 import { insertPoolPersona } from "../src/flow/persona-pool.js";
 import { textToVector } from "../src/flow/sentiment-vector.js";
 import type { FlowRole } from "../src/flow/personas.js";
@@ -21,6 +22,14 @@ import type { FlowRole } from "../src/flow/personas.js";
 function arg(name: string): string | undefined {
   const i = process.argv.indexOf(`--${name}`);
   return i >= 0 ? process.argv[i + 1] : undefined;
+}
+
+export function parseRole(raw: string | undefined): FlowRole {
+  const role = raw ?? "opinion";
+  if (role === "opinion" || role === "debater" || role === "facilitator") {
+    return role;
+  }
+  throw new Error(`--role must be one of opinion|debater|facilitator, got: ${role}`);
 }
 
 async function main(): Promise<void> {
@@ -33,7 +42,7 @@ async function main(): Promise<void> {
     );
     process.exit(1);
   }
-  const role = (arg("role") as FlowRole) ?? "opinion";
+  const role = parseRole(arg("role"));
   const traits = (arg("traits") ?? "").split(/[,、]/).map((s) => s.trim()).filter(Boolean);
   const persona = {
     id: randomUUID(),
@@ -52,7 +61,9 @@ async function main(): Promise<void> {
   console.log("  ※ C の自動生成は設計中。当面は本コマンドで手動投入してプールを育てる。");
 }
 
-main().catch((e) => {
-  console.error(`NG: ${(e as Error).message}`);
-  process.exit(1);
-});
+if (process.argv[1] && import.meta.url === pathToFileURL(process.argv[1]).href) {
+  main().catch((e) => {
+    console.error(`NG: ${(e as Error).message}`);
+    process.exit(1);
+  });
+}

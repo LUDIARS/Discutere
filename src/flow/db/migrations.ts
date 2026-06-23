@@ -241,6 +241,12 @@ const MIGRATIONS: Array<{ id: string; sql: string[] }> = [
   },
 ];
 
+function isIgnorableMigrationError(stmt: string, error: unknown): boolean {
+  if (!/^\s*ALTER\s+TABLE\s+/i.test(stmt)) return false;
+  const message = error instanceof Error ? error.message : String(error);
+  return /duplicate column name/i.test(message);
+}
+
 export function applyFlowMigrations(db: Database.Database): void {
   db.exec(
     `CREATE TABLE IF NOT EXISTS _flow_migrations (id TEXT PRIMARY KEY, applied_at INTEGER NOT NULL)`
@@ -255,8 +261,10 @@ export function applyFlowMigrations(db: Database.Database): void {
       for (const stmt of m.sql) {
         try {
           db.exec(stmt);
-        } catch {
-          /* idempotent: already applied */
+        } catch (e) {
+          if (!isIgnorableMigrationError(stmt, e)) {
+            throw e;
+          }
         }
       }
       db.prepare("INSERT INTO _flow_migrations (id, applied_at) VALUES (?, ?)").run(

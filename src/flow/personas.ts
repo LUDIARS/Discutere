@@ -112,7 +112,7 @@ export function generateFlowPersonas(args: GeneratePersonasArgs): FlowPersona[] 
 
   // 残りの人数を opinion と debater に 1:2 で配分
   const remaining = count - 1;
-  const opinionCount = Math.max(1, Math.floor(remaining / 3));
+  const opinionCount = remaining > 0 ? Math.max(1, Math.floor(remaining / 3)) : 0;
   const debaterCount = remaining - opinionCount;
 
   for (let i = 0; i < opinionCount; i++) {
