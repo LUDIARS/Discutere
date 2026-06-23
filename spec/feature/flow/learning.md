@@ -55,15 +55,35 @@
   `maxMechanics` (既定 40) でクランプ。長文は先頭 16000 文字に切り詰め。
 - **`runLearningFlow` は無改変**。抽出結果は glue 層が `dispatchFlow` の `mechanics` として渡す
   (既存のメカニクス記録経路を再利用)。空 specText / LLM 失敗は `[]` で degrade (学習を止めない)。
-- 入口:
+- 入口 (② インライン):
   - **Web** = `/flow` の「仕様書の解析学習」テキストエリア → `/api/flow/start` の `specText` →
     `routes.ts` の learning ケースで `analyzeSpecMechanics` → `mechanics` で dispatch。
   - **Discord** = 学習フォーラムの **starter 本文**を仕様書として解析 (スレッドタイトル=議題と
     別物のときだけ)。`gateway.ts` が starter 本文を `specText` として `startForumFlow` まで運び、
     `discord-live.ts` の learning ケースで解析 → 完了通知に「仕様書メカニクス N 件」を表示。
 
-> **未配線 (後続)**: ③「Anatomia 経由の仕様書解析」(Anatomia の解析データ直流し) は別経路として
-> 追加予定。① が外部の声クロール、② が仕様書 LLM 解析。
+## 仕様書を別途受け取って解析 (③ 別チャネル受信, 2026-06-24)
+
+② のインライン貼付に加え、仕様書を**別チャネルで受け取って**解析する。受信したものは
+最終的にテキストへ解決し、② の `analyzeSpecMechanics` に渡す (解析は共通)。フォーマットは
+現状**テキスト系のみ** (md/txt/json/yaml/code 等、UTF-8 で読めるもの)。バイナリ (PDF/docx/画像)
+は検出して弾く (テキスト抽出は後続)。1 ソース 1MB 上限。
+
+- 共有コア `src/flow/spec-source.ts`: `resolveSpecText(urlOrPath)` が **http(s)→fetch /
+  それ以外→ローカルパス読み**にルートする。`fetchSpecText` / `readSpecTextFromFile` は
+  fetch / fs を注入境界にして単体テスト可能。`isTextual` で NUL バイト等のバイナリを弾く。
+- **Web ファイルアップロード** = `/flow` のファイル選択。ブラウザが `FileReader` でテキスト読み
+  → `specText` 欄へ展開 (サーバ送信は ② と同じ `specText`、サーバ改変なし)。
+- **URL / ローカルパス** = `/flow` の入力欄 → `/api/flow/start` の `specUrl` → サーバが
+  `resolveSpecText` で取得 (Web は loopback 信頼で **ローカルパス読みを許可**) → `specText` と結合。
+- **Discord 添付ファイル** = 学習フォーラム starter のテキスト系添付。`gateway.ts` が
+  `isTextLikeAttachment` で絞った添付 URL を `specAttachmentUrls` として `startForumFlow` まで運び、
+  `discord-live.ts` が URL 取得 (**ローカルパス読みは不許可** = サーバファイルを読ませない、CLAUDE.md
+  の Discord 認証境界方針) → starter 本文と結合して解析。
+- 取得失敗は学習を止めない (graceful)。①(クロール)/②③(仕様書) は併用可。
+
+> **設計メモ**: 当初 ③ は「Anatomia の解析データ直流し」を想定していたが、「仕様書を別途受け取って
+> LLM 解析 (フォーマット不定)」へ再定義した (Anatomia 連携は不採用)。
 
 ## 出力
 

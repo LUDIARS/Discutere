@@ -86,6 +86,12 @@ export const FLOW_HTML = `<!doctype html>
       <label>仕様書テキスト (貼り付け → 遊びのメカニクスを LLM 抽出して記録)
         <textarea id="specText" rows="6" placeholder="ゲーム仕様書を貼り付け (空欄なら解析しない)"></textarea>
       </label>
+      <label>ファイルから読み込む (md/txt/json 等のテキスト → 上の欄へ展開)
+        <input id="specFile" type="file" accept=".md,.txt,.json,.markdown,.text,text/*" />
+      </label>
+      <label>URL / ローカルパス (取得して解析・貼付本文と結合)
+        <input id="specUrl" type="text" placeholder="https://… または spec/feature/foo.md" style="width:80%" />
+      </label>
     </fieldset>
     <button type="submit" id="go">開始</button>
   </form>
@@ -122,6 +128,20 @@ export const FLOW_HTML = `<!doctype html>
 const $ = (id) => document.getElementById(id);
 let sessionId = null, kind = null, since = 0, timer = null;
 
+// 仕様書ファイル選択: テキストとして読み、上の specText 欄へ展開する (サーバ送信は specText で共通)。
+$("specFile").addEventListener("change", (e) => {
+  const file = e.target.files && e.target.files[0];
+  if (!file) return;
+  const reader = new FileReader();
+  reader.onload = () => {
+    const text = String(reader.result || "");
+    const cur = $("specText").value.trim();
+    $("specText").value = cur ? (cur + "\n\n" + text) : text;
+  };
+  reader.onerror = () => alert("ファイルの読み込みに失敗しました");
+  reader.readAsText(file);
+});
+
 $("start").addEventListener("submit", async (e) => {
   e.preventDefault();
   const theme = $("theme").value.trim();
@@ -136,10 +156,11 @@ $("start").addEventListener("submit", async (e) => {
   const learningAppId = $("learningAppId").value.trim() === "" ? undefined : Number($("learningAppId").value);
   const learningUrls = $("learningUrls").value.trim() || undefined;
   const specText = $("specText").value.trim() || undefined;
+  const specUrl = $("specUrl").value.trim() || undefined;
   $("go").disabled = true;
   const res = await fetch("/api/flow/start", {
     method: "POST", headers: { "content-type": "application/json" },
-    body: JSON.stringify({ theme, flow, tags, rounds, turnsPerRound, opponent, learningSource, learningQuery, learningAppId, learningUrls, specText }),
+    body: JSON.stringify({ theme, flow, tags, rounds, turnsPerRound, opponent, learningSource, learningQuery, learningAppId, learningUrls, specText, specUrl }),
   }).then(r => r.json()).catch(() => ({ ok: false, error: "通信失敗" }));
   if (!res.ok) { alert(res.error || "開始に失敗"); $("go").disabled = false; return; }
   sessionId = res.sessionId; kind = res.kind;

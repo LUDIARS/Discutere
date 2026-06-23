@@ -34,6 +34,7 @@ import {
 } from "../learning-autocrawl.js";
 import type { LearningCrawlSpec } from "../learning.js";
 import { analyzeSpecMechanics } from "../spec-analyze.js";
+import { resolveSpecText } from "../spec-source.js";
 import type { GameMechanicEntry } from "../games-md.js";
 import { gateBeforeFlow } from "../information-gate-runner.js";
 import {
@@ -289,6 +290,7 @@ flowRoutes.post("/api/flow/start", async (c) => {
     learningAppId?: unknown;
     learningUrls?: unknown;
     specText?: unknown;
+    specUrl?: unknown;
   };
   const theme = typeof body.theme === "string" ? body.theme.trim() : "";
   const flowLabel = typeof body.flow === "string" ? body.flow : "";
@@ -331,11 +333,23 @@ flowRoutes.post("/api/flow/start", async (c) => {
 
   // 学習: 短時間で完走するため await して結果を返す。
   //   - 自動収集モード (① 類似ゲーム): opinions 未供給でも横断クロール。
-  //   - 仕様書解析 (② specText): 貼付仕様書を LLM 解析 → mechanics として記録。
+  //   - 仕様書解析 (②/③ spec): 貼付/アップロード本文 (specText) + URL/パス取得 (specUrl) を
+  //     まとめて LLM 解析 → mechanics として記録。Web は loopback 信頼でローカルパス読みを許可。
   if (kind === "learning") {
     if (!deps.openCore) return c.json({ ok: false, error: "learning は Core 未設定のため不可" }, 400);
     const learningCrawl = buildLearningCrawl({ ...body, youtubeApiKey: deps.youtubeApiKey });
-    const specText = typeof body.specText === "string" ? body.specText.trim() : "";
+    const inlineSpec = typeof body.specText === "string" ? body.specText.trim() : "";
+    const specUrl = typeof body.specUrl === "string" ? body.specUrl.trim() : "";
+    // URL / ローカルパスから取得した仕様書を貼付本文と結合する (取得失敗は学習を止めない)。
+    let specText = inlineSpec;
+    if (specUrl) {
+      try {
+        const fetched = await resolveSpecText(specUrl, { allowLocalPath: true });
+        specText = specText ? `${specText}\n\n${fetched}` : fetched;
+      } catch (e) {
+        console.warn(`[flow-web/spec] 仕様書ソース取得失敗 (${specUrl}): ${(e as Error).message}`);
+      }
+    }
     const core = deps.openCore();
     try {
       let mechanics: GameMechanicEntry[] | undefined;
