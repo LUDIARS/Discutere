@@ -19,7 +19,12 @@ import type { CascadeClients } from "../crawler/sentiment/cascade.js";
 import { cascadeSentiment } from "../crawler/sentiment/cascade.js";
 import { importExternalUtterances } from "../crawler/sources/importer.js";
 import type { ExternalUtterance } from "../crawler/sources/types.js";
-import { deriveSlug } from "./learning-autocrawl.js";
+import {
+  collectAndImport,
+  deriveSlug,
+  type AutoCrawlSource,
+  type AutoCrawlSpec,
+} from "./learning-autocrawl.js";
 import { upsertGameMechanics, type GameMechanicEntry } from "./games-md.js";
 
 type Core = ReturnType<typeof createCore>;
@@ -32,6 +37,20 @@ export interface LearningOpinion {
   postedAt?: number;
 }
 
+/** 自動収集モードの指定 (① 類似ゲームの自動収集)。 */
+export interface LearningCrawlSpec {
+  /** 収集ソース群 (既定は config.flow.autoCrawl.sources)。空なら収集しない。 */
+  sources: AutoCrawlSource[];
+  /** 検索クエリ (省略時はテーマ)。 */
+  query?: string;
+  /** 1 ソースあたり取込上限 (既定 200)。 */
+  maxItems?: number;
+  /** youtube ソース用 API キー (無ければ youtube はスキップ)。 */
+  youtubeApiKey?: string;
+  /** ソース別の追加パラメータ (steam appId / website urls)。自動経路では通常未指定。 */
+  specBySource?: Partial<Record<AutoCrawlSource, Pick<AutoCrawlSpec, "appId" | "urls">>>;
+}
+
 export interface LearningFlowDeps {
   /** Discatier Core (メカニクス記録 + KG 外部発話書込)。 */
   core: Core;
@@ -39,6 +58,13 @@ export interface LearningFlowDeps {
   opinions?: LearningOpinion[];
   /** 記録するメカニクス。 */
   mechanics?: GameMechanicEntry[];
+  /**
+   * 自動収集モード (① 類似ゲームの自動収集)。指定すると、起動だけで (opinions 未供給でも)
+   * テーマで **複数ソース横断クロール → KG 取込** する。学習は明示起動なので充足ゲートは
+   * 挟まない (常に収集する。ゲート付きの事前学習は議論/改善前の information-gate が担う)。
+   * 未指定なら従来どおり opinions / mechanics の記録のみ。
+   */
+  crawl?: LearningCrawlSpec;
   /** 感情カスケードの LLM (省略時は Tier 0 辞書のみ。LLM 議論はしない)。 */
   sentimentClients?: CascadeClients;
   /** ワークスペース ID (既定 knowledge)。 */
@@ -51,6 +77,8 @@ export interface LearningFlowDeps {
   slug?: string;
   /** data/games ディレクトリ (既定 ./data/games)。 */
   gamesDir?: string;
+  /** 自動収集の取得→取込関数 (テスト用に差し替え)。既定は learning-autocrawl.collectAndImport。 */
+  collectAndImportFn?: typeof collectAndImport;
   log?: (msg: string) => void;
   warn?: (msg: string) => void;
 }
@@ -61,6 +89,10 @@ export interface LearningFlowResult {
   mechanicsRecorded: number;
   /** 付与された極性の内訳 (positive/negative/neutral 件数)。 */
   polarityBreakdown: Record<string, number>;
+  /** 自動収集モードでクロール取込した件数 (crawl 未指定なら 0)。 */
+  crawledImported: number;
+  /** ソース別のクロール取込内訳 (crawl 未指定なら空)。 */
+  crawledBySource: Record<string, number>;
 }
 
 /**
@@ -156,5 +188,44 @@ export async function runLearningFlow(
     log(`意見 ${opinionsRecorded} 件を KG に記録 (skip ${res.skipped})`);
   }
 
-  return { gameSlug: slug, opinionsRecorded, mechanicsRecorded, polarityBreakdown };
+  // ── 自動収集モード (① 類似ゲームの自動収集) ─────────────────────────────────
+  // opinions 未供給でも、テーマで複数ソース横断クロール → KG 取込する。
+  let crawledImported = 0;
+  const crawledBySource: Record<string, number> = {};
+  if (deps.crawl && deps.crawl.sources.length > 0) {
+    const doCollect = deps.collectAndImportFn ?? collectAndImport;
+    const { sources, query, maxItems, youtubeApiKey, specBySource } = deps.crawl;
+    const theme = query?.trim() || gameTitle;
+    for (const source of sources) {
+      const spec: AutoCrawlSpec = { source, query: theme, ...(specBySource?.[source] ?? {}) };
+      try {
+        const r = await doCollect({
+          core,
+          theme,
+          slug,
+          workspaceId,
+          spec,
+          maxItems,
+          youtubeApiKey,
+          log,
+          warn,
+        });
+        crawledImported += r.imported;
+        crawledBySource[source] = (crawledBySource[source] ?? 0) + r.imported;
+      } catch (err) {
+        // 1 ソースの失敗は学習全体を止めない (graceful degrade)。
+        warn(`自動収集失敗 (source=${source}): ${(err as Error).message}`);
+      }
+    }
+    log(`自動収集 ${crawledImported} 件を KG に取込 (${sources.join("/")})`);
+  }
+
+  return {
+    gameSlug: slug,
+    opinionsRecorded,
+    mechanicsRecorded,
+    polarityBreakdown,
+    crawledImported,
+    crawledBySource,
+  };
 }

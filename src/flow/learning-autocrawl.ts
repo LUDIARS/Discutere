@@ -35,6 +35,23 @@ export function isAutoCrawlSource(s: string): s is AutoCrawlSource {
   return (AUTO_CRAWL_SOURCES as string[]).includes(s);
 }
 
+/**
+ * テーマだけから自動でクロールできるソースに絞る (情報ゲート / 学習フローの自動経路共通)。
+ *   - niconico は常に可 (キー不要)。
+ *   - youtube は API キーがあれば可。キーがあれば候補に自動追加する。
+ *   - website / steam は URL / appId がテーマだけからは決まらないため自動経路では除外する
+ *     (UI / Discord の明示指定時のみ使う)。
+ */
+export function resolveAutoCrawlSources(
+  sources: readonly string[],
+  youtubeApiKey?: string
+): AutoCrawlSource[] {
+  const autoUsable = (s: string): boolean => s === "niconico" || (s === "youtube" && !!youtubeApiKey);
+  return Array.from(new Set([...sources, ...(youtubeApiKey ? ["youtube"] : [])])).filter(
+    (s): s is AutoCrawlSource => isAutoCrawlSource(s) && autoUsable(s)
+  );
+}
+
 /** テーマ → クロール発話に付ける gameSlug。 日本語は toSlug が空になるためフォールバックする。 */
 export function deriveSlug(theme: string): string {
   return toSlug(theme) || theme.trim().replace(/\s+/g, "-").slice(0, 48) || "discussion";

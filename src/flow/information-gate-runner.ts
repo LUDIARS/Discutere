@@ -14,7 +14,7 @@ import type { FlowTag } from "./tags.js";
 import type { FlowKind } from "./dispatch.js";
 import { getConfig } from "../config.js";
 import { withCostLog } from "./cost-logger.js";
-import { isAutoCrawlSource, type AutoCrawlSource } from "./learning-autocrawl.js";
+import { resolveAutoCrawlSources } from "./learning-autocrawl.js";
 import {
   isDensity,
   runInformationGate,
@@ -59,13 +59,9 @@ export async function gateBeforeFlow(args: FlowGateArgs): Promise<InformationGat
   if (kind !== "discussion" && kind !== "improvement") return null;
   if (!openCore) return null;
 
-  // クロール対象ソース: config.flow.autoCrawl.sources の有効分。youtube は API キーがあれば自動追加。
-  // website/steam は URL/appId がテーマだけからは決まらないため自動経路では除外する。
+  // クロール対象ソース: config.flow.autoCrawl.sources の自動経路で使える分 (youtube はキーがあれば追加)。
   const youtubeApiKey = process.env.DISCUTERE_YOUTUBE_API_KEY;
-  const autoUsable = (s: string): boolean => s === "niconico" || (s === "youtube" && !!youtubeApiKey);
-  const crawlSources = Array.from(
-    new Set([...crawl.sources, ...(youtubeApiKey ? ["youtube"] : [])])
-  ).filter((s): s is AutoCrawlSource => isAutoCrawlSource(s) && autoUsable(s));
+  const crawlSources = resolveAutoCrawlSources(crawl.sources, youtubeApiKey);
   if (crawlSources.length === 0) return null;
 
   const log = args.log ?? (() => {});

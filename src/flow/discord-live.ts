@@ -22,7 +22,7 @@ import type { FlowUtteranceRecord, VoteEvent } from "./director.js";
 import type { FlowRole, FlowStance } from "./personas.js";
 import { composeDisplayName } from "./persona-display.js";
 import { dispatchFlow, type DispatchDeps, type FlowKind } from "./dispatch.js";
-import { ensureLearningData, isAutoCrawlSource, deriveSlug } from "./learning-autocrawl.js";
+import { ensureLearningData, isAutoCrawlSource, resolveAutoCrawlSources, deriveSlug } from "./learning-autocrawl.js";
 import { gateBeforeFlow } from "./information-gate-runner.js";
 import {
   buildPaperDraft,
@@ -334,17 +334,35 @@ export async function startForumFlow(
         return;
       }
       await postThreadNotice(deps, input.threadId, "📚 **学習** (外部の声の収集) を開始します…");
+      // 自動収集モード: config.flow.autoCrawl の自動経路ソース横断でテーマをクロール → KG 取込。
+      const crawlCfg = getConfig().flow.autoCrawl;
+      const youtubeApiKey = process.env.DISCUTERE_YOUTUBE_API_KEY;
+      const crawlSources = crawlCfg.enabled
+        ? resolveAutoCrawlSources(crawlCfg.sources, youtubeApiKey)
+        : [];
+      const learningCrawl =
+        crawlSources.length > 0
+          ? { sources: crawlSources, maxItems: crawlCfg.maxItems, youtubeApiKey }
+          : undefined;
       const core = deps.openCore();
       try {
         const result = await dispatchFlow(
           { theme: input.theme, tags: input.tags, flow: input.flow, scene },
-          { ...dispatchDeps, core }
+          { ...dispatchDeps, core, learningCrawl }
         );
         if (result.kind === "learning") {
+          const r = result.result;
+          const collected = r.opinionsRecorded + r.crawledImported;
+          const detail =
+            r.crawledImported > 0
+              ? ` (自動収集 ${r.crawledImported} 件 / ${Object.keys(r.crawledBySource).join("/")})`
+              : "";
           await postThreadNotice(
             deps,
             input.threadId,
-            `✅ 学習完了: 「${input.theme}」を KG に取り込みました (slug=${result.result.gameSlug}).`
+            collected > 0
+              ? `✅ 学習完了: 「${input.theme}」を KG に ${collected} 件取り込みました${detail} (slug=${r.gameSlug}).`
+              : `✅ 学習完了: 「${input.theme}」(取込 0 件。収集元が見つからないか既出です。slug=${r.gameSlug}).`
           );
         }
       } finally {
