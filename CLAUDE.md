@@ -188,5 +188,11 @@ KG に大量 (41 万件超) あっても新着に埋もれた + 日本語フル�
 (情報ゲートが永遠に sparse 判定で無駄クロール、ペーパーレビューの「集めた情報 0 件」表示の主因)。
 修正: `keyword-terms.ts` の `extractKeyTerms` で議題を検索語に分解 (句読点/助詞分割・依存ゼロの素朴
 規則) し、関連語があれば **全件を SQL LIKE で照合** (直近 N 件制限を撤廃)、無ければ従来どおり直近 N 件を
-opinion-score で拾う。実 DB で 0→数十〜数百件に改善。**略称⇄正式名** (モンスト⇄モンスターストライク
-等) のエイリアス辞書は未対応 (= 既知 follow-up [[task #301]])。
+opinion-score で拾う。実 DB で 0→数十〜数百件に改善。
+
+**ゲーム名の別名展開 (#301, 2026-06-23)**: 口語略称 (「モンスト」4000 件超 vs 正式名「モンスターストライク」
+数十件) を取りこぼさないよう、検索語をゲーム名の別名で拡張する。`game-aliases.ts` が games タイトル
+"EN (JP)" を機械分解 (`parseTitleAliases`) し、機械導出できない口語略称の静的辞書 (`STATIC_ALIAS_GROUPS`)
+とマージ (`buildAliasGroups`)、`expandAliases` で検索語を双方向 (略称⇄正式名・和名⇄英名) に拡張する。
+`listRelevantExternalVoices` (ライブ RAG/ゲート/ペーパー) と `build-conclusion-cache` の materialCount の
+両方に配線。実 DB で「モンスターストライク…」32→4211 件。新ゲームは静的辞書に略称を足す。
