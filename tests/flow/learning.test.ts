@@ -102,4 +102,54 @@ assert.equal(ja.gameSlug, "モンスターストライク", "日本語タイト�
 assert.equal(ja.opinionsRecorded, 1, "日本語 slug でも意見を記録できる (旧実装は slug 空で throw)");
 console.log("  [ok] learning: 日本語タイトル + slug 未指定でも throw しない (500 修正)");
 
+// ── 自動収集モード: opinions 未供給でも横断クロールで収集する (① 類似ゲームの自動収集) ──
+// collectAndImportFn を注入してネットワーク無しで検証する (DI 境界)。
+const collectCalls: Array<{ source: string; query: string }> = [];
+const crawlResult = await runLearningFlow("Test Game", "Test Game の面白さ", {
+  core,
+  slug: "test-game",
+  gamesDir,
+  sentimentClients: { main: guardLlm },
+  // opinions 未供給 (起動だけ)。
+  crawl: { sources: ["niconico", "youtube"], maxItems: 50, youtubeApiKey: "dummy-key" },
+  collectAndImportFn: async (collectDeps) => {
+    collectCalls.push({ source: collectDeps.spec.source, query: collectDeps.spec.query ?? "" });
+    return { collected: 3, imported: collectDeps.spec.source === "niconico" ? 3 : 2 };
+  },
+});
+assert.equal(crawlResult.opinionsRecorded, 0, "opinions 未供給なので記録 0 件");
+assert.equal(crawlResult.crawledImported, 5, "自動収集の取込件数を合算 (niconico 3 + youtube 2)");
+assert.deepEqual(
+  crawlResult.crawledBySource,
+  { niconico: 3, youtube: 2 },
+  "ソース別の取込内訳を返す"
+);
+assert.deepEqual(
+  collectCalls.map((c) => c.source),
+  ["niconico", "youtube"],
+  "指定ソースを横断して collectAndImport を呼ぶ"
+);
+assert.ok(
+  collectCalls.every((c) => c.query === "Test Game の面白さ" || c.query === "Test Game"),
+  "クエリはテーマ (query 未指定時は gameTitle)"
+);
+console.log("  [ok] learning: 自動収集モードで opinions 無しでも横断クロール収集する");
+
+// ── 自動収集の 1 ソース失敗は学習全体を止めない (graceful) ──
+const partial = await runLearningFlow("Test Game", "Test Game の面白さ", {
+  core,
+  slug: "test-game",
+  gamesDir,
+  sentimentClients: { main: guardLlm },
+  crawl: { sources: ["niconico", "youtube"] },
+  collectAndImportFn: async (collectDeps) => {
+    if (collectDeps.spec.source === "youtube") throw new Error("youtube boom");
+    return { collected: 4, imported: 4 };
+  },
+  warn: () => {}, // 失敗ログは握りつぶす (テスト出力を汚さない)
+});
+assert.equal(partial.crawledImported, 4, "失敗ソースを飛ばして残りは取り込む (niconico 4)");
+assert.deepEqual(partial.crawledBySource, { niconico: 4 }, "成功ソースだけ内訳に出る");
+console.log("  [ok] learning: 自動収集の 1 ソース失敗は学習を止めない (graceful)");
+
 console.log("learning (T5) tests: all passed");

@@ -28,9 +28,11 @@ import type { FlowRole, FlowStance } from "../personas.js";
 import {
   ensureLearningData,
   isAutoCrawlSource,
+  resolveAutoCrawlSources,
   deriveSlug,
   type AutoCrawlSpec,
 } from "../learning-autocrawl.js";
+import type { LearningCrawlSpec } from "../learning.js";
 import { gateBeforeFlow } from "../information-gate-runner.js";
 import {
   buildPaperDraft,
@@ -67,6 +69,47 @@ function buildAutoCrawlSpec(body: {
       ? body.learningUrls.split(/[\s,]+/).filter(Boolean)
       : undefined;
   return { source, query, appId, urls };
+}
+
+/**
+ * 学習フローの自動収集指定を組み立てる (① 類似ゲームの自動収集)。
+ *   - UI が learningSource を明示した場合は、その単一ソース (steam/website は appId/urls 付き) を使う。
+ *   - 未指定なら config.flow.autoCrawl の自動経路ソース横断 (niconico + キーがあれば youtube)。
+ * 収集可能なソースが無ければ undefined (= 収集しない)。
+ */
+function buildLearningCrawl(body: {
+  learningSource?: unknown;
+  learningQuery?: unknown;
+  learningAppId?: unknown;
+  learningUrls?: unknown;
+}): LearningCrawlSpec | undefined {
+  const cfg = getConfig().flow.autoCrawl;
+  if (!cfg.enabled) return undefined;
+  const youtubeApiKey = process.env.DISCUTERE_YOUTUBE_API_KEY;
+  const requested = typeof body.learningSource === "string" ? body.learningSource.trim() : "";
+
+  // UI 明示ソース: buildAutoCrawlSpec の解決 (appId/urls 込み) をそのまま単一ソースに倒す。
+  if (requested) {
+    const spec = buildAutoCrawlSpec(body);
+    if (!spec) return undefined;
+    return {
+      sources: [spec.source],
+      query: spec.query,
+      maxItems: cfg.maxItems,
+      youtubeApiKey,
+      specBySource: { [spec.source]: { appId: spec.appId, urls: spec.urls } },
+    };
+  }
+
+  // 既定: config のソースを自動経路に絞って横断収集。
+  const sources = resolveAutoCrawlSources(cfg.sources, youtubeApiKey);
+  if (sources.length === 0) return undefined;
+  return {
+    sources,
+    query: typeof body.learningQuery === "string" ? body.learningQuery.trim() || undefined : undefined,
+    maxItems: cfg.maxItems,
+    youtubeApiKey,
+  };
 }
 
 /**
@@ -280,12 +323,13 @@ flowRoutes.post("/api/flow/start", async (c) => {
     return c.json({ ok: true, kind, sessionId: result.session.sessionId });
   }
 
-  // 学習: 短時間で完走するため await して結果を返す
+  // 学習: 短時間で完走するため await して結果を返す。opinions 未供給でも自動収集モードでクロールする。
   if (kind === "learning") {
     if (!deps.openCore) return c.json({ ok: false, error: "learning は Core 未設定のため不可" }, 400);
+    const learningCrawl = buildLearningCrawl(body);
     const core = deps.openCore();
     try {
-      const result = await dispatchFlow({ theme, tags, flow: kind }, { ...dispatchDeps, core });
+      const result = await dispatchFlow({ theme, tags, flow: kind }, { ...dispatchDeps, core, learningCrawl });
       if (result.kind !== "learning") return c.json({ ok: false, error: "internal" }, 500);
       return c.json({ ok: true, kind, sessionId: result.result.gameSlug, result: result.result });
     } finally {

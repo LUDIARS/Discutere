@@ -21,7 +21,7 @@ import type { ContextVoice } from "./discussion-paper.js";
 import type { YoutubeSearchFn } from "./investigate.js";
 import { runDiscussionFlow, runFlow, type FlowDirectorResult, type FlowUtteranceRecord, type VoteEvent, type PaperOverride } from "./director.js";
 import { runImprovementFlow } from "./improvement.js";
-import { runLearningFlow, type LearningFlowResult, type LearningOpinion } from "./learning.js";
+import { runLearningFlow, type LearningCrawlSpec, type LearningFlowResult, type LearningOpinion } from "./learning.js";
 import { SparringSession } from "./sparring.js";
 import type { GameMechanicEntry } from "./games-md.js";
 
@@ -65,6 +65,12 @@ export interface DispatchDeps {
   /** learning フロー入力 (収集済み匿名意見 / メカニクス)。 */
   opinions?: LearningOpinion[];
   mechanics?: GameMechanicEntry[];
+  /**
+   * learning 自動収集モード (① 類似ゲームの自動収集)。指定すると opinions 未供給でも
+   * テーマで複数ソース横断クロール → KG 取込する。Web/Discord の「学習」起動経路が
+   * config.flow.autoCrawl から組み立てて渡す。
+   */
+  learningCrawl?: LearningCrawlSpec;
   /** learning の感情カスケード LLM。 */
   sentimentClients?: CascadeClients;
   /** learning の slug 明示 (日本語タイトル用)。 */
@@ -168,6 +174,7 @@ export async function dispatchFlow(input: DispatchInput, deps: DispatchDeps): Pr
         core: deps.core,
         opinions: deps.opinions,
         mechanics: deps.mechanics,
+        crawl: deps.learningCrawl,
         sentimentClients: deps.sentimentClients,
         slug: deps.slug,
         workspaceId: deps.workspaceId,
