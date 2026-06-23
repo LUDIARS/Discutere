@@ -14,6 +14,7 @@ import { createCore } from "../../core/index.js";
 import { resolveActiveKgPath } from "../../core/kg-registry.js";
 
 import { runAdoptFromKg } from "../../flow/persona-adopt-runner.js";
+import { getInfisicalRuntimeSecret } from "../../secrets/infisical-runtime.js";
 import { importExternalUtterances } from "./importer.js";
 import { openAttributionStore } from "./attribution-store.js";
 import { openIngestedStore } from "./ingested-store.js";
@@ -34,10 +35,10 @@ import type { ExternalUtterance } from "./types.js";
 
 const STAGE_DIR = path.resolve("./data/external");
 
-function youtubeApiKey(): string {
-  const key = process.env.DISCUTERE_YOUTUBE_API_KEY;
+async function youtubeApiKey(): Promise<string> {
+  const key = await getInfisicalRuntimeSecret("DISCUTERE_YOUTUBE_API_KEY");
   if (!key) {
-    console.error("YouTube API key 未設定: env DISCUTERE_YOUTUBE_API_KEY をセットしてください");
+    console.error("YouTube API key is not configured in encrypted config: DISCUTERE_YOUTUBE_API_KEY");
     process.exit(2);
   }
   return key;
@@ -242,7 +243,7 @@ async function fetchYoutubeCommentsFor(
   return fetchVideoComments({
     videoId,
     gameSlug,
-    apiKey: youtubeApiKey(),
+    apiKey: await youtubeApiKey(),
     maxComments,
     quota: createQuotaTracker(),
     onPage: (n) => process.stderr.write(`\r  fetched ${n} comments...`),
@@ -400,7 +401,7 @@ export async function runExtFetch(rest: string[]): Promise<void> {
         console.error('usage: crawl.ts ext-fetch youtube-videos <gameSlug> --q "<query>" [--max N] [--order viewCount|relevance|date]');
         process.exit(2);
       }
-      const videos = await discoverVideosBySearch({ query, apiKey: youtubeApiKey(), maxResults: maxItems ?? 50, order });
+      const videos = await discoverVideosBySearch({ query, apiKey: await youtubeApiKey(), maxResults: maxItems ?? 50, order });
       const out = path.join(STAGE_DIR, "youtube", "videos", `${gameSlug}.jsonl`);
       writeJsonl(out, videos as VideoRef[]);
       console.log(JSON.stringify({ source, gameSlug, query, videos: videos.length, out: path.relative(process.cwd(), out) }, null, 2));
