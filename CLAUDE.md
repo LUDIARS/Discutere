@@ -147,6 +147,17 @@ bot 名義で締める (収束時 `finalizeForumPost` で lock+archive+まとめ
   単体テスト可) + グルー `information-gate-runner.ts` + 配線 `external-voices.ts`
   (`listExternalVoices` を web/discord 経路に配線した T7 follow-up)。
 
+- **ディスカッションペーパー レビューゲート (`docs/paper-review-gate.md`)**: 議論/改善の開始 **直前**に、
+  ペーパー (議題ブリーフ=議題/観点/メカニクス) と集めた情報を **人間が確認 → 自然文で調整 → 承認**
+  してから議論を始めるゲート。設定 `flow.paperReview.enabled` (既定 **false** = opt-in)。共有コア
+  `src/flow/paper-review.ts` (`buildPaperDraft`/`applyPaperEdit`/`coercePaperDraft`/`renderPaperReview`/
+  `isApprovalText`) を Discord/Web 両トランスポートが使う。確定ペーパーは `runFlow(paperOverride)` に渡り
+  investigate (step 1) を省略してそのメカニクス/観点補足で議論する (議題/タグは通常引数)。Discord は
+  スレッド返信で調整 (例「メカニクスにガチャを追加」)+「開始」で承認 (`discord-live` の
+  `paperReviewByThread` / `handlePaperReviewReply`、gateway で壁打ちより優先ルート)。Web は
+  `/api/flow/:session/paper`(取得ポーリング)+`/paper/edit`(NL 調整)+`/paper/approve`(承認・body の
+  直接編集ペーパー可) で確認フォーム調整。無効時は従来どおり情報ゲート後に自動開始。
+
 ## 個人データ
 
 匿名 workspace (`DISCATIER_WORKSPACE` 既定 `knowledge`)。攻略 KG / 議論ノードに編集者名・アカウント名を保存しない (`spec/crawler/DESIGN.md` 準拠)。

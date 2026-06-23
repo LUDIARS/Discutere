@@ -19,7 +19,7 @@ import type { CascadeClients } from "../crawler/sentiment/cascade.js";
 import type { FlowTag } from "./tags.js";
 import type { ContextVoice } from "./discussion-paper.js";
 import type { YoutubeSearchFn } from "./investigate.js";
-import { runDiscussionFlow, runFlow, type FlowDirectorResult, type FlowUtteranceRecord, type VoteEvent } from "./director.js";
+import { runDiscussionFlow, runFlow, type FlowDirectorResult, type FlowUtteranceRecord, type VoteEvent, type PaperOverride } from "./director.js";
 import { runImprovementFlow } from "./improvement.js";
 import { runLearningFlow, type LearningFlowResult, type LearningOpinion } from "./learning.js";
 import { SparringSession } from "./sparring.js";
@@ -79,6 +79,11 @@ export interface DispatchDeps {
   workspaceId?: string;
   /** WebUI が起動前に id を返すための固定 sessionId (discussion/improvement)。 */
   sessionId?: string;
+  /**
+   * 確定済みディスカッションペーパー (人間レビューゲートで承認したもの)。
+   * discussion/improvement のみ反映。指定時は investigate を省略する。
+   */
+  paperOverride?: PaperOverride;
   log?: (msg: string) => void;
   warn?: (msg: string) => void;
   /**
@@ -139,6 +144,7 @@ export async function dispatchFlow(input: DispatchInput, deps: DispatchDeps): Pr
     rng: deps.rng,
     gamesDir: deps.gamesDir,
     sessionId: deps.sessionId,
+    paperOverride: deps.paperOverride,
     log: deps.log,
     warn: deps.warn,
     // 議論ごとのラウンド/ターン数 (discussion/improvement のみ。runFlow が config 既定にフォールバック)。
