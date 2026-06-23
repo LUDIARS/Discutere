@@ -18,6 +18,7 @@ import "./learning.test.js";
 import "./rule-self-edit.test.js";
 import "./external-voices.test.js";
 import "./external-voices-lookup.test.js";
+import "./game-aliases.test.js";
 import "./local-openai.test.js";
 
 console.log("persona-engine tests: all passed");

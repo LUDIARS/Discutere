@@ -25,12 +25,19 @@ import {
 } from "../src/visualize/conclusion-cache.js";
 import type { ConclusionSummary } from "../src/visualize/conclusions.js";
 import { topicTermsFromTitle } from "../src/visualize/topic-terms.js";
+import { buildAliasGroups, expandAliases } from "../src/discatier-engine-adapter/game-aliases.js";
 
 type Core = ReturnType<typeof createCore>;
 
 /** 話題に紐づく外部クロール材料の件数を KG から直接 COUNT する (上限なし)。 */
-function countTopicMaterial(core: Core, workspaceId: string, title: string): number {
-  const terms = topicTermsFromTitle(title);
+function countTopicMaterial(
+  core: Core,
+  workspaceId: string,
+  title: string,
+  aliasGroups: string[][]
+): number {
+  // 話題語をゲーム名の別名 (略称⇄正式名) で拡張して取りこぼしを減らす (#301)。
+  const terms = expandAliases(topicTermsFromTitle(title), aliasGroups);
   if (terms.length === 0) return 0;
   // term ごとの LIKE を OR 連結し、重複なく 1 回でカウントする。
   const where = terms.map(() => "lower(raw_content) LIKE ?").join(" OR ");
@@ -50,6 +57,13 @@ function main(): void {
   const flowDb = getFlowDb();
   const core = createCore(resolveActiveKgPath(config));
   const onlyMaterial = process.argv.includes("--material-only");
+  // ゲーム名の別名グループは KG の games タイトルから 1 回だけ構築 (略称⇄正式名・和名⇄英名)。
+  const titles = (
+    core.client.raw
+      .prepare("SELECT title FROM games WHERE workspace_id = ?")
+      .all(config.workspace) as Array<{ title: string }>
+  ).map((g) => g.title);
+  const aliasGroups = buildAliasGroups(titles);
   try {
     if (!onlyMaterial) {
       // 1) 全結論を upsert (発話数 = discussionVolume)。materialCount は温存 (-1 渡し)。
@@ -67,7 +81,7 @@ function main(): void {
 
     // 2) materialCount を別途算出して書き戻す (重い KG スキャン)。
     const updated = recomputeMaterialCounts(flowDb, (s) =>
-      countTopicMaterial(core, config.workspace, s.title)
+      countTopicMaterial(core, config.workspace, s.title, aliasGroups)
     );
     console.log(`materialCount recomputed: ${updated} rows`);
   } finally {

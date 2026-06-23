@@ -25,6 +25,7 @@ import { listExcludedIds } from "../core/noise/exclusions.js";
 import { openAttributionStore } from "../crawler/sources/attribution-store.js";
 import { maskedPersonaLabel } from "../crawler/sources/persona.js";
 import { extractKeyTerms } from "./keyword-terms.js";
+import { buildAliasGroups, expandAliases } from "./game-aliases.js";
 
 type Core = ReturnType<typeof createCore>;
 
@@ -169,7 +170,21 @@ export function createDiscatierContextProvider(
       const RECENT_CAP = 300; // 関連語が無い時に opinion で拾う直近件数。
       const KEYWORD_CAP = 2000; // LIKE 一致候補の上限 (早期打ち切りで全件 LIKE でも軽い)。
       const CONTENT_CAP = 200; // prompt トークン節約: 1 件の本文上限。
-      const keyTerms = extractKeyTerms(terms);
+      // 議題語を分解し、ゲーム名の別名 (略称⇄正式名・和名⇄英名) で拡張する (#301)。
+      // 例:「モンスターストライク」→「モンスト」も照合に含め、口語略称の材料を取りこぼさない。
+      let keyTerms = extractKeyTerms(terms);
+      if (keyTerms.length > 0) {
+        try {
+          const titles = (
+            core.client.raw
+              .prepare("SELECT title FROM games WHERE workspace_id = ?")
+              .all(workspaceId) as Array<{ title: string }>
+          ).map((g) => g.title);
+          keyTerms = expandAliases(keyTerms, buildAliasGroups(titles));
+        } catch {
+          // games 取得に失敗しても分解済みの語で続行 (別名拡張は best-effort)。
+        }
+      }
       // opinion_scores はリアクション系テーブル。 boot 前/単体呼び出しでも落ちないよう冪等保証。
       ensureReactionTables(core.client.raw);
       const excluded = listExcludedIds(core.client.raw);
