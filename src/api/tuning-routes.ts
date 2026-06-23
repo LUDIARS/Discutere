@@ -22,6 +22,12 @@
 import { Hono } from "hono";
 
 import type { RuntimeSettingsStore } from "../runtime-settings/store.js";
+import { readGcloudSecret } from "../secrets/gcloud-secret.js";
+import {
+  getInfisicalRuntimeSecret,
+  getInfisicalRuntimeSecretStatus,
+  setInfisicalRuntimeSecret,
+} from "../secrets/infisical-runtime.js";
 
 let store: RuntimeSettingsStore | null = null;
 
@@ -36,6 +42,7 @@ export function setRuleReseeder(fn: (() => void) | null): void {
 }
 
 const tuningRoutes = new Hono();
+const YOUTUBE_API_KEY = "DISCUTERE_YOUTUBE_API_KEY";
 
 tuningRoutes.get("/admin/tuning/data", (c) => {
   if (!store) return c.json({ enabled: false }, 503);
@@ -45,7 +52,50 @@ tuningRoutes.get("/admin/tuning/data", (c) => {
     rolePrompts: store.listRolePrompts(),
     ruleInstructions: store.listRuleInstructions(),
     costRelay: store.getCostRelay(),
+    secrets: {
+      youtubeApiKey: getInfisicalRuntimeSecretStatus(YOUTUBE_API_KEY),
+    },
   });
+});
+
+tuningRoutes.post("/admin/tuning/secrets/youtube-api-key/refresh", async (c) => {
+  try {
+    const value = await getInfisicalRuntimeSecret(YOUTUBE_API_KEY, { refresh: true });
+    return c.json({ ok: true, youtubeApiKey: { ...getInfisicalRuntimeSecretStatus(YOUTUBE_API_KEY), present: !!value } });
+  } catch (err) {
+    return c.json({ ok: false, error: (err as Error).message }, 500);
+  }
+});
+
+tuningRoutes.put("/admin/tuning/secrets/youtube-api-key", async (c) => {
+  const body = (await c.req.json().catch(() => ({}))) as Record<string, unknown>;
+  const apiKey = typeof body.apiKey === "string" ? body.apiKey.trim() : "";
+  if (!apiKey) return c.json({ ok: false, error: "apiKey required" }, 400);
+  try {
+    await setInfisicalRuntimeSecret(YOUTUBE_API_KEY, apiKey);
+    return c.json({ ok: true, youtubeApiKey: getInfisicalRuntimeSecretStatus(YOUTUBE_API_KEY) });
+  } catch (err) {
+    return c.json({ ok: false, error: (err as Error).message }, 500);
+  }
+});
+
+tuningRoutes.post("/admin/tuning/secrets/youtube-api-key/gcloud", async (c) => {
+  const body = (await c.req.json().catch(() => ({}))) as Record<string, unknown>;
+  const secret =
+    typeof body.secret === "string" && body.secret.trim()
+      ? body.secret.trim()
+      : "discutere-youtube-api-key";
+  const version =
+    typeof body.version === "string" && body.version.trim() ? body.version.trim() : "latest";
+  const project = typeof body.project === "string" && body.project.trim() ? body.project.trim() : undefined;
+  try {
+    const value = await readGcloudSecret({ secret, version, project });
+    if (!value) return c.json({ ok: false, error: "gcloud returned an empty secret value" }, 502);
+    await setInfisicalRuntimeSecret(YOUTUBE_API_KEY, value);
+    return c.json({ ok: true, secret, version, youtubeApiKey: getInfisicalRuntimeSecretStatus(YOUTUBE_API_KEY) });
+  } catch (err) {
+    return c.json({ ok: false, error: (err as Error).message }, 500);
+  }
 });
 
 tuningRoutes.put("/admin/tuning/cost-relay", async (c) => {
@@ -146,6 +196,24 @@ const TUNING_HTML = `<!doctype html>
    <span id="crMsg" class="ok"></span>
  </div>
 
+ <h2>YouTube API key</h2>
+ <div class="card">
+   <p class="muted" style="margin:0 0 8px">Infisical に保存します。保存・再読込後は再起動なしで、次の YouTube crawl から使われます。key 本文は表示しません。</p>
+   <div class="muted" id="yt_status">loading...</div>
+   <label>API key を直接保存</label>
+   <input id="yt_apiKey" type="password" autocomplete="off" placeholder="AIza...">
+   <button onclick="saveYoutubeKey()">保存して即時反映</button>
+   <button class="ghost" onclick="refreshYoutubeKey()">Infisical から再読込</button>
+   <span id="ytMsg" class="ok"></span>
+   <div class="row">
+     <div><label>gcloud secret 名</label><input id="yt_gcloud_secret" type="text" value="discutere-youtube-api-key"></div>
+     <div><label>GCP project (任意)</label><input id="yt_gcloud_project" type="text" placeholder="project-id"></div>
+     <div><label>version</label><input id="yt_gcloud_version" type="text" value="latest"></div>
+   </div>
+   <button onclick="importYoutubeKeyFromGcloud()">gcloud から取得して保存</button>
+   <span id="ytGcloudMsg" class="ok"></span>
+ </div>
+
  <h2>役割プロンプト</h2>
  <div id="roles"></div>
 
@@ -166,8 +234,16 @@ async function load(){
   document.getElementById('cr_anatomiaUrl').value=cr.anatomiaUrl||'';
   document.getElementById('cr_concordiaUrl').value=cr.concordiaUrl||'';
   document.getElementById('cr_service').value=cr.service||'';
+  renderYoutubeStatus(DATA.secrets&&DATA.secrets.youtubeApiKey);
   document.getElementById('roles').innerHTML=DATA.rolePrompts.map((p,i)=>roleCard(p,i)).join('');
   document.getElementById('rules').innerHTML=DATA.ruleInstructions.map((p,i)=>ruleCard(p,i)).join('');
+}
+function renderYoutubeStatus(s){
+  const e=document.getElementById('yt_status'); if(!e) return;
+  if(!s){ e.textContent='status unavailable'; return; }
+  e.innerHTML='Infisical bootstrap: '+(s.bootstrapConfigured?'<span class="ok">ready</span>':'missing')+
+    ' / runtime cache: '+(s.cached?'loaded':'not loaded')+
+    ' / key: '+(s.present?'<span class="ok">configured</span>':'not configured');
 }
 function roleCard(p,i){
   const role=p.key.replace(/^rolePrompt:/,'');
@@ -204,6 +280,31 @@ async function saveCostRelay(){
   };
   await put('/api/admin/tuning/cost-relay',body);
   flash('crMsg','保存しました (次 tick で反映)'); load();
+}
+async function saveYoutubeKey(){
+  const apiKey=document.getElementById('yt_apiKey').value.trim();
+  if(!apiKey){ flash('ytMsg','apiKey required'); return; }
+  const r=await put('/api/admin/tuning/secrets/youtube-api-key',{apiKey});
+  if(!r.ok){ flash('ytMsg',r.error||'failed'); return; }
+  document.getElementById('yt_apiKey').value='';
+  flash('ytMsg','保存しました。次の crawl から反映されます'); load();
+}
+async function refreshYoutubeKey(){
+  const r=await fetch('/api/admin/tuning/secrets/youtube-api-key/refresh',{method:'POST'});
+  const j=await r.json();
+  if(!j.ok){ flash('ytMsg',j.error||'failed'); return; }
+  flash('ytMsg','再読込しました'); load();
+}
+async function importYoutubeKeyFromGcloud(){
+  const body={
+    secret:document.getElementById('yt_gcloud_secret').value,
+    project:document.getElementById('yt_gcloud_project').value,
+    version:document.getElementById('yt_gcloud_version').value,
+  };
+  const r=await fetch('/api/admin/tuning/secrets/youtube-api-key/gcloud',{method:'POST',headers:{'content-type':'application/json'},body:JSON.stringify(body)});
+  const j=await r.json();
+  if(!j.ok){ flash('ytGcloudMsg',j.error||'failed'); return; }
+  flash('ytGcloudMsg','gcloud から保存しました。次の crawl から反映されます'); load();
 }
 async function saveRole(role,i){ await put('/api/admin/tuning/role',{role,text:document.getElementById('role_'+i).value}); flash('roleMsg_'+i,'保存'); load(); }
 async function resetRole(role){ await put('/api/admin/tuning/role',{role,text:null}); load(); }

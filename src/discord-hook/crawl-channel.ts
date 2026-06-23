@@ -142,6 +142,7 @@ export interface CrawlDeps {
   workspaceId: string;
   /** YouTube Data API key (未設定なら youtube URL はエラーにする) */
   youtubeApiKey?: string | null;
+  getYoutubeApiKey?: () => Promise<string | null>;
   /** Reddit OAuth 認証 (未設定なら reddit URL はエラーにする) */
   reddit?: RedditCredentials | null;
   /** website 記事の要約器 (id=67)。 渡せば長文 website を要約/raw 2 層で取り込む。 */
@@ -153,11 +154,12 @@ async function fetchForTarget(t: CrawlTarget, gameSlug: string, deps: CrawlDeps)
     return fetchSteamReviews({ appId: t.appId, gameSlug, maxReviews: CRAWL_CAPS.steamReviews });
   }
   if (t.kind === "youtube" && t.videoId) {
-    if (!deps.youtubeApiKey) throw new Error("YouTube API key 未設定 (DISCUTERE_YOUTUBE_API_KEY)");
+    const youtubeApiKey = deps.getYoutubeApiKey ? await deps.getYoutubeApiKey() : deps.youtubeApiKey;
+    if (!youtubeApiKey) throw new Error("YouTube API key 未設定 (DISCUTERE_YOUTUBE_API_KEY)");
     return fetchVideoComments({
       videoId: t.videoId,
       gameSlug,
-      apiKey: deps.youtubeApiKey,
+      apiKey: youtubeApiKey,
       maxComments: CRAWL_CAPS.youtubeComments,
       quota: createQuotaTracker(),
     });

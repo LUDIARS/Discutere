@@ -149,7 +149,7 @@ async function main(): Promise<void> {
   console.log(`Storing ${args.targetKey} in Infisical (${bootstrap.environment})...`);
   const token = await authenticate(bootstrap);
   await upsertSecret(bootstrap, token, args.targetKey, value);
-  console.log(`${args.targetKey} is stored in encrypted config. Restart Di to load it directly from Infisical.`);
+  console.log(`${args.targetKey} is stored in encrypted config. Use the tuning UI refresh action to reload it without restarting Di.`);
 }
 
 main().catch((err) => {

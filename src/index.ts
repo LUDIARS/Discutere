@@ -78,11 +78,17 @@ import "./db/connection.js";
 installConsoleCapture();
 
 const config = getConfig();
-const youtubeApiKey = await getInfisicalRuntimeSecret("DISCUTERE_YOUTUBE_API_KEY").catch((err) => {
+const YOUTUBE_API_KEY = "DISCUTERE_YOUTUBE_API_KEY";
+const initialYoutubeApiKey = await getInfisicalRuntimeSecret(YOUTUBE_API_KEY, { refresh: true }).catch((err) => {
   console.warn(`  secrets: DISCUTERE_YOUTUBE_API_KEY fetch skipped: ${(err as Error).message}`);
   return null;
 });
-if (youtubeApiKey) console.log("  secrets: DISCUTERE_YOUTUBE_API_KEY loaded from encrypted config");
+if (initialYoutubeApiKey) console.log("  secrets: DISCUTERE_YOUTUBE_API_KEY loaded from encrypted config");
+const getYoutubeApiKey = (): Promise<string | null> =>
+  getInfisicalRuntimeSecret(YOUTUBE_API_KEY).catch((err) => {
+    console.warn(`  secrets: DISCUTERE_YOUTUBE_API_KEY fetch skipped: ${(err as Error).message}`);
+    return null;
+  });
 const app = new Hono();
 
 const frontendUrl = config.server.frontendUrl;
@@ -638,7 +644,7 @@ if (flowEngineLlm) {
     // 外部の声 RAG + 情報ゲートの密度評価に active KG の実材料を流す (T7 follow-up 配線)。
     listExternalVoices: makeListExternalVoices(() => createCore(resolveActiveKgPath(config)), config.workspace),
     sentimentClients: { main: flowLlm },
-    youtubeApiKey,
+    getYoutubeApiKey,
   });
   app.route("/", flowRoutes);
   console.log("  flow-ui: /flow (loopback) — 議論/改善/学習/壁打ち を起動");
@@ -725,7 +731,7 @@ const discordGatewayLifecycle = startDiscordGateway({
         listExternalVoices: makeListExternalVoices(() => createCore(resolveActiveKgPath(config)), config.workspace),
         sentimentClients: { main: flowEngineLlm },
         workspaceId: config.workspace,
-        youtubeApiKey,
+        getYoutubeApiKey,
       }
     : undefined,
   // /debate のパーティ議論 (司会+キーマン+意見、想定発話数で続行/停止)。
@@ -740,7 +746,7 @@ const discordGatewayLifecycle = startDiscordGateway({
   crawlDeps: {
     createCore: () => createCore(resolveActiveKgPath(config)),
     workspaceId: config.workspace,
-    youtubeApiKey,
+    getYoutubeApiKey,
     reddit:
       process.env.DISCUTERE_REDDIT_CLIENT_ID && process.env.DISCUTERE_REDDIT_CLIENT_SECRET
         ? {
