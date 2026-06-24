@@ -114,7 +114,7 @@ export async function getInfisicalRuntimeSecret(
 ): Promise<string | null> {
   if (!opts.refresh && secretCache.has(key)) return secretCache.get(key) ?? null;
   const bootstrap = loadInfisicalBootstrap();
-  if (!bootstrap) return process.env[key] ?? null;
+  if (!bootstrap) return null;
   const token = await authenticate(bootstrap);
   const value = await fetchSecret(bootstrap, token, key);
   secretCache.set(key, value);
