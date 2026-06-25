@@ -341,6 +341,14 @@ export function isApprovalText(text: string): boolean {
   return exact.has(t);
 }
 
+/** 「戻す」語かどうか (Discord ペーパーレビューで 1 手前に戻す。Web の ↶戻すと対応)。 */
+export function isRevertText(text: string): boolean {
+  const t = text.trim().toLowerCase().replace(/[。.!！\s]+$/, "");
+  if (!t) return false;
+  const exact = new Set(["戻す", "戻して", "もどす", "取り消し", "取消", "undo", "revert", "↶", "↩"]);
+  return exact.has(t);
+}
+
 // ── Notion 風ブロック編集の補佐 (Web) ────────────────────────────────────────
 
 export interface BlockReviewResult {

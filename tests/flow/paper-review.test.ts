@@ -14,6 +14,7 @@ import {
   coercePaperDraft,
   renderPaperReview,
   isApprovalText,
+  isRevertText,
   reviewBlock,
   gatherEvidence,
   withDerivedBody,
@@ -121,6 +122,17 @@ const NONEXISTENT_GAMES = path.join(os.tmpdir(), "discutere-no-such-games-dir");
   for (const t of ["", "メカニクスにガチャを追加", "もっと否定的に", "開始したい理由は"]) {
     assert.equal(isApprovalText(t), false, `${t} は承認語でない`);
   }
+}
+
+// ── isRevertText (Discord 「戻す」パリティ) ───────────────────────────────────
+{
+  for (const t of ["戻す", "戻して", "undo", "revert", "↶", "取り消し"]) {
+    assert.equal(isRevertText(t), true, `${t} は戻す語`);
+  }
+  for (const t of ["", "開始", "メカニクスを戻して具体化", "もっと簡単に"]) {
+    assert.equal(isRevertText(t), false, `${t} は戻す語でない`);
+  }
+  console.log("  [ok] isRevertText: 戻す語の判定 (調整指示と区別)");
 }
 
 // ── renderPaperReview ────────────────────────────────────────────────────────

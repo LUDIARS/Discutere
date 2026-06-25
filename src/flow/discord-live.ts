@@ -32,9 +32,13 @@ import {
   applyPaperEdit,
   renderPaperReview,
   isApprovalText,
+  isRevertText,
+  withDerivedStructure,
   type PaperDraft,
   type PaperReviewInfo,
 } from "./paper-review.js";
+import { persistDraftPaper, getDraftPaper } from "./discussion-paper.js";
+import { appendRevision, revertLast, canRevert } from "./paper-revisions.js";
 import { getConfig } from "../config.js";
 import type { SparringSession } from "./sparring.js";
 import {
@@ -121,9 +125,9 @@ export function hasSparringSession(threadId: string): boolean {
   return sparringByThread.has(threadId);
 }
 
-/** そのスレッドでペーパーレビュー待ちか。 */
+/** そのスレッドでペーパーレビュー待ちか (メモリ + 永続ドラフトの両方を見る)。 */
 export function hasPaperReview(threadId: string): boolean {
-  return paperReviewByThread.has(threadId);
+  return paperReviewByThread.has(threadId) || getDraftPaper(threadId) !== null;
 }
 
 /** 1 議論ぶんの投稿コンテキスト (utterance_id → 投稿 message_id を保持し、投票で参照する)。 */
@@ -454,9 +458,28 @@ async function startPaperReview(
     warn: (m) => console.warn(`  [paper-review ${input.threadId}] ${m}`),
   });
   paperReviewByThread.set(input.threadId, { input, draft, info, hooks });
+  // ドラフトを discussion_paper(status='draft') に永続 → 議論一覧に「下書き」として出す/再開できる
+  // (session_id=threadId。承認時に同 session 行を 'started' へ upsert する)。
+  persistDiscordDraft(input, draft);
+  appendRevision({ sessionId: input.threadId, bodyMd: draft.bodyMd, changeSummary: "初期草案", origin: "initial" });
   await postThreadNotice(deps, input.threadId, renderPaperReview(draft, info));
   await postThreadNotice(deps, input.threadId, approvalGuide());
   scheduleReviewAutoStart(input.threadId, deps);
+}
+
+/** Discord レビュー草案を discussion_paper(status='draft') に永続/同期する (session_id=threadId)。 */
+function persistDiscordDraft(input: StartForumFlowInput, draft: PaperDraft): void {
+  persistDraftPaper(
+    {
+      sessionId: input.threadId,
+      theme: draft.theme,
+      tags: draft.tags,
+      mechanics: draft.mechanics,
+      supplement: draft.supplement,
+      bodyMd: draft.bodyMd,
+    },
+    input.flow
+  );
 }
 
 /** レビュー承認の案内文 (タイムアウト設定があれば併記)。 */
@@ -488,6 +511,7 @@ function scheduleReviewAutoStart(threadId: string, deps: FlowDiscordDeps): void 
       await runDiscussionDispatch(p.input, deps, p.hooks, {
         mechanics: p.draft.mechanics,
         supplement: p.draft.supplement,
+        bodyMd: p.draft.bodyMd,
       });
     })().catch((err) =>
       console.warn(`  flow-live: ペーパー自動開始失敗 (thread=${threadId}): ${(err as Error).message}`)
@@ -501,7 +525,7 @@ async function runDiscussionDispatch(
   input: StartForumFlowInput,
   deps: FlowDiscordDeps,
   hooks?: FlowLiveHooks,
-  paperOverride?: { mechanics: PaperDraft["mechanics"]; supplement: string }
+  paperOverride?: { mechanics: PaperDraft["mechanics"]; supplement: string; bodyMd?: string }
 ): Promise<void> {
   const scene = `discord:${input.guildId}/${input.threadId}`;
   const dispatchDeps = buildDispatchDeps(deps, input.threadId);
@@ -514,7 +538,8 @@ async function runDiscussionDispatch(
       rounds: input.rounds,
       turnsPerRound: input.turnsPerRound,
     },
-    { ...dispatchDeps, paperOverride }
+    // session_id=threadId: 編集ゲートの draft 行を 'started' に upsert する (重複行を作らない)。
+    { ...dispatchDeps, sessionId: input.threadId, paperOverride }
   );
   if (result.kind === "discussion" || result.kind === "improvement") {
     const r = result.result;
@@ -530,14 +555,70 @@ async function runDiscussionDispatch(
  *   - それ以外 → 自然文の調整指示として LLM でペーパーに反映し、更新版を再掲する。
  * @returns レビュー返信として処理したら true (= 通常ルーティング不要)。
  */
+/**
+ * 永続ドラフト (status='draft') からレビュー待ちをメモリに復元する (再起動/プロセス跨ぎの再開)。
+ * guildId は返信コンテキストから来た値を使う (draft 行に guildId は持たない)。無ければ null。
+ */
+function rehydratePaperReview(
+  threadId: string,
+  guildId: string,
+  hooks?: FlowLiveHooks
+): PendingPaperReview | null {
+  const row = getDraftPaper(threadId);
+  if (!row) return null;
+  const draft = withDerivedStructure(row.bodyMd, {
+    theme: row.theme,
+    tags: row.tags,
+    supplement: row.supplement,
+    mechanics: row.mechanics,
+  });
+  const input: StartForumFlowInput = {
+    guildId,
+    threadId,
+    theme: row.theme,
+    flow: row.flow as FlowKind,
+    tags: row.tags,
+  };
+  // 復元時は集めた情報サンプルは持たない (件数表示のみ最小)。
+  const info: PaperReviewInfo = { voiceCount: 0, countCapped: false, samples: [] };
+  const pending: PendingPaperReview = { input, draft, info, hooks };
+  paperReviewByThread.set(threadId, pending);
+  return pending;
+}
+
+/** レビュー中ペーパーを 1 手前に戻す (Web の ↶戻すと対応)。 */
+async function handlePaperReviewRevert(
+  threadId: string,
+  pending: PendingPaperReview,
+  deps: FlowDiscordDeps
+): Promise<void> {
+  if (!canRevert(threadId)) {
+    await postThreadNotice(deps, threadId, "↶ これ以上戻せません。");
+    return;
+  }
+  const reverted = revertLast(threadId);
+  if (!reverted) {
+    await postThreadNotice(deps, threadId, "↶ これ以上戻せません。");
+    return;
+  }
+  pending.draft = withDerivedStructure(reverted.bodyMd, pending.draft);
+  pending.input = { ...pending.input, theme: pending.draft.theme, tags: pending.draft.tags };
+  persistDiscordDraft(pending.input, pending.draft);
+  paperReviewByThread.set(threadId, pending);
+  scheduleReviewAutoStart(threadId, deps);
+  await postThreadNotice(deps, threadId, `↶ ${reverted.changeSummary || "1 手前に戻しました"}`);
+  await postThreadNotice(deps, threadId, renderPaperReview(pending.draft, pending.info));
+}
+
 export async function handlePaperReviewReply(
   threadId: string,
-  _guildId: string,
+  guildId: string,
   text: string,
   deps: FlowDiscordDeps,
   hooks?: FlowLiveHooks
 ): Promise<boolean> {
-  const pending = paperReviewByThread.get(threadId);
+  // メモリに無くても永続ドラフト (status='draft') があれば再開する (再起動/別プロセス跨ぎ)。
+  const pending = paperReviewByThread.get(threadId) ?? rehydratePaperReview(threadId, guildId, hooks);
   if (!pending) return false;
   const trimmed = text.trim();
   if (!trimmed) return true; // 空返信は無視 (レビューは継続)
@@ -546,6 +627,12 @@ export async function handlePaperReviewReply(
     // 承認 → 確定ペーパーで議論開始。
     if (isApprovalText(trimmed)) {
       await handlePaperReviewApproval(threadId, deps, hooks);
+      return true;
+    }
+
+    // 戻す → 1 手前の本文に戻す (Web の ↶戻すと対応)。
+    if (isRevertText(trimmed)) {
+      await handlePaperReviewRevert(threadId, pending, deps);
       return true;
     }
 
@@ -562,8 +649,11 @@ export async function handlePaperReviewReply(
 
     await postThreadNotice(deps, threadId, `📝 ${edited.changeSummary}`);
     if (edited.applied) {
+      // 版履歴に追記 (戻すの基点) + 一覧の下書き行を最新内容に同期。
+      appendRevision({ sessionId: threadId, bodyMd: edited.draft.bodyMd, changeSummary: edited.changeSummary, origin: "llm-edit" });
+      persistDiscordDraft(pending.input, pending.draft);
       await postThreadNotice(deps, threadId, renderPaperReview(pending.draft, pending.info));
-      await postThreadNotice(deps, threadId, "他に調整があれば返信、よければ **「開始」** と返信 (または ✅) してください。");
+      await postThreadNotice(deps, threadId, "他に調整があれば返信、よければ **「開始」** と返信 (または ✅)、1 手戻すなら **「戻す」** と返信してください。");
     }
   } catch (err) {
     console.warn(`  flow-live: ペーパーレビュー返信処理失敗 (thread=${threadId}): ${(err as Error).message}`);
@@ -579,9 +669,12 @@ export async function handlePaperReviewReply(
 export async function handlePaperReviewApproval(
   threadId: string,
   deps: FlowDiscordDeps,
-  hooks?: FlowLiveHooks
+  hooks?: FlowLiveHooks,
+  /** メモリに無い時の再開用 guildId (✅ リアクション経路から。scene 用)。 */
+  guildId?: string
 ): Promise<boolean> {
-  const pending = paperReviewByThread.get(threadId);
+  const pending =
+    paperReviewByThread.get(threadId) ?? rehydratePaperReview(threadId, guildId ?? "dm", hooks);
   if (!pending) return false;
   if (pending.timer) clearTimeout(pending.timer);
   paperReviewByThread.delete(threadId);
@@ -589,6 +682,7 @@ export async function handlePaperReviewApproval(
   await runDiscussionDispatch(pending.input, deps, pending.hooks ?? hooks, {
     mechanics: pending.draft.mechanics,
     supplement: pending.draft.supplement,
+    bodyMd: pending.draft.bodyMd,
   });
   return true;
 }

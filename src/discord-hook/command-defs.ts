@@ -80,6 +80,23 @@ export const DISCORD_COMMAND_DEFS: RESTPostAPIChatInputApplicationCommandsJSONBo
     ],
   },
   {
+    name: "discutere-discussions",
+    description: "議論一覧を表示 (下書き/進行中/結論あり。state で絞り込み)",
+    options: [
+      {
+        name: "state",
+        description: "絞り込み (省略で全件)",
+        type: ApplicationCommandOptionType.String,
+        required: false,
+        choices: [
+          { name: "draft (下書き)", value: "draft" },
+          { name: "live (進行中)", value: "live" },
+          { name: "concluded (結論あり)", value: "concluded" },
+        ],
+      },
+    ],
+  },
+  {
     name: "debate",
     description: "議題でパーティ議論を開始 (司会+キーマン+意見、想定発話数で続行/停止を問う)",
     options: [

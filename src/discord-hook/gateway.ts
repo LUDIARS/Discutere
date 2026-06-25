@@ -644,7 +644,8 @@ export async function startDiscordGateway(
       // ペーパーレビュー承認: ✅ をレビュー中スレッドに付けたら議論を開始する (スコアリングより優先)。
       if (emoji === "✅" && deps.flowLive && hasPaperReview(channelId)) {
         const flowLive = deps.flowLive;
-        void handlePaperReviewApproval(channelId, flowLive, flowHooks).catch((err) =>
+        const reactGuildId = reaction.message?.guildId ?? "dm";
+        void handlePaperReviewApproval(channelId, flowLive, flowHooks, reactGuildId).catch((err) =>
           console.warn(`  discord-forum: ペーパー承認 (reaction) 失敗: ${(err as Error).message}`)
         );
         return;
