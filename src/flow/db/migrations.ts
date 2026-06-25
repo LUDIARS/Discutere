@@ -261,6 +261,14 @@ const MIGRATIONS: Array<{ id: string; sql: string[] }> = [
       `CREATE INDEX IF NOT EXISTS idx_paper_revision_session ON discussion_paper_revision(session_id, rev)`,
     ],
   },
+  {
+    // ペーパーのライフサイクル状態。'draft'=編集中(未確定) / 'started'=議論開始済み。
+    //  - 編集ゲートで草案が ready になった時点で 'draft' 行を作り、議論一覧に「下書き」として出す。
+    //  - 確定 (approve→runFlow の persistPaper) で同 session 行を 'started' に upsert する。
+    // 既存行は 'started' 既定 (= 旧来は開始時のみ永続だったため)。
+    id: "flow_0013_paper_status",
+    sql: [`ALTER TABLE discussion_paper ADD COLUMN status TEXT NOT NULL DEFAULT 'started'`],
+  },
 ];
 
 function isIgnorableMigrationError(stmt: string, error: unknown): boolean {

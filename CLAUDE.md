@@ -204,6 +204,14 @@ bot 名義で締める (収束時 `finalizeForumPost` で lock+archive+まとめ
   「＋新規議論開始」で入力フォーム、項目クリックで既存議論のライブ表示(`openSession`)、各画面に
   「← 議論一覧へ」。実装は `flow/web/routes.ts`(sessions 一覧 API)+ `page.ts`(#list/#backBar/遷移)。
 
+- **ドラフトも議論一覧に出す + status ライフサイクル (2026-06-25)**: `discussion_paper.status`
+  (migration `flow_0013`、'draft'|'started') を追加し、ペーパー 1 行が **下書き→進行中→結論あり** と
+  状態遷移する設計に。編集ゲートで草案 ready 時に `persistDraftPaper`(status='draft')で永続=
+  **議論一覧に「下書き」バッジで出る/クリックで編集再開**(メモリに無くても `getDraftPaper`+
+  `rehydrateDraftEntry` で復元)。確定 (approve→`persistPaper`) は同 session 行を status='started' に
+  **upsert**(重複行を作らない)。編集(ブロック/NL/戻す)ごとに draft 行を同期。`GET /api/flow/sessions`
+  は `state`(draft/live/concluded)を返し、page.ts がバッジ + クリック分岐(`openDraft`/`openSession`)。
+
 - **ペーパーの分量増強 (感想3倍 + メカニクスLLM増補, 2026-06-23)**: ペーパーが薄い問題への対処。
   設定 `flow.paperRichness` (`voices` 既定15 / `mechanicsTarget` 既定30 / `enrichMechanics` 既定true /
   `enrichModel`)。**感想**はペルソナ/ペーパーに載せる件数を 5→`voices` に増やす (director の voiceCache
