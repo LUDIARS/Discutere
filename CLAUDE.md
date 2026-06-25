@@ -212,6 +212,28 @@ bot 名義で締める (収束時 `finalizeForumPost` で lock+archive+まとめ
   **upsert**(重複行を作らない)。編集(ブロック/NL/戻す)ごとに draft 行を同期。`GET /api/flow/sessions`
   は `state`(draft/live/concluded)を返し、page.ts がバッジ + クリック分岐(`openDraft`/`openSession`)。
 
+- **議論一覧 state フィルタ + ページング (2026-06-26)**: `GET /api/flow/sessions` を「直近100件固定」から
+  **絞り込み + ページング**に拡張。`?state=draft|live|concluded`(既定 all)+ `?limit=`(1..200・既定100)+
+  `?offset=`。`listFlowSessions({state,limit,offset})`(`discussion-paper.ts`)が correlated subquery で
+  結論有無を見て state 絞り込み + 同条件の `total` を返し、レスポンスに `total/limit/offset/hasMore` を追加。
+  `page.ts` にフィルタタブ(すべて/下書き/進行中/結論あり)+「もっと見る」(offset 加算追記・1ページ50件)。
+
+- **議論後ペーパー本文の LLM リファイン (opt-in, 2026-06-26)**: 議論終了後に base ブリーフ(議題/観点補足/
+  メカニクス)を議論成果(まとめ/止揚/結論)で書き換える。`flow.paperRefine.enabled`(既定 false)。
+  **議論ループの後**に走るためペルソナ system(`buildPaperSystem`)はループ中ずっと base のまま固定=
+  プロンプトキャッシュ安定を壊さない。`src/flow/paper-refine.ts` の `refinePaperBrief` が改訂 md を返し
+  (`# 議題` 欠落/空/LLM失敗は null で degrade)、`director` が結論生成後に refine → `updatePaperDerived`
+  で構造化列(観点補足/メカニクス)を追従 → 最終 body は refined base + 議論の経過 + 結論で焼き直す。
+
+- **Discord ペーパー編集パリティ (2026-06-26)**: Web 専用だった議論一覧/下書き再開/版履歴を Discord にも展開。
+  ① **`/discutere-discussions [state]`** = 議論一覧 slash(下書き/進行中/結論あり・`listFlowSessions` 再利用・
+  ephemeral)。② Discord のペーパーレビューも **`persistDraftPaper`(status='draft', session_id=threadId)で永続**
+  → 議論一覧に「下書き」で出る + **再起動跨ぎで再開**(メモリに無ければ `getDraftPaper`+`rehydratePaperReview`
+  で復元、guildId は返信/リアクション文脈から補完)。承認は `runDiscussionDispatch` が **sessionId=threadId** で
+  `persistPaper` upsert(draft→started、bodyMd も override で運ぶ)。③ **「戻す」返信**で版履歴 revert
+  (`isRevertText`+`revertLast`、編集ごとに `appendRevision`)。Notion 風ブロック編集 UI 自体は Web ネイティブ
+  操作なので Discord には載せない(返信ベースの NL 調整 + 戻す + ✅/「開始」承認で機能パリティ)。
+
 - **ペーパーの分量増強 (感想3倍 + メカニクスLLM増補, 2026-06-23)**: ペーパーが薄い問題への対処。
   設定 `flow.paperRichness` (`voices` 既定15 / `mechanicsTarget` 既定30 / `enrichMechanics` 既定true /
   `enrichModel`)。**感想**はペルソナ/ペーパーに載せる件数を 5→`voices` に増やす (director の voiceCache

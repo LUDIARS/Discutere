@@ -140,4 +140,35 @@ function slash(partial: Partial<InboundSlashCommand>): InboundSlashCommand {
   console.log("ok inbound message gated by discussionChannelIds (non-allowed channel ignored)");
 }
 
+// 9. /discutere-discussions — 議論一覧 (state 絞り込み) を ephemeral で返す
+{
+  const path = await import("node:path");
+  const fs = await import("node:fs");
+  const TMP = path.resolve(".tmp/cmd-router-discussions");
+  fs.rmSync(TMP, { recursive: true, force: true });
+  fs.mkdirSync(TMP, { recursive: true });
+  process.env.DATABASE_PATH = path.join(TMP, "flow.db");
+
+  const { _resetFlowDb } = await import("../../src/flow/db/connection.js");
+  const { persistPaper, persistDraftPaper } = await import("../../src/flow/discussion-paper.js");
+  _resetFlowDb();
+  persistPaper({ sessionId: "d-live-1", theme: "進行中の議題", tags: [], mechanics: [], supplement: "", bodyMd: "# 議題\n進行中の議題" }, "discussion");
+  persistDraftPaper({ sessionId: "d-draft-1", theme: "下書きの議題", tags: [], mechanics: [], supplement: "", bodyMd: "# 議題\n下書きの議題" }, "discussion");
+
+  const deps = depsWith([], null);
+  const rAll = routeSlashCommand(slash({ name: "discutere-discussions", argsText: "" }), deps);
+  assert.ok(rAll.ephemeral, "ephemeral で返す");
+  assert.ok(rAll.content.includes("進行中の議題"), "全件に live が出る");
+  assert.ok(rAll.content.includes("下書きの議題"), "全件に draft が出る");
+
+  const rDraft = routeSlashCommand(slash({ name: "discutere-discussions", argsText: "draft" }), deps);
+  assert.ok(rDraft.content.includes("下書きの議題"), "draft 絞り込みに draft");
+  assert.ok(!rDraft.content.includes("進行中の議題"), "draft 絞り込みに live は出ない");
+  assert.ok(rDraft.content.includes("📝下書き"), "下書きバッジが付く");
+
+  _resetFlowDb();
+  delete process.env.DATABASE_PATH;
+  console.log("ok /discutere-discussions lists + filters by state");
+}
+
 console.log("command-router.test.ts: all passed");

@@ -22,6 +22,11 @@ import {
   type ConclusionSummary,
   type ConclusionDetail,
 } from "../visualize/conclusions.js";
+import {
+  listFlowSessions,
+  type FlowSessionRow,
+  type FlowSessionState,
+} from "../flow/discussion-paper.js";
 import type { DiscordAutoDiscussionInput, ForumDirection } from "./auto-discussion.js";
 import type { DiscordInboundMessage } from "./types.js";
 
@@ -100,6 +105,9 @@ export function routeSlashCommand(cmd: InboundSlashCommand, deps: CommandRouterD
   }
   if (cmd.name === "discutere-conclusions") {
     return handleConclusionsSlash(cmd, deps);
+  }
+  if (cmd.name === "discutere-discussions") {
+    return handleDiscussionsSlash(cmd);
   }
   if (cmd.name === "economy-graph") {
     return handleEconomyGraphSlash(cmd, deps);
@@ -343,6 +351,40 @@ function handleConclusionsSlash(cmd: InboundSlashCommand, deps: CommandRouterDep
   } finally {
     core.close();
   }
+}
+
+/**
+ * /discutere-discussions — 議論一覧 (下書き/進行中/結論あり) を ephemeral で返す (Web の議論一覧と対応)。
+ * state option で絞り込み (省略で全件)。認可不要 (読み取り専用)。
+ */
+function handleDiscussionsSlash(cmd: InboundSlashCommand): SlashReply {
+  const raw = cmd.argsText.trim();
+  const state: FlowSessionState =
+    raw === "draft" || raw === "live" || raw === "concluded" ? raw : "all";
+  try {
+    const { rows, total } = listFlowSessions({ state, limit: 15, offset: 0 });
+    return { content: formatDiscussionList(rows, total, state), ephemeral: true };
+  } catch (err) {
+    return { content: `⚠️ 議論一覧の取得に失敗: ${(err as Error).message}`, ephemeral: true };
+  }
+}
+
+const DISCUSSION_STATE_BADGE: Record<string, string> = {
+  draft: "📝下書き",
+  concluded: "✅結論あり",
+  live: "💬進行中",
+};
+
+function formatDiscussionList(rows: FlowSessionRow[], total: number, state: FlowSessionState): string {
+  const label = state === "all" ? "全件" : state;
+  if (rows.length === 0) return `該当する議論はありません (${label})。`;
+  const lines = rows.map((r) => {
+    const badge = DISCUSSION_STATE_BADGE[r.status === "draft" ? "draft" : r.concluded === 1 ? "concluded" : "live"];
+    const when = new Date(r.createdAt).toLocaleString("ja-JP");
+    return `• ${badge} **${truncateText(r.theme || "(無題)", 60)}**\n  └ ${r.flow} / 発話${r.utterances} / ${when}`;
+  });
+  const more = total > rows.length ? `\n…他 ${total - rows.length} 件` : "";
+  return [`【議論一覧 (${label}・新しい順 ${rows.length}/${total}件)】`, ...lines].join("\n") + more;
 }
 
 function formatConclusionList(list: ConclusionSummary[]): string {
