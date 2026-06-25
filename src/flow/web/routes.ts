@@ -144,6 +144,7 @@ async function prepareInformationBeforeFlow(
 ): Promise<void> {
   // 情報ゲート優先 (LLM 評価 + 不足観点クロール)。
   try {
+    const youtubeApiKey = await resolveYoutubeApiKey(d);
     const gate = await gateBeforeFlow({
       kind,
       theme,
@@ -155,7 +156,7 @@ async function prepareInformationBeforeFlow(
       sessionId,
       log: (m) => console.log(`[flow-gate] ${m}`),
       warn: (m) => console.warn(`[flow-gate] ${m}`),
-      youtubeApiKey: d.youtubeApiKey,
+      youtubeApiKey,
     });
     if (gate) return; // ゲートが学習まで担った
   } catch (e) {
@@ -179,6 +180,7 @@ async function legacyAutoCrawlBeforeFlow(
   const cfg = getConfig().flow.autoCrawl;
   const core = d.openCore();
   try {
+    const youtubeApiKey = await resolveYoutubeApiKey(d);
     const result = await ensureLearningData({
       core,
       theme,
@@ -188,7 +190,7 @@ async function legacyAutoCrawlBeforeFlow(
       minVoices: cfg.minVoices,
       maxItems: cfg.maxItems,
       listExternalVoices: d.listExternalVoices,
-      youtubeApiKey: d.youtubeApiKey ?? undefined,
+      youtubeApiKey: youtubeApiKey ?? undefined,
       log: (m) => console.log(`[flow-autocrawl] ${m}`),
       warn: (m) => console.warn(`[flow-autocrawl] ${m}`),
     });
@@ -210,12 +212,17 @@ export interface FlowWebDeps {
   sentimentClients?: CascadeClients;
   gamesDir?: string;
   youtubeApiKey?: string | null;
+  getYoutubeApiKey?: () => Promise<string | null>;
 }
 
 let deps: FlowWebDeps | null = null;
 
 export function setFlowWebDeps(d: FlowWebDeps): void {
   deps = d;
+}
+
+async function resolveYoutubeApiKey(d: FlowWebDeps): Promise<string | null> {
+  return d.getYoutubeApiKey ? await d.getYoutubeApiKey() : d.youtubeApiKey ?? null;
 }
 
 /** flow=壁打ち の起動済みセッションを保持する (HTTP の後続発話を受けるため)。 */
@@ -357,7 +364,9 @@ flowRoutes.post("/api/flow/start", async (c) => {
   //     まとめて LLM 解析 → mechanics として記録。Web は loopback 信頼でローカルパス読みを許可。
   if (kind === "learning") {
     if (!deps.openCore) return c.json({ ok: false, error: "learning は Core 未設定のため不可" }, 400);
-    const learningCrawl = buildLearningCrawl({ ...body, youtubeApiKey: deps.youtubeApiKey });
+    // youtube API キーは runtime 解決 (tuning UI / gcloud secret 経由)。
+    const youtubeApiKey = await resolveYoutubeApiKey(webDeps);
+    const learningCrawl = buildLearningCrawl({ ...body, youtubeApiKey });
     const inlineSpec = typeof body.specText === "string" ? body.specText.trim() : "";
     const specUrl = typeof body.specUrl === "string" ? body.specUrl.trim() : "";
     // URL / ローカルパスから取得した仕様書を貼付本文と結合する (取得失敗は学習を止めない)。

@@ -22,6 +22,14 @@ interface SecretsResponse {
   secrets: RawSecret[];
 }
 
+interface SecretStatus {
+  bootstrapConfigured: boolean;
+  cached: boolean;
+  present: boolean;
+}
+
+const secretCache = new Map<string, string | null>();
+
 function parseDotenv(content: string): Record<string, string> {
   const out: Record<string, string> = {};
   for (const rawLine of content.split(/\r?\n/u)) {
@@ -39,7 +47,7 @@ function parseDotenv(content: string): Record<string, string> {
   return out;
 }
 
-function loadBootstrap(secretsPath = path.resolve(".env.secrets")): InfisicalBootstrap | null {
+export function loadInfisicalBootstrap(secretsPath = path.resolve(".env.secrets")): InfisicalBootstrap | null {
   if (!fs.existsSync(secretsPath)) return null;
   const vars = parseDotenv(fs.readFileSync(secretsPath, "utf8"));
   const siteUrl = vars.INFISICAL_SITE_URL || "https://app.infisical.com";
@@ -76,9 +84,60 @@ async function fetchSecret(config: InfisicalBootstrap, token: string, key: strin
   return data.secrets.find((s) => s.secretKey === key)?.secretValue ?? null;
 }
 
-export async function getInfisicalRuntimeSecret(key: string): Promise<string | null> {
-  const bootstrap = loadBootstrap();
+async function upsertSecret(config: InfisicalBootstrap, token: string, key: string, value: string): Promise<void> {
+  const payload = {
+    workspaceId: config.projectId,
+    environment: config.environment,
+    secretPath: "/",
+    secretValue: value,
+    type: "shared",
+  };
+  const url = `${config.siteUrl}/api/v3/secrets/raw/${encodeURIComponent(key)}`;
+  const res = await fetch(url, {
+    method: "PATCH",
+    headers: { Authorization: `Bearer ${token}`, "Content-Type": "application/json" },
+    body: JSON.stringify(payload),
+  });
+  if (res.ok) return;
+
+  const create = await fetch(url, {
+    method: "POST",
+    headers: { Authorization: `Bearer ${token}`, "Content-Type": "application/json" },
+    body: JSON.stringify(payload),
+  });
+  if (!create.ok) throw new Error(`Infisical secret create failed: ${create.status} ${await create.text()}`);
+}
+
+export async function getInfisicalRuntimeSecret(
+  key: string,
+  opts: { refresh?: boolean } = {}
+): Promise<string | null> {
+  if (!opts.refresh && secretCache.has(key)) return secretCache.get(key) ?? null;
+  const bootstrap = loadInfisicalBootstrap();
   if (!bootstrap) return null;
   const token = await authenticate(bootstrap);
-  return fetchSecret(bootstrap, token, key);
+  const value = await fetchSecret(bootstrap, token, key);
+  secretCache.set(key, value);
+  return value;
+}
+
+export async function setInfisicalRuntimeSecret(key: string, value: string): Promise<void> {
+  const bootstrap = loadInfisicalBootstrap();
+  if (!bootstrap) throw new Error("Infisical bootstrap is not configured (.env.secrets)");
+  const token = await authenticate(bootstrap);
+  await upsertSecret(bootstrap, token, key, value);
+  secretCache.set(key, value);
+}
+
+export function setInfisicalRuntimeSecretCache(key: string, value: string | null): void {
+  secretCache.set(key, value);
+}
+
+export function getInfisicalRuntimeSecretStatus(key: string): SecretStatus {
+  const cached = secretCache.has(key);
+  return {
+    bootstrapConfigured: !!loadInfisicalBootstrap(),
+    cached,
+    present: !!secretCache.get(key),
+  };
 }

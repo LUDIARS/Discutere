@@ -64,6 +64,11 @@ export interface FlowDiscordDeps {
   gamesDir?: string;
   workspaceId?: string;
   youtubeApiKey?: string | null;
+  getYoutubeApiKey?: () => Promise<string | null>;
+}
+
+async function resolveYoutubeApiKey(deps: FlowDiscordDeps): Promise<string | null> {
+  return deps.getYoutubeApiKey ? await deps.getYoutubeApiKey() : deps.youtubeApiKey ?? null;
 }
 
 export interface StartForumFlowInput {
@@ -239,6 +244,7 @@ async function prepareInformationBeforeForumFlow(
 ): Promise<void> {
   // 情報ゲート優先 (LLM 評価 + 不足観点クロール)。Discord は scene=threadId をコストログキーにする。
   try {
+    const youtubeApiKey = await resolveYoutubeApiKey(deps);
     const gate = await gateBeforeFlow({
       kind: input.flow,
       theme: input.theme,
@@ -250,7 +256,7 @@ async function prepareInformationBeforeForumFlow(
       sessionId: input.threadId,
       log: (m) => console.log(`  [forum-gate ${input.threadId}] ${m}`),
       warn: (m) => console.warn(`  [forum-gate ${input.threadId}] ${m}`),
-      youtubeApiKey: deps.youtubeApiKey,
+      youtubeApiKey,
     });
     if (gate) {
       // 学習が走った時のみ通知 (充分で no-op の時は黙る)。
@@ -281,6 +287,7 @@ async function legacyAutoCrawlBeforeForumFlow(
   if (!cfg.enabled || !deps.openCore || !isAutoCrawlSource(cfg.source)) return;
   const core = deps.openCore();
   try {
+    const youtubeApiKey = await resolveYoutubeApiKey(deps);
     const result = await ensureLearningData({
       core,
       theme: input.theme,
@@ -290,7 +297,7 @@ async function legacyAutoCrawlBeforeForumFlow(
       minVoices: cfg.minVoices,
       maxItems: cfg.maxItems,
       listExternalVoices: deps.listExternalVoices,
-      youtubeApiKey: deps.youtubeApiKey ?? undefined,
+      youtubeApiKey: youtubeApiKey ?? undefined,
       log: (m) => console.log(`  [forum-autocrawl ${input.threadId}] ${m}`),
       warn: (m) => console.warn(`  [forum-autocrawl ${input.threadId}] ${m}`),
     });
@@ -345,7 +352,7 @@ export async function startForumFlow(
       await postThreadNotice(deps, input.threadId, "📚 **学習** (外部の声の収集) を開始します…");
       // 自動収集モード: config.flow.autoCrawl の自動経路ソース横断でテーマをクロール → KG 取込。
       const crawlCfg = getConfig().flow.autoCrawl;
-      const youtubeApiKey = deps.youtubeApiKey ?? undefined;
+      const youtubeApiKey = (await resolveYoutubeApiKey(deps)) ?? undefined;
       const crawlSources = crawlCfg.enabled
         ? resolveAutoCrawlSources(crawlCfg.sources, youtubeApiKey)
         : [];
