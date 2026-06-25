@@ -19,11 +19,13 @@ import {
   buildPaperSystem,
   buildPersonaUserPrompt,
   persistPaper,
+  updatePaperBody,
   synthesizeOpinions,
   type ContextVoice,
   type DiscussionPaper,
   type RoundSummary,
 } from "./discussion-paper.js";
+import { renderProgressMarkdown } from "./paper-markdown.js";
 import { investigateTheme, type YoutubeSearchFn, type MechanicSummary } from "./investigate.js";
 import { getFlowDb } from "./db/connection.js";
 import { runRoundVote, type VoteResult } from "./vote.js";
@@ -554,6 +556,14 @@ export async function runFlow(
     };
     paper.rounds.push(roundSummary);
 
+    // ペーパー更新 (ライブ): base ブリーフ + ここまでの議論の経過 (まとめ/止揚) を焼き直して
+    // discussion_paper.body_md に上書き → Web UI で「ペーパーが更新されていく」。
+    try {
+      updatePaperBody(paperId, renderProgressMarkdown(paper.bodyMd ?? "", paper.rounds));
+    } catch (e) {
+      warn(`ペーパー更新失敗 (議論は続行): ${(e as Error).message}`);
+    }
+
     log(`ラウンド ${round} 終了 (${roundUtterances.length} 発話, 止揚: ${summaryResult.newAufhebung.length})`);
 
     // ── [9] 早期収束チェック: 止揚が facilitator.aufhebungTarget に達したら打ち切り ──
@@ -578,6 +588,16 @@ export async function runFlow(
     flow,
   });
   log(`結論: ${conclusionResult.concluded ? conclusionResult.summary.slice(0, 80) : "結論なし"}`);
+
+  // ペーパー最終更新 (ライブ): 議論の経過 + 結論まで焼き込む。
+  try {
+    updatePaperBody(
+      paperId,
+      renderProgressMarkdown(paper.bodyMd ?? "", paper.rounds, conclusionResult.summary)
+    );
+  } catch (e) {
+    warn(`ペーパー最終更新失敗: ${(e as Error).message}`);
+  }
 
   return {
     sessionId,

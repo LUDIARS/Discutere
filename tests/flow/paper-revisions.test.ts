@@ -13,6 +13,9 @@ _resetFlowDb();
 const { appendRevision, latestRevision, listRevisions, canRevert, revertLast } = await import(
   "../../src/flow/paper-revisions.js"
 );
+const { persistPaper, updatePaperBody, getPaperBodyBySession } = await import(
+  "../../src/flow/discussion-paper.js"
+);
 
 const SID = "rev-session-1";
 
@@ -50,6 +53,19 @@ const SID = "rev-session-1";
   appendRevision({ sessionId: sid2, bodyMd: "only", changeSummary: "x", origin: "initial" });
   assert.equal(canRevert(sid2), false);
   assert.equal(revertLast(sid2), null);
+}
+
+// ── updatePaperBody / getPaperBodyBySession (ライブのペーパー更新) ────────────
+{
+  const sid = "paper-body-session";
+  const paperId = persistPaper(
+    { sessionId: sid, theme: "T", tags: [], mechanics: [], supplement: "", bodyMd: "# 議題\nT" },
+    "discussion"
+  );
+  assert.equal(getPaperBodyBySession(sid), "# 議題\nT");
+  updatePaperBody(paperId, "# 議題\nT\n\n# 議論の経過\n\n## ラウンド 1\nまとめ");
+  assert.ok(getPaperBodyBySession(sid)?.includes("# 議論の経過"), "更新後の本文が読める");
+  assert.equal(getPaperBodyBySession("no-such-session"), null);
 }
 
 console.log("paper-revisions.test.ts: all passed");

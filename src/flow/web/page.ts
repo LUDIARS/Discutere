@@ -50,6 +50,19 @@ export const FLOW_HTML = `<!doctype html>
   .confirm { margin-top: 0.8rem; padding-top: 0.6rem; border-top: 1px solid #fde68a; display: flex; align-items: center; gap: 0.8rem; }
   #rvApprove { background: #16a34a; }
   #rvApprove:disabled { background: #9ca3af; }
+  /* ライブ議論 (ペーパー + 各 LLM の意見の 2 ペイン) */
+  #live { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin-top: 1rem; align-items: start; }
+  @media (max-width: 720px) { #live { grid-template-columns: 1fr; } }
+  #paperPanel { position: sticky; top: 0.5rem; background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 8px; padding: 0.6rem 0.8rem; max-height: 80vh; overflow: auto; }
+  #paperPanel h2, #opinions h2 { font-size: 1rem; margin: 0 0 0.5rem; }
+  #paperLive { font-size: 0.75rem; color: #2563eb; }
+  .paper-md { font-size: 0.9rem; line-height: 1.55; }
+  .paper-md h3 { font-size: 1rem; margin: 0.8rem 0 0.3rem; border-bottom: 1px solid #e2e8f0; padding-bottom: 0.1rem; }
+  .paper-md h4 { font-size: 0.9rem; margin: 0.6rem 0 0.2rem; color: #334155; }
+  .paper-md ul { margin: 0.2rem 0 0.4rem; padding-left: 1.2rem; }
+  .paper-md p { margin: 0.3rem 0; }
+  .paper-md .upd { animation: flash 1.2s ease-out; }
+  @keyframes flash { from { background: #fef9c3; } to { background: transparent; } }
 </style>
 </head>
 <body>
@@ -62,8 +75,7 @@ export const FLOW_HTML = `<!doctype html>
     <fieldset>
       <legend>議論タイプ (必須)</legend>
       <select id="flow" required>
-        <option value="">— 選択してください —</option>
-        <option value="discussion">議論</option>
+        <option value="discussion" selected>議論 (チャット議論)</option>
         <option value="improvement">改善</option>
         <option value="learning">学習 (収集)</option>
         <option value="sparring">壁打ち</option>
@@ -142,7 +154,16 @@ export const FLOW_HTML = `<!doctype html>
     </div>
   </div>
 
-  <div id="log"></div>
+  <div id="live" style="display:none">
+    <div id="paperPanel">
+      <h2>📝 ディスカッションペーパー <span id="paperLive" class="muted"></span></h2>
+      <div id="paperBody" class="paper-md"></div>
+    </div>
+    <div id="opinions">
+      <h2>💬 各 LLM の意見 (自動進行)</h2>
+      <div id="log"></div>
+    </div>
+  </div>
   <div id="conclusion" style="display:none"></div>
 
 <script>
@@ -186,15 +207,15 @@ $("start").addEventListener("submit", async (e) => {
   if (!res.ok) { alert(res.error || "開始に失敗"); $("go").disabled = false; return; }
   sessionId = res.sessionId; kind = res.kind;
   if (kind === "learning") {
+    $("live").style.display = "grid"; $("paperPanel").style.display = "none";
     $("log").innerHTML = '<div class="u">学習収集 完了: 意見 ' + (res.result?.opinionsRecorded ?? 0) + ' 件 / メカニクス ' + (res.result?.mechanicsRecorded ?? 0) + ' 件 / 自動収集 ' + (res.result?.crawledImported ?? 0) + ' 件</div>';
     $("go").disabled = false;
     return;
   }
-  // ペーパーレビューゲート: 草案が ready になるまで待ち、確認・調整 UI を出す。
+  // ペーパー編集ゲート: 草案が ready になるまで待ち、編集 UI を出す。
   if (res.review) { pollPaper(); return; }
   if (kind === "sparring") { $("say").style.display = "block"; }
-  poll();
-  timer = setInterval(poll, 1500);
+  startLive();
 });
 
 // ── ペーパー編集 (Notion 風ブロックエディタ・議論開始前) ──
@@ -324,8 +345,7 @@ $("rvApprove").addEventListener("click", async () => {
   const res = await paperApi("/approve", { paper: { bodyMd: curPaper.bodyMd, tags } });
   if (!res || !res.ok) { alert("開始に失敗しました"); $("rvApprove").disabled = false; return; }
   $("review").style.display = "none";
-  poll();
-  timer = setInterval(poll, 1500);
+  startLive();
 });
 
 $("sayBtn").addEventListener("click", async () => {
@@ -339,10 +359,32 @@ $("sayBtn").addEventListener("click", async () => {
   poll();
 });
 
+// 議論ライブ表示を開始する (ペーパー + 各 LLM の意見の 2 ペイン)。
+function startLive() {
+  $("live").style.display = "grid";
+  poll();
+  timer = setInterval(poll, 1500);
+}
+
+let lastPaperMd = null;
 async function poll() {
   if (!sessionId) return;
   const res = await fetch("/api/flow/" + sessionId + "/status?since=" + since).then(r => r.json()).catch(() => null);
   if (!res || !res.ok) return;
+  // ディスカッションペーパー (議論進行で更新されていく) を描画。変化したらハイライト。
+  if (res.paperMd != null) {
+    $("paperPanel").style.display = "block";
+    if (res.paperMd !== lastPaperMd) {
+      $("paperBody").innerHTML = renderPaperMd(res.paperMd);
+      if (lastPaperMd !== null) {
+        $("paperLive").textContent = "更新 " + new Date().toLocaleTimeString();
+        $("paperBody").classList.remove("upd"); void $("paperBody").offsetWidth; $("paperBody").classList.add("upd");
+      }
+      lastPaperMd = res.paperMd;
+    }
+  } else {
+    $("paperPanel").style.display = "none";
+  }
   for (const u of res.utterances) {
     since = Math.max(since, u.createdAt);
     const div = document.createElement("div");
@@ -354,7 +396,26 @@ async function poll() {
     $("conclusion").style.display = "block";
     $("conclusion").textContent = res.conclusion;
   }
-  if (res.done) { clearInterval(timer); $("go").disabled = false; }
+  if (res.done) { clearInterval(timer); $("go").disabled = false; $("paperLive").textContent = "確定"; }
+}
+
+// 軽量 markdown レンダラ (見出し/箇条書き/太字/段落のみ・XSS 安全に escape 後変換)。
+function renderPaperMd(md) {
+  const lines = String(md).split(/\\n/);
+  let html = "", inList = false;
+  const inline = (s) => escapeHtml(s).replace(/\\*\\*(.+?)\\*\\*/g, "<strong>$1</strong>");
+  const closeList = () => { if (inList) { html += "</ul>"; inList = false; } };
+  for (const raw of lines) {
+    const line = raw.replace(/\\s+$/g, "");
+    if (line === "") { closeList(); continue; }
+    let m;
+    if ((m = /^#\\s+(.+)$/.exec(line))) { closeList(); html += "<h3>" + inline(m[1]) + "</h3>"; }
+    else if ((m = /^##\\s+(.+)$/.exec(line))) { closeList(); html += "<h4>" + inline(m[1]) + "</h4>"; }
+    else if ((m = /^[-*]\\s+(.+)$/.exec(line))) { if (!inList) { html += "<ul>"; inList = true; } html += "<li>" + inline(m[1]) + "</li>"; }
+    else { closeList(); html += "<p>" + inline(line) + "</p>"; }
+  }
+  closeList();
+  return html;
 }
 
 function escapeHtml(s) { return String(s).replace(/[&<>]/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;" }[c])); }
