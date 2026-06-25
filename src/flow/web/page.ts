@@ -79,6 +79,10 @@ export const FLOW_HTML = `<!doctype html>
   .badge.draft { background: #fef3c7; color: #b45309; }
   #backBar { margin: 0.6rem 0; }
   #backToList { background: #e2e8f0; color: #1e293b; }
+  #filters { display: flex; gap: 0.3rem; flex-wrap: wrap; margin: 0.4rem 0; }
+  .filt { background: #e2e8f0; color: #1e293b; padding: 0.3rem 0.8rem; font-size: 0.85rem; }
+  .filt.active { background: #2563eb; color: #fff; }
+  #loadMore { display: block; width: 100%; margin: 0.5rem 0; background: #e2e8f0; color: #1e293b; }
 </style>
 </head>
 <body>
@@ -87,7 +91,14 @@ export const FLOW_HTML = `<!doctype html>
   <div id="list">
     <button id="newDiscussion" type="button">＋ 新規議論開始</button>
     <h2 class="listH">議論一覧</h2>
+    <div id="filters">
+      <button class="filt" data-state="all" type="button">すべて</button>
+      <button class="filt" data-state="draft" type="button">下書き</button>
+      <button class="filt" data-state="live" type="button">進行中</button>
+      <button class="filt" data-state="concluded" type="button">結論あり</button>
+    </div>
     <div id="sessionList" class="muted">読み込み中…</div>
+    <button id="loadMore" type="button" style="display:none">もっと見る</button>
   </div>
 
   <div id="backBar" style="display:none"><button id="backToList" type="button">← 議論一覧へ</button></div>
@@ -404,32 +415,48 @@ function startLive() {
 }
 
 // ── 議論一覧 / ナビゲーション ──
-async function loadSessions() {
+const PAGE = 50;               // 1 ページの取得件数
+let curState = "all", curOffset = 0;
+
+// 1 セッション行 (本体ボタン + 削除ボタン) を組んで返す。
+function buildSessionRow(s) {
+  const row = document.createElement("div");
+  row.className = "sess-row";
+  const state = s.state || (s.concluded ? "concluded" : "live");
+  const badge = s.state === "draft"
+    ? '<span class="badge draft">下書き(編集中)</span>'
+    : s.concluded
+      ? '<span class="badge done">結論あり</span>'
+      : '<span class="badge live">進行/未収束</span>';
+  const when = new Date(s.createdAt).toLocaleString();
+  const b = document.createElement("button");
+  b.className = "sess"; b.dataset.sid = s.sessionId; b.dataset.state = state; b.type = "button";
+  b.innerHTML = '<div class="th">' + escapeHtml(s.theme || "(無題)") + '</div>' +
+    '<div class="meta">' + badge + escapeHtml(s.flow) + ' / 発話 ' + s.utterances + ' 件 / ' + when + '</div>';
+  const del = document.createElement("button");
+  del.className = "sess-del"; del.dataset.del = s.sessionId; del.type = "button";
+  del.title = "この議論を削除"; del.textContent = "🗑";
+  row.appendChild(b); row.appendChild(del);
+  return row;
+}
+
+// 議論一覧を読み込む。reset=true で先頭から (フィルタ切替/削除後)、false で追加読み込み (もっと見る)。
+async function loadSessions(reset = true) {
   const el = $("sessionList");
-  const res = await fetch("/api/flow/sessions").then(r => r.json()).catch(() => null);
-  if (!res || !res.ok) { el.textContent = "一覧の取得に失敗しました"; return; }
-  if (!res.sessions.length) { el.innerHTML = '<div class="muted">まだ議論はありません。「＋ 新規議論開始」から始めてください。</div>'; return; }
-  el.innerHTML = "";
-  for (const s of res.sessions) {
-    const row = document.createElement("div");
-    row.className = "sess-row";
-    const state = s.state || (s.concluded ? "concluded" : "live");
-    const badge = s.state === "draft"
-      ? '<span class="badge draft">下書き(編集中)</span>'
-      : s.concluded
-        ? '<span class="badge done">結論あり</span>'
-        : '<span class="badge live">進行/未収束</span>';
-    const when = new Date(s.createdAt).toLocaleString();
-    const b = document.createElement("button");
-    b.className = "sess"; b.dataset.sid = s.sessionId; b.dataset.state = state; b.type = "button";
-    b.innerHTML = '<div class="th">' + escapeHtml(s.theme || "(無題)") + '</div>' +
-      '<div class="meta">' + badge + escapeHtml(s.flow) + ' / 発話 ' + s.utterances + ' 件 / ' + when + '</div>';
-    const del = document.createElement("button");
-    del.className = "sess-del"; del.dataset.del = s.sessionId; del.type = "button";
-    del.title = "この議論を削除"; del.textContent = "🗑";
-    row.appendChild(b); row.appendChild(del);
-    el.appendChild(row);
+  if (reset) { curOffset = 0; el.innerHTML = ""; el.classList.add("muted"); el.textContent = "読み込み中…"; }
+  const q = "state=" + curState + "&limit=" + PAGE + "&offset=" + curOffset;
+  const res = await fetch("/api/flow/sessions?" + q).then(r => r.json()).catch(() => null);
+  if (!res || !res.ok) { if (reset) { el.textContent = "一覧の取得に失敗しました"; } return; }
+  if (reset) { el.innerHTML = ""; el.classList.remove("muted"); }
+  if (reset && !res.sessions.length) {
+    el.classList.add("muted");
+    el.innerHTML = curState === "all"
+      ? '<div class="muted">まだ議論はありません。「＋ 新規議論開始」から始めてください。</div>'
+      : '<div class="muted">この絞り込みに該当する議論はありません。</div>';
   }
+  for (const s of res.sessions) el.appendChild(buildSessionRow(s));
+  curOffset += res.sessions.length;
+  $("loadMore").style.display = res.hasMore ? "block" : "none";
 }
 // 議論を削除する (下書き/不要議論の破棄)。確定後に一覧を再読み込み。
 async function deleteSession(sid, theme) {
@@ -477,6 +504,13 @@ $("sessionList").addEventListener("click", (e) => {
   if (btn.dataset.state === "draft") openDraft(btn.dataset.sid);
   else openSession(btn.dataset.sid);
 });
+$("filters").addEventListener("click", (e) => {
+  const btn = e.target.closest(".filt"); if (!btn) return;
+  curState = btn.dataset.state;
+  for (const f of document.querySelectorAll("#filters .filt")) f.classList.toggle("active", f === btn);
+  loadSessions(true);
+});
+$("loadMore").addEventListener("click", () => loadSessions(false));
 $("newDiscussion").addEventListener("click", () => {
   $("list").style.display = "none"; $("start").style.display = "block";
 });
@@ -540,8 +574,9 @@ function renderPaperMd(md) {
 
 function escapeHtml(s) { return String(s).replace(/[&<>]/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;" }[c])); }
 
-// 初期表示: 議論一覧を読み込む。
-loadSessions();
+// 初期表示: 「すべて」フィルタをアクティブにして議論一覧を読み込む。
+document.querySelector('#filters .filt[data-state="all"]').classList.add("active");
+loadSessions(true);
 </script>
 </body>
 </html>`;

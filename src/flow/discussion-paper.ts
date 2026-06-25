@@ -426,6 +426,64 @@ export function getPaperBodyBySession(sessionId: string): string | null {
   return row?.body_md ?? null;
 }
 
+/** 議論一覧の絞り込み状態。'all'=全件 / 'draft'=下書き / 'live'=進行中(未収束) / 'concluded'=結論あり。 */
+export type FlowSessionState = "all" | "draft" | "live" | "concluded";
+
+/** 議論一覧 1 行 (state は呼び出し側が concluded/status から導出)。 */
+export interface FlowSessionRow {
+  sessionId: string;
+  theme: string;
+  flow: string;
+  status: string;
+  createdAt: number;
+  updatedAt: number;
+  utterances: number;
+  concluded: number | null;
+}
+
+export interface ListFlowSessionsResult {
+  rows: FlowSessionRow[];
+  /** 絞り込み後の総件数 (ページング用)。 */
+  total: number;
+}
+
+/** state 絞り込みの WHERE 句 (correlated subquery で結論有無を見る)。'all' は常に真。 */
+const FLOW_STATE_WHERE: Record<FlowSessionState, string> = {
+  all: "1=1",
+  draft: "dp.status = 'draft'",
+  live: "dp.status != 'draft' AND COALESCE((SELECT fc.concluded FROM flow_conclusion fc WHERE fc.session_id = dp.session_id), 0) != 1",
+  concluded: "COALESCE((SELECT fc.concluded FROM flow_conclusion fc WHERE fc.session_id = dp.session_id), 0) = 1",
+};
+
+/**
+ * 議論一覧を state 絞り込み + ページングで返す (新しい順)。
+ * total は同じ絞り込みでの全件数 (hasMore 判定用)。limit/offset は呼び出し側でクランプ済み前提。
+ */
+export function listFlowSessions(opts: {
+  state?: FlowSessionState;
+  limit: number;
+  offset: number;
+}): ListFlowSessionsResult {
+  const db = getFlowDb();
+  const where = FLOW_STATE_WHERE[opts.state ?? "all"];
+  const total = (
+    db.prepare(`SELECT COUNT(*) AS n FROM discussion_paper dp WHERE ${where}`).get() as { n: number }
+  ).n;
+  const rows = db
+    .prepare(
+      `SELECT dp.session_id AS sessionId, dp.theme AS theme, dp.flow AS flow, dp.status AS status,
+              dp.created_at AS createdAt, dp.updated_at AS updatedAt,
+              (SELECT COUNT(*) FROM flow_utterance fu WHERE fu.session_id = dp.session_id) AS utterances,
+              (SELECT fc.concluded FROM flow_conclusion fc WHERE fc.session_id = dp.session_id) AS concluded
+         FROM discussion_paper dp
+        WHERE ${where}
+        ORDER BY dp.created_at DESC
+        LIMIT ? OFFSET ?`
+    )
+    .all(opts.limit, opts.offset) as FlowSessionRow[];
+  return { rows, total };
+}
+
 /**
  * 1 議論 (session) の全永続データを削除する (下書き/不要議論の破棄)。
  * discussion_paper 本体 + session_id に紐づく派生行 (発話/結論/投票/スコア/コストログ/版履歴/
