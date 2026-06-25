@@ -425,3 +425,37 @@ export function getPaperBodyBySession(sessionId: string): string | null {
     .get(sessionId) as { body_md: string | null } | undefined;
   return row?.body_md ?? null;
 }
+
+/**
+ * 1 議論 (session) の全永続データを削除する (下書き/不要議論の破棄)。
+ * discussion_paper 本体 + session_id に紐づく派生行 (発話/結論/投票/スコア/コストログ/版履歴/
+ * 結論キャッシュ) と、paper_id に紐づくラウンド行をまとめて 1 トランザクションで消す。
+ * 対象が無ければ false (= 何も消さなかった)。
+ */
+export function deleteFlowSession(sessionId: string): boolean {
+  const db = getFlowDb();
+  const paperRows = db
+    .prepare(`SELECT id FROM discussion_paper WHERE session_id = ?`)
+    .all(sessionId) as Array<{ id: string }>;
+  if (paperRows.length === 0) return false;
+  const tx = db.transaction(() => {
+    // paper_id 参照 (session_id を持たない append-only ラウンド) を先に消す。
+    const delRound = db.prepare(`DELETE FROM discussion_paper_round WHERE paper_id = ?`);
+    for (const { id } of paperRows) delRound.run(id);
+    // session_id を持つ派生表をすべて削除。
+    for (const table of [
+      "flow_utterance",
+      "flow_conclusion",
+      "vote",
+      "improvement_score",
+      "llm_call_log",
+      "discussion_paper_revision",
+      "conclusion_cache",
+    ]) {
+      db.prepare(`DELETE FROM ${table} WHERE session_id = ?`).run(sessionId);
+    }
+    db.prepare(`DELETE FROM discussion_paper WHERE session_id = ?`).run(sessionId);
+  });
+  tx();
+  return true;
+}

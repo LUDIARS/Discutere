@@ -66,8 +66,11 @@ export const FLOW_HTML = `<!doctype html>
   /* 議論一覧 */
   #newDiscussion { background: #16a34a; }
   .listH { font-size: 1rem; margin: 1rem 0 0.4rem; }
-  .sess { display: block; width: 100%; text-align: left; background: #fff; border: 1px solid #e5e7eb; border-radius: 8px; padding: 0.5rem 0.7rem; margin: 0.3rem 0; cursor: pointer; font: inherit; }
+  .sess-row { display: flex; align-items: stretch; gap: 0.3rem; margin: 0.3rem 0; }
+  .sess { flex: 1; min-width: 0; text-align: left; background: #fff; border: 1px solid #e5e7eb; border-radius: 8px; padding: 0.5rem 0.7rem; cursor: pointer; font: inherit; }
   .sess:hover { border-color: #2563eb; background: #f8fafc; }
+  .sess-del { flex: 0 0 auto; background: #fee2e2; color: #b91c1c; border: 1px solid #fecaca; border-radius: 8px; padding: 0 0.7rem; cursor: pointer; font-size: 1rem; }
+  .sess-del:hover { background: #fecaca; }
   .sess .th { font-weight: 600; }
   .sess .meta { font-size: 0.78rem; color: #64748b; margin-top: 0.15rem; }
   .badge { display: inline-block; font-size: 0.7rem; border-radius: 5px; padding: 0.05rem 0.4rem; margin-right: 0.4rem; }
@@ -408,18 +411,32 @@ async function loadSessions() {
   if (!res.sessions.length) { el.innerHTML = '<div class="muted">まだ議論はありません。「＋ 新規議論開始」から始めてください。</div>'; return; }
   el.innerHTML = "";
   for (const s of res.sessions) {
-    const b = document.createElement("button");
-    b.className = "sess"; b.dataset.sid = s.sessionId; b.dataset.state = s.state || (s.concluded ? "concluded" : "live"); b.type = "button";
+    const row = document.createElement("div");
+    row.className = "sess-row";
+    const state = s.state || (s.concluded ? "concluded" : "live");
     const badge = s.state === "draft"
       ? '<span class="badge draft">下書き(編集中)</span>'
       : s.concluded
         ? '<span class="badge done">結論あり</span>'
         : '<span class="badge live">進行/未収束</span>';
     const when = new Date(s.createdAt).toLocaleString();
+    const b = document.createElement("button");
+    b.className = "sess"; b.dataset.sid = s.sessionId; b.dataset.state = state; b.type = "button";
     b.innerHTML = '<div class="th">' + escapeHtml(s.theme || "(無題)") + '</div>' +
       '<div class="meta">' + badge + escapeHtml(s.flow) + ' / 発話 ' + s.utterances + ' 件 / ' + when + '</div>';
-    el.appendChild(b);
+    const del = document.createElement("button");
+    del.className = "sess-del"; del.dataset.del = s.sessionId; del.type = "button";
+    del.title = "この議論を削除"; del.textContent = "🗑";
+    row.appendChild(b); row.appendChild(del);
+    el.appendChild(row);
   }
+}
+// 議論を削除する (下書き/不要議論の破棄)。確定後に一覧を再読み込み。
+async function deleteSession(sid, theme) {
+  if (!confirm("「" + (theme || "(無題)") + "」を削除しますか? (元に戻せません)")) return;
+  const res = await fetch("/api/flow/" + sid, { method: "DELETE" }).then(r => r.json()).catch(() => null);
+  if (!res || !res.ok) { alert(res && res.error ? res.error : "削除に失敗しました"); return; }
+  loadSessions();
 }
 // 永続済みドラフトの編集を再開する (一覧の「下書き」クリック)。
 function openDraft(sid) {
@@ -450,6 +467,12 @@ function openSession(sid) {
   startLive();
 }
 $("sessionList").addEventListener("click", (e) => {
+  const delBtn = e.target.closest(".sess-del");
+  if (delBtn) {
+    const th = delBtn.previousElementSibling?.querySelector(".th")?.textContent;
+    deleteSession(delBtn.dataset.del, th);
+    return;
+  }
   const btn = e.target.closest(".sess"); if (!btn) return;
   if (btn.dataset.state === "draft") openDraft(btn.dataset.sid);
   else openSession(btn.dataset.sid);
