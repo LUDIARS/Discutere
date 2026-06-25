@@ -626,6 +626,34 @@ flowRoutes.post("/api/flow/:session/say", async (c) => {
   return c.json({ ok: true, result: { kind: result.kind } });
 });
 
+/** 議論一覧 (開始済みの discussion_paper を新しい順)。進行中/収束済みを問わず在庫を返す。 */
+flowRoutes.get("/api/flow/sessions", (c) => {
+  const db = getFlowDb();
+  const rows = db
+    .prepare(
+      `SELECT dp.session_id AS sessionId, dp.theme AS theme, dp.flow AS flow,
+              dp.created_at AS createdAt, dp.updated_at AS updatedAt,
+              (SELECT COUNT(*) FROM flow_utterance fu WHERE fu.session_id = dp.session_id) AS utterances,
+              (SELECT concluded FROM flow_conclusion fc WHERE fc.session_id = dp.session_id) AS concluded
+         FROM discussion_paper dp
+        ORDER BY dp.created_at DESC
+        LIMIT 100`
+    )
+    .all() as Array<{
+    sessionId: string;
+    theme: string;
+    flow: string;
+    createdAt: number;
+    updatedAt: number;
+    utterances: number;
+    concluded: number | null;
+  }>;
+  return c.json({
+    ok: true,
+    sessions: rows.map((r) => ({ ...r, concluded: r.concluded === 1 })),
+  });
+});
+
 flowRoutes.get("/api/flow/:session/status", (c) => {
   const sessionId = c.req.param("session");
   const since = Number.parseInt(c.req.query("since") ?? "0", 10) || 0;

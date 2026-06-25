@@ -170,9 +170,29 @@ import { parseForumEntry, handleForumFlowPost } from "../../src/flow/entry-disco
   // GET /flow は HTML
   const rPage = await app.request("/flow");
   assert.equal(rPage.status, 200, "/flow は 200");
-  assert.ok((await rPage.text()).includes("議論タイプ"), "UI に議論タイプ選択がある");
+  const pageHtml = await rPage.text();
+  assert.ok(pageHtml.includes("議論タイプ"), "UI に議論タイプ選択がある");
+  assert.ok(pageHtml.includes("議論一覧"), "UI に議論一覧がある");
+  assert.ok(pageHtml.includes("新規議論開始"), "UI に新規議論開始ボタンがある");
 
-  console.log("  [ok] flow web routes: start(必須検証) / 壁打ち say / status / 404 / UI");
+  // 議論一覧: 開始済み (discussion_paper 永続) の議論が在庫として並ぶ (進行中も含む)。
+  const { persistPaper } = await import("../../src/flow/discussion-paper.js");
+  persistPaper(
+    { sessionId: "list-sess-1", theme: "一覧テスト議題", tags: [], mechanics: [], supplement: "", bodyMd: "# 議題\n一覧テスト議題" },
+    "discussion"
+  );
+  const rSessions = await app.request("/api/flow/sessions");
+  const sessionsBody = (await rSessions.json()) as {
+    ok: boolean;
+    sessions: Array<{ sessionId: string; theme: string; concluded: boolean }>;
+  };
+  assert.equal(sessionsBody.ok, true, "sessions 取得");
+  const listed = sessionsBody.sessions.find((s) => s.sessionId === "list-sess-1");
+  assert.ok(listed, "開始済み議論が一覧に出る (一度投げたら保存=在庫表示)");
+  assert.equal(listed!.theme, "一覧テスト議題");
+  assert.equal(listed!.concluded, false, "未収束は concluded=false");
+
+  console.log("  [ok] flow web routes: start(必須検証) / 壁打ち say / status / 404 / UI / 議論一覧");
 
   delete process.env.DISCUTERE_FLOW_PERSONA_COUNT;
   delete process.env.DISCUTERE_FLOW_SPARRING_MAX_TURNS;

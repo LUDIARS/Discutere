@@ -63,11 +63,32 @@ export const FLOW_HTML = `<!doctype html>
   .paper-md p { margin: 0.3rem 0; }
   .paper-md .upd { animation: flash 1.2s ease-out; }
   @keyframes flash { from { background: #fef9c3; } to { background: transparent; } }
+  /* 議論一覧 */
+  #newDiscussion { background: #16a34a; }
+  .listH { font-size: 1rem; margin: 1rem 0 0.4rem; }
+  .sess { display: block; width: 100%; text-align: left; background: #fff; border: 1px solid #e5e7eb; border-radius: 8px; padding: 0.5rem 0.7rem; margin: 0.3rem 0; cursor: pointer; font: inherit; }
+  .sess:hover { border-color: #2563eb; background: #f8fafc; }
+  .sess .th { font-weight: 600; }
+  .sess .meta { font-size: 0.78rem; color: #64748b; margin-top: 0.15rem; }
+  .badge { display: inline-block; font-size: 0.7rem; border-radius: 5px; padding: 0.05rem 0.4rem; margin-right: 0.4rem; }
+  .badge.live { background: #dbeafe; color: #1d4ed8; }
+  .badge.done { background: #dcfce7; color: #15803d; }
+  #backBar { margin: 0.6rem 0; }
+  #backToList { background: #e2e8f0; color: #1e293b; }
 </style>
 </head>
 <body>
   <h1>Discutere 議論フロー</h1>
-  <form id="start">
+
+  <div id="list">
+    <button id="newDiscussion" type="button">＋ 新規議論開始</button>
+    <h2 class="listH">議論一覧</h2>
+    <div id="sessionList" class="muted">読み込み中…</div>
+  </div>
+
+  <div id="backBar" style="display:none"><button id="backToList" type="button">← 議論一覧へ</button></div>
+
+  <form id="start" style="display:none">
     <fieldset>
       <legend>テーマ</legend>
       <textarea id="theme" rows="3" placeholder="議題を入力" required></textarea>
@@ -206,14 +227,25 @@ $("start").addEventListener("submit", async (e) => {
   }).then(r => r.json()).catch(() => ({ ok: false, error: "通信失敗" }));
   if (!res.ok) { alert(res.error || "開始に失敗"); $("go").disabled = false; return; }
   sessionId = res.sessionId; kind = res.kind;
+  // 開始したらフォームは隠す (各モードの画面へ遷移する)。
+  $("start").style.display = "none";
   if (kind === "learning") {
-    $("live").style.display = "grid"; $("paperPanel").style.display = "none";
+    $("live").style.display = "grid"; $("paperPanel").style.display = "none"; $("backBar").style.display = "block";
     $("log").innerHTML = '<div class="u">学習収集 完了: 意見 ' + (res.result?.opinionsRecorded ?? 0) + ' 件 / メカニクス ' + (res.result?.mechanicsRecorded ?? 0) + ' 件 / 自動収集 ' + (res.result?.crawledImported ?? 0) + ' 件</div>';
     $("go").disabled = false;
     return;
   }
-  // ペーパー編集ゲート: 草案が ready になるまで待ち、編集 UI を出す。
-  if (res.review) { pollPaper(); return; }
+  // ペーパー編集ゲート: 即座に確認画面へ遷移し「準備中」を出す。草案が ready になったら編集 UI を埋める。
+  if (res.review) {
+    $("review").style.display = "block";
+    $("backBar").style.display = "block";
+    $("reviewInfo").textContent = "ペーパーを準備中… (情報収集・草案作成)";
+    $("blocks").innerHTML = '<div class="muted">📝 ディスカッションペーパーを作成しています。少々お待ちください…</div>';
+    $("rvApprove").disabled = true;
+    window.scrollTo(0, 0);
+    pollPaper();
+    return;
+  }
   if (kind === "sparring") { $("say").style.display = "block"; }
   startLive();
 });
@@ -362,9 +394,56 @@ $("sayBtn").addEventListener("click", async () => {
 // 議論ライブ表示を開始する (ペーパー + 各 LLM の意見の 2 ペイン)。
 function startLive() {
   $("live").style.display = "grid";
+  $("backBar").style.display = "block";
   poll();
   timer = setInterval(poll, 1500);
 }
+
+// ── 議論一覧 / ナビゲーション ──
+async function loadSessions() {
+  const el = $("sessionList");
+  const res = await fetch("/api/flow/sessions").then(r => r.json()).catch(() => null);
+  if (!res || !res.ok) { el.textContent = "一覧の取得に失敗しました"; return; }
+  if (!res.sessions.length) { el.innerHTML = '<div class="muted">まだ議論はありません。「＋ 新規議論開始」から始めてください。</div>'; return; }
+  el.innerHTML = "";
+  for (const s of res.sessions) {
+    const b = document.createElement("button");
+    b.className = "sess"; b.dataset.sid = s.sessionId; b.type = "button";
+    const badge = s.concluded ? '<span class="badge done">結論あり</span>' : '<span class="badge live">進行/未収束</span>';
+    const when = new Date(s.createdAt).toLocaleString();
+    b.innerHTML = '<div class="th">' + escapeHtml(s.theme || "(無題)") + '</div>' +
+      '<div class="meta">' + badge + escapeHtml(s.flow) + ' / 発話 ' + s.utterances + ' 件 / ' + when + '</div>';
+    el.appendChild(b);
+  }
+}
+function resetView() {
+  if (timer) clearInterval(timer);
+  sessionId = null; kind = null; since = 0; lastPaperMd = null;
+  $("log").innerHTML = ""; $("paperBody").innerHTML = ""; $("paperLive").textContent = "";
+  $("live").style.display = "none"; $("review").style.display = "none";
+  $("conclusion").style.display = "none"; $("say").style.display = "none";
+  $("backBar").style.display = "none"; $("start").style.display = "none";
+  $("go").disabled = false;
+}
+// 既存議論を開いて閲覧する (進行中はライブ、収束済みは最終状態)。
+function openSession(sid) {
+  resetView();
+  sessionId = sid;
+  $("list").style.display = "none";
+  startLive();
+}
+$("sessionList").addEventListener("click", (e) => {
+  const btn = e.target.closest(".sess"); if (!btn) return;
+  openSession(btn.dataset.sid);
+});
+$("newDiscussion").addEventListener("click", () => {
+  $("list").style.display = "none"; $("start").style.display = "block";
+});
+$("backToList").addEventListener("click", () => {
+  resetView();
+  $("list").style.display = "block";
+  loadSessions();
+});
 
 let lastPaperMd = null;
 async function poll() {
@@ -419,6 +498,9 @@ function renderPaperMd(md) {
 }
 
 function escapeHtml(s) { return String(s).replace(/[&<>]/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;" }[c])); }
+
+// 初期表示: 議論一覧を読み込む。
+loadSessions();
 </script>
 </body>
 </html>`;
