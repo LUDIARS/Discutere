@@ -38,6 +38,11 @@
       "mechanicsTarget": 30,
       "enrichMechanics": true,
       "enrichModel": ""
+    },
+    "$comment5": "paperRefine: 議論終了後に、ディスカッションペーパーの本文(議題/観点補足/メカニクス)を議論の成果(ラウンドまとめ/止揚/結論)を踏まえて LLM で書き換える。enabled=false(既定・opt-in)。議論ループの後に走るためペルソナ system のプロンプトキャッシュには影響しない。LLM 失敗/不正出力(# 議題 欠落)時は元のブリーフのまま degrade(議論は止めない)。model は空=既定。LLM コストが議論ごとに 1 回増える。",
+    "paperRefine": {
+      "enabled": false,
+      "model": ""
     }
   },
   "personaEngine": {
