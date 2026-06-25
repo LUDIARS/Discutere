@@ -35,6 +35,12 @@ export interface DiscussionPaper {
   mechanics: MechanicSummary[];
   supplement: string;
   rounds: RoundSummary[];
+  /**
+   * 議論ブリーフ本文の正本 markdown (ハイブリッド源泉モデル, paper-markdown.ts)。
+   * 指定時は buildPaperSystem がこれをそのまま system に載せる (各 LLM が md を直接参照)。
+   * 未指定の旧経路は構造化フィールドから従来どおり組み立てる (後方互換)。
+   */
+  bodyMd?: string;
 }
 
 /** ペルソナへの配布内容 (ターンごとに組み立て) */
@@ -45,6 +51,8 @@ export interface PersonaPaper {
   previousRoundsText: string;
   currentRoundUtterances: string[];
   userOpinionsText?: string;
+  /** 議論ブリーフ本文の正本 markdown (あれば buildPaperSystem がこれを優先する)。 */
+  bodyMd?: string;
 }
 
 export interface BuildPersonaPaperArgs {
@@ -146,6 +154,7 @@ export function buildPersonaPaper(args: BuildPersonaPaperArgs): PersonaPaper {
       (u) => `${u.personaName}: ${u.text}`
     ),
     userOpinionsText,
+    bodyMd: paper.bodyMd,
   };
 }
 
@@ -154,6 +163,8 @@ export function buildPersonaPaper(args: BuildPersonaPaperArgs): PersonaPaper {
  * 全ペルソナ・全ターンで同一バイトになるため SDK の cache_control(system) で再利用できる (E)。
  */
 export function buildPaperSystem(p: PersonaPaper): string {
+  // 正本 markdown があればそれをそのまま system に載せる (各 LLM が md を直接参照)。
+  if (p.bodyMd && p.bodyMd.trim()) return p.bodyMd;
   return [
     `# 議題\n${p.theme}`,
     p.supplement ? `# 観点補足\n${p.supplement}` : null,
@@ -258,8 +269,8 @@ export function persistPaper(
   const paperId = randomUUID();
   const now = Date.now();
   db.prepare(
-    `INSERT INTO discussion_paper (id, flow, session_id, theme, tags_json, mechanics_json, supplement, created_at, updated_at)
-     VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)`
+    `INSERT INTO discussion_paper (id, flow, session_id, theme, tags_json, mechanics_json, supplement, body_md, created_at, updated_at)
+     VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`
   ).run(
     paperId,
     flow,
@@ -268,6 +279,7 @@ export function persistPaper(
     JSON.stringify(paper.tags),
     JSON.stringify(paper.mechanics),
     paper.supplement,
+    paper.bodyMd ?? null,
     now,
     now
   );

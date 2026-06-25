@@ -100,6 +100,11 @@ export interface FlowDirectorDeps {
 export interface PaperOverride {
   mechanics: MechanicSummary[];
   supplement: string;
+  /**
+   * 確定した議論ブリーフ本文の正本 markdown (Web の Notion 風編集ゲートで調整したもの)。
+   * 指定時はこれを各 LLM の system に直接載せる。未指定なら mechanics/supplement から生成する。
+   */
+  bodyMd?: string;
 }
 
 /** 都度指定ラウンド/ターン数の暴走ガード上限 (コスト保護)。 */
@@ -246,9 +251,13 @@ export async function runFlow(
   let investigation: Awaited<ReturnType<typeof investigateTheme>> | null = null;
   let mechanics: MechanicSummary[];
   let supplement: string;
+  // 議論ブリーフ本文の正本 markdown (ハイブリッド源泉)。確定ペーパーの bodyMd を優先し、
+  // 無ければ構造化フィールドから生成する (全経路で body_md を持たせ各 LLM が直接参照)。
+  let bodyMd: string | undefined;
   if (override) {
     mechanics = override.mechanics;
     supplement = override.supplement;
+    bodyMd = override.bodyMd;
     log(`確定ペーパー使用: investigate スキップ (メカニクス ${mechanics.length} 件)`);
   } else {
     log(`調査開始: "${theme}" (タグ: [${tags.join(", ")}])`);
@@ -280,7 +289,19 @@ export async function runFlow(
   }
 
   // ── [2] ディスカッションペーパー初期化 ─────────────────────────────────
-  const paperId = persistPaper({ sessionId, theme, tags: [...tags], mechanics, supplement }, flow);
+  // bodyMd (正本 md) が未指定なら構造化フィールドから生成する (Discord / 非レビュー経路)。
+  if (!bodyMd || !bodyMd.trim()) {
+    bodyMd = (await import("./paper-markdown.js")).paperDraftToMarkdown({
+      theme,
+      tags: [...tags],
+      supplement,
+      mechanics,
+    });
+  }
+  const paperId = persistPaper(
+    { sessionId, theme, tags: [...tags], mechanics, supplement, bodyMd },
+    flow
+  );
   const paper: DiscussionPaper = {
     paperId,
     sessionId,
@@ -288,6 +309,7 @@ export async function runFlow(
     tags: [...tags],
     mechanics,
     supplement,
+    bodyMd,
     rounds: [],
   };
 
