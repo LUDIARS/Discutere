@@ -14,6 +14,10 @@ import {
   coercePaperDraft,
   renderPaperReview,
   isApprovalText,
+  reviewBlock,
+  gatherEvidence,
+  withDerivedBody,
+  withDerivedStructure,
   type PaperDraft,
 } from "../../src/flow/paper-review.js";
 import { MockLLMClient } from "../../src/persona-engine/llm/mock.js";
@@ -44,7 +48,7 @@ const NONEXISTENT_GAMES = path.join(os.tmpdir(), "discutere-no-such-games-dir");
 
 // ── applyPaperEdit: 正常 (JSON 反映) ─────────────────────────────────────────
 {
-  const base: PaperDraft = { theme: "T", tags: ["開発"], supplement: "S", mechanics: [] };
+  const base: PaperDraft = withDerivedBody({ theme: "T", tags: ["開発"], supplement: "S", mechanics: [] });
   const llm = new MockLLMClient([
     () =>
       JSON.stringify({
@@ -66,7 +70,7 @@ const NONEXISTENT_GAMES = path.join(os.tmpdir(), "discutere-no-such-games-dir");
 
 // ── applyPaperEdit: コードフェンス混入でも JSON 抽出 ────────────────────────
 {
-  const base: PaperDraft = { theme: "T", tags: [], supplement: "S", mechanics: [] };
+  const base: PaperDraft = withDerivedBody({ theme: "T", tags: [], supplement: "S", mechanics: [] });
   const llm = new MockLLMClient([
     () => "はい、更新します:\n```json\n{\"theme\":\"T\",\"supplement\":\"S3\",\"mechanics\":[],\"changeSummary\":\"補足変更\"}\n```",
   ]);
@@ -77,7 +81,7 @@ const NONEXISTENT_GAMES = path.join(os.tmpdir(), "discutere-no-such-games-dir");
 
 // ── applyPaperEdit: パース不能なら元のまま applied=false ─────────────────────
 {
-  const base: PaperDraft = { theme: "T", tags: ["開発"], supplement: "S", mechanics: [{ name: "M", description: "d" }] };
+  const base: PaperDraft = withDerivedBody({ theme: "T", tags: ["開発"], supplement: "S", mechanics: [{ name: "M", description: "d" }] });
   const llm = new MockLLMClient([() => "ごめんなさい、よく分かりませんでした"]);
   const r = await applyPaperEdit(base, "曖昧な指示", llm);
   assert.equal(r.applied, false);
@@ -86,7 +90,7 @@ const NONEXISTENT_GAMES = path.join(os.tmpdir(), "discutere-no-such-games-dir");
 
 // ── applyPaperEdit: 不正タグは除去される ─────────────────────────────────────
 {
-  const base: PaperDraft = { theme: "T", tags: [], supplement: "", mechanics: [] };
+  const base: PaperDraft = withDerivedBody({ theme: "T", tags: [], supplement: "", mechanics: [] });
   const llm = new MockLLMClient([
     () => JSON.stringify({ theme: "T", tags: ["開発", "存在しないタグ", "機密"], supplement: "", mechanics: [], changeSummary: "tag" }),
   ]);
@@ -96,7 +100,7 @@ const NONEXISTENT_GAMES = path.join(os.tmpdir(), "discutere-no-such-games-dir");
 
 // ── coercePaperDraft: Web フォームの直接編集を正規化 ────────────────────────
 {
-  const fallback: PaperDraft = { theme: "FB", tags: ["開発"], supplement: "FBS", mechanics: [{ name: "FM", description: "d" }] };
+  const fallback: PaperDraft = withDerivedBody({ theme: "FB", tags: ["開発"], supplement: "FBS", mechanics: [{ name: "FM", description: "d" }] });
   const coerced = coercePaperDraft(
     { theme: "  新議題  ", tags: ["運用", "bad"], mechanics: [{ name: "A", description: "x" }, { description: "名前なしは除外" }] },
     fallback
@@ -121,12 +125,12 @@ const NONEXISTENT_GAMES = path.join(os.tmpdir(), "discutere-no-such-games-dir");
 
 // ── renderPaperReview ────────────────────────────────────────────────────────
 {
-  const draft: PaperDraft = {
+  const draft: PaperDraft = withDerivedBody({
     theme: "ローグライト",
     tags: ["開発"],
     supplement: "開発者観点で",
     mechanics: [{ name: "ビルド選択", description: "構成を変える", intended_affect: "発見" }],
-  };
+  });
   const md = renderPaperReview(draft, { voiceCount: 50, countCapped: true, samples: [{ content: "楽しい", source: "niconico" }] });
   assert.ok(md.includes("ローグライト"));
   assert.ok(md.includes("ビルド選択"));
@@ -188,6 +192,63 @@ const NONEXISTENT_GAMES = path.join(os.tmpdir(), "discutere-no-such-games-dir");
   _resetFlowLive();
   const r = await handlePaperReviewApproval("no-such-thread", { botToken: "x", llm: new MockLLMClient([]) });
   assert.equal(r, false, "レビュー待ちが無ければ承認は no-op で false");
+}
+
+// ── ハイブリッド源泉: ドラフト ⇄ 本文 md の往復 (構造化派生が保たれる) ────────
+{
+  const draft = withDerivedBody({
+    theme: "スイカゲームの面白さ",
+    tags: ["開発"],
+    supplement: "開発者観点で",
+    mechanics: [{ name: "落下", description: "果物を落とす", intended_affect: "爽快" }],
+  });
+  assert.ok(draft.bodyMd.includes("# 議題"), "本文 md に議題見出し");
+  assert.ok(draft.bodyMd.includes("スイカゲームの面白さ"));
+  assert.ok(draft.bodyMd.includes("- **落下**: 果物を落とす → 期待感情: 爽快"), "メカニクスが md 箇条書きに");
+  // md を正本に構造化を派生し直しても主要フィールドが保たれる。
+  const back = withDerivedStructure(draft.bodyMd, draft);
+  assert.equal(back.theme, "スイカゲームの面白さ");
+  assert.deepEqual(back.tags, ["開発"], "tags は本文 md 外なので fallback 保持");
+  assert.equal(back.mechanics.length, 1);
+  assert.equal(back.mechanics[0].name, "落下");
+  assert.equal(back.mechanics[0].intended_affect, "爽快");
+}
+
+// ── reviewBlock: 1 ブロックを LLM 改稿提案 (適用しない) ───────────────────────
+{
+  const draft = withDerivedBody({ theme: "T", tags: [], supplement: "", mechanics: [] });
+  const blocks = (await import("../../src/flow/paper-blocks.js")).splitBlocks(draft.bodyMd);
+  const themeBlock = blocks.find((b) => b.type === "paragraph"); // 「# 議題」直下の本文
+  const llm = new MockLLMClient([
+    () => JSON.stringify({ proposed: "T (もっと具体的に)", rationale: "具体化した" }),
+  ]);
+  const r = await reviewBlock({ bodyMd: draft.bodyMd, blockId: themeBlock!.id, llm });
+  assert.equal(r.ok, true);
+  assert.equal(r.proposed, "T (もっと具体的に)");
+  assert.equal(r.rationale, "具体化した");
+  // 不在ブロックは ok=false
+  const miss = await reviewBlock({ bodyMd: draft.bodyMd, blockId: "b999", llm });
+  assert.equal(miss.ok, false);
+}
+
+// ── gatherEvidence: 外部の声を集約し挿入用段落を提案 ─────────────────────────
+{
+  const voices = [
+    { content: "ガチャが楽しい", source: "niconico" },
+    { content: "課金がきつい", source: "youtube" },
+  ];
+  // LLM 無し: 箇条書きをそのまま提案
+  const noLlm = await gatherEvidence({ topic: "ガチャ", listExternalVoices: () => voices });
+  assert.equal(noLlm.voices.length, 2);
+  assert.ok(noLlm.suggestion.includes("ガチャが楽しい"));
+  assert.ok(noLlm.suggestion.includes("出所: niconico"));
+  // 声ゼロ: 空 suggestion
+  const empty = await gatherEvidence({ topic: "無", listExternalVoices: () => [] });
+  assert.equal(empty.suggestion, "");
+  // LLM あり: 要約段落を採用
+  const llm = new MockLLMClient([() => "ガチャは賛否が割れる要素。"]);
+  const withLlm = await gatherEvidence({ topic: "ガチャ", listExternalVoices: () => voices, llm });
+  assert.equal(withLlm.suggestion, "ガチャは賛否が割れる要素。");
 }
 
 console.log("paper-review.test.ts: all passed");

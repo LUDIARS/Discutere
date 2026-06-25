@@ -172,6 +172,20 @@ bot 名義で締める (収束時 `finalizeForumPost` で lock+archive+まとめ
   直接編集ペーパー可) で確認フォーム調整。`flow.paperReview.timeoutMs`>0 で無操作の自動開始
   (既定 0=無期限・調整で延長、Discord/Web ともサーバ側タイマー)。無効時は従来どおり情報ゲート後に自動開始。
 
+- **ペーパー md 正本化 + Web Notion 風編集 (正規フロー化, 2026-06-25, `docs/paper-review-gate.md`)**:
+  ディスカッションペーパーの**本文 (議題/観点補足/メカニクス) を markdown 正本**にする
+  ハイブリッド源泉モデル。各 LLM は `buildPaperSystem` が本文 md (`discussion_paper.body_md`) を
+  **そのまま system に載せる** (= md を直接参照、未指定の旧経路は構造化から従来組み立て=バイト等価)。
+  `src/flow/paper-markdown.ts` (構造化⇄md) + `paper-blocks.ts` (md⇄ブロック) + `paper-revisions.ts`
+  (版履歴 `discussion_paper_revision`・「戻す」は前進積み直し) を新設。Web `/flow` の編集ゲートを
+  **Notion 風ブロックエディタ**に刷新: ブロック単位で **LLMレビュー (old/new diff→採用/却下)** /
+  **根拠クロール (RAG `gatherEvidence`・KG 書込みなし)** / 手編集 / 削除、**「↶戻す」**、
+  **「確定」チェックで「議論開始」活性化**。新エンドポイント `/paper/block/review`・`/block/apply`・
+  `/crawl`・`/revert` (+既存 `/paper`・`/edit`・`/approve` は md 対応)。設定 `flow.paperReview.webCanonical`
+  (既定 **true**) で Web は `enabled` に依らず常にゲート経由の正規フロー (Discord は `enabled` に従う)。
+  観点タグは本文 md 外の操作フラグとして構造化維持。確定は `runFlow(paperOverride{bodyMd})` 経由で
+  Discord と同一エンジン。→ **Di 内 UI だけで Discord と同じ議論**が回る。
+
 - **ペーパーの分量増強 (感想3倍 + メカニクスLLM増補, 2026-06-23)**: ペーパーが薄い問題への対処。
   設定 `flow.paperRichness` (`voices` 既定15 / `mechanicsTarget` 既定30 / `enrichMechanics` 既定true /
   `enrichModel`)。**感想**はペルソナ/ペーパーに載せる件数を 5→`voices` に増やす (director の voiceCache

@@ -239,6 +239,28 @@ const MIGRATIONS: Array<{ id: string; sql: string[] }> = [
       `CREATE INDEX IF NOT EXISTS idx_conclusion_cache_updated ON conclusion_cache(updated_at DESC)`,
     ],
   },
+  {
+    // ディスカッションペーパー本文の markdown 正本化 (ハイブリッド源泉モデル)。
+    //  - discussion_paper.body_md: 議論ブリーフ本文の正本 markdown (各 LLM が直接参照)。
+    //    NULL の旧行は構造化フィールドから派生 (buildPaperSystem の従来組み立て) で後方互換。
+    //  - discussion_paper_revision: Web の Notion 風編集の版履歴 (session 単位・追記専用)。
+    //    「戻す」は 1 手前の body_md を新リビジョンとして積み直す (前進のみ・履歴は失わない)。
+    // ALTER ADD COLUMN の後に CREATE TABLE / INDEX (既存 DB で no such column を避ける共通ルール)。
+    id: "flow_0012_paper_body_md",
+    sql: [
+      `ALTER TABLE discussion_paper ADD COLUMN body_md TEXT`,
+      `CREATE TABLE IF NOT EXISTS discussion_paper_revision (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        session_id TEXT NOT NULL,
+        rev INTEGER NOT NULL,
+        body_md TEXT NOT NULL,
+        change_summary TEXT NOT NULL DEFAULT '',
+        origin TEXT NOT NULL DEFAULT 'manual',
+        created_at INTEGER NOT NULL
+      )`,
+      `CREATE INDEX IF NOT EXISTS idx_paper_revision_session ON discussion_paper_revision(session_id, rev)`,
+    ],
+  },
 ];
 
 function isIgnorableMigrationError(stmt: string, error: unknown): boolean {
