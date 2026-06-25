@@ -17,6 +17,7 @@ import type { LLMClient } from "../../persona-engine/llm/client.js";
 import type { CascadeClients } from "../../crawler/sentiment/cascade.js";
 import type { createCore } from "../../core/index.js";
 import type { ContextVoice } from "../discussion-paper.js";
+import { getPaperBodyBySession } from "../discussion-paper.js";
 
 type Core = ReturnType<typeof createCore>;
 import { getFlowDb } from "../db/connection.js";
@@ -665,6 +666,8 @@ flowRoutes.get("/api/flow/:session/status", (c) => {
     })),
     conclusion: conclusionRow?.summary ?? null,
     concluded: conclusionRow?.concluded === 1,
+    // ライブのディスカッションペーパー本文 (議論進行で更新されていく)。
+    paperMd: getPaperBodyBySession(sessionId),
     done,
   });
 });

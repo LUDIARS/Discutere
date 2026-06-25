@@ -16,6 +16,7 @@
 
 import type { FlowTag } from "./tags.js";
 import type { MechanicSummary } from "./investigate.js";
+import type { RoundSummary } from "./discussion-paper.js";
 
 /** markdown 本文を持つペーパー (構造化フィールド + 本文 md)。 */
 export interface PaperContent {
@@ -130,4 +131,46 @@ export function markdownToPaperDraft(md: string, fallback: PaperContent): PaperC
     // 消された自由編集では fallback を保つ (付随機能の取りこぼし防止)。
     mechanics: mechHas ? parsedMechanics : fallback.mechanics,
   };
+}
+
+const HEAD_PROGRESS = "# 議論の経過";
+const HEAD_CONCLUSION = "# 結論";
+
+/** base ブリーフから「議論の経過」以降 (進行ログ) を取り除く (再焼き直しの土台)。 */
+export function stripProgress(bodyMd: string): string {
+  const idx = bodyMd.indexOf(`\n${HEAD_PROGRESS}`);
+  const base = idx >= 0 ? bodyMd.slice(0, idx) : bodyMd;
+  return base.replace(/\s+$/g, "");
+}
+
+/**
+ * base ブリーフ + 議論の経過 (ラウンドごとの まとめ / 止揚) + 結論 を 1 本の md に焼く。
+ * 議論進行中に毎ラウンド呼び、`updatePaperBody` で discussion_paper.body_md を上書きする
+ * (= ライブ UI で「ペーパーが更新されていく」)。base は既存の経過節を除いてから足し直す (冪等)。
+ */
+export function renderProgressMarkdown(
+  baseBodyMd: string,
+  rounds: readonly RoundSummary[],
+  conclusion?: string
+): string {
+  const base = stripProgress(baseBodyMd);
+  const parts: string[] = [base];
+
+  if (rounds.length > 0) {
+    const roundBlocks = rounds.map((r) => {
+      const lines = [`## ラウンド ${r.round}`, r.summary.trim() || "(まとめなし)"];
+      if (r.aufhebung.length > 0) {
+        lines.push("", "**止揚 (アウフヘーベン)**:");
+        for (const a of r.aufhebung) lines.push(`- ${a}`);
+      }
+      return lines.join("\n");
+    });
+    parts.push(`${HEAD_PROGRESS}\n\n${roundBlocks.join("\n\n")}`);
+  }
+
+  if (conclusion && conclusion.trim()) {
+    parts.push(`${HEAD_CONCLUSION}\n${conclusion.trim()}`);
+  }
+
+  return parts.join("\n\n");
 }

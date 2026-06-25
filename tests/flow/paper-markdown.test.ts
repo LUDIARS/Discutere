@@ -7,6 +7,8 @@ import assert from "node:assert/strict";
 import {
   paperDraftToMarkdown,
   markdownToPaperDraft,
+  renderProgressMarkdown,
+  stripProgress,
   type PaperContent,
 } from "../../src/flow/paper-markdown.js";
 
@@ -82,6 +84,43 @@ import {
   const edited = "# 議題\nT\n\n# ゲームのメカニクス\n(メカニクスデータなし)";
   const back = markdownToPaperDraft(edited, fallback);
   assert.deepEqual(back.mechanics, [], "メカ見出しがあって 0 件なら全削除を尊重");
+}
+
+// ── renderProgressMarkdown: base + 議論の経過 + 結論 を焼く (ライブ更新) ───────
+{
+  const base = "# 議題\nスイカゲーム\n\n# ゲームのメカニクス\n- **落下**: 果物を落とす";
+  // 経過なし → base のまま
+  assert.equal(renderProgressMarkdown(base, []), base.replace(/\s+$/g, ""));
+
+  const rounds = [
+    { round: 1, summary: "落下の爽快感が支持された", aufhebung: ["難度と爽快の両立"] },
+    { round: 2, summary: "合体の戦略性が論点", aufhebung: [] },
+  ];
+  const md1 = renderProgressMarkdown(base, rounds);
+  assert.ok(md1.includes("# 議論の経過"));
+  assert.ok(md1.includes("## ラウンド 1"));
+  assert.ok(md1.includes("落下の爽快感が支持された"));
+  assert.ok(md1.includes("**止揚 (アウフヘーベン)**"));
+  assert.ok(md1.includes("- 難度と爽快の両立"));
+  assert.ok(md1.includes("## ラウンド 2"));
+  assert.ok(md1.startsWith("# 議題"), "base ブリーフが先頭");
+
+  // 冪等: 経過込みの md を base として渡しても二重化しない (stripProgress で土台化)。
+  const md2 = renderProgressMarkdown(md1, rounds);
+  assert.equal(md2, md1, "経過込み md を渡しても再焼きで同一");
+  assert.equal((md2.match(/# 議論の経過/g) || []).length, 1, "経過節は 1 つだけ");
+
+  // 結論を足す
+  const md3 = renderProgressMarkdown(base, rounds, "落下が核・合体は戦略層");
+  assert.ok(md3.includes("# 結論\n落下が核・合体は戦略層"));
+}
+
+// ── stripProgress: 経過以降を除去して base ブリーフに戻す ─────────────────────
+{
+  const base = "# 議題\nT\n\n# ゲームのメカニクス\n- **M**: d";
+  const withProgress = base + "\n\n# 議論の経過\n\n## ラウンド 1\nまとめ";
+  assert.equal(stripProgress(withProgress), base);
+  assert.equal(stripProgress(base), base, "経過が無ければそのまま");
 }
 
 console.log("paper-markdown.test.ts: all passed");

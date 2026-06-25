@@ -285,3 +285,23 @@ export function persistPaper(
   );
   return paperId;
 }
+
+/**
+ * 既存ペーパーの本文 markdown を更新する (議論進行中の「ペーパーが更新されていく」用)。
+ * ラウンドごとに base ブリーフ + 議論の経過 (まとめ/止揚) を焼き直して上書きする。
+ */
+export function updatePaperBody(paperId: string, bodyMd: string): void {
+  getFlowDb()
+    .prepare(`UPDATE discussion_paper SET body_md = ?, updated_at = ? WHERE id = ?`)
+    .run(bodyMd, Date.now(), paperId);
+}
+
+/** セッションの最新ペーパー本文 markdown を返す (無ければ null)。 */
+export function getPaperBodyBySession(sessionId: string): string | null {
+  const row = getFlowDb()
+    .prepare(
+      `SELECT body_md FROM discussion_paper WHERE session_id = ? ORDER BY created_at DESC LIMIT 1`
+    )
+    .get(sessionId) as { body_md: string | null } | undefined;
+  return row?.body_md ?? null;
+}

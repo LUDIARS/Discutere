@@ -186,6 +186,16 @@ bot 名義で締める (収束時 `finalizeForumPost` で lock+archive+まとめ
   観点タグは本文 md 外の操作フラグとして構造化維持。確定は `runFlow(paperOverride{bodyMd})` 経由で
   Discord と同一エンジン。→ **Di 内 UI だけで Discord と同じ議論**が回る。
 
+- **チャット議論の入口統一 + 議論ライブ表示 (ペーパーが更新されていく, 2026-06-25)**: トップ (`/`) の
+  **「チャット議論」カードを `/flow`** に向け(議論タイプ=議論を既定選択)、`/chat`(軽量チャット)は
+  別カード「フリーチャット」に分離。`/flow` で **テーマ + ターン数 + タグ** 記入 → ペーパー編集ゲート →
+  確定で **議論が自動進行**。確定後の `/flow` は **2 ペイン**(左=ディスカッションペーパーの md 描画 /
+  右=各 LLM の意見の逐次描画)になり、**ペーパーが議論進行で更新されていく**。実装: director が
+  ラウンドごとに `renderProgressMarkdown`(base ブリーフ + 議論の経過=まとめ/止揚 + 結論)を焼き
+  `updatePaperBody` で `discussion_paper.body_md` を上書き(LLM の system は base のまま=キャッシュ安定、
+  表示/永続の body_md だけ育つ・`# 議論の経過` は `stripProgress` で冪等)。status に `paperMd` を追加、
+  page.ts は軽量 md レンダラ + 変化フラッシュで描画。`getPaperBodyBySession`/`updatePaperBody` 追加。
+
 - **ペーパーの分量増強 (感想3倍 + メカニクスLLM増補, 2026-06-23)**: ペーパーが薄い問題への対処。
   設定 `flow.paperRichness` (`voices` 既定15 / `mechanicsTarget` 既定30 / `enrichMechanics` 既定true /
   `enrichModel`)。**感想**はペルソナ/ペーパーに載せる件数を 5→`voices` に増やす (director の voiceCache
