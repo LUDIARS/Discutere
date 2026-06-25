@@ -30,7 +30,39 @@ export const FLOW_HTML = `<!doctype html>
   #review h2 { font-size: 1rem; margin: 0 0 0.5rem; }
   #review input[type=text] { padding: 0.4rem; border: 1px solid #ccc; border-radius: 6px; font: inherit; }
   #review .row { margin: 0.5rem 0; }
-  #rvApprove { margin-top: 0.6rem; }
+  /* Notion 風ブロックエディタ */
+  .blk { background: #fff; border: 1px solid #e5e7eb; border-radius: 8px; padding: 0.5rem 0.6rem; margin: 0.5rem 0; }
+  .blk.heading { background: #f8fafc; }
+  .blk .blk-type { font-size: 0.7rem; color: #94a3b8; margin-bottom: 0.2rem; }
+  .blk .blk-text { width: 100%; border: 1px solid #e5e7eb; border-radius: 6px; padding: 0.4rem; font: inherit; box-sizing: border-box; resize: vertical; }
+  .blk .blk-actions { margin-top: 0.3rem; display: flex; gap: 0.3rem; flex-wrap: wrap; }
+  .blk .blk-actions button { padding: 0.25rem 0.6rem; font-size: 0.8rem; background: #e2e8f0; color: #1e293b; }
+  .blk .blk-actions button.primary { background: #2563eb; color: #fff; }
+  .blk .blk-actions button.danger { background: #fee2e2; color: #b91c1c; }
+  .blk .proposal { margin-top: 0.4rem; padding: 0.4rem 0.5rem; background: #f1f5f9; border-radius: 6px; }
+  .blk .proposal .rationale { font-size: 0.8rem; color: #475569; margin-bottom: 0.3rem; }
+  .blk .proposal .old { background: #fee2e2; text-decoration: line-through; padding: 0.2rem 0.4rem; border-radius: 4px; white-space: pre-wrap; display: block; margin-bottom: 0.2rem; }
+  .blk .proposal .new { background: #dcfce7; padding: 0.2rem 0.4rem; border-radius: 4px; white-space: pre-wrap; display: block; }
+  .rvbar { margin-top: 0.8rem; display: flex; gap: 0.3rem; flex-wrap: wrap; align-items: center; }
+  .rvbar input[type=text] { flex: 1; min-width: 14rem; }
+  #rvRevert { background: #e2e8f0; color: #1e293b; }
+  #rvRevert:disabled { background: #f1f5f9; color: #cbd5e1; }
+  .confirm { margin-top: 0.8rem; padding-top: 0.6rem; border-top: 1px solid #fde68a; display: flex; align-items: center; gap: 0.8rem; }
+  #rvApprove { background: #16a34a; }
+  #rvApprove:disabled { background: #9ca3af; }
+  /* ライブ議論 (ペーパー + 各 LLM の意見の 2 ペイン) */
+  #live { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin-top: 1rem; align-items: start; }
+  @media (max-width: 720px) { #live { grid-template-columns: 1fr; } }
+  #paperPanel { position: sticky; top: 0.5rem; background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 8px; padding: 0.6rem 0.8rem; max-height: 80vh; overflow: auto; }
+  #paperPanel h2, #opinions h2 { font-size: 1rem; margin: 0 0 0.5rem; }
+  #paperLive { font-size: 0.75rem; color: #2563eb; }
+  .paper-md { font-size: 0.9rem; line-height: 1.55; }
+  .paper-md h3 { font-size: 1rem; margin: 0.8rem 0 0.3rem; border-bottom: 1px solid #e2e8f0; padding-bottom: 0.1rem; }
+  .paper-md h4 { font-size: 0.9rem; margin: 0.6rem 0 0.2rem; color: #334155; }
+  .paper-md ul { margin: 0.2rem 0 0.4rem; padding-left: 1.2rem; }
+  .paper-md p { margin: 0.3rem 0; }
+  .paper-md .upd { animation: flash 1.2s ease-out; }
+  @keyframes flash { from { background: #fef9c3; } to { background: transparent; } }
 </style>
 </head>
 <body>
@@ -43,8 +75,7 @@ export const FLOW_HTML = `<!doctype html>
     <fieldset>
       <legend>議論タイプ (必須)</legend>
       <select id="flow" required>
-        <option value="">— 選択してください —</option>
-        <option value="discussion">議論</option>
+        <option value="discussion" selected>議論 (チャット議論)</option>
         <option value="improvement">改善</option>
         <option value="learning">学習 (収集)</option>
         <option value="sparring">壁打ち</option>
@@ -86,6 +117,12 @@ export const FLOW_HTML = `<!doctype html>
       <label>仕様書テキスト (貼り付け → 遊びのメカニクスを LLM 抽出して記録)
         <textarea id="specText" rows="6" placeholder="ゲーム仕様書を貼り付け (空欄なら解析しない)"></textarea>
       </label>
+      <label>ファイルから読み込む (md/txt/json 等のテキスト → 上の欄へ展開)
+        <input id="specFile" type="file" accept=".md,.txt,.json,.markdown,.text,text/*" />
+      </label>
+      <label>URL / ローカルパス (取得して解析・貼付本文と結合)
+        <input id="specUrl" type="text" placeholder="https://… または spec/feature/foo.md" style="width:80%" />
+      </label>
     </fieldset>
     <button type="submit" id="go">開始</button>
   </form>
@@ -96,31 +133,56 @@ export const FLOW_HTML = `<!doctype html>
   </div>
 
   <div id="review" style="display:none">
-    <h2>📝 ディスカッションペーパー 確認・調整</h2>
+    <h2>📝 ディスカッションペーパー編集 (確定すると議論開始できます)</h2>
     <div id="reviewInfo" class="muted">準備中…</div>
-    <div class="row"><label>議題<textarea id="rvTheme" rows="2"></textarea></label></div>
     <div class="row tags">観点タグ:
       <label><input type="checkbox" value="機密" /> 機密</label>
       <label><input type="checkbox" value="内部" /> 内部</label>
       <label><input type="checkbox" value="運用" /> 運用</label>
       <label><input type="checkbox" value="開発" /> 開発</label>
     </div>
-    <div class="row"><label>観点補足<textarea id="rvSupp" rows="2"></textarea></label></div>
-    <div class="row"><label>メカニクス (1 行 1 件・<code>名前 :: 説明 :: 期待感情</code>)<textarea id="rvMech" rows="6"></textarea></label></div>
-    <div class="row">
-      <input id="rvEdit" type="text" placeholder="自然文で調整 (例: メカニクスにガチャを追加)" style="width:60%" />
-      <button id="rvEditBtn" type="button">調整を反映</button>
+    <div id="blocks"></div>
+    <div class="rvbar">
+      <input id="rvEdit" type="text" placeholder="全体を自然文で調整 (例: メカニクスにガチャを追加)" />
+      <button id="rvEditBtn" type="button">全体調整</button>
+      <button id="rvRevert" type="button" disabled>↶ 戻す</button>
     </div>
-    <button id="rvApprove" type="button">この内容で開始</button>
     <div id="rvMsg" class="muted"></div>
+    <div class="confirm">
+      <label><input type="checkbox" id="rvConfirm" /> ペーパーを確定する</label>
+      <button id="rvApprove" type="button" disabled>議論開始</button>
+    </div>
   </div>
 
-  <div id="log"></div>
+  <div id="live" style="display:none">
+    <div id="paperPanel">
+      <h2>📝 ディスカッションペーパー <span id="paperLive" class="muted"></span></h2>
+      <div id="paperBody" class="paper-md"></div>
+    </div>
+    <div id="opinions">
+      <h2>💬 各 LLM の意見 (自動進行)</h2>
+      <div id="log"></div>
+    </div>
+  </div>
   <div id="conclusion" style="display:none"></div>
 
 <script>
 const $ = (id) => document.getElementById(id);
 let sessionId = null, kind = null, since = 0, timer = null;
+
+// 仕様書ファイル選択: テキストとして読み、上の specText 欄へ展開する (サーバ送信は specText で共通)。
+$("specFile").addEventListener("change", (e) => {
+  const file = e.target.files && e.target.files[0];
+  if (!file) return;
+  const reader = new FileReader();
+  reader.onload = () => {
+    const text = String(reader.result || "");
+    const cur = $("specText").value.trim();
+    $("specText").value = cur ? (cur + "\n\n" + text) : text;
+  };
+  reader.onerror = () => alert("ファイルの読み込みに失敗しました");
+  reader.readAsText(file);
+});
 
 $("start").addEventListener("submit", async (e) => {
   e.preventDefault();
@@ -136,87 +198,154 @@ $("start").addEventListener("submit", async (e) => {
   const learningAppId = $("learningAppId").value.trim() === "" ? undefined : Number($("learningAppId").value);
   const learningUrls = $("learningUrls").value.trim() || undefined;
   const specText = $("specText").value.trim() || undefined;
+  const specUrl = $("specUrl").value.trim() || undefined;
   $("go").disabled = true;
   const res = await fetch("/api/flow/start", {
     method: "POST", headers: { "content-type": "application/json" },
-    body: JSON.stringify({ theme, flow, tags, rounds, turnsPerRound, opponent, learningSource, learningQuery, learningAppId, learningUrls, specText }),
+    body: JSON.stringify({ theme, flow, tags, rounds, turnsPerRound, opponent, learningSource, learningQuery, learningAppId, learningUrls, specText, specUrl }),
   }).then(r => r.json()).catch(() => ({ ok: false, error: "通信失敗" }));
   if (!res.ok) { alert(res.error || "開始に失敗"); $("go").disabled = false; return; }
   sessionId = res.sessionId; kind = res.kind;
   if (kind === "learning") {
+    $("live").style.display = "grid"; $("paperPanel").style.display = "none";
     $("log").innerHTML = '<div class="u">学習収集 完了: 意見 ' + (res.result?.opinionsRecorded ?? 0) + ' 件 / メカニクス ' + (res.result?.mechanicsRecorded ?? 0) + ' 件 / 自動収集 ' + (res.result?.crawledImported ?? 0) + ' 件</div>';
     $("go").disabled = false;
     return;
   }
-  // ペーパーレビューゲート: 草案が ready になるまで待ち、確認・調整 UI を出す。
+  // ペーパー編集ゲート: 草案が ready になるまで待ち、編集 UI を出す。
   if (res.review) { pollPaper(); return; }
   if (kind === "sparring") { $("say").style.display = "block"; }
-  poll();
-  timer = setInterval(poll, 1500);
+  startLive();
 });
 
-// ── ペーパーレビュー (議論開始前の確認・調整) ──
-function renderMechanics(mechs) {
-  return (mechs || []).map(m => [m.name, m.description || "", m.intended_affect || ""].join(" :: ")).join("\\n");
+// ── ペーパー編集 (Notion 風ブロックエディタ・議論開始前) ──
+let curPaper = null;       // 最新ドラフト (bodyMd 込み)
+const TYPE_LABEL = { heading: "見出し", paragraph: "段落", list: "箇条書き" };
+
+function applyPayload(res) {
+  if (res.paper) curPaper = res.paper;
+  renderBlocks(res.blocks || []);
+  $("rvRevert").disabled = !res.canRevert;
 }
-function parseMechanics(text) {
-  return String(text || "").split(/\\n/).map(l => l.trim()).filter(Boolean).map(line => {
-    const p = line.split("::").map(s => s.trim());
-    return { name: p[0] || "", description: p[1] || "", intended_affect: p[2] || undefined };
-  }).filter(m => m.name);
-}
-function showReview(paper, info) {
-  $("review").style.display = "block";
-  $("rvTheme").value = paper.theme || "";
-  $("rvSupp").value = paper.supplement || "";
-  $("rvMech").value = renderMechanics(paper.mechanics);
-  for (const cb of document.querySelectorAll('#review .tags input')) cb.checked = (paper.tags || []).includes(cb.value);
-  if (info) {
-    $("reviewInfo").textContent = "集めた情報: 外部の声 " + (info.voiceCount || 0) + (info.countCapped ? "+" : "") + " 件";
+function renderBlocks(blocks) {
+  const root = $("blocks");
+  root.innerHTML = "";
+  for (const b of blocks) {
+    const div = document.createElement("div");
+    div.className = "blk " + b.type;
+    div.dataset.id = b.id;
+    const rows = Math.min(8, Math.max(1, String(b.text).split("\\n").length));
+    div.innerHTML =
+      '<div class="blk-type">' + (TYPE_LABEL[b.type] || b.type) + '</div>' +
+      '<textarea class="blk-text" rows="' + rows + '"></textarea>' +
+      '<div class="blk-actions">' +
+        '<button data-act="save" class="primary">保存</button>' +
+        '<button data-act="review">LLMレビュー</button>' +
+        '<button data-act="crawl">根拠を集める</button>' +
+        '<button data-act="del" class="danger">削除</button>' +
+      '</div>' +
+      '<div class="proposal" style="display:none"></div>';
+    div.querySelector(".blk-text").value = b.text;
+    root.appendChild(div);
   }
 }
-function collectPaper() {
-  return {
-    theme: $("rvTheme").value.trim(),
-    supplement: $("rvSupp").value.trim(),
-    tags: [...document.querySelectorAll('#review .tags input:checked')].map(c => c.value),
-    mechanics: parseMechanics($("rvMech").value),
-  };
+function paperApi(path, body) {
+  return fetch("/api/flow/" + sessionId + "/paper" + path, {
+    method: "POST", headers: { "content-type": "application/json" },
+    body: JSON.stringify(body || {}),
+  }).then(r => r.json()).catch(() => null);
 }
 async function pollPaper() {
   if (!sessionId) return;
   const res = await fetch("/api/flow/" + sessionId + "/paper").then(r => r.json()).catch(() => null);
   if (!res || !res.ok) { setTimeout(pollPaper, 1500); return; }
   if (!res.ready) { setTimeout(pollPaper, 1500); return; }
-  if (res.error) { $("review").style.display = "block"; $("rvMsg").textContent = "草案作成に失敗: " + res.error; return; }
-  showReview(res.paper, res.info);
+  $("review").style.display = "block";
+  if (res.error) { $("rvMsg").textContent = "草案作成に失敗: " + res.error; return; }
+  if (res.info) $("reviewInfo").textContent = "集めた情報: 外部の声 " + (res.info.voiceCount || 0) + (res.info.countCapped ? "+" : "") + " 件";
+  applyPayload(res);
 }
+
+// ブロック操作 (イベント委譲)
+$("blocks").addEventListener("click", async (e) => {
+  const btn = e.target.closest("button[data-act]");
+  if (!btn) return;
+  const blk = btn.closest(".blk");
+  const blockId = blk.dataset.id;
+  const act = btn.dataset.act;
+  const ta = blk.querySelector(".blk-text");
+  if (act === "save") {
+    $("rvMsg").textContent = "保存中…";
+    const res = await paperApi("/block/apply", { blockId, newText: ta.value, summary: "手編集" });
+    if (res && res.ok) { applyPayload(res); $("rvMsg").textContent = "✏️ ブロックを保存"; } else $("rvMsg").textContent = "保存に失敗";
+  } else if (act === "del") {
+    if (!confirm("このブロックを削除しますか?")) return;
+    const res = await paperApi("/block/apply", { blockId, newText: "", summary: "ブロック削除" });
+    if (res && res.ok) { applyPayload(res); $("rvMsg").textContent = "🗑 ブロックを削除"; }
+  } else if (act === "review") {
+    $("rvMsg").textContent = "LLM レビュー中…";
+    const inst = prompt("調整方針 (空欄で『議論しやすく明確に』)") || "";
+    const res = await paperApi("/block/review", { blockId, instruction: inst });
+    const prop = blk.querySelector(".proposal");
+    if (!res || !res.ok || !res.reviewed) { $("rvMsg").textContent = "レビュー失敗: " + (res ? res.rationale : ""); return; }
+    $("rvMsg").textContent = "";
+    prop.style.display = "block";
+    prop.innerHTML =
+      '<div class="rationale">💡 ' + escapeHtml(res.rationale) + '</div>' +
+      '<span class="old">' + escapeHtml(res.original) + '</span>' +
+      '<span class="new">' + escapeHtml(res.proposed) + '</span>' +
+      '<div class="blk-actions"><button data-act="accept" class="primary">採用</button><button data-act="reject">却下</button></div>';
+    prop._proposed = res.proposed;
+  } else if (act === "accept") {
+    const prop = blk.querySelector(".proposal");
+    const res = await paperApi("/block/apply", { blockId, newText: prop._proposed, summary: "LLMレビュー採用" });
+    if (res && res.ok) { applyPayload(res); $("rvMsg").textContent = "✅ レビューを採用"; }
+  } else if (act === "reject") {
+    const prop = blk.querySelector(".proposal");
+    prop.style.display = "none"; prop.innerHTML = "";
+  } else if (act === "crawl") {
+    $("rvMsg").textContent = "根拠を収集中…";
+    const res = await paperApi("/crawl", { blockId, insert: false });
+    const prop = blk.querySelector(".proposal");
+    if (!res || !res.ok) { $("rvMsg").textContent = "収集に失敗"; return; }
+    if (!res.evidence || !res.evidence.suggestion) { $("rvMsg").textContent = "根拠となる外部の声が見つかりませんでした"; return; }
+    $("rvMsg").textContent = "";
+    prop.style.display = "block";
+    prop.innerHTML =
+      '<div class="rationale">🔎 集めた根拠 (' + (res.evidence.voices.length) + ' 件)</div>' +
+      '<span class="new">' + escapeHtml(res.evidence.suggestion) + '</span>' +
+      '<div class="blk-actions"><button data-act="insert" class="primary">この根拠を挿入</button><button data-act="reject">閉じる</button></div>';
+  } else if (act === "insert") {
+    const res = await paperApi("/crawl", { blockId, insert: true });
+    if (res && res.ok) { applyPayload(res); $("rvMsg").textContent = "📎 根拠を挿入"; }
+  }
+});
+
 $("rvEditBtn").addEventListener("click", async () => {
   const instruction = $("rvEdit").value.trim();
   if (!instruction || !sessionId) return;
-  $("rvMsg").textContent = "反映中…";
-  const res = await fetch("/api/flow/" + sessionId + "/paper/edit", {
-    method: "POST", headers: { "content-type": "application/json" },
-    body: JSON.stringify({ instruction }),
-  }).then(r => r.json()).catch(() => null);
+  $("rvMsg").textContent = "全体調整中…";
+  const res = await paperApi("/edit", { instruction });
   if (!res || !res.ok) { $("rvMsg").textContent = "反映に失敗しました"; return; }
   $("rvEdit").value = "";
-  showReview(res.paper, null);
+  applyPayload(res);
   $("rvMsg").textContent = (res.applied ? "✏️ " : "⚠️ ") + (res.changeSummary || "");
 });
+$("rvRevert").addEventListener("click", async () => {
+  const res = await paperApi("/revert", {});
+  if (!res || !res.ok) { $("rvMsg").textContent = res ? res.error : "戻せませんでした"; return; }
+  applyPayload(res);
+  $("rvMsg").textContent = "↶ " + (res.changeSummary || "1 手前に戻しました");
+});
+$("rvConfirm").addEventListener("change", () => { $("rvApprove").disabled = !$("rvConfirm").checked; });
 $("rvApprove").addEventListener("click", async () => {
-  const paper = collectPaper();
-  if (!paper.theme) { alert("議題は必須です"); return; }
-  if (!sessionId) return;
+  if (!sessionId || !curPaper) return;
+  const tags = [...document.querySelectorAll('#review .tags input:checked')].map(c => c.value);
   $("rvApprove").disabled = true;
-  const res = await fetch("/api/flow/" + sessionId + "/paper/approve", {
-    method: "POST", headers: { "content-type": "application/json" },
-    body: JSON.stringify({ paper }),
-  }).then(r => r.json()).catch(() => null);
+  const res = await paperApi("/approve", { paper: { bodyMd: curPaper.bodyMd, tags } });
   if (!res || !res.ok) { alert("開始に失敗しました"); $("rvApprove").disabled = false; return; }
   $("review").style.display = "none";
-  poll();
-  timer = setInterval(poll, 1500);
+  startLive();
 });
 
 $("sayBtn").addEventListener("click", async () => {
@@ -230,10 +359,32 @@ $("sayBtn").addEventListener("click", async () => {
   poll();
 });
 
+// 議論ライブ表示を開始する (ペーパー + 各 LLM の意見の 2 ペイン)。
+function startLive() {
+  $("live").style.display = "grid";
+  poll();
+  timer = setInterval(poll, 1500);
+}
+
+let lastPaperMd = null;
 async function poll() {
   if (!sessionId) return;
   const res = await fetch("/api/flow/" + sessionId + "/status?since=" + since).then(r => r.json()).catch(() => null);
   if (!res || !res.ok) return;
+  // ディスカッションペーパー (議論進行で更新されていく) を描画。変化したらハイライト。
+  if (res.paperMd != null) {
+    $("paperPanel").style.display = "block";
+    if (res.paperMd !== lastPaperMd) {
+      $("paperBody").innerHTML = renderPaperMd(res.paperMd);
+      if (lastPaperMd !== null) {
+        $("paperLive").textContent = "更新 " + new Date().toLocaleTimeString();
+        $("paperBody").classList.remove("upd"); void $("paperBody").offsetWidth; $("paperBody").classList.add("upd");
+      }
+      lastPaperMd = res.paperMd;
+    }
+  } else {
+    $("paperPanel").style.display = "none";
+  }
   for (const u of res.utterances) {
     since = Math.max(since, u.createdAt);
     const div = document.createElement("div");
@@ -245,7 +396,26 @@ async function poll() {
     $("conclusion").style.display = "block";
     $("conclusion").textContent = res.conclusion;
   }
-  if (res.done) { clearInterval(timer); $("go").disabled = false; }
+  if (res.done) { clearInterval(timer); $("go").disabled = false; $("paperLive").textContent = "確定"; }
+}
+
+// 軽量 markdown レンダラ (見出し/箇条書き/太字/段落のみ・XSS 安全に escape 後変換)。
+function renderPaperMd(md) {
+  const lines = String(md).split(/\\n/);
+  let html = "", inList = false;
+  const inline = (s) => escapeHtml(s).replace(/\\*\\*(.+?)\\*\\*/g, "<strong>$1</strong>");
+  const closeList = () => { if (inList) { html += "</ul>"; inList = false; } };
+  for (const raw of lines) {
+    const line = raw.replace(/\\s+$/g, "");
+    if (line === "") { closeList(); continue; }
+    let m;
+    if ((m = /^#\\s+(.+)$/.exec(line))) { closeList(); html += "<h3>" + inline(m[1]) + "</h3>"; }
+    else if ((m = /^##\\s+(.+)$/.exec(line))) { closeList(); html += "<h4>" + inline(m[1]) + "</h4>"; }
+    else if ((m = /^[-*]\\s+(.+)$/.exec(line))) { if (!inList) { html += "<ul>"; inList = true; } html += "<li>" + inline(m[1]) + "</li>"; }
+    else { closeList(); html += "<p>" + inline(line) + "</p>"; }
+  }
+  closeList();
+  return html;
 }
 
 function escapeHtml(s) { return String(s).replace(/[&<>]/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;" }[c])); }

@@ -24,6 +24,7 @@ import { composeDisplayName } from "./persona-display.js";
 import { dispatchFlow, type DispatchDeps, type FlowKind } from "./dispatch.js";
 import { ensureLearningData, isAutoCrawlSource, resolveAutoCrawlSources, deriveSlug } from "./learning-autocrawl.js";
 import { analyzeSpecMechanics } from "./spec-analyze.js";
+import { resolveSpecText } from "./spec-source.js";
 import type { GameMechanicEntry } from "./games-md.js";
 import { gateBeforeFlow } from "./information-gate-runner.js";
 import {
@@ -85,6 +86,8 @@ export interface StartForumFlowInput {
   opponentPersonaIds?: string[];
   /** starter 本文 (任意。学習で仕様書解析 ② に使う。タイトルと別物のときだけ渡る)。 */
   specText?: string;
+  /** starter のテキスト系添付ファイル URL (任意。学習で仕様書解析 ③ に使う)。 */
+  specAttachmentUrls?: string[];
 }
 
 /** 収束時フック (gateway が finalizeForumPost に結線する)。 */
@@ -357,12 +360,22 @@ export async function startForumFlow(
         crawlSources.length > 0
           ? { sources: crawlSources, maxItems: crawlCfg.maxItems, youtubeApiKey }
           : undefined;
-      // 仕様書解析 (② specText): starter 本文があれば LLM 解析 → mechanics として記録。
+      // 仕様書解析 (②/③): starter 本文 (specText) + テキスト系添付ファイル (specAttachmentUrls) を
+      // まとめて LLM 解析 → mechanics として記録。添付は URL 取得 (ローカルパス読みは不許可)。
+      const specParts: string[] = [];
+      if (input.specText) specParts.push(input.specText);
+      for (const url of input.specAttachmentUrls ?? []) {
+        try {
+          specParts.push(await resolveSpecText(url, { allowLocalPath: false }));
+        } catch (e) {
+          console.warn(`  [spec-analyze ${input.threadId}] 添付取得失敗 (${url}): ${(e as Error).message}`);
+        }
+      }
       let mechanics: GameMechanicEntry[] | undefined;
-      if (input.specText) {
+      if (specParts.length > 0) {
         mechanics = await analyzeSpecMechanics({
           theme: input.theme,
-          specText: input.specText,
+          specText: specParts.join("\n\n"),
           llm: deps.llm,
           warn: (m) => console.warn(`  [spec-analyze ${input.threadId}] ${m}`),
         });

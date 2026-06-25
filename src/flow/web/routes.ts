@@ -17,6 +17,7 @@ import type { LLMClient } from "../../persona-engine/llm/client.js";
 import type { CascadeClients } from "../../crawler/sentiment/cascade.js";
 import type { createCore } from "../../core/index.js";
 import type { ContextVoice } from "../discussion-paper.js";
+import { getPaperBodyBySession } from "../discussion-paper.js";
 
 type Core = ReturnType<typeof createCore>;
 import { getFlowDb } from "../db/connection.js";
@@ -34,17 +35,29 @@ import {
 } from "../learning-autocrawl.js";
 import type { LearningCrawlSpec } from "../learning.js";
 import { analyzeSpecMechanics } from "../spec-analyze.js";
+import { resolveSpecText } from "../spec-source.js";
 import type { GameMechanicEntry } from "../games-md.js";
 import { gateBeforeFlow } from "../information-gate-runner.js";
 import {
   buildPaperDraft,
   applyPaperEdit,
   coercePaperDraft,
+  reviewBlock,
+  gatherEvidence,
+  withDerivedStructure,
   type PaperDraft,
   type PaperReviewInfo,
 } from "../paper-review.js";
+import { splitBlocks, replaceBlock, insertBlockAfter } from "../paper-blocks.js";
+import { appendRevision, canRevert, revertLast, listRevisions } from "../paper-revisions.js";
 import { getConfig } from "../../config.js";
 import { FLOW_HTML } from "./page.js";
+
+/** Web 議論/改善をペーパー編集ゲート経由にするか (enabled か webCanonical のどちらか)。 */
+function webPaperGateEnabled(): boolean {
+  const pr = getConfig().flow.paperReview;
+  return pr.enabled || pr.webCanonical;
+}
 
 /** リクエストボディ + config 既定から自動クロール指定を組み立てる。 enabled=false / 不正ソースは null。 */
 function buildAutoCrawlSpec(body: {
@@ -255,7 +268,15 @@ function startApprovedFlow(
   };
   void dispatchFlow(
     { theme: finalPaper.theme, tags: finalPaper.tags, flow: entry.flow, rounds: entry.rounds, turnsPerRound: entry.turnsPerRound },
-    { ...dispatchDeps, sessionId, paperOverride: { mechanics: finalPaper.mechanics, supplement: finalPaper.supplement } }
+    {
+      ...dispatchDeps,
+      sessionId,
+      paperOverride: {
+        mechanics: finalPaper.mechanics,
+        supplement: finalPaper.supplement,
+        bodyMd: finalPaper.bodyMd,
+      },
+    }
   )
     .catch((e) => console.warn(`[flow-web] ${entry.flow} 実行エラー: ${(e as Error).message}`))
     .finally(() => finished.add(sessionId));
@@ -296,6 +317,7 @@ flowRoutes.post("/api/flow/start", async (c) => {
     learningAppId?: unknown;
     learningUrls?: unknown;
     specText?: unknown;
+    specUrl?: unknown;
   };
   const theme = typeof body.theme === "string" ? body.theme.trim() : "";
   const flowLabel = typeof body.flow === "string" ? body.flow : "";
@@ -338,12 +360,25 @@ flowRoutes.post("/api/flow/start", async (c) => {
 
   // 学習: 短時間で完走するため await して結果を返す。
   //   - 自動収集モード (① 類似ゲーム): opinions 未供給でも横断クロール。
-  //   - 仕様書解析 (② specText): 貼付仕様書を LLM 解析 → mechanics として記録。
+  //   - 仕様書解析 (②/③ spec): 貼付/アップロード本文 (specText) + URL/パス取得 (specUrl) を
+  //     まとめて LLM 解析 → mechanics として記録。Web は loopback 信頼でローカルパス読みを許可。
   if (kind === "learning") {
     if (!deps.openCore) return c.json({ ok: false, error: "learning は Core 未設定のため不可" }, 400);
+    // youtube API キーは runtime 解決 (tuning UI / gcloud secret 経由)。
     const youtubeApiKey = await resolveYoutubeApiKey(webDeps);
     const learningCrawl = buildLearningCrawl({ ...body, youtubeApiKey });
-    const specText = typeof body.specText === "string" ? body.specText.trim() : "";
+    const inlineSpec = typeof body.specText === "string" ? body.specText.trim() : "";
+    const specUrl = typeof body.specUrl === "string" ? body.specUrl.trim() : "";
+    // URL / ローカルパスから取得した仕様書を貼付本文と結合する (取得失敗は学習を止めない)。
+    let specText = inlineSpec;
+    if (specUrl) {
+      try {
+        const fetched = await resolveSpecText(specUrl, { allowLocalPath: true });
+        specText = specText ? `${specText}\n\n${fetched}` : fetched;
+      } catch (e) {
+        console.warn(`[flow-web/spec] 仕様書ソース取得失敗 (${specUrl}): ${(e as Error).message}`);
+      }
+    }
     const core = deps.openCore();
     try {
       let mechanics: GameMechanicEntry[] | undefined;
@@ -371,8 +406,8 @@ flowRoutes.post("/api/flow/start", async (c) => {
   const sessionId = randomUUID();
   const autoCrawlSpec = buildAutoCrawlSpec(body);
 
-  // ペーパーレビューゲート (有効時): 情報整備後に草案を作り、ブラウザの調整/承認を待つ。
-  if (getConfig().flow.paperReview.enabled) {
+  // ペーパー編集ゲート (Web 正規フロー): 情報整備後に草案を作り、ブラウザの編集/承認を待つ。
+  if (webPaperGateEnabled()) {
     paperReviews.set(sessionId, { flow: kind, rounds, turnsPerRound, ready: false });
     void (async () => {
       await prepareInformationBeforeFlow(kind, theme, tags, sessionId, autoCrawlSpec, webDeps);
@@ -388,6 +423,8 @@ flowRoutes.post("/api/flow/start", async (c) => {
       const entry = paperReviews.get(sessionId);
       if (entry) {
         Object.assign(entry, { ready: true, draft, info });
+        // 初期草案を版履歴の rev1 として記録 (Notion 風編集の「戻す」基点)。
+        appendRevision({ sessionId, bodyMd: draft.bodyMd, changeSummary: "初期草案", origin: "initial" });
         scheduleWebAutoApprove(sessionId, webDeps); // 無操作タイムアウト (timeoutMs>0 時のみ)
       }
     })().catch((e) => {
@@ -407,36 +444,160 @@ flowRoutes.post("/api/flow/start", async (c) => {
   return c.json({ ok: true, kind, sessionId });
 });
 
-/** ペーパーレビュー草案の取得 (ready になるまでブラウザがポーリング)。 */
+/** ドラフト + ブロック分解 + 版履歴状態を 1 つの JSON にまとめる (Notion 風 UI 用)。 */
+function paperPayload(sessionId: string, draft: PaperDraft) {
+  return {
+    paper: draft,
+    blocks: splitBlocks(draft.bodyMd),
+    canRevert: canRevert(sessionId),
+    rev: latestRevisionRev(sessionId),
+  };
+}
+
+/** 最新リビジョン番号 (無ければ 0)。 */
+function latestRevisionRev(sessionId: string): number {
+  const rows = listRevisionsSafe(sessionId);
+  return rows.length ? rows[rows.length - 1].rev : 0;
+}
+function listRevisionsSafe(sessionId: string): Array<{ rev: number }> {
+  try {
+    return listRevisions(sessionId);
+  } catch {
+    return [];
+  }
+}
+
+/** ドラフトを本文 md で更新し、版履歴に追記して自動開始タイマーを延長する。 */
+function commitBodyMd(
+  sessionId: string,
+  entry: WebPaperReview,
+  bodyMd: string,
+  changeSummary: string,
+  origin: "llm-edit" | "crawl" | "manual",
+  webDeps: FlowWebDeps
+): PaperDraft {
+  const draft = withDerivedStructure(bodyMd, entry.draft as PaperDraft);
+  entry.draft = draft;
+  appendRevision({ sessionId, bodyMd: draft.bodyMd, changeSummary, origin });
+  scheduleWebAutoApprove(sessionId, webDeps); // 編集があったら自動開始を延長
+  return draft;
+}
+
+/** ペーパー編集草案の取得 (ready になるまでブラウザがポーリング)。 */
 flowRoutes.get("/api/flow/:session/paper", (c) => {
   const sessionId = c.req.param("session");
   const entry = paperReviews.get(sessionId);
-  if (!entry) return c.json({ ok: false, error: "レビュー対象が見つかりません" }, 404);
+  if (!entry) return c.json({ ok: false, error: "編集対象が見つかりません" }, 404);
   return c.json({
     ok: true,
     ready: entry.ready,
     error: entry.error ?? null,
-    paper: entry.draft ?? null,
     info: entry.info ?? null,
+    ...(entry.ready && entry.draft ? paperPayload(sessionId, entry.draft) : { paper: null, blocks: [] }),
   });
 });
 
-/** 自然文の調整指示をペーパーに反映する (Web の NL 編集)。 */
+/** 自然文の調整指示をペーパー全体に反映する (Web の NL 編集・本文 md 再生成)。 */
 flowRoutes.post("/api/flow/:session/paper/edit", async (c) => {
   if (!deps) return c.json({ ok: false, error: "flow web 未初期化" }, 500);
+  const webDeps = deps;
   const sessionId = c.req.param("session");
   const entry = paperReviews.get(sessionId);
-  if (!entry || !entry.ready || !entry.draft) return c.json({ ok: false, error: "レビュー準備中です" }, 409);
+  if (!entry || !entry.ready || !entry.draft) return c.json({ ok: false, error: "編集準備中です" }, 409);
   const body = (await c.req.json().catch(() => ({}))) as { instruction?: unknown };
   const instruction = typeof body.instruction === "string" ? body.instruction.trim() : "";
   if (!instruction) return c.json({ ok: false, error: "調整指示が空です" }, 400);
-  const edited = await applyPaperEdit(entry.draft, instruction, deps.llm, {
+  const edited = await applyPaperEdit(entry.draft, instruction, webDeps.llm, {
     model: getConfig().flow.paperReview.model || undefined,
     warn: (m) => console.warn(`[flow-web/paper ${sessionId}] ${m}`),
   });
-  entry.draft = edited.draft;
-  scheduleWebAutoApprove(sessionId, deps); // 調整があったら自動開始を延長
-  return c.json({ ok: true, paper: edited.draft, changeSummary: edited.changeSummary, applied: edited.applied });
+  if (edited.applied) commitBodyMd(sessionId, entry, edited.draft.bodyMd, edited.changeSummary, "llm-edit", webDeps);
+  return c.json({ ok: true, changeSummary: edited.changeSummary, applied: edited.applied, ...paperPayload(sessionId, entry.draft) });
+});
+
+/** 1 ブロックを LLM で改稿提案する (適用しない=UI が diff 提示して採否)。 */
+flowRoutes.post("/api/flow/:session/paper/block/review", async (c) => {
+  if (!deps) return c.json({ ok: false, error: "flow web 未初期化" }, 500);
+  const sessionId = c.req.param("session");
+  const entry = paperReviews.get(sessionId);
+  if (!entry || !entry.ready || !entry.draft) return c.json({ ok: false, error: "編集準備中です" }, 409);
+  const body = (await c.req.json().catch(() => ({}))) as { blockId?: unknown; instruction?: unknown };
+  const blockId = typeof body.blockId === "string" ? body.blockId : "";
+  if (!blockId) return c.json({ ok: false, error: "blockId が必要です" }, 400);
+  const result = await reviewBlock({
+    bodyMd: entry.draft.bodyMd,
+    blockId,
+    instruction: typeof body.instruction === "string" ? body.instruction : undefined,
+    llm: deps.llm,
+    model: getConfig().flow.paperReview.model || undefined,
+    warn: (m) => console.warn(`[flow-web/paper ${sessionId}] ${m}`),
+  });
+  // result.ok (改稿成否) は envelope の ok と衝突するので reviewed に分離する。
+  const { ok: reviewed, ...rest } = result;
+  return c.json({ ok: true, reviewed, ...rest });
+});
+
+/** ブロックの改稿/手編集を本文に適用する (採用 or 手動編集の確定)。 */
+flowRoutes.post("/api/flow/:session/paper/block/apply", async (c) => {
+  if (!deps) return c.json({ ok: false, error: "flow web 未初期化" }, 500);
+  const webDeps = deps;
+  const sessionId = c.req.param("session");
+  const entry = paperReviews.get(sessionId);
+  if (!entry || !entry.ready || !entry.draft) return c.json({ ok: false, error: "編集準備中です" }, 409);
+  const body = (await c.req.json().catch(() => ({}))) as { blockId?: unknown; newText?: unknown; summary?: unknown };
+  const blockId = typeof body.blockId === "string" ? body.blockId : "";
+  const newText = typeof body.newText === "string" ? body.newText : "";
+  if (!blockId) return c.json({ ok: false, error: "blockId が必要です" }, 400);
+  const nextMd = replaceBlock(entry.draft.bodyMd, blockId, newText);
+  const summary = typeof body.summary === "string" && body.summary.trim() ? body.summary.trim() : "ブロックを編集";
+  commitBodyMd(sessionId, entry, nextMd, summary, "manual", webDeps);
+  return c.json({ ok: true, ...paperPayload(sessionId, entry.draft) });
+});
+
+/** ブロックの根拠を集めて (RAG) 挿入用段落を提案する (クロール補佐)。insert=true で本文に追記。 */
+flowRoutes.post("/api/flow/:session/paper/crawl", async (c) => {
+  if (!deps) return c.json({ ok: false, error: "flow web 未初期化" }, 500);
+  const webDeps = deps;
+  const sessionId = c.req.param("session");
+  const entry = paperReviews.get(sessionId);
+  if (!entry || !entry.ready || !entry.draft) return c.json({ ok: false, error: "編集準備中です" }, 409);
+  if (!webDeps.listExternalVoices) return c.json({ ok: false, error: "外部の声の参照が無効です" }, 400);
+  const body = (await c.req.json().catch(() => ({}))) as { blockId?: unknown; query?: unknown; insert?: unknown };
+  const blockId = typeof body.blockId === "string" ? body.blockId : "";
+  const query = typeof body.query === "string" && body.query.trim() ? body.query.trim() : "";
+  // 検索語: 明示 query > ブロック本文 > 議題。
+  const blockText = blockId ? splitBlocks(entry.draft.bodyMd).find((b) => b.id === blockId)?.text : undefined;
+  const topic = query || (blockText ?? "").replace(/^#{1,6}\s+/, "").slice(0, 80) || entry.draft.theme;
+  const evidence = await gatherEvidence({
+    topic,
+    listExternalVoices: webDeps.listExternalVoices,
+    llm: webDeps.llm,
+    model: getConfig().flow.paperReview.model || undefined,
+    warn: (m) => console.warn(`[flow-web/paper ${sessionId}] ${m}`),
+  });
+  // insert=true なら提案段落を対象ブロック直後 (無ければ末尾) に挿入して確定。
+  if (body.insert === true && evidence.suggestion) {
+    const nextMd = blockId
+      ? insertBlockAfter(entry.draft.bodyMd, blockId, evidence.suggestion)
+      : `${entry.draft.bodyMd}\n\n${evidence.suggestion}`;
+    commitBodyMd(sessionId, entry, nextMd, `根拠を追記 (${evidence.voices.length} 件)`, "crawl", webDeps);
+    return c.json({ ok: true, inserted: true, evidence, ...paperPayload(sessionId, entry.draft) });
+  }
+  return c.json({ ok: true, inserted: false, evidence });
+});
+
+/** 1 手前の本文に戻す (版履歴 revert)。 */
+flowRoutes.post("/api/flow/:session/paper/revert", (c) => {
+  if (!deps) return c.json({ ok: false, error: "flow web 未初期化" }, 500);
+  const webDeps = deps;
+  const sessionId = c.req.param("session");
+  const entry = paperReviews.get(sessionId);
+  if (!entry || !entry.ready || !entry.draft) return c.json({ ok: false, error: "編集準備中です" }, 409);
+  const reverted = revertLast(sessionId);
+  if (!reverted) return c.json({ ok: false, error: "これ以上戻せません" }, 409);
+  entry.draft = withDerivedStructure(reverted.bodyMd, entry.draft as PaperDraft);
+  scheduleWebAutoApprove(sessionId, webDeps);
+  return c.json({ ok: true, changeSummary: reverted.changeSummary, ...paperPayload(sessionId, entry.draft) });
 });
 
 /** ペーパーを承認して議論を開始する (body に編集後ペーパーがあればそれを確定値にする)。 */
@@ -514,6 +675,8 @@ flowRoutes.get("/api/flow/:session/status", (c) => {
     })),
     conclusion: conclusionRow?.summary ?? null,
     concluded: conclusionRow?.concluded === 1,
+    // ライブのディスカッションペーパー本文 (議論進行で更新されていく)。
+    paperMd: getPaperBodyBySession(sessionId),
     done,
   });
 });

@@ -6,13 +6,18 @@
  * 確認し、自然文で調整 → 承認してから議論を始める** ためのコア。
  *
  * トランスポート非依存 (Discord スレッド / Web UI の両方が使う):
- *   - buildPaperDraft  : investigate でメカニクス + 観点補足を組み、集めた情報サマリを付ける。
- *   - applyPaperEdit   : 自然文の調整指示を LLM でペーパーに反映する (構造化編集)。
+ *   - buildPaperDraft  : investigate でメカニクス + 観点補足を組み、本文 md と情報サマリを付ける。
+ *   - applyPaperEdit   : 自然文の調整指示を LLM でペーパーに反映する (構造化編集 → 本文 md 再生成)。
+ *   - reviewBlock      : 本文 md の 1 ブロックを LLM で改稿提案する (Notion 風編集の補佐, 適用しない)。
+ *   - gatherEvidence   : ブロックの根拠となる外部の声を集約し挿入用の段落を提案する (クロール補佐)。
+ *   - coercePaperDraft : Web フォーム / 本文 md を PaperDraft に正規化する (本文 md 優先)。
  *   - renderPaperReview: ペーパー + 情報サマリを人間向け markdown にする。
  *   - isApprovalText   : 「開始」「承認」等の承認語かどうか。
  *
- * 確定したペーパーは director の runFlow(paperOverride) に渡し、investigate を省いて
- * その内容で議論を回す (= 人間が直したメカニクス/観点で議論する)。
+ * 本文は markdown を正本とする (ハイブリッド源泉, paper-markdown.ts)。構造化フィールド
+ * (mechanics 等) は md から派生し直して付随機能 (mechanics_json / 機密 synthetic) に使う。
+ * 確定したペーパーは director の runFlow(paperOverride) に bodyMd 込みで渡し、investigate を
+ * 省いてその内容 (各 LLM が md を直接参照) で議論を回す。
  */
 
 import type { LLMClient } from "../persona-engine/llm/client.js";
@@ -21,6 +26,8 @@ import { paperSupplement } from "./tags.js";
 import { investigateTheme, type MechanicSummary, type YoutubeSearchFn } from "./investigate.js";
 import { enrichMechanics } from "./mechanic-extract.js";
 import type { ContextVoice } from "./discussion-paper.js";
+import { paperDraftToMarkdown, markdownToPaperDraft, type PaperContent } from "./paper-markdown.js";
+import { getBlockText } from "./paper-blocks.js";
 
 /** 有効な観点タグ (編集で受理する集合)。 */
 export const VALID_FLOW_TAGS: readonly FlowTag[] = ["機密", "内部", "運用", "開発"];
@@ -32,12 +39,21 @@ const COUNT_LIMIT = 50;
 /**
  * 人間レビュー対象のペーパー草案 (= 議題ブリーフ)。
  * discussion_paper に永続する前の可変ドラフトで、承認時に runFlow(paperOverride) へ渡す。
+ * 本文 (bodyMd) を正本とし、構造化フィールドはそこから派生する (ハイブリッド源泉)。
  */
-export interface PaperDraft {
-  theme: string;
-  tags: FlowTag[];
-  supplement: string;
-  mechanics: MechanicSummary[];
+export interface PaperDraft extends PaperContent {
+  /** 議論ブリーフ本文の正本 markdown (Notion 風編集の編集対象)。 */
+  bodyMd: string;
+}
+
+/** 構造化フィールドから本文 md を生成してドラフトにする。 */
+export function withDerivedBody(content: PaperContent): PaperDraft {
+  return { ...content, bodyMd: paperDraftToMarkdown(content) };
+}
+
+/** 本文 md から構造化フィールドを派生してドラフトにする (md を正本に保つ)。 */
+export function withDerivedStructure(bodyMd: string, fallback: PaperContent): PaperDraft {
+  return { ...markdownToPaperDraft(bodyMd, fallback), bodyMd };
 }
 
 /** ペーパーと併せて見せる「集めた情報」のサマリ。 */
@@ -104,12 +120,12 @@ export async function buildPaperDraft(
     });
   }
 
-  const draft: PaperDraft = {
+  const draft: PaperDraft = withDerivedBody({
     theme,
     tags: [...tags],
     supplement: paperSupplement(tags),
     mechanics,
-  };
+  });
   const info: PaperReviewInfo = {
     voiceCount: voices.length,
     countCapped: voices.length >= COUNT_LIMIT,
@@ -241,26 +257,33 @@ export async function applyPaperEdit(
       : "ペーパーを更新しました。";
 
   return {
-    draft: { theme, tags, supplement, mechanics },
+    // 構造化編集後に本文 md を再生成する (md を正本に保つ)。
+    draft: withDerivedBody({ theme, tags, supplement, mechanics }),
     changeSummary,
     applied: true,
   };
 }
 
 /**
- * 外部入力 (Web フォームの直接編集 JSON 等) を PaperDraft に正規化する。
+ * 外部入力 (Web フォームの直接編集 JSON / 本文 md) を PaperDraft に正規化する。
+ * 本文 md が来ていればそれを正本とし構造化フィールドを派生する (Notion 風編集の確定経路)。
  * 欠落/不正フィールドは fallback (現行ドラフト) で補う。tags は有効タグのみ。
  */
 export function coercePaperDraft(raw: unknown, fallback: PaperDraft): PaperDraft {
   if (!raw || typeof raw !== "object") return fallback;
   const o = raw as Record<string, unknown>;
+  // tags は本文 md に含めないので、本文 md 経路でも別途上書きを受ける。
+  const tags = "tags" in o ? sanitizeTags(o.tags) : fallback.tags;
+  // 本文 md があれば最優先 (md を正本に保つ)。tags は別管理なので上書き反映する。
+  if (typeof o.bodyMd === "string" && o.bodyMd.trim()) {
+    return withDerivedStructure(o.bodyMd, { ...fallback, tags });
+  }
   const theme = typeof o.theme === "string" && o.theme.trim() ? o.theme.trim() : fallback.theme;
   const supplement = typeof o.supplement === "string" ? o.supplement : fallback.supplement;
-  const tags = "tags" in o ? sanitizeTags(o.tags) : fallback.tags;
   const mechanics = Array.isArray(o.mechanics)
     ? o.mechanics.map(normalizeMechanic).filter((m): m is MechanicSummary => m !== null)
     : fallback.mechanics;
-  return { theme, tags, supplement, mechanics };
+  return withDerivedBody({ theme, tags, supplement, mechanics });
 }
 
 /** ペーパー + 情報サマリを人間向け markdown にする (Discord 投稿 / Web 表示で共有)。 */
@@ -316,4 +339,127 @@ export function isApprovalText(text: string): boolean {
     "✅",
   ]);
   return exact.has(t);
+}
+
+// ── Notion 風ブロック編集の補佐 (Web) ────────────────────────────────────────
+
+export interface BlockReviewResult {
+  blockId: string;
+  /** 改稿前の本文 (見つからなければ "")。 */
+  original: string;
+  /** LLM の改稿案 (失敗時は original のまま)。 */
+  proposed: string;
+  /** 何をどう直したかの一言 (日本語)。 */
+  rationale: string;
+  /** 改稿案を得られたか (false = ブロック不在 / LLM 失敗で original のまま)。 */
+  ok: boolean;
+}
+
+export interface ReviewBlockArgs {
+  bodyMd: string;
+  blockId: string;
+  /** 任意の調整指示 (例「もっと具体的に」)。空なら「議論しやすく明確に」既定。 */
+  instruction?: string;
+  llm: LLMClient;
+  model?: string;
+  warn?: (msg: string) => void;
+}
+
+/**
+ * 本文 md の 1 ブロックを LLM で改稿提案する (適用はしない=UI が diff 提示して採否)。
+ * ブロックが見つからない / LLM 失敗時は ok=false で original を返す (本文を壊さない)。
+ */
+export async function reviewBlock(args: ReviewBlockArgs): Promise<BlockReviewResult> {
+  const { bodyMd, blockId, llm } = args;
+  const original = getBlockText(bodyMd, blockId);
+  if (original == null) {
+    return { blockId, original: "", proposed: "", rationale: "対象ブロックが見つかりません。", ok: false };
+  }
+  const instruction = (args.instruction ?? "").trim() || "議論しやすく明確に整える";
+  const system =
+    "あなたは議論ブリーフ (ディスカッションペーパー) の編集補佐です。" +
+    "渡された markdown ブロック 1 つを、議題ブリーフとして読みやすく改稿します。" +
+    "見出し記号 (#) や箇条書き記号 (-) のブロック種別は保ち、意味を勝手に増やさない。" +
+    "**JSON のみ** で返す。スキーマ: " +
+    '{"proposed":string,"rationale":string}。' +
+    "proposed は改稿後のブロック本文 (markdown)、rationale は変更点を 1 文 (日本語)。" +
+    "前置きやコードフェンスは付けない。";
+  const prompt =
+    `# 調整方針\n${instruction}\n\n# 対象ブロック (現行)\n${original}\n\n` +
+    `# 参考: ブリーフ全文\n${bodyMd}\n\n上記ブロックの改稿案を JSON で返してください。`;
+
+  let result;
+  try {
+    result = await llm.invoke({ system, prompt, model: args.model });
+  } catch (e) {
+    args.warn?.(`reviewBlock LLM 例外: ${(e as Error).message}`);
+    return { blockId, original, proposed: original, rationale: "改稿に失敗しました (LLM 例外)。", ok: false };
+  }
+  if (!result.ok) {
+    args.warn?.(`reviewBlock LLM エラー: ${result.error}`);
+    return { blockId, original, proposed: original, rationale: "改稿に失敗しました。", ok: false };
+  }
+  const parsed = extractJsonObject(result.text) as Record<string, unknown> | null;
+  const proposed =
+    parsed && typeof parsed.proposed === "string" && parsed.proposed.trim()
+      ? parsed.proposed.trim()
+      : "";
+  if (!proposed) {
+    return { blockId, original, proposed: original, rationale: "改稿案を取得できませんでした。", ok: false };
+  }
+  const rationale =
+    parsed && typeof parsed.rationale === "string" && parsed.rationale.trim()
+      ? parsed.rationale.trim()
+      : "ブロックを改稿しました。";
+  return { blockId, original, proposed, rationale, ok: true };
+}
+
+export interface EvidenceResult {
+  /** 集めた外部の声 (出所付き・個人仮名)。 */
+  voices: Array<{ content: string; source: string }>;
+  /** ブロックに挿入できる根拠段落の提案 (LLM 要約 or 箇条書き)。 */
+  suggestion: string;
+}
+
+export interface GatherEvidenceArgs {
+  /** 根拠を集める対象 (ブロック本文 or テーマ語)。検索語に使う。 */
+  topic: string;
+  /** RAG: 既に集めた KG から外部の声を引く (read-only, web 経路の listExternalVoices)。 */
+  listExternalVoices: (terms: string[], limit: number) => ContextVoice[];
+  /** 提案段落を要約生成する LLM (省略時は箇条書きをそのまま提案)。 */
+  llm?: LLMClient;
+  model?: string;
+  limit?: number;
+  warn?: (msg: string) => void;
+}
+
+/**
+ * ブロックの根拠となる外部の声を集約し、挿入用の段落を提案する (クロール補佐)。
+ * KG への書込みはせず、収集済みの声を RAG で引くだけ (編集中の単一writer衝突を避ける)。
+ * 声が無ければ空の suggestion を返す。
+ */
+export async function gatherEvidence(args: GatherEvidenceArgs): Promise<EvidenceResult> {
+  const limit = args.limit ?? 12;
+  const raw = args.listExternalVoices([args.topic], limit);
+  const voices = raw.slice(0, limit).map((v) => ({
+    content: v.content.length > 200 ? `${v.content.slice(0, 200)}…` : v.content,
+    source: v.source,
+  }));
+  if (voices.length === 0) return { voices, suggestion: "" };
+
+  // 箇条書きの素の根拠 (LLM 無し時はこれを提案)。
+  const bullets = voices.map((v) => `- 「${v.content}」（出所: ${v.source}）`).join("\n");
+  if (!args.llm) return { voices, suggestion: `## 集めた根拠 (外部の声)\n${bullets}` };
+
+  const system =
+    "あなたは議論ブリーフの編集補佐です。集めた外部の声を踏まえ、議題に関する観点の" +
+    "根拠段落を中立的にまとめます。markdown の段落 (箇条書き可) のみを返す (前置き不要)。";
+  const prompt = `# 観点\n${args.topic}\n\n# 集めた外部の声\n${bullets}\n\n根拠段落をまとめてください。`;
+  try {
+    const r = await args.llm.invoke({ system, prompt, model: args.model });
+    if (r.ok && r.text.trim()) return { voices, suggestion: r.text.trim() };
+  } catch (e) {
+    args.warn?.(`gatherEvidence LLM 例外: ${(e as Error).message}`);
+  }
+  return { voices, suggestion: `## 集めた根拠 (外部の声)\n${bullets}` };
 }

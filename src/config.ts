@@ -97,8 +97,14 @@ export interface DiscutereConfig {
      * 既定 false (= 従来どおり情報ゲート後に自動開始)。有効時は Discord スレッド返信 / Web UI で調整できる。
      */
     paperReview: {
-      /** 有効化。既定 false (opt-in)。 */
+      /** 有効化 (Discord スレッド返信での調整を含む全経路)。既定 false (opt-in)。 */
       enabled: boolean;
+      /**
+       * Web UI (/flow) を **常にペーパー編集ゲート経由の正規フロー** にする。既定 true。
+       * true なら enabled=false でも Web の議論/改善は Notion 風編集を必ず通る
+       * (Discord は enabled に従う)。Web で従来の即時開始に戻すなら false。
+       */
+      webCanonical: boolean;
       /** ペーパー編集に使うモデル ("" なら LLM の既定モデル)。 */
       model: string;
       /**
@@ -653,6 +659,11 @@ export function loadConfig(): DiscutereConfig {
           process.env.DISCUTERE_FLOW_PAPER_REVIEW_ENABLED,
           file.flow?.paperReview?.enabled,
           false
+        ),
+        webCanonical: pickBool(
+          process.env.DISCUTERE_FLOW_PAPER_REVIEW_WEB_CANONICAL,
+          file.flow?.paperReview?.webCanonical,
+          true
         ),
         model: pick(process.env.DISCUTERE_FLOW_PAPER_REVIEW_MODEL, file.flow?.paperReview?.model, ""),
         timeoutMs: pickNum(

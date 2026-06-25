@@ -19,11 +19,13 @@ import {
   buildPaperSystem,
   buildPersonaUserPrompt,
   persistPaper,
+  updatePaperBody,
   synthesizeOpinions,
   type ContextVoice,
   type DiscussionPaper,
   type RoundSummary,
 } from "./discussion-paper.js";
+import { renderProgressMarkdown } from "./paper-markdown.js";
 import { investigateTheme, type YoutubeSearchFn, type MechanicSummary } from "./investigate.js";
 import { getFlowDb } from "./db/connection.js";
 import { runRoundVote, type VoteResult } from "./vote.js";
@@ -100,6 +102,11 @@ export interface FlowDirectorDeps {
 export interface PaperOverride {
   mechanics: MechanicSummary[];
   supplement: string;
+  /**
+   * 確定した議論ブリーフ本文の正本 markdown (Web の Notion 風編集ゲートで調整したもの)。
+   * 指定時はこれを各 LLM の system に直接載せる。未指定なら mechanics/supplement から生成する。
+   */
+  bodyMd?: string;
 }
 
 /** 都度指定ラウンド/ターン数の暴走ガード上限 (コスト保護)。 */
@@ -246,9 +253,13 @@ export async function runFlow(
   let investigation: Awaited<ReturnType<typeof investigateTheme>> | null = null;
   let mechanics: MechanicSummary[];
   let supplement: string;
+  // 議論ブリーフ本文の正本 markdown (ハイブリッド源泉)。確定ペーパーの bodyMd を優先し、
+  // 無ければ構造化フィールドから生成する (全経路で body_md を持たせ各 LLM が直接参照)。
+  let bodyMd: string | undefined;
   if (override) {
     mechanics = override.mechanics;
     supplement = override.supplement;
+    bodyMd = override.bodyMd;
     log(`確定ペーパー使用: investigate スキップ (メカニクス ${mechanics.length} 件)`);
   } else {
     log(`調査開始: "${theme}" (タグ: [${tags.join(", ")}])`);
@@ -280,7 +291,19 @@ export async function runFlow(
   }
 
   // ── [2] ディスカッションペーパー初期化 ─────────────────────────────────
-  const paperId = persistPaper({ sessionId, theme, tags: [...tags], mechanics, supplement }, flow);
+  // bodyMd (正本 md) が未指定なら構造化フィールドから生成する (Discord / 非レビュー経路)。
+  if (!bodyMd || !bodyMd.trim()) {
+    bodyMd = (await import("./paper-markdown.js")).paperDraftToMarkdown({
+      theme,
+      tags: [...tags],
+      supplement,
+      mechanics,
+    });
+  }
+  const paperId = persistPaper(
+    { sessionId, theme, tags: [...tags], mechanics, supplement, bodyMd },
+    flow
+  );
   const paper: DiscussionPaper = {
     paperId,
     sessionId,
@@ -288,6 +311,7 @@ export async function runFlow(
     tags: [...tags],
     mechanics,
     supplement,
+    bodyMd,
     rounds: [],
   };
 
@@ -532,6 +556,14 @@ export async function runFlow(
     };
     paper.rounds.push(roundSummary);
 
+    // ペーパー更新 (ライブ): base ブリーフ + ここまでの議論の経過 (まとめ/止揚) を焼き直して
+    // discussion_paper.body_md に上書き → Web UI で「ペーパーが更新されていく」。
+    try {
+      updatePaperBody(paperId, renderProgressMarkdown(paper.bodyMd ?? "", paper.rounds));
+    } catch (e) {
+      warn(`ペーパー更新失敗 (議論は続行): ${(e as Error).message}`);
+    }
+
     log(`ラウンド ${round} 終了 (${roundUtterances.length} 発話, 止揚: ${summaryResult.newAufhebung.length})`);
 
     // ── [9] 早期収束チェック: 止揚が facilitator.aufhebungTarget に達したら打ち切り ──
@@ -556,6 +588,16 @@ export async function runFlow(
     flow,
   });
   log(`結論: ${conclusionResult.concluded ? conclusionResult.summary.slice(0, 80) : "結論なし"}`);
+
+  // ペーパー最終更新 (ライブ): 議論の経過 + 結論まで焼き込む。
+  try {
+    updatePaperBody(
+      paperId,
+      renderProgressMarkdown(paper.bodyMd ?? "", paper.rounds, conclusionResult.summary)
+    );
+  } catch (e) {
+    warn(`ペーパー最終更新失敗: ${(e as Error).message}`);
+  }
 
   return {
     sessionId,
