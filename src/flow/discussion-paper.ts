@@ -266,11 +266,33 @@ export function persistPaper(
   flow = "discussion"
 ): string {
   const db = getFlowDb();
-  const paperId = randomUUID();
   const now = Date.now();
+  // 同 session の行 (= 編集ゲートで作った draft) があれば 'started' に upsert (重複行を作らない)。
+  const existing = db
+    .prepare(`SELECT id FROM discussion_paper WHERE session_id = ?`)
+    .get(paper.sessionId) as { id: string } | undefined;
+  if (existing) {
+    db.prepare(
+      `UPDATE discussion_paper
+          SET flow = ?, theme = ?, tags_json = ?, mechanics_json = ?, supplement = ?, body_md = ?,
+              status = 'started', updated_at = ?
+        WHERE id = ?`
+    ).run(
+      flow,
+      paper.theme,
+      JSON.stringify(paper.tags),
+      JSON.stringify(paper.mechanics),
+      paper.supplement,
+      paper.bodyMd ?? null,
+      now,
+      existing.id
+    );
+    return existing.id;
+  }
+  const paperId = randomUUID();
   db.prepare(
-    `INSERT INTO discussion_paper (id, flow, session_id, theme, tags_json, mechanics_json, supplement, body_md, created_at, updated_at)
-     VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`
+    `INSERT INTO discussion_paper (id, flow, session_id, theme, tags_json, mechanics_json, supplement, body_md, status, created_at, updated_at)
+     VALUES (?, ?, ?, ?, ?, ?, ?, ?, 'started', ?, ?)`
   ).run(
     paperId,
     flow,
@@ -284,6 +306,104 @@ export function persistPaper(
     now
   );
   return paperId;
+}
+
+/** 編集ゲートのドラフト行 (status='draft') の復元用スナップショット。 */
+export interface DraftPaperRow {
+  paperId: string;
+  flow: string;
+  theme: string;
+  tags: FlowTag[];
+  mechanics: MechanicSummary[];
+  supplement: string;
+  bodyMd: string;
+}
+
+/**
+ * 編集中ドラフトを discussion_paper に status='draft' で永続 (議論一覧に「下書き」として出す)。
+ * 同 session に行があれば内容を更新する (status は変えない=既に started なら上書きしない)。
+ */
+export function persistDraftPaper(
+  paper: Omit<DiscussionPaper, "paperId" | "rounds">,
+  flow = "discussion"
+): string {
+  const db = getFlowDb();
+  const now = Date.now();
+  const existing = db
+    .prepare(`SELECT id FROM discussion_paper WHERE session_id = ?`)
+    .get(paper.sessionId) as { id: string } | undefined;
+  if (existing) {
+    db.prepare(
+      `UPDATE discussion_paper
+          SET flow = ?, theme = ?, tags_json = ?, mechanics_json = ?, supplement = ?, body_md = ?, updated_at = ?
+        WHERE id = ?`
+    ).run(
+      flow,
+      paper.theme,
+      JSON.stringify(paper.tags),
+      JSON.stringify(paper.mechanics),
+      paper.supplement,
+      paper.bodyMd ?? null,
+      now,
+      existing.id
+    );
+    return existing.id;
+  }
+  const paperId = randomUUID();
+  db.prepare(
+    `INSERT INTO discussion_paper (id, flow, session_id, theme, tags_json, mechanics_json, supplement, body_md, status, created_at, updated_at)
+     VALUES (?, ?, ?, ?, ?, ?, ?, ?, 'draft', ?, ?)`
+  ).run(
+    paperId,
+    flow,
+    paper.sessionId,
+    paper.theme,
+    JSON.stringify(paper.tags),
+    JSON.stringify(paper.mechanics),
+    paper.supplement,
+    paper.bodyMd ?? null,
+    now,
+    now
+  );
+  return paperId;
+}
+
+/** session の draft ペーパー行を返す (status='draft' のみ。無ければ null)。編集の再開に使う。 */
+export function getDraftPaper(sessionId: string): DraftPaperRow | null {
+  const row = getFlowDb()
+    .prepare(
+      `SELECT id, flow, theme, tags_json, mechanics_json, supplement, body_md
+         FROM discussion_paper WHERE session_id = ? AND status = 'draft'`
+    )
+    .get(sessionId) as
+    | {
+        id: string;
+        flow: string;
+        theme: string;
+        tags_json: string;
+        mechanics_json: string;
+        supplement: string;
+        body_md: string | null;
+      }
+    | undefined;
+  if (!row) return null;
+  const parseArr = <T,>(s: string): T[] => {
+    try {
+      const v = JSON.parse(s);
+      return Array.isArray(v) ? (v as T[]) : [];
+    } catch {
+      return [];
+    }
+  };
+  return {
+    paperId: row.id,
+    flow: row.flow,
+    theme: row.theme,
+    tags: parseArr<FlowTag>(row.tags_json),
+    mechanics: parseArr<MechanicSummary>(row.mechanics_json),
+    supplement: row.supplement,
+    bodyMd: row.body_md ?? "",
+  };
 }
 
 /**

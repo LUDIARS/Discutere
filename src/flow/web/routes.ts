@@ -17,7 +17,7 @@ import type { LLMClient } from "../../persona-engine/llm/client.js";
 import type { CascadeClients } from "../../crawler/sentiment/cascade.js";
 import type { createCore } from "../../core/index.js";
 import type { ContextVoice } from "../discussion-paper.js";
-import { getPaperBodyBySession } from "../discussion-paper.js";
+import { getPaperBodyBySession, persistDraftPaper, getDraftPaper } from "../discussion-paper.js";
 
 type Core = ReturnType<typeof createCore>;
 import { getFlowDb } from "../db/connection.js";
@@ -425,6 +425,8 @@ flowRoutes.post("/api/flow/start", async (c) => {
         Object.assign(entry, { ready: true, draft, info });
         // 初期草案を版履歴の rev1 として記録 (Notion 風編集の「戻す」基点)。
         appendRevision({ sessionId, bodyMd: draft.bodyMd, changeSummary: "初期草案", origin: "initial" });
+        // ドラフトを discussion_paper(status='draft') に永続 → 議論一覧に「下書き」として出す/再開できる。
+        persistDraftPaper({ sessionId, theme, tags: draft.tags, mechanics: draft.mechanics, supplement: draft.supplement, bodyMd: draft.bodyMd }, kind);
         scheduleWebAutoApprove(sessionId, webDeps); // 無操作タイムアウト (timeoutMs>0 時のみ)
       }
     })().catch((e) => {
@@ -479,14 +481,31 @@ function commitBodyMd(
   const draft = withDerivedStructure(bodyMd, entry.draft as PaperDraft);
   entry.draft = draft;
   appendRevision({ sessionId, bodyMd: draft.bodyMd, changeSummary, origin });
+  // ドラフト行 (一覧の「下書き」) を最新内容に同期する (議題編集で一覧の表題も追従)。
+  persistDraftPaper({ sessionId, theme: draft.theme, tags: draft.tags, mechanics: draft.mechanics, supplement: draft.supplement, bodyMd: draft.bodyMd }, entry.flow);
   scheduleWebAutoApprove(sessionId, webDeps); // 編集があったら自動開始を延長
   return draft;
+}
+
+/** メモリに編集エントリが無い時、永続済みドラフト (status='draft') から復元する (再起動/再訪で編集を再開)。 */
+function rehydrateDraftEntry(sessionId: string): WebPaperReview | null {
+  const row = getDraftPaper(sessionId);
+  if (!row) return null;
+  const draft = withDerivedStructure(row.bodyMd, {
+    theme: row.theme,
+    tags: row.tags,
+    supplement: row.supplement,
+    mechanics: row.mechanics,
+  });
+  const entry: WebPaperReview = { flow: row.flow as FlowKind, ready: true, draft };
+  paperReviews.set(sessionId, entry);
+  return entry;
 }
 
 /** ペーパー編集草案の取得 (ready になるまでブラウザがポーリング)。 */
 flowRoutes.get("/api/flow/:session/paper", (c) => {
   const sessionId = c.req.param("session");
-  const entry = paperReviews.get(sessionId);
+  const entry = paperReviews.get(sessionId) ?? rehydrateDraftEntry(sessionId);
   if (!entry) return c.json({ ok: false, error: "編集対象が見つかりません" }, 404);
   return c.json({
     ok: true,
@@ -631,7 +650,7 @@ flowRoutes.get("/api/flow/sessions", (c) => {
   const db = getFlowDb();
   const rows = db
     .prepare(
-      `SELECT dp.session_id AS sessionId, dp.theme AS theme, dp.flow AS flow,
+      `SELECT dp.session_id AS sessionId, dp.theme AS theme, dp.flow AS flow, dp.status AS status,
               dp.created_at AS createdAt, dp.updated_at AS updatedAt,
               (SELECT COUNT(*) FROM flow_utterance fu WHERE fu.session_id = dp.session_id) AS utterances,
               (SELECT concluded FROM flow_conclusion fc WHERE fc.session_id = dp.session_id) AS concluded
@@ -643,6 +662,7 @@ flowRoutes.get("/api/flow/sessions", (c) => {
     sessionId: string;
     theme: string;
     flow: string;
+    status: string;
     createdAt: number;
     updatedAt: number;
     utterances: number;
@@ -650,7 +670,12 @@ flowRoutes.get("/api/flow/sessions", (c) => {
   }>;
   return c.json({
     ok: true,
-    sessions: rows.map((r) => ({ ...r, concluded: r.concluded === 1 })),
+    sessions: rows.map((r) => {
+      const concluded = r.concluded === 1;
+      // 表示状態: draft (編集中・未確定) / concluded (結論あり) / live (進行/未収束)。
+      const state = r.status === "draft" ? "draft" : concluded ? "concluded" : "live";
+      return { ...r, concluded, state };
+    }),
   });
 });
 

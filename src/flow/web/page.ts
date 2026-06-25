@@ -73,6 +73,7 @@ export const FLOW_HTML = `<!doctype html>
   .badge { display: inline-block; font-size: 0.7rem; border-radius: 5px; padding: 0.05rem 0.4rem; margin-right: 0.4rem; }
   .badge.live { background: #dbeafe; color: #1d4ed8; }
   .badge.done { background: #dcfce7; color: #15803d; }
+  .badge.draft { background: #fef3c7; color: #b45309; }
   #backBar { margin: 0.6rem 0; }
   #backToList { background: #e2e8f0; color: #1e293b; }
 </style>
@@ -408,13 +409,29 @@ async function loadSessions() {
   el.innerHTML = "";
   for (const s of res.sessions) {
     const b = document.createElement("button");
-    b.className = "sess"; b.dataset.sid = s.sessionId; b.type = "button";
-    const badge = s.concluded ? '<span class="badge done">結論あり</span>' : '<span class="badge live">進行/未収束</span>';
+    b.className = "sess"; b.dataset.sid = s.sessionId; b.dataset.state = s.state || (s.concluded ? "concluded" : "live"); b.type = "button";
+    const badge = s.state === "draft"
+      ? '<span class="badge draft">下書き(編集中)</span>'
+      : s.concluded
+        ? '<span class="badge done">結論あり</span>'
+        : '<span class="badge live">進行/未収束</span>';
     const when = new Date(s.createdAt).toLocaleString();
     b.innerHTML = '<div class="th">' + escapeHtml(s.theme || "(無題)") + '</div>' +
       '<div class="meta">' + badge + escapeHtml(s.flow) + ' / 発話 ' + s.utterances + ' 件 / ' + when + '</div>';
     el.appendChild(b);
   }
+}
+// 永続済みドラフトの編集を再開する (一覧の「下書き」クリック)。
+function openDraft(sid) {
+  resetView();
+  sessionId = sid;
+  $("list").style.display = "none";
+  $("review").style.display = "block";
+  $("backBar").style.display = "block";
+  $("reviewInfo").textContent = "ペーパーを読み込み中…";
+  $("blocks").innerHTML = '<div class="muted">📝 下書きを読み込んでいます…</div>';
+  $("rvApprove").disabled = true; $("rvConfirm").checked = false;
+  pollPaper();
 }
 function resetView() {
   if (timer) clearInterval(timer);
@@ -434,7 +451,8 @@ function openSession(sid) {
 }
 $("sessionList").addEventListener("click", (e) => {
   const btn = e.target.closest(".sess"); if (!btn) return;
-  openSession(btn.dataset.sid);
+  if (btn.dataset.state === "draft") openDraft(btn.dataset.sid);
+  else openSession(btn.dataset.sid);
 });
 $("newDiscussion").addEventListener("click", () => {
   $("list").style.display = "none"; $("start").style.display = "block";

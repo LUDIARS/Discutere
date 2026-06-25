@@ -176,23 +176,38 @@ import { parseForumEntry, handleForumFlowPost } from "../../src/flow/entry-disco
   assert.ok(pageHtml.includes("新規議論開始"), "UI に新規議論開始ボタンがある");
 
   // 議論一覧: 開始済み (discussion_paper 永続) の議論が在庫として並ぶ (進行中も含む)。
-  const { persistPaper } = await import("../../src/flow/discussion-paper.js");
+  const { persistPaper, persistDraftPaper } = await import("../../src/flow/discussion-paper.js");
   persistPaper(
     { sessionId: "list-sess-1", theme: "一覧テスト議題", tags: [], mechanics: [], supplement: "", bodyMd: "# 議題\n一覧テスト議題" },
+    "discussion"
+  );
+  // ドラフト (未確定) も一覧に「下書き」として出る + 編集を再開できる。
+  persistDraftPaper(
+    { sessionId: "draft-sess-1", theme: "下書き議題", tags: [], mechanics: [], supplement: "", bodyMd: "# 議題\n下書き議題" },
     "discussion"
   );
   const rSessions = await app.request("/api/flow/sessions");
   const sessionsBody = (await rSessions.json()) as {
     ok: boolean;
-    sessions: Array<{ sessionId: string; theme: string; concluded: boolean }>;
+    sessions: Array<{ sessionId: string; theme: string; concluded: boolean; state: string }>;
   };
   assert.equal(sessionsBody.ok, true, "sessions 取得");
   const listed = sessionsBody.sessions.find((s) => s.sessionId === "list-sess-1");
   assert.ok(listed, "開始済み議論が一覧に出る (一度投げたら保存=在庫表示)");
   assert.equal(listed!.theme, "一覧テスト議題");
   assert.equal(listed!.concluded, false, "未収束は concluded=false");
+  assert.equal(listed!.state, "live", "開始済み未収束は state=live");
+  const draft = sessionsBody.sessions.find((s) => s.sessionId === "draft-sess-1");
+  assert.ok(draft, "ドラフトも一覧に出る");
+  assert.equal(draft!.state, "draft", "ドラフトは state=draft");
+  // ドラフトは /paper で復元でき編集を再開できる (メモリに無くても rehydrate)。
+  const rDraftPaper = await app.request("/api/flow/draft-sess-1/paper");
+  const draftPaper = (await rDraftPaper.json()) as { ok: boolean; ready: boolean; paper: { bodyMd: string } | null };
+  assert.equal(draftPaper.ok, true, "draft paper 取得");
+  assert.equal(draftPaper.ready, true, "draft は ready (rehydrate)");
+  assert.ok(draftPaper.paper?.bodyMd.includes("下書き議題"), "復元した本文が読める");
 
-  console.log("  [ok] flow web routes: start(必須検証) / 壁打ち say / status / 404 / UI / 議論一覧");
+  console.log("  [ok] flow web routes: start / 壁打ち / status / 404 / UI / 議論一覧 + ドラフト");
 
   delete process.env.DISCUTERE_FLOW_PERSONA_COUNT;
   delete process.env.DISCUTERE_FLOW_SPARRING_MAX_TURNS;

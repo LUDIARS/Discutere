@@ -13,7 +13,7 @@ _resetFlowDb();
 const { appendRevision, latestRevision, listRevisions, canRevert, revertLast } = await import(
   "../../src/flow/paper-revisions.js"
 );
-const { persistPaper, updatePaperBody, getPaperBodyBySession } = await import(
+const { persistPaper, persistDraftPaper, getDraftPaper, updatePaperBody, getPaperBodyBySession } = await import(
   "../../src/flow/discussion-paper.js"
 );
 
@@ -66,6 +66,39 @@ const SID = "rev-session-1";
   updatePaperBody(paperId, "# 議題\nT\n\n# 議論の経過\n\n## ラウンド 1\nまとめ");
   assert.ok(getPaperBodyBySession(sid)?.includes("# 議論の経過"), "更新後の本文が読める");
   assert.equal(getPaperBodyBySession("no-such-session"), null);
+}
+
+// ── persistDraftPaper / getDraftPaper / persistPaper upsert (draft → started) ──
+{
+  const sid = "draft-session";
+  // ドラフト永続 → getDraftPaper で復元できる。
+  const draftId = persistDraftPaper(
+    { sessionId: sid, theme: "下書き議題", tags: ["開発"], mechanics: [{ name: "M", description: "d" }], supplement: "S", bodyMd: "# 議題\n下書き議題" },
+    "discussion"
+  );
+  const row = getDraftPaper(sid);
+  assert.ok(row, "draft が取得できる");
+  assert.equal(row!.paperId, draftId);
+  assert.equal(row!.theme, "下書き議題");
+  assert.equal(row!.flow, "discussion");
+  assert.deepEqual(row!.tags, ["開発"]);
+  assert.equal(row!.mechanics.length, 1);
+
+  // 同 session で再 persistDraftPaper は更新 (id 不変・status draft 維持)。
+  const draftId2 = persistDraftPaper(
+    { sessionId: sid, theme: "下書き議題(改)", tags: [], mechanics: [], supplement: "", bodyMd: "# 議題\n下書き議題(改)" },
+    "discussion"
+  );
+  assert.equal(draftId2, draftId, "同 session は同一行を更新");
+  assert.equal(getDraftPaper(sid)!.theme, "下書き議題(改)");
+
+  // 確定 (persistPaper) で同 session を started に upsert → getDraftPaper は null。
+  const startedId = persistPaper(
+    { sessionId: sid, theme: "下書き議題(改)", tags: [], mechanics: [], supplement: "", bodyMd: "# 議題\n下書き議題(改)" },
+    "discussion"
+  );
+  assert.equal(startedId, draftId, "started も同一行を upsert (重複行を作らない)");
+  assert.equal(getDraftPaper(sid), null, "started 化したら draft では引けない");
 }
 
 console.log("paper-revisions.test.ts: all passed");
