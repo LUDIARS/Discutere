@@ -16,8 +16,14 @@ import { randomUUID } from "node:crypto";
 import type { LLMClient } from "../../persona-engine/llm/client.js";
 import type { CascadeClients } from "../../crawler/sentiment/cascade.js";
 import type { createCore } from "../../core/index.js";
-import type { ContextVoice } from "../discussion-paper.js";
-import { getPaperBodyBySession, persistDraftPaper, getDraftPaper, deleteFlowSession } from "../discussion-paper.js";
+import type { ContextVoice, FlowSessionState } from "../discussion-paper.js";
+import {
+  getPaperBodyBySession,
+  persistDraftPaper,
+  getDraftPaper,
+  deleteFlowSession,
+  listFlowSessions,
+} from "../discussion-paper.js";
 
 type Core = ReturnType<typeof createCore>;
 import { getFlowDb } from "../db/connection.js";
@@ -645,36 +651,38 @@ flowRoutes.post("/api/flow/:session/say", async (c) => {
   return c.json({ ok: true, result: { kind: result.kind } });
 });
 
-/** 議論一覧 (開始済みの discussion_paper を新しい順)。進行中/収束済みを問わず在庫を返す。 */
+/** 議論一覧の絞り込み state を query から解決する (不正/未指定は 'all')。 */
+function parseSessionState(v: string | undefined): FlowSessionState {
+  return v === "draft" || v === "live" || v === "concluded" ? v : "all";
+}
+/** 整数 query を範囲クランプして読む (不正/未指定は fallback)。 */
+function clampIntQuery(v: string | undefined, fallback: number, min: number, max: number): number {
+  const n = Number.parseInt(v ?? "", 10);
+  if (!Number.isFinite(n)) return fallback;
+  return Math.min(max, Math.max(min, n));
+}
+
+/**
+ * 議論一覧 (開始済みの discussion_paper を新しい順)。進行中/収束済みを問わず在庫を返す。
+ * 絞り込み `?state=draft|live|concluded` (既定 all) + ページング `?limit=&offset=` (既定 100/0)。
+ * total/hasMore を返し、UI が「もっと見る」を出せる。
+ */
 flowRoutes.get("/api/flow/sessions", (c) => {
-  const db = getFlowDb();
-  const rows = db
-    .prepare(
-      `SELECT dp.session_id AS sessionId, dp.theme AS theme, dp.flow AS flow, dp.status AS status,
-              dp.created_at AS createdAt, dp.updated_at AS updatedAt,
-              (SELECT COUNT(*) FROM flow_utterance fu WHERE fu.session_id = dp.session_id) AS utterances,
-              (SELECT concluded FROM flow_conclusion fc WHERE fc.session_id = dp.session_id) AS concluded
-         FROM discussion_paper dp
-        ORDER BY dp.created_at DESC
-        LIMIT 100`
-    )
-    .all() as Array<{
-    sessionId: string;
-    theme: string;
-    flow: string;
-    status: string;
-    createdAt: number;
-    updatedAt: number;
-    utterances: number;
-    concluded: number | null;
-  }>;
+  const state = parseSessionState(c.req.query("state"));
+  const limit = clampIntQuery(c.req.query("limit"), 100, 1, 200);
+  const offset = clampIntQuery(c.req.query("offset"), 0, 0, Number.MAX_SAFE_INTEGER);
+  const { rows, total } = listFlowSessions({ state, limit, offset });
   return c.json({
     ok: true,
+    total,
+    limit,
+    offset,
+    hasMore: offset + rows.length < total,
     sessions: rows.map((r) => {
       const concluded = r.concluded === 1;
       // 表示状態: draft (編集中・未確定) / concluded (結論あり) / live (進行/未収束)。
-      const state = r.status === "draft" ? "draft" : concluded ? "concluded" : "live";
-      return { ...r, concluded, state };
+      const st = r.status === "draft" ? "draft" : concluded ? "concluded" : "live";
+      return { ...r, concluded, state: st };
     }),
   });
 });

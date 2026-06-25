@@ -174,6 +174,8 @@ import { parseForumEntry, handleForumFlowPost } from "../../src/flow/entry-disco
   assert.ok(pageHtml.includes("議論タイプ"), "UI に議論タイプ選択がある");
   assert.ok(pageHtml.includes("議論一覧"), "UI に議論一覧がある");
   assert.ok(pageHtml.includes("新規議論開始"), "UI に新規議論開始ボタンがある");
+  assert.ok(pageHtml.includes('data-state="draft"'), "UI に state フィルタタブがある");
+  assert.ok(pageHtml.includes("もっと見る"), "UI に「もっと見る」(ページング) がある");
 
   // 議論一覧: 開始済み (discussion_paper 永続) の議論が在庫として並ぶ (進行中も含む)。
   const { persistPaper, persistDraftPaper } = await import("../../src/flow/discussion-paper.js");
@@ -206,6 +208,34 @@ import { parseForumEntry, handleForumFlowPost } from "../../src/flow/entry-disco
   assert.equal(draftPaper.ok, true, "draft paper 取得");
   assert.equal(draftPaper.ready, true, "draft は ready (rehydrate)");
   assert.ok(draftPaper.paper?.bodyMd.includes("下書き議題"), "復元した本文が読める");
+
+  // 絞り込み: state=draft はドラフトのみ、state=live は開始済み未収束のみ。
+  const rDraftOnly = (await (await app.request("/api/flow/sessions?state=draft")).json()) as {
+    sessions: Array<{ sessionId: string; state: string }>;
+    total: number;
+  };
+  assert.ok(rDraftOnly.sessions.every((s) => s.state === "draft"), "state=draft は draft のみ");
+  assert.ok(rDraftOnly.sessions.some((s) => s.sessionId === "draft-sess-1"), "draft 絞り込みに draft-sess-1");
+  assert.ok(!rDraftOnly.sessions.some((s) => s.sessionId === "list-sess-1"), "draft 絞り込みに live は出ない");
+  const rLiveOnly = (await (await app.request("/api/flow/sessions?state=live")).json()) as {
+    sessions: Array<{ sessionId: string; state: string }>;
+  };
+  assert.ok(rLiveOnly.sessions.some((s) => s.sessionId === "list-sess-1"), "live 絞り込みに list-sess-1");
+  assert.ok(!rLiveOnly.sessions.some((s) => s.sessionId === "draft-sess-1"), "live 絞り込みに draft は出ない");
+
+  // ページング: limit=1 で 1 件 + hasMore、offset でずらすと別件。
+  const rPage1 = (await (await app.request("/api/flow/sessions?limit=1&offset=0")).json()) as {
+    sessions: Array<{ sessionId: string }>;
+    total: number;
+    hasMore: boolean;
+  };
+  assert.equal(rPage1.sessions.length, 1, "limit=1 は 1 件");
+  assert.ok(rPage1.total >= 2, "total は全件数 (>=2)");
+  assert.equal(rPage1.hasMore, true, "残りがあるので hasMore=true");
+  const rPage2 = (await (await app.request("/api/flow/sessions?limit=1&offset=1")).json()) as {
+    sessions: Array<{ sessionId: string }>;
+  };
+  assert.notEqual(rPage1.sessions[0].sessionId, rPage2.sessions[0].sessionId, "offset で別件を返す");
 
   // 削除: 派生行も含めて消える + 一覧から除かれる。未知 session は 404。
   const { deleteFlowSession } = await import("../../src/flow/discussion-paper.js");
