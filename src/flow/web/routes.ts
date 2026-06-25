@@ -17,7 +17,7 @@ import type { LLMClient } from "../../persona-engine/llm/client.js";
 import type { CascadeClients } from "../../crawler/sentiment/cascade.js";
 import type { createCore } from "../../core/index.js";
 import type { ContextVoice } from "../discussion-paper.js";
-import { getPaperBodyBySession, persistDraftPaper, getDraftPaper } from "../discussion-paper.js";
+import { getPaperBodyBySession, persistDraftPaper, getDraftPaper, deleteFlowSession } from "../discussion-paper.js";
 
 type Core = ReturnType<typeof createCore>;
 import { getFlowDb } from "../db/connection.js";
@@ -677,6 +677,20 @@ flowRoutes.get("/api/flow/sessions", (c) => {
       return { ...r, concluded, state };
     }),
   });
+});
+
+/** 議論 (下書き/進行中/収束済みいずれも) を削除する。永続行 + 進行中のインメモリ状態を破棄。 */
+flowRoutes.delete("/api/flow/:session", (c) => {
+  const sessionId = c.req.param("session");
+  // 進行中セッションのインメモリ状態を先に片付ける (タイマー/壁打ち/完了フラグ)。
+  const review = paperReviews.get(sessionId);
+  if (review?.timer) clearTimeout(review.timer);
+  paperReviews.delete(sessionId);
+  sparringSessions.delete(sessionId);
+  finished.delete(sessionId);
+  const removed = deleteFlowSession(sessionId);
+  if (!removed) return c.json({ ok: false, error: "対象の議論が見つかりません" }, 404);
+  return c.json({ ok: true, sessionId });
 });
 
 flowRoutes.get("/api/flow/:session/status", (c) => {

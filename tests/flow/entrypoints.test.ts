@@ -207,7 +207,30 @@ import { parseForumEntry, handleForumFlowPost } from "../../src/flow/entry-disco
   assert.equal(draftPaper.ready, true, "draft は ready (rehydrate)");
   assert.ok(draftPaper.paper?.bodyMd.includes("下書き議題"), "復元した本文が読める");
 
-  console.log("  [ok] flow web routes: start / 壁打ち / status / 404 / UI / 議論一覧 + ドラフト");
+  // 削除: 派生行も含めて消える + 一覧から除かれる。未知 session は 404。
+  const { deleteFlowSession } = await import("../../src/flow/discussion-paper.js");
+  const rDel = await app.request("/api/flow/draft-sess-1", { method: "DELETE" });
+  assert.equal(rDel.status, 200, "ドラフト削除は 200");
+  const afterDel = (await (await app.request("/api/flow/sessions")).json()) as {
+    sessions: Array<{ sessionId: string }>;
+  };
+  assert.ok(!afterDel.sessions.some((s) => s.sessionId === "draft-sess-1"), "削除後は一覧から消える");
+  assert.ok(afterDel.sessions.some((s) => s.sessionId === "list-sess-1"), "他の議論は残る");
+  const rDel404 = await app.request("/api/flow/nope-session", { method: "DELETE" });
+  assert.equal(rDel404.status, 404, "未知 session の削除は 404");
+  // データ層: 派生行 (発話/版履歴) も session ごと消える。
+  const { getFlowDb } = await import("../../src/flow/db/connection.js");
+  const fdb = getFlowDb();
+  fdb.prepare(
+    `INSERT INTO flow_utterance (id, session_id, paper_id, round, turn, persona_id, persona_name, role, text, created_at)
+     VALUES ('u-del-1', 'list-sess-1', 'p', 1, 1, 'pi', 'pn', 'opinion', 't', 1)`
+  ).run();
+  assert.equal(deleteFlowSession("list-sess-1"), true, "deleteFlowSession は対象ありで true");
+  const left = fdb.prepare(`SELECT COUNT(*) AS n FROM flow_utterance WHERE session_id = ?`).get("list-sess-1") as { n: number };
+  assert.equal(left.n, 0, "派生発話も消える");
+  assert.equal(deleteFlowSession("list-sess-1"), false, "二重削除は false (対象なし)");
+
+  console.log("  [ok] flow web routes: start / 壁打ち / status / 404 / UI / 議論一覧 + ドラフト + 削除");
 
   delete process.env.DISCUTERE_FLOW_PERSONA_COUNT;
   delete process.env.DISCUTERE_FLOW_SPARRING_MAX_TURNS;
