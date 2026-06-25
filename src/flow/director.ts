@@ -589,11 +589,44 @@ export async function runFlow(
   });
   log(`結論: ${conclusionResult.concluded ? conclusionResult.summary.slice(0, 80) : "結論なし"}`);
 
-  // ペーパー最終更新 (ライブ): 議論の経過 + 結論まで焼き込む。
+  // ── ペーパー本文 LLM リファイン (opt-in): 議論後に base ブリーフを成果で書き換える ──
+  // 議論ループの後に走るためペルソナ system のキャッシュには影響しない。失敗は元の base で degrade。
+  let finalBase = paper.bodyMd ?? "";
+  if (cfg.flow.paperRefine.enabled) {
+    try {
+      const { refinePaperBrief } = await import("./paper-refine.js");
+      const { stripProgress, markdownToPaperDraft } = await import("./paper-markdown.js");
+      const refined = await refinePaperBrief({
+        baseBodyMd: stripProgress(finalBase),
+        theme,
+        rounds: paper.rounds,
+        conclusion: conclusionResult.summary,
+        llm,
+        sessionId,
+        flow,
+        model: cfg.flow.paperRefine.model || undefined,
+        warn,
+      });
+      if (refined && refined.trim()) {
+        finalBase = refined;
+        // 構造化列 (観点補足 / メカニクス) を派生し直して追従させる (theme/tags は据え置き)。
+        const derived = markdownToPaperDraft(refined, { theme, tags: [...tags], supplement, mechanics });
+        (await import("./discussion-paper.js")).updatePaperDerived(paperId, {
+          supplement: derived.supplement,
+          mechanics: derived.mechanics,
+        });
+        log(`ペーパーリファイン完了 (メカニクス ${derived.mechanics.length} 件)`);
+      }
+    } catch (e) {
+      warn(`ペーパーリファインスキップ (議論は続行): ${(e as Error).message}`);
+    }
+  }
+
+  // ペーパー最終更新 (ライブ): 議論の経過 + 結論まで焼き込む (リファイン済みなら refined base)。
   try {
     updatePaperBody(
       paperId,
-      renderProgressMarkdown(paper.bodyMd ?? "", paper.rounds, conclusionResult.summary)
+      renderProgressMarkdown(finalBase, paper.rounds, conclusionResult.summary)
     );
   } catch (e) {
     warn(`ペーパー最終更新失敗: ${(e as Error).message}`);

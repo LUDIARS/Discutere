@@ -416,6 +416,20 @@ export function updatePaperBody(paperId: string, bodyMd: string): void {
     .run(bodyMd, Date.now(), paperId);
 }
 
+/**
+ * ペーパーの派生構造化フィールド (観点補足 / メカニクス) のみを更新する。
+ * 議論後の本文リファインで body_md を書き換えた際、エクスポート等が読む構造化列を追従させる。
+ * theme / tags / status は変えない (一覧タイトルや状態を保つ)。
+ */
+export function updatePaperDerived(
+  paperId: string,
+  derived: { supplement: string; mechanics: MechanicSummary[] }
+): void {
+  getFlowDb()
+    .prepare(`UPDATE discussion_paper SET supplement = ?, mechanics_json = ?, updated_at = ? WHERE id = ?`)
+    .run(derived.supplement, JSON.stringify(derived.mechanics), Date.now(), paperId);
+}
+
 /** セッションの最新ペーパー本文 markdown を返す (無ければ null)。 */
 export function getPaperBodyBySession(sessionId: string): string | null {
   const row = getFlowDb()

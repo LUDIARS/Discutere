@@ -127,6 +127,17 @@ export interface DiscutereConfig {
       /** 増補に使うモデル ("" なら LLM の既定モデル)。 */
       enrichModel: string;
     };
+    /**
+     * ペーパー本文の LLM リファイン (議論終了後に議題/観点補足/メカニクス本体を
+     * 議論結果を踏まえて書き換える)。既定 false (opt-in・LLM コスト増 1 回/議論)。
+     * 議論ループ後に走るためペルソナ system のプロンプトキャッシュには影響しない。
+     */
+    paperRefine: {
+      /** 有効化。既定 false。LLM 失敗時は元のブリーフのまま degrade (議論は止めない)。 */
+      enabled: boolean;
+      /** リファインに使うモデル ("" なら LLM の既定モデル)。 */
+      model: string;
+    };
   };
   /** 匿名議論 workspace (個人データ非保管) */
   workspace: string;
@@ -689,6 +700,14 @@ export function loadConfig(): DiscutereConfig {
           file.flow?.paperRichness?.enrichModel,
           ""
         ),
+      },
+      paperRefine: {
+        enabled: pickBool(
+          process.env.DISCUTERE_FLOW_PAPER_REFINE_ENABLED,
+          file.flow?.paperRefine?.enabled,
+          false
+        ),
+        model: pick(process.env.DISCUTERE_FLOW_PAPER_REFINE_MODEL, file.flow?.paperRefine?.model, ""),
       },
     },
     workspace: pick(process.env.DISCATIER_WORKSPACE, file.workspace, "knowledge"),
