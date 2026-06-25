@@ -196,6 +196,14 @@ bot 名義で締める (収束時 `finalizeForumPost` で lock+archive+まとめ
   表示/永続の body_md だけ育つ・`# 議論の経過` は `stripProgress` で冪等)。status に `paperMd` を追加、
   page.ts は軽量 md レンダラ + 変化フラッシュで描画。`getPaperBodyBySession`/`updatePaperBody` 追加。
 
+- **議論一覧ホーム + 開始遷移 + 開始時保存 (2026-06-25)**: `/flow` を **議論一覧がホーム**に。
+  ① 開始送信後すぐ**ペーパー編集画面へ遷移**(草案生成中は「準備中…」表示・フォームは隠す)。
+  ② **議論は確定(approve)時点で保存**=`runFlow` 冒頭 `persistPaper` で `discussion_paper` 行が立ち、
+  発話は毎ターン `flow_utterance` に永続(収束前でも在庫として残る)。③ **議論一覧**
+  (`GET /api/flow/sessions`=開始済み discussion_paper を新しい順・進行中/収束済み両方)から
+  「＋新規議論開始」で入力フォーム、項目クリックで既存議論のライブ表示(`openSession`)、各画面に
+  「← 議論一覧へ」。実装は `flow/web/routes.ts`(sessions 一覧 API)+ `page.ts`(#list/#backBar/遷移)。
+
 - **ペーパーの分量増強 (感想3倍 + メカニクスLLM増補, 2026-06-23)**: ペーパーが薄い問題への対処。
   設定 `flow.paperRichness` (`voices` 既定15 / `mechanicsTarget` 既定30 / `enrichMechanics` 既定true /
   `enrichModel`)。**感想**はペルソナ/ペーパーに載せる件数を 5→`voices` に増やす (director の voiceCache
