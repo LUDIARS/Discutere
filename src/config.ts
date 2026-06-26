@@ -594,7 +594,7 @@ export function loadConfig(): DiscutereConfig {
   return Object.freeze({
     nodeEnv: pick(process.env.NODE_ENV, undefined, "development"),
     server: {
-      port: pickNum(process.env.BACKEND_PORT, file.server?.port, 3100),
+      port: pickNum(process.env.BACKEND_PORT, file.server?.port, 3110),
       frontendUrl: pick(process.env.FRONTEND_URL, file.server?.frontendUrl, "http://localhost:5174"),
     },
     flow: {
@@ -823,7 +823,7 @@ export function loadConfig(): DiscutereConfig {
       callbackBaseUrl: pick(
         process.env.DISCUTERE_WORKER_POOL_CALLBACK_URL,
         file.workerPool?.callbackBaseUrl,
-        `http://127.0.0.1:${pickNum(process.env.BACKEND_PORT, file.server?.port, 3100)}`
+        `http://127.0.0.1:${pickNum(process.env.BACKEND_PORT, file.server?.port, 3110)}`
       ),
       gitBashPath: pickOpt(
         process.env.DISCUTERE_WORKER_POOL_GIT_BASH ?? process.env.CLAUDE_CODE_GIT_BASH_PATH,

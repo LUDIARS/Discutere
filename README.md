@@ -31,7 +31,7 @@ Hypothesis Lifecycle が弁証法的ループを形成する。詳細は [`docs/
 |-------|-----------|
 | Runtime | Node.js 22+ / TypeScript (ESM) |
 | Discord | [discord.js](https://discord.js.org/) v14 — Gateway (WS) 常時接続 |
-| HTTP (admin/dashboard) | [Hono](https://hono.dev/) + `@hono/node-server` (port 3100) |
+| HTTP (admin/dashboard) | [Hono](https://hono.dev/) + `@hono/node-server` (port 3110) |
 | データ基盤 | Discatier Core = Kuzu(SQLite) + イベントログ / MACHINA = SQLite + Drizzle |
 | LLM | Anthropic SDK 直叩き or Claude CLI (Lictor 経由 spawn) |
 | 設定 | `src/config.ts` 単一 typed config (`default < discutere.config.json < env`) |
@@ -53,7 +53,7 @@ cp discutere.config.example.json discutere.config.json
 
 # 3. 起動 (Gateway 常時接続 + persona-engine attach + slash 自動登録)
 npm start
-#   → :3100 listen、Discord にログイン、slash command を自動登録
+#   → :3110 listen、Discord にログイン、slash command を自動登録
 ```
 
 ### Discord 側の準備

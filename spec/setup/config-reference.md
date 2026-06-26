@@ -18,7 +18,7 @@ default < discutere.config.json < env
 
 | config | env | 既定 | 説明 |
 |---|---|---|---|
-| `server.port` | `BACKEND_PORT` | `3100` | HTTP (admin / dashboard / queue) port |
+| `server.port` | `BACKEND_PORT` | `3110` | HTTP (admin / dashboard / queue) port。3100 は Nuntius backend と衝突するため 3110 |
 | `server.frontendUrl` | `FRONTEND_URL` | `http://localhost:5174` | CORS 許可 origin |
 | `workspace` | `DISCATIER_WORKSPACE` | `knowledge` | 匿名議論 workspace (= KG 集約単位) |
 
