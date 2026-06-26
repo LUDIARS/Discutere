@@ -76,4 +76,29 @@ const capped = await analyzeSpecMechanics({ theme: "T", specText: "spec", llm: m
 assert.equal(capped.length, 2, "maxMechanics で 2 件にクランプ");
 console.log("  [ok] spec-analyze: maxMechanics でクランプ");
 
+// ── 長文 specText はチャンク分割して LLM を複数回呼ぶ ─────────────────────
+{
+  const chunkLlm = new MockLLMClient([
+    // チャンク 1 の応答
+    () => JSON.stringify([{ name: "チャンク1-A" }, { name: "チャンク1-B" }]),
+    // チャンク 2 の応答
+    () => JSON.stringify([{ name: "チャンク1-B" }, { name: "チャンク2-C" }]), // 重複あり
+  ]);
+  // 16000 文字超の specText (2チャンク分)
+  const longSpec = "a".repeat(18000);
+  const warns: string[] = [];
+  const chunked = await analyzeSpecMechanics({
+    theme: "T",
+    specText: longSpec,
+    llm: chunkLlm,
+    warn: (m) => warns.push(m),
+  });
+  assert.ok(chunkLlm.calls >= 2, "長文は LLM を複数回呼ぶ");
+  assert.ok(warns.some((w) => w.includes("チャンク")), "チャンク分割のwarnが出る");
+  // 重複除去: チャンク1-A / チャンク1-B / チャンク2-C = 3件
+  assert.equal(chunked.length, 3, "チャンク間の重複は除去される");
+  assert.ok(chunked.map((m) => m.name).includes("チャンク2-C"), "複数チャンクから結果がマージされる");
+}
+console.log("  [ok] spec-analyze: 長文チャンク分割 + マージ + 重複除去");
+
 console.log("spec-analyze (②) tests: all passed");

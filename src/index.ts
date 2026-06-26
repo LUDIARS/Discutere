@@ -38,6 +38,7 @@ import { personaRoutes } from "./api/persona-routes.js";
 import { topPageRoutes } from "./api/top-page-routes.js";
 import { webChatRoutes, setWebChatDeps } from "./api/web-chat-routes.js";
 import { flowRoutes, setFlowWebDeps } from "./flow/web/routes.js";
+import { specExtractRoutes } from "./flow/web/spec-extract-route.js";
 import { makeListExternalVoices } from "./flow/external-voices.js";
 import { runAdoptFromKg } from "./flow/persona-adopt-runner.js";
 import { FallbackLlm } from "./flow/llm-fallback.js";
@@ -647,6 +648,7 @@ if (flowEngineLlm) {
     getYoutubeApiKey,
   });
   app.route("/", flowRoutes);
+  app.route("/", specExtractRoutes);
   console.log("  flow-ui: /flow (loopback) — 議論/改善/学習/壁打ち を起動");
 }
 

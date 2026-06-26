@@ -16,8 +16,12 @@ import type { LLMClient } from "../persona-engine/llm/client.js";
 import type { GameMechanicEntry } from "./games-md.js";
 import { extractJsonArray } from "./mechanic-extract.js";
 
-/** 1 回の LLM 呼び出しに載せる仕様書テキストの最大文字数 (超過分は切り詰め)。 */
+/** 1 チャンクあたりの最大文字数。 */
 const SPEC_CHAR_CAP = 16000;
+/** チャンク間のオーバーラップ (文脈の途切れを和らげる)。 */
+const CHUNK_OVERLAP = 2000;
+/** 処理するチャンクの最大数 (LLM コスト上限)。 */
+const MAX_CHUNKS = 4;
 
 export interface AnalyzeSpecMechanicsArgs {
   /** ゲーム / テーマ名 (プロンプト文脈)。 */
@@ -90,40 +94,69 @@ function buildPrompt(theme: string, specText: string, max: number): { system: st
   return { system, prompt };
 }
 
-/**
- * 仕様書テキストから遊びのメカニクスを LLM で抽出する。
- * specText が空なら LLM を呼ばず []。失敗時も [] で degrade (学習を止めない)。
- */
-export async function analyzeSpecMechanics(args: AnalyzeSpecMechanicsArgs): Promise<GameMechanicEntry[]> {
-  const { theme, llm, model, maxMechanics = 40, warn = () => {} } = args;
-  const specText = args.specText?.trim() ?? "";
-  if (!specText) return [];
-
-  let body = specText;
-  if (body.length > SPEC_CHAR_CAP) {
-    warn(`仕様書が長いため先頭 ${SPEC_CHAR_CAP} 文字に切り詰めて解析します (元 ${body.length} 文字)`);
-    body = body.slice(0, SPEC_CHAR_CAP);
+/** 仕様書テキストを SPEC_CHAR_CAP 文字のチャンクに分割する (CHUNK_OVERLAP の重複あり)。 */
+function splitIntoChunks(text: string): string[] {
+  if (text.length <= SPEC_CHAR_CAP) return [text];
+  const chunks: string[] = [];
+  const step = SPEC_CHAR_CAP - CHUNK_OVERLAP;
+  for (let i = 0; i < text.length && chunks.length < MAX_CHUNKS; i += step) {
+    chunks.push(text.slice(i, i + SPEC_CHAR_CAP));
   }
+  return chunks;
+}
 
+/** 1 チャンクを LLM で解析し GameMechanicEntry[] を返す。失敗時は [] で degrade。 */
+async function analyzeChunk(
+  theme: string,
+  chunk: string,
+  chunkIndex: number,
+  args: AnalyzeSpecMechanicsArgs
+): Promise<GameMechanicEntry[]> {
+  const { llm, model, maxMechanics = 40, warn = () => {} } = args;
   let res;
   try {
-    const { system, prompt } = buildPrompt(theme, body, maxMechanics);
-    // maxMechanics 件の詳細を途中で切らさないよう余裕を持たせる (~300 tokens/件 目安 + 下限)。
+    const { system, prompt } = buildPrompt(theme, chunk, maxMechanics);
     const maxTokens = Math.min(8000, Math.max(2000, maxMechanics * 300));
     res = await llm.invoke({ system, prompt, model, maxTokens });
   } catch (e) {
-    warn(`仕様書解析で例外: ${(e as Error).message}`);
+    warn(`仕様書解析 (チャンク${chunkIndex + 1}) で例外: ${(e as Error).message}`);
     return [];
   }
   if (!res.ok) {
-    warn(`仕様書解析に失敗: ${res.error}`);
+    warn(`仕様書解析 (チャンク${chunkIndex + 1}) に失敗: ${res.error}`);
     return [];
   }
   const arr = extractJsonArray(res.text);
   if (!arr) {
-    warn("仕様書解析の JSON 解析に失敗");
+    warn(`仕様書解析 (チャンク${chunkIndex + 1}) の JSON 解析に失敗`);
     return [];
   }
-  const entries = arr.map(normalizeEntry).filter((e): e is GameMechanicEntry => e !== null);
-  return dedupe(entries, maxMechanics);
+  return arr.map(normalizeEntry).filter((e): e is GameMechanicEntry => e !== null);
+}
+
+/**
+ * 仕様書テキストから遊びのメカニクスを LLM で抽出する。
+ * specText が空なら LLM を呼ばず []。
+ * SPEC_CHAR_CAP 文字超の場合はチャンク分割して各チャンクを解析・マージする (最大 MAX_CHUNKS チャンク)。
+ * 失敗時も [] で degrade (学習を止めない)。
+ */
+export async function analyzeSpecMechanics(args: AnalyzeSpecMechanicsArgs): Promise<GameMechanicEntry[]> {
+  const { theme, maxMechanics = 40, warn = () => {} } = args;
+  const specText = args.specText?.trim() ?? "";
+  if (!specText) return [];
+
+  const chunks = splitIntoChunks(specText);
+  if (chunks.length > 1) {
+    warn(
+      `仕様書が長いため ${chunks.length} チャンクに分割して解析します (元 ${specText.length} 文字、` +
+      `最大 ${MAX_CHUNKS * SPEC_CHAR_CAP} 文字を対象)`
+    );
+  }
+
+  const allEntries: GameMechanicEntry[] = [];
+  for (let i = 0; i < chunks.length; i++) {
+    const entries = await analyzeChunk(theme, chunks[i]!, i, args);
+    allEntries.push(...entries);
+  }
+  return dedupe(allEntries, maxMechanics);
 }
