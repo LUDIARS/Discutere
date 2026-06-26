@@ -17,7 +17,7 @@ persona-engine の発話生成は従来 `ClaudeCliClient`（`claude -p` を per-
 ## 2. 全体像
 
 ```
-                       ┌──────────────────────── Discutere (port 3100) ───────────────────────┐
+                       ┌──────────────────────── Discutere (port 3110) ───────────────────────┐
                        │                                                                      │
  persona-engine        │   WorkerPoolClient (LLMClient 実装)        WorkerPool                │
    rule fire           │     invoke({personaId, system, prompt})     ├─ spawn 8 workers       │
@@ -72,7 +72,7 @@ persona-engine の発話生成は従来 `ClaudeCliClient`（`claude -p` を per-
 "workerPool": {
   "enabled": true,
   "workspace": "debate",
-  "callbackBaseUrl": "http://127.0.0.1:3100",
+  "callbackBaseUrl": "http://127.0.0.1:3110",
   "gitBashPath": "",                // 空なら自動検出
   "injectDelayMs": 2500,
   "turnTimeoutMs": 120000,
