@@ -111,7 +111,8 @@ app.route("/", createGuideRoutes(config.discord));
 
 app.route("/", learningViewRoutes);
 
-// 常駐ワーカー callback (内部用、認証不要)。userContext より前に mount する。
+// 常駐ワーカー callback (内部用)。userContext より前に mount するが、worker.ts 側で
+// loopback ガード (isLoopbackRequest, 非 loopback は 403) を噛ませている (H-1 多層防御)。
 app.route("/internal", workerRoutes);
 
 // ─── 認証ミドルウェア (X-User-Id / X-User-Role ヘッダーめEcontext に載せめE ──
@@ -894,4 +895,9 @@ const gracefulShutdown = (sig: string) => {
 process.on("SIGINT", () => gracefulShutdown("SIGINT"));
 process.on("SIGTERM", () => gracefulShutdown("SIGTERM"));
 
-serve({ fetch: app.fetch, port });
+// 既定は loopback (127.0.0.1) bind。Cloudflare Tunnel は同一ホストから繋ぐので loopback で足り、
+// LAN/VPN からの直接到達 (REVIEW_VULNERABILITY H-1) を塞ぐ。LAN bind が要る場合のみ
+// `BACKEND_HOST=0.0.0.0` 等で上書き (config.server.host)。
+const host = config.server.host;
+serve({ fetch: app.fetch, port, hostname: host });
+console.log(`[discutere] HTTP listening on ${host}:${port}`);
