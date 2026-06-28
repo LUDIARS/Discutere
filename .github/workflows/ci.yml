@@ -38,6 +38,10 @@ jobs:
         env:
           NODE_AUTH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
+      # 型チェック (tsc --noEmit) — build とは別ゲートで静的解析を明示
+      - name: Typecheck (tsc --noEmit)
+        run: npm run typecheck
+
       # ビルドチェック (tsc)
       - name: Build (tsc)
         run: npm run build
@@ -59,4 +63,5 @@ jobs:
           npm run test:persona-engine
           npm run test:discord-hook
           npm run test:runtime-settings
+          npm run test:startup-guard
           npm run test:flow
