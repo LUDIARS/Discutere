@@ -1,7 +1,7 @@
 {
   "name": "discutere",
   "version": "0.1.0",
-  "description": "Discutere — Chat-to-Task automation service (Slack/Discord → Task management)",
+  "description": "Discutere — 遊びの議論プラットフォーム (Discatier): Discord-only の自走議論 ChatBot",
   "type": "module",
   "main": "src/index.ts",
   "scripts": {
@@ -24,7 +24,6 @@
     "test:crawler": "tsx tests/crawler/run.ts",
     "test:visualize": "tsx tests/visualize/run.ts",
     "test:persona-engine": "tsx tests/persona-engine/run.ts",
-    "test:machina": "tsx tests/machina/run.ts",
     "test:discord-hook": "tsx tests/discord-hook/run.ts",
     "test:runtime-settings": "tsx tests/runtime-settings/run.ts",
     "test:queue": "tsx tests/queue/run.ts",

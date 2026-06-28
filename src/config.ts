@@ -7,8 +7,6 @@
  *
  * config ファイルパスは env `DISCUTERE_CONFIG` (既定 `./discutere.config.json`)。
  * 無ければ env / default のみで動く (= 後方互換、従来の .env 運用も生きる)。
- *
- * MACHINA (Chat-to-Task, Iv 移管対象) 系の env は本 config に含めない。
  */
 
 import { existsSync, readFileSync } from "node:fs";

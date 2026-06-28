@@ -1,8 +1,9 @@
 /**
- * Discutere — Database Schema
+ * Discutere — サイドカー SQLite スキーマ (Drizzle)。
  *
- * Schedula の MACHINA モジュールを独立サービスとして再構成。
+ * users / channelMonitors / ludus メカニクス・学習ジョブ / economy-graph 等を持つ。
  * workspace_id で外部サービスのグループ/組織を参照する。
+ * (旧 machina モジュール由来。machina 撤去 2026-06-28 後も monitor/ludus/economy で現役。)
  */
 import { sqliteTable, text, integer, index, unique } from "drizzle-orm/sqlite-core";
 

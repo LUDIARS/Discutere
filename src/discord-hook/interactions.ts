@@ -1,7 +1,7 @@
 /**
  * Discord Interactions parser + verifier (PR-B).
  *
- * - Ed25519 検証は src/machina/signature-verify.ts の verifyDiscordSignature を再利用
+ * - Ed25519 検証は ./signature-verify.ts の verifyDiscordSignature を使う
  * - APPLICATION_COMMAND (type=2) → Discatier の "/<name> <args>" 文字列に変換
  *   (= command-parser.ts と互換、 message-input.submitMessage 経路に流せる)
  *
@@ -9,7 +9,7 @@
  * MESSAGE_COMPONENT (type=3) や AUTOCOMPLETE (type=4) は別 PR で。
  */
 
-import { verifyDiscordSignature } from "../machina/signature-verify.js";
+import { verifyDiscordSignature } from "./signature-verify.js";
 
 export const INTERACTION_TYPE = {
   PING: 1,

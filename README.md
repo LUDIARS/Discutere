@@ -11,8 +11,9 @@
 >   (半ローカルツールゆえの意図的設計)。詳細は `CLAUDE.md`。
 > - 設定は `src/config.ts` の単一 typed config に集約 (`default < discutere.config.json < env`)。
 >
-> 旧 *Chat-to-Task 自動化 (Slack/Discord → タスク生成)* 機能群 (`src/machina/`) は
-> **Imperativus (Iv)** へ移管予定。移管まで同居するが議論 (Discatier) とは独立。
+> 旧 *Chat-to-Task 自動化 (Slack/Discord → タスク生成)* 機能群 (`src/machina/`) は **撤去済み**
+> (2026-06-28)。同等のタスク自動化は Concordia (RWF / Session-End) が担うため、Discutere は
+> 議論プラットフォーム (Discatier) に専念する。
 
 ## コンセプト — Discatier の 3 軸対話
 
@@ -32,7 +33,7 @@ Hypothesis Lifecycle が弁証法的ループを形成する。詳細は [`docs/
 | Runtime | Node.js 22+ / TypeScript (ESM) |
 | Discord | [discord.js](https://discord.js.org/) v14 — Gateway (WS) 常時接続 |
 | HTTP (admin/dashboard) | [Hono](https://hono.dev/) + `@hono/node-server` (port 3110) |
-| データ基盤 | Discatier Core = Kuzu(SQLite) + イベントログ / MACHINA = SQLite + Drizzle |
+| データ基盤 | Discatier Core = Kuzu(SQLite) + イベントログ / サイドカー SQLite (Drizzle) |
 | LLM | Anthropic SDK 直叩き or Claude CLI (Lictor 経由 spawn) |
 | 設定 | `src/config.ts` 単一 typed config (`default < discutere.config.json < env`) |
 | バックアップ | tar.gz → S3 (`@aws-sdk/client-s3`、Glacier 系ストレージクラス) |
@@ -225,8 +226,7 @@ src/
 ├── persona-engine/           # 議論駆動エンジン (ペルソナ × ルール × LLM)
 ├── queue/snapshot.ts         # 議論キューのスナップショット生成
 ├── backup/                   # tar.gz アーカイブ + S3 upload + 月次スケジューラ
-├── api/                      # admin / dashboard / queue ルート
-└── machina/                  # (Iv へ移管予定) Chat-to-Task
+└── api/                      # admin / dashboard / queue ルート
 
 scripts/
 ├── register-discord-commands.ts   # npm run discord:register

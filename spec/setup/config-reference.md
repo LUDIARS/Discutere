@@ -81,8 +81,10 @@ default < discutere.config.json < env
 
 → 詳細は [backup.md](backup.md) / [`../backup/DESIGN.md`](../backup/DESIGN.md)。
 
-## その他 (MACHINA — Iv 移管予定)
+## サイドカー DB
 
-`HAIKU_MODEL` / `GITHUB_TOKEN` / `DATABASE_PATH` 等は Chat-to-Task (MACHINA) 系。
-議論 (Discatier) 運用では不要。`DATABASE_PATH` (既定 `./data/discutere.db`) は
-バックアップ対象には含まれる。
+`DATABASE_PATH` (既定 `./data/discutere.db`) は flow / facilitator-directives /
+conclusion-cache 等のサイドカー表を置く SQLite。バックアップ対象に含まれる。
+
+> 旧 Chat-to-Task (MACHINA) 系 env (`HAIKU_MODEL` / `GITHUB_TOKEN` 等) は machina 撤去
+> (2026-06-28) に伴い廃止。
