@@ -12,6 +12,7 @@
 
 import type { TokenUsage } from "../types.js";
 import type { LLMClient, LLMInvokeArgs, LLMResult } from "./client.js";
+import { logLlm } from "./llm-vg.js";
 
 // ローカルは課金が無いので余裕を持たせる。 特に Gemma 4 等の **reasoning モデル**は
 // 思考 (応答の message.reasoning) でトークンを消費するため、 max_tokens が小さいと
@@ -93,10 +94,25 @@ export class LocalOpenAiClient implements LLMClient {
       }
       const json = (await res.json()) as OpenAiChatResponse;
       const text = (json.choices?.[0]?.message?.content ?? "").trim();
-      if (text.length === 0) return { ok: false, error: "local LLM empty text response" };
-      return { ok: true, text, usage: mapUsage(json.usage) };
+      if (text.length === 0) {
+        logLlm({ backend: 'local-openai', model, system: args.system, prompt: args.prompt, ok: false, error: 'empty text response' });
+        return { ok: false, error: "local LLM empty text response" };
+      }
+      const usage = mapUsage(json.usage);
+      logLlm({
+        backend: 'local-openai',
+        model,
+        system: args.system,
+        prompt: args.prompt,
+        ok: true,
+        input_tokens: usage?.input_tokens,
+        output_tokens: usage?.output_tokens,
+      });
+      return { ok: true, text, usage };
     } catch (err) {
-      return { ok: false, error: `local LLM invoke failed: ${(err as Error).message ?? String(err)}` };
+      const errMsg = (err as Error).message ?? String(err);
+      logLlm({ backend: 'local-openai', model, system: args.system, prompt: args.prompt, ok: false, error: `invoke failed: ${errMsg}` });
+      return { ok: false, error: `local LLM invoke failed: ${errMsg}` };
     } finally {
       clearTimeout(timer);
     }
