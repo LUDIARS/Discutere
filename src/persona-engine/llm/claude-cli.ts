@@ -17,6 +17,7 @@ import { existsSync } from "node:fs";
 
 import type { LLMClient, LLMInvokeArgs, LLMResult } from "./client.js";
 import type { TokenUsage } from "../types.js";
+import { logLlm } from "./llm-vg.js";
 
 export interface ClaudeCliClientOptions {
   /** 任意 — claude CLI のフルパス (PATH に乗ってる場合は不要) */
@@ -132,19 +133,29 @@ function spawnClaude(args: SpawnArgs): Promise<LLMResult> {
       if (resolved) return;
       resolved = true;
       clearTimeout(timer);
+      let result: LLMResult;
       if (code !== 0) {
-        resolve({
-          ok: false,
-          error: `claude cli exit ${code}: ${err.slice(0, 200)}`,
-        });
-        return;
+        result = { ok: false, error: `claude cli exit ${code}: ${err.slice(0, 200)}` };
+      } else {
+        const raw = out.trim();
+        result = raw.length === 0
+          ? { ok: false, error: "claude cli empty output" }
+          : parseClaudeCliResult(raw);
       }
-      const raw = out.trim();
-      if (raw.length === 0) {
-        resolve({ ok: false, error: "claude cli empty output" });
-        return;
-      }
-      resolve(parseClaudeCliResult(raw));
+      logLlm({
+        backend: 'claude-cli',
+        model: args.model ?? '(default)',
+        prompt: args.prompt,
+        ok: result.ok,
+        ...(result.ok ? {
+          input_tokens: result.usage?.input_tokens,
+          output_tokens: result.usage?.output_tokens,
+          cache_read_tokens: result.usage?.cache_read_input_tokens,
+          cache_creation_tokens: result.usage?.cache_creation_input_tokens,
+          cost_usd: result.usage?.cost_usd,
+        } : { error: result.error }),
+      });
+      resolve(result);
     });
 
     // stdin で prompt 渡し (LUDIARS feedback_claude_cli_long_prompt)

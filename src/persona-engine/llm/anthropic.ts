@@ -11,6 +11,7 @@
 
 import type { LLMClient, LLMInvokeArgs, LLMResult } from "./client.js";
 import { OAUTH_BETA_HEADER } from "./claude-code-auth.js";
+import { logLlm } from "./llm-vg.js";
 
 const DEFAULT_MODEL = "claude-haiku-4-5-20251001";
 const DEFAULT_MAX_TOKENS = 1024;
@@ -124,9 +125,21 @@ export class AnthropicSdkClient implements LLMClient {
         .trim();
 
       if (text.length === 0) {
+        logLlm({ backend: 'anthropic-api', model, system: args.system, prompt: args.prompt, ok: false, error: 'empty text response' });
         return { ok: false, error: "empty text response" };
       }
 
+      logLlm({
+        backend: 'anthropic-api',
+        model,
+        system: args.system,
+        prompt: args.prompt,
+        ok: true,
+        input_tokens: json.usage?.input_tokens,
+        output_tokens: json.usage?.output_tokens,
+        cache_read_tokens: json.usage?.cache_read_input_tokens,
+        cache_creation_tokens: json.usage?.cache_creation_input_tokens,
+      });
       return {
         ok: true,
         text,
@@ -134,6 +147,7 @@ export class AnthropicSdkClient implements LLMClient {
       };
     } catch (err) {
       const message = (err as Error).message ?? String(err);
+      logLlm({ backend: 'anthropic-api', model, system: args.system, prompt: args.prompt, ok: false, error: `invoke failed: ${message}` });
       return { ok: false, error: `anthropic invoke failed: ${message}` };
     } finally {
       clearTimeout(timer);
