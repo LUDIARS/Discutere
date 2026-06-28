@@ -8,12 +8,15 @@
  *   - POST /internal/worker/utterance { reqId, workerId, text, usage? } : 1 ターンの発話
  *     (usage は worker-home の send.mjs が transcript から拾った token 集計。任意, #135)
  *
- * 認証ミドルウェア (userContext) より前に mount し、Discord/Cernere 認証を要求
- * しない (呼び元は loopback のワーカーのみ)。WorkerPool は index.ts で注入する。
+ * 認証ミドルウェア (userContext) より前に mount し、Discord/Cernere 認証は要求しない。
+ * 代わりに呼び元を loopback に限定するガード (isLoopbackRequest, 非 loopback は 403) を
+ * 経路全体に噛ませる (H-1 多層防御: サーバの loopback bind が広げられても/誤って tunnel に
+ * 載っても弾く)。WorkerPool は index.ts で注入する。
  */
 
 import { Hono } from "hono";
 
+import { isLoopbackRequest } from "../middleware/auth.js";
 import type { TokenUsage } from "../persona-engine/types.js";
 import type { WorkerPool } from "../persona-engine/worker-pool/pool.js";
 
@@ -53,6 +56,16 @@ export function setWorkerPool(p: WorkerPool | null): void {
 }
 
 const workerRoutes = new Hono();
+
+// 多層防御 (REVIEW_VULNERABILITY H-1): サーバ自体を loopback bind しても、Cloudflare Tunnel
+// (cloudflared) は 127.0.0.1 から中継するため tunnel/ingress に載ると外部到達しうる。worker
+// callback は常駐ワーカー (同一ホスト) 専用なので、非 loopback 呼び出しは経路ごと 403 で弾く。
+workerRoutes.use("/worker/*", async (c, next) => {
+  if (!isLoopbackRequest(c)) {
+    return c.json({ error: "loopback only" }, 403);
+  }
+  await next();
+});
 
 workerRoutes.post("/worker/register", async (c) => {
   if (!pool) return c.json({ error: "worker pool not initialized" }, 503);

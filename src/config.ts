@@ -28,6 +28,13 @@ export interface DiscutereConfig {
   nodeEnv: string;
   server: {
     port: number;
+    /**
+     * HTTP サーバの bind アドレス。既定 `127.0.0.1` (loopback only)。
+     * Cloudflare Tunnel (cloudflared) は同一ホストから 127.0.0.1 に繋ぐので loopback で十分。
+     * cloudflared を別コンテナで動かす等で LAN bind が必要な場合のみ `0.0.0.0` 等に上書きする
+     * (env `BACKEND_HOST`)。0.0.0.0 にすると `/internal`・`/api/admin` が LAN へ晒される点に注意。
+     */
+    host: string;
     frontendUrl: string;
   };
   /** 4 フロー共通の進行量設定 */
@@ -595,6 +602,7 @@ export function loadConfig(): DiscutereConfig {
     nodeEnv: pick(process.env.NODE_ENV, undefined, "development"),
     server: {
       port: pickNum(process.env.BACKEND_PORT, file.server?.port, 3110),
+      host: pick(process.env.BACKEND_HOST, file.server?.host, "127.0.0.1"),
       frontendUrl: pick(process.env.FRONTEND_URL, file.server?.frontendUrl, "http://localhost:5174"),
     },
     flow: {

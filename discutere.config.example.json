@@ -2,6 +2,8 @@
   "$comment": "Discutere サービス固有 config の例。`discutere.config.json` にコピーして使う (DISCUTERE_CONFIG で別パス指定可)。優先順: default < このファイル < env。秘密情報 (bot token / API key) は env での上書きを推奨。",
   "server": {
     "port": 3100,
+    "$comment_host": "HTTP bind アドレス。既定 127.0.0.1 (loopback only)。Cloudflare Tunnel は同一ホストから 127.0.0.1 に繋ぐので loopback で足りる。LAN/別コンテナ越しに受ける必要がある時だけ 0.0.0.0 等に。env BACKEND_HOST で上書き可。",
+    "host": "127.0.0.1",
     "frontendUrl": "http://localhost:5174"
   },
   "workspace": "knowledge",
