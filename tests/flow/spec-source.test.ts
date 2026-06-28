@@ -12,19 +12,34 @@ import {
   fetchSpecText,
   readSpecTextFromFile,
   resolveSpecText,
+  extractSpecTextFromBytes,
   isHttpUrl,
   isTextual,
+  isPdfBytes,
+  isZipBytes,
 } from "../../src/flow/spec-source.js";
 
 /** text → fetch 風 Response を返す fakeFetch を作る。 */
-function fakeFetch(opts: { ok?: boolean; status?: number; bytes: Uint8Array }): typeof fetch {
+function fakeFetch(opts: { ok?: boolean; status?: number; bytes: Uint8Array; contentType?: string }): typeof fetch {
   return (async () =>
     ({
       ok: opts.ok ?? true,
       status: opts.status ?? 200,
       arrayBuffer: async () => opts.bytes.buffer.slice(opts.bytes.byteOffset, opts.bytes.byteOffset + opts.bytes.byteLength),
+      headers: { get: (k: string) => k === "content-type" ? (opts.contentType ?? "") : null },
     }) as unknown as Response) as unknown as typeof fetch;
 }
+
+/** PDF 抽出を偽装する fakePdfExtractor。 */
+const fakePdfExtractor = async (buf: Buffer): Promise<{ text: string }> => {
+  void buf;
+  return { text: "PDF から抽出したテキスト" };
+};
+/** DOCX 抽出を偽装する fakeDocxExtractor。 */
+const fakeDocxExtractor = async (opts: { buffer: Buffer }): Promise<{ value: string }> => {
+  void opts;
+  return { value: "DOCX から抽出したテキスト" };
+};
 
 const enc = (s: string) => new TextEncoder().encode(s);
 
@@ -33,6 +48,13 @@ assert.equal(isTextual(enc("# Spec\nメカニクス: ジャンプ")), true, "テ
 assert.equal(isTextual(new Uint8Array([0x50, 0x4b, 0x03, 0x00, 0x01])), false, "NUL 含みはバイナリ");
 assert.equal(isTextual(new Uint8Array(0)), false, "空はテキスト扱いしない");
 console.log("  [ok] spec-source: isTextual バイナリ判定");
+
+// ── isPdfBytes / isZipBytes ─────────────────────────────────────────────────
+assert.equal(isPdfBytes(new Uint8Array([0x25, 0x50, 0x44, 0x46, 0x2d])), true, "%PDF- はPDF");
+assert.equal(isPdfBytes(enc("not pdf")), false, "テキストはPDFでない");
+assert.equal(isZipBytes(new Uint8Array([0x50, 0x4b, 0x03, 0x04, 0x00])), true, "PK\\x03\\x04 はZIP/DOCX");
+assert.equal(isZipBytes(enc("not zip")), false, "テキストはZIPでない");
+console.log("  [ok] spec-source: isPdfBytes / isZipBytes");
 
 // ── fetchSpecText ────────────────────────────────────────────────────────────
 const text = await fetchSpecText("https://example.com/spec.md", {
@@ -57,18 +79,36 @@ await assert.rejects(
   /テキストとして読めません/,
   "バイナリは throw"
 );
-console.log("  [ok] spec-source: fetchSpecText (取得/非200/上限/バイナリ)");
+// PDF URL (Content-Type で判定)
+const pdfText = await fetchSpecText("https://x/doc.pdf", {
+  fetchImpl: fakeFetch({ bytes: enc("dummy"), contentType: "application/pdf" }),
+  pdfExtractor: fakePdfExtractor,
+});
+assert.match(pdfText, /PDF から抽出/, "PDF URL は pdfExtractor 経路");
+// DOCX URL (拡張子で判定)
+const docxText = await fetchSpecText("https://x/doc.docx", {
+  fetchImpl: fakeFetch({ bytes: enc("dummy") }),
+  docxExtractor: fakeDocxExtractor,
+});
+assert.match(docxText, /DOCX から抽出/, "DOCX URL は docxExtractor 経路");
+console.log("  [ok] spec-source: fetchSpecText (取得/非200/上限/バイナリ/PDF/DOCX)");
 
 // ── readSpecTextFromFile (fs 注入) ──────────────────────────────────────────
 const fakeFs = {
-  existsSync: (p: string) => p === "/spec.md",
+  existsSync: (p: string) => ["/spec.md", "/doc.pdf", "/doc.docx"].includes(p),
   statSync: (() => ({ size: 20 })) as unknown as typeof import("node:fs").statSync,
-  readFileSync: ((p: string) => Buffer.from("# ローカル仕様")) as unknown as typeof import("node:fs").readFileSync,
+  readFileSync: (() => Buffer.from("# ローカル仕様")) as unknown as typeof import("node:fs").readFileSync,
 };
-const local = readSpecTextFromFile("/spec.md", { fs: fakeFs });
+const local = await readSpecTextFromFile("/spec.md", { fs: fakeFs });
 assert.match(local, /ローカル仕様/, "ローカルファイルから本文");
-assert.throws(() => readSpecTextFromFile("/missing.md", { fs: fakeFs }), /見つかりません/, "不在は throw");
-console.log("  [ok] spec-source: readSpecTextFromFile (読み/不在)");
+await assert.rejects(() => readSpecTextFromFile("/missing.md", { fs: fakeFs }), /見つかりません/, "不在は throw");
+// PDF ファイル (拡張子で判定)
+const localPdf = await readSpecTextFromFile("/doc.pdf", { fs: fakeFs, pdfExtractor: fakePdfExtractor });
+assert.match(localPdf, /PDF から抽出/, "PDF ファイルは pdfExtractor 経路");
+// DOCX ファイル (拡張子で判定)
+const localDocx = await readSpecTextFromFile("/doc.docx", { fs: fakeFs, docxExtractor: fakeDocxExtractor });
+assert.match(localDocx, /DOCX から抽出/, "DOCX ファイルは docxExtractor 経路");
+console.log("  [ok] spec-source: readSpecTextFromFile (読み/不在/PDF/DOCX)");
 
 // ── resolveSpecText ルーティング + allowLocalPath ゲート ─────────────────────
 assert.equal(isHttpUrl("https://a.b/c"), true);
@@ -88,5 +128,17 @@ await assert.rejects(
 const viaPath = await resolveSpecText("/spec.md", { allowLocalPath: true, fs: fakeFs });
 assert.match(viaPath, /ローカル仕様/, "allowLocalPath=true でパス読み (Web 経路)");
 console.log("  [ok] spec-source: resolveSpecText ルーティング + allowLocalPath ゲート");
+
+// ── extractSpecTextFromBytes ────────────────────────────────────────────────
+const textBytes = enc("# spec テキスト");
+const extractedText = await extractSpecTextFromBytes(textBytes, "spec.md");
+assert.match(extractedText, /spec テキスト/, "テキスト系バイトは UTF-8 デコード");
+const pdfBytes = new Uint8Array([0x25, 0x50, 0x44, 0x46]); // %PDF
+const extractedPdf = await extractSpecTextFromBytes(pdfBytes, "doc.pdf", { pdfExtractor: fakePdfExtractor });
+assert.match(extractedPdf, /PDF から抽出/, "PDF マジックバイト → pdfExtractor");
+const docxBytes = new Uint8Array([0x50, 0x4b, 0x03, 0x04]); // PK
+const extractedDocx = await extractSpecTextFromBytes(docxBytes, "doc.docx", { docxExtractor: fakeDocxExtractor });
+assert.match(extractedDocx, /DOCX から抽出/, "DOCX 拡張子 → docxExtractor");
+console.log("  [ok] spec-source: extractSpecTextFromBytes (テキスト/PDF/DOCX)");
 
 console.log("spec-source (③) tests: all passed");

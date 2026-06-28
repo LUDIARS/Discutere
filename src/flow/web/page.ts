@@ -153,8 +153,9 @@ export const FLOW_HTML = `<!doctype html>
       <label>仕様書テキスト (貼り付け → 遊びのメカニクスを LLM 抽出して記録)
         <textarea id="specText" rows="6" placeholder="ゲーム仕様書を貼り付け (空欄なら解析しない)"></textarea>
       </label>
-      <label>ファイルから読み込む (md/txt/json 等のテキスト → 上の欄へ展開)
-        <input id="specFile" type="file" accept=".md,.txt,.json,.markdown,.text,text/*" />
+      <label>ファイルから読み込む (md/txt/json/pdf/docx 等 → 上の欄へ展開)
+        <input id="specFile" type="file" accept=".md,.txt,.json,.markdown,.text,.pdf,.docx,text/*" />
+        <span id="specFileWarn" style="color:#b91c1c;font-size:0.82rem;display:none"></span>
       </label>
       <label>URL / ローカルパス (取得して解析・貼付本文と結合)
         <input id="specUrl" type="text" placeholder="https://… または spec/feature/foo.md" style="width:80%" />
@@ -206,17 +207,57 @@ export const FLOW_HTML = `<!doctype html>
 const $ = (id) => document.getElementById(id);
 let sessionId = null, kind = null, since = 0, timer = null;
 
-// 仕様書ファイル選択: テキストとして読み、上の specText 欄へ展開する (サーバ送信は specText で共通)。
-$("specFile").addEventListener("change", (e) => {
+// 仕様書ファイル選択: テキストは FileReader、PDF/DOCX はサーバ抽出エンドポイント経由で specText 欄へ展開する。
+const SPEC_FILE_MAX_BYTES = 5 * 1024 * 1024; // 5MB
+const SPEC_TEXT_MAX_CHARS = 200_000;         // 200k 文字警告
+const BINARY_EXTS = new Set([".pdf", ".docx", ".doc"]);
+function isBinarySpec(name) {
+  const ext = name.slice(name.lastIndexOf(".")).toLowerCase();
+  return BINARY_EXTS.has(ext);
+}
+function showSpecWarn(msg) {
+  const el = $("specFileWarn");
+  if (!el) return;
+  el.textContent = msg;
+  el.style.display = msg ? "block" : "none";
+}
+function appendSpecText(text) {
+  const cur = $("specText").value.trim();
+  $("specText").value = cur ? (cur + "\\n\\n" + text) : text;
+  if (text.length > SPEC_TEXT_MAX_CHARS) {
+    showSpecWarn("テキストが長いです (" + text.length.toLocaleString() + " 文字)。サーバ側でチャンク分割して解析します。");
+  } else {
+    showSpecWarn("");
+  }
+}
+$("specFile").addEventListener("change", async (e) => {
   const file = e.target.files && e.target.files[0];
   if (!file) return;
+  showSpecWarn("");
+  if (file.size > SPEC_FILE_MAX_BYTES) {
+    const mb = (file.size / 1024 / 1024).toFixed(1);
+    showSpecWarn("ファイルが大きいです (" + mb + " MB)。処理に時間がかかる場合があります。");
+  }
+  if (isBinarySpec(file.name)) {
+    // PDF/DOCX: サーバ側でテキスト抽出
+    const fd = new FormData();
+    fd.append("file", file);
+    $("go").disabled = true;
+    try {
+      const res = await fetch("/api/spec/extract", { method: "POST", body: fd }).then(r => r.json());
+      if (!res.ok) { showSpecWarn("抽出エラー: " + (res.error || "不明")); return; }
+      appendSpecText(res.text);
+    } catch {
+      showSpecWarn("ファイルの送信に失敗しました");
+    } finally {
+      $("go").disabled = false;
+    }
+    return;
+  }
+  // テキスト系: 従来の FileReader 経路
   const reader = new FileReader();
-  reader.onload = () => {
-    const text = String(reader.result || "");
-    const cur = $("specText").value.trim();
-    $("specText").value = cur ? (cur + "\n\n" + text) : text;
-  };
-  reader.onerror = () => alert("ファイルの読み込みに失敗しました");
+  reader.onload = () => { appendSpecText(String(reader.result || "")); };
+  reader.onerror = () => showSpecWarn("ファイルの読み込みに失敗しました");
   reader.readAsText(file);
 });
 
