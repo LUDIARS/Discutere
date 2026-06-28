@@ -66,6 +66,7 @@ import { startCostRelay, buildCostFeedTargets } from "./flow/cost-relay.js";
 import { getFlowDb } from "./flow/db/connection.js";
 import { createLlmSummarizer } from "./crawler/sources/summarize.js";
 import { getConfig } from "./config.js";
+import { assertStartupHealth } from "./startup-guard.js";
 import { getInfisicalRuntimeSecret } from "./secrets/infisical-runtime.js";
 import { createEconomyGraphRoutes } from "./api/economy-graph-routes.js";
 import { analyzeEconomy, toSlug } from "./ludus/economy-analyzer.js";
@@ -78,6 +79,8 @@ import "./db/connection.js";
 installConsoleCapture();
 
 const config = getConfig();
+// production 起動の前提 (botToken 必須等) を fail-fast 検証する (dev/test は no-op)。
+assertStartupHealth(config);
 const YOUTUBE_API_KEY = "DISCUTERE_YOUTUBE_API_KEY";
 const initialYoutubeApiKey = await getInfisicalRuntimeSecret(YOUTUBE_API_KEY, { refresh: true }).catch((err) => {
   console.warn(`  secrets: DISCUTERE_YOUTUBE_API_KEY fetch skipped: ${(err as Error).message}`);
