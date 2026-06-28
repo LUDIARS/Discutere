@@ -20,8 +20,6 @@ Discutere は **半ローカルツール(Discord ギルド内限定の議論 Cha
 認証を Discord に依存させる以上、その**境界の実装欠落は実際の脆弱性**であり修正対象:
 
 - **bot token の漏洩 / 平文ログ出力** — token は config/env のみ、ログに出さない。
-- **Slack webhook (MACHINA, Iv 移管対象) の HMAC 署名検証欠落** — endpoint で Slack HMAC を
-  呼んでいない場合は CRITICAL。※ Discord 側は Gateway 移行で webhook 署名検証が不要になった。
 - **admin-id allowlist 未設定時の挙動** — 未設定なら admin コマンドは全 deny(安全 default)。
 - `JWT_SECRET` 等の dev default を本番で使わない startup guard。
 

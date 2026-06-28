@@ -1,44 +1,18 @@
 /**
- * Webhook 署名検証 (Slack HMAC-SHA256 / Discord Ed25519)。
- *
- * Slack: https://api.slack.com/authentication/verifying-requests-from-slack
- *   - base = "v0:" + timestamp + ":" + rawBody
- *   - signature = "v0=" + hex(hmac_sha256(signingSecret, base))
- *   - timestamp は |now - ts| <= 300s でないと replay 扱い
+ * Discord Interactions の Ed25519 署名検証。
  *
  * Discord: https://discord.com/developers/docs/interactions/receiving-and-responding#security-and-authorization
  *   - message = timestamp + rawBody
  *   - sig (Ed25519 hex 64 bytes) を publicKey (hex 32 bytes) で verify
  *
  * 失敗時は false 返し。 例外は内部に閉じる (= 不正 input でも 500 にしない)。
+ *
+ * 注: HTTP Interactions Endpoint 自体は WS Gateway 再設計 (2026-05-30) で撤去済みだが、
+ * interactions.ts のパーサ群は再利用のため保持しており、その署名検証だけここに残す
+ * (旧 src/machina/signature-verify.ts の Discord 分。Slack HMAC は machina 撤去で削除)。
  */
 
 import crypto from "node:crypto";
-
-export interface VerifySlackArgs {
-  rawBody: string;
-  signature: string; // "v0=..."
-  timestamp: string; // unix sec string
-  signingSecret: string;
-  /** default 300 sec */
-  toleranceSec?: number;
-  /** test 用 — Date.now() の差替 */
-  now?: () => number;
-}
-
-export function verifySlackSignature(args: VerifySlackArgs): boolean {
-  const tolerance = args.toleranceSec ?? 300;
-  if (!args.signature || !args.timestamp || !args.signingSecret) return false;
-  const ts = Number(args.timestamp);
-  if (!Number.isFinite(ts)) return false;
-  const now = Math.floor((args.now?.() ?? Date.now()) / 1000);
-  if (Math.abs(now - ts) > tolerance) return false;
-
-  const base = `v0:${args.timestamp}:${args.rawBody}`;
-  const computed =
-    "v0=" + crypto.createHmac("sha256", args.signingSecret).update(base).digest("hex");
-  return timingSafeEqualStr(computed, args.signature);
-}
 
 export interface VerifyDiscordArgs {
   rawBody: string;
@@ -69,15 +43,6 @@ export function verifyDiscordSignature(args: VerifyDiscordArgs): boolean {
     });
     const message = Buffer.from(args.timestamp + args.rawBody);
     return crypto.verify(null, message, key, sig);
-  } catch {
-    return false;
-  }
-}
-
-function timingSafeEqualStr(a: string, b: string): boolean {
-  if (a.length !== b.length) return false;
-  try {
-    return crypto.timingSafeEqual(Buffer.from(a), Buffer.from(b));
   } catch {
     return false;
   }

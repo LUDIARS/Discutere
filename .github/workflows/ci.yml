@@ -52,12 +52,11 @@ jobs:
           npm run test:phase4
           npm run test:phase5
           npm run test:phase6
-      - name: Tests (crawler / visualize / persona / machina / discord-hook)
+      - name: Tests (crawler / visualize / persona / discord-hook)
         run: |
           npm run test:crawler
           npm run test:visualize
           npm run test:persona-engine
-          npm run test:machina
           npm run test:discord-hook
           npm run test:runtime-settings
           npm run test:flow

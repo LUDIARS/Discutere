@@ -19,7 +19,7 @@ Discutere の学習データ (Discatier KG + persona-engine.db + discutere.db) �
 |---|---|---|
 | Discatier KG | `config.discatier.kuzuPath` (`./data/discatier.kuzu`) | 議論グラフ本体 |
 | persona-engine db | `config.personaEngine.dbPath` (`./data/persona-engine.db`) | ペルソナ/ルール/発火カウンタ |
-| discutere db | `DATABASE_PATH` (`./data/discutere.db`) | MACHINA / monitor 等 |
+| discutere db | `DATABASE_PATH` (`./data/discutere.db`) | flow / facilitator-directives / conclusion-cache 等のサイドカー表 |
 
 cwd 相対パスで格納するので、展開すれば元のレイアウトに復元できる。
 

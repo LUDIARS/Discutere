@@ -1,65 +1,11 @@
 /**
- * Slack HMAC + Discord Ed25519 署名検証 (PR-A).
+ * Discord Ed25519 署名検証 (旧 machina/signature-verify の Discord 分を discord-hook へ移設)。
  */
 
 import assert from "node:assert/strict";
 import crypto from "node:crypto";
 
-import {
-  verifySlackSignature,
-  verifyDiscordSignature,
-} from "../../src/machina/signature-verify.js";
-
-// ─── Slack HMAC ─────────────────────────────────
-
-{
-  const signingSecret = "shh-this-is-secret";
-  const timestamp = String(Math.floor(Date.now() / 1000));
-  const rawBody = JSON.stringify({ type: "event_callback", event: { type: "message", text: "hello" } });
-
-  const base = `v0:${timestamp}:${rawBody}`;
-  const signature = "v0=" + crypto.createHmac("sha256", signingSecret).update(base).digest("hex");
-
-  assert.equal(
-    verifySlackSignature({ rawBody, signature, timestamp, signingSecret }),
-    true,
-    "valid signature should verify"
-  );
-  console.log("ok slack valid signature");
-
-  // bad signature
-  assert.equal(
-    verifySlackSignature({
-      rawBody,
-      signature: "v0=" + "0".repeat(64),
-      timestamp,
-      signingSecret,
-    }),
-    false,
-    "wrong signature should reject"
-  );
-  console.log("ok slack wrong signature rejected");
-
-  // stale timestamp (10 min ago) → tolerance 300s でアウト
-  const stale = String(Math.floor(Date.now() / 1000) - 600);
-  const staleBase = `v0:${stale}:${rawBody}`;
-  const staleSig =
-    "v0=" + crypto.createHmac("sha256", signingSecret).update(staleBase).digest("hex");
-  assert.equal(
-    verifySlackSignature({ rawBody, signature: staleSig, timestamp: stale, signingSecret }),
-    false,
-    "stale timestamp should reject"
-  );
-  console.log("ok slack stale timestamp rejected");
-
-  // 必須欠落
-  assert.equal(verifySlackSignature({ rawBody, signature: "", timestamp, signingSecret }), false);
-  assert.equal(verifySlackSignature({ rawBody, signature, timestamp: "", signingSecret }), false);
-  assert.equal(verifySlackSignature({ rawBody, signature, timestamp, signingSecret: "" }), false);
-  console.log("ok slack missing fields rejected");
-}
-
-// ─── Discord Ed25519 ──────────────────────────
+import { verifyDiscordSignature } from "../../src/discord-hook/signature-verify.js";
 
 {
   // Node の crypto.generateKeyPairSync で Ed25519 鍵生成 → raw 32 byte 抽出

@@ -3,8 +3,9 @@
  *
  * Discord-only pivot により Cernere Composite 認証 / 独自 JWT 検証層は撤去した。
  * 実際の認可境界は **Discord Gateway (bot token 認証 + admin-id allowlist、
- * `src/discord-hook/gateway.ts`)**。HTTP 側の MACHINA admin REST はこの薄い
- * middleware が `X-User-Id` / `X-User-Role` ヘッダーだけを読む過渡的な介入経路。
+ * `src/discord-hook/gateway.ts`)**。HTTP 側の admin REST (dashboard / kill-switch /
+ * backup / tuning) はこの薄い middleware が `X-User-Id` / `X-User-Role` ヘッダーだけを
+ * 読む過渡的な介入経路。
  *
  * 注意: ヘッダーを信頼するので HTTP admin REST を公開ネットワークに晒さないこと
  * (ops 側で loopback / VPN 等に閉じる)。canonical な設計根拠は CLAUDE.md 参照。

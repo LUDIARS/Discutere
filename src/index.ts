@@ -4,7 +4,6 @@ import { serve } from "@hono/node-server";
 import { Hono } from "hono";
 import { cors } from "hono/cors";
 import Database from "better-sqlite3";
-import { machinaRoutes } from "./machina/routes.js";
 import { userContext } from "./middleware/auth.js";
 import { adminRoutes, setPersonaEngine, getPersonaEngine, setFacilitator, setGatewaySweeper } from "./api/admin-routes.js";
 import { dashboardRoutes } from "./api/dashboard-routes.js";
@@ -13,7 +12,6 @@ import { consensusRoutes } from "./api/consensus-routes.js";
 import { installConsoleCapture } from "./observability/console-capture.js";
 import { createConsensusScorer, type ConsensusScorer } from "./persona-engine/scoring/consensus-scorer.js";
 import { learningViewRoutes } from "./api/learning-view-routes.js";
-import { startSessionCleanup } from "./machina/mode-state.js";
 import { createCore } from "./core/index.js";
 import { resolveActiveKgPath } from "./core/kg-registry.js";
 import { createDiscatierContextProvider } from "./discatier-engine-adapter/index.js";
@@ -120,9 +118,6 @@ app.route("/internal", workerRoutes);
 // Gateway (bot token + admin-id allowlist) 側。詳細は middleware/auth.ts、E
 app.use("/api/*", userContext());
 
-// ─── MACHINA routes ──────────────────────────────────────────
-app.route("/api", machinaRoutes);
-
 // ─── Admin (PR-B: 人閁EↁEAI 介�E経路) ────────────────────────
 app.route("/api", adminRoutes);
 
@@ -155,9 +150,6 @@ app.route("/api", personaRoutes);
 app.route("/api", kgMigrationRoutes);
 // follower 側の自動 pull (config.kgSync.auto + sourceUrl のときのみ)。
 const stopKgSync = startKgSyncScheduler(config);
-
-// PR-C: mode-state TTL cleanup めE15 min interval で起勁E(24h 経過 session を回叁E
-const stopSessionCleanup = startSessionCleanup();
 
 let autoDiscussionLlm: LLMClient | null = null;
 // 投稿→議題化の分類器専用 LLM (persona engine の worker-pool 経路とは独立)。
@@ -874,11 +866,6 @@ const gracefulShutdown = (sig: string) => {
     workerPool?.stop();
   } catch (err) {
     console.warn("  worker-pool stop failed:", (err as Error).message);
-  }
-  try {
-    stopSessionCleanup();
-  } catch {
-    /* best-effort */
   }
   try {
     stopKgSync();

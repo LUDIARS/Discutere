@@ -91,7 +91,6 @@ const cats = {
   crawl:     { label:'クローラ / 学習',       color:'#2dd4bf' },
   view:      { label:'可視化 / API',          color:'#f0883e' },
   ops:       { label:'運用 (backup/sync/config)', color:'#8b949e' },
-  legacy:    { label:'MACHINA (Iv 移管予定)', color:'#6e7681' },
 };
 
 // ---- nodes: id, label, cat, path, desc ----
@@ -138,8 +137,6 @@ const N = [
   ['kgsync','KG-Sync','ops','src/kg-sync/','KG を master から NDJSON で配信・取込（/api/kg/migrations）。'],
   ['backup','S3 バックアップ','ops','src/backup/','KG + 全 SQLite を tar.gz 化し S3(Glacier) へ。月次自動 + 手動。'],
   ['config','config.ts','ops','src/config.ts','単一 typed config（default < discutere.config.json < env）。全ドメインの設定源。'],
-
-  ['machina','MACHINA','legacy','src/machina/','旧 Chat-to-Task 自動化。Imperativus(Iv) へ移管予定。議論とは独立。'],
 ];
 
 // ---- edges: source, target, label ----

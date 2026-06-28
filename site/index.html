@@ -148,7 +148,7 @@
       <tr><td>Runtime</td><td>Node.js 22+ / TypeScript (ESM)</td></tr>
       <tr><td>Discord</td><td>discord.js v14 — Gateway (WS) 常時接続</td></tr>
       <tr><td>HTTP（管理 / dashboard）</td><td>Hono + @hono/node-server（port 3100）</td></tr>
-      <tr><td>データ基盤</td><td>Discatier Core = Kuzu(SQLite) + イベントログ / MACHINA = SQLite + Drizzle</td></tr>
+      <tr><td>データ基盤</td><td>Discatier Core = Kuzu(SQLite) + イベントログ / サイドカー SQLite (Drizzle)</td></tr>
       <tr><td>LLM</td><td>Anthropic SDK 直叩き / Claude CLI（Lictor spawn）/ local OpenAI 互換</td></tr>
       <tr><td>設定</td><td>src/config.ts 単一 typed config（default &lt; discutere.config.json &lt; env）</td></tr>
       <tr><td>バックアップ</td><td>tar.gz → S3（@aws-sdk/client-s3、Glacier 系）</td></tr>

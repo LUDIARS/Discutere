@@ -1,4 +1,5 @@
 import "./interactions.test.js";
+import "./signature-verify.test.js";
 import "./command-router.test.js";
 import "./auto-discussion.test.js";
 import "./humanize.test.js";
