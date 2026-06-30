@@ -45,6 +45,14 @@
     "paperRefine": {
       "enabled": false,
       "model": ""
+    },
+    "$comment6": "anatomia: 議論前に Anatomia(建築規約オラクル)のソースコード解析から対象リポのドメイン構造を取得し、ディスカッションペーパーの事前情報(メカニクス)に取り込む。enabled=false(既定・opt-in)。Web /flow の『Anatomia 事前情報』欄で登録済みプロジェクト名(anatomia project add 済み)またはリポ絶対パスを指定すると、ドメインを取得→LLM で player-facing なメカニクスに精製(infra/表示層は除外・intended_affect 補完)して investigate 結果の先頭に差し込む(名前で重複排除・先勝ち)。binPath は anatomia の bin/anatomia.mjs 絶対パス(空なら ../Anatomia/bin/anatomia.mjs を解決・不在なら取得時 fail-fast)。autoDraft=true なら domains 下地が無いとき domains draft を自動実行(初回は解析で時間がかかる)。refineModel は精製モデル(空=既定)。timeoutMs は CLI 1 コマンドのタイムアウト。LLM 精製が失敗/空なら実装メカニクススラグを持つドメインだけ採る決定論フォールバックに degrade。",
+    "anatomia": {
+      "enabled": false,
+      "binPath": "",
+      "autoDraft": true,
+      "refineModel": "",
+      "timeoutMs": 180000
     }
   },
   "personaEngine": {

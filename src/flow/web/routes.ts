@@ -57,9 +57,44 @@ import {
 import { splitBlocks, replaceBlock, insertBlockAfter } from "../paper-blocks.js";
 import { appendRevision, canRevert, revertLast, listRevisions } from "../paper-revisions.js";
 import { getConfig } from "../../config.js";
+import { getAnatomiaMechanics, resolveAnatomiaSource } from "../anatomia/index.js";
+import type { MechanicSummary } from "../investigate.js";
 import { FLOW_HTML } from "./page.js";
 
 let deps: FlowWebDeps | null = null;
+
+/**
+ * Anatomia 事前情報メカニクスを解決する (config 有効 + 対象指定時のみ)。
+ * - config.flow.anatomia.enabled=false: 指定があっても無視 (warn)。
+ * - 対象未指定: undefined (従来どおり investigate のみ)。
+ * - 取得失敗 (bin 不在 / CLI 非 0 / JSON 不正) は throw を伝播させる (fail-fast・UI にエラー表示)。
+ */
+async function resolveAnatomiaExtraMechanics(
+  theme: string,
+  anatomiaProject: string,
+  anatomiaRepo: string,
+  llm: LLMClient,
+  warn: (msg: string) => void
+): Promise<MechanicSummary[] | undefined> {
+  const source = resolveAnatomiaSource(anatomiaProject, anatomiaRepo);
+  if (!source) return undefined;
+  const cfg = getConfig().flow.anatomia;
+  if (!cfg.enabled) {
+    warn("Anatomia 連携は無効 (flow.anatomia.enabled=false) のため指定を無視します");
+    return undefined;
+  }
+  const mechanics = await getAnatomiaMechanics(source, {
+    binPath: cfg.binPath,
+    autoDraft: cfg.autoDraft,
+    timeoutMs: cfg.timeoutMs,
+    refineModel: cfg.refineModel,
+    llm,
+    theme,
+    warn,
+  });
+  warn(`Anatomia 由来メカニクス ${mechanics.length} 件を事前情報に追加`);
+  return mechanics;
+}
 
 export function setFlowWebDeps(d: FlowWebDeps): void {
   deps = d;
@@ -158,8 +193,13 @@ flowRoutes.post("/api/flow/start", async (c) => {
     learningUrls?: unknown;
     specText?: unknown;
     specUrl?: unknown;
+    anatomiaProject?: unknown;
+    anatomiaRepo?: unknown;
   };
   const theme = typeof body.theme === "string" ? body.theme.trim() : "";
+  // Anatomia 事前情報: 登録済みプロジェクト名 or リポ絶対パス (どちらか)。config で有効時のみ使う。
+  const anatomiaProject = typeof body.anatomiaProject === "string" ? body.anatomiaProject.trim() : "";
+  const anatomiaRepo = typeof body.anatomiaRepo === "string" ? body.anatomiaRepo.trim() : "";
   const flowLabel = typeof body.flow === "string" ? body.flow : "";
   const tags = Array.isArray(body.tags)
     ? (body.tags.filter((t) => typeof t === "string") as FlowTag[])
@@ -252,12 +292,21 @@ flowRoutes.post("/api/flow/start", async (c) => {
     void (async () => {
       await prepareInformationBeforeFlow(kind, theme, tags, sessionId, autoCrawlSpec, webDeps);
       const richness = getConfig().flow.paperRichness;
+      // Anatomia 事前情報: 対象が指定され config 有効なら、ソース解析由来のメカニクスを先頭に差す。
+      const extraMechanics = await resolveAnatomiaExtraMechanics(
+        theme,
+        anatomiaProject,
+        anatomiaRepo,
+        webDeps.llm,
+        (m) => console.warn(`[flow-web/anatomia ${sessionId}] ${m}`)
+      );
       const { draft, info } = await buildPaperDraft(theme, tags, {
         gamesDir: webDeps.gamesDir,
         listExternalVoices: webDeps.listExternalVoices,
         llm: richness.enrichMechanics ? webDeps.llm : undefined,
         mechanicsTarget: richness.mechanicsTarget,
         enrichModel: richness.enrichModel || undefined,
+        extraMechanics,
         warn: (m) => console.warn(`[flow-web/paper ${sessionId}] ${m}`),
       });
       const entry = paperReviews.get(sessionId);

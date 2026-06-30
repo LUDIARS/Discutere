@@ -77,7 +77,28 @@ export interface BuildPaperDraftDeps {
   mechanicsTarget?: number;
   /** 増補に使うモデル ("" / 未指定なら LLM 既定)。 */
   enrichModel?: string;
+  /**
+   * 事前情報として先頭に差し込む追加メカニクス (Anatomia 由来など)。
+   * investigate の結果より前に置き、名前で重複排除する (先勝ち = Anatomia を優先)。
+   */
+  extraMechanics?: MechanicSummary[];
   warn?: (msg: string) => void;
+}
+
+/** メカニクスを名前で重複排除して連結する (先勝ち)。 */
+export function mergeMechanics(
+  primary: readonly MechanicSummary[],
+  secondary: readonly MechanicSummary[]
+): MechanicSummary[] {
+  const seen = new Set<string>();
+  const out: MechanicSummary[] = [];
+  for (const m of [...primary, ...secondary]) {
+    const key = m.name.trim().toLowerCase();
+    if (!key || seen.has(key)) continue;
+    seen.add(key);
+    out.push(m);
+  }
+  return out;
 }
 
 /** 1 件の外部の声を表示用サンプルに丸める (長文は切り詰め)。 */
@@ -106,12 +127,15 @@ export async function buildPaperDraft(
 
   const voices = deps.listExternalVoices ? deps.listExternalVoices([theme], COUNT_LIMIT) : [];
 
-  // メカニクスを LLM で目標件数まで増補 (感想を根拠に。llm 未指定なら investigate の件数のまま)。
-  let mechanics = investigation.mechanics;
+  // 事前情報 (Anatomia 由来など) を先頭に置き、investigate 結果と名前で重複排除する。
+  const base = mergeMechanics(deps.extraMechanics ?? [], investigation.mechanics);
+
+  // メカニクスを LLM で目標件数まで増補 (感想を根拠に。llm 未指定なら base の件数のまま)。
+  let mechanics = base;
   if (deps.llm) {
     mechanics = await enrichMechanics({
       theme,
-      existing: investigation.mechanics,
+      existing: base,
       voices,
       llm: deps.llm,
       target: deps.mechanicsTarget ?? 30,

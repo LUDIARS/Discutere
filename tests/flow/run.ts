@@ -35,5 +35,7 @@ await import("./paper-refine.test.js");
 await import("./spec-analyze.test.js");
 await import("./spec-source.test.js");
 await import("./persona-routes.test.js");
+await import("./anatomia-refine.test.js");
+await import("./anatomia-client.test.js");
 
 console.log("flow tests: all passed");

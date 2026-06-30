@@ -143,6 +143,27 @@ export interface DiscutereConfig {
       /** リファインに使うモデル ("" なら LLM の既定モデル)。 */
       model: string;
     };
+    /**
+     * Anatomia 連携 (議論前のゲーム情報供給)。Anatomia がソースコード解析から抽出した
+     * 対象リポのドメイン構造を、ディスカッションペーパーの「事前情報」(メカニクス) として
+     * 取り込む。既定 false (opt-in)。Web `/flow` の Anatomia 欄で議論ごとに対象を指定する。
+     */
+    anatomia: {
+      /** 有効化。既定 false。false なら Anatomia 欄を無視する (従来どおり investigate のみ)。 */
+      enabled: boolean;
+      /**
+       * Anatomia CLI 入口 (`bin/anatomia.mjs`) の絶対パス。enabled かつ未設定なら
+       * 取得要求時に fail-fast (無言フォールバック禁止 §7.1)。既定は sibling リポ
+       * `../Anatomia/bin/anatomia.mjs` を cwd 起点で解決。
+       */
+      binPath: string;
+      /** domains list が空のとき `domains draft` を自動実行して下地を作るか。既定 true。 */
+      autoDraft: boolean;
+      /** ドメイン→メカニクス精製 (player-facing 化 + 非ゲーム層除外) に使うモデル ("" で既定)。 */
+      refineModel: string;
+      /** Anatomia CLI 1 コマンドのタイムアウト (ms)。解析は重いので既定 180000。 */
+      timeoutMs: number;
+    };
   };
   /** 匿名議論 workspace (個人データ非保管) */
   workspace: string;
@@ -714,6 +735,13 @@ export function loadConfig(): DiscutereConfig {
           false
         ),
         model: pick(process.env.DISCUTERE_FLOW_PAPER_REFINE_MODEL, file.flow?.paperRefine?.model, ""),
+      },
+      anatomia: {
+        enabled: pickBool(process.env.DISCUTERE_ANATOMIA_ENABLED, file.flow?.anatomia?.enabled, false),
+        binPath: pick(process.env.DISCUTERE_ANATOMIA_BIN, file.flow?.anatomia?.binPath, ""),
+        autoDraft: pickBool(process.env.DISCUTERE_ANATOMIA_AUTO_DRAFT, file.flow?.anatomia?.autoDraft, true),
+        refineModel: pick(process.env.DISCUTERE_ANATOMIA_REFINE_MODEL, file.flow?.anatomia?.refineModel, ""),
+        timeoutMs: pickNum(process.env.DISCUTERE_ANATOMIA_TIMEOUT_MS, file.flow?.anatomia?.timeoutMs, 180000),
       },
     },
     workspace: pick(process.env.DISCATIER_WORKSPACE, file.workspace, "knowledge"),
