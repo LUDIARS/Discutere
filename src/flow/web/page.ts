@@ -161,6 +161,12 @@ export const FLOW_HTML = `<!doctype html>
         <input id="specUrl" type="text" placeholder="https://… または spec/feature/foo.md" style="width:80%" />
       </label>
     </fieldset>
+    <fieldset class="tags">
+      <legend>Anatomia 事前情報 (議論/改善のみ・対象リポのコード解析をメカニクスに)</legend>
+      <label>登録済みプロジェクト名 <input id="anatomiaProject" type="text" placeholder="例: pagus (anatomia project add 済み)" style="width:50%" /></label>
+      <label>または リポジトリ絶対パス <input id="anatomiaRepo" type="text" placeholder="例: E:/Document/Ars/Pagus" style="width:60%" /></label>
+      <p class="muted" style="margin:4px 0 0;font-size:0.82rem">サーバ設定で Anatomia 連携が有効な場合のみ反映。ドメイン下地が無ければ初回は自動解析で時間がかかります。</p>
+    </fieldset>
     <button type="submit" id="go">開始</button>
   </form>
 
@@ -276,10 +282,12 @@ $("start").addEventListener("submit", async (e) => {
   const learningUrls = $("learningUrls").value.trim() || undefined;
   const specText = $("specText").value.trim() || undefined;
   const specUrl = $("specUrl").value.trim() || undefined;
+  const anatomiaProject = $("anatomiaProject").value.trim() || undefined;
+  const anatomiaRepo = $("anatomiaRepo").value.trim() || undefined;
   $("go").disabled = true;
   const res = await fetch("/api/flow/start", {
     method: "POST", headers: { "content-type": "application/json" },
-    body: JSON.stringify({ theme, flow, tags, rounds, turnsPerRound, opponent, learningSource, learningQuery, learningAppId, learningUrls, specText, specUrl }),
+    body: JSON.stringify({ theme, flow, tags, rounds, turnsPerRound, opponent, learningSource, learningQuery, learningAppId, learningUrls, specText, specUrl, anatomiaProject, anatomiaRepo }),
   }).then(r => r.json()).catch(() => ({ ok: false, error: "通信失敗" }));
   if (!res.ok) { alert(res.error || "開始に失敗"); $("go").disabled = false; return; }
   sessionId = res.sessionId; kind = res.kind;
