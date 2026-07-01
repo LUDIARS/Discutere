@@ -1,0 +1,414 @@
+{
+  "game": "Journey",
+  "slug": "journey",
+  "fetched_date": "2026-06-05",
+  "method": "hybrid (lexicon first-pass; composite fixed vector computed in-code / Claude Code, no external embedding API)",
+  "vector_spec": [
+    "emo.valence",
+    "emo.arousal",
+    "emo.joy",
+    "emo.trust",
+    "emo.fear",
+    "emo.surprise",
+    "emo.sadness",
+    "emo.disgust",
+    "emo.anger",
+    "emo.anticipation",
+    "asp.fun",
+    "asp.difficulty",
+    "asp.content",
+    "asp.price_value",
+    "asp.performance",
+    "asp.story",
+    "asp.graphics",
+    "asp.replayability",
+    "meta.positive_ratio",
+    "meta.volume_log"
+  ],
+  "vector_range": "0..1",
+  "sources": [
+    {
+      "source": "steam",
+      "n": 299
+    }
+  ],
+  "overall": {
+    "valence": "positive",
+    "score": 0.8337,
+    "positive_ratio": 0.8896,
+    "volume": 299,
+    "volume_log": 0.6193
+  },
+  "game_vector": [
+    0.8337,
+    0.0995,
+    0.1605,
+    0.0535,
+    0,
+    0.0301,
+    0.0167,
+    0,
+    0.0033,
+    0.01,
+    0.9167,
+    0.8182,
+    0.9286,
+    0.8333,
+    0.5357,
+    0.8519,
+    0.9145,
+    0.75,
+    0.8896,
+    0.6193
+  ],
+  "aspects": {
+    "fun": {
+      "mentions": 12,
+      "score": 0.9167
+    },
+    "difficulty": {
+      "mentions": 11,
+      "score": 0.8182
+    },
+    "content": {
+      "mentions": 14,
+      "score": 0.9286
+    },
+    "price_value": {
+      "mentions": 12,
+      "score": 0.8333
+    },
+    "performance": {
+      "mentions": 14,
+      "score": 0.5357
+    },
+    "story": {
+      "mentions": 27,
+      "score": 0.8519
+    },
+    "graphics": {
+      "mentions": 76,
+      "score": 0.9145
+    },
+    "replayability": {
+      "mentions": 6,
+      "score": 0.75
+    }
+  },
+  "affects": [
+    {
+      "subject": "overall",
+      "mood": "joy",
+      "valence": "positive",
+      "score": 0.8337
+    },
+    {
+      "subject": "period:2026-05",
+      "mood": "joy",
+      "valence": "positive",
+      "score": 0.8319
+    },
+    {
+      "subject": "period:2026-06",
+      "mood": "joy",
+      "valence": "positive",
+      "score": 0.8437
+    }
+  ],
+  "sentiment_curve": [
+    {
+      "period": "2026-05",
+      "count": 254,
+      "valence": 0.8319,
+      "arousal": 0.1014,
+      "mood": "joy",
+      "sentiment": "positive",
+      "vector": [
+        0.8319,
+        0.1014,
+        0.1654,
+        0.0591,
+        0,
+        0.0276,
+        0.0157,
+        0,
+        0.0039,
+        0.0118,
+        0.9091,
+        0.8182,
+        0.9286,
+        0.8,
+        0.5,
+        0.8462,
+        0.9071,
+        0.75,
+        0.8858,
+        0.6016
+      ]
+    },
+    {
+      "period": "2026-06",
+      "count": 45,
+      "valence": 0.8437,
+      "arousal": 0.0889,
+      "mood": "joy",
+      "sentiment": "positive",
+      "vector": [
+        0.8437,
+        0.0889,
+        0.1333,
+        0.0222,
+        0,
+        0.0444,
+        0.0222,
+        0,
+        0,
+        0,
+        1,
+        0.5,
+        0.5,
+        1,
+        1,
+        1,
+        1,
+        0.5,
+        0.9111,
+        0.4157
+      ]
+    }
+  ],
+  "clusters": [
+    {
+      "id": "cluster:graphics",
+      "topic_aspect": "graphics",
+      "size": 52,
+      "sentiment": "positive",
+      "score": 0.945,
+      "vector": [
+        0.945,
+        0.1587,
+        0.2885,
+        0.0385,
+        0,
+        0.0962,
+        0.0192,
+        0,
+        0.0192,
+        0,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        0.9712,
+        1,
+        0.9615,
+        0.4311
+      ]
+    },
+    {
+      "id": "cluster:performance",
+      "topic_aspect": "performance",
+      "size": 11,
+      "sentiment": "neutral",
+      "score": 0.489,
+      "vector": [
+        0.489,
+        0.0227,
+        0.2727,
+        0.0909,
+        0,
+        0.0909,
+        0.0909,
+        0,
+        0,
+        0.0909,
+        0.5,
+        0.5,
+        0.5,
+        0.5,
+        0.5,
+        1,
+        0,
+        0.25,
+        0.4545,
+        0.2698
+      ]
+    },
+    {
+      "id": "cluster:story",
+      "topic_aspect": "story",
+      "size": 10,
+      "sentiment": "positive",
+      "score": 0.805,
+      "vector": [
+        0.805,
+        0.1,
+        0.6,
+        0.2,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        1,
+        0.5,
+        1,
+        1,
+        0.5,
+        0.8,
+        0.6667,
+        0.5,
+        0.8,
+        0.2603
+      ]
+    },
+    {
+      "id": "cluster:fun",
+      "topic_aspect": "fun",
+      "size": 8,
+      "sentiment": "positive",
+      "score": 0.9089,
+      "vector": [
+        0.9089,
+        0.125,
+        1,
+        0.125,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0.875,
+        0.5,
+        0.5,
+        0,
+        0.5,
+        0.5,
+        1,
+        0.5,
+        0.875,
+        0.2386
+      ]
+    },
+    {
+      "id": "cluster:content",
+      "topic_aspect": "content",
+      "size": 7,
+      "sentiment": "positive",
+      "score": 0.9274,
+      "vector": [
+        0.9274,
+        0.0357,
+        0.2857,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0.5,
+        0.5,
+        1,
+        0.5,
+        1,
+        1,
+        1,
+        1,
+        1,
+        0.2258
+      ]
+    },
+    {
+      "id": "cluster:difficulty",
+      "topic_aspect": "difficulty",
+      "size": 7,
+      "sentiment": "positive",
+      "score": 0.7321,
+      "vector": [
+        0.7321,
+        0.2143,
+        0.1429,
+        0.2857,
+        0,
+        0,
+        0.1429,
+        0,
+        0,
+        0.1429,
+        0.5,
+        0.7143,
+        0.6667,
+        1,
+        0,
+        0.6667,
+        0.6667,
+        0.5,
+        0.7143,
+        0.2258
+      ]
+    },
+    {
+      "id": "cluster:price_value",
+      "topic_aspect": "price_value",
+      "size": 6,
+      "sentiment": "positive",
+      "score": 0.8235,
+      "vector": [
+        0.8235,
+        0.1667,
+        0.1667,
+        0.8333,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0.5,
+        0.5,
+        0.5,
+        0.8333,
+        0.5,
+        0.5,
+        1,
+        0.5,
+        0.8333,
+        0.2113
+      ]
+    },
+    {
+      "id": "cluster:replayability",
+      "topic_aspect": "replayability",
+      "size": 2,
+      "sentiment": "positive",
+      "score": 0.955,
+      "vector": [
+        0.955,
+        0,
+        1,
+        0,
+        0,
+        0.5,
+        0,
+        0,
+        0,
+        0,
+        1,
+        0.5,
+        1,
+        0.5,
+        0.5,
+        1,
+        1,
+        1,
+        1,
+        0.1193
+      ]
+    }
+  ]
+}
