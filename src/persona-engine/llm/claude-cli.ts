@@ -18,6 +18,7 @@ import { existsSync } from "node:fs";
 import type { LLMClient, LLMInvokeArgs, LLMResult } from "./client.js";
 import type { TokenUsage } from "../types.js";
 import { logLlm } from "./llm-vg.js";
+import { reportConcordiaCostOneShot } from "./concordia-cost.js";
 
 export interface ClaudeCliClientOptions {
   /** 任意 — claude CLI のフルパス (PATH に乗ってる場合は不要) */
@@ -74,6 +75,7 @@ interface SpawnArgs {
 
 function spawnClaude(args: SpawnArgs): Promise<LLMResult> {
   return new Promise((resolve) => {
+    const startedAt = Date.now();
     const env: NodeJS.ProcessEnv = { ...process.env };
     if (args.gitBashPath) {
       env.CLAUDE_CODE_GIT_BASH_PATH = args.gitBashPath;
@@ -107,6 +109,18 @@ function spawnClaude(args: SpawnArgs): Promise<LLMResult> {
         windowsHide: true,
       });
     } catch (e) {
+      void reportConcordiaCostOneShot({
+        service: "discutere",
+        provider: "claude",
+        command: `${args.cliPath} ${cliArgs.join(" ")}`,
+        model: args.model ?? null,
+        cwd: process.cwd(),
+        prompt: args.prompt,
+        status: "error",
+        exit_code: -1,
+        duration_ms: Date.now() - startedAt,
+        metadata: { error: (e as Error).message },
+      });
       resolve({ ok: false, error: `claude cli spawn failed: ${(e as Error).message}` });
       return;
     }
@@ -118,6 +132,17 @@ function spawnClaude(args: SpawnArgs): Promise<LLMResult> {
       if (resolved) return;
       resolved = true;
       try { child.kill("SIGKILL"); } catch {}
+      void reportConcordiaCostOneShot({
+        service: "discutere",
+        provider: "claude",
+        command: `${args.cliPath} ${cliArgs.join(" ")}`,
+        model: args.model ?? null,
+        cwd: process.cwd(),
+        prompt: args.prompt,
+        status: "timeout",
+        exit_code: -1,
+        duration_ms: Date.now() - startedAt,
+      });
       resolve({ ok: false, error: `claude cli timeout (${args.timeoutMs} ms)` });
     }, args.timeoutMs);
 
@@ -154,6 +179,27 @@ function spawnClaude(args: SpawnArgs): Promise<LLMResult> {
           cache_creation_tokens: result.usage?.cache_creation_input_tokens,
           cost_usd: result.usage?.cost_usd,
         } : { error: result.error }),
+      });
+      void reportConcordiaCostOneShot({
+        service: "discutere",
+        provider: "claude",
+        command: `${args.cliPath} ${cliArgs.join(" ")}`,
+        model: args.model ?? null,
+        cwd: process.cwd(),
+        prompt: args.prompt,
+        status: result.ok ? "ok" : "error",
+        exit_code: code,
+        duration_ms: Date.now() - startedAt,
+        input_tokens: result.ok ? result.usage?.input_tokens : undefined,
+        output_tokens: result.ok ? result.usage?.output_tokens : undefined,
+        total_tokens: result.ok ? (result.usage?.input_tokens ?? 0) + (result.usage?.output_tokens ?? 0) : undefined,
+        cost_usd: result.ok ? result.usage?.cost_usd : undefined,
+        metadata: result.ok
+          ? {
+              cacheReadTokens: result.usage?.cache_read_input_tokens,
+              cacheCreationTokens: result.usage?.cache_creation_input_tokens,
+            }
+          : { error: result.error, stderr: err.slice(0, 1000) },
       });
       resolve(result);
     });
