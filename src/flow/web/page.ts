@@ -8,89 +8,176 @@ export const FLOW_HTML = `<!doctype html>
 <head>
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
+<meta name="color-scheme" content="light dark" />
 <title>Discutere 議論フロー</title>
 <style>
-  body { font-family: system-ui, sans-serif; max-width: 760px; margin: 1.5rem auto; padding: 0 1rem; color: #1a1a1a; }
-  h1 { font-size: 1.2rem; }
-  fieldset { border: 1px solid #ddd; border-radius: 8px; margin-bottom: 1rem; }
+  :root {
+    color-scheme: light;
+    --bg: #f8fafc;
+    --fg: #111827;
+    --muted: #64748b;
+    --surface: #ffffff;
+    --soft: #eaf2ff;
+    --field: #ffffff;
+    --border: #d0d7de;
+    --primary: #4a90e2;
+    --primary-fg: #ffffff;
+    --secondary: #e2e8f0;
+    --secondary-fg: #334155;
+    --danger-bg: #fee2e2;
+    --danger-fg: #b91c1c;
+    --success: #16a34a;
+    --pro-bg: #eff6ff;
+    --pro-border: #93c5fd;
+    --con-bg: #fff1f2;
+    --con-border: #fda4af;
+    --neutral-bg: #f8fafc;
+    --neutral-border: #cbd5e1;
+    --opinion-bg: #f5f3ff;
+    --opinion-border: #c4b5fd;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root {
+      color-scheme: dark;
+      --bg: #0f1115;
+      --fg: #e6e6e6;
+      --muted: #8b94a3;
+      --surface: #161922;
+      --soft: #4a90e21a;
+      --field: #0c0e13;
+      --border: #334155;
+      --primary: #4a90e2;
+      --primary-fg: #ffffff;
+      --secondary: #2a2f3a;
+      --secondary-fg: #e5e7eb;
+      --danger-bg: #3b1518;
+      --danger-fg: #fca5a5;
+      --success: #22c55e;
+      --pro-bg: #102033;
+      --pro-border: #2563eb;
+      --con-bg: #32151a;
+      --con-border: #be123c;
+      --neutral-bg: #111827;
+      --neutral-border: #475569;
+      --opinion-bg: #211634;
+      --opinion-border: #7c3aed;
+    }
+  }
+  * { box-sizing: border-box; }
+  body { font-family: system-ui, -apple-system, "Segoe UI", "Hiragino Kaku Gothic ProN", sans-serif; max-width: 1100px; margin: 24px auto; padding: 0 16px 48px; line-height: 1.5; color: var(--fg); background: var(--bg); }
+  .app-head { border-bottom: 2px solid var(--primary); padding-bottom: 10px; margin-bottom: 16px; display: flex; align-items: flex-end; justify-content: space-between; gap: 12px; flex-wrap: wrap; }
+  h1 { font-size: 22px; margin: 0; }
+  .mode-title { display: inline-flex; align-items: center; padding: 4px 12px; border-radius: 999px; background: var(--soft); color: var(--fg); font-weight: 700; font-size: 13px; }
+  .panel { border: 1px solid var(--border); border-radius: 8px; padding: 16px; margin: 16px 0; background: var(--surface); }
+  .panel h2 { font-size: 16px; margin: 0 0 12px; }
+  fieldset { border: 1px solid var(--border); border-radius: 8px; margin: 0 0 12px; background: var(--surface); padding: 12px 14px; }
+  legend { color: var(--muted); font-size: 12px; font-weight: 700; padding: 0 6px; }
   label { display: block; margin: 0.4rem 0; }
-  textarea, select { width: 100%; padding: 0.5rem; border: 1px solid #ccc; border-radius: 6px; font: inherit; box-sizing: border-box; }
+  input, textarea, select { color: var(--fg); background: var(--surface); }
+  input[type=text], input[type=number], textarea, select { background: var(--field); border: 1px solid var(--border); border-radius: 7px; padding: 8px 10px; font: inherit; }
+  textarea, select { width: 100%; }
   .tags label { display: inline-block; margin-right: 1rem; }
-  button { padding: 0.5rem 1.2rem; border: 0; border-radius: 6px; background: #2563eb; color: #fff; font: inherit; cursor: pointer; }
+  button { padding: 8px 15px; border: 1px solid var(--primary); border-radius: 6px; background: var(--primary); color: var(--primary-fg); font: inherit; cursor: pointer; }
   button:disabled { background: #9ca3af; cursor: default; }
-  #log { margin-top: 1rem; }
-  .u { padding: 0.4rem 0.6rem; border-left: 3px solid #cbd5e1; margin: 0.3rem 0; }
-  .u.user { border-color: #2563eb; }
-  .u .who { font-weight: 600; font-size: 0.85rem; color: #475569; }
-  .err { color: #b91c1c; }
-  #conclusion { margin-top: 1rem; padding: 0.8rem; background: #f0fdf4; border: 1px solid #bbf7d0; border-radius: 8px; white-space: pre-wrap; }
+  #log { display: grid; gap: 10px; }
+  .u { padding: 12px 14px; border: 1px solid var(--neutral-border); border-left-width: 4px; border-radius: 8px; background: var(--neutral-bg); }
+  .u.pro { background: var(--pro-bg); border-color: var(--pro-border); }
+  .u.con { background: var(--con-bg); border-color: var(--con-border); }
+  .u.opinion { background: var(--opinion-bg); border-color: var(--opinion-border); }
+  .u.user { border-color: var(--primary); }
+  .u .who { font-weight: 700; font-size: 0.9rem; color: var(--fg); display: flex; gap: 8px; flex-wrap: wrap; align-items: center; }
+  .u .text { margin-top: 6px; white-space: pre-wrap; word-break: break-word; }
+  .err { color: var(--danger-fg); }
+  #conclusion { border-left: 4px solid var(--success); }
+  #conclusionBody { white-space: pre-wrap; font-weight: 600; word-break: break-word; }
   #say { display: none; margin-top: 1rem; }
-  .muted { color: #64748b; font-size: 0.85rem; }
-  #review { margin-top: 1rem; padding: 0.8rem; background: #fffbeb; border: 1px solid #fde68a; border-radius: 8px; }
-  #review h2 { font-size: 1rem; margin: 0 0 0.5rem; }
-  #review input[type=text] { padding: 0.4rem; border: 1px solid #ccc; border-radius: 6px; font: inherit; }
+  .muted { color: var(--muted); font-size: 0.85rem; }
+  #review input[type=text] { width: 100%; }
   #review .row { margin: 0.5rem 0; }
-  /* Notion 風ブロックエディタ */
-  .blk { background: #fff; border: 1px solid #e5e7eb; border-radius: 8px; padding: 0.5rem 0.6rem; margin: 0.5rem 0; }
-  .blk.heading { background: #f8fafc; }
-  .blk .blk-type { font-size: 0.7rem; color: #94a3b8; margin-bottom: 0.2rem; }
-  .blk .blk-text { width: 100%; border: 1px solid #e5e7eb; border-radius: 6px; padding: 0.4rem; font: inherit; box-sizing: border-box; resize: vertical; }
-  .blk .blk-actions { margin-top: 0.3rem; display: flex; gap: 0.3rem; flex-wrap: wrap; }
-  .blk .blk-actions button { padding: 0.25rem 0.6rem; font-size: 0.8rem; background: #e2e8f0; color: #1e293b; }
-  .blk .blk-actions button.primary { background: #2563eb; color: #fff; }
-  .blk .blk-actions button.danger { background: #fee2e2; color: #b91c1c; }
-  .blk .proposal { margin-top: 0.4rem; padding: 0.4rem 0.5rem; background: #f1f5f9; border-radius: 6px; }
-  .blk .proposal .rationale { font-size: 0.8rem; color: #475569; margin-bottom: 0.3rem; }
+  .blk { background: var(--surface); border: 1px solid var(--border); border-radius: 8px; padding: 12px; margin: 10px 0; }
+  .blk.heading { background: var(--soft); }
+  .blk .blk-type { font-size: 0.7rem; color: var(--muted); margin-bottom: 0.2rem; }
+  .blk .blk-text { width: 100%; resize: vertical; }
+  .blk .blk-actions { margin-top: 8px; display: flex; gap: 6px; flex-wrap: wrap; }
+  .blk .blk-actions button { padding: 5px 10px; font-size: 12px; background: var(--secondary); color: var(--secondary-fg); border-color: var(--border); }
+  .blk .blk-actions button.primary { background: var(--primary); color: var(--primary-fg); }
+  .blk .blk-actions button.danger { background: var(--danger-bg); color: var(--danger-fg); }
+  .blk .proposal { margin-top: 8px; padding: 10px; background: var(--soft); border-radius: 6px; }
+  .blk .proposal .rationale { font-size: 0.8rem; color: var(--muted); margin-bottom: 0.3rem; }
   .blk .proposal .old { background: #fee2e2; text-decoration: line-through; padding: 0.2rem 0.4rem; border-radius: 4px; white-space: pre-wrap; display: block; margin-bottom: 0.2rem; }
   .blk .proposal .new { background: #dcfce7; padding: 0.2rem 0.4rem; border-radius: 4px; white-space: pre-wrap; display: block; }
-  .rvbar { margin-top: 0.8rem; display: flex; gap: 0.3rem; flex-wrap: wrap; align-items: center; }
+  .rvbar { margin-top: 12px; display: flex; gap: 8px; flex-wrap: wrap; align-items: center; }
   .rvbar input[type=text] { flex: 1; min-width: 14rem; }
-  #rvRevert { background: #e2e8f0; color: #1e293b; }
-  #rvRevert:disabled { background: #f1f5f9; color: #cbd5e1; }
-  .confirm { margin-top: 0.8rem; padding-top: 0.6rem; border-top: 1px solid #fde68a; display: flex; align-items: center; gap: 0.8rem; }
-  #rvApprove { background: #16a34a; }
+  #rvRevert { background: var(--secondary); color: var(--secondary-fg); }
+  #rvRevert:disabled { background: var(--soft); color: var(--muted); }
+  .confirm { margin-top: 0.8rem; padding-top: 0.6rem; border-top: 1px solid var(--border); display: flex; align-items: center; gap: 0.8rem; }
+  #rvApprove { background: var(--success); }
   #rvApprove:disabled { background: #9ca3af; }
-  /* ライブ議論 (ペーパー + 各 LLM の意見の 2 ペイン) */
-  #live { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin-top: 1rem; align-items: start; }
-  @media (max-width: 720px) { #live { grid-template-columns: 1fr; } }
-  #paperPanel { position: sticky; top: 0.5rem; background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 8px; padding: 0.6rem 0.8rem; max-height: 80vh; overflow: auto; }
-  #paperPanel h2, #opinions h2 { font-size: 1rem; margin: 0 0 0.5rem; }
-  #paperLive { font-size: 0.75rem; color: #2563eb; }
+  #live { display: grid; grid-template-columns: 1fr; gap: 16px; margin-top: 16px; }
+  #rightPanes { display: grid; gap: 16px; min-width: 0; align-content: start; }
+  #paperPanel, #opinions, #conclusion { border: 1px solid var(--border); border-radius: 8px; padding: 16px; background: var(--surface); }
+  .panel-head { display: flex; justify-content: space-between; align-items: center; gap: 8px; margin-bottom: 10px; }
+  #paperPanel h2, #opinions h2, #conclusion h2 { font-size: 16px; margin: 0; }
+  #paperToggle { display: none; background: var(--secondary); color: var(--secondary-fg); border-color: var(--border); padding: 5px 10px; font-size: 12px; }
+  #paperLive { font-size: 0.75rem; color: var(--primary); }
   .paper-md { font-size: 0.9rem; line-height: 1.55; }
-  .paper-md h3 { font-size: 1rem; margin: 0.8rem 0 0.3rem; border-bottom: 1px solid #e2e8f0; padding-bottom: 0.1rem; }
-  .paper-md h4 { font-size: 0.9rem; margin: 0.6rem 0 0.2rem; color: #334155; }
+  .paper-md h3 { font-size: 1rem; margin: 0.8rem 0 0.3rem; border-bottom: 1px solid var(--border); padding-bottom: 0.1rem; }
+  .paper-md h4 { font-size: 0.9rem; margin: 0.6rem 0 0.2rem; color: var(--fg); }
   .paper-md ul { margin: 0.2rem 0 0.4rem; padding-left: 1.2rem; }
   .paper-md p { margin: 0.3rem 0; }
   .paper-md .upd { animation: flash 1.2s ease-out; }
   @keyframes flash { from { background: #fef9c3; } to { background: transparent; } }
-  /* 議論一覧 */
-  #newDiscussion { background: #16a34a; }
+  #newDiscussion { background: var(--success); }
   .listH { font-size: 1rem; margin: 1rem 0 0.4rem; }
   .sess-row { display: flex; align-items: stretch; gap: 0.3rem; margin: 0.3rem 0; }
-  .sess { flex: 1; min-width: 0; text-align: left; background: #fff; border: 1px solid #e5e7eb; border-radius: 8px; padding: 0.5rem 0.7rem; cursor: pointer; font: inherit; }
-  .sess:hover { border-color: #2563eb; background: #f8fafc; }
-  .sess-del { flex: 0 0 auto; background: #fee2e2; color: #b91c1c; border: 1px solid #fecaca; border-radius: 8px; padding: 0 0.7rem; cursor: pointer; font-size: 1rem; }
-  .sess-del:hover { background: #fecaca; }
+  .sess { flex: 1; min-width: 0; text-align: left; background: var(--surface); border: 1px solid var(--border); border-radius: 8px; padding: 0.5rem 0.7rem; cursor: pointer; font: inherit; }
+  .sess:hover { border-color: var(--primary); background: var(--surface-soft); }
+  .sess-del { flex: 0 0 auto; background: var(--danger-bg); color: var(--danger-fg); border: 1px solid var(--border); border-radius: 8px; padding: 0 0.7rem; cursor: pointer; font-size: 1rem; }
+  .sess-del:hover { filter: brightness(0.95); }
   .sess .th { font-weight: 600; }
-  .sess .meta { font-size: 0.78rem; color: #64748b; margin-top: 0.15rem; }
-  .badge { display: inline-block; font-size: 0.7rem; border-radius: 5px; padding: 0.05rem 0.4rem; margin-right: 0.4rem; }
+  .sess .meta { font-size: 0.78rem; color: var(--muted); margin-top: 0.15rem; }
+  .badge, .mark { display: inline-block; font-size: 11px; border-radius: 5px; padding: 2px 7px; margin-right: 4px; background: var(--soft); color: var(--fg); font-weight: 700; }
+  .mark.vote { background: #fef3c7; color: #92400e; }
+  .mark.win { background: #dcfce7; color: #15803d; }
+  .mark.auf { background: #ede9fe; color: #6d28d9; }
   .badge.live { background: #dbeafe; color: #1d4ed8; }
   .badge.done { background: #dcfce7; color: #15803d; }
   .badge.draft { background: #fef3c7; color: #b45309; }
   #backBar { margin: 0.6rem 0; }
-  #backToList { background: #e2e8f0; color: #1e293b; }
-  #filters { display: flex; gap: 0.3rem; flex-wrap: wrap; margin: 0.4rem 0; }
-  .filt { background: #e2e8f0; color: #1e293b; padding: 0.3rem 0.8rem; font-size: 0.85rem; }
-  .filt.active { background: #2563eb; color: #fff; }
-  #loadMore { display: block; width: 100%; margin: 0.5rem 0; background: #e2e8f0; color: #1e293b; }
+  #backToList { background: var(--secondary); color: var(--secondary-fg); }
+  #filters, #scopeFilters { display: flex; gap: 0.3rem; flex-wrap: wrap; margin: 0.4rem 0; }
+  .filt, .scopeFilt { background: var(--secondary); color: var(--secondary-fg); padding: 0.3rem 0.8rem; font-size: 0.85rem; }
+  .filt.active, .scopeFilt.active { background: var(--primary); color: var(--primary-fg); }
+  #loadMore { display: block; width: 100%; margin: 0.5rem 0; background: var(--secondary); color: var(--secondary-fg); }
+  @media (min-width: 960px) {
+    body { max-width: 1480px; }
+    #live { grid-template-columns: minmax(340px, 1fr) minmax(560px, 2fr); align-items: start; }
+    #paperPanel { position: sticky; top: 16px; max-height: calc(100vh - 32px); overflow: auto; }
+  }
+  @media (max-width: 720px) {
+    body { margin: 14px auto; padding: 0 12px 32px; }
+    .panel { padding: 12px; }
+    .rvbar input[type=text] { min-width: 100%; }
+    #paperToggle { display: inline-block; }
+    #paperPanel.collapsed #paperBody { display: none; }
+    #paperPanel.collapsed { padding-bottom: 12px; }
+  }
 </style>
 </head>
 <body>
-  <h1>Discutere 議論フロー</h1>
+  <header class="app-head">
+    <h1>Discutere 議論フロー</h1>
+    <div class="mode-title">AI議論</div>
+  </header>
 
-  <div id="list">
+  <div id="list" class="panel">
     <button id="newDiscussion" type="button">＋ 新規議論開始</button>
     <h2 class="listH">議論一覧</h2>
+    <div id="scopeFilters">
+      <button class="scopeFilt" data-scope="all" type="button">すべて</button>
+      <button class="scopeFilt" data-scope="ai" type="button">AI議論</button>
+      <button class="scopeFilt" data-scope="chat" type="button">チャット議論</button>
+    </div>
     <div id="filters">
       <button class="filt" data-state="all" type="button">すべて</button>
       <button class="filt" data-state="draft" type="button">下書き</button>
@@ -103,7 +190,7 @@ export const FLOW_HTML = `<!doctype html>
 
   <div id="backBar" style="display:none"><button id="backToList" type="button">← 議論一覧へ</button></div>
 
-  <form id="start" style="display:none">
+  <form id="start" class="panel" style="display:none">
     <fieldset>
       <legend>テーマ</legend>
       <textarea id="theme" rows="3" placeholder="議題を入力" required></textarea>
@@ -111,7 +198,7 @@ export const FLOW_HTML = `<!doctype html>
     <fieldset>
       <legend>議論タイプ (必須)</legend>
       <select id="flow" required>
-        <option value="discussion" selected>議論 (チャット議論)</option>
+        <option value="discussion" selected>AI議論</option>
         <option value="improvement">改善</option>
         <option value="learning">学習 (収集)</option>
         <option value="sparring">壁打ち</option>
@@ -175,7 +262,7 @@ export const FLOW_HTML = `<!doctype html>
     <button id="sayBtn">送信</button>
   </div>
 
-  <div id="review" style="display:none">
+  <div id="review" class="panel" style="display:none">
     <h2>📝 ディスカッションペーパー編集 (確定すると議論開始できます)</h2>
     <div id="reviewInfo" class="muted">準備中…</div>
     <div class="row tags">観点タグ:
@@ -199,15 +286,20 @@ export const FLOW_HTML = `<!doctype html>
 
   <div id="live" style="display:none">
     <div id="paperPanel">
-      <h2>📝 ディスカッションペーパー <span id="paperLive" class="muted"></span></h2>
+      <div class="panel-head"><h2>ディスカッションペーパー <span id="paperLive" class="muted"></span></h2><button id="paperToggle" type="button">閉じる</button></div>
       <div id="paperBody" class="paper-md"></div>
     </div>
-    <div id="opinions">
-      <h2>💬 各 LLM の意見 (自動進行)</h2>
-      <div id="log"></div>
+    <div id="rightPanes">
+      <div id="opinions">
+        <div class="panel-head"><h2>各LLMの意見議論内容</h2></div>
+        <div id="log"></div>
+      </div>
+      <div id="conclusion" style="display:none">
+        <div class="panel-head"><h2>収束結果</h2></div>
+        <div id="conclusionBody"></div>
+      </div>
     </div>
   </div>
-  <div id="conclusion" style="display:none"></div>
 
 <script>
 const $ = (id) => document.getElementById(id);
@@ -316,6 +408,7 @@ $("start").addEventListener("submit", async (e) => {
 
 // ── ペーパー編集 (Notion 風ブロックエディタ・議論開始前) ──
 let curPaper = null;       // 最新ドラフト (bodyMd 込み)
+let paperPollMisses = 0;
 const TYPE_LABEL = { heading: "見出し", paragraph: "段落", list: "箇条書き" };
 
 function applyPayload(res) {
@@ -355,6 +448,20 @@ async function pollPaper() {
   if (!sessionId) return;
   const res = await fetch("/api/flow/" + sessionId + "/paper").then(r => r.json()).catch(() => null);
   if (!res || !res.ok) { setTimeout(pollPaper, 1500); return; }
+  if (res.started) {
+    paperPollMisses = 0;
+    $("review").style.display = "none";
+    startLive();
+    return;
+  }
+  if (res.missing) {
+    paperPollMisses += 1;
+    if (paperPollMisses < 3) { setTimeout(pollPaper, 1500); return; }
+    $("reviewInfo").textContent = "ペーパー準備状態が見つかりません。議論一覧から開き直してください。";
+    $("blocks").innerHTML = '<div class="muted">準備中のセッションが見つかりませんでした。</div>';
+    return;
+  }
+  paperPollMisses = 0;
   if (!res.ready) { setTimeout(pollPaper, 1500); return; }
   $("review").style.display = "block";
   if (res.error) { $("rvMsg").textContent = "草案作成に失敗: " + res.error; return; }
@@ -465,6 +572,8 @@ function startLive() {
 
 // ── 議論一覧 / ナビゲーション ──
 const PAGE = 50;               // 1 ページの取得件数
+const initialScope = new URLSearchParams(location.search).get("scope");
+let curScope = initialScope === "ai" || initialScope === "chat" ? initialScope : "all";
 let curState = "all", curOffset = 0;
 
 // 1 セッション行 (本体ボタン + 削除ボタン) を組んで返す。
@@ -480,7 +589,7 @@ function buildSessionRow(s) {
   const when = new Date(s.createdAt).toLocaleString();
   const b = document.createElement("button");
   b.className = "sess"; b.dataset.sid = s.sessionId; b.dataset.state = state; b.type = "button";
-  b.innerHTML = '<div class="th">' + escapeHtml(s.theme || "(無題)") + '</div>' +
+  b.innerHTML = '<div class="th">' + escapeHtml(s.title || s.theme || "(無題)") + '</div>' +
     '<div class="meta">' + badge + escapeHtml(s.flow) + ' / 発話 ' + s.utterances + ' 件 / ' + when + '</div>';
   const del = document.createElement("button");
   del.className = "sess-del"; del.dataset.del = s.sessionId; del.type = "button";
@@ -493,7 +602,7 @@ function buildSessionRow(s) {
 async function loadSessions(reset = true) {
   const el = $("sessionList");
   if (reset) { curOffset = 0; el.innerHTML = ""; el.classList.add("muted"); el.textContent = "読み込み中…"; }
-  const q = "state=" + curState + "&limit=" + PAGE + "&offset=" + curOffset;
+  const q = "scope=" + curScope + "&state=" + curState + "&limit=" + PAGE + "&offset=" + curOffset;
   const res = await fetch("/api/flow/sessions?" + q).then(r => r.json()).catch(() => null);
   if (!res || !res.ok) { if (reset) { el.textContent = "一覧の取得に失敗しました"; } return; }
   if (reset) { el.innerHTML = ""; el.classList.remove("muted"); }
@@ -528,8 +637,8 @@ function openDraft(sid) {
 }
 function resetView() {
   if (timer) clearInterval(timer);
-  sessionId = null; kind = null; since = 0; lastPaperMd = null;
-  $("log").innerHTML = ""; $("paperBody").innerHTML = ""; $("paperLive").textContent = "";
+  sessionId = null; kind = null; since = 0; lastPaperMd = null; paperPollMisses = 0;
+  $("log").innerHTML = ""; $("paperBody").innerHTML = ""; $("paperLive").textContent = ""; $("conclusionBody").textContent = "";
   $("live").style.display = "none"; $("review").style.display = "none";
   $("conclusion").style.display = "none"; $("say").style.display = "none";
   $("backBar").style.display = "none"; $("start").style.display = "none";
@@ -559,6 +668,12 @@ $("filters").addEventListener("click", (e) => {
   for (const f of document.querySelectorAll("#filters .filt")) f.classList.toggle("active", f === btn);
   loadSessions(true);
 });
+$("scopeFilters").addEventListener("click", (e) => {
+  const btn = e.target.closest(".scopeFilt"); if (!btn) return;
+  curScope = btn.dataset.scope;
+  for (const f of document.querySelectorAll("#scopeFilters .scopeFilt")) f.classList.toggle("active", f === btn);
+  loadSessions(true);
+});
 $("loadMore").addEventListener("click", () => loadSessions(false));
 $("newDiscussion").addEventListener("click", () => {
   $("list").style.display = "none"; $("start").style.display = "block";
@@ -570,6 +685,36 @@ $("backToList").addEventListener("click", () => {
 });
 
 let lastPaperMd = null;
+function stanceClass(stance, role) {
+  if (role === "user") return "user";
+  if (stance === "pro") return "pro";
+  if (stance === "con") return "con";
+  if (stance === "opinion") return "opinion";
+  return "neutral";
+}
+function stanceText(stance, role) {
+  if (role === "user") return "人間";
+  if (stance === "pro") return "賛成派";
+  if (stance === "con") return "反対派";
+  if (stance === "opinion") return "中立";
+  if (stance === "neutral") return "中立";
+  return stance || "中立";
+}
+function utteranceMarks(u) {
+  const marks = ['<span class="badge">' + escapeHtml(stanceText(u.stance, u.role)) + '</span>'];
+  if (u.votes > 0) marks.push('<span class="mark vote">投票 ' + u.votes + '</span>');
+  if (u.isWinner) marks.push('<span class="mark win">採択</span>');
+  if (u.roundAufhebung && u.roundAufhebung.length > 0) marks.push('<span class="mark auf">止揚 ' + u.roundAufhebung.length + '</span>');
+  if (u.isError) marks.push('<span class="mark">エラー</span>');
+  return marks.join("");
+}
+function findUtteranceNode(id) {
+  return [...document.querySelectorAll(".u[data-id]")].find((el) => el.dataset.id === id) || null;
+}
+function updateUtteranceMarks(node, u) {
+  const el = node.querySelector(".marks");
+  if (el) el.innerHTML = utteranceMarks(u);
+}
 async function poll() {
   if (!sessionId) return;
   const res = await fetch("/api/flow/" + sessionId + "/status?since=" + since).then(r => r.json()).catch(() => null);
@@ -590,14 +735,23 @@ async function poll() {
   }
   for (const u of res.utterances) {
     since = Math.max(since, u.createdAt);
+    const existing = findUtteranceNode(u.id);
+    if (existing) { updateUtteranceMarks(existing, u); continue; }
     const div = document.createElement("div");
-    div.className = "u" + (u.role === "user" ? " user" : "") + (u.isError ? " err" : "");
-    div.innerHTML = '<div class="who">' + escapeHtml(u.displayName || u.personaName) + '</div>' + escapeHtml(u.text);
+    div.dataset.id = u.id;
+    div.className = "u " + stanceClass(u.stance, u.role) + (u.isError ? " err" : "");
+    div.innerHTML = '<div class="who"><span>' + escapeHtml(u.displayName || u.personaName) + '</span><span class="marks">' + utteranceMarks(u) + '</span></div><div class="text">' + escapeHtml(u.text) + '</div>';
     $("log").appendChild(div);
+  }
+  if (Array.isArray(res.marks)) {
+    for (const m of res.marks) {
+      const existing = findUtteranceNode(m.id);
+      if (existing) updateUtteranceMarks(existing, m);
+    }
   }
   if (res.conclusion) {
     $("conclusion").style.display = "block";
-    $("conclusion").textContent = res.conclusion;
+    $("conclusionBody").textContent = res.conclusion;
   }
   if (res.done) { clearInterval(timer); $("go").disabled = false; $("paperLive").textContent = "確定"; }
 }
@@ -625,6 +779,12 @@ function escapeHtml(s) { return String(s).replace(/[&<>]/g, c => ({ "&": "&amp;"
 
 // 初期表示: 「すべて」フィルタをアクティブにして議論一覧を読み込む。
 document.querySelector('#filters .filt[data-state="all"]').classList.add("active");
+document.querySelector('#scopeFilters .scopeFilt[data-scope="' + curScope + '"]').classList.add("active");
+$("paperToggle").addEventListener("click", () => {
+  const panel = $("paperPanel");
+  panel.classList.toggle("collapsed");
+  $("paperToggle").textContent = panel.classList.contains("collapsed") ? "開く" : "閉じる";
+});
 loadSessions(true);
 </script>
 </body>

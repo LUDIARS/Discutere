@@ -16,11 +16,12 @@ import { randomUUID } from "node:crypto";
 import type { LLMClient } from "../../persona-engine/llm/client.js";
 import type { CascadeClients } from "../../crawler/sentiment/cascade.js";
 import type { createCore } from "../../core/index.js";
-import type { ContextVoice, FlowSessionState } from "../discussion-paper.js";
+import type { ContextVoice, FlowSessionScope, FlowSessionState } from "../discussion-paper.js";
 import {
   getPaperBodyBySession,
   persistDraftPaper,
   getDraftPaper,
+  getPaperSnapshot,
   deleteFlowSession,
   listFlowSessions,
 } from "../discussion-paper.js";
@@ -395,10 +396,28 @@ function rehydrateDraftEntry(sessionId: string): WebPaperReview | null {
 flowRoutes.get("/api/flow/:session/paper", (c) => {
   const sessionId = c.req.param("session");
   const entry = paperReviews.get(sessionId) ?? rehydrateDraftEntry(sessionId);
-  if (!entry) return c.json({ ok: false, error: "編集対象が見つかりません" }, 404);
+  if (!entry) {
+    const persisted = getPaperSnapshot(sessionId);
+    if (persisted) {
+      return c.json({
+        ok: true,
+        ready: false,
+        started: persisted.status !== "draft",
+        status: persisted.status,
+        error: null,
+        info: null,
+        paper: null,
+        blocks: [],
+        paperMd: persisted.bodyMd,
+      });
+    }
+    return c.json({ ok: true, ready: false, missing: true, error: null, info: null, paper: null, blocks: [] });
+  }
   return c.json({
     ok: true,
     ready: entry.ready,
+    started: false,
+    missing: false,
     error: entry.error ?? null,
     info: entry.info ?? null,
     ...(entry.ready && entry.draft ? paperPayload(sessionId, entry.draft) : { paper: null, blocks: [] }),
@@ -538,6 +557,10 @@ flowRoutes.post("/api/flow/:session/say", async (c) => {
 function parseSessionState(v: string | undefined): FlowSessionState {
   return v === "draft" || v === "live" || v === "concluded" ? v : "all";
 }
+/** 議論一覧の参照範囲。all=共通一覧、ai=AI議論、chat=チャット/壁打ち。 */
+function parseSessionScope(v: string | undefined): FlowSessionScope {
+  return v === "ai" || v === "chat" ? v : "all";
+}
 /** 整数 query を範囲クランプして読む (不正/未指定は fallback)。 */
 function clampIntQuery(v: string | undefined, fallback: number, min: number, max: number): number {
   const n = Number.parseInt(v ?? "", 10);
@@ -552,14 +575,16 @@ function clampIntQuery(v: string | undefined, fallback: number, min: number, max
  */
 flowRoutes.get("/api/flow/sessions", (c) => {
   const state = parseSessionState(c.req.query("state"));
+  const scope = parseSessionScope(c.req.query("scope"));
   const limit = clampIntQuery(c.req.query("limit"), 100, 1, 200);
   const offset = clampIntQuery(c.req.query("offset"), 0, 0, Number.MAX_SAFE_INTEGER);
-  const { rows, total } = listFlowSessions({ state, limit, offset });
+  const { rows, total } = listFlowSessions({ state, scope, limit, offset });
   return c.json({
     ok: true,
     total,
     limit,
     offset,
+    scope,
     hasMore: offset + rows.length < total,
     sessions: rows.map((r) => {
       const concluded = r.concluded === 1;
@@ -591,12 +616,15 @@ flowRoutes.get("/api/flow/:session/status", (c) => {
 
   const utterances = db
     .prepare(
-      `SELECT persona_name, role, stance, possession_name, text, is_error, created_at
+      `SELECT id, round, turn, persona_name, role, stance, possession_name, text, is_error, created_at
          FROM flow_utterance
         WHERE session_id = ? AND created_at > ?
         ORDER BY created_at ASC`
     )
     .all(sessionId, since) as Array<{
+    id: string;
+    round: number;
+    turn: number;
     persona_name: string;
     role: string;
     stance: string;
@@ -605,6 +633,67 @@ flowRoutes.get("/api/flow/:session/status", (c) => {
     is_error: number;
     created_at: number;
   }>;
+
+  const voteRows = db
+    .prepare(
+      `SELECT round, chosen_utterance_id AS id, COUNT(*) AS votes
+         FROM vote
+        WHERE session_id = ? AND chosen_utterance_id IS NOT NULL
+        GROUP BY round, chosen_utterance_id
+        ORDER BY round ASC`
+    )
+    .all(sessionId) as Array<{ round: number; id: string; votes: number }>;
+  const voteById = new Map<string, number>();
+  const voteWinnerByRound = new Map<number, { id: string; votes: number }>();
+  for (const r of voteRows) {
+    voteById.set(r.id, (voteById.get(r.id) ?? 0) + r.votes);
+    const cur = voteWinnerByRound.get(r.round);
+    if (!cur || r.votes > cur.votes) voteWinnerByRound.set(r.round, { id: r.id, votes: r.votes });
+  }
+  const scoreWinnerRows = db
+    .prepare(
+      `SELECT round, utterance_id AS id
+         FROM improvement_score
+        WHERE session_id = ? AND is_winner = 1`
+    )
+    .all(sessionId) as Array<{ round: number; id: string }>;
+  const topRow = db
+    .prepare(`SELECT top_utterance_ids_json FROM flow_conclusion WHERE session_id = ?`)
+    .get(sessionId) as { top_utterance_ids_json: string } | undefined;
+  let topIds: string[] = [];
+  try {
+    const parsed = topRow ? JSON.parse(topRow.top_utterance_ids_json) : [];
+    if (Array.isArray(parsed)) topIds = parsed.filter((id): id is string => typeof id === "string");
+  } catch {
+    topIds = [];
+  }
+  const winnerIds = new Set(topIds);
+  for (const w of voteWinnerByRound.values()) if (w.votes > 0) winnerIds.add(w.id);
+  for (const w of scoreWinnerRows) winnerIds.add(w.id);
+  const roundRows = db
+    .prepare(`SELECT round, aufhebung_json FROM discussion_paper_round WHERE paper_id IN (SELECT id FROM discussion_paper WHERE session_id = ?)`)
+    .all(sessionId) as Array<{ round: number; aufhebung_json: string }>;
+  const aufhebungByRound = new Map(
+    roundRows.map((r) => {
+      let values: string[] = [];
+      try {
+        const parsed = JSON.parse(r.aufhebung_json);
+        if (Array.isArray(parsed)) values = parsed.filter((v): v is string => typeof v === "string");
+      } catch {
+        values = [];
+      }
+      return [r.round, values] as const;
+    })
+  );
+  const markRows = db
+    .prepare(`SELECT id, round FROM flow_utterance WHERE session_id = ?`)
+    .all(sessionId) as Array<{ id: string; round: number }>;
+  const markFieldsFor = (id: string, round: number) => ({
+    votes: voteById.get(id) ?? 0,
+    isWinner: winnerIds.has(id),
+    // 止揚はラウンド全体ではなく、世論として使われた意見だけに付ける。
+    roundAufhebung: winnerIds.has(id) ? (aufhebungByRound.get(round) ?? []) : [],
+  });
 
   const conclusionRow = db
     .prepare(`SELECT summary, concluded FROM flow_conclusion WHERE session_id = ?`)
@@ -616,6 +705,9 @@ flowRoutes.get("/api/flow/:session/status", (c) => {
   return c.json({
     ok: true,
     utterances: utterances.map((u) => ({
+      id: u.id,
+      round: u.round,
+      turn: u.turn,
       personaName: u.persona_name,
       // 「名前 (ロール/憑依ペルソナ)」(item2/4)。憑依なしは括弧内ロールのみ。
       displayName: composeDisplayName({
@@ -629,8 +721,12 @@ flowRoutes.get("/api/flow/:session/status", (c) => {
       possessionName: u.possession_name,
       text: u.text,
       isError: u.is_error === 1,
+      ...markFieldsFor(u.id, u.round),
       createdAt: u.created_at,
     })),
+    marks: markRows
+      .map((u) => ({ id: u.id, ...markFieldsFor(u.id, u.round) }))
+      .filter((m) => m.votes > 0 || m.isWinner || m.roundAufhebung.length > 0),
     conclusion: conclusionRow?.summary ?? null,
     concluded: conclusionRow?.concluded === 1,
     // ライブのディスカッションペーパー本文 (議論進行で更新されていく)。

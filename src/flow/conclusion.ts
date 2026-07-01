@@ -14,6 +14,7 @@ import {
 } from "../persona-engine/facilitator/prompts.js";
 import { withCostLog } from "./cost-logger.js";
 import { getFlowDb } from "./db/connection.js";
+import { upsertDiscussionTitleCache } from "./discussion-paper.js";
 import type { FlowUtteranceRecord } from "./director.js";
 import type { VoteResult } from "./vote.js";
 import { writeThroughFlowConclusion } from "../visualize/conclusion-cache.js";
@@ -124,6 +125,9 @@ export async function generateConclusion(args: GenerateConclusionArgs): Promise<
     concluded ? 1 : 0,
     now
   );
+  upsertDiscussionTitleCache(sessionId, concluded ? summary : theme, concluded ? "conclusion" : "paper", now, {
+    discussionType: flow,
+  });
 
   // 結論一覧キャッシュへ write-through (議論が収束するたびに発話数=議論ボリュームを更新)。
   // KG を引かない軽量更新。materialCount は別途 build:conclusion-cache で算出する。

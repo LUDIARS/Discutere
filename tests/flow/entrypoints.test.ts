@@ -176,13 +176,27 @@ import { parseForumEntry, handleForumFlowPost } from "../../src/flow/entry-disco
   assert.ok(pageHtml.includes("新規議論開始"), "UI に新規議論開始ボタンがある");
   assert.ok(pageHtml.includes('data-state="draft"'), "UI に state フィルタタブがある");
   assert.ok(pageHtml.includes("もっと見る"), "UI に「もっと見る」(ページング) がある");
+  const pageScript = /<script>([\s\S]*?)<\/script>/.exec(pageHtml)?.[1];
+  assert.ok(pageScript, "UI に script がある");
+  assert.doesNotThrow(() => new Function(pageScript), "UI script が構文エラーなく parse できる");
 
   // 議論一覧: 開始済み (discussion_paper 永続) の議論が在庫として並ぶ (進行中も含む)。
-  const { persistPaper, persistDraftPaper } = await import("../../src/flow/discussion-paper.js");
+  const { persistPaper, persistDraftPaper, upsertDiscussionTitleCache } = await import("../../src/flow/discussion-paper.js");
+  const { getFlowDb } = await import("../../src/flow/db/connection.js");
   persistPaper(
     { sessionId: "list-sess-1", theme: "一覧テスト議題", tags: [], mechanics: [], supplement: "", bodyMd: "# 議題\n一覧テスト議題" },
     "discussion"
   );
+  persistPaper(
+    { sessionId: "done-sess-1", theme: "収束前の議題", tags: [], mechanics: [], supplement: "", bodyMd: "# 議題\n収束前の議題" },
+    "discussion"
+  );
+  getFlowDb()
+    .prepare(
+      "INSERT INTO flow_conclusion (session_id, paper_id, summary, aufhebung_json, top_utterance_ids_json, concluded, created_at) VALUES (?, ?, ?, ?, ?, ?, ?)"
+    )
+    .run("done-sess-1", "done-sess-1", "【収束】収束時のタイトル\n詳細本文", "[]", "[]", 1, Date.now());
+  upsertDiscussionTitleCache("done-sess-1", "【収束】収束時のタイトル\n詳細本文", "conclusion");
   // ドラフト (未確定) も一覧に「下書き」として出る + 編集を再開できる。
   persistDraftPaper(
     { sessionId: "draft-sess-1", theme: "下書き議題", tags: [], mechanics: [], supplement: "", bodyMd: "# 議題\n下書き議題" },
@@ -191,14 +205,28 @@ import { parseForumEntry, handleForumFlowPost } from "../../src/flow/entry-disco
   const rSessions = await app.request("/api/flow/sessions");
   const sessionsBody = (await rSessions.json()) as {
     ok: boolean;
-    sessions: Array<{ sessionId: string; theme: string; concluded: boolean; state: string }>;
+    sessions: Array<{
+      sessionId: string;
+      title: string;
+      theme: string;
+      concluded: boolean;
+      state: string;
+      discussionType: string;
+      originUi: string;
+    }>;
   };
   assert.equal(sessionsBody.ok, true, "sessions 取得");
   const listed = sessionsBody.sessions.find((s) => s.sessionId === "list-sess-1");
   assert.ok(listed, "開始済み議論が一覧に出る (一度投げたら保存=在庫表示)");
   assert.equal(listed!.theme, "一覧テスト議題");
+  assert.equal(listed!.title, "一覧テスト議題", "未収束はディスカッションペーパー議題を表示タイトルにする");
   assert.equal(listed!.concluded, false, "未収束は concluded=false");
   assert.equal(listed!.state, "live", "開始済み未収束は state=live");
+  const done = sessionsBody.sessions.find((s) => s.sessionId === "done-sess-1");
+  assert.ok(done, "収束済み議論が一覧に出る");
+  assert.equal(done!.title, "収束時のタイトル", "収束済みは収束時のタイトルを表示タイトルにする");
+  assert.equal(done!.discussionType, "discussion", "一覧キャッシュは議論タイプを返す");
+  assert.equal(done!.originUi, "ai", "AI議論で作った議論は originUi=ai");
   const draft = sessionsBody.sessions.find((s) => s.sessionId === "draft-sess-1");
   assert.ok(draft, "ドラフトも一覧に出る");
   assert.equal(draft!.state, "draft", "ドラフトは state=draft");
@@ -208,6 +236,12 @@ import { parseForumEntry, handleForumFlowPost } from "../../src/flow/entry-disco
   assert.equal(draftPaper.ok, true, "draft paper 取得");
   assert.equal(draftPaper.ready, true, "draft は ready (rehydrate)");
   assert.ok(draftPaper.paper?.bodyMd.includes("下書き議題"), "復元した本文が読める");
+  const rStartedPaper = await app.request("/api/flow/list-sess-1/paper");
+  const startedPaper = (await rStartedPaper.json()) as { ok: boolean; ready: boolean; started?: boolean; status?: string };
+  assert.equal(rStartedPaper.status, 200, "開始済み paper 取得も 404 にしない");
+  assert.equal(startedPaper.ok, true, "開始済み paper 取得");
+  assert.equal(startedPaper.started, true, "開始済み paper は started=true");
+  assert.equal(startedPaper.status, "started", "開始済み paper の status を返す");
 
   // 絞り込み: state=draft はドラフトのみ、state=live は開始済み未収束のみ。
   const rDraftOnly = (await (await app.request("/api/flow/sessions?state=draft")).json()) as {
@@ -222,6 +256,54 @@ import { parseForumEntry, handleForumFlowPost } from "../../src/flow/entry-disco
   };
   assert.ok(rLiveOnly.sessions.some((s) => s.sessionId === "list-sess-1"), "live 絞り込みに list-sess-1");
   assert.ok(!rLiveOnly.sessions.some((s) => s.sessionId === "draft-sess-1"), "live 絞り込みに draft は出ない");
+
+  // 共通一覧 scope: all は全件、ai は AI 議論のみ、chat はチャット/壁打ちのみ。
+  const rAiScope = (await (await app.request("/api/flow/sessions?scope=ai")).json()) as {
+    sessions: Array<{ sessionId: string; originUi: string; discussionType: string }>;
+  };
+  assert.ok(rAiScope.sessions.some((s) => s.sessionId === "list-sess-1"), "scope=ai に AI 議論が出る");
+  assert.ok(!rAiScope.sessions.some((s) => s.sessionId === startBody.sessionId), "scope=ai に壁打ちは出ない");
+  const rChatScope = (await (await app.request("/api/flow/sessions?scope=chat")).json()) as {
+    sessions: Array<{ sessionId: string; originUi: string; discussionType: string }>;
+  };
+  assert.ok(rChatScope.sessions.some((s) => s.sessionId === startBody.sessionId), "scope=chat に壁打ちが出る");
+  assert.ok(rChatScope.sessions.every((s) => s.originUi === "chat" || s.discussionType === "sparring"), "scope=chat はチャット/壁打ちのみ");
+
+  // status: 投票集計はマークとして返し、止揚は世論として使われた意見だけに付く。
+  const markPaperId = persistPaper(
+    { sessionId: "mark-sess-1", theme: "マーク議題", tags: [], mechanics: [], supplement: "", bodyMd: "# 議題\nマーク議題" },
+    "discussion"
+  );
+  const markDb = getFlowDb();
+  markDb
+    .prepare(
+      `INSERT INTO flow_utterance
+         (id, session_id, paper_id, round, turn, persona_id, persona_name, role, stance, text, is_error, created_at)
+       VALUES
+         ('u-voted', 'mark-sess-1', ?, 1, 1, 'p1', '論者A', 'opinion', 'opinion', '意見A', 0, 100),
+         ('u-other', 'mark-sess-1', ?, 1, 2, 'p2', '論者B', 'debater', 'pro', '意見B', 0, 101)`
+    )
+    .run(markPaperId, markPaperId);
+  markDb
+    .prepare("INSERT INTO vote (session_id, round, voter_index, chosen_utterance_id, created_at) VALUES (?, ?, ?, ?, ?)")
+    .run("mark-sess-1", 1, 0, "u-voted", 200);
+  markDb
+    .prepare("INSERT INTO vote (session_id, round, voter_index, chosen_utterance_id, created_at) VALUES (?, ?, ?, ?, ?)")
+    .run("mark-sess-1", 1, 1, "u-voted", 201);
+  markDb
+    .prepare("INSERT INTO discussion_paper_round (paper_id, round, summary, aufhebung_json, created_at) VALUES (?, ?, ?, ?, ?)")
+    .run(markPaperId, 1, "まとめ", JSON.stringify(["止揚案"]), 202);
+  const markStatus = (await (await app.request("/api/flow/mark-sess-1/status?since=0")).json()) as {
+    utterances: Array<{ id: string; votes: number; isWinner: boolean; roundAufhebung: string[] }>;
+    marks: Array<{ id: string; votes: number; isWinner: boolean; roundAufhebung: string[] }>;
+  };
+  const voted = markStatus.utterances.find((u) => u.id === "u-voted");
+  const other = markStatus.utterances.find((u) => u.id === "u-other");
+  assert.equal(voted?.votes, 2, "投票をもらった意見に集計が付く");
+  assert.equal(voted?.isWinner, true, "最多得票意見は採択扱い");
+  assert.deepEqual(voted?.roundAufhebung, ["止揚案"], "止揚は使われた意見だけに付く");
+  assert.deepEqual(other?.roundAufhebung, [], "同ラウンドの他意見には止揚を付けない");
+  assert.ok(markStatus.marks.some((m) => m.id === "u-voted" && m.votes === 2), "差分ポーリング用 marks も返る");
 
   // ページング: limit=1 で 1 件 + hasMore、offset でずらすと別件。
   const rPage1 = (await (await app.request("/api/flow/sessions?limit=1&offset=0")).json()) as {
@@ -249,7 +331,6 @@ import { parseForumEntry, handleForumFlowPost } from "../../src/flow/entry-disco
   const rDel404 = await app.request("/api/flow/nope-session", { method: "DELETE" });
   assert.equal(rDel404.status, 404, "未知 session の削除は 404");
   // データ層: 派生行 (発話/版履歴) も session ごと消える。
-  const { getFlowDb } = await import("../../src/flow/db/connection.js");
   const fdb = getFlowDb();
   fdb.prepare(
     `INSERT INTO flow_utterance (id, session_id, paper_id, round, turn, persona_id, persona_name, role, text, created_at)

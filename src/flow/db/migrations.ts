@@ -269,6 +269,59 @@ const MIGRATIONS: Array<{ id: string; sql: string[] }> = [
     id: "flow_0013_paper_status",
     sql: [`ALTER TABLE discussion_paper ADD COLUMN status TEXT NOT NULL DEFAULT 'started'`],
   },
+  {
+    // 議論一覧の表示タイトル用キャッシュ。重い結論本文参照を一覧描画から外す。
+    id: "flow_0014_discussion_title_cache",
+    sql: [
+      `CREATE TABLE IF NOT EXISTS discussion_title_cache (
+        session_id TEXT PRIMARY KEY,
+        title TEXT NOT NULL,
+        source TEXT NOT NULL DEFAULT 'paper',
+        updated_at INTEGER NOT NULL
+      )`,
+      `CREATE INDEX IF NOT EXISTS idx_discussion_title_cache_updated ON discussion_title_cache(updated_at DESC)`,
+      `INSERT OR IGNORE INTO discussion_title_cache (session_id, title, source, updated_at)
+       SELECT session_id, theme, 'paper', updated_at FROM discussion_paper`,
+      `INSERT OR REPLACE INTO discussion_title_cache (session_id, title, source, updated_at)
+       SELECT dp.session_id,
+              COALESCE(
+                NULLIF(
+                  TRIM(REPLACE(
+                    CASE
+                      WHEN INSTR(fc.summary, char(10)) > 0 THEN SUBSTR(fc.summary, 1, INSTR(fc.summary, char(10)) - 1)
+                      ELSE fc.summary
+                    END,
+                    '【収束】',
+                    ''
+                  )),
+                  ''
+                ),
+                dp.theme
+              ),
+              'conclusion',
+              COALESCE(fc.created_at, dp.updated_at)
+         FROM discussion_paper dp
+         JOIN flow_conclusion fc ON fc.session_id = dp.session_id
+        WHERE COALESCE(fc.concluded, 0) = 1
+          AND COALESCE(TRIM(fc.summary), '') != ''`,
+    ],
+  },
+  {
+    // 共通議論一覧用メタデータ。AI議論/チャット議論の一覧出し分けに使う。
+    id: "flow_0015_discussion_title_cache_meta",
+    sql: [
+      `ALTER TABLE discussion_title_cache ADD COLUMN discussion_type TEXT NOT NULL DEFAULT 'discussion'`,
+      `ALTER TABLE discussion_title_cache ADD COLUMN origin_ui TEXT NOT NULL DEFAULT 'ai'`,
+      `UPDATE discussion_title_cache
+          SET discussion_type = COALESCE((SELECT dp.flow FROM discussion_paper dp WHERE dp.session_id = discussion_title_cache.session_id), discussion_type)`,
+      `UPDATE discussion_title_cache
+          SET origin_ui = CASE
+            WHEN discussion_type = 'sparring' THEN 'chat'
+            ELSE 'ai'
+          END`,
+      `CREATE INDEX IF NOT EXISTS idx_discussion_title_cache_origin ON discussion_title_cache(origin_ui, discussion_type, updated_at DESC)`,
+    ],
+  },
 ];
 
 function isIgnorableMigrationError(stmt: string, error: unknown): boolean {
