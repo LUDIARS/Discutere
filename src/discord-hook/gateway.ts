@@ -528,6 +528,17 @@ export async function startDiscordGateway(
     // 進行役への調整指示: bot (@Discutere) へのメンションを「調整指示」として取り込み、
     // 通常の utterance ルーティングには回さない。 persona へのリプライは通常の参加発言として
     // 扱う (= ここでは横取りしない)。
+    if (
+      forumEnabled &&
+      deps.flowLive &&
+      isForumThreadChannel(msg.channel) &&
+      !isForumStarterMessage(msg) &&
+      hasPaperReview(msg.channelId)
+    ) {
+      routeDiscussionMessage(msg);
+      return;
+    }
+
     if (!maybeHandleDirective(msg)) routeDiscussionMessage(msg);
   });
 

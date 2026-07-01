@@ -18,10 +18,12 @@ import {
 import { createCore } from "../core/index.js";
 import { resolveActiveKgPath } from "../core/kg-registry.js";
 import { getConfig } from "../config.js";
+import { buildQueueSnapshot } from "../queue/snapshot.js";
 
 const STATUS_CATEGORY_NAME = "状態";
 const MONITOR_CHANNEL_NAME = "discutere-monitor";
 const UPDATE_INTERVAL_MS = 60_000;
+const MONITOR_FETCH_LIMIT = 100;
 
 export interface MonitorCardDeps {
   client: Client;
@@ -58,13 +60,11 @@ export class MonitorCard {
   private counts(): { activeSessions: number; pendingHypotheses: number } {
     const core = createCore(resolveActiveKgPath(getConfig()));
     try {
-      const s = core.client.raw
-        .prepare("SELECT COUNT(*) AS n FROM sessions WHERE workspace_id = ? AND ended_at IS NULL")
-        .get(this.deps.workspaceId) as { n: number } | undefined;
-      const h = core.client.raw
-        .prepare("SELECT COUNT(*) AS n FROM hypotheses WHERE workspace_id = ? AND status = 'proposed'")
-        .get(this.deps.workspaceId) as { n: number } | undefined;
-      return { activeSessions: s?.n ?? 0, pendingHypotheses: h?.n ?? 0 };
+      const snap = buildQueueSnapshot(core.client.raw, null, this.deps.workspaceId);
+      return {
+        activeSessions: snap.totals.activeSessions,
+        pendingHypotheses: snap.totals.pendingHypotheses,
+      };
     } finally {
       core.close();
     }
@@ -72,6 +72,12 @@ export class MonitorCard {
 
   private async ensureMonitorChannel(guild: Guild): Promise<TextChannel | null> {
     await guild.channels.fetch().catch(() => null);
+
+    const existingChannel = guild.channels.cache.find(
+      (c) => c.type === ChannelType.GuildText && c.name === MONITOR_CHANNEL_NAME,
+    );
+    if (existingChannel?.type === ChannelType.GuildText) return existingChannel as TextChannel;
+
     let category = guild.channels.cache.find(
       (c) => c.type === ChannelType.GuildCategory && c.name === STATUS_CATEGORY_NAME,
     );
@@ -81,16 +87,11 @@ export class MonitorCard {
         type: ChannelType.GuildCategory,
       });
     }
-    const existing = guild.channels.cache.find(
-      (c) => c.name === MONITOR_CHANNEL_NAME && c.parentId === category!.id,
-    );
-    const channel =
-      existing ??
-      (await guild.channels.create({
-        name: MONITOR_CHANNEL_NAME,
-        type: ChannelType.GuildText,
-        parent: category.id,
-      }));
+    const channel = await guild.channels.create({
+      name: MONITOR_CHANNEL_NAME,
+      type: ChannelType.GuildText,
+      parent: category.id,
+    });
     return channel.type === ChannelType.GuildText ? (channel as TextChannel) : null;
   }
 
@@ -108,6 +109,24 @@ export class MonitorCard {
       .setTimestamp(new Date());
   }
 
+  private isMonitorMessage(msg: { author: { id: string }; embeds: readonly { title: string | null }[] }): boolean {
+    if (msg.author.id !== this.deps.client.user?.id) return false;
+    return msg.embeds.some((embed) => (embed.title ?? "").includes("Discutere Monitor"));
+  }
+
+  private async resolveExistingMonitorMessage(channel: TextChannel): Promise<string | null> {
+    const recent = await channel.messages.fetch({ limit: MONITOR_FETCH_LIMIT }).catch(() => null);
+    if (!recent) return null;
+    const cards = recent
+      .filter((m) => this.isMonitorMessage(m))
+      .sort((a, b) => b.createdTimestamp - a.createdTimestamp);
+    const primary = cards.first();
+    for (const duplicate of cards.filter((m) => m.id !== primary?.id).values()) {
+      await duplicate.delete().catch(() => {});
+    }
+    return primary?.id ?? null;
+  }
+
   private async tick(): Promise<void> {
     try {
       const guild = await this.deps.client.guilds.fetch(this.deps.guildId).catch(() => null);
@@ -117,11 +136,8 @@ export class MonitorCard {
       const { activeSessions, pendingHypotheses } = this.counts();
       const embed = this.buildEmbed(activeSessions, pendingHypotheses);
 
-      // プロセス再起動後の重複投稿を避けるため、未キャッシュ時は自分の既存メッセージを採用.
       if (!this.messageId) {
-        const recent = await channel.messages.fetch({ limit: 10 }).catch(() => null);
-        const mine = recent?.find((m) => m.author.id === this.deps.client.user?.id);
-        if (mine) this.messageId = mine.id;
+        this.messageId = await this.resolveExistingMonitorMessage(channel);
       }
       if (this.messageId) {
         const msg = await channel.messages.fetch(this.messageId).catch(() => null);
