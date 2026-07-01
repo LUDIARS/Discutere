@@ -373,6 +373,56 @@ const { _resetConfig } = await import("../../src/config.js");
   console.log("  [ok] loadMechanics: mechanics as last frontmatter key → all items loaded");
 }
 
+{
+  const testGamesDir = path.join(TMP_DIR, "games-no-cross-contam");
+  fs.mkdirSync(testGamesDir, { recursive: true });
+  fs.writeFileSync(
+    path.join(testGamesDir, "death-stranding.md"),
+    [
+      "---",
+      "id: death-stranding",
+      'title: "DEATH STRANDING"',
+      "mechanics:",
+      "  - name: 積荷のバランス管理",
+      "    description: 総重量と積み付けがサムの歩行安定に影響する",
+      "    intended_affect: 重荷感",
+      "---",
+    ].join("\n")
+  );
+  fs.writeFileSync(
+    path.join(testGamesDir, "journey.md"),
+    [
+      "---",
+      "id: journey",
+      'title: "Journey (風ノ旅ビト)"',
+      "mechanics:",
+      "  - name: スカーフと飛行",
+      "    description: スカーフが浮遊の燃料になる",
+      "    intended_affect: 高揚",
+      "---",
+    ].join("\n")
+  );
+
+  const unrelated = await investigateTheme({
+    theme: "ローグライトの報酬設計",
+    tags: [],
+    gamesDir: testGamesDir,
+    getSentimentCount: () => 0,
+  });
+  assert.deepEqual(unrelated.mechanics, [], "無関係なゲームの先頭メカニクスを混入させない");
+
+  const journey = await investigateTheme({
+    theme: "Journey の飛行",
+    tags: [],
+    gamesDir: testGamesDir,
+    getSentimentCount: () => 0,
+  });
+  const names = journey.mechanics.map((m) => m.name);
+  assert.ok(names.includes("スカーフと飛行"), `Journey mechanics loaded (${JSON.stringify(names)})`);
+  assert.ok(!names.includes("積荷のバランス管理"), "Death Stranding mechanics are not mixed into Journey");
+  console.log("  [ok] loadMechanics: unrelated game mechanics are not mixed into papers");
+}
+
 // クリーンアップ
 delete process.env.DATABASE_PATH;
 _resetFlowDb();

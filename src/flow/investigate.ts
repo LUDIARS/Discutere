@@ -50,9 +50,49 @@ export interface InvestigateArgs {
   getSentimentCount?: (theme: string) => number;
 }
 
+function normalizeSearchText(value: string): string {
+  return value
+    .toLowerCase()
+    .replace(/[・\s_\-:：()（）「」『』"']/g, "")
+    .trim();
+}
+
+function themeTokens(theme: string): string[] {
+  const tokens = theme
+    .toLowerCase()
+    .split(/[\s　・_\-:：()（）「」『』"']+/)
+    .map((w) => w.trim())
+    .filter((w) => w.length >= 2);
+  const compact = normalizeSearchText(theme);
+  if (compact.length >= 2) tokens.push(compact);
+  return [...new Set(tokens)];
+}
+
+function fileMatchesTheme(file: string, data: Record<string, unknown>, theme: string): boolean {
+  const tokens = themeTokens(theme);
+  if (tokens.length === 0) return false;
+  const stem = file.replace(/\.md$/i, "");
+  const haystack = normalizeSearchText(
+    [stem, data.id, data.title, data.genre].filter((v): v is string => typeof v === "string").join(" ")
+  );
+  return tokens.some((token) => haystack.includes(normalizeSearchText(token)));
+}
+
+function mechanicMatchesTheme(mechanics: Array<Record<string, unknown>>, theme: string): boolean {
+  const tokens = themeTokens(theme);
+  if (tokens.length === 0) return false;
+  return mechanics.some((item) => {
+    const haystack = normalizeSearchText(
+      [item.name, item.description, item.intended_affect]
+        .filter((v): v is string => typeof v === "string")
+        .join(" ")
+    );
+    return tokens.some((token) => haystack.includes(normalizeSearchText(token)));
+  });
+}
+
 /**
- * `data/games/` ディレクトリから全メカニクスをロードする (gray-matter でフロントマターを解析)。
- * テーマに関連しそうなゲームのメカニクスを抽出する。
+ * `data/games/` ディレクトリから、テーマに明確に紐づくゲームのメカニクスだけをロードする。
  */
 function loadMechanics(gamesDir: string, theme: string): MechanicSummary[] {
   if (!fs.existsSync(gamesDir)) return [];
@@ -62,13 +102,13 @@ function loadMechanics(gamesDir: string, theme: string): MechanicSummary[] {
     .filter((f) => f.endsWith(".md") && !f.includes(".sentiment"));
 
   const results: MechanicSummary[] = [];
-  const lowerTheme = theme.toLowerCase();
 
   for (const file of files) {
     const content = fs.readFileSync(path.join(gamesDir, file), "utf-8");
     const { data } = matter(content);
     const mechanicsRaw = data.mechanics as Array<Record<string, unknown>> | undefined;
     if (!Array.isArray(mechanicsRaw) || mechanicsRaw.length === 0) continue;
+    if (!fileMatchesTheme(file, data, theme) && !mechanicMatchesTheme(mechanicsRaw, theme)) continue;
 
     for (const item of mechanicsRaw) {
       const name = typeof item.name === "string" ? item.name : "";
@@ -76,25 +116,18 @@ function loadMechanics(gamesDir: string, theme: string): MechanicSummary[] {
 
       if (!name) continue;
 
-      // テーマとの関連チェック (ゲームタイトル or メカニクス名の部分一致)
-      const relevant =
-        lowerTheme.split(/\s+/).some((word) => word.length >= 2 && (name + description).toLowerCase().includes(word)) ||
-        file.toLowerCase().includes(lowerTheme.replace(/\s+/g, "-").slice(0, 8));
-
-      if (relevant || results.length < 3) {
-        results.push({
-          name,
-          description,
-          intended_affect: typeof item.intended_affect === "string" ? item.intended_affect : undefined,
-          intended_valence: typeof item.intended_valence === "string" ? item.intended_valence : undefined,
-          intended_aspects: Array.isArray(item.intended_aspects)
-            ? item.intended_aspects.filter((x): x is string => typeof x === "string")
-            : undefined,
-          intended_emotions: Array.isArray(item.intended_emotions)
-            ? item.intended_emotions.filter((x): x is string => typeof x === "string")
-            : undefined,
-        });
-      }
+      results.push({
+        name,
+        description,
+        intended_affect: typeof item.intended_affect === "string" ? item.intended_affect : undefined,
+        intended_valence: typeof item.intended_valence === "string" ? item.intended_valence : undefined,
+        intended_aspects: Array.isArray(item.intended_aspects)
+          ? item.intended_aspects.filter((x): x is string => typeof x === "string")
+          : undefined,
+        intended_emotions: Array.isArray(item.intended_emotions)
+          ? item.intended_emotions.filter((x): x is string => typeof x === "string")
+          : undefined,
+      });
     }
   }
 
