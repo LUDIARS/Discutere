@@ -165,4 +165,37 @@ try {
   core.close();
 }
 
+// ─── /api/chat/sessions: チャット議論一覧は共通キャッシュから壁打ちのみ返す ───
+{
+  process.env.DATABASE_PATH = path.join(workDir, "flow-list.db");
+  const { Hono } = await import("hono");
+  const { _resetFlowDb } = await import("../../src/flow/db/connection.js");
+  const { persistPaper } = await import("../../src/flow/discussion-paper.js");
+  const { webChatRoutes } = await import("../../src/api/web-chat-routes.js");
+  _resetFlowDb();
+  persistPaper(
+    { sessionId: "ai-list", theme: "AI議論", tags: [], mechanics: [], supplement: "", bodyMd: "# 議題\nAI議論" },
+    "discussion"
+  );
+  persistPaper(
+    { sessionId: "chat-list", theme: "壁打ち議論", tags: [], mechanics: [], supplement: "", bodyMd: "# 議題\n壁打ち議論" },
+    "sparring"
+  );
+  const app = new Hono();
+  app.route("/", webChatRoutes);
+  const res = await app.request("/api/chat/sessions");
+  assert.equal(res.status, 200, "chat sessions API は 200");
+  const body = (await res.json()) as {
+    ok: boolean;
+    sessions: Array<{ sessionId: string; discussionType: string; originUi: string }>;
+  };
+  assert.equal(body.ok, true, "chat sessions ok");
+  assert.ok(body.sessions.some((s) => s.sessionId === "chat-list"), "壁打ちがチャット一覧に出る");
+  assert.ok(!body.sessions.some((s) => s.sessionId === "ai-list"), "AI議論はチャット一覧に出ない");
+  assert.ok(body.sessions.every((s) => s.originUi === "chat" || s.discussionType === "sparring"), "chat scope のみ");
+  _resetFlowDb();
+  delete process.env.DATABASE_PATH;
+  console.log("ok /api/chat/sessions scope=chat");
+}
+
 console.log("web-chat tests: all passed");

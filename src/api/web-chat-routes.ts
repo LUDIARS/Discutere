@@ -21,6 +21,7 @@ import { createCore } from "../core/index.js";
 import { resolveActiveKgPath } from "../core/kg-registry.js";
 import { submitMessage } from "../core/projection/message-input.js";
 import type { DiscordAutoDiscussionInput } from "../discord-hook/auto-discussion.js";
+import { listFlowSessions, type FlowSessionState } from "../flow/discussion-paper.js";
 import { ensureWebSession, sanitizeRoomId, webDiscussionExists } from "../web-chat/session.js";
 import { readRoomTranscript, type SpeakerNameResolver } from "../web-chat/transcript.js";
 
@@ -47,6 +48,35 @@ export const webChatRoutes = new Hono();
 
 // ─── チャット UI (静的 HTML) ─────────────────────────────────
 webChatRoutes.get("/chat", (c) => c.html(CHAT_HTML));
+
+function parseChatSessionState(v: string | undefined): FlowSessionState {
+  return v === "draft" || v === "live" || v === "concluded" ? v : "all";
+}
+
+function clampIntQuery(v: string | undefined, fallback: number, min: number, max: number): number {
+  const n = Number.parseInt(v ?? "", 10);
+  if (!Number.isFinite(n)) return fallback;
+  return Math.min(max, Math.max(min, n));
+}
+
+webChatRoutes.get("/api/chat/sessions", (c) => {
+  const state = parseChatSessionState(c.req.query("state"));
+  const limit = clampIntQuery(c.req.query("limit"), 50, 1, 100);
+  const offset = clampIntQuery(c.req.query("offset"), 0, 0, Number.MAX_SAFE_INTEGER);
+  const { rows, total } = listFlowSessions({ state, scope: "chat", limit, offset });
+  return c.json({
+    ok: true,
+    total,
+    limit,
+    offset,
+    hasMore: offset + rows.length < total,
+    sessions: rows.map((r) => {
+      const concluded = r.concluded === 1;
+      const st = r.status === "draft" ? "draft" : concluded ? "concluded" : "live";
+      return { ...r, concluded, state: st };
+    }),
+  });
+});
 
 // ─── 会話取得 (増分ポーリング) ───────────────────────────────
 webChatRoutes.get("/api/chat/:room/messages", (c) => {
@@ -122,60 +152,102 @@ webChatRoutes.post("/api/chat/:room/messages", async (c) => {
 });
 
 const CHAT_HTML = `<!doctype html>
-<html lang="ja"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<html lang="ja"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="color-scheme" content="light dark">
 <title>Discutere — チャット議論</title>
 <style>
- :root{--bg:#0f1115;--panel:#161922;--border:#232733;--accent:#2563eb;--muted:#8b94a3}
+ :root{color-scheme:light;--bg:#f8fafc;--fg:#111827;--muted:#64748b;--surface:#fff;--soft:#eaf2ff;--field:#fff;--border:#d0d7de;--primary:#4a90e2;--primary-fg:#fff;--secondary:#e2e8f0;--secondary-fg:#334155;--success:#16a34a;--human-bg:#eff6ff;--human-border:#93c5fd;--persona-bg:#f5f3ff;--persona-border:#c4b5fd;--facilitator-bg:#ecfdf5;--facilitator-border:#86efac;--external-bg:#f8fafc;--external-border:#cbd5e1}
+ @media (prefers-color-scheme:dark){:root{color-scheme:dark;--bg:#0f1115;--fg:#e6e6e6;--muted:#8b94a3;--surface:#161922;--soft:#4a90e21a;--field:#0c0e13;--border:#334155;--primary:#4a90e2;--primary-fg:#fff;--secondary:#2a2f3a;--secondary-fg:#e5e7eb;--success:#22c55e;--human-bg:#102033;--human-border:#2563eb;--persona-bg:#211634;--persona-border:#7c3aed;--facilitator-bg:#12251b;--facilitator-border:#15803d;--external-bg:#111827;--external-border:#475569}}
  *{box-sizing:border-box}
- body{font-family:system-ui,'Segoe UI',sans-serif;margin:0;background:var(--bg);color:#e6e6e6;height:100dvh;display:flex;flex-direction:column}
- header{padding:10px 16px;border-bottom:1px solid var(--border);display:flex;gap:10px;align-items:center;flex-wrap:wrap}
- header h1{font-size:16px;margin:0;font-weight:600}
- header .sp{flex:1}
- header input{background:var(--panel);border:1px solid var(--border);border-radius:10px;color:#e6e6e6;padding:7px 12px;font-size:13px}
- #status{font-size:12px;color:var(--muted)}
- #log{flex:1;overflow-y:auto;padding:16px;display:flex;flex-direction:column;gap:10px}
- .msg{max-width:78%;padding:9px 13px;border-radius:14px;line-height:1.55;white-space:pre-wrap;word-break:break-word;font-size:14px}
- .msg .who{font-size:11px;color:var(--muted);margin-bottom:3px}
- .human{align-self:flex-end;background:var(--accent);color:#fff;border-bottom-right-radius:4px}
- .human .who{color:#cfe0ff}
- .persona{align-self:flex-start;background:var(--panel);border:1px solid var(--border);border-bottom-left-radius:4px}
- .facilitator{align-self:center;background:#1d2331;border:1px solid #2d3650;color:#cdd6f4;font-size:13px;max-width:90%}
- .external{align-self:flex-start;background:#1a1f2b;border:1px dashed #34405a;color:#b9c2d4}
- .empty{color:var(--muted);text-align:center;margin-top:40px;font-size:13px;line-height:1.7}
- form{display:flex;gap:8px;padding:12px 16px;border-top:1px solid var(--border)}
- form textarea{flex:1;resize:none;background:var(--panel);border:1px solid var(--border);border-radius:12px;color:#e6e6e6;padding:11px 14px;font-size:14px;font-family:inherit;max-height:140px}
- form button{background:var(--accent);border:0;border-radius:12px;color:#fff;padding:0 20px;font-size:14px;font-weight:600;cursor:pointer}
- form button:disabled{opacity:.5;cursor:default}
- a{color:#6ea8ff}
+ body{font-family:system-ui,-apple-system,"Segoe UI","Hiragino Kaku Gothic ProN",sans-serif;margin:24px auto;padding:0 16px 32px;background:var(--bg);color:var(--fg);max-width:1100px;line-height:1.5}
+ .app-head{border-bottom:2px solid var(--primary);padding-bottom:10px;margin-bottom:16px;display:flex;align-items:flex-end;justify-content:space-between;gap:12px;flex-wrap:wrap}
+ h1{font-size:22px;margin:0}
+ .mode-title{display:inline-flex;align-items:center;padding:4px 12px;border-radius:999px;background:var(--soft);font-weight:700;font-size:13px}
+ .toolbar{display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin:0 0 16px}
+ .toolbar input{background:var(--field);border:1px solid var(--border);border-radius:7px;color:var(--fg);padding:8px 10px;font:inherit;min-width:120px}
+ .toolbar a{color:var(--primary);text-decoration:none;font-weight:700}
+ .panel{border:1px solid var(--border);border-radius:8px;padding:16px;margin:16px 0;background:var(--surface)}
+ .panel-head{display:flex;justify-content:space-between;align-items:center;gap:8px;margin-bottom:10px;flex-wrap:wrap}
+ .panel h2{font-size:16px;margin:0}
+ .muted{color:var(--muted);font-size:13px}
+ .session-list{display:grid;gap:8px}
+ .sess{border:1px solid var(--border);border-radius:8px;padding:9px 11px;background:var(--surface);font:inherit;color:var(--fg);text-align:left}
+ .sess .th{font-weight:700}
+ .sess .meta{font-size:12px;color:var(--muted);margin-top:2px}
+ #stateBox{border-left:4px solid var(--success);font-weight:700}
+ #live{display:flex;flex-direction:column;gap:16px}
+ #paperBody{white-space:pre-wrap;word-break:break-word;color:var(--fg)}
+ #paperBody .topic{font-weight:700}
+ #paperToggle{display:none;background:var(--secondary);color:var(--secondary-fg);border:1px solid var(--border);border-radius:6px;padding:5px 10px;font:inherit;font-size:12px;cursor:pointer}
+ #log{display:grid;gap:10px}
+ .msg{padding:12px 14px;border:1px solid var(--external-border);border-left-width:4px;border-radius:8px;background:var(--external-bg);white-space:pre-wrap;word-break:break-word;font-size:14px}
+ .msg .who{font-weight:700;font-size:13px;margin-bottom:6px;display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+ .msg .tag{display:inline-block;font-size:11px;border-radius:5px;padding:2px 7px;background:var(--soft);font-weight:700}
+ .human{background:var(--human-bg);border-color:var(--human-border)}
+ .persona{background:var(--persona-bg);border-color:var(--persona-border)}
+ .facilitator{background:var(--facilitator-bg);border-color:var(--facilitator-border)}
+ .external{background:var(--external-bg);border-style:dashed}
+ .empty{color:var(--muted);text-align:center;padding:28px 12px;font-size:13px;line-height:1.7}
+ form{display:flex;gap:8px;align-items:stretch}
+ form textarea{flex:1;resize:none;background:var(--field);border:1px solid var(--border);border-radius:7px;color:var(--fg);padding:10px 12px;font:inherit;max-height:160px}
+ form button{background:var(--primary);border:1px solid var(--primary);border-radius:6px;color:var(--primary-fg);padding:0 18px;font:inherit;font-weight:700;cursor:pointer}
+ form button:disabled{opacity:.55;cursor:default}
+ @media (max-width:720px){body{margin:14px auto;padding:0 12px 28px}.panel{padding:12px}.toolbar input{width:100%;min-width:0}#paperToggle{display:inline-block}#paperPanel.collapsed #paperBody{display:none}form{flex-direction:column}form button{min-height:42px}}
 </style></head><body>
-<header>
- <h1>Discutere チャット</h1>
- <span id="status">接続中…</span>
- <span class="sp"></span>
+<header class="app-head">
+ <h1>チャット議論</h1>
+ <div class="mode-title">人間とAI</div>
+</header>
+<div class="toolbar">
+ <span id="status" class="muted">接続中…</span>
  <input id="room" title="議論ルーム" value="lobby" size="10">
  <input id="author" title="表示名" placeholder="あなたの名前" value="" size="10">
  <a href="/" title="トップへ">↩</a>
-</header>
-<div id="log"><div class="empty">話題を投げると AI の論者たちが議論を始めます。<br>例:「ローグライト系の面白さの核は何か」</div></div>
-<form id="f">
+</div>
+<div id="sessionPanel" class="panel">
+ <div class="panel-head"><h2>チャット議論一覧</h2><span class="muted">壁打ちのみ</span></div>
+ <div id="sessionList" class="session-list"><div class="muted">読み込み中…</div></div>
+</div>
+<div id="stateBox" class="panel">収束結果<br><span class="muted" id="stateText">議論の開始を待っています。</span></div>
+<div id="live">
+ <div id="paperPanel" class="panel">
+  <div class="panel-head"><h2>ディスカッションペーパー</h2><button id="paperToggle" type="button">閉じる</button></div>
+  <div id="paperBody"><span class="topic">議題</span><br>最初の投稿を議題として、人間とAIの議論を開始します。</div>
+ </div>
+ <div id="opinions" class="panel">
+  <div class="panel-head"><h2>各LLMの意見議論内容</h2><span class="muted" id="count">0 件</span></div>
+  <div id="log"><div class="empty">話題を投げると AI の論者たちが議論を始めます。<br>例:「ローグライト系の面白さの核は何か」</div></div>
+ </div>
+</div>
+<form id="f" class="panel">
  <textarea id="t" rows="1" placeholder="メッセージを入力 (Enter で送信 / Shift+Enter で改行)"></textarea>
  <button id="send" type="submit">送信</button>
 </form>
 <script>
 const log=document.getElementById('log'),statusEl=document.getElementById('status');
+const stateText=document.getElementById('stateText'),countEl=document.getElementById('count'),paperBody=document.getElementById('paperBody');
 const roomEl=document.getElementById('room'),authorEl=document.getElementById('author');
 const ta=document.getElementById('t'),form=document.getElementById('f'),sendBtn=document.getElementById('send');
-let since=0,seen=new Set(),room=roomEl.value,first=true;
+const sessionList=document.getElementById('sessionList');
+let since=0,seen=new Set(),room=roomEl.value,first=true,messageCount=0,topic='';
 authorEl.value=localStorage.getItem('di-author')||'';
 authorEl.addEventListener('change',()=>localStorage.setItem('di-author',authorEl.value.trim()));
 
 function esc(s){return s.replace(/[&<>]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;'}[c]));}
+function roleLabel(role){return role==='human'?'人間':role==='persona'?'AI論者':role==='facilitator'?'進行役':'外部の声';}
+function stateLabel(s){return s==='draft'?'下書き':s==='concluded'?'収束済み':'進行中';}
+function updateTopic(m){
+ if(topic||m.role!=='human')return;
+ topic=m.content.slice(0,160);
+ paperBody.innerHTML='<span class="topic">議題</span><br>'+esc(topic);
+}
 function render(m){
  if(seen.has(m.id))return; seen.add(m.id);
  if(first){log.innerHTML='';first=false;}
+ updateTopic(m);
  const d=document.createElement('div'); d.className='msg '+m.role;
- d.innerHTML='<div class="who">'+esc(m.speaker)+'</div>'+esc(m.content);
+ d.innerHTML='<div class="who"><span>'+esc(m.speaker)+'</span><span class="tag">'+roleLabel(m.role)+'</span></div>'+esc(m.content);
  log.appendChild(d); log.scrollTop=log.scrollHeight;
+ messageCount++; countEl.textContent=messageCount+' 件';
 }
 async function poll(){
  try{
@@ -184,13 +256,31 @@ async function poll(){
   if(j.ok){
    for(const m of j.messages){ render(m); if(m.postedAt>since)since=m.postedAt; }
    statusEl.textContent=j.discussing?'● 議論中':'待機中';
+   stateText.textContent=j.discussing?'議論が進行中です。AIの応答を待っています。':'議論の開始を待っています。';
   }
  }catch(e){ statusEl.textContent='接続エラー'; }
+}
+async function loadSessions(){
+ try{
+  const r=await fetch('/api/chat/sessions?limit=20&offset=0');
+  const j=await r.json();
+  if(!j.ok)throw new Error('bad response');
+  if(!j.sessions.length){sessionList.innerHTML='<div class="muted">チャット議論はまだありません。</div>';return;}
+  sessionList.innerHTML='';
+  for(const s of j.sessions){
+   const row=document.createElement('div');
+   row.className='sess';
+   row.innerHTML='<div class="th">'+esc(s.title||s.theme||'(無題)')+'</div><div class="meta">'+stateLabel(s.state)+' / '+esc(s.discussionType||s.flow)+' / 発話 '+s.utterances+' 件</div>';
+   sessionList.appendChild(row);
+  }
+ }catch(e){sessionList.innerHTML='<div class="muted">一覧の取得に失敗しました。</div>';}
 }
 function switchRoom(){
  const nv=(roomEl.value||'lobby').trim();
  if(nv===room)return;
- room=nv; since=0; seen=new Set(); first=true;
+ room=nv; since=0; seen=new Set(); first=true; messageCount=0; topic='';
+ countEl.textContent='0 件';
+ paperBody.innerHTML='<span class="topic">議題</span><br>最初の投稿を議題として、人間とAIの議論を開始します。';
  log.innerHTML='<div class="empty">ルーム「'+esc(room)+'」</div>'; poll();
 }
 roomEl.addEventListener('change',switchRoom);
@@ -209,5 +299,10 @@ async function send(){
 form.addEventListener('submit',e=>{e.preventDefault();send();});
 ta.addEventListener('keydown',e=>{ if(e.key==='Enter'&&!e.shiftKey){e.preventDefault();send();} });
 ta.addEventListener('input',()=>{ta.style.height='auto';ta.style.height=Math.min(ta.scrollHeight,140)+'px';});
-poll(); setInterval(poll,2500);
+document.getElementById('paperToggle').addEventListener('click',()=>{
+ const panel=document.getElementById('paperPanel');
+ panel.classList.toggle('collapsed');
+ document.getElementById('paperToggle').textContent=panel.classList.contains('collapsed')?'開く':'閉じる';
+});
+poll(); loadSessions(); setInterval(poll,2500);
 </script></body></html>`;
