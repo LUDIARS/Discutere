@@ -35,33 +35,35 @@ export function createGuideRoutes(discord: DiscutereConfig["discord"]): Hono {
   const plainChannelCount = (discord.discussionChannelIds ?? []).filter(Boolean).length;
 
   const html = `<!doctype html>
-<html lang="ja"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<html lang="ja"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="color-scheme" content="light dark">
 <title>使い方ガイド — Discutere</title>
 <style>
- body{font-family:system-ui,'Segoe UI',sans-serif;margin:0;background:#0f1115;color:#e6e6e6;line-height:1.65}
+ :root{color-scheme:light;--bg:#f8fafc;--fg:#111827;--text:#334155;--muted:#64748b;--muted-2:#94a3b8;--surface:#fff;--surface-soft:#f1f5f9;--border:#e2e8f0;--link:#2563eb;--code-bg:#e2e8f0;--code-fg:#1d4ed8;--tag-bg:#dcfce7;--tag-fg:#166534;--tag-border:#bbf7d0;--warn-bg:#fef2f2;--warn-border:#fecaca;--warn-fg:#b91c1c}
+ @media (prefers-color-scheme:dark){:root{color-scheme:dark;--bg:#0f1115;--fg:#e6e6e6;--text:#d2d7e0;--muted:#8b94a3;--muted-2:#4b5563;--surface:#161922;--surface-soft:#222633;--border:#232733;--link:#60a5fa;--code-bg:#222633;--code-fg:#9fd2ff;--tag-bg:#1d2a1f;--tag-fg:#86d99a;--tag-border:#2c4233;--warn-bg:#2a1f1f;--warn-border:#4a2f2f;--warn-fg:#f0a3a3}}
+ body{font-family:system-ui,'Segoe UI',sans-serif;margin:0;background:var(--bg);color:var(--fg);line-height:1.65}
  .wrap{max-width:820px;margin:0 auto;padding:40px 24px 60px}
- a{color:#60a5fa}
+ a{color:var(--link)}
  h1{font-size:22px;margin:0 0 2px}
- .sub{color:#8b94a3;font-size:13px;margin:0 0 8px}
- .back{font-size:12px;color:#8b94a3;text-decoration:none;display:inline-block;margin-bottom:24px}
- h2{font-size:16px;margin:30px 0 10px;padding-bottom:6px;border-bottom:1px solid #232733}
- .lead{color:#b6bdca;font-size:13px;margin:0 0 18px}
- .card{background:#161922;border:1px solid #232733;border-radius:12px;padding:16px 18px;margin:12px 0}
+ .sub{color:var(--muted);font-size:13px;margin:0 0 8px}
+ .back{font-size:12px;color:var(--muted);text-decoration:none;display:inline-block;margin-bottom:24px}
+ h2{font-size:16px;margin:30px 0 10px;padding-bottom:6px;border-bottom:1px solid var(--border)}
+ .lead{color:var(--text);font-size:13px;margin:0 0 18px}
+ .card{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:16px 18px;margin:12px 0}
  .card .t{font-size:14px;font-weight:600;margin-bottom:6px}
  ol,ul{margin:8px 0 8px;padding-left:22px;font-size:13.5px}
  li{margin:5px 0}
- p{font-size:13.5px;color:#d2d7e0;margin:8px 0}
- code{background:#222633;border-radius:5px;padding:1.5px 7px;color:#9fd2ff;font-size:12.5px}
- .tag{background:#1d2a1f;color:#86d99a;border:1px solid #2c4233;border-radius:6px;padding:1.5px 8px;font-size:12px}
- .warn{background:#2a1f1f;border-color:#4a2f2f}
- .warn .t{color:#f0a3a3}
- .muted{color:#8b94a3;font-size:12px}
+ p{font-size:13.5px;color:var(--text);margin:8px 0}
+ code{background:var(--code-bg);border-radius:5px;padding:1.5px 7px;color:var(--code-fg);font-size:12.5px}
+ .tag{background:var(--tag-bg);color:var(--tag-fg);border:1px solid var(--tag-border);border-radius:6px;padding:1.5px 8px;font-size:12px}
+ .warn{background:var(--warn-bg);border-color:var(--warn-border)}
+ .warn .t{color:var(--warn-fg)}
+ .muted{color:var(--muted);font-size:12px}
  .kv{display:grid;grid-template-columns:140px 1fr;gap:4px 14px;font-size:13px;margin:6px 0}
- .kv .k{color:#8b94a3}
+ .kv .k{color:var(--muted)}
  table{border-collapse:collapse;width:100%;font-size:13px;margin:8px 0}
- td,th{border:1px solid #232733;padding:6px 9px;text-align:left;vertical-align:top}
- th{background:#161922;color:#b6bdca;font-weight:600}
- .foot{margin-top:36px;color:#4b5563;font-size:12px}
+ td,th{border:1px solid var(--border);padding:6px 9px;text-align:left;vertical-align:top}
+ th{background:var(--surface);color:var(--text);font-weight:600}
+ .foot{margin-top:36px;color:var(--muted-2);font-size:12px}
 </style></head><body><div class="wrap">
  <a class="back" href="/">← Discutere トップ</a>
  <h1>使い方ガイド</h1>

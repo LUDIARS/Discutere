@@ -1,5 +1,5 @@
 /**
- * 議論チューニング UI / API (port 3100)。
+ * 議論設定 UI / API (port 3100)。
  *
  * facilitator の収束トリガールール (「20 意見で収束」= maxPersonas 等) と、
  * ワーカーの役割プロンプト / debate ルール instructions を、 再起動なしで編集する。
@@ -142,26 +142,28 @@ tuningRoutes.put("/admin/tuning/rule", async (c) => {
 tuningRoutes.get("/admin/tuning", (c) => c.html(TUNING_HTML));
 
 const TUNING_HTML = `<!doctype html>
-<html lang="ja"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
-<title>Discutere 議論チューニング</title>
+<html lang="ja"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="color-scheme" content="light dark">
+<title>Discutere 議論設定</title>
 <style>
- body{font-family:system-ui,'Segoe UI',sans-serif;margin:0;background:#0f1115;color:#e6e6e6}
+ :root{color-scheme:light;--bg:#f8fafc;--fg:#111827;--muted:#64748b;--muted-2:#94a3b8;--surface:#fff;--field:#fff;--surface-soft:#f1f5f9;--border:#e2e8f0;--border-strong:#cbd5e1;--primary:#2563eb;--primary-fg:#fff;--secondary:#e2e8f0;--secondary-fg:#334155;--ok:#16a34a;--link:#2563eb}
+ @media (prefers-color-scheme:dark){:root{color-scheme:dark;--bg:#0f1115;--fg:#e6e6e6;--muted:#8b94a3;--muted-2:#6b7280;--surface:#161922;--field:#0c0e13;--surface-soft:#1a1f2b;--border:#232733;--border-strong:#2a2f3a;--primary:#2563eb;--primary-fg:#fff;--secondary:#2a2f3a;--secondary-fg:#cbd3e1;--ok:#22c55e;--link:#7aa2ff}}
+ body{font-family:system-ui,'Segoe UI',sans-serif;margin:0;background:var(--bg);color:var(--fg)}
  .wrap{max-width:880px;margin:0 auto;padding:24px}
- a{color:#7aa2ff} h1{font-size:18px;margin:0 0 4px} h2{font-size:15px;margin:22px 0 8px;color:#cbd3e1}
- .sub{color:#8b94a3;font-size:13px;margin:0 0 14px}
- .card{background:#161922;border:1px solid #232733;border-radius:10px;padding:14px 16px;margin-bottom:14px}
- label{display:block;font-size:12px;color:#9aa3b2;margin:8px 0 3px}
- input,select,textarea{width:100%;box-sizing:border-box;background:#0c0e13;color:#e6e6e6;border:1px solid #2a2f3a;border-radius:7px;padding:8px 10px;font-size:13px;font-family:inherit}
+ a{color:var(--link)} h1{font-size:18px;margin:0 0 4px} h2{font-size:15px;margin:22px 0 8px;color:var(--fg)}
+ .sub{color:var(--muted);font-size:13px;margin:0 0 14px}
+ .card{background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:14px 16px;margin-bottom:14px}
+ label{display:block;font-size:12px;color:var(--muted);margin:8px 0 3px}
+ input,select,textarea{width:100%;box-sizing:border-box;background:var(--field);color:var(--fg);border:1px solid var(--border-strong);border-radius:7px;padding:8px 10px;font-size:13px;font-family:inherit}
  textarea{min-height:74px;resize:vertical;line-height:1.5}
  .row{display:flex;gap:12px;flex-wrap:wrap} .row>div{flex:1;min-width:120px}
- button{border:0;border-radius:8px;padding:8px 15px;font-size:13px;cursor:pointer;background:#2563eb;color:#fff;margin-top:10px}
- button.ghost{background:#2a2f3a;color:#cbd3e1} button:hover{filter:brightness(1.1)}
- .muted{color:#6b7280;font-size:12px} .ok{color:#22c55e} .name{color:#cbd3e1;font-weight:600}
- .def{color:#6b7280;font-size:11px;white-space:pre-wrap;margin-top:4px}
+ button{border:0;border-radius:8px;padding:8px 15px;font-size:13px;cursor:pointer;background:var(--primary);color:var(--primary-fg);margin-top:10px}
+ button.ghost{background:var(--secondary);color:var(--secondary-fg)} button:hover{filter:brightness(1.1)}
+ .muted{color:var(--muted-2);font-size:12px} .ok{color:var(--ok)} .name{color:var(--fg);font-weight:600}
+ .def{color:var(--muted-2);font-size:11px;white-space:pre-wrap;margin-top:4px}
  .bar{margin-bottom:10px}
 </style></head><body><div class="wrap">
  <div class="bar"><a href="/">← トップ</a></div>
- <h1>議論チューニング</h1>
+ <h1>議論設定</h1>
  <p class="sub">facilitator の収束トリガー・役割プロンプト・debate ルールを再起動なしで調整します。保存すると即時 (facilitator は次 tick、役割プロンプトはワーカー再起動時) に反映されます。</p>
 
  <h2>収束トリガー (facilitator)</h2>
