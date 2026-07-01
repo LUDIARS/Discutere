@@ -257,13 +257,54 @@ export function paperToPrompt(p: PersonaPaper, stance: FlowStance, persona: Flow
 
 // ── 永続化 ──────────────────────────────────────────────────────────────────
 
+export type DiscussionTitleSource = "paper" | "conclusion";
+export type DiscussionOriginUi = "ai" | "chat" | "discord" | "unknown";
+export type FlowSessionScope = "all" | "ai" | "chat";
+
+function defaultOriginUi(flow: string): DiscussionOriginUi {
+  return flow === "sparring" ? "chat" : "ai";
+}
+
+export function normalizeDiscussionDisplayTitle(raw: string, fallback = "(無題)"): string {
+  const title = raw
+    .replace(/^【収束】\s*/, "")
+    .split(/\r?\n/)
+    .map((s) => s.trim())
+    .find(Boolean);
+  return title || fallback;
+}
+
+export function upsertDiscussionTitleCache(
+  sessionId: string,
+  rawTitle: string,
+  source: DiscussionTitleSource = "paper",
+  updatedAt = Date.now(),
+  meta: { discussionType?: string; originUi?: DiscussionOriginUi } = {}
+): void {
+  const discussionType = meta.discussionType ?? "discussion";
+  const originUi = meta.originUi ?? defaultOriginUi(discussionType);
+  getFlowDb()
+    .prepare(
+      `INSERT INTO discussion_title_cache (session_id, title, source, updated_at, discussion_type, origin_ui)
+       VALUES (?, ?, ?, ?, ?, ?)
+       ON CONFLICT(session_id) DO UPDATE SET
+         title = excluded.title,
+         source = excluded.source,
+         updated_at = excluded.updated_at,
+         discussion_type = excluded.discussion_type,
+         origin_ui = excluded.origin_ui`
+    )
+    .run(sessionId, normalizeDiscussionDisplayTitle(rawTitle), source, updatedAt, discussionType, originUi);
+}
+
 /**
  * discussion_paper を DB に保存し paperId を返す。
  * @param flow フロー種別 ("discussion" / "improvement" 等)。既定 "discussion"。
  */
 export function persistPaper(
   paper: Omit<DiscussionPaper, "paperId" | "rounds">,
-  flow = "discussion"
+  flow = "discussion",
+  meta: { originUi?: DiscussionOriginUi } = {}
 ): string {
   const db = getFlowDb();
   const now = Date.now();
@@ -287,6 +328,10 @@ export function persistPaper(
       now,
       existing.id
     );
+    upsertDiscussionTitleCache(paper.sessionId, paper.theme, "paper", now, {
+      discussionType: flow,
+      originUi: meta.originUi ?? defaultOriginUi(flow),
+    });
     return existing.id;
   }
   const paperId = randomUUID();
@@ -305,6 +350,10 @@ export function persistPaper(
     now,
     now
   );
+  upsertDiscussionTitleCache(paper.sessionId, paper.theme, "paper", now, {
+    discussionType: flow,
+    originUi: meta.originUi ?? defaultOriginUi(flow),
+  });
   return paperId;
 }
 
@@ -319,13 +368,49 @@ export interface DraftPaperRow {
   bodyMd: string;
 }
 
+export interface PaperSnapshotRow extends DraftPaperRow {
+  status: string;
+}
+
+type StoredPaperRow = {
+  id: string;
+  flow: string;
+  theme: string;
+  tags_json: string;
+  mechanics_json: string;
+  supplement: string;
+  body_md: string | null;
+};
+
+function parseJsonArray<T>(s: string): T[] {
+  try {
+    const v = JSON.parse(s);
+    return Array.isArray(v) ? (v as T[]) : [];
+  } catch {
+    return [];
+  }
+}
+
+function storedPaperToDraft(row: StoredPaperRow): DraftPaperRow {
+  return {
+    paperId: row.id,
+    flow: row.flow,
+    theme: row.theme,
+    tags: parseJsonArray<FlowTag>(row.tags_json),
+    mechanics: parseJsonArray<MechanicSummary>(row.mechanics_json),
+    supplement: row.supplement,
+    bodyMd: row.body_md ?? "",
+  };
+}
+
 /**
  * 編集中ドラフトを discussion_paper に status='draft' で永続 (議論一覧に「下書き」として出す)。
  * 同 session に行があれば内容を更新する (status は変えない=既に started なら上書きしない)。
  */
 export function persistDraftPaper(
   paper: Omit<DiscussionPaper, "paperId" | "rounds">,
-  flow = "discussion"
+  flow = "discussion",
+  meta: { originUi?: DiscussionOriginUi } = {}
 ): string {
   const db = getFlowDb();
   const now = Date.now();
@@ -347,6 +432,10 @@ export function persistDraftPaper(
       now,
       existing.id
     );
+    upsertDiscussionTitleCache(paper.sessionId, paper.theme, "paper", now, {
+      discussionType: flow,
+      originUi: meta.originUi ?? defaultOriginUi(flow),
+    });
     return existing.id;
   }
   const paperId = randomUUID();
@@ -365,6 +454,10 @@ export function persistDraftPaper(
     now,
     now
   );
+  upsertDiscussionTitleCache(paper.sessionId, paper.theme, "paper", now, {
+    discussionType: flow,
+    originUi: meta.originUi ?? defaultOriginUi(flow),
+  });
   return paperId;
 }
 
@@ -387,23 +480,18 @@ export function getDraftPaper(sessionId: string): DraftPaperRow | null {
       }
     | undefined;
   if (!row) return null;
-  const parseArr = <T,>(s: string): T[] => {
-    try {
-      const v = JSON.parse(s);
-      return Array.isArray(v) ? (v as T[]) : [];
-    } catch {
-      return [];
-    }
-  };
-  return {
-    paperId: row.id,
-    flow: row.flow,
-    theme: row.theme,
-    tags: parseArr<FlowTag>(row.tags_json),
-    mechanics: parseArr<MechanicSummary>(row.mechanics_json),
-    supplement: row.supplement,
-    bodyMd: row.body_md ?? "",
-  };
+  return storedPaperToDraft(row);
+}
+
+export function getPaperSnapshot(sessionId: string): PaperSnapshotRow | null {
+  const row = getFlowDb()
+    .prepare(
+      `SELECT id, flow, theme, tags_json, mechanics_json, supplement, body_md, status
+         FROM discussion_paper WHERE session_id = ? ORDER BY created_at DESC LIMIT 1`
+    )
+    .get(sessionId) as (StoredPaperRow & { status: string }) | undefined;
+  if (!row) return null;
+  return { ...storedPaperToDraft(row), status: row.status };
 }
 
 /**
@@ -446,8 +534,11 @@ export type FlowSessionState = "all" | "draft" | "live" | "concluded";
 /** 議論一覧 1 行 (state は呼び出し側が concluded/status から導出)。 */
 export interface FlowSessionRow {
   sessionId: string;
+  title: string;
   theme: string;
   flow: string;
+  discussionType: string;
+  originUi: string;
   status: string;
   createdAt: number;
   updatedAt: number;
@@ -469,28 +560,48 @@ const FLOW_STATE_WHERE: Record<FlowSessionState, string> = {
   concluded: "COALESCE((SELECT fc.concluded FROM flow_conclusion fc WHERE fc.session_id = dp.session_id), 0) = 1",
 };
 
+const FLOW_SCOPE_WHERE: Record<FlowSessionScope, string> = {
+  all: "1=1",
+  ai: "COALESCE(tc.origin_ui, CASE WHEN dp.flow = 'sparring' THEN 'chat' ELSE 'ai' END) = 'ai'",
+  chat: "(COALESCE(tc.origin_ui, CASE WHEN dp.flow = 'sparring' THEN 'chat' ELSE 'ai' END) = 'chat' OR dp.flow = 'sparring')",
+};
+
 /**
  * 議論一覧を state 絞り込み + ページングで返す (新しい順)。
  * total は同じ絞り込みでの全件数 (hasMore 判定用)。limit/offset は呼び出し側でクランプ済み前提。
  */
 export function listFlowSessions(opts: {
   state?: FlowSessionState;
+  scope?: FlowSessionScope;
   limit: number;
   offset: number;
 }): ListFlowSessionsResult {
   const db = getFlowDb();
   const where = FLOW_STATE_WHERE[opts.state ?? "all"];
+  const scopeWhere = FLOW_SCOPE_WHERE[opts.scope ?? "all"];
   const total = (
-    db.prepare(`SELECT COUNT(*) AS n FROM discussion_paper dp WHERE ${where}`).get() as { n: number }
+    db
+      .prepare(
+        `SELECT COUNT(*) AS n
+           FROM discussion_paper dp
+           LEFT JOIN discussion_title_cache tc ON tc.session_id = dp.session_id
+          WHERE ${where} AND ${scopeWhere}`
+      )
+      .get() as { n: number }
   ).n;
   const rows = db
     .prepare(
-      `SELECT dp.session_id AS sessionId, dp.theme AS theme, dp.flow AS flow, dp.status AS status,
+      `SELECT dp.session_id AS sessionId,
+              COALESCE(NULLIF(tc.title, ''), dp.theme) AS title,
+              dp.theme AS theme, dp.flow AS flow, dp.status AS status,
+              COALESCE(tc.discussion_type, dp.flow) AS discussionType,
+              COALESCE(tc.origin_ui, CASE WHEN dp.flow = 'sparring' THEN 'chat' ELSE 'ai' END) AS originUi,
               dp.created_at AS createdAt, dp.updated_at AS updatedAt,
               (SELECT COUNT(*) FROM flow_utterance fu WHERE fu.session_id = dp.session_id) AS utterances,
               (SELECT fc.concluded FROM flow_conclusion fc WHERE fc.session_id = dp.session_id) AS concluded
          FROM discussion_paper dp
-        WHERE ${where}
+         LEFT JOIN discussion_title_cache tc ON tc.session_id = dp.session_id
+        WHERE ${where} AND ${scopeWhere}
         ORDER BY dp.created_at DESC
         LIMIT ? OFFSET ?`
     )
@@ -523,6 +634,7 @@ export function deleteFlowSession(sessionId: string): boolean {
       "llm_call_log",
       "discussion_paper_revision",
       "conclusion_cache",
+      "discussion_title_cache",
     ]) {
       db.prepare(`DELETE FROM ${table} WHERE session_id = ?`).run(sessionId);
     }
