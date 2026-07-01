@@ -24,30 +24,33 @@ function buildGraphHtml(slug: string, apiBase: string): string {
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<meta name="color-scheme" content="light dark" />
 <title>Economy Graph</title>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/vis-network/9.1.9/dist/vis-network.min.js" crossorigin="anonymous"></script>
 <style>
+  :root { color-scheme: light; --bg:#f8fafc; --fg:#111827; --muted:#64748b; --muted-2:#94a3b8; --surface:#fff; --surface-soft:#f1f5f9; --graph-bg:#fff; --border:#d0d7de; --button-bg:#e2e8f0; --button-hover:#cbd5e1; --button-fg:#334155; --error:#dc2626; }
+  @media (prefers-color-scheme: dark) { :root { color-scheme: dark; --bg:#0f1117; --fg:#e2e8f0; --muted:#a0aec0; --muted-2:#718096; --surface:#1a202c; --surface-soft:#2d3748; --graph-bg:#0a0e18; --border:#2d3748; --button-bg:#2d3748; --button-hover:#3d4a5c; --button-fg:#a0aec0; --error:#fc8181; } }
   *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-  body { font-family: system-ui, sans-serif; background: #0f1117; color: #e2e8f0; min-height: 100vh; }
-  #header { padding: 16px 20px; border-bottom: 1px solid #2d3748; display: flex; align-items: center; gap: 12px; }
+  body { font-family: system-ui, sans-serif; background: var(--bg); color: var(--fg); min-height: 100vh; }
+  #header { padding: 16px 20px; border-bottom: 1px solid var(--border); display: flex; align-items: center; gap: 12px; }
   #header h1 { font-size: 1.1rem; font-weight: 600; }
-  #header .badge { font-size: 0.75rem; background: #2d3748; padding: 2px 8px; border-radius: 9999px; color: #a0aec0; }
-  #graph-wrap { position: relative; height: 520px; margin: 16px 20px; border: 1px solid #2d3748; border-radius: 8px; overflow: hidden; background: #0a0e18; }
+  #header .badge { font-size: 0.75rem; background: var(--surface-soft); padding: 2px 8px; border-radius: 9999px; color: var(--muted); }
+  #graph-wrap { position: relative; height: 520px; margin: 16px 20px; border: 1px solid var(--border); border-radius: 8px; overflow: hidden; background: var(--graph-bg); }
   #graph { width: 100%; height: 100%; }
-  #loading { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; background: #0a0e18; font-size: 0.9rem; color: #a0aec0; }
+  #loading { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; background: var(--graph-bg); font-size: 0.9rem; color: var(--muted); }
   #legend { display: flex; flex-wrap: wrap; gap: 8px; padding: 0 20px 12px; }
-  .legend-item { display: flex; align-items: center; gap: 5px; font-size: 0.75rem; color: #a0aec0; }
+  .legend-item { display: flex; align-items: center; gap: 5px; font-size: 0.75rem; color: var(--muted); }
   .legend-dot { width: 10px; height: 10px; border-radius: 50%; }
   #info { padding: 0 20px 20px; display: grid; gap: 16px; }
-  .section-title { font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.08em; color: #718096; margin-bottom: 6px; }
-  #summary-text { font-size: 0.9rem; line-height: 1.6; color: #cbd5e0; background: #1a202c; padding: 12px 16px; border-radius: 6px; }
+  .section-title { font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.08em; color: var(--muted-2); margin-bottom: 6px; }
+  #summary-text { font-size: 0.9rem; line-height: 1.6; color: var(--fg); background: var(--surface); padding: 12px 16px; border-radius: 6px; }
   #loops-list { list-style: none; display: grid; gap: 6px; }
-  #loops-list li { font-size: 0.85rem; color: #a0aec0; background: #1a202c; padding: 8px 12px; border-radius: 6px; border-left: 3px solid #38a169; }
-  #node-detail { background: #1a202c; padding: 12px 16px; border-radius: 6px; font-size: 0.85rem; color: #a0aec0; min-height: 50px; }
-  .meta-row { font-size: 0.75rem; color: #4a5568; margin-top: 4px; }
-  #reanalyze { display: inline-block; margin: 0 20px 16px; padding: 6px 14px; background: #2d3748; border: 1px solid #4a5568; border-radius: 6px; font-size: 0.8rem; color: #a0aec0; cursor: pointer; }
-  #reanalyze:hover { background: #3d4a5c; }
-  #error-msg { color: #fc8181; font-size: 0.9rem; padding: 20px; }
+  #loops-list li { font-size: 0.85rem; color: var(--muted); background: var(--surface); padding: 8px 12px; border-radius: 6px; border-left: 3px solid #38a169; }
+  #node-detail { background: var(--surface); padding: 12px 16px; border-radius: 6px; font-size: 0.85rem; color: var(--muted); min-height: 50px; }
+  .meta-row { font-size: 0.75rem; color: var(--muted-2); margin-top: 4px; }
+  #reanalyze { display: inline-block; margin: 0 20px 16px; padding: 6px 14px; background: var(--button-bg); border: 1px solid var(--border); border-radius: 6px; font-size: 0.8rem; color: var(--button-fg); cursor: pointer; }
+  #reanalyze:hover { background: var(--button-hover); }
+  #error-msg { color: var(--error); font-size: 0.9rem; padding: 20px; }
 </style>
 </head>
 <body>

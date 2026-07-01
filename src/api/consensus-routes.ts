@@ -162,22 +162,24 @@ function requireAdmin(c: Context): Response | null {
 }
 
 const HTML = `<!doctype html>
-<html lang="ja"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<html lang="ja"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="color-scheme" content="light dark">
 <title>Discutere — 合意スコア</title>
 <style>
- body{font-family:system-ui,'Segoe UI',sans-serif;margin:0;background:#0f1115;color:#e6e6e6}
+ :root{color-scheme:light;--bg:#f8fafc;--fg:#111827;--muted:#64748b;--surface:#fff;--border:#e2e8f0;--link:#2563eb;--tag-human-bg:#ede9fe;--tag-human-fg:#6d28d9;--tag-agree-bg:#dcfce7;--tag-agree-fg:#15803d;--tag-disagree-bg:#fee2e2;--tag-disagree-fg:#b91c1c}
+ @media (prefers-color-scheme:dark){:root{color-scheme:dark;--bg:#0f1115;--fg:#e6e6e6;--muted:#8b94a3;--surface:#161922;--border:#232733;--link:#60a5fa;--tag-human-bg:#7c3aed33;--tag-human-fg:#c4b5fd;--tag-agree-bg:#16a34a33;--tag-agree-fg:#86efac;--tag-disagree-bg:#dc262633;--tag-disagree-fg:#fca5a5}}
+ body{font-family:system-ui,'Segoe UI',sans-serif;margin:0;background:var(--bg);color:var(--fg)}
  .wrap{max-width:900px;margin:0 auto;padding:32px 24px}
- h1{font-size:20px;margin:0 0 4px} .sub{color:#8b94a3;font-size:13px;margin:0 0 20px}
- select{background:#161922;color:#e6e6e6;border:1px solid #232733;border-radius:8px;padding:8px 12px;font-size:14px;width:100%;max-width:560px}
+ h1{font-size:20px;margin:0 0 4px} .sub{color:var(--muted);font-size:13px;margin:0 0 20px}
+ select{background:var(--surface);color:var(--fg);border:1px solid var(--border);border-radius:8px;padding:8px 12px;font-size:14px;width:100%;max-width:560px}
  table{width:100%;border-collapse:collapse;font-size:13px;margin-top:16px}
- th,td{padding:8px 10px;text-align:left;border-bottom:1px solid #232733;vertical-align:top}
- th{background:#161922;color:#9aa3b2}
+ th,td{padding:8px 10px;text-align:left;border-bottom:1px solid var(--border);vertical-align:top}
+ th{background:var(--surface);color:var(--muted)}
  .tag{display:inline-block;border-radius:6px;padding:1px 7px;font-size:11px;margin-left:6px}
- .tag.human{background:#7c3aed33;color:#c4b5fd}
- .tag.agree{background:#16a34a33;color:#86efac}
- .tag.disagree{background:#dc262633;color:#fca5a5}
- .score{font-weight:700} .muted{color:#6b7280}
- a{color:#60a5fa}
+ .tag.human{background:var(--tag-human-bg);color:var(--tag-human-fg)}
+ .tag.agree{background:var(--tag-agree-bg);color:var(--tag-agree-fg)}
+ .tag.disagree{background:var(--tag-disagree-bg);color:var(--tag-disagree-fg)}
+ .score{font-weight:700} .muted{color:var(--muted)}
+ a{color:var(--link)}
 </style></head><body><div class="wrap">
  <h1>合意スコア <span class="muted" id="refresh"></span></h1>
  <p class="sub">AI が各意見 (人間も AI も同一評価) の合意度を採点。 👍=議論の総意が同意。 <a href="/">← トップ</a></p>

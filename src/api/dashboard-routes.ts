@@ -39,23 +39,24 @@ const HTML = `<!doctype html>
 <meta charset="utf-8">
 <title>Discutere — persona-engine dashboard</title>
 <style>
-  :root { color-scheme: light dark; }
-  body { font-family: system-ui, -apple-system, "Segoe UI", "Hiragino Kaku Gothic ProN", sans-serif; max-width: 1100px; margin: 24px auto; padding: 0 16px; line-height: 1.5; }
+  :root { color-scheme: light; --bg:#f8fafc; --fg:#111827; --surface:#fff; --border:#d0d7de; --soft:#eaf2ff; --primary:#4a90e2; --muted:#64748b; }
+  @media (prefers-color-scheme: dark) { :root { color-scheme: dark; --bg:#0f1115; --fg:#e6e6e6; --surface:#161922; --border:#334155; --soft:#4a90e21a; --primary:#4a90e2; --muted:#888; } }
+  body { font-family: system-ui, -apple-system, "Segoe UI", "Hiragino Kaku Gothic ProN", sans-serif; max-width: 1100px; margin: 24px auto; padding: 0 16px; line-height: 1.5; background:var(--bg); color:var(--fg); }
   h1 { border-bottom: 2px solid #4a90e2; padding-bottom: 8px; }
-  .card { border: 1px solid #ccc4; border-radius: 8px; padding: 16px; margin: 16px 0; background: #fff1; }
-  .stat { display: inline-block; padding: 4px 12px; margin: 4px; border-radius: 6px; background: #4a90e21a; font-weight: bold; }
+  .card { border: 1px solid var(--border); border-radius: 8px; padding: 16px; margin: 16px 0; background: var(--surface); }
+  .stat { display: inline-block; padding: 4px 12px; margin: 4px; border-radius: 6px; background: var(--soft); font-weight: bold; }
   .stat.warn { background: #f5a52333; }
   .stat.bad { background: #e2484833; }
   button { padding: 8px 16px; border-radius: 6px; border: 1px solid #4a90e2; background: #4a90e2; color: white; cursor: pointer; font-size: 14px; }
   button.bad { background: #e24848; border-color: #e24848; }
   button:disabled { opacity: 0.5; cursor: wait; }
   table { width: 100%; border-collapse: collapse; font-size: 13px; }
-  th, td { padding: 6px 10px; text-align: left; border-bottom: 1px solid #ccc4; }
-  th { background: #4a90e21a; }
+  th, td { padding: 6px 10px; text-align: left; border-bottom: 1px solid var(--border); }
+  th { background: var(--soft); }
   td.action-fire { color: #2e7d32; font-weight: bold; }
   td.action-skip { color: #888; }
   td.action-error { color: #c62828; font-weight: bold; }
-  .muted { color: #888; font-size: 12px; }
+  .muted { color: var(--muted); font-size: 12px; }
   .refresh { float: right; font-size: 12px; }
 </style>
 </head>

@@ -176,24 +176,26 @@ export function createNoiseRoutes(): Hono {
 }
 
 const NOISE_HTML = `<!doctype html>
-<html lang="ja"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<html lang="ja"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="color-scheme" content="light dark">
 <title>ノイズ管理 — Discutere</title>
 <style>
- body{font-family:system-ui,'Segoe UI',sans-serif;margin:0;background:#0f1115;color:#e6e6e6}
+ :root{color-scheme:light;--bg:#f8fafc;--fg:#111827;--muted:#64748b;--surface:#fff;--field:#fff;--border:#e2e8f0;--primary:#2563eb;--secondary:#e2e8f0;--note-bg:#fffbeb;--note-fg:#92400e;--note-border:#fde68a;--speaker:#2563eb}
+ @media (prefers-color-scheme:dark){:root{color-scheme:dark;--bg:#0f1115;--fg:#e6e6e6;--muted:#8b94a3;--surface:#161922;--field:#161922;--border:#232733;--primary:#2563eb;--secondary:#3a3f4b;--note-bg:#1c1a12;--note-fg:#a0863c;--note-border:#34301c;--speaker:#7aa2f7}}
+ body{font-family:system-ui,'Segoe UI',sans-serif;margin:0;background:var(--bg);color:var(--fg)}
  .wrap{max-width:900px;margin:0 auto;padding:32px 24px}
- h1{font-size:20px;margin:0 0 2px} .sub{color:#8b94a3;font-size:13px;margin:0 0 22px}
+ h1{font-size:20px;margin:0 0 2px} .sub{color:var(--muted);font-size:13px;margin:0 0 22px}
  .row{display:flex;gap:12px;flex-wrap:wrap;align-items:center;margin-bottom:16px}
- label{font-size:13px;color:#8b94a3}
- select{background:#161922;color:#e6e6e6;border:1px solid #232733;border-radius:8px;padding:8px 10px;font-size:13px;min-width:240px}
- .note{font-size:12px;color:#a0863c;background:#1c1a12;border:1px solid #34301c;border-radius:8px;padding:8px 12px;margin-bottom:14px}
- .item{display:flex;gap:10px;align-items:flex-start;background:#161922;border:1px solid #232733;border-radius:10px;padding:10px 12px;margin-bottom:8px}
+ label{font-size:13px;color:var(--muted)}
+ select{background:var(--field);color:var(--fg);border:1px solid var(--border);border-radius:8px;padding:8px 10px;font-size:13px;min-width:240px}
+ .note{font-size:12px;color:var(--note-fg);background:var(--note-bg);border:1px solid var(--note-border);border-radius:8px;padding:8px 12px;margin-bottom:14px}
+ .item{display:flex;gap:10px;align-items:flex-start;background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:10px 12px;margin-bottom:8px}
  .item.excluded{opacity:.5}
- .sp{font-size:12px;color:#7aa2f7;font-weight:600;white-space:nowrap;min-width:80px}
+ .sp{font-size:12px;color:var(--speaker);font-weight:600;white-space:nowrap;min-width:80px}
  .ct{flex:1;font-size:13px;line-height:1.5;word-break:break-word}
  .item.excluded .ct{text-decoration:line-through}
- button{background:#2563eb;color:#fff;border:none;border-radius:6px;padding:5px 12px;font-size:12px;cursor:pointer;white-space:nowrap}
- button.restore{background:#3a3f4b}
- a.back{color:#8b94a3;font-size:12px;text-decoration:none}
+ button{background:var(--primary);color:#fff;border:none;border-radius:6px;padding:5px 12px;font-size:12px;cursor:pointer;white-space:nowrap}
+ button.restore{background:var(--secondary);color:var(--fg)}
+ a.back{color:var(--muted);font-size:12px;text-decoration:none}
 </style></head><body><div class="wrap">
  <a class="back" href="/">← トップへ</a>
  <h1>ノイズ管理</h1>

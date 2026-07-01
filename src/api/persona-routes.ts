@@ -177,19 +177,21 @@ personaRoutes.post("/admin/personas/populations", async (c) => {
 });
 
 const PERSONA_HTML = `<!doctype html>
-<html lang="ja"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<html lang="ja"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="color-scheme" content="light dark">
 <title>Discutere ペルソナ生成</title>
 <style>
- body{font-family:system-ui,'Segoe UI',sans-serif;margin:0;background:#0f1115;color:#e6e6e6}
+ :root{color-scheme:light;--bg:#f8fafc;--fg:#111827;--muted:#64748b;--surface:#fff;--field:#fff;--border:#e2e8f0;--border-strong:#cbd5e1;--primary:#2563eb;--secondary:#e2e8f0;--secondary-fg:#334155;--ok:#16a34a;--bad:#dc2626;--link:#2563eb}
+ @media (prefers-color-scheme:dark){:root{color-scheme:dark;--bg:#0f1115;--fg:#e6e6e6;--muted:#8b94a3;--surface:#161922;--field:#0c0e13;--border:#232733;--border-strong:#2a2f3a;--primary:#2563eb;--secondary:#2a2f3a;--secondary-fg:#cbd3e1;--ok:#22c55e;--bad:#f87171;--link:#7aa2ff}}
+ body{font-family:system-ui,'Segoe UI',sans-serif;margin:0;background:var(--bg);color:var(--fg)}
  .wrap{max-width:920px;margin:0 auto;padding:24px}
- a{color:#7aa2ff} h1{font-size:20px;margin:0 0 6px} h2{font-size:15px;margin:22px 0 8px;color:#cbd3e1}
- .sub,.muted{color:#8b94a3;font-size:13px}.card{background:#161922;border:1px solid #232733;border-radius:8px;padding:14px 16px;margin-bottom:14px}
- label{display:block;font-size:12px;color:#9aa3b2;margin:8px 0 3px}
- input{width:100%;box-sizing:border-box;background:#0c0e13;color:#e6e6e6;border:1px solid #2a2f3a;border-radius:7px;padding:8px 10px;font-size:13px}
+ a{color:var(--link)} h1{font-size:20px;margin:0 0 6px} h2{font-size:15px;margin:22px 0 8px;color:var(--fg)}
+ .sub,.muted{color:var(--muted);font-size:13px}.card{background:var(--surface);border:1px solid var(--border);border-radius:8px;padding:14px 16px;margin-bottom:14px}
+ label{display:block;font-size:12px;color:var(--muted);margin:8px 0 3px}
+ input{width:100%;box-sizing:border-box;background:var(--field);color:var(--fg);border:1px solid var(--border-strong);border-radius:7px;padding:8px 10px;font-size:13px}
  .row{display:flex;gap:12px;flex-wrap:wrap}.row>div{flex:1;min-width:150px}
- button{border:0;border-radius:8px;padding:8px 15px;font-size:13px;cursor:pointer;background:#2563eb;color:#fff;margin-top:10px}
- button.ghost{background:#2a2f3a;color:#cbd3e1}.ok{color:#22c55e}.bad{color:#f87171}
- pre{white-space:pre-wrap;background:#0c0e13;border:1px solid #252a35;border-radius:8px;padding:10px;max-height:300px;overflow:auto}
+ button{border:0;border-radius:8px;padding:8px 15px;font-size:13px;cursor:pointer;background:var(--primary);color:#fff;margin-top:10px}
+ button.ghost{background:var(--secondary);color:var(--secondary-fg)}.ok{color:var(--ok)}.bad{color:var(--bad)}
+ pre{white-space:pre-wrap;background:var(--field);border:1px solid var(--border);border-radius:8px;padding:10px;max-height:300px;overflow:auto}
  .switch{display:flex;align-items:center;gap:10px}.switch input{width:auto}
 </style></head><body><div class="wrap">
  <p><a href="/">トップ</a></p>
