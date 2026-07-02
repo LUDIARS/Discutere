@@ -81,6 +81,7 @@
   "dependencies": {
     "@aws-sdk/client-s3": "^3.658.0",
     "@hono/node-server": "^1.14.3",
+    "@ludiars/blackbox": "^0.1.1",
     "@ludiars/canalis": "^0.1.0",
     "@ludiars/llm-gateway": "^0.1.0",
     "better-sqlite3": "^12.11.1",

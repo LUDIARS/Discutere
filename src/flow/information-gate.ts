@@ -60,6 +60,11 @@ export interface InformationEvaluation {
   covered: string[];
   /** 不足している観点とその学習クエリ。 */
   gaps: InformationGap[];
+  /**
+   * LLM が「この密度判定は閾値ルールで再現できる」と考えた場合の Condition 候補 (raw)。
+   * 解釈・検証は density-blackbox 側 (validateCondition) で行う。
+   */
+  proposedRule?: unknown;
 }
 
 /** 件数だけから粗く密度を見積もる (LLM 評価が使えない時の fallback)。 */
@@ -116,10 +121,14 @@ function buildEvalPrompt(material: string): { system: string; prompt: string } {
     '  "covered": ["既にカバーできている観点", ...],\n' +
     '  "gaps": [\n' +
     '    { "aspect": "不足している観点", "reason": "なぜ必要か", "query": "それを集める検索クエリ(日本語可)", "source": "niconico|youtube|steam|website" }\n' +
-    "  ]\n" +
+    "  ],\n" +
+    '  "proposedRule": { "description": "…", "when": { "op": "and", "clauses": [ { "op": "cmp", "feature": "voiceCount", "cmp": ">=", "value": 8 }, { "op": "cmp", "feature": "sourceKinds", "cmp": ">=", "value": 2 } ] } }\n' +
     "}\n" +
     "声が少ない / 観点が偏る (例: 肯定だけ・具体例なし) なら density=sparse とし、" +
-    " gaps に不足観点と検索クエリを 1〜3 個挙げてください。 十分多様で厚いなら rich とし gaps は空配列で構いません。";
+    " gaps に不足観点と検索クエリを 1〜3 個挙げてください。 十分多様で厚いなら rich とし gaps は空配列で構いません。\n" +
+    "proposedRule は任意です: この密度判定が単純な閾値で再現できるなら、" +
+    " feature 名 voiceCount (件数) / sourceKinds (ソース種類数) / avgLen (平均文字数) / tagCount を使った" +
+    " Condition を書いてください。自信が無ければ省略してください。";
   return { system, prompt };
 }
 
@@ -158,7 +167,7 @@ export async function evaluateInformationDensity(args: EvaluateArgs): Promise<In
       ? parsed.covered.filter((c): c is string => typeof c === "string")
       : [];
     const gaps = Array.isArray(parsed.gaps) ? normalizeGaps(parsed.gaps, theme) : [];
-    return { density, covered, gaps };
+    return { density, covered, gaps, proposedRule: parsed.proposedRule };
   } catch (e) {
     warn(`情報密度評価の JSON 解析に失敗: ${(e as Error).message}`);
     return fallbackEvaluation(voices);
@@ -196,6 +205,11 @@ export interface InformationGateDeps {
   config: InformationGateConfig;
   /** 取得→取込の差し替え (テスト用)。 既定は learning-autocrawl.collectAndImport。 */
   collectAndImportFn?: typeof collectAndImport;
+  /**
+   * 密度評価の差し替え。 既定は evaluateInformationDensity (毎回 LLM)。
+   * runner は density-blackbox でラップした評価器を渡し、卒業ルールで LLM を省く。
+   */
+  evaluateFn?: typeof evaluateInformationDensity;
   log?: (msg: string) => void;
   warn?: (msg: string) => void;
 }
@@ -235,6 +249,7 @@ export async function runInformationGate(deps: InformationGateDeps): Promise<Inf
     warn = () => {},
   } = deps;
   const doCollect = deps.collectAndImportFn ?? collectAndImport;
+  const doEvaluate = deps.evaluateFn ?? evaluateInformationDensity;
   // クロール対象ソース: crawlSources 優先、無ければ単数 crawlSource にフォールバック。
   const crawlSources: AutoCrawlSource[] =
     deps.crawlSources && deps.crawlSources.length > 0
@@ -258,7 +273,7 @@ export async function runInformationGate(deps: InformationGateDeps): Promise<Inf
   let crawls = 0;
 
   let voices = listVoices();
-  let evaluation = await evaluateInformationDensity({ theme, tags, voices, llm, model: config.model, warn });
+  let evaluation = await doEvaluate({ theme, tags, voices, llm, model: config.model, warn });
   const initialDensity = evaluation.density;
 
   while (DENSITY_RANK[evaluation.density] < target && crawls < config.maxLearnIterations) {
@@ -293,7 +308,7 @@ export async function runInformationGate(deps: InformationGateDeps): Promise<Inf
     }
     crawls++;
     voices = listVoices();
-    evaluation = await evaluateInformationDensity({ theme, tags, voices, llm, model: config.model, warn });
+    evaluation = await doEvaluate({ theme, tags, voices, llm, model: config.model, warn });
   }
 
   const sufficient = DENSITY_RANK[evaluation.density] >= target;

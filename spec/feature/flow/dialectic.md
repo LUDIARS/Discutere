@@ -2,7 +2,7 @@
 
 > 状態: ドラフト (2026-07-02)。議論フロー ([discussion.md](./discussion.md)) の
 > 「議論の中身」を規定する正本 spec。実装設計は
-> [`spec/task/20260702_respec_from_fable/`](../../task/20260702_respec_from_fable/README.md)。
+> [`spec/plan/20260702_respec_from_fable/`](../../plan/20260702_respec_from_fable/README.md)。
 > 共通仕様 (タグ / ペーパー / コストログ) は [OVERVIEW.md](./OVERVIEW.md)。
 
 ## 0. 設計原理
@@ -142,9 +142,9 @@ Issue (論点)           テーマから分解した争点。1 議論に 3〜5 �
 
 - **論点分解 [0] はペーパーレビューゲートに前倒し**する。md 正本に `# 論点` 節を持ち、
   人間が Notion 風ブロック編集で論点そのものを調整・承認できる
-  (詳細: [paper gate spec 変更](../../task/20260702_respec_from_fable/09-paper-gate-debatability.md))。
+  (詳細: [paper gate spec 変更](../../plan/20260702_respec_from_fable/09-paper-gate-debatability.md))。
 - ペーパーは「出所が明示された薄い共通地盤」(出所ラベル + 仮説メカニクス分離 —
-  [08](../../task/20260702_respec_from_fable/08-paper-provenance.md))。証拠は Tension 単位の
+  [08](../../plan/20260702_respec_from_fable/08-paper-provenance.md))。証拠は Tension 単位の
   オンデマンド RAG で引く (ペーパーに厚く盛らない)。
 
 ## 8. 正直な限界 (spec として明記)
@@ -167,4 +167,4 @@ Issue (論点)           テーマから分解した争点。1 議論に 3〜5 �
 ## 関連
 
 - [discussion.md](./discussion.md) (フロー骨格) / [OVERVIEW.md](./OVERVIEW.md) (共通)
-- 実装設計: [`spec/task/20260702_respec_from_fable/`](../../task/20260702_respec_from_fable/README.md)
+- 実装設計: [`spec/plan/20260702_respec_from_fable/`](../../plan/20260702_respec_from_fable/README.md)
