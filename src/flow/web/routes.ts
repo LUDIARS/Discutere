@@ -24,7 +24,9 @@ import {
   getPaperSnapshot,
   deleteFlowSession,
   listFlowSessions,
+  setPaperDebatability,
 } from "../discussion-paper.js";
+import { resolveDebatabilityGate } from "../information-gate-runner.js";
 
 type Core = ReturnType<typeof createCore>;
 import { getFlowDb } from "../db/connection.js";
@@ -144,6 +146,15 @@ function startApprovedFlow(
     gamesDir: webDeps.gamesDir,
     workspaceId: webDeps.workspaceId,
   };
+  // 議論適性: 低のまま強行した場合は評価結果を discussion_paper に記録する (09 監査ログ)。
+  const debatability = entry.info?.debatability;
+  if (debatability && !debatability.degraded && !debatability.debatable) {
+    try {
+      setPaperDebatability(sessionId, debatability);
+    } catch (e) {
+      console.warn(`[flow-web] debatability 記録失敗 (議論は続行): ${(e as Error).message}`);
+    }
+  }
   void dispatchFlow(
     { theme: finalPaper.theme, tags: finalPaper.tags, flow: entry.flow, rounds: entry.rounds, turnsPerRound: entry.turnsPerRound },
     {
@@ -153,6 +164,16 @@ function startApprovedFlow(
         mechanics: finalPaper.mechanics,
         supplement: finalPaper.supplement,
         bodyMd: finalPaper.bodyMd,
+        // 承認済み論点 (09): ファシリテーター開幕プロンプトの参考として運ぶ。
+        issues: finalPaper.issues,
+        ...(debatability && !debatability.degraded
+          ? {
+              debatability: {
+                debatable: debatability.debatable,
+                armableBothCount: debatability.armableBothCount,
+              },
+            }
+          : {}),
       },
     }
   )
@@ -190,6 +211,19 @@ function sanitizeReviewTags(raw: unknown, fallback: readonly FlowTag[] = []): Fl
     if (typeof t === "string" && VALID_REVIEW_TAGS.has(t as FlowTag)) tags.add(t as FlowTag);
   }
   return [...tags];
+}
+
+/** 論点フィールド (1 行 1 論点のテキスト or 配列) を issues[] に正規化する。 */
+function parseIssuesField(raw: unknown): string[] | undefined {
+  const values = Array.isArray(raw)
+    ? raw.filter((v): v is string => typeof v === "string")
+    : typeof raw === "string"
+      ? raw.split(/\r?\n/)
+      : undefined;
+  if (!values) return undefined;
+  return values
+    .map((s) => s.replace(/^(?:\d+[.)]\s+|[-*]\s+)/, "").trim())
+    .filter(Boolean);
 }
 
 function fixedSeedFromBody(body: Record<string, unknown>): Partial<PaperFixedFields> | undefined {
@@ -366,6 +400,8 @@ flowRoutes.post("/api/flow/start", async (c) => {
         enrichModel: richness.enrichModel || undefined,
         extraMechanics,
         seed,
+        // 議論適性ゲート (09): 情報ゲートの後段・人間レビューの前 (無効時は undefined = 現行挙動)。
+        debatability: resolveDebatabilityGate({ kind, sessionId, llm: webDeps.llm }),
         warn: (m) => console.warn(`[flow-web/paper ${sessionId}] ${m}`),
       });
       const entry = paperReviews.get(sessionId);
@@ -512,6 +548,8 @@ flowRoutes.post("/api/flow/:session/paper/form/apply", async (c) => {
   const tags = "tags" in body ? sanitizeReviewTags(body.tags, entry.draft.tags) : entry.draft.tags;
   entry.rounds = "rounds" in body ? readOptionalInt(body.rounds, 1, 10) : entry.rounds;
   entry.turnsPerRound = "turnsPerRound" in body ? readOptionalInt(body.turnsPerRound, 1, 20) : entry.turnsPerRound;
+  // 論点 (09): 1 行 1 論点のテキスト or 配列で受ける (フィールド未指定なら現行値を保持)。
+  const issues = "issues" in body ? parseIssuesField(body.issues) : entry.draft.issues;
 
   const bodyMd = paperDraftToMarkdown({
     ...entry.draft,
@@ -520,6 +558,7 @@ flowRoutes.post("/api/flow/:session/paper/form/apply", async (c) => {
     tags,
     supplement: nextFields.themeSupplement,
     mechanics: entry.draft.mechanics,
+    issues,
   });
   const draft = commitBodyMd(sessionId, entry, bodyMd, "固定フォーム保存", "manual", webDeps);
   const info = defaultPaperInfo(entry.info);

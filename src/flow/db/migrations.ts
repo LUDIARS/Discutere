@@ -334,6 +334,15 @@ const MIGRATIONS: Array<{ id: string; sql: string[] }> = [
       `ALTER TABLE improvement_score ADD COLUMN detail_json TEXT`,
     ],
   },
+  {
+    // 議論適性ゲート (09-paper-gate-debatability) の評価結果。
+    // 議論不適のまま強行したときに JSON で記録する (null 可 = ゲート未実施/適性あり)。
+    // ALTER ADD COLUMN のみ (新規 INDEX 不要)。
+    // (旧 id flow_0016_paper_debatability — PR-C の flow_0016 と並んだため 0017 へ採番し直し。
+    //  merge 前のブランチ内のみで使われた id なので rename 安全)
+    id: "flow_0017_paper_debatability",
+    sql: [`ALTER TABLE discussion_paper ADD COLUMN debatability_json TEXT`],
+  },
 ];
 
 function isIgnorableMigrationError(stmt: string, error: unknown): boolean {

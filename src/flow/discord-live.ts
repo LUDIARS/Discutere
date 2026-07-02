@@ -18,7 +18,7 @@ import type { CascadeClients } from "../crawler/sentiment/cascade.js";
 import type { createCore } from "../core/index.js";
 import type { ContextVoice } from "./discussion-paper.js";
 import type { FlowTag } from "./tags.js";
-import type { FlowUtteranceRecord, VoteEvent } from "./director.js";
+import type { FlowUtteranceRecord, VoteEvent, PaperOverride } from "./director.js";
 import type { FlowRole, FlowStance } from "./personas.js";
 import { composeDisplayName } from "./persona-display.js";
 import { dispatchFlow, type DispatchDeps, type FlowKind } from "./dispatch.js";
@@ -26,7 +26,7 @@ import { ensureLearningData, isAutoCrawlSource, resolveAutoCrawlSources, deriveS
 import { analyzeSpecMechanics } from "./spec-analyze.js";
 import { resolveSpecText } from "./spec-source.js";
 import type { GameMechanicEntry } from "./games-md.js";
-import { gateBeforeFlow } from "./information-gate-runner.js";
+import { gateBeforeFlow, resolveDebatabilityGate } from "./information-gate-runner.js";
 import {
   buildPaperDraft,
   applyPaperEdit,
@@ -37,7 +37,7 @@ import {
   type PaperDraft,
   type PaperReviewInfo,
 } from "./paper-review.js";
-import { persistDraftPaper, getDraftPaper } from "./discussion-paper.js";
+import { persistDraftPaper, getDraftPaper, setPaperDebatability, deleteFlowSession } from "./discussion-paper.js";
 import { appendRevision, revertLast, canRevert } from "./paper-revisions.js";
 import { getConfig } from "../config.js";
 import type { SparringSession } from "./sparring.js";
@@ -97,6 +97,16 @@ export interface StartForumFlowInput {
 /** 収束時フック (gateway が finalizeForumPost に結線する)。 */
 export interface FlowLiveHooks {
   onConcluded?: (args: { scene: string; title: string; summary: string }) => void | Promise<void>;
+  /**
+   * 議論適性ゲート (09) が「議論不適」を出したときのフロー再提案フック。
+   * gateway が既存の議論タイプ選択メニュー (flow-pick) の再提示に結線する。
+   */
+  onReproposeFlowType?: (args: {
+    guildId: string;
+    threadId: string;
+    theme: string;
+    tags: FlowTag[];
+  }) => void | Promise<void>;
 }
 
 /** 進行中の壁打ちセッション (threadId → session)。スレッド返信を submitUser へ橋渡しする。 */
@@ -455,6 +465,8 @@ async function startPaperReview(
     llm: richness.enrichMechanics ? deps.llm : undefined,
     mechanicsTarget: richness.mechanicsTarget,
     enrichModel: richness.enrichModel || undefined,
+    // 議論適性ゲート (09): 情報ゲートの後段・人間レビューの前 (無効時は undefined = 現行挙動)。
+    debatability: resolveDebatabilityGate({ kind: input.flow, sessionId: input.threadId, llm: deps.llm }),
     warn: (m) => console.warn(`  [paper-review ${input.threadId}] ${m}`),
   });
   paperReviewByThread.set(input.threadId, { input, draft, info, hooks });
@@ -464,6 +476,28 @@ async function startPaperReview(
   appendRevision({ sessionId: input.threadId, bodyMd: draft.bodyMd, changeSummary: "初期草案", origin: "initial" });
   await postThreadNotice(deps, input.threadId, renderPaperReview(draft, info));
   await postThreadNotice(deps, input.threadId, approvalGuide());
+  // 議論不適 → フロー再提案 (09): 提案リプライ + 議論タイプ選択メニュー再提示 (hook 経由)。
+  // レビュー待ちは維持する (「開始」で強行も可 — 人間が最終決定)。
+  const d = info.debatability;
+  if (d && !d.degraded && !d.debatable && d.recommendation) {
+    const label = d.recommendation.flow === "sparring" ? "壁打ち" : "学習";
+    await postThreadNotice(
+      deps,
+      input.threadId,
+      `💡 **フロー再提案**: このテーマは「${label}」が向いています。${d.recommendation.reason}\n` +
+        "下のメニューで議論タイプを選び直すか、このまま **「開始」** で議論を強行できます。"
+    );
+    try {
+      await hooks?.onReproposeFlowType?.({
+        guildId: input.guildId,
+        threadId: input.threadId,
+        theme: input.theme,
+        tags: input.tags,
+      });
+    } catch (e) {
+      console.warn(`  [paper-review ${input.threadId}] タイプ選択メニュー再提示失敗: ${(e as Error).message}`);
+    }
+  }
   scheduleReviewAutoStart(input.threadId, deps);
 }
 
@@ -508,11 +542,8 @@ function scheduleReviewAutoStart(threadId: string, deps: FlowDiscordDeps): void 
       if (!p) return;
       paperReviewByThread.delete(threadId);
       await postThreadNotice(deps, threadId, "⏱️ 無操作のため草案のまま議論を始めます…");
-      await runDiscussionDispatch(p.input, deps, p.hooks, {
-        mechanics: p.draft.mechanics,
-        supplement: p.draft.supplement,
-        bodyMd: p.draft.bodyMd,
-      });
+      recordForcedDebatability(threadId, p.info);
+      await runDiscussionDispatch(p.input, deps, p.hooks, overrideFromPending(p));
     })().catch((err) =>
       console.warn(`  flow-live: ペーパー自動開始失敗 (thread=${threadId}): ${(err as Error).message}`)
     );
@@ -520,12 +551,38 @@ function scheduleReviewAutoStart(threadId: string, deps: FlowDiscordDeps): void 
   pending.timer.unref?.();
 }
 
+/** レビュー待ちの草案から runFlow へ渡す確定ペーパー (issues / 議論適性サマリ込み) を組む。 */
+function overrideFromPending(p: PendingPaperReview): PaperOverride {
+  const d = p.info.debatability;
+  return {
+    mechanics: p.draft.mechanics,
+    supplement: p.draft.supplement,
+    bodyMd: p.draft.bodyMd,
+    // 承認済み論点 (09): ファシリテーター開幕プロンプトの参考として運ぶ。
+    issues: p.draft.issues,
+    ...(d && !d.degraded
+      ? { debatability: { debatable: d.debatable, armableBothCount: d.armableBothCount } }
+      : {}),
+  };
+}
+
+/** 議論不適のまま強行したとき、評価結果を discussion_paper に記録する (09 監査ログ)。 */
+function recordForcedDebatability(threadId: string, info: PaperReviewInfo): void {
+  const d = info.debatability;
+  if (!d || d.degraded || d.debatable) return;
+  try {
+    setPaperDebatability(threadId, d);
+  } catch (e) {
+    console.warn(`  [paper-review ${threadId}] debatability 記録失敗 (議論は続行): ${(e as Error).message}`);
+  }
+}
+
 /** 確定ペーパー (任意) で議論/改善を完走させ、結論を投稿する。 */
 async function runDiscussionDispatch(
   input: StartForumFlowInput,
   deps: FlowDiscordDeps,
   hooks?: FlowLiveHooks,
-  paperOverride?: { mechanics: PaperDraft["mechanics"]; supplement: string; bodyMd?: string }
+  paperOverride?: PaperOverride
 ): Promise<void> {
   const scene = `discord:${input.guildId}/${input.threadId}`;
   const dispatchDeps = buildDispatchDeps(deps, input.threadId);
@@ -679,12 +736,29 @@ export async function handlePaperReviewApproval(
   if (pending.timer) clearTimeout(pending.timer);
   paperReviewByThread.delete(threadId);
   await postThreadNotice(deps, threadId, "✅ ペーパーを承認しました。議論を始めます…");
-  await runDiscussionDispatch(pending.input, deps, pending.hooks ?? hooks, {
-    mechanics: pending.draft.mechanics,
-    supplement: pending.draft.supplement,
-    bodyMd: pending.draft.bodyMd,
-  });
+  recordForcedDebatability(threadId, pending.info);
+  await runDiscussionDispatch(pending.input, deps, pending.hooks ?? hooks, overrideFromPending(pending));
   return true;
+}
+
+/**
+ * レビュー待ちを破棄する (フロー再提案で人間が別タイプを選び直したとき用)。
+ * タイマー解除 + メモリから削除に加え、永続 draft 行も破棄する
+ * (残すと hasPaperReview → rehydrate で復活し、新フローのスレッド返信を横取りするため)。
+ * @returns 何かを破棄したら true。
+ */
+export function cancelPaperReview(threadId: string): boolean {
+  const pending = paperReviewByThread.get(threadId);
+  if (pending?.timer) clearTimeout(pending.timer);
+  const hadMemory = paperReviewByThread.delete(threadId);
+  let hadDraft = false;
+  try {
+    // draft 状態の行だけ消す (started 済みの議論データは触らない)。
+    if (getDraftPaper(threadId) !== null) hadDraft = deleteFlowSession(threadId);
+  } catch (e) {
+    console.warn(`  [paper-review ${threadId}] レビュー破棄で draft 削除失敗: ${(e as Error).message}`);
+  }
+  return hadMemory || hadDraft;
 }
 
 /**

@@ -38,6 +38,11 @@ export interface GenerateConclusionArgs {
   warn?: (msg: string) => void;
   /** フロー種別 (コストログ用)。既定 "discussion"。 */
   flow?: string;
+  /**
+   * 結論に併記する注記 (09: 議論適性: 低のまま強行した場合など)。
+   * 生成された結論 (無ければ「結論なし」) の末尾に `※ 注記` として付き、そのまま永続される。
+   */
+  annotation?: string;
 }
 
 /**
@@ -107,6 +112,11 @@ export async function generateConclusion(args: GenerateConclusionArgs): Promise<
     } else {
       warn(`結論生成 失敗: ${result.error}`);
     }
+  }
+
+  // 注記 (議論適性: 低 の強行など) を結論に併記する (表示・永続の両方に乗る)。
+  if (args.annotation && args.annotation.trim()) {
+    summary = `${summary}\n\n※ ${args.annotation.trim()}`;
   }
 
   // DB に保存

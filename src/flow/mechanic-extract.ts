@@ -86,6 +86,8 @@ function normalizeMechanic(raw: unknown): MechanicSummary | null {
     name,
     description: typeof m.description === "string" ? m.description.trim() : "",
     ...(affect ? { intended_affect: affect } : {}),
+    // 出所ラベル (08): LLM 増補分は必ず source="llm" (仮説メカニクス節に分離される)。
+    source: "llm",
   };
 }
 
