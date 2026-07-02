@@ -27,6 +27,11 @@
       "maxGapsPerIteration": 2,
       "model": ""
     },
+    "$comment2b": "debatability: 情報ゲート(量)の後段の議論適性ゲート(質)。テーマ+ペーパーから争点を分解(LLM)し、issue ごとの両論武装可能性(LLM 小モデル判定)と証拠バランス(機械計算: 極性分布+出所偏り)を評価。armable=both の争点が minArmableIssues 未満なら議論不適としてフロー再提案(争点0〜1=壁打ち / 材料不足=学習)を出す(人間が最終決定・「このまま議論開始」で強行可)。分解した論点はペーパー草案の『# 論点』節に前倒しされ、人間が編集→承認時にファシリテーターの参考論点として渡る。LLM 失敗はゲートを止めず適性あり扱いで degrade(warn 明示)。enabled=false で現行挙動と完全一致。",
+    "debatability": {
+      "enabled": true,
+      "minArmableIssues": 2
+    },
     "$comment3": "paperReview: 議論/改善の開始前に、ディスカッションペーパー(議題ブリーフ=議題/観点/メカニクス)と集めた情報を人間が確認→自然文で調整→承認してから議論を始めるレビューゲート。enabled=false(既定)なら情報ゲート後にそのまま自動開始。Discord はスレッド返信で調整(「メカニクスにガチャを追加」等)+「開始」返信 or ✅ リアクションで承認、Web は /flow の確認フォームで調整+「この内容で開始」。model はペーパー編集に使うモデル(空=既定)。timeoutMs>0 なら無操作 timeoutMs 経過で草案のまま自動開始(0=無期限に待つ・調整があるたび延長)。本文は markdown 正本(各 LLM が直接参照)。webCanonical=true(既定)なら Web(/flow)は enabled に依らず常に Notion 風ブロック編集ゲートを通る正規フロー(Discord は enabled に従う)。",
     "paperReview": {
       "enabled": false,

@@ -39,6 +39,40 @@ import {
   assert.ok(md.includes("(メカニクスデータなし)"), "0 件はプレースホルダ");
 }
 
+// ── 論点 (# 論点) 節の round-trip (09-paper-gate) ────────────────────────────
+{
+  const content: PaperContent = {
+    theme: "T",
+    tags: [],
+    supplement: "",
+    mechanics: [],
+    issues: ["ガチャ緩和は収益を毀損するか (両論: ○)", "天井は課金動機を下げるか"],
+  };
+  const md = paperDraftToMarkdown(content);
+  assert.ok(md.includes("# 論点"), "論点節が出る");
+  assert.ok(md.includes("1. ガチャ緩和は収益を毀損するか (両論: ○)"), "番号付きで出る");
+  const back = markdownToPaperDraft(md, { ...content, issues: [] });
+  assert.deepEqual(
+    back.issues,
+    ["ガチャ緩和は収益を毀損するか", "天井は課金動機を下げるか"],
+    "issues[] に復元 (両論注記は剥がす)"
+  );
+}
+// 論点なしなら節を出さない / 見出しが無ければ fallback を保つ
+{
+  const md = paperDraftToMarkdown({ theme: "T", tags: [], supplement: "", mechanics: [] });
+  assert.ok(!md.includes("# 論点"), "issues なしは節を省略");
+  const back = markdownToPaperDraft(md, {
+    theme: "T",
+    tags: [],
+    supplement: "",
+    mechanics: [],
+    issues: ["FB論点"],
+  });
+  assert.deepEqual(back.issues, ["FB論点"], "見出しが無ければ fallback.issues を保持");
+}
+console.log("ok paper-markdown issues round-trip");
+
 // ── markdownToPaperDraft: md を構造化に戻す (round-trip) ──────────────────────
 {
   const content: PaperContent = {

@@ -13,6 +13,7 @@ import type { FlowTag } from "./tags.js";
 import { paperSupplement } from "./tags.js";
 import type { FlowPersona, FlowStance } from "./personas.js";
 import type { MechanicSummary } from "./investigate.js";
+import { mechanicsBodyMarkdown } from "./paper-markdown.js";
 import { getFlowDb } from "./db/connection.js";
 
 export interface ContextVoice {
@@ -93,15 +94,11 @@ function buildSyntheticOpinionsText(opinions: string[]): string {
 
 /**
  * メカニクスリストを人間が読みやすい形式に変換する。
+ * 出所ラベル (08): curated/crawl は出所併記、source=llm は「# 仮説メカニクス (LLM抽出・未検証)」
+ * 節に分離する (buildPaperSystem の旧経路にも節構造がそのまま載る)。
  */
 function formatMechanics(mechanics: MechanicSummary[]): string {
-  if (mechanics.length === 0) return "(メカニクスデータなし)";
-  return mechanics
-    .map((m) => {
-      const affect = m.intended_affect ? ` → 期待感情: ${m.intended_affect}` : "";
-      return `- **${m.name}**: ${m.description}${affect}`;
-    })
-    .join("\n");
+  return mechanicsBodyMarkdown(mechanics);
 }
 
 /** 前ラウンドサマリをテキスト化する。 */
@@ -516,6 +513,17 @@ export function updatePaperDerived(
   getFlowDb()
     .prepare(`UPDATE discussion_paper SET supplement = ?, mechanics_json = ?, updated_at = ? WHERE id = ?`)
     .run(derived.supplement, JSON.stringify(derived.mechanics), Date.now(), paperId);
+}
+
+/**
+ * 議論適性ゲート (09) の評価結果を discussion_paper.debatability_json に記録する。
+ * 議論不適のまま強行 (人間が「このまま議論開始」) したときの監査ログ。null で消去。
+ * 対象行が無ければ no-op (ゲート結果の記録失敗で議論は止めない)。
+ */
+export function setPaperDebatability(sessionId: string, result: unknown | null): void {
+  getFlowDb()
+    .prepare(`UPDATE discussion_paper SET debatability_json = ?, updated_at = ? WHERE session_id = ?`)
+    .run(result == null ? null : JSON.stringify(result), Date.now(), sessionId);
 }
 
 /** セッションの最新ペーパー本文 markdown を返す (無ければ null)。 */

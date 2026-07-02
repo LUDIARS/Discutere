@@ -9,7 +9,7 @@
 import fs from "node:fs";
 import path from "node:path";
 import matter from "gray-matter";
-import type { MechanicSummary } from "./investigate.js";
+import type { MechanicSummary, MechanicSource } from "./investigate.js";
 
 /** 1 メカニクス frontmatter エントリ (loadMechanics が読むキー)。 */
 export interface GameMechanicEntry {
@@ -19,6 +19,8 @@ export interface GameMechanicEntry {
   intended_valence?: string;
   intended_aspects?: string[];
   intended_emotions?: string[];
+  /** 出所ラベル (08)。learning 経由の書込は "crawl"。未指定は curated 扱いで読まれる。 */
+  source?: MechanicSource;
 }
 
 /**
@@ -63,6 +65,7 @@ export function upsertGameMechanics(args: {
     if (m.intended_valence !== undefined) entry.intended_valence = m.intended_valence;
     if (m.intended_aspects !== undefined) entry.intended_aspects = m.intended_aspects;
     if (m.intended_emotions !== undefined) entry.intended_emotions = m.intended_emotions;
+    if (m.source !== undefined) entry.source = m.source;
     byName.set(m.name, { ...byName.get(m.name), ...entry });
   }
 
@@ -80,5 +83,6 @@ export function mechanicSummaryToEntry(m: MechanicSummary): GameMechanicEntry {
     intended_valence: m.intended_valence,
     intended_aspects: m.intended_aspects,
     intended_emotions: m.intended_emotions,
+    source: m.source,
   };
 }

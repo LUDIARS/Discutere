@@ -52,6 +52,7 @@ import {
   handlePaperReviewReply,
   handlePaperReviewApproval,
   hasPaperReview,
+  cancelPaperReview,
   startForumFlow,
   type FlowDiscordDeps,
   type FlowLiveHooks,
@@ -225,6 +226,12 @@ export async function startDiscordGateway(
         summaryChannelName: deps.forum?.summaryChannelName,
         categoryName: deps.forum?.managedCategoryName,
       }).catch((err) => console.warn(`  flow-live: finalize 失敗: ${(err as Error).message}`));
+    },
+    // 議論適性ゲート (09) のフロー再提案: 既存の議論タイプ選択メニューを再提示する。
+    // 選び直せば flow-pick 経路で新タイプ起動 (レビュー待ちは cancel)、無視して「開始」なら強行。
+    onReproposeFlowType: async ({ guildId, threadId, theme, tags }) => {
+      pendingFlowPicks.set(threadId, { guildId, theme, tags });
+      await postFlowPickMenu(threadId);
     },
   };
 
@@ -736,6 +743,9 @@ export async function startDiscordGateway(
         return;
       }
       pendingFlowPicks.delete(threadId);
+      // フロー再提案からの選び直し (09): 進行中のペーパーレビュー待ちは破棄して新タイプで起動する
+      // (破棄しないとレビュー返信ハンドラが新フローの返信を横取りする)。
+      cancelPaperReview(threadId);
       await interaction
         .update({ content: `✅ 「${interaction.values[0]}」を選択`, components: [] })
         .catch(() => {});

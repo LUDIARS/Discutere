@@ -107,6 +107,16 @@ export interface PaperOverride {
    * 指定時はこれを各 LLM の system に直接載せる。未指定なら mechanics/supplement から生成する。
    */
   bodyMd?: string;
+  /**
+   * 人間が承認した論点 (`# 論点` 節 round-trip、09)。rounds エンジンでは
+   * ファシリテーター開幕プロンプトの参考情報として注入する (再分解しない)。
+   */
+  issues?: string[];
+  /**
+   * 議論適性ゲート (09) の判定サマリ。議論不適のまま強行したとき、
+   * 結論に「議論適性: 低 (争点 n)」を併記するために運ぶ。
+   */
+  debatability?: { debatable: boolean; armableBothCount: number };
 }
 
 /** 都度指定ラウンド/ターン数の暴走ガード上限 (コスト保護)。 */
@@ -360,6 +370,13 @@ export async function runFlow(
   // ── ラウンドループ ────────────────────────────────────────────────────────
   const facilitatorPersona = personas.find((p) => p.role === "facilitator") ?? personas[0];
 
+  // 承認済み論点 (09): ペーパーゲートで人間が確認した論点を開幕プロンプトの参考に注入する。
+  const guidingIssues = (override?.issues ?? []).map((s) => s.trim()).filter(Boolean).slice(0, 5);
+  const issuesBlock =
+    guidingIssues.length > 0
+      ? `事前に整理された論点 (参考):\n${guidingIssues.map((s, i) => `${i + 1}. ${s}`).join("\n")}\n`
+      : "";
+
   for (let round = 1; round <= rounds; round++) {
     log(`ラウンド ${round}/${rounds} 開始`);
     const roundUtterances: Array<{ personaName: string; text: string }> = [];
@@ -369,6 +386,7 @@ export async function runFlow(
       const facilitatorPrompt =
         `あなたは議論の進行役です。\n` +
         `テーマ「${theme}」について、ラウンド ${round} の議論を始めてください。\n` +
+        issuesBlock +
         `参加者が意見を出しやすいよう、1〜2 文で議題を提示してください。`;
 
       const facilitatorLogged = withCostLog(llm, {
@@ -586,6 +604,11 @@ export async function runFlow(
     llm,
     warn,
     flow,
+    // 議論適性: 低のまま強行した議論は、結論にその旨を併記する (09)。
+    annotation:
+      override?.debatability && !override.debatability.debatable
+        ? `議論適性: 低 (両論武装可能な争点 ${override.debatability.armableBothCount} 件)`
+        : undefined,
   });
   log(`結論: ${conclusionResult.concluded ? conclusionResult.summary.slice(0, 80) : "結論なし"}`);
 

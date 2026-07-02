@@ -322,6 +322,13 @@ const MIGRATIONS: Array<{ id: string; sql: string[] }> = [
       `CREATE INDEX IF NOT EXISTS idx_discussion_title_cache_origin ON discussion_title_cache(origin_ui, discussion_type, updated_at DESC)`,
     ],
   },
+  {
+    // 議論適性ゲート (09-paper-gate-debatability) の評価結果。
+    // 議論不適のまま強行したときに JSON で記録する (null 可 = ゲート未実施/適性あり)。
+    // ALTER ADD COLUMN のみ (新規 INDEX 不要)。
+    id: "flow_0016_paper_debatability",
+    sql: [`ALTER TABLE discussion_paper ADD COLUMN debatability_json TEXT`],
+  },
 ];
 
 function isIgnorableMigrationError(stmt: string, error: unknown): boolean {

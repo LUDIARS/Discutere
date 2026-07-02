@@ -145,6 +145,32 @@ Di 内の Web UI だけで Discord と同じ議論を回せる**正規フロー*
 することで成立する (LLM に渡す system は base ブリーフのまま=キャッシュ安定。表示/永続の body_md だけが
 育つ)。`# 議論の経過` 節は毎回 `stripProgress` で土台化してから足し直すので冪等。
 
+## 出所ラベル + 議論適性ゲート (2026-07-02, respec PR-D)
+
+spec: `spec/task/20260702_respec_from_fable/08-paper-provenance.md` / `09-paper-gate-debatability.md`。
+
+- **メカニクスの出所ラベル** (`MechanicSummary.source`: curated/llm/crawl、undefined=旧データ=curated 扱い・
+  migration 不要): md 正本では curated/crawl が `# ゲームのメカニクス` (出所併記)、source=llm が
+  `# 仮説メカニクス (LLM抽出・未検証)` 節に分離される (増補 0 件なら節を出さない・round-trip で source 復元)。
+  `buildPaperSystem` (各 LLM の system) にも節構造がそのまま載り、レビュー表示では仮説節に 🧪 バッジが付く。
+  増補 (`enrichMechanics`) 分は必ず llm、学習フロー取込 (`learning.ts`) は crawl。
+- **議論適性ゲート** (`src/flow/debatability.ts`、config `flow.debatability.{enabled(既定true),
+  minArmableIssues(既定2)}`): 実行順は **情報ゲート (量) → 議論適性ゲート (質) → 人間レビュー**
+  (草案構築 `buildPaperDraft` 内で実行、withCostLog は `resolveDebatabilityGate` が担う)。
+  3 検査 = ①争点分解 `decomposeIssues` (`src/flow/dialectic/issues.ts`、dialectic [0] と共用・3〜5 個クランプ)
+  ②両論武装可能性 (LLM 小モデル判定: both/pro-only/con-only/neither) ③証拠バランス (機械計算のみ:
+  `textToVector` の valence 極性分布 + source 偏り)。armable=both が minArmableIssues 未満 → 議論不適。
+- **議論不適時のフロー再提案**: 争点 0〜1 (材料あり) → 壁打ち / 材料不足 (極性偏り・声僅少) → 学習。
+  Web はレビューゲート画面の提案カード (「このまま議論開始」も可)、Discord は提案リプライ + 議論タイプ
+  選択メニュー再提示 (`FlowLiveHooks.onReproposeFlowType`、選び直すとレビュー待ちは破棄)。強行時は
+  `discussion_paper.debatability_json` (migration `flow_0016`) に記録し、結論に「議論適性: 低 (争点 n)」を併記。
+- **論点分解の前倒し (`# 論点` 節)**: 草案 md に論点が載り (両論注記付き)、人間が編集できる
+  (Web は固定フォームの「論点」欄 = 1 行 1 論点 / Discord は自然文調整)。`markdownToPaperDraft` が
+  `# 論点` → `issues[]` に復元 (注記は剥がす) し、承認時 `PaperOverride.issues` として runFlow へ。
+  rounds エンジンではファシリテーター開幕プロンプトの参考論点として注入 (再分解しない)。
+  人間編集後の承認時に再評価は走らせない (人間の判断が最終)。LLM 失敗はゲートを止めず
+  degraded 明示で「適性あり扱い」に倒す (議論を止めない)。`enabled=false` で現行挙動と完全一致。
+
 ## 制約 / follow-up
 
 - 自動開始タイムアウトは `timeoutMs` で設定可 (既定 0 = 無期限に待つ)。Discord/Web ともサーバ側タイマー。
