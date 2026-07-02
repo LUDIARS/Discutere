@@ -17,7 +17,7 @@ import { withCostLog } from "./cost-logger.js";
 import {
   generateFlowPersonas,
   pickRandomPersona,
-  decideStance,
+  personaStance,
   type FlowPersona,
   type Rng,
 } from "./personas.js";
@@ -131,7 +131,16 @@ export class SparringSession {
     const opponents: FlowPersona[] = [];
     for (const ref of this.deps.opponentPersonaIds ?? []) {
       const found = findPoolPersona(ref);
-      if (found) opponents.push(toFlowPersona(found, { role: "debater", defaultModel, isLocal }));
+      // stance はセッション固定 (respec 01)。複数指定時は pro/con を交互に割り当てて対立を保つ。
+      if (found)
+        opponents.push(
+          toFlowPersona(found, {
+            role: "debater",
+            defaultModel,
+            isLocal,
+            stance: opponents.length % 2 === 0 ? "pro" : "con",
+          })
+        );
       else warn(`壁打ち相手「${ref}」がプールに見つかりません (スキップ)`);
     }
     if (opponents.length > 0) {
@@ -213,7 +222,7 @@ export class SparringSession {
     const rng = this.deps.rng ?? defaultRng;
     const warn = this.deps.warn ?? ((m) => console.warn(`[sparring/warn] ${m}`));
     const persona = pickRandomPersona(this.personas, rng);
-    const stance = decideStance(persona, rng);
+    const stance = personaStance(persona);
 
     const userVoices: ContextVoice[] = (this.deps.listExternalVoices ?? (() => []))([this.theme], 5);
     if (this.investigation?.youtubeUsed && this.investigation.youtubeComments.length > 0) {
@@ -334,6 +343,8 @@ export class SparringSession {
       paperId: this.paperId,
       allUtterances: this.allUtterances,
       allAufhebung: this.allAufhebung,
+      // 「まとめて」で締めたラウンドの要約を結論入力に含める (respec 04)。
+      rounds: this.paper.rounds,
       // 壁打ちは投票しないため世論なし (空の評価)。結論は止揚 + 直近発話から生成。
       voteResults: [],
       llm: this.deps.llm,

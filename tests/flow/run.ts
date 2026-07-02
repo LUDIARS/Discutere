@@ -10,6 +10,10 @@
 await import("./foundation.test.js");
 await import("./discussion.test.js");
 await import("./vote-conclude.test.js");
+await import("./persona-state.test.js");
+await import("./turn-scheduler.test.js");
+await import("./vote-lenses.test.js");
+await import("./conclusion-convergence.test.js");
 await import("./improvement.test.js");
 await import("./learning.test.js");
 await import("./sparring.test.js");

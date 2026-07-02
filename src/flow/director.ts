@@ -2,6 +2,8 @@
  * FlowDirector — 議論フロー (discussion.md) の進行オーケストレータ。
  *
  * persona-engine を使わず、ターン駆動の同期ループで議論を回す。
+ * runFlow は「進行の台本」(ループ制御・評価・サマリ・収束判定・結論の呼び出し順) のみを持ち、
+ * 各 step の実体は flow-setup / persona-setup / facilitator-turn / persona-turn に分割 (respec 10)。
  * すべての LLM 呼び出しは withCostLog 経由で llm_call_log に記録される。
  * エラーは握り潰さず発話に出す (OVERVIEW §10)。
  */
@@ -10,15 +12,11 @@ import { randomUUID } from "node:crypto";
 import type { LLMClient } from "../persona-engine/llm/client.js";
 import type { FlowTag } from "./tags.js";
 import { getConfig } from "../config.js";
-import { withCostLog } from "./cost-logger.js";
-import { generateFlowPersonas, pickRandomPersona, decideStance, type FlowPersona, type Rng } from "./personas.js";
+import { generateFlowPersonas, type FlowPersona, type Rng } from "./personas.js";
+import { setupSessionPersonas } from "./persona-setup.js";
 import { selectPossessionByTheme, describePossession } from "./persona-pool.js";
 import { createVoiceCache } from "./voice-cache.js";
 import {
-  buildPersonaPaper,
-  buildPaperSystem,
-  buildPersonaUserPrompt,
-  persistPaper,
   updatePaperBody,
   synthesizeOpinions,
   type ContextVoice,
@@ -26,11 +24,17 @@ import {
   type RoundSummary,
 } from "./discussion-paper.js";
 import { renderProgressMarkdown } from "./paper-markdown.js";
-import { investigateTheme, type YoutubeSearchFn, type MechanicSummary } from "./investigate.js";
+import type { YoutubeSearchFn, MechanicSummary } from "./investigate.js";
+import { setupFlowPaper, type PaperOverride } from "./flow-setup.js";
+import { runFacilitatorTurn, type PreviousRoundContext } from "./facilitator-turn.js";
+import { runPersonaTurn } from "./persona-turn.js";
+import { buildTurnOrder } from "./turn-scheduler.js";
 import { getFlowDb } from "./db/connection.js";
 import { runRoundVote, type VoteResult } from "./vote.js";
 import { summarizeRound } from "./round-summary.js";
 import { generateConclusion } from "./conclusion.js";
+
+export type { PaperOverride } from "./flow-setup.js";
 
 export interface FlowUtteranceRecord {
   id: string;
@@ -54,7 +58,12 @@ export interface FlowUtteranceRecord {
  */
 export interface VoteEvent {
   round: number;
-  /** utterance_id ごとの得票数。 */
+  /**
+   * 集計の意味種別 (respec 03, A10)。"votes"=票数 / "scores"=improvement の機械スコア。
+   * 表示層は scores のとき「n 票」表記をしない。
+   */
+  kind: "votes" | "scores";
+  /** utterance_id ごとの得票数 (kind="scores" のときは射影スコア)。 */
   tally: Record<string, number>;
   /** 最多得票の utterance_id (世論)。null = 無投票。 */
   winner: string | null;
@@ -98,17 +107,6 @@ export interface FlowDirectorDeps {
   paperOverride?: PaperOverride;
 }
 
-/** 人間が調整・承認した確定ペーパーの上書き値 (investigate の出力を置き換える)。 */
-export interface PaperOverride {
-  mechanics: MechanicSummary[];
-  supplement: string;
-  /**
-   * 確定した議論ブリーフ本文の正本 markdown (Web の Notion 風編集ゲートで調整したもの)。
-   * 指定時はこれを各 LLM の system に直接載せる。未指定なら mechanics/supplement から生成する。
-   */
-  bodyMd?: string;
-}
-
 /** 都度指定ラウンド/ターン数の暴走ガード上限 (コスト保護)。 */
 export const MAX_ROUNDS = 10;
 export const MAX_TURNS_PER_ROUND = 20;
@@ -146,7 +144,7 @@ export interface RoundEvalContext {
 }
 
 /**
- * ラウンド世論決定の戦略。返り値は VoteResult 形 ({ tally, winner })。
+ * ラウンド世論決定の戦略。返り値は VoteResult 形 ({ kind, tally, winner, winnerShare })。
  * winner = そのラウンドの主要意見 (世論) の utterance id。
  */
 export type RoundEvaluator = (ctx: RoundEvalContext) => Promise<VoteResult>;
@@ -161,6 +159,23 @@ export interface FlowRunOptions extends FlowDirectorDeps {
 
 function defaultRng(): number {
   return Math.random();
+}
+
+/** 既定のラウンド世論決定 = 中立投票 (discussion.md step 6, respec 03 のレンズ/シャッフル込み)。 */
+function makeDefaultEvaluator(rng: Rng): RoundEvaluator {
+  const cfg = getConfig();
+  return (ctx) =>
+    runRoundVote({
+      theme: ctx.theme,
+      sessionId: ctx.sessionId,
+      round: ctx.round,
+      voterCount: cfg.flow.voterCount,
+      utterances: ctx.candidates,
+      llm: ctx.llm,
+      lenses: cfg.flow.voteLenses,
+      rng,
+      warn: ctx.warn,
+    });
 }
 
 /**
@@ -197,6 +212,286 @@ export function persistUtterance(u: FlowUtteranceRecord): void {
 }
 
 /**
+ * 憑依 (B, item4): テーマから嗜好を類推し、プール最近傍ペルソナを opinion 1 枠に「憑依」させる。
+ * casual な生成ペルソナ名は保持したまま、データ由来の人物像になりきって発言させる。
+ * プールが空 / 一致なしなら no-op (従来生成キャストのまま)。投稿主体の代理は 1 体のみ (Q3)。
+ */
+function applyThemePossession(
+  personas: FlowPersona[],
+  theme: string,
+  log: (msg: string) => void,
+  warn: (msg: string) => void
+): void {
+  try {
+    const hit = selectPossessionByTheme(theme, 1)[0];
+    if (hit) {
+      const seatIdx = personas.findIndex((p) => p.role === "opinion");
+      if (seatIdx >= 0) {
+        personas[seatIdx] = {
+          ...personas[seatIdx],
+          possession: { label: hit.persona.name, descriptor: describePossession(hit.persona) },
+        };
+        log(
+          `憑依: 「${personas[seatIdx].name}」が「${hit.persona.name}」の人物像を憑依 (cos=${hit.similarity.toFixed(3)})`
+        );
+      }
+    }
+  } catch (e) {
+    warn(`憑依スキップ (${(e as Error).message})`);
+  }
+}
+
+/**
+ * ファシリテーター開幕に注入する前ラウンド文脈を組み立てる (respec 02, A8)。
+ * round 1 (前ラウンドなし) は null。winner 発話は allUtterances から引く。
+ */
+function buildPreviousRoundContext(
+  rounds: readonly RoundSummary[],
+  evaluations: readonly VoteResult[],
+  allUtterances: readonly FlowUtteranceRecord[]
+): PreviousRoundContext | null {
+  const prev = rounds[rounds.length - 1];
+  if (!prev) return null;
+  const lastEval = evaluations[evaluations.length - 1];
+  const winnerRecord = lastEval?.winner ? allUtterances.find((u) => u.id === lastEval.winner) : undefined;
+  return {
+    round: prev.round,
+    summary: prev.summary,
+    aufhebung: prev.aufhebung,
+    winner: winnerRecord ? { personaName: winnerRecord.personaName, text: winnerRecord.text } : null,
+  };
+}
+
+/**
+ * [6] 世論決定 + onVote 通知 (item3)。評価戦略を呼び、Discord/Slack へ kind 付きで通知する。
+ * 通知失敗は warn のみ (議論は止めない)。
+ */
+async function evaluateAndNotify(args: {
+  evaluateRound: RoundEvaluator;
+  theme: string;
+  sessionId: string;
+  paperId: string;
+  round: number;
+  mechanics: MechanicSummary[];
+  tags: readonly FlowTag[];
+  /** 投票/スコア候補 (isVoteCandidate で絞った当ラウンドの意見レコード)。 */
+  candidates: FlowUtteranceRecord[];
+  llm: LLMClient;
+  onVote?: (e: VoteEvent) => void | Promise<void>;
+  log: (msg: string) => void;
+  warn: (msg: string) => void;
+}): Promise<VoteResult> {
+  const { evaluateRound, theme, sessionId, paperId, round, mechanics, tags, candidates, llm, onVote, log, warn } = args;
+  const evaluation = await evaluateRound({
+    theme,
+    sessionId,
+    paperId,
+    round,
+    mechanics,
+    tags,
+    candidates: candidates.map((u) => ({ id: u.id, personaName: u.personaName, text: u.text })),
+    llm,
+    warn,
+  });
+  if (evaluation.winner) {
+    log(`ラウンド ${round} 世論: ${evaluation.winner}`);
+  }
+  if (onVote) {
+    try {
+      await onVote({
+        round,
+        kind: evaluation.kind ?? "votes",
+        tally: evaluation.tally,
+        winner: evaluation.winner,
+        candidates: candidates.map((u) => ({ id: u.id, personaName: u.personaName })),
+      });
+    } catch (e) {
+      warn(`ラウンド ${round} onVote 通知失敗: ${(e as Error).message}`);
+    }
+  }
+  return evaluation;
+}
+
+/**
+ * [3] セッションキャストの組み立て: 生成 (stance 固定) → 憑依 → 価値軸/核主張 + 永続。
+ */
+async function assembleCast(args: {
+  theme: string;
+  sessionId: string;
+  flow: string;
+  llm: LLMClient;
+  isLocal: boolean;
+  rng: Rng;
+  possess: boolean;
+  log: (msg: string) => void;
+  warn: (msg: string) => void;
+}): Promise<FlowPersona[]> {
+  const cfg = getConfig();
+  const { theme, sessionId, flow, llm, isLocal, rng, possess, log, warn } = args;
+  const defaultModel = cfg.llm.model ?? "claude-haiku-4-5-20251001";
+  const generated = generateFlowPersonas({
+    count: cfg.flow.personaCount,
+    defaultModel,
+    isLocal,
+    rng,
+  });
+  if (possess) {
+    applyThemePossession(generated, theme, log, warn);
+  }
+  // 価値軸 + 核主張の一括生成 (セッション 1 回の LLM 呼び出し) + flow_session_persona 永続。
+  // LLM 失敗は valueAxis なしで degrade (persona-setup 内で warn)。
+  const personas = await setupSessionPersonas({
+    theme,
+    sessionId,
+    personas: generated,
+    llm,
+    flow,
+    model: cfg.flow.personaSetupModel || undefined,
+    warn,
+  });
+  log(`ペルソナ ${personas.length} 人生成: ${personas.map((p) => `${p.name}(${p.role}/${p.stance})`).join(", ")}`);
+  return personas;
+}
+
+/**
+ * [7] ラウンドサマリ + 止揚を記録し、ペーパー本文 (body_md) をライブ更新する。
+ * 新しい止揚は allAufhebung / paper.rounds に反映される (呼び出し側の状態を進める)。
+ */
+async function summarizeAndRecord(args: {
+  theme: string;
+  sessionId: string;
+  paperId: string;
+  round: number;
+  roundUtterances: Array<{ personaName: string; text: string }>;
+  allAufhebung: string[];
+  paper: DiscussionPaper;
+  flow: string;
+  llm: LLMClient;
+  log: (msg: string) => void;
+  warn: (msg: string) => void;
+}): Promise<void> {
+  const { theme, sessionId, paperId, round, roundUtterances, allAufhebung, paper, flow, llm, log, warn } = args;
+  const summaryResult = await summarizeRound({
+    theme,
+    sessionId,
+    paperId,
+    round,
+    utterances: roundUtterances,
+    stockedAufhebung: [...allAufhebung],
+    llm,
+    warn,
+    flow,
+  });
+  allAufhebung.push(...summaryResult.newAufhebung);
+
+  const roundSummary: RoundSummary = {
+    round,
+    summary: summaryResult.summary,
+    aufhebung: summaryResult.newAufhebung,
+  };
+  paper.rounds.push(roundSummary);
+
+  // ペーパー更新 (ライブ): base ブリーフ + ここまでの議論の経過 (まとめ/止揚) を焼き直して
+  // discussion_paper.body_md に上書き → Web UI で「ペーパーが更新されていく」。
+  try {
+    updatePaperBody(paperId, renderProgressMarkdown(paper.bodyMd ?? "", paper.rounds));
+  } catch (e) {
+    warn(`ペーパー更新失敗 (議論は続行): ${(e as Error).message}`);
+  }
+
+  log(`ラウンド ${round} 終了 (${roundUtterances.length} 発話, 止揚: ${summaryResult.newAufhebung.length})`);
+}
+
+/**
+ * 早期収束の判定 (respec 04, A6 の暫定緩和)。
+ * 止揚 ≥ aufhebungTarget **かつ** 直近ラウンドの投票集中度 winnerShare ≥ flow.convergeShare の AND。
+ * improvement (kind="scores") は winnerShare を計算できないため従来条件 (止揚のみ) のまま。
+ */
+function shouldConvergeEarly(
+  aufhebungCount: number,
+  lastEvaluation: VoteResult | undefined,
+  log: (msg: string) => void
+): boolean {
+  const cfg = getConfig();
+  if (aufhebungCount < cfg.facilitator.aufhebungTarget) return false;
+  if (lastEvaluation?.kind === "scores") {
+    log(`止揚 ${aufhebungCount} 件が上限 (${cfg.facilitator.aufhebungTarget}) に達したため早期収束`);
+    return true;
+  }
+  const share = lastEvaluation?.winnerShare ?? 0;
+  if (share >= cfg.flow.convergeShare) {
+    log(
+      `止揚 ${aufhebungCount} 件 + 投票集中度 ${share.toFixed(2)} ≥ ${cfg.flow.convergeShare} のため早期収束`
+    );
+    return true;
+  }
+  log(
+    `止揚 ${aufhebungCount} 件は上限に達したが、投票集中度 ${share.toFixed(2)} < ${cfg.flow.convergeShare} (世論が割れている) — 続行`
+  );
+  return false;
+}
+
+/**
+ * 議論後のペーパー確定 (LLM リファイン opt-in → 最終 body_md 焼き込み)。
+ * 議論ループの後に走るためペルソナ system のキャッシュには影響しない。失敗は元の base で degrade。
+ */
+async function finalizePaperBody(args: {
+  paper: DiscussionPaper;
+  theme: string;
+  tags: readonly FlowTag[];
+  supplement: string;
+  mechanics: MechanicSummary[];
+  conclusionSummary: string;
+  sessionId: string;
+  paperId: string;
+  flow: string;
+  llm: LLMClient;
+  log: (msg: string) => void;
+  warn: (msg: string) => void;
+}): Promise<void> {
+  const cfg = getConfig();
+  const { paper, theme, tags, supplement, mechanics, conclusionSummary, sessionId, paperId, flow, llm, log, warn } = args;
+
+  let finalBase = paper.bodyMd ?? "";
+  if (cfg.flow.paperRefine.enabled) {
+    try {
+      const { refinePaperBrief } = await import("./paper-refine.js");
+      const { stripProgress, markdownToPaperDraft } = await import("./paper-markdown.js");
+      const refined = await refinePaperBrief({
+        baseBodyMd: stripProgress(finalBase),
+        theme,
+        rounds: paper.rounds,
+        conclusion: conclusionSummary,
+        llm,
+        sessionId,
+        flow,
+        model: cfg.flow.paperRefine.model || undefined,
+        warn,
+      });
+      if (refined && refined.trim()) {
+        finalBase = refined;
+        // 構造化列 (観点補足 / メカニクス) を派生し直して追従させる (theme/tags は据え置き)。
+        const derived = markdownToPaperDraft(refined, { theme, tags: [...tags], supplement, mechanics });
+        (await import("./discussion-paper.js")).updatePaperDerived(paperId, {
+          supplement: derived.supplement,
+          mechanics: derived.mechanics,
+        });
+        log(`ペーパーリファイン完了 (メカニクス ${derived.mechanics.length} 件)`);
+      }
+    } catch (e) {
+      warn(`ペーパーリファインスキップ (議論は続行): ${(e as Error).message}`);
+    }
+  }
+
+  // ペーパー最終更新 (ライブ): 議論の経過 + 結論まで焼き込む (リファイン済みなら refined base)。
+  try {
+    updatePaperBody(paperId, renderProgressMarkdown(finalBase, paper.rounds, conclusionSummary));
+  } catch (e) {
+    warn(`ペーパー最終更新失敗: ${(e as Error).message}`);
+  }
+}
+
+/**
  * 議論骨格フローを実行する (discussion.md の 9 ステップ)。
  * step 6 の世論決定は options.evaluateRound で差し替え可能 (議論=投票 / 改善=機械スコア)。
  *
@@ -228,18 +523,7 @@ export async function runFlow(
 
   // ラウンド世論決定の戦略。既定は中立投票 (discussion.md step 6)。
   // 改善フローは机上の機械スコア (design_gap) を注入する (improvement.md)。
-  const evaluateRound: RoundEvaluator =
-    options.evaluateRound ??
-    ((ctx) =>
-      runRoundVote({
-        theme: ctx.theme,
-        sessionId: ctx.sessionId,
-        round: ctx.round,
-        voterCount: cfg.flow.voterCount,
-        utterances: ctx.candidates,
-        llm: ctx.llm,
-        warn: ctx.warn,
-      }));
+  const evaluateRound: RoundEvaluator = options.evaluateRound ?? makeDefaultEvaluator(rng);
 
   const sessionId = options.sessionId ?? randomUUID();
   const isLocal = cfg.llm.backend === "local";
@@ -247,108 +531,27 @@ export async function runFlow(
   const rounds = clampCount(options.rounds, cfg.flow.rounds, MAX_ROUNDS);
   const turnsPerRound = clampCount(options.turnsPerRound, cfg.flow.turnsPerRound, MAX_TURNS_PER_ROUND);
 
-  // ── [1] 調査 ──────────────────────────────────────────────────────────────
-  // 確定ペーパー (人間レビュー済) があれば investigate を省略し、その内容で議論する。
-  const override = options.paperOverride;
-  let investigation: Awaited<ReturnType<typeof investigateTheme>> | null = null;
-  let mechanics: MechanicSummary[];
-  let supplement: string;
-  // 議論ブリーフ本文の正本 markdown (ハイブリッド源泉)。確定ペーパーの bodyMd を優先し、
-  // 無ければ構造化フィールドから生成する (全経路で body_md を持たせ各 LLM が直接参照)。
-  let bodyMd: string | undefined;
-  if (override) {
-    mechanics = override.mechanics;
-    supplement = override.supplement;
-    bodyMd = override.bodyMd;
-    log(`確定ペーパー使用: investigate スキップ (メカニクス ${mechanics.length} 件)`);
-  } else {
-    log(`調査開始: "${theme}" (タグ: [${tags.join(", ")}])`);
-    investigation = await investigateTheme({
-      theme,
-      tags,
-      gamesDir,
-      youtubeSearch,
-      youtubeMaxComments: cfg.flow.youtubeMaxComments,
-      warn,
-    });
-    mechanics = investigation.mechanics;
-    supplement = (await import("./tags.js")).paperSupplement(tags);
-    // メカニクスを LLM で目標件数まで増補 (感想を根拠に。paperOverride 経路は増補済みなので対象外)。
-    // 材料 (感想) が無ければ増補しない (抽出根拠が無く LLM コストの無駄)。
-    const enrichVoices = voiceCache.lookup([theme], cfg.flow.paperRichness.voices);
-    if (cfg.flow.paperRichness.enrichMechanics && enrichVoices.length > 0) {
-      mechanics = await (await import("./mechanic-extract.js")).enrichMechanics({
-        theme,
-        existing: mechanics,
-        voices: enrichVoices,
-        llm,
-        target: cfg.flow.paperRichness.mechanicsTarget,
-        model: cfg.flow.paperRichness.enrichModel || undefined,
-        warn,
-      });
-      log(`メカニクス増補後: ${mechanics.length} 件`);
-    }
-  }
-
-  // ── [2] ディスカッションペーパー初期化 ─────────────────────────────────
-  // bodyMd (正本 md) が未指定なら構造化フィールドから生成する (Discord / 非レビュー経路)。
-  if (!bodyMd || !bodyMd.trim()) {
-    bodyMd = (await import("./paper-markdown.js")).paperDraftToMarkdown({
-      theme,
-      tags: [...tags],
-      supplement,
-      mechanics,
-    });
-  }
-  const paperId = persistPaper(
-    { sessionId, theme, tags: [...tags], mechanics, supplement, bodyMd },
-    flow
-  );
-  const paper: DiscussionPaper = {
-    paperId,
-    sessionId,
+  // ── [1][2] 調査 + ディスカッションペーパー初期化 (flow-setup) ─────────────
+  const { paper, paperId, investigation } = await setupFlowPaper({
     theme,
-    tags: [...tags],
-    mechanics,
-    supplement,
-    bodyMd,
-    rounds: [],
-  };
-
-  // ── [3] ペルソナ生成 ────────────────────────────────────────────────────
-  const defaultModel = cfg.llm.model ?? "claude-haiku-4-5-20251001";
-  const personas: FlowPersona[] = generateFlowPersonas({
-    count: cfg.flow.personaCount,
-    defaultModel,
-    isLocal,
-    rng,
+    tags,
+    flow,
+    sessionId,
+    llm,
+    voiceCache,
+    youtubeSearch,
+    gamesDir,
+    paperOverride: options.paperOverride,
+    log,
+    warn,
   });
+  const { mechanics, supplement } = paper;
 
-  // ── 憑依 (B, item4): テーマから嗜好を類推し、プール最近傍ペルソナを opinion 1 枠に「憑依」させる ──
-  // casual な生成ペルソナ名は保持したまま、データ由来の人物像になりきって発言させる。
-  // 露出名は `名前 (意見屋/論者#xxxx)` と表示し、人物像 descriptor を prompt に注入する。
-  // プールが空 / 一致なしなら no-op (従来生成キャストのまま)。投稿主体の代理は 1 体のみ (Q3)。
-  if (options.possess !== false) {
-    try {
-      const hit = selectPossessionByTheme(theme, 1)[0];
-      if (hit) {
-        const seatIdx = personas.findIndex((p) => p.role === "opinion");
-        if (seatIdx >= 0) {
-          personas[seatIdx] = {
-            ...personas[seatIdx],
-            possession: { label: hit.persona.name, descriptor: describePossession(hit.persona) },
-          };
-          log(
-            `憑依: 「${personas[seatIdx].name}」が「${hit.persona.name}」の人物像を憑依 (cos=${hit.similarity.toFixed(3)})`
-          );
-        }
-      }
-    } catch (e) {
-      warn(`憑依スキップ (${(e as Error).message})`);
-    }
-  }
+  // 各 step 関数へ渡す共通コンテキスト (進行の台本を宣言的に保つ)。
+  const base = { theme, sessionId, paperId, flow, llm, log, warn } as const;
 
-  log(`ペルソナ ${personas.length} 人生成: ${personas.map((p) => `${p.name}(${p.role})`).join(", ")}`);
+  // ── [3] ペルソナ生成 (stance セッション固定 + 憑依 + 価値軸/核主張) ─────────
+  const personas = await assembleCast({ ...base, isLocal, rng, possess: options.possess !== false });
 
   // synthetic opinions (機密タグ用)
   const syntheticOpinions = tags.includes("機密") ? synthesizeOpinions(mechanics) : [];
@@ -357,6 +560,17 @@ export async function runFlow(
   const allAufhebung: string[] = [];
   const roundEvaluations: VoteResult[] = [];
 
+  /** 発話レコードの永続 + 通知 (persistUtterance → onUtterance の順序を全ターンで維持)。 */
+  const commitUtterance = async (
+    record: FlowUtteranceRecord,
+    roundUtterances: Array<{ personaName: string; text: string }>
+  ): Promise<void> => {
+    persistUtterance(record);
+    roundUtterances.push({ personaName: record.personaName, text: record.text });
+    allUtterances.push(record);
+    if (onUtterance) await onUtterance(record);
+  };
+
   // ── ラウンドループ ────────────────────────────────────────────────────────
   const facilitatorPersona = personas.find((p) => p.role === "facilitator") ?? personas[0];
 
@@ -364,273 +578,74 @@ export async function runFlow(
     log(`ラウンド ${round}/${rounds} 開始`);
     const roundUtterances: Array<{ personaName: string; text: string }> = [];
 
-    // ── [4] ファシリテーター開幕ターン (議題提示) ─────────────────────────
-    {
-      const facilitatorPrompt =
-        `あなたは議論の進行役です。\n` +
-        `テーマ「${theme}」について、ラウンド ${round} の議論を始めてください。\n` +
-        `参加者が意見を出しやすいよう、1〜2 文で議題を提示してください。`;
+    // ── [4] ファシリテーター開幕ターン (議題提示 + 前ラウンド文脈) ─────────
+    const facilitatorRecord = await runFacilitatorTurn({
+      ...base,
+      round,
+      facilitator: facilitatorPersona,
+      previousRound: buildPreviousRoundContext(paper.rounds, roundEvaluations, allUtterances),
+    });
+    if (facilitatorRecord) await commitUtterance(facilitatorRecord, roundUtterances);
 
-      const facilitatorLogged = withCostLog(llm, {
-        flow,
-        sessionId,
-        round,
-        turn: 0,
-        role: facilitatorPersona.role,
-        persona: facilitatorPersona.name,
-        location: "facilitator",
-      });
-
-      const facilitatorResult = await facilitatorLogged.invoke({
-        prompt: facilitatorPrompt,
-        model: facilitatorPersona.model,
-      });
-
-      let facilitatorText: string;
-      let isFacilitatorError = false;
-
-      if (!facilitatorResult.ok) {
-        facilitatorText = `[エラー: ${facilitatorResult.error}]`;
-        isFacilitatorError = true;
-        warn(`ラウンド ${round} ファシリテーター開幕ターン エラー: ${facilitatorResult.error}`);
-      } else {
-        facilitatorText = facilitatorResult.text.trim();
-      }
-
-      if (facilitatorText) {
-        const facilitatorRecord: FlowUtteranceRecord = {
-          id: randomUUID(),
-          sessionId,
-          paperId,
-          round,
-          turn: 0,
-          personaId: facilitatorPersona.id,
-          personaName: facilitatorPersona.name,
-          role: facilitatorPersona.role,
-          stance: "neutral",
-          text: facilitatorText,
-          isError: isFacilitatorError,
-        };
-        persistUtterance(facilitatorRecord);
-        roundUtterances.push({ personaName: facilitatorPersona.name, text: facilitatorText });
-        allUtterances.push(facilitatorRecord);
-        if (onUtterance) await onUtterance(facilitatorRecord);
-      }
-    }
-
-    // ── ターンループ ─────────────────────────────────────────────────────
+    // ── [5] ターンループ (シャッフル輪番。facilitator は開幕専任で対象外) ──
+    const turnOrder = buildTurnOrder(personas, turnsPerRound, rng);
     for (let turn = 1; turn <= turnsPerRound; turn++) {
-      const persona = pickRandomPersona(personas, rng);
-      const stance = decideStance(persona, rng);
-
-      // ユーザ意見 RAG (item5: セッションキャッシュ経由で全ペルソナ共有)
-      const userVoices: ContextVoice[] = voiceCache.lookup([theme], cfg.flow.paperRichness.voices);
-
-      // YouTube コメントを userVoices に追加 (補完時のみ。確定ペーパー経路は investigation=null)
-      if (investigation && investigation.youtubeUsed && investigation.youtubeComments.length > 0) {
-        const ytVoices: ContextVoice[] = investigation.youtubeComments
-          .slice(0, 3)
-          .map((c) => ({ content: c, source: "youtube" }));
-        userVoices.push(...ytVoices);
-      }
-
-      // ペーパー組み立て
-      const personaPaper = buildPersonaPaper({
-        paper,
+      const persona = turnOrder[turn - 1];
+      if (!persona) break; // 発言者ゼロ (personaCount=1 等)
+      const record = await runPersonaTurn({
+        ...base,
         persona,
-        stance,
-        currentRoundUtterances: roundUtterances,
-        userVoices,
+        round,
+        turn,
+        paper,
+        roundUtterances,
+        voiceCache,
+        investigation,
         syntheticOpinions,
       });
-      // 安定部 (議題/メカニクス) は system に置き SDK の cache_control で session 内再利用 (E)。
-      // 可変部 (前ラウンド/当ラウンド/ユーザの声) + persona 固有は user メッセージへ。
-      const personaSystem = buildPaperSystem(personaPaper);
-      const prompt = buildPersonaUserPrompt(personaPaper, stance, persona);
-
-      // LLM 呼び出し (コストログ付き)
-      const logged = withCostLog(llm, {
-        flow,
-        sessionId,
-        round,
-        turn,
-        role: persona.role,
-        persona: persona.name,
-        location: persona.role === "facilitator" ? "facilitator" : "utterance",
-      });
-
-      let utteranceText: string;
-      let isError = false;
-
-      const result = await logged.invoke({
-        system: personaSystem,
-        prompt,
-        model: persona.model,
-      });
-
-      if (!result.ok) {
-        utteranceText = `[エラー: ${result.error}]`;
-        isError = true;
-        warn(`ターン ${round}-${turn} (${persona.name}) LLM エラー: ${result.error}`);
-      } else {
-        utteranceText = result.text.trim();
-        // 空応答は発話に数えない
-        if (!utteranceText) {
-          log(`ターン ${round}-${turn} (${persona.name}): 空応答 (スキップ)`);
-          continue;
-        }
-      }
-
-      const record: FlowUtteranceRecord = {
-        id: randomUUID(),
-        sessionId,
-        paperId,
-        round,
-        turn,
-        personaId: persona.id,
-        personaName: persona.name,
-        role: persona.role,
-        stance,
-        text: utteranceText,
-        isError,
-        possessionName: persona.possession?.label,
-      };
-
-      persistUtterance(record);
-      roundUtterances.push({ personaName: persona.name, text: utteranceText });
-      allUtterances.push(record);
-
-      if (onUtterance) await onUtterance(record);
+      if (record) await commitUtterance(record, roundUtterances);
     }
 
-    // ── [6] 世論決定 (議論=中立投票 / 改善=機械スコア) ──────────────────────
-    const roundUtteranceRecords = allUtterances.filter((u) => isVoteCandidate(u, round));
-    const evaluation = await evaluateRound({
-      theme,
-      sessionId,
-      paperId,
+    // ── [6] 世論決定 (議論=中立投票 / 改善=機械スコア) + onVote 通知 ─────────
+    const evaluation = await evaluateAndNotify({
+      ...base,
+      evaluateRound,
       round,
       mechanics,
       tags,
-      candidates: roundUtteranceRecords.map((u) => ({ id: u.id, personaName: u.personaName, text: u.text })),
-      llm,
-      warn,
+      candidates: allUtterances.filter((u) => isVoteCandidate(u, round)),
+      onVote: options.onVote,
     });
     roundEvaluations.push(evaluation);
-    if (evaluation.winner) {
-      log(`ラウンド ${round} 世論: ${evaluation.winner}`);
-    }
 
-    // ── 投票結果の通知 (item3): Discord/Slack がリアクションで得票を可視化する ──
-    if (options.onVote) {
-      try {
-        await options.onVote({
-          round,
-          tally: evaluation.tally,
-          winner: evaluation.winner,
-          candidates: roundUtteranceRecords.map((u) => ({ id: u.id, personaName: u.personaName })),
-        });
-      } catch (e) {
-        warn(`ラウンド ${round} onVote 通知失敗: ${(e as Error).message}`);
-      }
-    }
+    // ── [7] ラウンドサマリ + 止揚 + ペーパーライブ更新 ─────────────────────
+    await summarizeAndRecord({ ...base, round, roundUtterances, allAufhebung, paper });
 
-    // ── [7] ラウンドサマリ + 止揚 ─────────────────────────────────────────
-    const summaryResult = await summarizeRound({
-      theme,
-      sessionId,
-      paperId,
-      round,
-      utterances: roundUtterances,
-      stockedAufhebung: [...allAufhebung],
-      llm,
-      warn,
-      flow,
-    });
-    allAufhebung.push(...summaryResult.newAufhebung);
-
-    const roundSummary: RoundSummary = {
-      round,
-      summary: summaryResult.summary,
-      aufhebung: summaryResult.newAufhebung,
-    };
-    paper.rounds.push(roundSummary);
-
-    // ペーパー更新 (ライブ): base ブリーフ + ここまでの議論の経過 (まとめ/止揚) を焼き直して
-    // discussion_paper.body_md に上書き → Web UI で「ペーパーが更新されていく」。
-    try {
-      updatePaperBody(paperId, renderProgressMarkdown(paper.bodyMd ?? "", paper.rounds));
-    } catch (e) {
-      warn(`ペーパー更新失敗 (議論は続行): ${(e as Error).message}`);
-    }
-
-    log(`ラウンド ${round} 終了 (${roundUtterances.length} 発話, 止揚: ${summaryResult.newAufhebung.length})`);
-
-    // ── [9] 早期収束チェック: 止揚が facilitator.aufhebungTarget に達したら打ち切り ──
-    if (allAufhebung.length >= cfg.facilitator.aufhebungTarget) {
-      log(`止揚 ${allAufhebung.length} 件が上限 (${cfg.facilitator.aufhebungTarget}) に達したため早期収束`);
-      break;
-    }
+    // ── [9] 早期収束チェック: 止揚到達 AND 投票集中度 (respec 04) ────────────
+    if (shouldConvergeEarly(allAufhebung.length, evaluation, log)) break;
   }
 
-  // ── [9] 結論生成 ──────────────────────────────────────────────────────────
+  // ── [9] 結論生成 (全ラウンドサマリを入力に含める, respec 04) ────────────────
   log(`発話時 RAG: lookup ${voiceCache.misses()} 回 / キャッシュ再利用 ${voiceCache.hits()} 回 (item5)`);
   log("結論生成中...");
   const conclusionResult = await generateConclusion({
-    theme,
-    sessionId,
-    paperId,
+    ...base,
     allUtterances,
     allAufhebung,
+    rounds: paper.rounds,
     voteResults: roundEvaluations,
-    llm,
-    warn,
-    flow,
   });
   log(`結論: ${conclusionResult.concluded ? conclusionResult.summary.slice(0, 80) : "結論なし"}`);
 
-  // ── ペーパー本文 LLM リファイン (opt-in): 議論後に base ブリーフを成果で書き換える ──
-  // 議論ループの後に走るためペルソナ system のキャッシュには影響しない。失敗は元の base で degrade。
-  let finalBase = paper.bodyMd ?? "";
-  if (cfg.flow.paperRefine.enabled) {
-    try {
-      const { refinePaperBrief } = await import("./paper-refine.js");
-      const { stripProgress, markdownToPaperDraft } = await import("./paper-markdown.js");
-      const refined = await refinePaperBrief({
-        baseBodyMd: stripProgress(finalBase),
-        theme,
-        rounds: paper.rounds,
-        conclusion: conclusionResult.summary,
-        llm,
-        sessionId,
-        flow,
-        model: cfg.flow.paperRefine.model || undefined,
-        warn,
-      });
-      if (refined && refined.trim()) {
-        finalBase = refined;
-        // 構造化列 (観点補足 / メカニクス) を派生し直して追従させる (theme/tags は据え置き)。
-        const derived = markdownToPaperDraft(refined, { theme, tags: [...tags], supplement, mechanics });
-        (await import("./discussion-paper.js")).updatePaperDerived(paperId, {
-          supplement: derived.supplement,
-          mechanics: derived.mechanics,
-        });
-        log(`ペーパーリファイン完了 (メカニクス ${derived.mechanics.length} 件)`);
-      }
-    } catch (e) {
-      warn(`ペーパーリファインスキップ (議論は続行): ${(e as Error).message}`);
-    }
-  }
-
-  // ペーパー最終更新 (ライブ): 議論の経過 + 結論まで焼き込む (リファイン済みなら refined base)。
-  try {
-    updatePaperBody(
-      paperId,
-      renderProgressMarkdown(finalBase, paper.rounds, conclusionResult.summary)
-    );
-  } catch (e) {
-    warn(`ペーパー最終更新失敗: ${(e as Error).message}`);
-  }
+  // ── ペーパー本文の確定 (LLM リファイン opt-in + 最終焼き込み) ───────────────
+  await finalizePaperBody({
+    ...base,
+    paper,
+    tags,
+    supplement,
+    mechanics,
+    conclusionSummary: conclusionResult.summary,
+  });
 
   return {
     sessionId,

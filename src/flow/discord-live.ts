@@ -21,6 +21,12 @@ import type { FlowTag } from "./tags.js";
 import type { FlowUtteranceRecord, VoteEvent } from "./director.js";
 import type { FlowRole, FlowStance } from "./personas.js";
 import { composeDisplayName } from "./persona-display.js";
+import {
+  buildVoteRankingLines,
+  hasVisibleVoteResult,
+  shouldStackVoteReactions,
+  voteNoticeTitle,
+} from "./vote-display.js";
 import { dispatchFlow, type DispatchDeps, type FlowKind } from "./dispatch.js";
 import { ensureLearningData, isAutoCrawlSource, resolveAutoCrawlSources, deriveSlug } from "./learning-autocrawl.js";
 import { analyzeSpecMechanics } from "./spec-analyze.js";
@@ -180,15 +186,17 @@ function makeThreadUtterancePoster(deps: FlowDiscordDeps, threadId: string, ctx:
  */
 function makeThreadVoteReactor(deps: FlowDiscordDeps, threadId: string, ctx: ThreadPostCtx) {
   return async (e: VoteEvent): Promise<void> => {
-    const totalVotes = Object.values(e.tally).reduce((s, n) => s + n, 0);
-    if (totalVotes === 0) return; // 全員棄権 → 可視化しない
+    if (!hasVisibleVoteResult(e)) return; // 全員棄権 / winner なし → 可視化しない
 
     // 🏆/👍 を付与 (message_id が取れている発話のみ)。
+    // kind="scores" (improvement の機械スコア) は票数ではないため 🏆 のみ (👍 の枚数積みはしない)。
+    const stackVotes = shouldStackVoteReactions(e.kind);
     for (const [utteranceId, votes] of Object.entries(e.tally)) {
-      if (votes <= 0) continue;
+      const isWinner = utteranceId === e.winner;
+      if (!isWinner && (!stackVotes || votes <= 0)) continue;
       const messageId = ctx.messageIdByUtterance.get(utteranceId);
       if (!messageId) continue;
-      const emoji = utteranceId === e.winner ? VOTE_WINNER_EMOJI : VOTE_EMOJI;
+      const emoji = isWinner ? VOTE_WINNER_EMOJI : VOTE_EMOJI;
       try {
         await reactDiscord({ botToken: deps.botToken, channelId: threadId, messageId, emoji });
       } catch (err) {
@@ -196,17 +204,10 @@ function makeThreadVoteReactor(deps: FlowDiscordDeps, threadId: string, ctx: Thr
       }
     }
 
-    // 得票集計テキスト (降順)。
-    const ranked = Object.entries(e.tally)
-      .filter(([, n]) => n > 0)
-      .sort((a, b) => b[1] - a[1])
-      .map(([id, n], i) => {
-        const name = ctx.displayNameByUtterance.get(id) ?? "(不明)";
-        const medal = id === e.winner ? "🏆" : `${i + 1}.`;
-        return `${medal} ${name} — ${n}票`;
-      });
+    // 得票/スコア集計テキスト (降順。scores は「スコア x.xx (design_gap 適合)」表記)。
+    const ranked = buildVoteRankingLines(e, (id) => ctx.displayNameByUtterance.get(id) ?? "(不明)");
     if (ranked.length > 0) {
-      await postThreadNotice(deps, threadId, `🗳️ **ラウンド ${e.round} 投票結果**\n${ranked.join("\n")}`);
+      await postThreadNotice(deps, threadId, `**${voteNoticeTitle(e.round, e.kind)}**\n${ranked.join("\n")}`);
     }
   };
 }

@@ -115,6 +115,7 @@ const JOY_IDX = VECTOR_DIMS.indexOf("emo.joy");
 
   // 機械スコア評価器が走るため vote 用の応答は不要。
   const responses = [
+    () => "[]",                           // ペルソナ価値軸生成 (respec 01・空割当)
     () => "ラウンドの議題を提示します。", // facilitator 開幕
     () => "発話A",                        // turn1
     () => "発話B",                        // turn2

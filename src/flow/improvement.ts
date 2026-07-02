@@ -79,9 +79,11 @@ export async function runImprovementFlow(
     persistScores(ctx.sessionId, ctx.round, scored, winner);
 
     // tally には機械スコアを載せる (conclusion は winner のみ参照)。
+    // kind="scores" で票数でないことを明示し (respec 03, A10)、表示層が「n 票」表記にしない。
+    // winnerShare (投票集中度) は票が無いため算出不能 = null (早期収束は従来条件のまま)。
     const tally: Record<string, number> = {};
     for (const s of scored) tally[s.id] = s.score;
-    return { tally, winner };
+    return { kind: "scores", tally, winner, winnerShare: null };
   };
 
   return runFlow(theme, tags, { ...deps, flow: "improvement", evaluateRound });

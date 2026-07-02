@@ -322,6 +322,28 @@ const MIGRATIONS: Array<{ id: string; sql: string[] }> = [
       `CREATE INDEX IF NOT EXISTS idx_discussion_title_cache_origin ON discussion_title_cache(origin_ui, discussion_type, updated_at DESC)`,
     ],
   },
+  {
+    // セッションのキャスト永続 (respec 01, A1/A9)。議論の再現性・レビュー可能性のため、
+    // 生成ペルソナ (セッション固定 stance + 価値軸 + 核主張 + 憑依) を残す。
+    // PR-B (信念状態) はこの表に belief_json を足して育てる前提の置き場所。
+    // ※ spec 上の migration 名は flow_0014 だが、既存 id (flow_0014/0015 = title cache) と
+    //   衝突するため flow_0016 として追加する。
+    id: "flow_0016_session_persona",
+    sql: [
+      `CREATE TABLE IF NOT EXISTS flow_session_persona (
+        id TEXT PRIMARY KEY,
+        session_id TEXT NOT NULL,
+        name TEXT NOT NULL,
+        role TEXT NOT NULL,
+        stance TEXT NOT NULL,
+        value_axis TEXT,
+        core_claims_json TEXT,
+        possession_name TEXT,
+        created_at INTEGER NOT NULL
+      )`,
+      `CREATE INDEX IF NOT EXISTS idx_fsp_session ON flow_session_persona(session_id)`,
+    ],
+  },
 ];
 
 function isIgnorableMigrationError(stmt: string, error: unknown): boolean {
