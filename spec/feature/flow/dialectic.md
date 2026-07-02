@@ -158,8 +158,9 @@ Issue (論点)           テーマから分解した争点。1 議論に 3〜5 �
 
 ## 9. 移行方針
 
-- 新エンジンは `flow.engine = "dialectic" | "rounds"` (既定 `rounds`) の config スイッチで
-  導入し、既存 rounds エンジンは検証完了まで既定のまま併存させる。
+- 新エンジンは `flow.engine = "dialectic" | "rounds"` の config スイッチで導入した。
+  **2026-07-03 に既定を `dialectic` へ昇格** (PR-B 実装 + テスト green を受けたユーザ判断)。
+  rounds エンジンはフォールバック用に無改変で併存する (`flow.engine=rounds` で戻せる)。
 - コスト水準: 1 issue あたり 8〜12 call (定立 2 + 反定立 ~4 + 分類 1 + 止揚 1〜2 + 批准 2〜4)、
   3〜4 issue で 30〜50 call。現行 (≈40 call) と同水準、判定系が小モデルに寄るぶん実コストは
   下がる余地がある。既存 `withCostLog` にそのまま乗せる。

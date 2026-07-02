@@ -58,8 +58,9 @@ export interface DiscutereConfig {
     convergeShare: number;
     /**
      * 議論エンジン (respec PR-B / dialectic.md §9)。
-     * "rounds" (既定) = 現行のラウンド × ターン制。"dialectic" = 論証状態機械
-     * (Issue/Position/Tension/Synthesis + 敵対的批准 + 計測型収束) opt-in。
+     * "dialectic" (既定, 2026-07-03〜) = 論証状態機械
+     * (Issue/Position/Tension/Synthesis + 敵対的批准 + 計測型収束)。
+     * "rounds" = 旧ラウンド × ターン制 (フォールバック用に無改変で併存)。
      * dispatch が discussion/improvement 起動時にこれを見て分岐する。
      */
     engine: "dialectic" | "rounds";
@@ -718,8 +719,9 @@ export function loadConfig(): DiscutereConfig {
       voterCount: pickNum(process.env.DISCUTERE_FLOW_VOTER_COUNT, file.flow?.voterCount, 3),
       voteLenses: parseVoteLenses(process.env.DISCUTERE_FLOW_VOTE_LENSES, file.flow?.voteLenses),
       convergeShare: pickNum(process.env.DISCUTERE_FLOW_CONVERGE_SHARE, file.flow?.convergeShare, 0.6),
-      // 議論エンジン (PR-B)。"dialectic" 以外の値はすべて既定 "rounds" に倒す (安全側)。
-      engine: (pick(process.env.DISCUTERE_FLOW_ENGINE, file.flow?.engine, "rounds") === "dialectic"
+      // 議論エンジン (PR-B)。既定 "dialectic" (2026-07-03 昇格)。未設定は dialectic、
+      // "dialectic" 以外の明示値 (rounds / 不正値) は "rounds" に倒す。
+      engine: (pick(process.env.DISCUTERE_FLOW_ENGINE, file.flow?.engine, "dialectic") === "dialectic"
         ? "dialectic"
         : "rounds") as DiscutereConfig["flow"]["engine"],
       dialectic: {
