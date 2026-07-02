@@ -13,7 +13,9 @@
 
 import fs from "node:fs";
 import path from "node:path";
+import matter from "gray-matter";
 import { ASP_KEYS, EMO_KEYS, DIM, VECTOR_DIMS, subtract } from "./sentiment-vector.js";
+import { buildAliasGroups, expandAliases } from "../discatier-engine-adapter/game-aliases.js";
 import type { MechanicSummary } from "./investigate.js";
 
 const ASP_INDEX = new Map(ASP_KEYS.map((a, i) => [a, 2 + EMO_KEYS.length + i]));
@@ -34,20 +36,57 @@ export function negativeBaselineVector(): number[] {
 }
 
 /**
- * テーマに対応する `*.sentiment.json` の game_vector を現状ベクトルとして読む。
- * 見つからなければ null (呼び出し側が negativeBaselineVector へフォールバック)。
+ * gamesDir からゲームタイトル群を集める (別名グループ構築の材料)。
+ *   - `*.md` の frontmatter title (例 "モンスターストライク" / "Genshin Impact (原神)")
+ *   - `*.sentiment.json` の "game" フィールド (例 "Journey")
+ * 読めないファイルは無視する (best-effort)。
  */
-export function loadCurrentVector(theme: string, gamesDir = "./data/games"): number[] | null {
-  if (!fs.existsSync(gamesDir)) return null;
+function collectGameTitles(gamesDir: string): string[] {
+  const titles: string[] = [];
+  for (const f of fs.readdirSync(gamesDir)) {
+    const full = path.join(gamesDir, f);
+    try {
+      if (f.endsWith(".sentiment.json")) {
+        const data = JSON.parse(fs.readFileSync(full, "utf-8")) as { game?: unknown };
+        if (typeof data.game === "string" && data.game.trim()) titles.push(data.game.trim());
+      } else if (f.endsWith(".md")) {
+        const { data } = matter(fs.readFileSync(full, "utf-8"));
+        if (typeof data.title === "string" && data.title.trim()) titles.push(data.title.trim());
+      }
+    } catch {
+      // 読めないファイルは無視
+    }
+  }
+  return titles;
+}
+
+/**
+ * テーマに対応する `*.sentiment.json` の game_vector を現状ベクトルとして読む。
+ * テーマ語は game-aliases (`expandAliases`) で別名展開してから照合する —
+ * 日本語タイトル・口語略称 (例「モンスト」→「モンスターストライク」) でも届く (respec 07 §4)。
+ * 見つからなければ warn を出して null (呼び出し側が negativeBaselineVector へフォールバック)。
+ */
+export function loadCurrentVector(
+  theme: string,
+  gamesDir = "./data/games",
+  opts: { warn?: (msg: string) => void } = {}
+): number[] | null {
+  const warn = opts.warn ?? (() => {});
+  if (!fs.existsSync(gamesDir)) {
+    warn(`現状ベクトル: gamesDir が存在しません (${gamesDir})`);
+    return null;
+  }
   const files = fs.readdirSync(gamesDir).filter((f) => f.endsWith(".sentiment.json"));
   const words = theme
     .toLowerCase()
     .split(/\s+/)
     .filter((w) => w.length >= 2);
+  // 別名展開: games タイトル (md frontmatter / sentiment.json) + 静的略称辞書。
+  const terms = expandAliases(words, buildAliasGroups(collectGameTitles(gamesDir)));
 
   for (const f of files) {
     const lower = f.toLowerCase();
-    if (!words.some((w) => lower.includes(w))) continue;
+    if (!terms.some((t) => lower.includes(t))) continue;
     try {
       const data = JSON.parse(fs.readFileSync(path.join(gamesDir, f), "utf-8")) as {
         game_vector?: number[];
@@ -59,6 +98,10 @@ export function loadCurrentVector(theme: string, gamesDir = "./data/games"): num
       // パース失敗は無視
     }
   }
+  warn(
+    `現状ベクトル: テーマ「${theme}」に一致する sentiment.json が見つかりません` +
+      ` (検索語: ${terms.join(", ") || "(なし)"})`
+  );
   return null;
 }
 
