@@ -75,6 +75,14 @@ env)。`discutere.config.example.json` 参照。詳細は `docs/ws-gateway-confi
   `GET /api/chat/:room/messages?since=` でポーリング取得する。 個人データは保存しない
   (author は表示名のみ)。 実装は `src/web-chat/` + `src/api/web-chat-routes.ts`。
 
+- **デスクトップアプリ配布 (Electron, 2026-07-02, `docs/desktop-app.md`)**: 既存 Node サーバを
+  無改変のまま Electron main プロセスで起動し BrowserWindow でトップページを開くランチャー構成
+  (`electron/main.mjs` + `electron-builder.yml`)。書き込みは全て userData (起動時に chdir)、初回に
+  `data/games`/`data/affects`/`worker-home`/config 雛形をシード。exe (NSIS + portable) は
+  `.github/workflows/desktop.yml` (windows-latest) でビルド、ローカルは `npm run app:dist:win`。
+  **kuzu は N-API でそのまま動くが better-sqlite3 は Electron ABI リビルド必須** (`app:rebuild`、
+  素の Node に戻すのは `app:rebuild:undo`)。Tauri は Node sidecar 同梱が必要になるため不採用。
+
 ## フォーラム集約 (2026-06-06, `discord.forum`)
 
 議論を Discord **フォーラムチャンネル** に集約する (`docs/forum-aggregation.md`)。フォーラムを

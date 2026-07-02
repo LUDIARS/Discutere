@@ -3,7 +3,8 @@
   "version": "0.1.0",
   "description": "Discutere — 遊びの議論プラットフォーム (Discatier): Discord-only の自走議論 ChatBot",
   "type": "module",
-  "main": "src/index.ts",
+  "productName": "Discutere",
+  "main": "electron/main.mjs",
   "scripts": {
     "dev": "npm run env:env && npx dotenv-cli -- tsx watch src/index.ts",
     "dev:server": "npx dotenv-cli -- tsx watch src/index.ts",
@@ -70,7 +71,12 @@
     "persona:synthesize": "tsx scripts/persona-synthesize.ts",
     "persona:adopt": "tsx scripts/persona-adopt.ts",
     "persona:survey": "tsx scripts/persona-survey.ts",
-    "persona:populations": "tsx scripts/persona-populations.ts"
+    "persona:populations": "tsx scripts/persona-populations.ts",
+    "app:rebuild": "electron-rebuild -f -w better-sqlite3",
+    "app:rebuild:undo": "npm rebuild better-sqlite3",
+    "app:dev": "npm run build && electron .",
+    "app:dist:dir": "npm run build && npm run app:rebuild && electron-builder --dir",
+    "app:dist:win": "npm run build && npm run app:rebuild && electron-builder --win --publish never"
   },
   "dependencies": {
     "@aws-sdk/client-s3": "^3.658.0",
@@ -89,6 +95,7 @@
     "uuid": "^11.1.0"
   },
   "devDependencies": {
+    "@electron/rebuild": "^4.1.0",
     "@types/better-sqlite3": "^7.6.8",
     "@types/node": "^22.0.0",
     "@types/pdf-parse": "^1.1.5",
@@ -96,6 +103,8 @@
     "concurrently": "^9.0.0",
     "dotenv-cli": "^7.4.4",
     "drizzle-kit": "^0.31.3",
+    "electron": "^42.5.2",
+    "electron-builder": "^26.15.6",
     "tsx": "^4.20.3",
     "typescript": "^5.9.0"
   },
