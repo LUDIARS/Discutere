@@ -57,6 +57,28 @@ export interface DiscutereConfig {
      */
     convergeShare: number;
     /**
+     * 議論エンジン (respec PR-B / dialectic.md §9)。
+     * "rounds" (既定) = 現行のラウンド × ターン制。"dialectic" = 論証状態機械
+     * (Issue/Position/Tension/Synthesis + 敵対的批准 + 計測型収束) opt-in。
+     * dispatch が discussion/improvement 起動時にこれを見て分岐する。
+     */
+    engine: "dialectic" | "rounds";
+    /**
+     * dialectic エンジン設定 (engine="dialectic" のときのみ参照)。
+     */
+    dialectic: {
+      /** issue あたりの反定立 ([2]) ターン上限。既定 4。 */
+      rebutTurns: number;
+      /** 新規 claim 枯渇判定の窓 K (直近 K ターン新 claim なしで収束シグナル (c))。既定 6。 */
+      staleTurns: number;
+      /**
+       * 判定・批准 (tension-classify / fact-resolve / elevation-gate / ratify / facilitator
+       * レンダリング) に使う小モデル。生成 (position/utterance/synthesize) はメインモデル。
+       * 既定 claude-haiku-4-5-20251001。
+       */
+      judgeModel: string;
+    };
+    /**
      * ペルソナ価値軸/核主張の一括生成 (persona-setup) に使うモデル ("" なら LLM の既定モデル)。
      * セッションあたり +1 call の小タスクなので小モデル可 (respec 01)。
      */
@@ -696,6 +718,27 @@ export function loadConfig(): DiscutereConfig {
       voterCount: pickNum(process.env.DISCUTERE_FLOW_VOTER_COUNT, file.flow?.voterCount, 3),
       voteLenses: parseVoteLenses(process.env.DISCUTERE_FLOW_VOTE_LENSES, file.flow?.voteLenses),
       convergeShare: pickNum(process.env.DISCUTERE_FLOW_CONVERGE_SHARE, file.flow?.convergeShare, 0.6),
+      // 議論エンジン (PR-B)。"dialectic" 以外の値はすべて既定 "rounds" に倒す (安全側)。
+      engine: (pick(process.env.DISCUTERE_FLOW_ENGINE, file.flow?.engine, "rounds") === "dialectic"
+        ? "dialectic"
+        : "rounds") as DiscutereConfig["flow"]["engine"],
+      dialectic: {
+        rebutTurns: pickNum(
+          process.env.DISCUTERE_FLOW_DIALECTIC_REBUT_TURNS,
+          file.flow?.dialectic?.rebutTurns,
+          4
+        ),
+        staleTurns: pickNum(
+          process.env.DISCUTERE_FLOW_DIALECTIC_STALE_TURNS,
+          file.flow?.dialectic?.staleTurns,
+          6
+        ),
+        judgeModel: pick(
+          process.env.DISCUTERE_FLOW_DIALECTIC_JUDGE_MODEL,
+          file.flow?.dialectic?.judgeModel,
+          "claude-haiku-4-5-20251001"
+        ),
+      },
       personaSetupModel: pick(
         process.env.DISCUTERE_FLOW_PERSONA_SETUP_MODEL,
         file.flow?.personaSetupModel,

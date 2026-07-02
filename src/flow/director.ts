@@ -50,6 +50,14 @@ export interface FlowUtteranceRecord {
   isError: boolean;
   /** その発話で演じていた憑依ペルソナの露出名 (B, item4)。憑依なしは undefined。 */
   possessionName?: string;
+  /**
+   * 会話行為 (respec 05 / PR-B, dialectic エンジン専用)。
+   * claim/support/rebut/concede/question/synthesize。rounds エンジンの発話は undefined
+   * (DB では NULL のまま。旧行の読み出しは claim 扱い)。
+   */
+  act?: string;
+  /** 応答先 utterance id (act とセット。claim/question は undefined 可)。 */
+  targetId?: string;
 }
 
 /**
@@ -192,8 +200,8 @@ export function persistUtterance(u: FlowUtteranceRecord): void {
   const db = getFlowDb();
   db.prepare(
     `INSERT INTO flow_utterance
-       (id, session_id, paper_id, round, turn, persona_id, persona_name, role, stance, text, is_error, possession_name, created_at)
-     VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`
+       (id, session_id, paper_id, round, turn, persona_id, persona_name, role, stance, text, is_error, possession_name, act, target_id, created_at)
+     VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`
   ).run(
     u.id,
     u.sessionId,
@@ -207,6 +215,9 @@ export function persistUtterance(u: FlowUtteranceRecord): void {
     u.text,
     u.isError ? 1 : 0,
     u.possessionName ?? null,
+    // 会話行為 (respec 05)。rounds エンジンは undefined → NULL (acts は dialectic 専用)。
+    u.act ?? null,
+    u.targetId ?? null,
     Date.now()
   );
 }

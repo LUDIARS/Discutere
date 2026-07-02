@@ -11,6 +11,13 @@
     "kuzuPath": "./data/discatier.kuzu"
   },
   "flow": {
+    "$comment0": "engine: 議論エンジン (respec PR-B)。rounds(既定)=現行のラウンド×ターン制。dialectic=論証状態機械 (Issue/Position/Tension/Synthesis + 敵対的批准 + 計測型収束) opt-in。discussion/improvement の起動時に dispatch が分岐する (env DISCUTERE_FLOW_ENGINE)。dialectic: rebutTurns=issue あたりの反定立ターン上限(既定4)。staleTurns=新規主張の枯渇判定の窓 K(直近 K ターン新 claim なしで収束シグナル、既定6)。judgeModel=判定・批准 (型分類/事実照会/折衷ゲート/批准/進行文レンダリング) に使う小モデル(既定 Haiku 級。生成はメインモデル)。env は DISCUTERE_FLOW_DIALECTIC_REBUT_TURNS / _STALE_TURNS / _JUDGE_MODEL。",
+    "engine": "rounds",
+    "dialectic": {
+      "rebutTurns": 4,
+      "staleTurns": 6,
+      "judgeModel": "claude-haiku-4-5-20251001"
+    },
     "$comment": "autoCrawl: 議論/改善の開始時にテーマの学習データが不足していたら指定ソースで自動クロール→KG取込してから議論する (事前学習のUI化)。UI(/flow)で議論ごとに source/query/appId/urls を上書きでき、ここはその既定値。sources は情報ゲートが横断する自動ソース群 (テーマだけで引ける niconico が既定、youtube は DISCUTERE_YOUTUBE_API_KEY があれば自動追加)。website/steam は URL/appId 要のため自動経路では使われない (UI/Discord で明示指定時のみ)。source は後方互換の単数指定。maxItems は1ソース1クロールの取込上限。",
     "autoCrawl": {
       "enabled": true,
