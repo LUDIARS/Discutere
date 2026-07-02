@@ -2,7 +2,7 @@
 
 > 状態: ドラフト (2026-06-13)。**2026-07-02 改訂**: Fable セッションレビューの指摘を反映
 > (stance セッション固定 / シャッフル輪番 / レンズ投票 / 結論入力拡充 / 収束条件の AND 化)。
-> 改訂の実装設計は [`spec/task/20260702_respec_from_fable/`](../../task/20260702_respec_from_fable/README.md)。
+> 改訂の実装設計は [`spec/plan/20260702_respec_from_fable/`](../../plan/20260702_respec_from_fable/README.md)。
 > 議論の「中身」(論証状態・止揚・収束の本体) は **弁証法エンジン**
 > [dialectic.md](./dialectic.md) に規定し、本書の 9 ステップは rounds エンジン
 > (`flow.engine="rounds"`、既定) の骨格として残す。
@@ -80,7 +80,7 @@
 - そのラウンドの**ターン数を設定から取得**する (`flow.turnsPerRound`)。
 - **(2026-07-02 改訂)** ラウンド 2 以降の出題には**前ラウンドの結果 (サマリ / 止揚 / 世論)**
   を文脈として渡し、「まだ深まっていない論点へ進める出題」をさせる。ラウンドを
-  「同じ議論の N 回試行」にしない ([02](../../task/20260702_respec_from_fable/02-turn-scheduling.md))。
+  「同じ議論の N 回試行」にしない ([02](../../plan/20260702_respec_from_fable/02-turn-scheduling.md))。
 
 ### 5. ターン進行 (発言要求)
 
@@ -90,11 +90,11 @@
   2. **ディスカッションペーパー**
   3. **そのラウンド中の意見** (= 当ラウンドでこれまでに出た発話)
 - **(2026-07-02 改訂)** 賛否スタンスは**セッション開始時に固定**する (毎ターン再抽選は廃止。
-  人格に一貫した立場を持たせる。[01](../../task/20260702_respec_from_fable/01-persona-state.md))。
+  人格に一貫した立場を持たせる。[01](../../plan/20260702_respec_from_fable/01-persona-state.md))。
   各ペルソナには開始時に**価値軸** (重視する価値) を 1 回の LLM 呼び出しで生成して注入する。
 - **(2026-07-02 改訂)** 発言者割り当ては**シャッフル輪番** (ラウンド開始時に rng シャッフル →
   巡回)。ターン数 ≥ 人数なら全員が最低 1 回発言する。ファシリテーターは開幕ターン専任で
-  ターンループには入らない ([02](../../task/20260702_respec_from_fable/02-turn-scheduling.md))。
+  ターンループには入らない ([02](../../plan/20260702_respec_from_fable/02-turn-scheduling.md))。
   dialectic エンジンでは論証状態に基づく**指名制** (応答権) になる ([dialectic.md](./dialectic.md) §3)。
 - 空応答は発話に数えない (現挙動踏襲)。
 
@@ -112,7 +112,7 @@
   - **(2026-07-02 改訂)** 同一プロンプト N 連投は N 票の意味を持たない (強相関) ため、
     投票者ごとに**評価レンズ** (論理性 / 根拠 / テーマ適合、`flow.voteLenses[]`) を割り当て、
     **候補提示順を投票者ごとにシャッフル**して位置バイアスを脱相関する。番号回答も受理。
-    同点は先着ではなく rng くじ ([03](../../task/20260702_respec_from_fable/03-vote-lenses.md))。
+    同点は先着ではなく rng くじ ([03](../../plan/20260702_respec_from_fable/03-vote-lenses.md))。
   - 既存のリアクションスコア機構 (👀 + 人間下駄) は**採らない** (結果整合性のパラドックスを
     起こすため。OVERVIEW §11-b)。専用の中立投票フェーズとして実装する。
 - 併せて**意見の感情ベクトル評価**を行う (「感情曲線」という旧表現は破棄)。
@@ -148,7 +148,7 @@
 - **(2026-07-02 改訂)** 結論生成には**全ラウンドのサマリ**を渡す (従来の「直近 20 発話 +
   止揚 + 世論」だけでは序盤ラウンドが落ちる)。結論 JSON のパース失敗は 1 回リトライし、
   なお失敗なら `concluded=false` + `【収束(未検証)】` で degrade を明示する
-  ([04](../../task/20260702_respec_from_fable/04-conclusion-convergence.md))。
+  ([04](../../plan/20260702_respec_from_fable/04-conclusion-convergence.md))。
 - **(2026-07-02 改訂)** 早期収束は「止揚 ≥ しきい値」**単独では発火しない** (止揚は
   ラウンドあたり最大 1 件で、実質ラウンド数と等価のため)。「止揚しきい値 **かつ**
   直近ラウンドの投票集中度 (`winnerShare` ≥ `flow.convergeShare`)」の AND とする。
@@ -181,7 +181,7 @@
 
 - 共通仕様: [OVERVIEW.md](./OVERVIEW.md)
 - **弁証法エンジン (議論の中身の正本)**: [dialectic.md](./dialectic.md)
-- 2026-07-02 改訂の実装設計: [`spec/task/20260702_respec_from_fable/`](../../task/20260702_respec_from_fable/README.md)
+- 2026-07-02 改訂の実装設計: [`spec/plan/20260702_respec_from_fable/`](../../plan/20260702_respec_from_fable/README.md)
 - 改善フロー (感情評価の機械計算化): [improvement.md](./improvement.md)
 - 既存: [../feature/discussion-party.md](../feature/discussion-party.md) /
   [../persona-engine/DESIGN.md](../persona-engine/DESIGN.md) /

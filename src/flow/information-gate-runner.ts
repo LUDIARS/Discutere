@@ -19,6 +19,8 @@ import type { FlowKind } from "./dispatch.js";
 import { getConfig } from "../config.js";
 import { withCostLog } from "./cost-logger.js";
 import { resolveAutoCrawlSources } from "./learning-autocrawl.js";
+import { getFlowDb } from "./db/connection.js";
+import { makeBlackboxDensityEvaluator, makeDensityBlackBox } from "./density-blackbox.js";
 import {
   isDensity,
   runInformationGate,
@@ -82,6 +84,8 @@ export async function gateBeforeFlow(args: FlowGateArgs): Promise<InformationGat
   const core = openCore();
   try {
     const llm = withCostLog(args.llm, { flow: kind, sessionId, location: "information-gate" });
+    // 密度判定は blackbox 経由 (卒業ルールがあれば LLM 省略、無ければ LLM 判定を教師に学習)。
+    const evaluateFn = makeBlackboxDensityEvaluator(makeDensityBlackBox(getFlowDb()));
     return await runInformationGate({
       core,
       theme,
@@ -93,6 +97,7 @@ export async function gateBeforeFlow(args: FlowGateArgs): Promise<InformationGat
       maxItems: crawl.maxItems,
       youtubeApiKey,
       config,
+      evaluateFn,
       log,
       warn,
     });

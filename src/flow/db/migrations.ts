@@ -323,10 +323,24 @@ const MIGRATIONS: Array<{ id: string; sql: string[] }> = [
     ],
   },
   {
+    // 改善フロー スコアリング再設計 (respec PR-C / improvement.md (2) 2026-07-02 改訂):
+    //  - method: スコアの算出方式。'effect-predict' (LLM 効果予測) / 'lexicon-fallback'
+    //    (LLM 失敗時の意見単位 degrade) / 'lexicon' (旧データ既定)。degrade の可視化用。
+    //  - detail_json: 効果予測の changes[] (次元別 delta + 理由)。監査・可視化用。
+    // ALTER ADD COLUMN のみ (新規 INDEX 不要)。既存 DB で no such column を避ける共通ルール。
+    id: "flow_0016_improvement_score_method",
+    sql: [
+      `ALTER TABLE improvement_score ADD COLUMN method TEXT NOT NULL DEFAULT 'lexicon'`,
+      `ALTER TABLE improvement_score ADD COLUMN detail_json TEXT`,
+    ],
+  },
+  {
     // 議論適性ゲート (09-paper-gate-debatability) の評価結果。
     // 議論不適のまま強行したときに JSON で記録する (null 可 = ゲート未実施/適性あり)。
     // ALTER ADD COLUMN のみ (新規 INDEX 不要)。
-    id: "flow_0016_paper_debatability",
+    // (旧 id flow_0016_paper_debatability — PR-C の flow_0016 と並んだため 0017 へ採番し直し。
+    //  merge 前のブランチ内のみで使われた id なので rename 安全)
+    id: "flow_0017_paper_debatability",
     sql: [`ALTER TABLE discussion_paper ADD COLUMN debatability_json TEXT`],
   },
 ];

@@ -55,7 +55,7 @@
   design_gap へ射影する。射影・20 次元空間 (SENTIMENT.md) は不変。
 - LLM 失敗時は旧 lexicon 方式へ意見単位で fallback し、`improvement_score.method` に
   記録して degrade を可視化する (議論は止めない)。
-- 実装設計: [`spec/task/20260702_respec_from_fable/07-improvement-scoring.md`](../../task/20260702_respec_from_fable/07-improvement-scoring.md)。
+- 実装設計: [`spec/plan/20260702_respec_from_fable/07-improvement-scoring.md`](../../plan/20260702_respec_from_fable/07-improvement-scoring.md)。
 
 > この LLM 追加により「LLM を減らす」という当初のコスト便益は一部後退するが、
 > 判定は Haiku 級・温度 0 の 1 意見 1 call であり、投票 LLM (議論フローの voterCount 回) を

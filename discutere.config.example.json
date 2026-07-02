@@ -46,6 +46,10 @@
       "enrichMechanics": true,
       "enrichModel": ""
     },
+    "$comment4b": "improvement: 改善フローのスコアリング(2026-07-02 改訂)。各意見を『採用した場合に体験の20次元がどう動くか』を effectModel(既定 Haiku 級)で構造化予測し、予測変化ベクトルを design_gap へ射影してスコアする(文面感情の旧 lexicon 方式はカテゴリエラーのため LLM 失敗時の意見単位 fallback に降格。improvement_score.method に記録)。effectModel 空=LLM 既定モデル。",
+    "improvement": {
+      "effectModel": "claude-haiku-4-5-20251001"
+    },
     "$comment5": "paperRefine: 議論終了後に、ディスカッションペーパーの本文(議題/観点補足/メカニクス)を議論の成果(ラウンドまとめ/止揚/結論)を踏まえて LLM で書き換える。enabled=false(既定・opt-in)。議論ループの後に走るためペルソナ system のプロンプトキャッシュには影響しない。LLM 失敗/不正出力(# 議題 欠落)時は元のブリーフのまま degrade(議論は止めない)。model は空=既定。LLM コストが議論ごとに 1 回増える。",
     "paperRefine": {
       "enabled": false,
