@@ -27,6 +27,16 @@ export interface PaperOverride {
    * 指定時はこれを各 LLM の system に直接載せる。未指定なら mechanics/supplement から生成する。
    */
   bodyMd?: string;
+  /**
+   * 人間が承認した論点 (`# 論点` 節 round-trip、09)。rounds エンジンでは
+   * ファシリテーター開幕プロンプトの参考情報として注入する (再分解しない)。
+   */
+  issues?: string[];
+  /**
+   * 議論適性ゲート (09) の判定サマリ。議論不適のまま強行したとき、
+   * 結論に「議論適性: 低 (争点 n)」を併記するために運ぶ。
+   */
+  debatability?: { debatable: boolean; armableBothCount: number };
 }
 
 export interface FlowSetupArgs {

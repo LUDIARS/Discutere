@@ -25,11 +25,18 @@ export interface PreviousRoundContext {
 export function buildFacilitatorPrompt(
   theme: string,
   round: number,
-  previousRound?: PreviousRoundContext | null
+  previousRound?: PreviousRoundContext | null,
+  guidingIssues?: readonly string[]
 ): string {
+  // 承認済み論点 (09): ペーパーゲートで人間が確認した論点を毎ラウンド参考注入する。
+  const issuesBlock =
+    guidingIssues && guidingIssues.length > 0
+      ? `事前に整理された論点 (参考):\n${guidingIssues.map((s, i) => `${i + 1}. ${s}`).join("\n")}\n`
+      : "";
   const base =
     `あなたは議論の進行役です。\n` +
-    `テーマ「${theme}」について、ラウンド ${round} の議論を始めてください。\n`;
+    `テーマ「${theme}」について、ラウンド ${round} の議論を始めてください。\n` +
+    issuesBlock;
 
   // round 1 は従来通り (文脈なし出題)。
   if (!previousRound) {
@@ -62,6 +69,8 @@ export interface FacilitatorTurnArgs {
   llm: LLMClient;
   /** 前ラウンドの結果 (round ≥ 2 のとき注入)。 */
   previousRound?: PreviousRoundContext | null;
+  /** 承認済み論点 (09、ペーパーゲート由来)。毎ラウンド参考注入する。 */
+  guidingIssues?: readonly string[];
   warn: (msg: string) => void;
 }
 
@@ -71,7 +80,7 @@ export interface FacilitatorTurnArgs {
  * LLM エラーは isError=true のレコードとして返す。空応答は null。
  */
 export async function runFacilitatorTurn(args: FacilitatorTurnArgs): Promise<FlowUtteranceRecord | null> {
-  const { theme, round, facilitator, sessionId, paperId, flow, llm, previousRound, warn } = args;
+  const { theme, round, facilitator, sessionId, paperId, flow, llm, previousRound, guidingIssues, warn } = args;
 
   const facilitatorLogged = withCostLog(llm, {
     flow,
@@ -84,7 +93,7 @@ export async function runFacilitatorTurn(args: FacilitatorTurnArgs): Promise<Flo
   });
 
   const result = await facilitatorLogged.invoke({
-    prompt: buildFacilitatorPrompt(theme, round, previousRound),
+    prompt: buildFacilitatorPrompt(theme, round, previousRound, guidingIssues),
     model: facilitator.model,
   });
 
