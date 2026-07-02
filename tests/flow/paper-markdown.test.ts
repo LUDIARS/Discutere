@@ -6,6 +6,7 @@ import assert from "node:assert/strict";
 
 import {
   paperDraftToMarkdown,
+  paperFixedFieldsFromMarkdown,
   markdownToPaperDraft,
   renderProgressMarkdown,
   stripProgress,
@@ -84,6 +85,41 @@ import {
   const edited = "# 議題\nT\n\n# ゲームのメカニクス\n(メカニクスデータなし)";
   const back = markdownToPaperDraft(edited, fallback);
   assert.deepEqual(back.mechanics, [], "メカ見出しがあって 0 件なら全削除を尊重");
+}
+
+// ── Web 固定フォーム: 固定項目を本文 md に焼き、構造化へ戻せる ──────────────
+{
+  const content: PaperContent = {
+    theme: "テンポ調整",
+    tags: ["開発"],
+    supplement: "対象は初回プレイ。",
+    mechanics: [{ name: "合体", description: "同じ果物を合わせる", intended_affect: "納得" }],
+    gameTitle: "スイカゲーム",
+    discussionTheme: "テンポ調整",
+    discussionContent: "序盤の待ち時間を短くするべきか議論したい。",
+    mechanicsContext: "果物を落として盤面を管理する。",
+    themeSupplement: "初心者の離脱率を見たい。",
+  };
+  const md = paperDraftToMarkdown(content);
+  assert.ok(md.startsWith("# ゲームタイトル（または主目的）\nスイカゲーム"));
+  assert.ok(md.includes("# 議論したいテーマ\nテンポ調整"));
+  assert.ok(md.includes("# 議論内容\n序盤の待ち時間を短くするべきか議論したい。"));
+  assert.ok(md.includes("# システム/メカニクスの説明\n果物を落として盤面を管理する。"));
+  assert.ok(md.includes("## 抽出されたメカニクス"));
+  assert.ok(md.includes("# テーマについての補足情報\n初心者の離脱率を見たい。"));
+
+  const fields = paperFixedFieldsFromMarkdown(md, content);
+  assert.equal(fields.gameTitle, "スイカゲーム");
+  assert.equal(fields.discussionTheme, "テンポ調整");
+  assert.equal(fields.mechanicsContext, "果物を落として盤面を管理する。");
+
+  const back = markdownToPaperDraft(md, content);
+  assert.equal(back.theme, "テンポ調整");
+  assert.equal(back.gameTitle, "スイカゲーム");
+  assert.equal(back.discussionContent, "序盤の待ち時間を短くするべきか議論したい。");
+  assert.equal(back.themeSupplement, "初心者の離脱率を見たい。");
+  assert.equal(back.mechanics.length, 1);
+  assert.equal(back.mechanics[0].name, "合体");
 }
 
 // ── renderProgressMarkdown: base + 議論の経過 + 結論 を焼く (ライブ更新) ───────

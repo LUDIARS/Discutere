@@ -92,6 +92,19 @@ export const FLOW_HTML = `<!doctype html>
   #conclusionBody { white-space: pre-wrap; font-weight: 600; word-break: break-word; }
   #say { display: none; margin-top: 1rem; }
   .muted { color: var(--muted); font-size: 0.85rem; }
+  .form-grid { display: grid; gap: 12px; }
+  .field-note { display: block; color: var(--muted); font-size: 0.78rem; margin-top: 3px; }
+  .paper-form { display: grid; gap: 12px; }
+  .paper-form textarea { min-height: 86px; }
+  .paper-form input[type=text], .paper-form input[type=number] { width: 100%; }
+  .settings-row { display: flex; gap: 12px; flex-wrap: wrap; align-items: center; }
+  .settings-row label { display: inline-flex; align-items: center; gap: 6px; margin-right: 0; }
+  .settings-row input[type=number] { width: 5.5rem; }
+  .understanding { display: none; border: 1px solid var(--border); border-left-width: 4px; border-radius: 8px; padding: 10px 12px; margin: 10px 0; background: var(--surface); }
+  .understanding.ok { display: block; border-left-color: var(--success); }
+  .understanding.warn { display: block; border-left-color: #f59e0b; }
+  .understanding strong { display: block; margin-bottom: 4px; }
+  .understanding ul { margin: 4px 0 0; padding-left: 1.2rem; }
   #review input[type=text] { width: 100%; }
   #review .row { margin: 0.5rem 0; }
   .blk { background: var(--surface); border: 1px solid var(--border); border-radius: 8px; padding: 12px; margin: 10px 0; }
@@ -192,8 +205,16 @@ export const FLOW_HTML = `<!doctype html>
 
   <form id="start" class="panel" style="display:none">
     <fieldset>
-      <legend>テーマ</legend>
-      <textarea id="theme" rows="3" placeholder="議題を入力" required></textarea>
+      <legend>ゲームタイトル（または主目的）</legend>
+      <input id="gameTitle" type="text" placeholder="例: スイカゲーム / 学校連絡を整理する管理画面" required />
+    </fieldset>
+    <fieldset>
+      <legend>議論したいテーマ</legend>
+      <textarea id="discussionTheme" rows="2" placeholder="例: 合体後のテンポを上げるべきか" required></textarea>
+    </fieldset>
+    <fieldset>
+      <legend>議論内容</legend>
+      <textarea id="discussionContent" rows="4" placeholder="判断したい論点、比較したい案、避けたい方向性など"></textarea>
     </fieldset>
     <fieldset>
       <legend>議論タイプ (必須)</legend>
@@ -235,10 +256,10 @@ export const FLOW_HTML = `<!doctype html>
       <label>Steam appId (steam 選択時) <input id="learningAppId" type="number" min="1" placeholder="例: 1145360" style="width:10rem" /></label>
       <label>URL (website 選択時・カンマ/改行区切り) <input id="learningUrls" type="text" placeholder="https://example.com/article" style="width:60%" /></label>
     </fieldset>
-    <fieldset class="tags">
-      <legend>仕様書の解析学習 (学習のみ・任意)</legend>
-      <label>仕様書テキスト (貼り付け → 遊びのメカニクスを LLM 抽出して記録)
-        <textarea id="specText" rows="6" placeholder="ゲーム仕様書を貼り付け (空欄なら解析しない)"></textarea>
+    <fieldset>
+      <legend>システム/メカニクスの説明</legend>
+      <label>仕様書・設計メモ・既知のメカニクス
+        <textarea id="mechanicsContext" rows="6" placeholder="基本ループ、主要システム、操作、報酬、制約、仕様書の抜粋など"></textarea>
       </label>
       <label>ファイルから読み込む (md/txt/json/pdf/docx 等 → 上の欄へ展開)
         <input id="specFile" type="file" accept=".md,.txt,.json,.markdown,.text,.pdf,.docx,text/*" />
@@ -248,11 +269,15 @@ export const FLOW_HTML = `<!doctype html>
         <input id="specUrl" type="text" placeholder="https://… または spec/feature/foo.md" style="width:80%" />
       </label>
     </fieldset>
-    <fieldset class="tags">
-      <legend>Anatomia 事前情報 (議論/改善のみ・対象リポのコード解析をメカニクスに)</legend>
+    <fieldset>
+      <legend>Anatomia プロジェクトコード (任意)</legend>
       <label>登録済みプロジェクト名 <input id="anatomiaProject" type="text" placeholder="例: pagus (anatomia project add 済み)" style="width:50%" /></label>
       <label>または リポジトリ絶対パス <input id="anatomiaRepo" type="text" placeholder="例: E:/Document/Ars/Pagus" style="width:60%" /></label>
       <p class="muted" style="margin:4px 0 0;font-size:0.82rem">サーバ設定で Anatomia 連携が有効な場合のみ反映。ドメイン下地が無ければ初回は自動解析で時間がかかります。</p>
+    </fieldset>
+    <fieldset>
+      <legend>テーマについての補足情報</legend>
+      <textarea id="themeSupplement" rows="3" placeholder="前提条件、対象ユーザ、禁止事項、評価軸など"></textarea>
     </fieldset>
     <button type="submit" id="go">開始</button>
   </form>
@@ -265,13 +290,37 @@ export const FLOW_HTML = `<!doctype html>
   <div id="review" class="panel" style="display:none">
     <h2>📝 ディスカッションペーパー編集 (確定すると議論開始できます)</h2>
     <div id="reviewInfo" class="muted">準備中…</div>
-    <div class="row tags">観点タグ:
-      <label><input type="checkbox" value="機密" /> 機密</label>
-      <label><input type="checkbox" value="内部" /> 内部</label>
-      <label><input type="checkbox" value="運用" /> 運用</label>
-      <label><input type="checkbox" value="開発" /> 開発</label>
+    <div id="understanding" class="understanding"></div>
+    <div id="fixedPaper" class="paper-form">
+      <label>ゲームタイトル（または主目的）
+        <input id="rvGameTitle" type="text" />
+      </label>
+      <label>議論したいテーマ
+        <textarea id="rvDiscussionTheme" rows="2"></textarea>
+      </label>
+      <label>議論内容
+        <textarea id="rvDiscussionContent" rows="4"></textarea>
+      </label>
+      <label>システム/メカニクスの説明
+        <textarea id="rvMechanicsContext" rows="6"></textarea>
+        <span class="field-note">仕様書、Anatomia由来のコード理解、抽出済みメカニクスをここで確認・補足します。</span>
+      </label>
+      <label>テーマについての補足情報
+        <textarea id="rvThemeSupplement" rows="3"></textarea>
+      </label>
+      <div class="row tags">タグ:
+        <label><input data-review-tag type="checkbox" value="機密" /> 機密</label>
+        <label><input data-review-tag type="checkbox" value="内部" /> 内部</label>
+        <label><input data-review-tag type="checkbox" value="運用" /> 運用</label>
+        <label><input data-review-tag type="checkbox" value="開発" /> 開発</label>
+      </div>
+      <div class="settings-row">
+        <label>ラウンド数 <input id="rvRounds" type="number" min="1" max="10" placeholder="既定" /></label>
+        <label>ターン数/ラウンド <input id="rvTurnsPerRound" type="number" min="1" max="20" placeholder="既定" /></label>
+        <button id="rvSaveFields" type="button">内容を保存</button>
+      </div>
     </div>
-    <div id="blocks"></div>
+    <div id="blocks" style="display:none"></div>
     <div class="rvbar">
       <input id="rvEdit" type="text" placeholder="全体を自然文で調整 (例: メカニクスにガチャを追加)" />
       <button id="rvEditBtn" type="button">全体調整</button>
@@ -305,7 +354,7 @@ export const FLOW_HTML = `<!doctype html>
 const $ = (id) => document.getElementById(id);
 let sessionId = null, kind = null, since = 0, timer = null;
 
-// 仕様書ファイル選択: テキストは FileReader、PDF/DOCX はサーバ抽出エンドポイント経由で specText 欄へ展開する。
+// 仕様書ファイル選択: テキストは FileReader、PDF/DOCX はサーバ抽出エンドポイント経由で mechanicsContext 欄へ展開する。
 const SPEC_FILE_MAX_BYTES = 5 * 1024 * 1024; // 5MB
 const SPEC_TEXT_MAX_CHARS = 200_000;         // 200k 文字警告
 const BINARY_EXTS = new Set([".pdf", ".docx", ".doc"]);
@@ -320,8 +369,8 @@ function showSpecWarn(msg) {
   el.style.display = msg ? "block" : "none";
 }
 function appendSpecText(text) {
-  const cur = $("specText").value.trim();
-  $("specText").value = cur ? (cur + "\\n\\n" + text) : text;
+  const cur = $("mechanicsContext").value.trim();
+  $("mechanicsContext").value = cur ? (cur + "\\n\\n" + text) : text;
   if (text.length > SPEC_TEXT_MAX_CHARS) {
     showSpecWarn("テキストが長いです (" + text.length.toLocaleString() + " 文字)。サーバ側でチャンク分割して解析します。");
   } else {
@@ -361,9 +410,14 @@ $("specFile").addEventListener("change", async (e) => {
 
 $("start").addEventListener("submit", async (e) => {
   e.preventDefault();
-  const theme = $("theme").value.trim();
+  const gameTitle = $("gameTitle").value.trim();
+  const discussionTheme = $("discussionTheme").value.trim();
+  const discussionContent = $("discussionContent").value.trim() || undefined;
+  const mechanicsContext = $("mechanicsContext").value.trim() || undefined;
+  const themeSupplement = $("themeSupplement").value.trim() || undefined;
+  const theme = [gameTitle, discussionTheme].filter(Boolean).join(" / ");
   const flow = $("flow").value;
-  if (!theme || !flow) { alert("テーマと議論タイプは必須です"); return; }
+  if (!gameTitle || !discussionTheme || !flow) { alert("ゲームタイトル(または主目的)、議論したいテーマ、議論タイプは必須です"); return; }
   const tags = [...document.querySelectorAll('input[name=tag]:checked')].map(c => c.value);
   const rounds = $("rounds").value.trim() === "" ? undefined : Number($("rounds").value);
   const turnsPerRound = $("turnsPerRound").value.trim() === "" ? undefined : Number($("turnsPerRound").value);
@@ -372,14 +426,14 @@ $("start").addEventListener("submit", async (e) => {
   const learningQuery = $("learningQuery").value.trim() || undefined;
   const learningAppId = $("learningAppId").value.trim() === "" ? undefined : Number($("learningAppId").value);
   const learningUrls = $("learningUrls").value.trim() || undefined;
-  const specText = $("specText").value.trim() || undefined;
+  const specText = mechanicsContext;
   const specUrl = $("specUrl").value.trim() || undefined;
   const anatomiaProject = $("anatomiaProject").value.trim() || undefined;
   const anatomiaRepo = $("anatomiaRepo").value.trim() || undefined;
   $("go").disabled = true;
   const res = await fetch("/api/flow/start", {
     method: "POST", headers: { "content-type": "application/json" },
-    body: JSON.stringify({ theme, flow, tags, rounds, turnsPerRound, opponent, learningSource, learningQuery, learningAppId, learningUrls, specText, specUrl, anatomiaProject, anatomiaRepo }),
+    body: JSON.stringify({ theme, gameTitle, discussionTheme, discussionContent, mechanicsContext, themeSupplement, flow, tags, rounds, turnsPerRound, opponent, learningSource, learningQuery, learningAppId, learningUrls, specText, specUrl, anatomiaProject, anatomiaRepo }),
   }).then(r => r.json()).catch(() => ({ ok: false, error: "通信失敗" }));
   if (!res.ok) { alert(res.error || "開始に失敗"); $("go").disabled = false; return; }
   sessionId = res.sessionId; kind = res.kind;
@@ -396,6 +450,7 @@ $("start").addEventListener("submit", async (e) => {
     $("review").style.display = "block";
     $("backBar").style.display = "block";
     $("reviewInfo").textContent = "ペーパーを準備中… (情報収集・草案作成)";
+    $("fixedPaper").style.display = "none";
     $("blocks").innerHTML = '<div class="muted">📝 ディスカッションペーパーを作成しています。少々お待ちください…</div>';
     $("rvApprove").disabled = true;
     window.scrollTo(0, 0);
@@ -413,8 +468,72 @@ const TYPE_LABEL = { heading: "見出し", paragraph: "段落", list: "箇条書
 
 function applyPayload(res) {
   if (res.paper) curPaper = res.paper;
-  renderBlocks(res.blocks || []);
+  renderFixedForm(res);
   $("rvRevert").disabled = !res.canRevert;
+}
+function collectReviewTags() {
+  return [...document.querySelectorAll('#review input[data-review-tag]:checked')].map(c => c.value);
+}
+function setReviewTags(tags) {
+  const values = new Set(tags || []);
+  for (const c of document.querySelectorAll('#review input[data-review-tag]')) c.checked = values.has(c.value);
+}
+function setInputValue(id, value) {
+  const el = $(id);
+  if (document.activeElement === el) return;
+  el.value = value || "";
+}
+function renderUnderstanding(info) {
+  const el = $("understanding");
+  const u = info && info.understanding;
+  if (!u) { el.style.display = "none"; el.className = "understanding"; el.innerHTML = ""; return; }
+  el.className = "understanding " + (u.ok ? "ok" : "warn");
+  const qs = (u.missingQuestions || []).map(q => "<li>" + escapeHtml(q) + "</li>").join("");
+  el.innerHTML = "<strong>AI理解確認: " + (u.ok ? "基本的なゲーム内容を把握できています" : "補足が必要です") + "</strong>" +
+    "<div>" + escapeHtml(u.rationale || "") + "</div>" +
+    (qs ? "<ul>" + qs + "</ul>" : "");
+}
+function renderFixedForm(res) {
+  $("fixedPaper").style.display = "grid";
+  const f = res.fixedFields || {};
+  setInputValue("rvGameTitle", f.gameTitle);
+  setInputValue("rvDiscussionTheme", f.discussionTheme || (curPaper && curPaper.theme) || "");
+  setInputValue("rvDiscussionContent", f.discussionContent);
+  setInputValue("rvMechanicsContext", f.mechanicsContext);
+  setInputValue("rvThemeSupplement", f.themeSupplement || (curPaper && curPaper.supplement) || "");
+  setReviewTags((curPaper && curPaper.tags) || []);
+  const settings = res.settings || {};
+  setInputValue("rvRounds", settings.rounds == null ? "" : settings.rounds);
+  setInputValue("rvTurnsPerRound", settings.turnsPerRound == null ? "" : settings.turnsPerRound);
+  renderUnderstanding(res.info);
+}
+function collectFixedForm() {
+  return {
+    gameTitle: $("rvGameTitle").value.trim(),
+    discussionTheme: $("rvDiscussionTheme").value.trim(),
+    discussionContent: $("rvDiscussionContent").value.trim(),
+    mechanicsContext: $("rvMechanicsContext").value.trim(),
+    themeSupplement: $("rvThemeSupplement").value.trim(),
+    tags: collectReviewTags(),
+    rounds: $("rvRounds").value.trim() === "" ? undefined : Number($("rvRounds").value),
+    turnsPerRound: $("rvTurnsPerRound").value.trim() === "" ? undefined : Number($("rvTurnsPerRound").value),
+  };
+}
+async function saveFixedForm(message) {
+  const form = collectFixedForm();
+  if (!form.gameTitle || !form.discussionTheme) {
+    $("rvMsg").textContent = "ゲームタイトル(または主目的)と議論したいテーマは必須です";
+    return null;
+  }
+  $("rvMsg").textContent = message || "保存中…";
+  const res = await paperApi("/form/apply", form);
+  if (!res || !res.ok) {
+    $("rvMsg").textContent = res && res.error ? res.error : "保存に失敗しました";
+    return null;
+  }
+  applyPayload(res);
+  $("rvMsg").textContent = "保存しました";
+  return res;
 }
 function renderBlocks(blocks) {
   const root = $("blocks");
@@ -524,6 +643,8 @@ $("blocks").addEventListener("click", async (e) => {
   }
 });
 
+$("rvSaveFields").addEventListener("click", () => { void saveFixedForm("保存中…"); });
+
 $("rvEditBtn").addEventListener("click", async () => {
   const instruction = $("rvEdit").value.trim();
   if (!instruction || !sessionId) return;
@@ -543,8 +664,10 @@ $("rvRevert").addEventListener("click", async () => {
 $("rvConfirm").addEventListener("change", () => { $("rvApprove").disabled = !$("rvConfirm").checked; });
 $("rvApprove").addEventListener("click", async () => {
   if (!sessionId || !curPaper) return;
-  const tags = [...document.querySelectorAll('#review .tags input:checked')].map(c => c.value);
   $("rvApprove").disabled = true;
+  const saved = await saveFixedForm("開始前に保存中…");
+  if (!saved) { $("rvApprove").disabled = false; return; }
+  const tags = collectReviewTags();
   const res = await paperApi("/approve", { paper: { bodyMd: curPaper.bodyMd, tags } });
   if (!res || !res.ok) { alert("開始に失敗しました"); $("rvApprove").disabled = false; return; }
   $("review").style.display = "none";
@@ -631,6 +754,7 @@ function openDraft(sid) {
   $("review").style.display = "block";
   $("backBar").style.display = "block";
   $("reviewInfo").textContent = "ペーパーを読み込み中…";
+  $("fixedPaper").style.display = "none";
   $("blocks").innerHTML = '<div class="muted">📝 下書きを読み込んでいます…</div>';
   $("rvApprove").disabled = true; $("rvConfirm").checked = false;
   pollPaper();
@@ -642,6 +766,7 @@ function resetView() {
   $("live").style.display = "none"; $("review").style.display = "none";
   $("conclusion").style.display = "none"; $("say").style.display = "none";
   $("backBar").style.display = "none"; $("start").style.display = "none";
+  $("fixedPaper").style.display = "none"; $("understanding").style.display = "none";
   $("go").disabled = false;
 }
 // 既存議論を開いて閲覧する (進行中はライブ、収束済みは最終状態)。
