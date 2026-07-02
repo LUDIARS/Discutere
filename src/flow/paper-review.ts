@@ -26,7 +26,12 @@ import { paperSupplement } from "./tags.js";
 import { investigateTheme, type MechanicSummary, type YoutubeSearchFn } from "./investigate.js";
 import { enrichMechanics } from "./mechanic-extract.js";
 import type { ContextVoice } from "./discussion-paper.js";
-import { paperDraftToMarkdown, markdownToPaperDraft, type PaperContent } from "./paper-markdown.js";
+import {
+  paperDraftToMarkdown,
+  markdownToPaperDraft,
+  type PaperContent,
+  type PaperFixedFields,
+} from "./paper-markdown.js";
 import { getBlockText } from "./paper-blocks.js";
 
 /** 有効な観点タグ (編集で受理する集合)。 */
@@ -64,6 +69,14 @@ export interface PaperReviewInfo {
   countCapped: boolean;
   /** 数件のサンプル (出所付き・個人仮名)。 */
   samples: Array<{ content: string; source: string }>;
+  /** AI が基本的なゲーム内容を把握できているかの事前確認。 */
+  understanding?: PaperUnderstanding;
+}
+
+export interface PaperUnderstanding {
+  ok: boolean;
+  rationale: string;
+  missingQuestions: string[];
 }
 
 export interface BuildPaperDraftDeps {
@@ -73,6 +86,8 @@ export interface BuildPaperDraftDeps {
   listExternalVoices?: (terms: string[], limit: number) => ContextVoice[];
   /** メカニクス LLM 増補に使う LLM (省略時は増補しない)。 */
   llm?: LLMClient;
+  /** 基本理解の確認に使う LLM。省略時は llm、どちらも無ければ決定論フォールバック。 */
+  understandingLlm?: LLMClient;
   /** メカニクスの目標件数 (llm 指定時のみ有効。既定 30)。 */
   mechanicsTarget?: number;
   /** 増補に使うモデル ("" / 未指定なら LLM 既定)。 */
@@ -82,6 +97,8 @@ export interface BuildPaperDraftDeps {
    * investigate の結果より前に置き、名前で重複排除する (先勝ち = Anatomia を優先)。
    */
   extraMechanics?: MechanicSummary[];
+  /** Web 固定フォーム由来の入力。指定時は本文 md を固定セクションで生成する。 */
+  seed?: Partial<PaperFixedFields>;
   warn?: (msg: string) => void;
 }
 
@@ -107,6 +124,96 @@ function toSample(v: ContextVoice): { content: string; source: string } {
   return { content: body, source: v.source };
 }
 
+function normalizeSeed(theme: string, seed?: Partial<PaperFixedFields>): PaperFixedFields | null {
+  if (!seed) return null;
+  const gameTitle = seed.gameTitle?.trim() ?? "";
+  const discussionTheme = seed.discussionTheme?.trim() || theme;
+  const discussionContent = seed.discussionContent?.trim() ?? "";
+  const mechanicsContext = seed.mechanicsContext?.trim() ?? "";
+  const themeSupplement = seed.themeSupplement?.trim() ?? "";
+  return { gameTitle, discussionTheme, discussionContent, mechanicsContext, themeSupplement };
+}
+
+function deterministicUnderstanding(
+  fields: PaperFixedFields,
+  mechanics: readonly MechanicSummary[],
+  voices: readonly ContextVoice[]
+): PaperUnderstanding {
+  const missingQuestions: string[] = [];
+  if (!fields.gameTitle.trim()) {
+    missingQuestions.push("ゲームタイトル、またはプロジェクトの主目的を補足してください。");
+  }
+  if (!fields.discussionTheme.trim()) {
+    missingQuestions.push("何について議論したいか、テーマを1つに絞って補足してください。");
+  }
+  if (!fields.discussionContent.trim()) {
+    missingQuestions.push("議論で判断したい論点、前提、迷っている案を補足してください。");
+  }
+  if (!fields.mechanicsContext.trim() && mechanics.length === 0) {
+    missingQuestions.push("基本ループ、主要システム、操作、報酬、制約などゲーム内容が分かる説明を補足してください。");
+  }
+  const hasExternalContext = voices.length > 0 || mechanics.length > 0;
+  const ok = missingQuestions.length === 0 || (missingQuestions.length <= 1 && hasExternalContext);
+  return {
+    ok,
+    rationale: ok
+      ? "入力内容と収集済み情報から、議論に必要な基本的なゲーム内容を把握できます。"
+      : "議論の前提となるゲーム内容が不足しているため、補足があると論点が安定します。",
+    missingQuestions: ok ? [] : missingQuestions,
+  };
+}
+
+export async function assessPaperUnderstanding(
+  fields: PaperFixedFields,
+  mechanics: readonly MechanicSummary[],
+  voices: readonly ContextVoice[],
+  llm?: LLMClient,
+  opts: { model?: string; warn?: (msg: string) => void } = {}
+): Promise<PaperUnderstanding> {
+  const fallback = deterministicUnderstanding(fields, mechanics, voices);
+  if (!llm) return fallback;
+
+  const system =
+    "あなたはゲーム議論を始める前の確認担当です。入力されたディスカッションペーパーを読み、" +
+    "AIが基本的なゲーム内容を理解して議論できるか判定します。情報が足りない場合は、ユーザに補足してほしい質問を返します。" +
+    'JSON のみで {"ok":boolean,"rationale":string,"missingQuestions":string[]} を返してください。';
+  const prompt = JSON.stringify(
+    {
+      fields,
+      extractedMechanics: mechanics.slice(0, 20),
+      externalVoiceCount: voices.length,
+      externalVoiceSamples: voices.slice(0, 5).map((v) => v.content.slice(0, 160)),
+    },
+    null,
+    2
+  );
+
+  try {
+    const r = await llm.invoke({ system, prompt, model: opts.model });
+    if (!r.ok) {
+      opts.warn?.(`paper-understanding LLM エラー: ${r.error}`);
+      return fallback;
+    }
+    const parsed = extractJsonObject(r.text);
+    if (!parsed || typeof parsed !== "object") return fallback;
+    const o = parsed as Record<string, unknown>;
+    const missing = Array.isArray(o.missingQuestions)
+      ? o.missingQuestions.filter((q): q is string => typeof q === "string" && q.trim() !== "").map((q) => q.trim())
+      : [];
+    return {
+      ok: typeof o.ok === "boolean" ? o.ok : missing.length === 0,
+      rationale:
+        typeof o.rationale === "string" && o.rationale.trim()
+          ? o.rationale.trim()
+          : fallback.rationale,
+      missingQuestions: missing,
+    };
+  } catch (e) {
+    opts.warn?.(`paper-understanding LLM 例外: ${(e as Error).message}`);
+    return fallback;
+  }
+}
+
 /**
  * テーマを investigate してペーパー草案 + 集めた情報サマリを組み立てる (永続化しない)。
  * メカニクスは investigateTheme から、観点補足はタグから、情報サマリは外部の声から。
@@ -116,6 +223,7 @@ export async function buildPaperDraft(
   tags: readonly FlowTag[],
   deps: BuildPaperDraftDeps
 ): Promise<{ draft: PaperDraft; info: PaperReviewInfo }> {
+  const seed = normalizeSeed(theme, deps.seed);
   const investigation = await investigateTheme({
     theme,
     tags,
@@ -144,16 +252,27 @@ export async function buildPaperDraft(
     });
   }
 
+  const supplement = seed
+    ? [paperSupplement(tags), seed.themeSupplement].filter((s) => s.trim()).join("\n")
+    : paperSupplement(tags);
   const draft: PaperDraft = withDerivedBody({
-    theme,
+    theme: seed?.discussionTheme || theme,
     tags: [...tags],
-    supplement: paperSupplement(tags),
+    supplement,
     mechanics,
+    ...(seed ?? {}),
   });
+  const understanding = seed
+    ? await assessPaperUnderstanding(seed, mechanics, voices, deps.understandingLlm ?? deps.llm, {
+        model: deps.enrichModel || undefined,
+        warn: deps.warn,
+      })
+    : undefined;
   const info: PaperReviewInfo = {
     voiceCount: voices.length,
     countCapped: voices.length >= COUNT_LIMIT,
     samples: voices.slice(0, SAMPLE_LIMIT).map(toSample),
+    understanding,
   };
   return { draft, info };
 }
@@ -225,6 +344,11 @@ export async function applyPaperEdit(
   if (!trimmed) return { draft, changeSummary: "指示が空です。", applied: false };
 
   const current = {
+    gameTitle: draft.gameTitle ?? "",
+    discussionTheme: draft.discussionTheme ?? draft.theme,
+    discussionContent: draft.discussionContent ?? "",
+    mechanicsContext: draft.mechanicsContext ?? "",
+    themeSupplement: draft.themeSupplement ?? draft.supplement,
     theme: draft.theme,
     tags: draft.tags,
     supplement: draft.supplement,
@@ -241,7 +365,8 @@ export async function applyPaperEdit(
     "指示に関係ないフィールドは現行値のまま保持します。" +
     `tags に使えるのは ${VALID_FLOW_TAGS.join("/")} のみ。` +
     "出力スキーマ: " +
-    '{"theme":string,"tags":string[],"supplement":string,' +
+    '{"gameTitle":string,"discussionTheme":string,"discussionContent":string,"mechanicsContext":string,"themeSupplement":string,' +
+    '"theme":string,"tags":string[],"supplement":string,' +
     '"mechanics":[{"name":string,"description":string,"intended_affect":string}],' +
     '"changeSummary":string}。' +
     "changeSummary は変更点を 1 文 (日本語) で。前置きやコードフェンスは付けない。";
@@ -269,8 +394,23 @@ export async function applyPaperEdit(
   }
   const obj = parsed as Record<string, unknown>;
 
-  const theme = typeof obj.theme === "string" && obj.theme.trim() ? obj.theme.trim() : draft.theme;
-  const supplement = typeof obj.supplement === "string" ? obj.supplement.trim() : draft.supplement;
+  const gameTitle = typeof obj.gameTitle === "string" ? obj.gameTitle.trim() : draft.gameTitle;
+  const discussionTheme =
+    typeof obj.discussionTheme === "string" && obj.discussionTheme.trim()
+      ? obj.discussionTheme.trim()
+      : draft.discussionTheme;
+  const discussionContent =
+    typeof obj.discussionContent === "string" ? obj.discussionContent.trim() : draft.discussionContent;
+  const mechanicsContext =
+    typeof obj.mechanicsContext === "string" ? obj.mechanicsContext.trim() : draft.mechanicsContext;
+  const themeSupplement =
+    typeof obj.themeSupplement === "string" ? obj.themeSupplement.trim() : draft.themeSupplement;
+  const theme =
+    discussionTheme ||
+    (typeof obj.theme === "string" && obj.theme.trim() ? obj.theme.trim() : draft.theme);
+  const supplement =
+    themeSupplement ??
+    (typeof obj.supplement === "string" ? obj.supplement.trim() : draft.supplement);
   const tags = "tags" in obj ? sanitizeTags(obj.tags) : draft.tags;
   const mechanics = Array.isArray(obj.mechanics)
     ? obj.mechanics.map(normalizeMechanic).filter((m): m is MechanicSummary => m !== null)
@@ -282,7 +422,17 @@ export async function applyPaperEdit(
 
   return {
     // 構造化編集後に本文 md を再生成する (md を正本に保つ)。
-    draft: withDerivedBody({ theme, tags, supplement, mechanics }),
+    draft: withDerivedBody({
+      theme,
+      tags,
+      supplement,
+      mechanics,
+      gameTitle,
+      discussionTheme,
+      discussionContent,
+      mechanicsContext,
+      themeSupplement,
+    }),
     changeSummary,
     applied: true,
   };

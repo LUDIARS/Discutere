@@ -172,6 +172,9 @@ import { parseForumEntry, handleForumFlowPost } from "../../src/flow/entry-disco
   assert.equal(rPage.status, 200, "/flow は 200");
   const pageHtml = await rPage.text();
   assert.ok(pageHtml.includes("議論タイプ"), "UI に議論タイプ選択がある");
+  assert.ok(pageHtml.includes("ゲームタイトル（または主目的）"), "UI にゲームタイトル欄がある");
+  assert.ok(pageHtml.includes("議論したいテーマ"), "UI に議論テーマ欄がある");
+  assert.ok(pageHtml.includes("システム/メカニクスの説明"), "UI にシステム/メカニクス欄がある");
   assert.ok(pageHtml.includes("議論一覧"), "UI に議論一覧がある");
   assert.ok(pageHtml.includes("新規議論開始"), "UI に新規議論開始ボタンがある");
   assert.ok(pageHtml.includes('data-state="draft"'), "UI に state フィルタタブがある");

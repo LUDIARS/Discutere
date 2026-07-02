@@ -24,12 +24,36 @@ export interface PaperContent {
   tags: FlowTag[];
   supplement: string;
   mechanics: MechanicSummary[];
+  /** Web の固定フォーム用: ゲームタイトル、またはゲームでない場合の主目的。 */
+  gameTitle?: string;
+  /** Web の固定フォーム用: 議論したいテーマ。theme の表示値としても使う。 */
+  discussionTheme?: string;
+  /** Web の固定フォーム用: 何を議論してほしいかの本文。 */
+  discussionContent?: string;
+  /** Web の固定フォーム用: 仕様書/Anatomia/手入力由来のシステム・メカニクス説明。 */
+  mechanicsContext?: string;
+  /** Web の固定フォーム用: テーマについての補足情報。 */
+  themeSupplement?: string;
 }
 
 const HEAD_THEME = "# 議題";
 const HEAD_SUPPLEMENT = "# 観点補足";
 const HEAD_MECHANICS = "# ゲームのメカニクス";
+const HEAD_GAME_TITLE = "# ゲームタイトル（または主目的）";
+const HEAD_DISCUSSION_THEME = "# 議論したいテーマ";
+const HEAD_DISCUSSION_CONTENT = "# 議論内容";
+const HEAD_MECHANICS_CONTEXT = "# システム/メカニクスの説明";
+const HEAD_THEME_SUPPLEMENT = "# テーマについての補足情報";
+const HEAD_EXTRACTED_MECHANICS = "## 抽出されたメカニクス";
 const NO_MECHANICS = "(メカニクスデータなし)";
+
+export interface PaperFixedFields {
+  gameTitle: string;
+  discussionTheme: string;
+  discussionContent: string;
+  mechanicsContext: string;
+  themeSupplement: string;
+}
 
 /** 1 件のメカニクスを md 箇条書き 1 行にする (buildPaperSystem と同形)。 */
 function mechanicLine(m: MechanicSummary): string {
@@ -43,11 +67,57 @@ function mechanicsToMarkdown(mechanics: MechanicSummary[]): string {
   return mechanics.map(mechanicLine).join("\n");
 }
 
+function hasFixedFields(content: PaperContent): boolean {
+  return Boolean(
+    content.gameTitle ||
+      content.discussionTheme ||
+      content.discussionContent ||
+      content.mechanicsContext ||
+      content.themeSupplement
+  );
+}
+
+function fixedFieldsFromContent(content: PaperContent): PaperFixedFields {
+  return {
+    gameTitle: content.gameTitle?.trim() ?? "",
+    discussionTheme: content.discussionTheme?.trim() || content.theme,
+    discussionContent: content.discussionContent?.trim() ?? "",
+    mechanicsContext: content.mechanicsContext?.trim() ?? "",
+    themeSupplement: content.themeSupplement?.trim() ?? content.supplement,
+  };
+}
+
+function stripGeneratedMechanics(text: string): string {
+  const idx = text.indexOf(HEAD_EXTRACTED_MECHANICS);
+  return (idx >= 0 ? text.slice(0, idx) : text).trim();
+}
+
+function fixedMechanicsSection(content: PaperContent): string {
+  const chunks: string[] = [];
+  const context = content.mechanicsContext?.trim();
+  if (context) chunks.push(context);
+  if (content.mechanics.length > 0) chunks.push(`${HEAD_EXTRACTED_MECHANICS}\n${mechanicsToMarkdown(content.mechanics)}`);
+  if (chunks.length === 0) chunks.push(NO_MECHANICS);
+  return chunks.join("\n\n");
+}
+
+function fixedPaperToMarkdown(content: PaperContent): string {
+  const fields = fixedFieldsFromContent(content);
+  return [
+    `${HEAD_GAME_TITLE}\n${fields.gameTitle}`,
+    `${HEAD_DISCUSSION_THEME}\n${fields.discussionTheme}`,
+    `${HEAD_DISCUSSION_CONTENT}\n${fields.discussionContent}`,
+    `${HEAD_MECHANICS_CONTEXT}\n${fixedMechanicsSection(content)}`,
+    `${HEAD_THEME_SUPPLEMENT}\n${fields.themeSupplement}`,
+  ].join("\n\n");
+}
+
 /**
  * 構造化ペーパー → 正本 markdown。
  * 出力形式は buildPaperSystem(議題 / 観点補足 / メカニクス) と揃える。
  */
 export function paperDraftToMarkdown(content: PaperContent): string {
+  if (hasFixedFields(content)) return fixedPaperToMarkdown(content);
   const sections: string[] = [`${HEAD_THEME}\n${content.theme}`];
   if (content.supplement) sections.push(`${HEAD_SUPPLEMENT}\n${content.supplement}`);
   sections.push(`${HEAD_MECHANICS}\n${mechanicsToMarkdown(content.mechanics)}`);
@@ -76,6 +146,21 @@ function splitSections(md: string): Map<string, string[]> {
 function sectionText(lines: string[] | undefined): string {
   if (!lines) return "";
   return lines.join("\n").trim();
+}
+
+/** 固定フォーム型の markdown から表示フィールドを取り出す。旧形式なら fallback で埋める。 */
+export function paperFixedFieldsFromMarkdown(md: string, fallback: PaperContent): PaperFixedFields {
+  const sections = splitSections(md);
+  const mechanicsText = sectionText(sections.get(HEAD_MECHANICS_CONTEXT));
+  return {
+    gameTitle: sectionText(sections.get(HEAD_GAME_TITLE)) || fallback.gameTitle || "",
+    discussionTheme:
+      sectionText(sections.get(HEAD_DISCUSSION_THEME)) || fallback.discussionTheme || fallback.theme,
+    discussionContent: sectionText(sections.get(HEAD_DISCUSSION_CONTENT)) || fallback.discussionContent || "",
+    mechanicsContext: stripGeneratedMechanics(mechanicsText) || fallback.mechanicsContext || "",
+    themeSupplement:
+      sectionText(sections.get(HEAD_THEME_SUPPLEMENT)) || fallback.themeSupplement || fallback.supplement || "",
+  };
 }
 
 /** メカニクス md 箇条書き 1 行を構造化する (`- **名前**: 説明 → 期待感情: x`)。 */
@@ -115,6 +200,21 @@ function parseMechanics(text: string): MechanicSummary[] {
  */
 export function markdownToPaperDraft(md: string, fallback: PaperContent): PaperContent {
   const sections = splitSections(md);
+  const isFixed = sections.has(HEAD_GAME_TITLE) || sections.has(HEAD_DISCUSSION_THEME);
+  if (isFixed) {
+    const fields = paperFixedFieldsFromMarkdown(md, fallback);
+    const mechanicsHas = sections.has(HEAD_MECHANICS_CONTEXT);
+    const mechText = sectionText(sections.get(HEAD_MECHANICS_CONTEXT));
+    const parsedMechanics = mechanicsHas ? parseMechanics(mechText) : fallback.mechanics;
+    return {
+      ...fallback,
+      ...fields,
+      theme: fields.discussionTheme || fallback.theme,
+      tags: fallback.tags,
+      supplement: sections.has(HEAD_THEME_SUPPLEMENT) ? fields.themeSupplement : fallback.supplement,
+      mechanics: mechanicsHas ? parsedMechanics : fallback.mechanics,
+    };
+  }
   const themeText = sectionText(sections.get(HEAD_THEME));
   const supplementHas = sections.has(HEAD_SUPPLEMENT);
   const supplementText = sectionText(sections.get(HEAD_SUPPLEMENT));
