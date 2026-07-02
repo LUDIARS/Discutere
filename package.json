@@ -83,7 +83,7 @@
     "@hono/node-server": "^1.14.3",
     "@ludiars/canalis": "^0.1.0",
     "@ludiars/llm-gateway": "^0.1.0",
-    "better-sqlite3": "^12.6.0",
+    "better-sqlite3": "^12.11.1",
     "discord.js": "^14.26.4",
     "drizzle-orm": "^0.43.1",
     "gray-matter": "^4.0.3",
