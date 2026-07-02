@@ -1,0 +1,48 @@
+# Discutere デスクトップアプリ (Electron) のパッケージ設定。docs/desktop-app.md 参照。
+#
+# 方針:
+#   - asar 無効: サーバ本体 (dist/) が ESM + ネイティブアドオン (kuzu / better-sqlite3) 依存の
+#     ため、アーカイブ内 import の互換リスクを避けて素のディレクトリで同梱する。
+#   - npmRebuild 無効: kuzu は N-API (Node/Electron 両対応のプレビルド) なのでリビルド不要かつ
+#     ソースからのビルドは不可。better-sqlite3 だけ `npm run app:rebuild` (@electron/rebuild) で
+#     Electron ABI 向けに事前リビルドしてから electron-builder を走らせる。
+appId: com.ludiars.discutere
+productName: Discutere
+directories:
+  output: release
+asar: false
+npmRebuild: false
+
+# アプリ本体 = Electron ランチャー + ビルド済みサーバ。node_modules (production 依存) は
+# electron-builder が自動収集する。
+files:
+  - dist/**/*
+  - electron/**/*
+  - package.json
+
+# 初回起動時に userData へシードする読み取りデータ (electron/main.mjs の seedUserData)。
+extraResources:
+  - from: data/games
+    to: seed/data/games
+  - from: data/affects
+    to: seed/data/affects
+  - from: worker-home
+    to: seed/worker-home
+  - from: discutere.config.example.json
+    to: seed/discutere.config.example.json
+
+win:
+  target:
+    - nsis
+    - portable
+
+# インストーラ (推奨): per-user インストールで管理者権限不要。
+nsis:
+  oneClick: false
+  perMachine: false
+  allowToChangeInstallationDirectory: true
+  artifactName: ${productName}-Setup-${version}-${arch}.${ext}
+
+# ポータブル版: インストール不要の単一 exe (初回起動はやや遅い)。
+portable:
+  artifactName: ${productName}-Portable-${version}-${arch}.${ext}

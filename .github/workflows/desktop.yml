@@ -1,0 +1,60 @@
+name: Desktop (Windows exe)
+
+# Windows 向けデスクトップアプリ (Electron) のパッケージビルド。docs/desktop-app.md 参照。
+# 成果物: Discutere-Setup-*.exe (NSIS インストーラ) + Discutere-Portable-*.exe (単一 exe)。
+# 手動 (workflow_dispatch)・タグ push (v*)・パッケージング関連ファイルの PR で走る。
+on:
+  workflow_dispatch:
+  push:
+    tags: ["v*"]
+  pull_request:
+    paths:
+      - "electron/**"
+      - "electron-builder.yml"
+      - ".github/workflows/desktop.yml"
+
+permissions:
+  contents: read
+  packages: read
+
+concurrency:
+  group: desktop-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  build-win:
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version-file: .nvmrc
+          cache: npm
+
+      # .npmrc の @ludiars scope (GitHub Packages) を読むため NODE_AUTH_TOKEN を渡す (ci.yml と同じ)。
+      - name: Install deps
+        run: npm ci
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      # サーバ本体を dist/ にビルド (tsc + 資産コピー)。
+      - name: Build server (tsc)
+        run: npm run build
+
+      # better-sqlite3 を Electron ABI 向けにリビルド (kuzu は N-API なのでそのまま動く)。
+      - name: Rebuild native modules for Electron
+        run: npm run app:rebuild
+
+      - name: Package (electron-builder, NSIS + portable)
+        run: npx electron-builder --win --publish never
+
+      - name: Upload artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: discutere-windows-${{ github.sha }}
+          path: |
+            release/*.exe
+            release/*.blockmap
+          if-no-files-found: error

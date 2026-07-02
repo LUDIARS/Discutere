@@ -20,3 +20,6 @@ frontend/dist
 # FT モデルバイナリ (GGUF / HuggingFace weights) — Modelfile は追跡する
 models/*.gguf
 models/di-debate-v1/
+
+# electron-builder の出力 (デスクトップアプリのパッケージ)
+release/

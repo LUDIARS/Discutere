@@ -153,6 +153,7 @@ Discatier KG (kuzu) + persona-engine.db + discutere.db を **tar.gz にまとめ
 | AI に自走議論させる (LLM backend) | [spec/setup/llm.md](spec/setup/llm.md) |
 | 複数サーバ (guild) で運用する | [spec/setup/multi-server.md](spec/setup/multi-server.md) |
 | 学習データを S3 にバックアップする | [spec/setup/backup.md](spec/setup/backup.md) |
+| デスクトップアプリ (Windows exe) として使う | [docs/desktop-app.md](docs/desktop-app.md) |
 | **全設定キーを確認する** | [spec/setup/config-reference.md](spec/setup/config-reference.md) |
 
 設定は `default < discutere.config.json < env` の順で解決 (`DISCUTERE_CONFIG` で config パス変更可)。
