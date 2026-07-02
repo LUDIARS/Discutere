@@ -127,6 +127,7 @@ const JOY_IDX = VECTOR_DIMS.indexOf("emo.joy");
       : '{"changes":[{"dim":"emo.valence","delta":0.8,"reason":"体験が大きく改善"}],"confidence":"high"}';
 
   const responses = [
+    () => "[]",                           // ペルソナ価値軸生成 (respec 01・空割当)
     () => "ラウンドの議題を提示します。", // facilitator 開幕
     () => "発話A",                        // turn1
     () => "発話B",                        // turn2

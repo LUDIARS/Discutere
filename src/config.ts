@@ -11,6 +11,7 @@
 
 import { existsSync, readFileSync } from "node:fs";
 import path from "node:path";
+import { DEFAULT_VOTE_LENSES, type VoteLens } from "./flow/vote-lenses.js";
 
 export type LlmBackend = "claude-cli" | "anthropic" | "mock" | "worker-pool" | "local";
 
@@ -45,6 +46,21 @@ export interface DiscutereConfig {
     personaCount: number;
     /** 投票者数 (中立) */
     voterCount: number;
+    /**
+     * 投票者に巡回割当する評価レンズ (respec 03)。同一プロンプト N 票の強相関を崩す。
+     * 既定 3 種 (logic/grounds/relevance)。env は JSON 配列文字列 (DISCUTERE_FLOW_VOTE_LENSES)。
+     */
+    voteLenses: VoteLens[];
+    /**
+     * 早期収束に要求する直近ラウンドの投票集中度 (最多得票シェア 0..1, respec 04)。
+     * 止揚件数到達 **かつ** winnerShare ≥ この値のときのみ打ち切る。既定 0.6。
+     */
+    convergeShare: number;
+    /**
+     * ペルソナ価値軸/核主張の一括生成 (persona-setup) に使うモデル ("" なら LLM の既定モデル)。
+     * セッションあたり +1 call の小タスクなので小モデル可 (respec 01)。
+     */
+    personaSetupModel: string;
     /** テーマ単位の既定タグ (`機密` `内部` `運用` `開発` など) */
     tags: string[];
     /** 壁打ちの暴走ガード上限 */
@@ -594,6 +610,35 @@ function parseStringList(env: string | undefined, fileValue: unknown): string[] 
   return [];
 }
 
+/**
+ * 投票レンズを読み込む。env は JSON 配列文字列、file は {key, instruction}[]。
+ * 不正要素は除外し、有効要素が 0 なら既定 3 種 (DEFAULT_VOTE_LENSES) にフォールバック。
+ */
+function parseVoteLenses(envValue: string | undefined, fileValue: unknown): VoteLens[] {
+  const coerce = (raw: unknown): VoteLens[] =>
+    Array.isArray(raw)
+      ? raw.filter(
+          (l): l is VoteLens =>
+            !!l &&
+            typeof (l as VoteLens).key === "string" &&
+            (l as VoteLens).key.trim().length > 0 &&
+            typeof (l as VoteLens).instruction === "string" &&
+            (l as VoteLens).instruction.trim().length > 0
+        )
+      : [];
+  if (envValue !== undefined && envValue.trim() !== "") {
+    try {
+      const fromEnv = coerce(JSON.parse(envValue));
+      if (fromEnv.length > 0) return fromEnv;
+    } catch (err) {
+      console.warn(`[config] DISCUTERE_FLOW_VOTE_LENSES の JSON パースに失敗: ${(err as Error).message} — 既定レンズを使用`);
+    }
+  }
+  const fromFile = coerce(fileValue);
+  if (fromFile.length > 0) return fromFile;
+  return [...DEFAULT_VOTE_LENSES];
+}
+
 /** 複数 guildIds と後方互換の単数 guildId を結合・重複排除する */
 function mergeGuildIds(list: string[], single: string | undefined): string[] {
   const set = new Set(list);
@@ -649,6 +694,13 @@ export function loadConfig(): DiscutereConfig {
       turnsPerRound: pickNum(process.env.DISCUTERE_FLOW_TURNS_PER_ROUND, file.flow?.turnsPerRound, 6),
       personaCount: pickNum(process.env.DISCUTERE_FLOW_PERSONA_COUNT, file.flow?.personaCount, 4),
       voterCount: pickNum(process.env.DISCUTERE_FLOW_VOTER_COUNT, file.flow?.voterCount, 3),
+      voteLenses: parseVoteLenses(process.env.DISCUTERE_FLOW_VOTE_LENSES, file.flow?.voteLenses),
+      convergeShare: pickNum(process.env.DISCUTERE_FLOW_CONVERGE_SHARE, file.flow?.convergeShare, 0.6),
+      personaSetupModel: pick(
+        process.env.DISCUTERE_FLOW_PERSONA_SETUP_MODEL,
+        file.flow?.personaSetupModel,
+        ""
+      ),
       tags: parseStringList(process.env.DISCUTERE_FLOW_TAGS, file.flow?.tags),
       sparringMaxTurns: pickNum(process.env.DISCUTERE_FLOW_SPARRING_MAX_TURNS, file.flow?.sparringMaxTurns, 50),
       youtubeMaxComments: pickNum(process.env.DISCUTERE_FLOW_YOUTUBE_MAX_COMMENTS, file.flow?.youtubeMaxComments, 200),

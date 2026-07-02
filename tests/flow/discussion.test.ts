@@ -27,7 +27,7 @@ _resetFlowDb();
 const { MockLLMClient } = await import("../../src/persona-engine/llm/mock.js");
 const { runDiscussionFlow } = await import("../../src/flow/director.js");
 const { buildPersonaPaper, synthesizeOpinions } = await import("../../src/flow/discussion-paper.js");
-const { generateFlowPersonas, pickRandomPersona, decideStance } = await import("../../src/flow/personas.js");
+const { generateFlowPersonas, pickRandomPersona } = await import("../../src/flow/personas.js");
 const { investigateTheme } = await import("../../src/flow/investigate.js");
 const { canCollectExternal } = await import("../../src/flow/tags.js");
 const { _resetConfig } = await import("../../src/config.js");
@@ -299,7 +299,8 @@ const { _resetConfig } = await import("../../src/config.js");
   process.env.DISCUTERE_FLOW_PERSONA_COUNT = "2";
 
   const errorMock = new MockLLMClient([
-    () => ({ ok: false as const, error: "API timeout" }),
+    () => "[]",                                        // ペルソナ価値軸生成 (respec 01・空割当)
+    () => ({ ok: false as const, error: "API timeout" }), // ファシリテーター開幕がエラーになる
   ]);
 
   let seed = 777;

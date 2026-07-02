@@ -113,7 +113,11 @@ export async function summarizeRound(input: RoundSummaryInput): Promise<RoundSum
           newAufhebung.push(parsed.summary);
         }
       } catch {
-        // JSON パース失敗は無視 (止揚なしとして扱う)
+        // JSON パース失敗は「止揚なし」として続行するが、無言では捨てない (respec 04, A7:
+        // 結論側の厳密化と失敗への態度を揃える)。
+        warn(
+          `止揚検出 round=${round}: JSON パース失敗 — 止揚なしとして続行 (${aufResult.text.trim().slice(0, 60)})`
+        );
       }
     } else {
       warn(`止揚検出 round=${round} 失敗: ${aufResult.error}`);

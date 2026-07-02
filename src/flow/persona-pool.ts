@@ -11,7 +11,7 @@
 
 import { getFlowDb } from "./db/connection.js";
 import { cosine, textToVector, DIM } from "./sentiment-vector.js";
-import type { FlowPersona, FlowRole } from "./personas.js";
+import { roleDefaultStance, type FlowPersona, type FlowRole, type FlowStance } from "./personas.js";
 
 export type PersonaOrigin = "seed" | "generated" | "synthesized" | "adopted";
 
@@ -320,12 +320,15 @@ export function selectPossessionByTheme(theme: string, k = 1, candidates?: PoolP
 /** プールペルソナを議論フローの FlowPersona に変換する (憑依/壁打ち相手として参加させる)。 */
 export function toFlowPersona(
   p: PoolPersona,
-  opts: { role?: FlowRole; defaultModel: string; isLocal: boolean }
+  opts: { role?: FlowRole; defaultModel: string; isLocal: boolean; stance?: FlowStance }
 ): FlowPersona {
+  const role = opts.role ?? p.role;
   return {
     id: p.id,
     name: p.name,
-    role: opts.role ?? p.role,
+    role,
+    // stance はセッション固定 (respec 01)。指定が無ければロール既定 (debater は pro 起点)。
+    stance: opts.stance ?? roleDefaultStance(role),
     speechStyle: p.speechStyle,
     traits: p.traits,
     model: p.model || opts.defaultModel,

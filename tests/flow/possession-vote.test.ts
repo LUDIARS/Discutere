@@ -47,14 +47,14 @@ insertPoolPersona({
 const utterances: Array<{ personaName: string; possessionName?: string; role: string }> = [];
 const voteEvents: Array<{ round: number; candidates: Array<{ id: string; personaName: string }> }> = [];
 
-// rng を固定して opinion 枠 (personaCount=4 のとき index 1) を毎ターン選ばせる。
-// 並び = [facilitator, opinion, debater, debater] なので floor(0.3*4)=1 → opinion。
+// シャッフル輪番 (respec 02) で facilitator を除く全員が発言するよう turnsPerRound=人数 (3) にする
+// → opinion 枠 (憑依席) が必ず 1 回発言する。rng 固定で順序は決定的。
 // 全呼び出しで同じ平文を返す mock (responders 空 → fallback)。発話は非空 = 投票候補になる。
 const result = await runDiscussionFlow(THEME, [], {
   llm: new MockLLMClient([], "なるほど、その視点は面白いと思う。"),
   rng: () => 0.3,
   rounds: 1,
-  turnsPerRound: 2,
+  turnsPerRound: 3,
   onUtterance: (u) => {
     utterances.push({ personaName: u.personaName, possessionName: u.possessionName, role: u.role });
   },
