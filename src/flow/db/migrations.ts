@@ -365,6 +365,76 @@ const MIGRATIONS: Array<{ id: string; sql: string[] }> = [
       `CREATE INDEX IF NOT EXISTS idx_fsp_session ON flow_session_persona(session_id)`,
     ],
   },
+  {
+    // 会話行為 (dialogue acts, respec 05 / PR-B)。dialectic エンジンの発話は
+    // 露出用テキストに加えて論証上の「手」(act) と応答先 (target_id) を持つ。
+    //  - act: claim/support/rebut/concede/question/synthesize。NULL = 旧データ / rounds
+    //    エンジンの発話 (読み出し側で claim 扱い。rounds への後付けはしない)。
+    //  - target_id: 応答先 utterance id (claim/question は NULL 可)。
+    // 論証グラフ (argument-graph.ts) はこの 2 列からいつでも再構築できる (別テーブル不要)。
+    // ※ spec 上の migration 名は flow_0015 だが既存 id と衝突するため flow_0019 へ繰り下げ
+    //   (0016=PR-C / 0017=PR-D / 0018=PR-A 使用済み。merge 前採番につき安全)。
+    id: "flow_0019_utterance_act",
+    sql: [
+      `ALTER TABLE flow_utterance ADD COLUMN act TEXT`,
+      `ALTER TABLE flow_utterance ADD COLUMN target_id TEXT`,
+    ],
+  },
+  {
+    // 弁証法コア 4 表 (respec 06 / PR-B, dialectic.md §1)。
+    // Issue (論点) / Position (定立・反定立) / Tension (矛盾 + 型) / Synthesis (止揚候補 + 批准)。
+    // 状態遷移・収束はコードが持ち、LLM は生成と敵対的批准のみ (dialectic.md §0)。
+    // ※ spec 上の migration 名は flow_0016 だが既存 id と衝突するため flow_0020 へ繰り下げ。
+    id: "flow_0020_dialectic_core",
+    sql: [
+      `CREATE TABLE IF NOT EXISTS flow_issue (
+        id TEXT PRIMARY KEY,
+        session_id TEXT NOT NULL,
+        title TEXT NOT NULL,
+        ordinal INTEGER NOT NULL,
+        source TEXT NOT NULL DEFAULT 'llm',
+        status TEXT NOT NULL DEFAULT 'open',
+        created_at INTEGER NOT NULL
+      )`,
+      `CREATE TABLE IF NOT EXISTS flow_position (
+        id TEXT PRIMARY KEY,
+        issue_id TEXT NOT NULL,
+        persona_id TEXT NOT NULL,
+        stance TEXT NOT NULL,
+        claim TEXT NOT NULL,
+        grounds_json TEXT NOT NULL,
+        values_json TEXT NOT NULL,
+        created_at INTEGER NOT NULL
+      )`,
+      `CREATE TABLE IF NOT EXISTS flow_tension (
+        id TEXT PRIMARY KEY,
+        issue_id TEXT NOT NULL,
+        position_a TEXT NOT NULL,
+        position_b TEXT NOT NULL,
+        type TEXT NOT NULL,
+        status TEXT NOT NULL DEFAULT 'open',
+        resolution_note TEXT,
+        created_at INTEGER NOT NULL
+      )`,
+      `CREATE TABLE IF NOT EXISTS flow_synthesis (
+        id TEXT PRIMARY KEY,
+        tension_id TEXT NOT NULL,
+        preserves_json TEXT NOT NULL,
+        negates_json TEXT NOT NULL,
+        elevates TEXT,
+        kind TEXT NOT NULL,
+        text TEXT NOT NULL,
+        ratification_json TEXT NOT NULL,
+        status TEXT NOT NULL,
+        revision INTEGER NOT NULL DEFAULT 0,
+        created_at INTEGER NOT NULL
+      )`,
+      `CREATE INDEX IF NOT EXISTS idx_flow_issue_session ON flow_issue(session_id, ordinal)`,
+      `CREATE INDEX IF NOT EXISTS idx_flow_position_issue ON flow_position(issue_id)`,
+      `CREATE INDEX IF NOT EXISTS idx_flow_tension_issue ON flow_tension(issue_id)`,
+      `CREATE INDEX IF NOT EXISTS idx_flow_synthesis_tension ON flow_synthesis(tension_id)`,
+    ],
+  },
 ];
 
 function isIgnorableMigrationError(stmt: string, error: unknown): boolean {

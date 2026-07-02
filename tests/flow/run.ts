@@ -45,5 +45,9 @@ await import("./spec-source.test.js");
 await import("./persona-routes.test.js");
 await import("./anatomia-refine.test.js");
 await import("./anatomia-client.test.js");
+await import("./argument-graph.test.js");
+await import("./turn-prompt.test.js");
+await import("./dialectic-scheduler.test.js");
+await import("./dialectic-driver.test.js");
 
 console.log("flow tests: all passed");

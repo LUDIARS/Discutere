@@ -21,6 +21,8 @@ import type { ContextVoice } from "./discussion-paper.js";
 import type { YoutubeSearchFn } from "./investigate.js";
 import { runDiscussionFlow, runFlow, type FlowDirectorResult, type FlowUtteranceRecord, type VoteEvent, type PaperOverride } from "./director.js";
 import { runImprovementFlow } from "./improvement.js";
+import { runDialecticDiscussionFlow, runDialecticImprovementFlow } from "./dialectic/driver.js";
+import { getConfig } from "../config.js";
 import { runLearningFlow, type LearningCrawlSpec, type LearningFlowResult, type LearningOpinion } from "./learning.js";
 import { SparringSession } from "./sparring.js";
 import type { GameMechanicEntry } from "./games-md.js";
@@ -158,13 +160,22 @@ export async function dispatchFlow(input: DispatchInput, deps: DispatchDeps): Pr
     turnsPerRound: input.turnsPerRound,
   };
 
+  // 議論エンジン (respec PR-B): flow.engine="dialectic" で discussion/improvement を
+  // 論証状態機械 (runDialecticFlow) に分岐する。既定 "rounds" は従来経路のまま完全無改変。
+  // テスト用 drivers 差し替えは engine 設定より優先する (注入の意図を尊重)。
+  const engine = getConfig().flow.engine;
+
   switch (kind) {
     case "discussion": {
-      const run = deps.drivers?.discussion ?? runDiscussionFlow;
+      const run =
+        deps.drivers?.discussion ??
+        (engine === "dialectic" ? runDialecticDiscussionFlow : runDiscussionFlow);
       return { kind, flow: kind, result: await run(theme, tags, flowDeps) };
     }
     case "improvement": {
-      const run = deps.drivers?.improvement ?? runImprovementFlow;
+      const run =
+        deps.drivers?.improvement ??
+        (engine === "dialectic" ? runDialecticImprovementFlow : runImprovementFlow);
       return { kind, flow: kind, result: await run(theme, tags, flowDeps) };
     }
     case "learning": {
