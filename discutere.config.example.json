@@ -11,8 +11,8 @@
     "kuzuPath": "./data/discatier.kuzu"
   },
   "flow": {
-    "$comment0": "engine: 議論エンジン (respec PR-B)。rounds(既定)=現行のラウンド×ターン制。dialectic=論証状態機械 (Issue/Position/Tension/Synthesis + 敵対的批准 + 計測型収束) opt-in。discussion/improvement の起動時に dispatch が分岐する (env DISCUTERE_FLOW_ENGINE)。dialectic: rebutTurns=issue あたりの反定立ターン上限(既定4)。staleTurns=新規主張の枯渇判定の窓 K(直近 K ターン新 claim なしで収束シグナル、既定6)。judgeModel=判定・批准 (型分類/事実照会/折衷ゲート/批准/進行文レンダリング) に使う小モデル(既定 Haiku 級。生成はメインモデル)。env は DISCUTERE_FLOW_DIALECTIC_REBUT_TURNS / _STALE_TURNS / _JUDGE_MODEL。",
-    "engine": "rounds",
+    "$comment0": "engine: 議論エンジン (respec PR-B)。dialectic(既定, 2026-07-03〜)=論証状態機械 (Issue/Position/Tension/Synthesis + 敵対的批准 + 計測型収束)。rounds=旧ラウンド×ターン制 (フォールバック)。discussion/improvement の起動時に dispatch が分岐する (env DISCUTERE_FLOW_ENGINE)。dialectic: rebutTurns=issue あたりの反定立ターン上限(既定4)。staleTurns=新規主張の枯渇判定の窓 K(直近 K ターン新 claim なしで収束シグナル、既定6)。judgeModel=判定・批准 (型分類/事実照会/折衷ゲート/批准/進行文レンダリング) に使う小モデル(既定 Haiku 級。生成はメインモデル)。env は DISCUTERE_FLOW_DIALECTIC_REBUT_TURNS / _STALE_TURNS / _JUDGE_MODEL。",
+    "engine": "dialectic",
     "dialectic": {
       "rebutTurns": 4,
       "staleTurns": 6,

@@ -259,7 +259,8 @@ Discutere の「議論」を **4 つのフロー** に分けて定義するド�
   シャッフル + 番号回答受理に改訂 (§11-b の中立投票の枠組み自体は維持)。
 - **弁証法エンジン ([dialectic.md](./dialectic.md)) を新設**: 議論を論証状態機械として持ち、
   止揚は「LLM 判定」ではなく「生成 + 敵対的批准」のイベントにする。折衷と止揚を区別する。
-  `flow.engine = "dialectic" | "rounds"` (既定 rounds) で opt-in。
+  `flow.engine = "dialectic" | "rounds"` で切替。導入時は既定 rounds の opt-in、
+  **2026-07-03 に既定を dialectic へ昇格** (rounds はフォールバックとして併存)。
 - **改善フローのスコアは効果予測へ** ([improvement.md](./improvement.md) 改訂): 意見文面の
   感情ではなく「採用した場合の体験変化の予測」を design_gap へ射影する。
 - **ペーパー = 出所明示の薄い共通地盤** (§5.1 改訂) + **議論適性ゲート** (争点の存在 /
