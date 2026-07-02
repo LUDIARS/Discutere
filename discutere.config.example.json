@@ -27,6 +27,11 @@
       "maxGapsPerIteration": 2,
       "model": ""
     },
+    "$comment2b": "debatability: 情報ゲート(量)の後段の議論適性ゲート(質)。テーマ+ペーパーから争点を分解(LLM)し、issue ごとの両論武装可能性(LLM 小モデル判定)と証拠バランス(機械計算: 極性分布+出所偏り)を評価。armable=both の争点が minArmableIssues 未満なら議論不適としてフロー再提案(争点0〜1=壁打ち / 材料不足=学習)を出す(人間が最終決定・「このまま議論開始」で強行可)。分解した論点はペーパー草案の『# 論点』節に前倒しされ、人間が編集→承認時にファシリテーターの参考論点として渡る。LLM 失敗はゲートを止めず適性あり扱いで degrade(warn 明示)。enabled=false で現行挙動と完全一致。",
+    "debatability": {
+      "enabled": true,
+      "minArmableIssues": 2
+    },
     "$comment3": "paperReview: 議論/改善の開始前に、ディスカッションペーパー(議題ブリーフ=議題/観点/メカニクス)と集めた情報を人間が確認→自然文で調整→承認してから議論を始めるレビューゲート。enabled=false(既定)なら情報ゲート後にそのまま自動開始。Discord はスレッド返信で調整(「メカニクスにガチャを追加」等)+「開始」返信 or ✅ リアクションで承認、Web は /flow の確認フォームで調整+「この内容で開始」。model はペーパー編集に使うモデル(空=既定)。timeoutMs>0 なら無操作 timeoutMs 経過で草案のまま自動開始(0=無期限に待つ・調整があるたび延長)。本文は markdown 正本(各 LLM が直接参照)。webCanonical=true(既定)なら Web(/flow)は enabled に依らず常に Notion 風ブロック編集ゲートを通る正規フロー(Discord は enabled に従う)。",
     "paperReview": {
       "enabled": false,
@@ -40,6 +45,10 @@
       "mechanicsTarget": 30,
       "enrichMechanics": true,
       "enrichModel": ""
+    },
+    "$comment4b": "improvement: 改善フローのスコアリング(2026-07-02 改訂)。各意見を『採用した場合に体験の20次元がどう動くか』を effectModel(既定 Haiku 級)で構造化予測し、予測変化ベクトルを design_gap へ射影してスコアする(文面感情の旧 lexicon 方式はカテゴリエラーのため LLM 失敗時の意見単位 fallback に降格。improvement_score.method に記録)。effectModel 空=LLM 既定モデル。",
+    "improvement": {
+      "effectModel": "claude-haiku-4-5-20251001"
     },
     "$comment5": "paperRefine: 議論終了後に、ディスカッションペーパーの本文(議題/観点補足/メカニクス)を議論の成果(ラウンドまとめ/止揚/結論)を踏まえて LLM で書き換える。enabled=false(既定・opt-in)。議論ループの後に走るためペルソナ system のプロンプトキャッシュには影響しない。LLM 失敗/不正出力(# 議題 欠落)時は元のブリーフのまま degrade(議論は止めない)。model は空=既定。LLM コストが議論ごとに 1 回増える。",
     "paperRefine": {

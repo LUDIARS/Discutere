@@ -574,16 +574,21 @@ export async function runFlow(
   // ── ラウンドループ ────────────────────────────────────────────────────────
   const facilitatorPersona = personas.find((p) => p.role === "facilitator") ?? personas[0];
 
+  // 承認済み論点 (09): ペーパーゲートで人間が確認した論点を開幕プロンプトの参考に注入する。
+  const override = options.paperOverride;
+  const guidingIssues = (override?.issues ?? []).map((s) => s.trim()).filter(Boolean).slice(0, 5);
+
   for (let round = 1; round <= rounds; round++) {
     log(`ラウンド ${round}/${rounds} 開始`);
     const roundUtterances: Array<{ personaName: string; text: string }> = [];
 
-    // ── [4] ファシリテーター開幕ターン (議題提示 + 前ラウンド文脈) ─────────
+    // ── [4] ファシリテーター開幕ターン (議題提示 + 前ラウンド文脈 + 承認済み論点) ──
     const facilitatorRecord = await runFacilitatorTurn({
       ...base,
       round,
       facilitator: facilitatorPersona,
       previousRound: buildPreviousRoundContext(paper.rounds, roundEvaluations, allUtterances),
+      guidingIssues,
     });
     if (facilitatorRecord) await commitUtterance(facilitatorRecord, roundUtterances);
 
@@ -634,6 +639,11 @@ export async function runFlow(
     allAufhebung,
     rounds: paper.rounds,
     voteResults: roundEvaluations,
+    // 議論適性: 低のまま強行した議論は、結論にその旨を併記する (09)。
+    annotation:
+      override?.debatability && !override.debatability.debatable
+        ? `議論適性: 低 (両論武装可能な争点 ${override.debatability.armableBothCount} 件)`
+        : undefined,
   });
   log(`結論: ${conclusionResult.concluded ? conclusionResult.summary.slice(0, 80) : "結論なし"}`);
 

@@ -78,3 +78,18 @@ LLM が `gaps[].source` を推奨しても、実クロールは config 既定ソ
   「この観点は手薄」と伝える。現状は深い plumbing と migration を避けてログ + 通知に留めた。
 - **ソース横断学習**: 現状は config 既定ソース 1 種でしか学習しない。gaps[].source を活かして
   niconico/youtube/steam/website を観点ごとに使い分ける (キー/appId 解決が要る)。
+
+## 密度判定のルール卒業 (成長型ブラックボックス, 2026-07-02)
+
+密度評価は `@ludiars/blackbox` (LUDIARS/Lapilli、設計正本 packages/blackbox/DESIGN.md) 経由になった
+(`src/flow/density-blackbox.ts`、runner が `evaluateFn` に注入)。
+
+- LLM 評価時に「この判定は閾値で再現できるか」を同じ 1 コールで聞き、Condition 候補
+  (feature: voiceCount / sourceKinds / avgLen / tagCount) を candidate として蓄積する。
+- candidate は発火せず、以後の評価のたびに LLM 判定と影で突合 (影評価)。一致 3 回で trial
+  (発火 + レビュー待ち)、admin の OK×3 で auto = **卒業 (この密度判定に LLM を呼ばなくなる)**。
+- ルール経路では gaps (不足観点クエリ) は返らないが、runInformationGate は gaps 空のとき
+  theme をクエリにクロールするので従来どおり回る (degrade)。
+- レビュー/管理は `/api/admin/blackbox/*` (decisions キュー / verdict / rules+卒業メトリクス /
+  state 手動変更)。テーブル (blackbox_rules / blackbox_decisions) は discutere.db 上に
+  パッケージの ensureBlackboxSchema が作成する (flow migration 体系の外)。

@@ -5,6 +5,10 @@
  * runInformationGate を「議論/改善フロー開始の直前」に差し込めるようにする。
  * ゲート無効 / 対象外フロー / Core 無し のときは null を返す
  * (呼び出し側は従来のカウント閾値 autoCrawl にフォールバックする)。
+ *
+ * 実行順 (09-paper-gate-debatability): 情報ゲート (量) → 議論適性ゲート (質) → 人間レビュー。
+ * 議論適性ゲートの config 解決 + withCostLog ラップもここでまとめる
+ * (resolveDebatabilityGate — 実体はペーパー草案構築 buildPaperDraft の中で走る)。
  */
 
 import type { LLMClient } from "../persona-engine/llm/client.js";
@@ -15,6 +19,8 @@ import type { FlowKind } from "./dispatch.js";
 import { getConfig } from "../config.js";
 import { withCostLog } from "./cost-logger.js";
 import { resolveAutoCrawlSources } from "./learning-autocrawl.js";
+import { getFlowDb } from "./db/connection.js";
+import { makeBlackboxDensityEvaluator, makeDensityBlackBox } from "./density-blackbox.js";
 import {
   isDensity,
   runInformationGate,
@@ -78,6 +84,8 @@ export async function gateBeforeFlow(args: FlowGateArgs): Promise<InformationGat
   const core = openCore();
   try {
     const llm = withCostLog(args.llm, { flow: kind, sessionId, location: "information-gate" });
+    // 密度判定は blackbox 経由 (卒業ルールがあれば LLM 省略、無ければ LLM 判定を教師に学習)。
+    const evaluateFn = makeBlackboxDensityEvaluator(makeDensityBlackBox(getFlowDb()));
     return await runInformationGate({
       core,
       theme,
@@ -89,10 +97,40 @@ export async function gateBeforeFlow(args: FlowGateArgs): Promise<InformationGat
       maxItems: crawl.maxItems,
       youtubeApiKey,
       config,
+      evaluateFn,
       log,
       warn,
     });
   } finally {
     core.close?.();
   }
+}
+
+/** buildPaperDraft に渡す議論適性ゲートの実行オプション (config 解決 + コストログ済み LLM)。 */
+export interface DebatabilityGateOptions {
+  llm: LLMClient;
+  minArmableIssues: number;
+}
+
+/**
+ * 議論適性ゲート (09) の実行オプションを解決する。
+ * 無効 (config.flow.debatability.enabled=false) / 対象外フロー (学習・壁打ち) なら undefined
+ * (= ゲートを走らせない → 現行挙動と完全一致)。
+ */
+export function resolveDebatabilityGate(args: {
+  kind: FlowKind;
+  sessionId: string;
+  llm: LLMClient;
+}): DebatabilityGateOptions | undefined {
+  const cfg = getConfig().flow.debatability;
+  if (!cfg.enabled) return undefined;
+  if (args.kind !== "discussion" && args.kind !== "improvement") return undefined;
+  return {
+    llm: withCostLog(args.llm, {
+      flow: args.kind,
+      sessionId: args.sessionId,
+      location: "debatability-gate",
+    }),
+    minArmableIssues: cfg.minArmableIssues,
+  };
 }

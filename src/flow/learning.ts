@@ -124,8 +124,11 @@ export async function runLearningFlow(
   // ── メカニクス記録 ───────────────────────────────────────────────────────
   let mechanicsRecorded = 0;
   if (mechanics.length > 0) {
+    // 出所ラベル (08): クロール/学習取込経路のメカニクスは source="crawl" を付けて永続する
+    // (investigate が読み戻すとき curated と区別できる。明示済みの source は尊重)。
+    const labeled = mechanics.map((m) => (m.source ? m : { ...m, source: "crawl" as const }));
     // data/games/<slug>.md (議論フローの調査が読む正路)
-    mechanicsRecorded = upsertGameMechanics({ gamesDir, slug, title: gameTitle, mechanics });
+    mechanicsRecorded = upsertGameMechanics({ gamesDir, slug, title: gameTitle, mechanics: labeled });
     // Discatier Core mechanics にも記録 (name/description)
     for (const m of mechanics) {
       if (!m.name) continue;

@@ -56,6 +56,7 @@ import { GameFeedbackStore } from "./feedback/store.js";
 import { ensureReactionTables, recordPostedMessage, applyReaction } from "./discord-hook/reactions.js";
 import { queueRoutes } from "./api/queue-routes.js";
 import { kgMigrationRoutes } from "./api/kg-migration-routes.js";
+import { blackboxRoutes } from "./api/blackbox-routes.js";
 import { startKgSyncScheduler } from "./kg-sync/scheduler.js";
 import { createNoiseRoutes } from "./api/noise-routes.js";
 import { datasourceRoutes } from "./api/datasource-routes.js";
@@ -149,6 +150,9 @@ app.route("/api", workerPoolControlRoutes);
 // ─── 議論チューニング UI/API (/api/admin/tuning) ───────────────
 app.route("/api", tuningRoutes);
 app.route("/api", personaRoutes);
+
+// ─── 成長型ブラックボックス (情報密度判定のルール卒業) レビュー & 管理 ──
+app.route("/api", blackboxRoutes);
 
 // ─── KG 共有同期: 配信エンドポイント (master) /api/kg/migrations ──────
 app.route("/api", kgMigrationRoutes);

@@ -11,6 +11,19 @@ import matter from "gray-matter";
 import type { FlowTag } from "./tags.js";
 import { canCollectExternal } from "./tags.js";
 
+/**
+ * メカニクスの出所ラベル (08-paper-provenance)。
+ *   - curated: data/games の手入れ済みデータ (investigate 読込)
+ *   - llm    : 感想からの LLM 増補 (mechanic-extract) — 未検証の仮説
+ *   - crawl  : クロール/学習フロー取込 (learning.ts / crawler)
+ */
+export type MechanicSource = "curated" | "llm" | "crawl";
+
+/** 文字列を MechanicSource に正規化する (不正/未指定は undefined = 旧データ = curated 扱い)。 */
+export function asMechanicSource(v: unknown): MechanicSource | undefined {
+  return v === "curated" || v === "llm" || v === "crawl" ? v : undefined;
+}
+
 export interface MechanicSummary {
   name: string;
   description: string;
@@ -20,6 +33,8 @@ export interface MechanicSummary {
   intended_aspects?: string[];
   /** メカニクスが狙う感情 (emo.* 次元名: joy/trust/...)。改善フローの目標ベクトル構築に使う。 */
   intended_emotions?: string[];
+  /** 出所ラベル。undefined = 旧データ = curated 扱い (後方互換、DB migration 不要)。 */
+  source?: MechanicSource;
 }
 
 export interface InvestigateResult {
@@ -119,6 +134,8 @@ function loadMechanics(gamesDir: string, theme: string): MechanicSummary[] {
       results.push({
         name,
         description,
+        // 出所: frontmatter に source があれば尊重 (learning が crawl と書く)、無ければ curated。
+        source: asMechanicSource(item.source) ?? "curated",
         intended_affect: typeof item.intended_affect === "string" ? item.intended_affect : undefined,
         intended_valence: typeof item.intended_valence === "string" ? item.intended_valence : undefined,
         intended_aspects: Array.isArray(item.intended_aspects)

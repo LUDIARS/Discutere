@@ -23,16 +23,24 @@
 import type { LLMClient } from "../persona-engine/llm/client.js";
 import type { FlowTag } from "./tags.js";
 import { paperSupplement } from "./tags.js";
-import { investigateTheme, type MechanicSummary, type YoutubeSearchFn } from "./investigate.js";
+import {
+  asMechanicSource,
+  investigateTheme,
+  type MechanicSummary,
+  type YoutubeSearchFn,
+} from "./investigate.js";
 import { enrichMechanics } from "./mechanic-extract.js";
 import type { ContextVoice } from "./discussion-paper.js";
 import {
   paperDraftToMarkdown,
   markdownToPaperDraft,
+  groundedMechanics,
+  hypotheticalMechanics,
   type PaperContent,
   type PaperFixedFields,
 } from "./paper-markdown.js";
 import { getBlockText } from "./paper-blocks.js";
+import { assessDebatability, annotatedIssues, type DebatabilityResult } from "./debatability.js";
 
 /** 有効な観点タグ (編集で受理する集合)。 */
 export const VALID_FLOW_TAGS: readonly FlowTag[] = ["機密", "内部", "運用", "開発"];
@@ -71,6 +79,8 @@ export interface PaperReviewInfo {
   samples: Array<{ content: string; source: string }>;
   /** AI が基本的なゲーム内容を把握できているかの事前確認。 */
   understanding?: PaperUnderstanding;
+  /** 議論適性ゲート (09) の評価結果 (ゲート有効時のみ)。 */
+  debatability?: DebatabilityResult;
 }
 
 export interface PaperUnderstanding {
@@ -99,6 +109,18 @@ export interface BuildPaperDraftDeps {
   extraMechanics?: MechanicSummary[];
   /** Web 固定フォーム由来の入力。指定時は本文 md を固定セクションで生成する。 */
   seed?: Partial<PaperFixedFields>;
+  /**
+   * 議論適性ゲート (09)。指定時は情報整備後・人間レビュー前に 3 検査を走らせ、
+   * 論点 (`# 論点` 節) を草案に前倒しし、評価結果を info.debatability に載せる。
+   * llm は呼び出し側で withCostLog 済みを渡す (resolveDebatabilityGate)。
+   * 未指定 = ゲート無効 → 現行挙動と完全一致。
+   */
+  debatability?: {
+    llm: LLMClient;
+    minArmableIssues: number;
+    /** 評価の差し替え (テスト用)。 */
+    assess?: typeof assessDebatability;
+  };
   warn?: (msg: string) => void;
 }
 
@@ -255,13 +277,33 @@ export async function buildPaperDraft(
   const supplement = seed
     ? [paperSupplement(tags), seed.themeSupplement].filter((s) => s.trim()).join("\n")
     : paperSupplement(tags);
-  const draft: PaperDraft = withDerivedBody({
+  const baseContent: PaperContent = {
     theme: seed?.discussionTheme || theme,
     tags: [...tags],
     supplement,
     mechanics,
     ...(seed ?? {}),
-  });
+  };
+
+  // 議論適性ゲート (09): 情報ゲート (量) の後段・人間レビューの前に「質」を評価する。
+  // 論点分解を前倒しして `# 論点` 節を草案に載せる (人間がブロック編集で調整できる)。
+  // LLM 失敗は degraded=true で議論を止めない (assessDebatability 側で明示)。
+  let debatability: DebatabilityResult | undefined;
+  if (deps.debatability) {
+    const assess = deps.debatability.assess ?? assessDebatability;
+    debatability = await assess({
+      theme,
+      paperMd: paperDraftToMarkdown(baseContent),
+      voices,
+      llm: deps.debatability.llm,
+      minArmableIssues: deps.debatability.minArmableIssues,
+      warn: deps.warn,
+    });
+    const issues = annotatedIssues(debatability);
+    if (issues.length > 0) baseContent.issues = issues;
+  }
+
+  const draft: PaperDraft = withDerivedBody(baseContent);
   const understanding = seed
     ? await assessPaperUnderstanding(seed, mechanics, voices, deps.understandingLlm ?? deps.llm, {
         model: deps.enrichModel || undefined,
@@ -273,6 +315,7 @@ export async function buildPaperDraft(
     countCapped: voices.length >= COUNT_LIMIT,
     samples: voices.slice(0, SAMPLE_LIMIT).map(toSample),
     understanding,
+    debatability,
   };
   return { draft, info };
 }
@@ -289,18 +332,30 @@ function extractJsonObject(raw: string): unknown {
   }
 }
 
-/** 任意の JSON 値を MechanicSummary に正規化する (name 必須)。 */
+/** 任意の JSON 値を MechanicSummary に正規化する (name 必須)。source は有効値のみ保持。 */
 function normalizeMechanic(raw: unknown): MechanicSummary | null {
   if (!raw || typeof raw !== "object") return null;
   const m = raw as Record<string, unknown>;
   const name = typeof m.name === "string" ? m.name.trim() : "";
   if (!name) return null;
   const affect = typeof m.intended_affect === "string" ? m.intended_affect.trim() : "";
+  const source = asMechanicSource(m.source);
   return {
     name,
     description: typeof m.description === "string" ? m.description.trim() : "",
     ...(affect ? { intended_affect: affect } : {}),
+    ...(source ? { source } : {}),
   };
+}
+
+/** 任意の JSON 値を issues[] に正規化する (文字列のみ・trim・空除外)。 */
+function sanitizeIssues(raw: unknown): string[] | undefined {
+  if (!Array.isArray(raw)) return undefined;
+  const issues = raw
+    .filter((v): v is string => typeof v === "string")
+    .map((s) => s.trim())
+    .filter(Boolean);
+  return issues;
 }
 
 /** 編集 LLM が返したタグ配列を有効タグだけに絞る。 */
@@ -352,10 +407,12 @@ export async function applyPaperEdit(
     theme: draft.theme,
     tags: draft.tags,
     supplement: draft.supplement,
+    issues: draft.issues ?? [],
     mechanics: draft.mechanics.map((m) => ({
       name: m.name,
       description: m.description,
       intended_affect: m.intended_affect ?? "",
+      source: m.source ?? "curated",
     })),
   };
 
@@ -364,10 +421,12 @@ export async function applyPaperEdit(
     "ユーザの調整指示に従い、ペーパーを編集して **JSON のみ** で返してください。" +
     "指示に関係ないフィールドは現行値のまま保持します。" +
     `tags に使えるのは ${VALID_FLOW_TAGS.join("/")} のみ。` +
+    "mechanics の source (curated/llm/crawl = 出所ラベル) は指示がない限り現行値を保持します。" +
+    "issues は議論の論点 (賛否が割れる争点) の配列です。" +
     "出力スキーマ: " +
     '{"gameTitle":string,"discussionTheme":string,"discussionContent":string,"mechanicsContext":string,"themeSupplement":string,' +
-    '"theme":string,"tags":string[],"supplement":string,' +
-    '"mechanics":[{"name":string,"description":string,"intended_affect":string}],' +
+    '"theme":string,"tags":string[],"supplement":string,"issues":string[],' +
+    '"mechanics":[{"name":string,"description":string,"intended_affect":string,"source":string}],' +
     '"changeSummary":string}。' +
     "changeSummary は変更点を 1 文 (日本語) で。前置きやコードフェンスは付けない。";
 
@@ -415,6 +474,7 @@ export async function applyPaperEdit(
   const mechanics = Array.isArray(obj.mechanics)
     ? obj.mechanics.map(normalizeMechanic).filter((m): m is MechanicSummary => m !== null)
     : draft.mechanics;
+  const issues = "issues" in obj ? sanitizeIssues(obj.issues) : draft.issues;
   const changeSummary =
     typeof obj.changeSummary === "string" && obj.changeSummary.trim()
       ? obj.changeSummary.trim()
@@ -427,6 +487,7 @@ export async function applyPaperEdit(
       tags,
       supplement,
       mechanics,
+      issues,
       gameTitle,
       discussionTheme,
       discussionContent,
@@ -457,7 +518,8 @@ export function coercePaperDraft(raw: unknown, fallback: PaperDraft): PaperDraft
   const mechanics = Array.isArray(o.mechanics)
     ? o.mechanics.map(normalizeMechanic).filter((m): m is MechanicSummary => m !== null)
     : fallback.mechanics;
-  return withDerivedBody({ theme, tags, supplement, mechanics });
+  const issues = "issues" in o ? sanitizeIssues(o.issues) : fallback.issues;
+  return withDerivedBody({ theme, tags, supplement, mechanics, issues });
 }
 
 /** ペーパー + 情報サマリを人間向け markdown にする (Discord 投稿 / Web 表示で共有)。 */
@@ -469,15 +531,33 @@ export function renderPaperReview(draft: PaperDraft, info: PaperReviewInfo): str
   if (draft.tags.length) lines.push(`**観点タグ**: ${draft.tags.join(" / ")}`);
   if (draft.supplement) lines.push(`**観点補足**: ${draft.supplement}`);
 
+  // 論点 (09): 争点分解の前倒し。人間が返信/編集で調整できる。
+  if (draft.issues && draft.issues.length > 0) {
+    lines.push("");
+    lines.push("**論点**:");
+    draft.issues.forEach((issue, i) => lines.push(`${i + 1}. ${issue}`));
+  }
+
   lines.push("");
-  if (draft.mechanics.length) {
+  const grounded = groundedMechanics(draft.mechanics);
+  const hypothetical = hypotheticalMechanics(draft.mechanics);
+  if (grounded.length) {
     lines.push("**ゲームのメカニクス**:");
-    for (const m of draft.mechanics) {
+    for (const m of grounded) {
       const affect = m.intended_affect ? ` → 期待感情: ${m.intended_affect}` : "";
-      lines.push(`- ${m.name}: ${m.description}${affect}`);
+      lines.push(`- ${m.name}: ${m.description}${affect} （出所: ${m.source ?? "curated"}）`);
     }
   } else {
     lines.push("**ゲームのメカニクス**: (なし)");
+  }
+  // 仮説メカニクス (08): LLM 増補分はバッジ付きで分離表示 (議論開始前に削れる)。
+  if (hypothetical.length) {
+    lines.push("");
+    lines.push("🧪 **仮説メカニクス (LLM抽出・未検証)**:");
+    for (const m of hypothetical) {
+      const affect = m.intended_affect ? ` → 期待感情: ${m.intended_affect}` : "";
+      lines.push(`- ${m.name}: ${m.description}${affect}`);
+    }
   }
 
   lines.push("");
@@ -485,6 +565,25 @@ export function renderPaperReview(draft: PaperDraft, info: PaperReviewInfo): str
   lines.push(`**集めた情報**: 外部の声 ${countLabel} 件`);
   for (const s of info.samples) {
     lines.push(`- 「${s.content}」(出所: ${s.source})`);
+  }
+
+  // 議論適性ゲート (09): 議論不適なら再提案を併記する (人間が最終決定・強行可)。
+  const d = info.debatability;
+  if (d && !d.degraded) {
+    lines.push("");
+    if (d.debatable) {
+      lines.push(`✅ ${d.message}`);
+    } else {
+      lines.push(`⚠️ ${d.message}`);
+      if (d.recommendation) {
+        const label = d.recommendation.flow === "sparring" ? "壁打ち" : "学習";
+        lines.push(`💡 **提案**: このテーマは「${label}」が向いています。${d.recommendation.reason}`);
+        lines.push("(このまま議論を開始することもできます — 判断はお任せします)");
+      }
+    }
+  } else if (d?.degraded) {
+    lines.push("");
+    lines.push(`⚠️ ${d.message}`);
   }
 
   return lines.join("\n");

@@ -113,6 +113,17 @@ export interface DiscutereConfig {
       model: string;
     };
     /**
+     * 議論適性ゲート (情報ゲートの後段の「質」チェック、09-paper-gate-debatability)。
+     * 争点の存在 / 両論武装可能性 / 証拠バランスを評価し、議論不適ならフロー再提案
+     * (壁打ち/学習) を出す (人間が最終決定・強行可)。enabled=false で現行挙動と完全一致。
+     */
+    debatability: {
+      /** 有効化。既定 true。 */
+      enabled: boolean;
+      /** armable=both の争点がこれ未満なら議論不適。既定 2。 */
+      minArmableIssues: number;
+    };
+    /**
      * ディスカッションペーパー レビューゲート (議論/改善の開始前に、ペーパー (議題ブリーフ) と
      * 集めた情報を人間が確認 → 自然文で調整 → 承認してから議論を始める)。
      * 既定 false (= 従来どおり情報ゲート後に自動開始)。有効時は Discord スレッド返信 / Web UI で調整できる。
@@ -147,6 +158,15 @@ export interface DiscutereConfig {
       enrichMechanics: boolean;
       /** 増補に使うモデル ("" なら LLM の既定モデル)。 */
       enrichModel: string;
+    };
+    /**
+     * 改善フローのスコアリング (improvement.md (2) 2026-07-02 改訂)。
+     * 各意見の「採用した場合の体験変化」を小モデル LLM で構造化予測し design_gap へ射影する。
+     * LLM 失敗時は意見単位で旧 lexicon 方式へフォールバック (improvement_score.method に記録)。
+     */
+    improvement: {
+      /** 効果予測に使うモデル。既定 Haiku 級 (claude-haiku-4-5-20251001)。"" なら LLM の既定モデル。 */
+      effectModel: string;
     };
     /**
      * ペーパー本文の LLM リファイン (議論終了後に議題/観点補足/メカニクス本体を
@@ -744,6 +764,18 @@ export function loadConfig(): DiscutereConfig {
         ),
         model: pick(process.env.DISCUTERE_FLOW_INFOGATE_MODEL, file.flow?.informationGating?.model, ""),
       },
+      debatability: {
+        enabled: pickBool(
+          process.env.DISCUTERE_FLOW_DEBATABILITY_ENABLED,
+          file.flow?.debatability?.enabled,
+          true
+        ),
+        minArmableIssues: pickNum(
+          process.env.DISCUTERE_FLOW_DEBATABILITY_MIN_ARMABLE_ISSUES,
+          file.flow?.debatability?.minArmableIssues,
+          2
+        ),
+      },
       paperReview: {
         enabled: pickBool(
           process.env.DISCUTERE_FLOW_PAPER_REVIEW_ENABLED,
@@ -778,6 +810,13 @@ export function loadConfig(): DiscutereConfig {
           process.env.DISCUTERE_FLOW_PAPER_ENRICH_MODEL,
           file.flow?.paperRichness?.enrichModel,
           ""
+        ),
+      },
+      improvement: {
+        effectModel: pick(
+          process.env.DISCUTERE_FLOW_IMPROVEMENT_EFFECT_MODEL,
+          file.flow?.improvement?.effectModel,
+          "claude-haiku-4-5-20251001"
         ),
       },
       paperRefine: {

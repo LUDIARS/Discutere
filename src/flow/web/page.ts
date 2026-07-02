@@ -105,6 +105,12 @@ export const FLOW_HTML = `<!doctype html>
   .understanding.warn { display: block; border-left-color: #f59e0b; }
   .understanding strong { display: block; margin-bottom: 4px; }
   .understanding ul { margin: 4px 0 0; padding-left: 1.2rem; }
+  .debat { display: none; border: 1px solid var(--border); border-left-width: 4px; border-radius: 8px; padding: 10px 12px; margin: 10px 0; background: var(--surface); }
+  .debat.ok { display: block; border-left-color: var(--success); }
+  .debat.warn { display: block; border-left-color: #f59e0b; }
+  .debat strong { display: block; margin-bottom: 4px; }
+  .debat .rec { margin-top: 6px; padding: 8px 10px; background: var(--soft); border-radius: 6px; }
+  .badge.hypo { background: #fae8ff; color: #86198f; }
   #review input[type=text] { width: 100%; }
   #review .row { margin: 0.5rem 0; }
   .blk { background: var(--surface); border: 1px solid var(--border); border-radius: 8px; padding: 12px; margin: 10px 0; }
@@ -291,6 +297,7 @@ export const FLOW_HTML = `<!doctype html>
     <h2>📝 ディスカッションペーパー編集 (確定すると議論開始できます)</h2>
     <div id="reviewInfo" class="muted">準備中…</div>
     <div id="understanding" class="understanding"></div>
+    <div id="debatability" class="debat"></div>
     <div id="fixedPaper" class="paper-form">
       <label>ゲームタイトル（または主目的）
         <input id="rvGameTitle" type="text" />
@@ -300,6 +307,10 @@ export const FLOW_HTML = `<!doctype html>
       </label>
       <label>議論内容
         <textarea id="rvDiscussionContent" rows="4"></textarea>
+      </label>
+      <label>論点 (1行1論点・議論適性ゲートの分解結果を編集できます)
+        <textarea id="rvIssues" rows="4" placeholder="例: ガチャ緩和は長期収益を毀損するか"></textarea>
+        <span class="field-note">承認時にファシリテーターの参考論点として渡されます。空にすると論点なしで開始します。</span>
       </label>
       <label>システム/メカニクスの説明
         <textarea id="rvMechanicsContext" rows="6"></textarea>
@@ -493,12 +504,29 @@ function renderUnderstanding(info) {
     "<div>" + escapeHtml(u.rationale || "") + "</div>" +
     (qs ? "<ul>" + qs + "</ul>" : "");
 }
+function renderDebatability(info) {
+  const el = $("debatability");
+  const d = info && info.debatability;
+  if (!d || d.degraded) { el.style.display = "none"; el.className = "debat"; el.innerHTML = ""; return; }
+  el.className = "debat " + (d.debatable ? "ok" : "warn");
+  let html = "<strong>議論適性ゲート: " + (d.debatable ? "議論に向いています" : "議論不適 (再提案あり)") + "</strong>" +
+    "<div>" + escapeHtml(d.message || "") + "</div>";
+  if (!d.debatable && d.recommendation) {
+    const label = d.recommendation.flow === "sparring" ? "壁打ち" : "学習";
+    html += '<div class="rec">💡 <strong>提案: 「' + label + '」フロー</strong>' +
+      escapeHtml(d.recommendation.reason || "") +
+      '<div class="muted">このまま下の「議論開始」で強行することもできます (人間が最終決定)。</div></div>';
+  }
+  el.innerHTML = html;
+  el.style.display = "block";
+}
 function renderFixedForm(res) {
   $("fixedPaper").style.display = "grid";
   const f = res.fixedFields || {};
   setInputValue("rvGameTitle", f.gameTitle);
   setInputValue("rvDiscussionTheme", f.discussionTheme || (curPaper && curPaper.theme) || "");
   setInputValue("rvDiscussionContent", f.discussionContent);
+  setInputValue("rvIssues", ((curPaper && curPaper.issues) || []).join("\\n"));
   setInputValue("rvMechanicsContext", f.mechanicsContext);
   setInputValue("rvThemeSupplement", f.themeSupplement || (curPaper && curPaper.supplement) || "");
   setReviewTags((curPaper && curPaper.tags) || []);
@@ -506,12 +534,14 @@ function renderFixedForm(res) {
   setInputValue("rvRounds", settings.rounds == null ? "" : settings.rounds);
   setInputValue("rvTurnsPerRound", settings.turnsPerRound == null ? "" : settings.turnsPerRound);
   renderUnderstanding(res.info);
+  renderDebatability(res.info);
 }
 function collectFixedForm() {
   return {
     gameTitle: $("rvGameTitle").value.trim(),
     discussionTheme: $("rvDiscussionTheme").value.trim(),
     discussionContent: $("rvDiscussionContent").value.trim(),
+    issues: $("rvIssues").value,
     mechanicsContext: $("rvMechanicsContext").value.trim(),
     themeSupplement: $("rvThemeSupplement").value.trim(),
     tags: collectReviewTags(),
@@ -543,8 +573,12 @@ function renderBlocks(blocks) {
     div.className = "blk " + b.type;
     div.dataset.id = b.id;
     const rows = Math.min(8, Math.max(1, String(b.text).split("\\n").length));
+    // 仮説メカニクス節 (LLM抽出・未検証) の見出しブロックにはバッジを出す (08)。
+    const hypoBadge = b.type === "heading" && String(b.text).includes("仮説メカニクス")
+      ? '<span class="badge hypo">🧪 未検証 (LLM抽出)</span>'
+      : "";
     div.innerHTML =
-      '<div class="blk-type">' + (TYPE_LABEL[b.type] || b.type) + '</div>' +
+      '<div class="blk-type">' + (TYPE_LABEL[b.type] || b.type) + hypoBadge + '</div>' +
       '<textarea class="blk-text" rows="' + rows + '"></textarea>' +
       '<div class="blk-actions">' +
         '<button data-act="save" class="primary">保存</button>' +
@@ -584,7 +618,12 @@ async function pollPaper() {
   if (!res.ready) { setTimeout(pollPaper, 1500); return; }
   $("review").style.display = "block";
   if (res.error) { $("rvMsg").textContent = "草案作成に失敗: " + res.error; return; }
-  if (res.info) $("reviewInfo").textContent = "集めた情報: 外部の声 " + (res.info.voiceCount || 0) + (res.info.countCapped ? "+" : "") + " 件";
+  if (res.info) {
+    let infoText = "集めた情報: 外部の声 " + (res.info.voiceCount || 0) + (res.info.countCapped ? "+" : "") + " 件";
+    const hypo = ((res.paper && res.paper.mechanics) || []).filter((m) => m.source === "llm").length;
+    if (hypo > 0) infoText += " / 🧪 仮説メカニクス " + hypo + " 件 (LLM抽出・未検証)";
+    $("reviewInfo").textContent = infoText;
+  }
   applyPayload(res);
 }
 
@@ -767,6 +806,7 @@ function resetView() {
   $("conclusion").style.display = "none"; $("say").style.display = "none";
   $("backBar").style.display = "none"; $("start").style.display = "none";
   $("fixedPaper").style.display = "none"; $("understanding").style.display = "none";
+  $("debatability").style.display = "none";
   $("go").disabled = false;
 }
 // 既存議論を開いて閲覧する (進行中はライブ、収束済みは最終状態)。
