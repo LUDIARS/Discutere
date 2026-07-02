@@ -11,6 +11,7 @@ await import("./foundation.test.js");
 await import("./discussion.test.js");
 await import("./vote-conclude.test.js");
 await import("./improvement.test.js");
+await import("./effect-predict.test.js");
 await import("./learning.test.js");
 await import("./sparring.test.js");
 await import("./entrypoints.test.js");

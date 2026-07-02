@@ -322,6 +322,18 @@ const MIGRATIONS: Array<{ id: string; sql: string[] }> = [
       `CREATE INDEX IF NOT EXISTS idx_discussion_title_cache_origin ON discussion_title_cache(origin_ui, discussion_type, updated_at DESC)`,
     ],
   },
+  {
+    // 改善フロー スコアリング再設計 (respec PR-C / improvement.md (2) 2026-07-02 改訂):
+    //  - method: スコアの算出方式。'effect-predict' (LLM 効果予測) / 'lexicon-fallback'
+    //    (LLM 失敗時の意見単位 degrade) / 'lexicon' (旧データ既定)。degrade の可視化用。
+    //  - detail_json: 効果予測の changes[] (次元別 delta + 理由)。監査・可視化用。
+    // ALTER ADD COLUMN のみ (新規 INDEX 不要)。既存 DB で no such column を避ける共通ルール。
+    id: "flow_0016_improvement_score_method",
+    sql: [
+      `ALTER TABLE improvement_score ADD COLUMN method TEXT NOT NULL DEFAULT 'lexicon'`,
+      `ALTER TABLE improvement_score ADD COLUMN detail_json TEXT`,
+    ],
+  },
 ];
 
 function isIgnorableMigrationError(stmt: string, error: unknown): boolean {

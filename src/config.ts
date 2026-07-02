@@ -133,6 +133,15 @@ export interface DiscutereConfig {
       enrichModel: string;
     };
     /**
+     * 改善フローのスコアリング (improvement.md (2) 2026-07-02 改訂)。
+     * 各意見の「採用した場合の体験変化」を小モデル LLM で構造化予測し design_gap へ射影する。
+     * LLM 失敗時は意見単位で旧 lexicon 方式へフォールバック (improvement_score.method に記録)。
+     */
+    improvement: {
+      /** 効果予測に使うモデル。既定 Haiku 級 (claude-haiku-4-5-20251001)。"" なら LLM の既定モデル。 */
+      effectModel: string;
+    };
+    /**
      * ペーパー本文の LLM リファイン (議論終了後に議題/観点補足/メカニクス本体を
      * 議論結果を踏まえて書き換える)。既定 false (opt-in・LLM コスト増 1 回/議論)。
      * 議論ループ後に走るためペルソナ system のプロンプトキャッシュには影響しない。
@@ -726,6 +735,13 @@ export function loadConfig(): DiscutereConfig {
           process.env.DISCUTERE_FLOW_PAPER_ENRICH_MODEL,
           file.flow?.paperRichness?.enrichModel,
           ""
+        ),
+      },
+      improvement: {
+        effectModel: pick(
+          process.env.DISCUTERE_FLOW_IMPROVEMENT_EFFECT_MODEL,
+          file.flow?.improvement?.effectModel,
+          "claude-haiku-4-5-20251001"
         ),
       },
       paperRefine: {
