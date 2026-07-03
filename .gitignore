@@ -23,3 +23,6 @@ models/di-debate-v1/
 
 # electron-builder の出力 (デスクトップアプリのパッケージ)
 release/
+
+# LLM 実行ログ / cost queue JSONL (src/persona-engine/llm が cwd/logs に書き出す)
+logs/
