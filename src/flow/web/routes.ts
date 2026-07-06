@@ -54,7 +54,6 @@ import {
 } from "./flow-prep.js";
 import {
   buildPaperDraft,
-  assessPaperUnderstanding,
   coercePaperDraft,
   reviewBlock,
   gatherEvidence,
@@ -902,21 +901,7 @@ flowRoutes.post("/api/flow/:session/paper/form/apply", async (c) => {
     mechanics: entry.draft.mechanics,
     issues,
   });
-  const draft = commitBodyMd(sessionId, entry, bodyMd, "固定フォーム保存", "manual", webDeps);
-  const info = defaultPaperInfo(entry.info);
-  info.understanding = await assessPaperUnderstanding(nextFields, draft.mechanics, [], webDeps.llm, {
-    model: getConfig().flow.paperReview.model || undefined,
-    warn: (m) => console.warn(`[flow-web/paper ${sessionId}] ${m}`),
-  });
-  info.fixSuggestions = await suggestFixesForPaper({
-    draft,
-    info,
-    llm: webDeps.llm,
-    model: getConfig().flow.paperReview.model || undefined,
-    warn: (m) => console.warn(`[flow-web/paper ${sessionId}] ${m}`),
-  });
-  entry.info = info;
-  savePaperReviewInfo(sessionId, info);
+  commitBodyMd(sessionId, entry, bodyMd, "固定フォーム保存", "manual", webDeps);
   return c.json({ ok: true, ...paperPayload(sessionId, entry.draft, entry) });
 });
 
