@@ -11,6 +11,10 @@
 
 import { ApplicationCommandOptionType } from "discord.js";
 import type { RESTPostAPIChatInputApplicationCommandsJSONBody } from "discord.js";
+import {
+  PAPER_GAP_COMMAND_NAME,
+  PAPER_GAP_TYPE_CHOICES,
+} from "./paper-gap-ui.js";
 
 export const DISCORD_COMMAND_DEFS: RESTPostAPIChatInputApplicationCommandsJSONBody[] = [
   {
@@ -93,6 +97,19 @@ export const DISCORD_COMMAND_DEFS: RESTPostAPIChatInputApplicationCommandsJSONBo
           { name: "live (進行中)", value: "live" },
           { name: "concluded (結論あり)", value: "concluded" },
         ],
+      },
+    ],
+  },
+  {
+    name: PAPER_GAP_COMMAND_NAME,
+    description: "Diのディスカッションペーパー不足事項を専用UIで投稿する",
+    options: [
+      {
+        name: "type",
+        description: "不足事項の種類",
+        type: ApplicationCommandOptionType.String,
+        required: true,
+        choices: PAPER_GAP_TYPE_CHOICES,
       },
     ],
   },

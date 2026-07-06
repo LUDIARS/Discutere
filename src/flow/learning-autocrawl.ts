@@ -23,13 +23,14 @@ import { fetchSteamReviews } from "../crawler/sources/steam.js";
 import { fetchWebsiteArticles } from "../crawler/sources/website.js";
 import { discoverVideosBySearch } from "../crawler/sources/youtube-videos.js";
 import { fetchVideoComments } from "../crawler/sources/youtube-comments.js";
+import { fetchRedditDiscussions, type RedditCredentials } from "../crawler/sources/reddit.js";
 
 type Core = ReturnType<typeof createCore>;
 
 /** 自動クロールがサポートするソース (= UI の選択肢)。 */
-export type AutoCrawlSource = "niconico" | "youtube" | "steam" | "website";
+export type AutoCrawlSource = "niconico" | "youtube" | "steam" | "website" | "reddit";
 
-export const AUTO_CRAWL_SOURCES: AutoCrawlSource[] = ["niconico", "youtube", "steam", "website"];
+export const AUTO_CRAWL_SOURCES: AutoCrawlSource[] = ["niconico", "youtube", "steam", "website", "reddit"];
 
 export function isAutoCrawlSource(s: string): s is AutoCrawlSource {
   return (AUTO_CRAWL_SOURCES as string[]).includes(s);
@@ -46,7 +47,8 @@ export function resolveAutoCrawlSources(
   sources: readonly string[],
   youtubeApiKey?: string
 ): AutoCrawlSource[] {
-  const autoUsable = (s: string): boolean => s === "niconico" || (s === "youtube" && !!youtubeApiKey);
+  const autoUsable = (s: string): boolean =>
+    s === "niconico" || (s === "youtube" && !!youtubeApiKey) || (s === "reddit" && !!redditCredentialsFromEnv());
   return Array.from(new Set([...sources, ...(youtubeApiKey ? ["youtube"] : [])])).filter(
     (s): s is AutoCrawlSource => isAutoCrawlSource(s) && autoUsable(s)
   );
@@ -66,6 +68,7 @@ export interface AutoCrawlSpec {
   appId?: number;
   /** 取得対象 URL 群 (website では必須)。 */
   urls?: string[];
+  subreddit?: string;
 }
 
 export interface CollectorContext {
@@ -81,6 +84,18 @@ export type Collector = (ctx: CollectorContext) => Promise<ExternalUtterance[]>;
 function resolveQuery(ctx: CollectorContext): string {
   const q = ctx.spec.query?.trim();
   return q && q.length > 0 ? q : ctx.theme;
+}
+
+function redditCredentialsFromEnv(): RedditCredentials | null {
+  const clientId = process.env.DISCUTERE_REDDIT_CLIENT_ID;
+  const clientSecret = process.env.DISCUTERE_REDDIT_CLIENT_SECRET;
+  if (!clientId || !clientSecret) return null;
+  return {
+    clientId,
+    clientSecret,
+    userAgent:
+      process.env.DISCUTERE_REDDIT_USER_AGENT ?? "LUDIARS-Discutere/0.1 (external discussion crawler)",
+  };
 }
 
 /** 既定 collector 群 (本物のネットワーク取得)。テストでは差し替える。 */
@@ -132,6 +147,22 @@ export const DEFAULT_COLLECTORS: Record<AutoCrawlSource, Collector> = {
       }
     }
     return out.slice(0, ctx.maxItems);
+  },
+  reddit: async (ctx) => {
+    const creds = redditCredentialsFromEnv();
+    if (!creds) {
+      throw new Error("reddit crawler requires DISCUTERE_REDDIT_CLIENT_ID/SECRET");
+    }
+    const maxThreads = 4;
+    const items = await fetchRedditDiscussions({
+      ...creds,
+      gameSlug: ctx.gameSlug,
+      query: resolveQuery(ctx),
+      subreddit: ctx.spec.subreddit,
+      maxThreads,
+      maxCommentsPerThread: Math.max(1, Math.ceil(ctx.maxItems / maxThreads)),
+    });
+    return items.slice(0, ctx.maxItems);
   },
 };
 

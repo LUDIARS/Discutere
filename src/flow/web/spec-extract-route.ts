@@ -10,7 +10,15 @@
  */
 
 import { Hono } from "hono";
-import { extractSpecTextFromBytes, DEFAULT_MAX_SPEC_BYTES } from "../spec-source.js";
+import { getGitHubCliAuthStatus, getGitHubCliToken } from "../github-cli.js";
+import {
+  buildGithubSpecSource,
+  extractSpecTextFromBytes,
+  fetchGithubRepoInfo,
+  fetchGithubSpecText,
+  isSupportedSpecFileName,
+  DEFAULT_MAX_SPEC_BYTES,
+} from "../spec-source.js";
 
 export const specExtractRoutes = new Hono();
 
@@ -37,6 +45,9 @@ specExtractRoutes.post("/api/spec/extract", async (c) => {
 
   const bytes = new Uint8Array(await blob.arrayBuffer());
   const fileName = blob.name || "upload";
+  if (!isSupportedSpecFileName(fileName)) {
+    return c.json({ ok: false, error: `unsupported file format: ${fileName}` }, 415);
+  }
 
   let text: string;
   try {
@@ -46,4 +57,46 @@ specExtractRoutes.post("/api/spec/extract", async (c) => {
   }
 
   return c.json({ ok: true, text });
+});
+
+specExtractRoutes.get("/api/spec/github/auth", async (c) => {
+  const auth = await getGitHubCliAuthStatus();
+  return c.json({ ok: true, auth });
+});
+
+specExtractRoutes.post("/api/spec/github/check", async (c) => {
+  const body = (await c.req.json().catch(() => ({}))) as {
+    repoUrl?: unknown;
+    path?: unknown;
+    ref?: unknown;
+  };
+  const repoUrl = typeof body.repoUrl === "string" ? body.repoUrl.trim() : "";
+  const path = typeof body.path === "string" ? body.path.trim() : "";
+  const ref = typeof body.ref === "string" ? body.ref.trim() : "";
+  if (!repoUrl) return c.json({ ok: false, error: "repoUrl is required" }, 400);
+  const source = buildGithubSpecSource(repoUrl, path, ref);
+  if (!source) return c.json({ ok: false, error: "GitHub repository URL could not be parsed" }, 400);
+
+  const auth = await getGitHubCliAuthStatus();
+  const token = await getGitHubCliToken();
+  try {
+    if (!source.path) {
+      const repo = await fetchGithubRepoInfo(source, { githubToken: token });
+      return c.json({ ok: true, readable: true, auth, repo, source });
+    }
+    const result = await fetchGithubSpecText(source, { githubToken: token });
+    return c.json({
+      ok: true,
+      readable: true,
+      auth,
+      source: result.source,
+      size: result.size,
+      sha: result.sha,
+      htmlUrl: result.htmlUrl,
+      text: result.text,
+      preview: result.text.slice(0, 1000),
+    });
+  } catch (e) {
+    return c.json({ ok: false, readable: false, auth, source, error: (e as Error).message }, 422);
+  }
 });

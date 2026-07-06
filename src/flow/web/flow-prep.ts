@@ -57,6 +57,7 @@ export function buildAutoCrawlSpec(body: {
   learningQuery?: unknown;
   learningAppId?: unknown;
   learningUrls?: unknown;
+  learningSubreddit?: unknown;
 }): AutoCrawlSpec | null {
   const cfg = getConfig().flow.autoCrawl;
   if (!cfg.enabled) return null;
@@ -75,7 +76,11 @@ export function buildAutoCrawlSpec(body: {
     : typeof body.learningUrls === "string" && body.learningUrls.trim() !== ""
       ? body.learningUrls.split(/[\s,]+/).filter(Boolean)
       : undefined;
-  return { source, query, appId, urls };
+  const subreddit =
+    typeof body.learningSubreddit === "string" && body.learningSubreddit.trim() !== ""
+      ? body.learningSubreddit.trim()
+      : undefined;
+  return { source, query, appId, urls, subreddit };
 }
 
 /**
@@ -89,12 +94,39 @@ export function buildLearningCrawl(body: {
   learningQuery?: unknown;
   learningAppId?: unknown;
   learningUrls?: unknown;
+  learningSubreddit?: unknown;
+  learningBalanced?: unknown;
   youtubeApiKey?: string | null;
 }): LearningCrawlSpec | undefined {
   const cfg = getConfig().flow.autoCrawl;
   if (!cfg.enabled) return undefined;
   const youtubeApiKey = body.youtubeApiKey ?? undefined;
   const requested = typeof body.learningSource === "string" ? body.learningSource.trim() : "";
+  const balanced = requested === "balanced" || body.learningBalanced === true;
+
+  if (balanced) {
+    const appId =
+      typeof body.learningAppId === "number"
+        ? body.learningAppId
+        : typeof body.learningAppId === "string" && body.learningAppId.trim() !== ""
+          ? Number(body.learningAppId)
+          : undefined;
+    const subreddit =
+      typeof body.learningSubreddit === "string" && body.learningSubreddit.trim() !== ""
+        ? body.learningSubreddit.trim()
+        : undefined;
+    const sources: LearningCrawlSpec["sources"] = ["steam", "youtube", "reddit", "niconico"];
+    return {
+      sources,
+      query: typeof body.learningQuery === "string" ? body.learningQuery.trim() || undefined : undefined,
+      maxItems: Math.max(10, Math.floor(cfg.maxItems / sources.length)),
+      youtubeApiKey,
+      specBySource: {
+        steam: { appId },
+        reddit: { subreddit },
+      },
+    };
+  }
 
   // UI 明示ソース: buildAutoCrawlSpec の解決 (appId/urls 込み) をそのまま単一ソースに倒す。
   if (requested) {
@@ -105,7 +137,7 @@ export function buildLearningCrawl(body: {
       query: spec.query,
       maxItems: cfg.maxItems,
       youtubeApiKey,
-      specBySource: { [spec.source]: { appId: spec.appId, urls: spec.urls } },
+      specBySource: { [spec.source]: { appId: spec.appId, urls: spec.urls, subreddit: spec.subreddit } },
     };
   }
 

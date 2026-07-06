@@ -103,7 +103,7 @@ assert.equal(isDensity(3), false);
   assert.equal(ev.gaps.length, 1);
   assert.equal(ev.gaps[0].aspect, "否定的意見");
   assert.equal(ev.gaps[0].query, "周回設計 否定的意見"); // query 補完
-  assert.equal(ev.gaps[0].source, undefined); // reddit は非対応 → undefined
+  assert.equal(ev.gaps[0].source, "reddit");
 }
 
 // --- gate: sparse → 1 回学習 → rich で十分 ---

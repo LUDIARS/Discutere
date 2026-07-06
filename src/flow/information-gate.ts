@@ -120,7 +120,7 @@ function buildEvalPrompt(material: string): { system: string; prompt: string } {
     '  "density": "sparse" | "moderate" | "rich",\n' +
     '  "covered": ["既にカバーできている観点", ...],\n' +
     '  "gaps": [\n' +
-    '    { "aspect": "不足している観点", "reason": "なぜ必要か", "query": "それを集める検索クエリ(日本語可)", "source": "niconico|youtube|steam|website" }\n' +
+    '    { "aspect": "不足している観点", "reason": "なぜ必要か", "query": "それを集める検索クエリ(日本語可)", "source": "niconico|youtube|steam|website|reddit" }\n' +
     "  ],\n" +
     '  "proposedRule": { "description": "…", "when": { "op": "and", "clauses": [ { "op": "cmp", "feature": "voiceCount", "cmp": ">=", "value": 8 }, { "op": "cmp", "feature": "sourceKinds", "cmp": ">=", "value": 2 } ] } }\n' +
     "}\n" +

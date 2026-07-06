@@ -48,7 +48,7 @@ export interface LearningCrawlSpec {
   /** youtube ソース用 API キー (無ければ youtube はスキップ)。 */
   youtubeApiKey?: string;
   /** ソース別の追加パラメータ (steam appId / website urls)。自動経路では通常未指定。 */
-  specBySource?: Partial<Record<AutoCrawlSource, Pick<AutoCrawlSpec, "appId" | "urls">>>;
+  specBySource?: Partial<Record<AutoCrawlSource, Pick<AutoCrawlSpec, "appId" | "urls" | "subreddit">>>;
 }
 
 export interface LearningFlowDeps {

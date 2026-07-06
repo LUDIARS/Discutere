@@ -58,7 +58,7 @@ const TOP_HTML = `<!doctype html>
  </div>
  <h2>学習データ</h2>
  <div class="grid">
-   <a class="card" href="/learning"><div class="t">学習ビュー</div><div class="d">基礎知識 / ゲーム学習 / 話題と意見の蓄積を閲覧</div></a>
+   <a class="card" href="/learning"><div class="t">学習</div><div class="d">ゲーム内容とユーザの反応を学習し、蓄積データを閲覧</div></a>
    <a class="card" href="/api/admin/consensus"><div class="t">合意スコア</div><div class="d">各意見 (人間/AI 同一) の合意度を AI が採点・👍 可視化</div></a>
  </div>
  <div class="status" id="status"><span class="pill">読み込み中…</span></div>

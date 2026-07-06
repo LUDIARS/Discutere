@@ -37,8 +37,11 @@ import { composeDisplayName } from "../persona-display.js";
 import type { FlowRole, FlowStance } from "../personas.js";
 import type { AutoCrawlSpec } from "../learning-autocrawl.js";
 import { analyzeSpecMechanics } from "../spec-analyze.js";
-import { resolveSpecText } from "../spec-source.js";
-import type { GameMechanicEntry } from "../games-md.js";
+import { buildGithubSpecSource, fetchGithubSpecText, resolveSpecText } from "../spec-source.js";
+import { getGitHubCliToken } from "../github-cli.js";
+import { mechanicSummaryToEntry, type GameMechanicEntry } from "../games-md.js";
+import type { LearningOpinion } from "../learning.js";
+import { extractJsonArray } from "../mechanic-extract.js";
 import {
   webPaperGateEnabled,
   buildAutoCrawlSpec,
@@ -237,6 +240,112 @@ function fixedSeedFromBody(body: Record<string, unknown>): Partial<PaperFixedFie
   return Object.values(seed).some(Boolean) ? seed : undefined;
 }
 
+async function resolveAdditionalSpecText(
+  body: {
+    specUrl?: unknown;
+    githubRepoUrl?: unknown;
+    githubPath?: unknown;
+    githubRef?: unknown;
+  },
+  warn: (msg: string) => void
+): Promise<string> {
+  const parts: string[] = [];
+  const specUrl = typeof body.specUrl === "string" ? body.specUrl.trim() : "";
+  const githubRepoUrl = typeof body.githubRepoUrl === "string" ? body.githubRepoUrl.trim() : "";
+  const githubPath = typeof body.githubPath === "string" ? body.githubPath.trim() : "";
+  const githubRef = typeof body.githubRef === "string" ? body.githubRef.trim() : "";
+  let githubToken: string | null | undefined;
+  const token = async () => {
+    if (githubToken !== undefined) return githubToken;
+    githubToken = await getGitHubCliToken();
+    return githubToken;
+  };
+
+  if (specUrl) {
+    try {
+      const needsGithubToken = /(?:github\.com|raw\.githubusercontent\.com|git@github\.com)/i.test(specUrl);
+      parts.push(
+        await resolveSpecText(specUrl, {
+          allowLocalPath: true,
+          githubToken: needsGithubToken ? await token() : undefined,
+        })
+      );
+    } catch (e) {
+      warn(`[flow-web/spec] spec source read failed (${specUrl}): ${(e as Error).message}`);
+    }
+  }
+
+  if (githubRepoUrl) {
+    try {
+      const source = buildGithubSpecSource(githubRepoUrl, githubPath, githubRef);
+      if (!source) throw new Error("GitHub repository URL could not be parsed");
+      if (!source.path) throw new Error("GitHub path is required");
+      parts.push((await fetchGithubSpecText(source, { githubToken: await token() })).text);
+    } catch (e) {
+      warn(`[flow-web/github] GitHub file read failed (${githubRepoUrl} ${githubPath}): ${(e as Error).message}`);
+    }
+  }
+
+  return parts.join("\n\n");
+}
+
+function mergeMechanicsContext(
+  seed: Partial<PaperFixedFields> | undefined,
+  ...texts: Array<string | undefined>
+): Partial<PaperFixedFields> | undefined {
+  const values: string[] = [];
+  for (const text of [seed?.mechanicsContext, ...texts]) {
+    const trimmed = text?.trim();
+    if (trimmed && !values.includes(trimmed)) values.push(trimmed);
+  }
+  if (values.length === 0) return seed;
+  return { ...(seed ?? {}), mechanicsContext: values.join("\n\n") };
+}
+
+async function synthesizeLearningOpinions(args: {
+  theme: string;
+  mechanics: GameMechanicEntry[];
+  mechanicsContext?: string;
+  llm: LLMClient;
+  warn: (msg: string) => void;
+}): Promise<LearningOpinion[]> {
+  const mechanicsText =
+    args.mechanics.length > 0
+      ? args.mechanics
+          .slice(0, 20)
+          .map((m, i) => `${i + 1}. ${m.name}: ${m.description ?? ""}`)
+          .join("\n")
+      : args.mechanicsContext?.slice(0, 6000) || args.theme;
+  const system =
+    "You create plausible pre-release player feedback for game design learning. Return JSON only. Do not include real personal data.";
+  const prompt =
+    `Game/theme:\n${args.theme}\n\nMechanics/design notes:\n${mechanicsText}\n\n` +
+    "Create 8 anonymized user voice snippets as a JSON array. Balance positive, negative, and mixed reactions. " +
+    'Each item must be {"content":"..."} and the content should start with "[synthetic] ".';
+  try {
+    const res = await args.llm.invoke({ system, prompt, maxTokens: 2500 });
+    if (!res.ok) {
+      args.warn(`synthetic user voice generation failed: ${res.error}`);
+      return [];
+    }
+    const arr = extractJsonArray(res.text);
+    if (!arr) return [];
+    return arr
+      .map((raw): LearningOpinion | null => {
+        if (!raw || typeof raw !== "object") return null;
+        const content = typeof (raw as Record<string, unknown>).content === "string"
+          ? ((raw as Record<string, unknown>).content as string).trim()
+          : "";
+        return content ? { content, postedAt: Date.now() } : null;
+      })
+      .filter((item): item is LearningOpinion => item !== null)
+      .slice(0, 12);
+  } catch (e) {
+    args.warn(`synthetic user voice generation threw: ${(e as Error).message}`);
+    return [];
+  }
+}
+
 function flowThemeFromSeed(seed: Partial<PaperFixedFields> | undefined, legacyTheme: string): string {
   if (!seed) return legacyTheme;
   return [seed.gameTitle, seed.discussionTheme || legacyTheme].filter((v) => v && v.trim()).join(" / ");
@@ -275,15 +384,26 @@ flowRoutes.post("/api/flow/start", async (c) => {
     learningQuery?: unknown;
     learningAppId?: unknown;
     learningUrls?: unknown;
+    learningSubreddit?: unknown;
+    learningBalanced?: unknown;
     specText?: unknown;
     specUrl?: unknown;
+    githubRepoUrl?: unknown;
+    githubPath?: unknown;
+    githubRef?: unknown;
     anatomiaProject?: unknown;
     anatomiaRepo?: unknown;
   };
   const legacyTheme = typeof body.theme === "string" ? body.theme.trim() : "";
-  const seed = fixedSeedFromBody(body as Record<string, unknown>);
+  const additionalSpecText = await resolveAdditionalSpecText(body, (m) => console.warn(m));
+  const baseSeed = fixedSeedFromBody(body as Record<string, unknown>);
+  const seed = mergeMechanicsContext(
+    baseSeed,
+    typeof body.specText === "string" ? body.specText : undefined,
+    additionalSpecText
+  );
   const theme = flowThemeFromSeed(seed, legacyTheme);
-  const fixedMode = !!seed;
+  const fixedMode = !!baseSeed;
   // Anatomia 事前情報: 登録済みプロジェクト名 or リポ絶対パス (どちらか)。config で有効時のみ使う。
   const anatomiaProject = typeof body.anatomiaProject === "string" ? body.anatomiaProject.trim() : "";
   const anatomiaRepo = typeof body.anatomiaRepo === "string" ? body.anatomiaRepo.trim() : "";
@@ -336,23 +456,12 @@ flowRoutes.post("/api/flow/start", async (c) => {
     const youtubeApiKey = await resolveYoutubeApiKey(webDeps);
     const learningCrawl = buildLearningCrawl({ ...body, youtubeApiKey });
     const inlineSpec =
-      typeof body.specText === "string" && body.specText.trim()
-        ? body.specText.trim()
-        : seed?.mechanicsContext?.trim() ?? "";
-    const specUrl = typeof body.specUrl === "string" ? body.specUrl.trim() : "";
-    // URL / ローカルパスから取得した仕様書を貼付本文と結合する (取得失敗は学習を止めない)。
-    let specText = inlineSpec;
-    if (specUrl) {
-      try {
-        const fetched = await resolveSpecText(specUrl, { allowLocalPath: true });
-        specText = specText ? `${specText}\n\n${fetched}` : fetched;
-      } catch (e) {
-        console.warn(`[flow-web/spec] 仕様書ソース取得失敗 (${specUrl}): ${(e as Error).message}`);
-      }
-    }
+      seed?.mechanicsContext?.trim() ||
+      (typeof body.specText === "string" && body.specText.trim() ? body.specText.trim() : "");
+    const specText = inlineSpec;
     const core = deps.openCore();
     try {
-      let mechanics: GameMechanicEntry[] | undefined;
+      let mechanics: GameMechanicEntry[] = [];
       if (specText) {
         mechanics = await analyzeSpecMechanics({
           theme,
@@ -361,12 +470,57 @@ flowRoutes.post("/api/flow/start", async (c) => {
           warn: (m) => console.warn(`[flow-web/spec] ${m}`),
         });
       }
+      const extraMechanics = await resolveAnatomiaExtraMechanics(
+        theme,
+        anatomiaProject,
+        anatomiaRepo,
+        webDeps.llm,
+        (m) => console.warn(`[flow-web/anatomia learning] ${m}`)
+      );
+      if (extraMechanics?.length) {
+        mechanics = [...mechanics, ...extraMechanics.map(mechanicSummaryToEntry)];
+      }
       const result = await dispatchFlow(
         { theme, tags, flow: kind },
-        { ...dispatchDeps, core, learningCrawl, mechanics }
+        { ...dispatchDeps, core, learningCrawl, mechanics: mechanics.length ? mechanics : undefined }
       );
       if (result.kind !== "learning") return c.json({ ok: false, error: "internal" }, 500);
-      return c.json({ ok: true, kind, sessionId: result.result.gameSlug, result: result.result });
+      let finalResult = result.result;
+      let syntheticOpinions = 0;
+      if (finalResult.opinionsRecorded === 0 && finalResult.crawledImported === 0) {
+        const opinions = await synthesizeLearningOpinions({
+          theme,
+          mechanics,
+          mechanicsContext: specText,
+          llm: webDeps.llm,
+          warn: (m) => console.warn(`[flow-web/learning] ${m}`),
+        });
+        syntheticOpinions = opinions.length;
+        if (opinions.length > 0) {
+          const synthetic = await dispatchFlow(
+            { theme, tags, flow: kind },
+            { ...dispatchDeps, core, opinions, mechanics: undefined, learningCrawl: undefined }
+          );
+          if (synthetic.kind === "learning") {
+            finalResult = {
+              ...finalResult,
+              opinionsRecorded: finalResult.opinionsRecorded + synthetic.result.opinionsRecorded,
+              polarityBreakdown: {
+                positive:
+                  (finalResult.polarityBreakdown.positive ?? 0) +
+                  (synthetic.result.polarityBreakdown.positive ?? 0),
+                negative:
+                  (finalResult.polarityBreakdown.negative ?? 0) +
+                  (synthetic.result.polarityBreakdown.negative ?? 0),
+                neutral:
+                  (finalResult.polarityBreakdown.neutral ?? 0) +
+                  (synthetic.result.polarityBreakdown.neutral ?? 0),
+              },
+            };
+          }
+        }
+      }
+      return c.json({ ok: true, kind, sessionId: finalResult.gameSlug, result: finalResult, syntheticOpinions });
     } finally {
       core.close?.();
     }

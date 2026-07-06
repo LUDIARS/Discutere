@@ -176,6 +176,14 @@ export const HTML = `<!doctype html>
   main { padding: 18px 24px 28px; display: grid; grid-template-columns: minmax(0, 1.1fr) minmax(340px, .9fr); gap: 18px; }
   button { border: 1px solid var(--line); border-radius: 6px; padding: 7px 12px; background: transparent; color: inherit; cursor: pointer; }
   button.active { border-color: var(--accent); background: color-mix(in srgb, var(--accent) 18%, transparent); font-weight: 700; }
+  input, textarea, select { font: inherit; color: inherit; background: transparent; border: 1px solid var(--line); border-radius: 6px; padding: 7px 9px; }
+  textarea { width: 100%; min-height: 90px; resize: vertical; }
+  .train { border: 1px solid var(--line); border-radius: 8px; padding: 12px; margin-bottom: 14px; }
+  .train h2 { margin: 0 0 10px; font-size: 15px; }
+  .train-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; }
+  .train-grid label, .train-full { display: grid; gap: 4px; }
+  .train-actions { display: flex; gap: 8px; flex-wrap: wrap; align-items: center; margin-top: 10px; }
+  .train-status { white-space: pre-wrap; }
   a.md-btn { display: inline-block; border: 1px solid var(--line); border-radius: 6px; padding: 6px 11px; text-decoration: none; color: inherit; font-size: 13px; }
   a.md-btn:hover { border-color: var(--accent); }
   .tabs { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 8px; }
@@ -190,7 +198,7 @@ export const HTML = `<!doctype html>
   .graph-wrap { position: sticky; top: 12px; }
   svg { width: 100%; height: 440px; border: 1px solid var(--line); border-radius: 8px; }
   svg text { fill: currentColor; font-size: 11px; }
-  @media (max-width: 860px) { main { grid-template-columns: 1fr; } .graph-wrap { position: static; } svg { height: 320px; } }
+  @media (max-width: 860px) { main { grid-template-columns: 1fr; } .graph-wrap { position: static; } svg { height: 320px; } .train-grid { grid-template-columns: 1fr; } }
 </style>
 </head>
 <body>
@@ -208,6 +216,33 @@ export const HTML = `<!doctype html>
 </header>
 <main>
   <section>
+    <div class="train">
+      <h2>学習</h2>
+      <form id="trainForm">
+        <div class="train-grid">
+          <label>ゲームタイトル <input id="trainGameTitle" type="text" required placeholder="Anatomia" /></label>
+          <label>学習テーマ <input id="trainTheme" type="text" required placeholder="ゲーム内容 / ユーザの反応" /></label>
+          <label>ユーザの声検索クエリ <input id="trainQuery" type="text" placeholder="game title review gameplay" /></label>
+          <label>Steam appId <input id="trainSteamAppId" type="number" min="1" placeholder="1145360" /></label>
+          <label>Reddit subreddit <input id="trainSubreddit" type="text" placeholder="games" /></label>
+          <label>仕様書 URL / local path <input id="trainSpecUrl" type="text" placeholder="https://... または docs/spec.md" /></label>
+          <label>GitHub repo URL <input id="trainGithubRepoUrl" type="text" placeholder="https://github.com/owner/repo" /></label>
+          <label>GitHub file path / ref <span><input id="trainGithubPath" type="text" placeholder="docs/spec.md" style="width:62%" /> <input id="trainGithubRef" type="text" placeholder="main" style="width:28%" /></span></label>
+          <label>Anatomia project <input id="trainAnatomiaProject" type="text" placeholder="registered project name" /></label>
+          <label>Anatomia repo path <input id="trainAnatomiaRepo" type="text" placeholder="E:/Document/Ars/AnatomiaProject" /></label>
+        </div>
+        <label class="train-full" style="margin-top:10px;">システム / メカニクス説明
+          <textarea id="trainMechanics" placeholder="基本ループ、主要メカニクス、報酬、制約、想定される体験"></textarea>
+        </label>
+        <div class="train-actions">
+          <input id="trainSpecFile" type="file" accept=".doc,.docx,.txt,.text,.xlsx,.xslx,.pptx,.html,.htm,.pdf,.md,.markdown,.yaml,.yml,.json,text/*" />
+          <button id="trainGithubCheck" type="button">GitHub read check</button>
+          <button id="trainSubmit" type="submit">学習を実行</button>
+        </div>
+        <pre id="trainGithubAuth" class="muted train-status"></pre>
+        <div id="trainStatus" class="muted train-status"></div>
+      </form>
+    </div>
     <div class="items" id="items"><div class="muted">loading...</div></div>
   </section>
   <aside class="graph-wrap">
@@ -220,6 +255,101 @@ let currentLayer = "knowledge";
 
 function esc(value) {
   return String(value ?? "").replace(/[&<>"']/g, (c) => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#039;"}[c]));
+}
+
+const TRAIN_SPEC_EXTS = new Set([".doc", ".docx", ".txt", ".text", ".xlsx", ".xslx", ".pptx", ".html", ".htm", ".pdf", ".md", ".markdown", ".yaml", ".yml", ".json"]);
+function byId(id) { return document.getElementById(id); }
+function trainExt(name) {
+  const i = String(name).lastIndexOf(".");
+  return i >= 0 ? String(name).slice(i).toLowerCase() : "";
+}
+function appendTrainMechanics(text) {
+  const el = byId("trainMechanics");
+  const cur = el.value.trim();
+  el.value = cur ? cur + "\\n\\n" + text : text;
+}
+async function loadTrainGithubAuth() {
+  const el = byId("trainGithubAuth");
+  const res = await fetch("/api/spec/github/auth").then(r => r.json()).catch(() => null);
+  el.textContent = res && res.ok && res.auth ? (res.auth.output || "gh auth status unavailable") : "gh auth status unavailable";
+}
+async function checkTrainGithub() {
+  const status = byId("trainStatus");
+  status.textContent = "Checking GitHub read...";
+  const body = {
+    repoUrl: byId("trainGithubRepoUrl").value.trim(),
+    path: byId("trainGithubPath").value.trim(),
+    ref: byId("trainGithubRef").value.trim(),
+  };
+  const res = await fetch("/api/spec/github/check", {
+    method: "POST",
+    headers: { "content-type": "application/json" },
+    body: JSON.stringify(body),
+  }).then(r => r.json()).catch(() => null);
+  if (!res) { status.textContent = "GitHub check failed"; return; }
+  if (!res.ok) { status.textContent = res.error || "GitHub check failed"; return; }
+  if (res.auth && res.auth.output) byId("trainGithubAuth").textContent = res.auth.output;
+  if (res.text) appendTrainMechanics(res.text);
+  status.textContent = res.text ? "GitHub read OK; text appended." : "GitHub repo read OK.";
+}
+async function uploadTrainSpec(file) {
+  const status = byId("trainStatus");
+  if (!TRAIN_SPEC_EXTS.has(trainExt(file.name))) {
+    status.textContent = "Unsupported file format: " + file.name;
+    return;
+  }
+  const fd = new FormData();
+  fd.append("file", file);
+  status.textContent = "Extracting spec file...";
+  const res = await fetch("/api/spec/extract", { method: "POST", body: fd }).then(r => r.json()).catch(() => null);
+  if (!res || !res.ok) { status.textContent = "Spec extraction failed: " + (res && res.error ? res.error : "unknown"); return; }
+  appendTrainMechanics(res.text);
+  status.textContent = "Spec text appended.";
+}
+async function submitTrain(e) {
+  e.preventDefault();
+  const status = byId("trainStatus");
+  const gameTitle = byId("trainGameTitle").value.trim();
+  const discussionTheme = byId("trainTheme").value.trim();
+  if (!gameTitle || !discussionTheme) { status.textContent = "Game title and theme are required."; return; }
+  const learningAppId = byId("trainSteamAppId").value.trim() ? Number(byId("trainSteamAppId").value) : undefined;
+  const payload = {
+    flow: "learning",
+    gameTitle,
+    discussionTheme,
+    theme: [gameTitle, discussionTheme].join(" / "),
+    mechanicsContext: byId("trainMechanics").value.trim() || undefined,
+    specText: byId("trainMechanics").value.trim() || undefined,
+    specUrl: byId("trainSpecUrl").value.trim() || undefined,
+    githubRepoUrl: byId("trainGithubRepoUrl").value.trim() || undefined,
+    githubPath: byId("trainGithubPath").value.trim() || undefined,
+    githubRef: byId("trainGithubRef").value.trim() || undefined,
+    anatomiaProject: byId("trainAnatomiaProject").value.trim() || undefined,
+    anatomiaRepo: byId("trainAnatomiaRepo").value.trim() || undefined,
+    learningSource: "balanced",
+    learningBalanced: true,
+    learningQuery: byId("trainQuery").value.trim() || undefined,
+    learningAppId,
+    learningSubreddit: byId("trainSubreddit").value.trim() || undefined,
+  };
+  byId("trainSubmit").disabled = true;
+  status.textContent = "Learning...";
+  const res = await fetch("/api/flow/start", {
+    method: "POST",
+    headers: { "content-type": "application/json" },
+    body: JSON.stringify(payload),
+  }).then(r => r.json()).catch(() => null);
+  byId("trainSubmit").disabled = false;
+  if (!res || !res.ok) { status.textContent = "Learning failed: " + (res && res.error ? res.error : "unknown"); return; }
+  const r = res.result || {};
+  status.textContent =
+    "Learning complete\\n" +
+    "game: " + (r.gameSlug || res.sessionId || "") + "\\n" +
+    "mechanics: " + (r.mechanicsRecorded || 0) + "\\n" +
+    "user voices: " + ((r.opinionsRecorded || 0) + (r.crawledImported || 0)) + "\\n" +
+    "synthetic voices: " + (res.syntheticOpinions || 0) + "\\n" +
+    "by source: " + JSON.stringify(r.crawledBySource || {});
+  setActiveLayer("games");
 }
 
 function label(value, max) {
@@ -574,6 +704,13 @@ function renderGraph(items, emptyLabel) {
 document.querySelectorAll("button[data-layer]").forEach((button) => {
   button.addEventListener("click", () => setActiveLayer(button.dataset.layer));
 });
+document.getElementById("trainForm").addEventListener("submit", submitTrain);
+document.getElementById("trainGithubCheck").addEventListener("click", () => { void checkTrainGithub(); });
+document.getElementById("trainSpecFile").addEventListener("change", (e) => {
+  const file = e.target.files && e.target.files[0];
+  if (file) void uploadTrainSpec(file);
+});
+void loadTrainGithubAuth();
 setActiveLayer(currentLayer);
 </script>
 </body>

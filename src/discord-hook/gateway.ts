@@ -70,6 +70,14 @@ import {
   parseFlowSettingsCustomId,
   parseSettingsPreset,
 } from "./forum-flow-tags.js";
+import {
+  buildPaperGapModal,
+  formatPaperGapReviewInstruction,
+  isPaperGapType,
+  parsePaperGapModalCustomId,
+  PAPER_GAP_COMMAND_NAME,
+  PAPER_GAP_FIELD_IDS,
+} from "./paper-gap-ui.js";
 
 export interface DiscordGatewayDeps extends CommandRouterDeps {
   /** Gateway 接続用 bot token */
@@ -694,6 +702,62 @@ export async function startDiscordGateway(
 
     // 進行量モーダル送信 (flow-modal:<threadId>) → 任意の rounds/turns で起動 (item1)。
     if (interaction.isModalSubmit()) {
+      const paperGap = parsePaperGapModalCustomId(interaction.customId);
+      if (paperGap) {
+        const detail = getModalField(interaction, PAPER_GAP_FIELD_IDS.detail);
+        if (!detail) {
+          await interaction
+            .reply({ content: "不足事項の内容を入力してください。", flags: MessageFlags.Ephemeral })
+            .catch(() => {});
+          return;
+        }
+        if (!deps.flowLive) {
+          await interaction
+            .reply({ content: "ペーパー調整機能が無効です (flowLive 未設定)。", flags: MessageFlags.Ephemeral })
+            .catch(() => {});
+          return;
+        }
+        if (!hasPaperReview(paperGap.channelId)) {
+          await interaction
+            .reply({
+              content: "このチャンネルには調整待ちのディスカッションペーパーがありません。レビュー中のフォーラムスレッドで実行してください。",
+              flags: MessageFlags.Ephemeral,
+            })
+            .catch(() => {});
+          return;
+        }
+        const instruction = formatPaperGapReviewInstruction({
+          type: paperGap.type,
+          target: getModalField(interaction, PAPER_GAP_FIELD_IDS.target),
+          detail,
+          source: getModalField(interaction, PAPER_GAP_FIELD_IDS.source),
+        });
+        try {
+          await interaction.deferReply({ flags: MessageFlags.Ephemeral });
+          const handled = await handlePaperReviewReply(
+            paperGap.channelId,
+            interaction.guildId ?? "dm",
+            instruction,
+            deps.flowLive,
+            flowHooks
+          );
+          await interaction.editReply({
+            content: handled
+              ? "不足事項を受け付けました。ペーパーの更新結果をスレッドに投稿します。"
+              : "不足事項は受け付けましたが、調整待ちのペーパーに接続できませんでした。",
+          });
+        } catch (err) {
+          console.warn(`  discord-paper-gap: modal failed id=${interaction.id}: ${(err as Error).message}`);
+          if (!interaction.replied && !interaction.deferred) {
+            await interaction
+              .reply({ content: "不足事項の反映に失敗しました。", flags: MessageFlags.Ephemeral })
+              .catch(() => {});
+          } else {
+            await interaction.editReply({ content: "不足事項の反映に失敗しました。" }).catch(() => {});
+          }
+        }
+        return;
+      }
       const modalThreadId = parseFlowModalCustomId(interaction.customId);
       if (!modalThreadId) return;
       const toNum = (s: string): number | undefined => {
@@ -766,6 +830,35 @@ export async function startDiscordGateway(
     }
 
     if (!interaction.isChatInputCommand()) return;
+
+    if (interaction.commandName === PAPER_GAP_COMMAND_NAME) {
+      const rawType = interaction.options.getString("type", true);
+      if (!isPaperGapType(rawType)) {
+        await interaction
+          .reply({ content: "不足事項の種類が不正です。", flags: MessageFlags.Ephemeral })
+          .catch(() => {});
+        return;
+      }
+      if (!deps.flowLive) {
+        await interaction
+          .reply({ content: "ペーパー調整機能が無効です (flowLive 未設定)。", flags: MessageFlags.Ephemeral })
+          .catch(() => {});
+        return;
+      }
+      if (!hasPaperReview(interaction.channelId)) {
+        await interaction
+          .reply({
+            content: "このチャンネルには調整待ちのディスカッションペーパーがありません。レビュー中のフォーラムスレッドで実行してください。",
+            flags: MessageFlags.Ephemeral,
+          })
+          .catch(() => {});
+        return;
+      }
+      await interaction.showModal(
+        buildPaperGapModal({ type: rawType, channelId: interaction.channelId })
+      );
+      return;
+    }
 
     // /debate: パーティ議論を開始 (非同期、ack だけ即返す)。
     if (interaction.commandName === "debate") {
@@ -941,6 +1034,17 @@ function toInboundSlashCommand(
     guildId: interaction.guildId ?? "dm",
     channelId: interaction.channelId ?? "default",
   };
+}
+
+function getModalField(
+  interaction: import("discord.js").ModalSubmitInteraction,
+  fieldId: string
+): string {
+  try {
+    return interaction.fields.getTextInputValue(fieldId).trim();
+  } catch {
+    return "";
+  }
 }
 
 function stringifyOptionValue(value: unknown): string {

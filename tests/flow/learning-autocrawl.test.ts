@@ -37,7 +37,7 @@ function fakeItems(n: number): ExternalUtterance[] {
 
 // --- ヘルパ ---
 assert.equal(isAutoCrawlSource("niconico"), true);
-assert.equal(isAutoCrawlSource("reddit"), false);
+assert.equal(isAutoCrawlSource("reddit"), true);
 assert.equal(deriveSlug("Hello World"), "hello-world");
 assert.equal(deriveSlug("ローグライト"), "ローグライト"); // 日本語フォールバック
 assert.equal(countLearningVoices("t", voicesOf(4), 3), 4);

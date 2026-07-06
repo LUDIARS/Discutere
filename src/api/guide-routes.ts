@@ -136,6 +136,7 @@ export function createGuideRoutes(discord: DiscutereConfig["discord"]): Hono {
   <tr><td><code>/propose statement:…</code></td><td>跳躍的仮説を提案して自走議論を起こす。</td></tr>
   <tr><td><code>/validate mode:…</code></td><td>仮説を検証する（theory=論理 / emotion=感情）。</td></tr>
   <tr><td><code>/integrate</code> / <code>/reject</code></td><td>検証済み仮説を設計知見として統合 / 棄却。</td></tr>
+  <tr><td><code>/discutere-paper-gap type:...</code></td><td>レビュー中のディスカッションペーパー不足事項を専用UIで投稿し、調整へ反映。</td></tr>
   <tr><td><code>/discutere-conclusions</code></td><td>収束した結論の一覧（gap 指定で裏の論述データ）。</td></tr>
   <tr><td><code>/discutere-queue</code></td><td>進行中 session / 未処理 gap / 仮説の状況。</td></tr>
   <tr><td><code>/discutere-status</code></td><td>persona-engine の稼働状態（ephemeral）。</td></tr>

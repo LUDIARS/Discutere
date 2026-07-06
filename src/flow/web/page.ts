@@ -256,10 +256,13 @@ export const FLOW_HTML = `<!doctype html>
           <option value="youtube">YouTube (テーマ検索・APIキー要)</option>
           <option value="steam">Steam (appId 指定)</option>
           <option value="website">Web サイト (URL 指定)</option>
+          <option value="reddit">Reddit (OAuth env required)</option>
+          <option value="balanced">Balanced: Steam / YouTube / Reddit / Niconico</option>
         </select>
       </label>
       <label>検索クエリ (niconico/youtube・空欄でテーマ) <input id="learningQuery" type="text" placeholder="既定: テーマ文字列" style="width:60%" /></label>
       <label>Steam appId (steam 選択時) <input id="learningAppId" type="number" min="1" placeholder="例: 1145360" style="width:10rem" /></label>
+      <label>Reddit subreddit (optional) <input id="learningSubreddit" type="text" placeholder="games" style="width:14rem" /></label>
       <label>URL (website 選択時・カンマ/改行区切り) <input id="learningUrls" type="text" placeholder="https://example.com/article" style="width:60%" /></label>
     </fieldset>
     <fieldset>
@@ -268,12 +271,22 @@ export const FLOW_HTML = `<!doctype html>
         <textarea id="mechanicsContext" rows="6" placeholder="基本ループ、主要システム、操作、報酬、制約、仕様書の抜粋など"></textarea>
       </label>
       <label>ファイルから読み込む (md/txt/json/pdf/docx 等 → 上の欄へ展開)
-        <input id="specFile" type="file" accept=".md,.txt,.json,.markdown,.text,.pdf,.docx,text/*" />
+        <input id="specFile" type="file" accept=".doc,.docx,.txt,.text,.xlsx,.xslx,.pptx,.html,.htm,.pdf,.md,.markdown,.yaml,.yml,.json,text/*" />
         <span id="specFileWarn" style="color:#b91c1c;font-size:0.82rem;display:none"></span>
       </label>
       <label>URL / ローカルパス (取得して解析・貼付本文と結合)
         <input id="specUrl" type="text" placeholder="https://… または spec/feature/foo.md" style="width:80%" />
       </label>
+      <label>GitHub repo URL
+        <input id="githubRepoUrl" type="text" placeholder="https://github.com/owner/repo" style="width:80%" />
+      </label>
+      <label>GitHub file path / ref
+        <input id="githubPath" type="text" placeholder="docs/spec.md" style="width:52%" />
+        <input id="githubRef" type="text" placeholder="main" style="width:18%" />
+        <button id="githubCheck" type="button">Check GitHub read</button>
+      </label>
+      <pre id="githubAuth" class="muted" style="white-space:pre-wrap;margin:4px 0 0"></pre>
+      <div id="githubCheckMsg" class="muted"></div>
     </fieldset>
     <fieldset>
       <legend>Anatomia プロジェクトコード (任意)</legend>
@@ -364,14 +377,29 @@ export const FLOW_HTML = `<!doctype html>
 <script>
 const $ = (id) => document.getElementById(id);
 let sessionId = null, kind = null, since = 0, timer = null;
+let paperReadyNotifiedFor = null;
 
-// 仕様書ファイル選択: テキストは FileReader、PDF/DOCX はサーバ抽出エンドポイント経由で mechanicsContext 欄へ展開する。
+function requestPaperNotificationPermission() {
+  if (!("Notification" in window)) return;
+  if (Notification.permission === "default") Notification.requestPermission().catch(() => {});
+}
+function notifyPaperReady(message) {
+  if (!sessionId || paperReadyNotifiedFor === sessionId) return;
+  paperReadyNotifiedFor = sessionId;
+  if (!("Notification" in window) || Notification.permission !== "granted") return;
+  new Notification("Discutere", { body: message || "Discussion paper is ready.", tag: "discutere-paper-" + sessionId });
+}
+
+// 仕様書ファイル選択: 対応形式はサーバ抽出エンドポイント経由で mechanicsContext 欄へ展開する。
 const SPEC_FILE_MAX_BYTES = 5 * 1024 * 1024; // 5MB
 const SPEC_TEXT_MAX_CHARS = 200_000;         // 200k 文字警告
-const BINARY_EXTS = new Set([".pdf", ".docx", ".doc"]);
-function isBinarySpec(name) {
-  const ext = name.slice(name.lastIndexOf(".")).toLowerCase();
-  return BINARY_EXTS.has(ext);
+const SPEC_EXTS = new Set([".doc", ".docx", ".txt", ".text", ".xlsx", ".xslx", ".pptx", ".html", ".htm", ".pdf", ".md", ".markdown", ".yaml", ".yml", ".json"]);
+function specExt(name) {
+  const i = name.lastIndexOf(".");
+  return i >= 0 ? name.slice(i).toLowerCase() : "";
+}
+function isSupportedSpec(name) {
+  return SPEC_EXTS.has(specExt(name));
 }
 function showSpecWarn(msg) {
   const el = $("specFileWarn");
@@ -388,39 +416,62 @@ function appendSpecText(text) {
     showSpecWarn("");
   }
 }
+async function loadGithubAuth() {
+  const el = $("githubAuth");
+  if (!el) return;
+  const res = await fetch("/api/spec/github/auth").then(r => r.json()).catch(() => null);
+  if (!res || !res.ok) { el.textContent = "gh auth status unavailable"; return; }
+  el.textContent = res.auth && res.auth.output ? res.auth.output : "gh auth status unavailable";
+}
+async function checkGithubRead() {
+  const msg = $("githubCheckMsg");
+  msg.textContent = "Checking GitHub read...";
+  const body = {
+    repoUrl: $("githubRepoUrl").value.trim(),
+    path: $("githubPath").value.trim(),
+    ref: $("githubRef").value.trim(),
+  };
+  const res = await fetch("/api/spec/github/check", {
+    method: "POST",
+    headers: { "content-type": "application/json" },
+    body: JSON.stringify(body),
+  }).then(r => r.json()).catch(() => null);
+  if (!res) { msg.textContent = "GitHub check failed"; return; }
+  if (!res.ok) { msg.textContent = res.error || "GitHub check failed"; return; }
+  msg.textContent = res.readable ? "GitHub read OK" : "GitHub read failed";
+  if (res.text) appendSpecText(res.text);
+  if (res.auth && res.auth.output) $("githubAuth").textContent = res.auth.output;
+}
 $("specFile").addEventListener("change", async (e) => {
   const file = e.target.files && e.target.files[0];
   if (!file) return;
   showSpecWarn("");
+  if (!isSupportedSpec(file.name)) {
+    showSpecWarn("Unsupported file format: " + file.name);
+    e.target.value = "";
+    return;
+  }
   if (file.size > SPEC_FILE_MAX_BYTES) {
     const mb = (file.size / 1024 / 1024).toFixed(1);
     showSpecWarn("ファイルが大きいです (" + mb + " MB)。処理に時間がかかる場合があります。");
   }
-  if (isBinarySpec(file.name)) {
-    // PDF/DOCX: サーバ側でテキスト抽出
-    const fd = new FormData();
-    fd.append("file", file);
-    $("go").disabled = true;
-    try {
-      const res = await fetch("/api/spec/extract", { method: "POST", body: fd }).then(r => r.json());
-      if (!res.ok) { showSpecWarn("抽出エラー: " + (res.error || "不明")); return; }
-      appendSpecText(res.text);
-    } catch {
-      showSpecWarn("ファイルの送信に失敗しました");
-    } finally {
-      $("go").disabled = false;
-    }
-    return;
+  const fd = new FormData();
+  fd.append("file", file);
+  $("go").disabled = true;
+  try {
+    const res = await fetch("/api/spec/extract", { method: "POST", body: fd }).then(r => r.json());
+    if (!res.ok) { showSpecWarn("抽出エラー: " + (res.error || "不明")); return; }
+    appendSpecText(res.text);
+  } catch {
+    showSpecWarn("ファイルの送信に失敗しました");
+  } finally {
+    $("go").disabled = false;
   }
-  // テキスト系: 従来の FileReader 経路
-  const reader = new FileReader();
-  reader.onload = () => { appendSpecText(String(reader.result || "")); };
-  reader.onerror = () => showSpecWarn("ファイルの読み込みに失敗しました");
-  reader.readAsText(file);
 });
 
 $("start").addEventListener("submit", async (e) => {
   e.preventDefault();
+  requestPaperNotificationPermission();
   const gameTitle = $("gameTitle").value.trim();
   const discussionTheme = $("discussionTheme").value.trim();
   const discussionContent = $("discussionContent").value.trim() || undefined;
@@ -436,15 +487,20 @@ $("start").addEventListener("submit", async (e) => {
   const learningSource = $("learningSource").value || undefined;
   const learningQuery = $("learningQuery").value.trim() || undefined;
   const learningAppId = $("learningAppId").value.trim() === "" ? undefined : Number($("learningAppId").value);
+  const learningSubreddit = $("learningSubreddit").value.trim() || undefined;
   const learningUrls = $("learningUrls").value.trim() || undefined;
+  const learningBalanced = learningSource === "balanced" ? true : undefined;
   const specText = mechanicsContext;
   const specUrl = $("specUrl").value.trim() || undefined;
+  const githubRepoUrl = $("githubRepoUrl").value.trim() || undefined;
+  const githubPath = $("githubPath").value.trim() || undefined;
+  const githubRef = $("githubRef").value.trim() || undefined;
   const anatomiaProject = $("anatomiaProject").value.trim() || undefined;
   const anatomiaRepo = $("anatomiaRepo").value.trim() || undefined;
   $("go").disabled = true;
   const res = await fetch("/api/flow/start", {
     method: "POST", headers: { "content-type": "application/json" },
-    body: JSON.stringify({ theme, gameTitle, discussionTheme, discussionContent, mechanicsContext, themeSupplement, flow, tags, rounds, turnsPerRound, opponent, learningSource, learningQuery, learningAppId, learningUrls, specText, specUrl, anatomiaProject, anatomiaRepo }),
+    body: JSON.stringify({ theme, gameTitle, discussionTheme, discussionContent, mechanicsContext, themeSupplement, flow, tags, rounds, turnsPerRound, opponent, learningSource, learningQuery, learningAppId, learningSubreddit, learningUrls, learningBalanced, specText, specUrl, githubRepoUrl, githubPath, githubRef, anatomiaProject, anatomiaRepo }),
   }).then(r => r.json()).catch(() => ({ ok: false, error: "通信失敗" }));
   if (!res.ok) { alert(res.error || "開始に失敗"); $("go").disabled = false; return; }
   sessionId = res.sessionId; kind = res.kind;
@@ -616,6 +672,7 @@ async function pollPaper() {
   }
   paperPollMisses = 0;
   if (!res.ready) { setTimeout(pollPaper, 1500); return; }
+  notifyPaperReady(res.error ? "Discussion paper generation finished with an error." : "Discussion paper is ready.");
   $("review").style.display = "block";
   if (res.error) { $("rvMsg").textContent = "草案作成に失敗: " + res.error; return; }
   if (res.info) {
@@ -800,7 +857,7 @@ function openDraft(sid) {
 }
 function resetView() {
   if (timer) clearInterval(timer);
-  sessionId = null; kind = null; since = 0; lastPaperMd = null; paperPollMisses = 0;
+  sessionId = null; kind = null; since = 0; lastPaperMd = null; paperPollMisses = 0; paperReadyNotifiedFor = null;
   $("log").innerHTML = ""; $("paperBody").innerHTML = ""; $("paperLive").textContent = ""; $("conclusionBody").textContent = "";
   $("live").style.display = "none"; $("review").style.display = "none";
   $("conclusion").style.display = "none"; $("say").style.display = "none";
@@ -950,6 +1007,8 @@ $("paperToggle").addEventListener("click", () => {
   panel.classList.toggle("collapsed");
   $("paperToggle").textContent = panel.classList.contains("collapsed") ? "開く" : "閉じる";
 });
+$("githubCheck").addEventListener("click", () => { void checkGithubRead(); });
+void loadGithubAuth();
 loadSessions(true);
 </script>
 </body>
