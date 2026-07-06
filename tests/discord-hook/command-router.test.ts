@@ -160,6 +160,7 @@ function slash(partial: Partial<InboundSlashCommand>): InboundSlashCommand {
   assert.ok(rAll.ephemeral, "ephemeral で返す");
   assert.ok(rAll.content.includes("進行中の議題"), "全件に live が出る");
   assert.ok(rAll.content.includes("下書きの議題"), "全件に draft が出る");
+  assert.match(rAll.content, /#\d+ \*\*進行中の議題\*\*/, "議論番号を表示する");
 
   const rDraft = routeSlashCommand(slash({ name: "discutere-discussions", argsText: "draft" }), deps);
   assert.ok(rDraft.content.includes("下書きの議題"), "draft 絞り込みに draft");

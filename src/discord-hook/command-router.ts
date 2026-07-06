@@ -381,7 +381,8 @@ function formatDiscussionList(rows: FlowSessionRow[], total: number, state: Flow
   const lines = rows.map((r) => {
     const badge = DISCUSSION_STATE_BADGE[r.status === "draft" ? "draft" : r.concluded === 1 ? "concluded" : "live"];
     const when = new Date(r.createdAt).toLocaleString("ja-JP");
-    return `• ${badge} **${truncateText(r.theme || "(無題)", 60)}**\n  └ ${r.flow} / 発話${r.utterances} / ${when}`;
+    const no = r.discussionNo ? `#${r.discussionNo}` : "#?";
+    return `• ${badge} ${no} **${truncateText(r.theme || "(無題)", 60)}**\n  └ ${r.flow} / 発話${r.utterances} / ${when}`;
   });
   const more = total > rows.length ? `\n…他 ${total - rows.length} 件` : "";
   return [`【議論一覧 (${label}・新しい順 ${rows.length}/${total}件)】`, ...lines].join("\n") + more;

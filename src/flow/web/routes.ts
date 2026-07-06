@@ -23,6 +23,7 @@ import {
   getDraftPaper,
   getPaperSnapshot,
   getPaperReviewInfo,
+  getDiscussionNumberBySession,
   deleteFlowSession,
   listFlowSessions,
   setPaperDebatability,
@@ -982,6 +983,7 @@ function paperPayload(sessionId: string, draft: PaperDraft, entry?: WebPaperRevi
     : null;
   if (displayInfo) promoteDebatabilityWithVoiceSimulation(displayInfo);
   return {
+    discussionNo: getDiscussionNumberBySession(sessionId),
     paper: draft,
     info: displayInfo,
     fixedFields: paperFixedFieldsFromMarkdown(draft.bodyMd, draft),

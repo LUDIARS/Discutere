@@ -97,6 +97,10 @@ fs.mkdirSync(TMP_DIR, { recursive: true });
   assert.ok(tables.includes("vote"), "vote created");
   assert.ok(tables.includes("llm_call_log"), "llm_call_log created");
   assert.ok(tables.includes("_flow_migrations"), "_flow_migrations created");
+  const paperColumns = (
+    db.prepare("PRAGMA table_info(discussion_paper)").all() as Array<{ name: string }>
+  ).map((r) => r.name);
+  assert.ok(paperColumns.includes("discussion_no"), "discussion_paper has discussion_no");
 
   const migration = db
     .prepare("SELECT id FROM _flow_migrations WHERE id = 'flow_0001_initial'")

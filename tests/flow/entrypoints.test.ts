@@ -286,6 +286,7 @@ import { parseForumEntry, handleForumFlowPost } from "../../src/flow/entry-disco
   const sessionsBody = (await rSessions.json()) as {
     ok: boolean;
     sessions: Array<{
+      discussionNo: number;
       sessionId: string;
       title: string;
       theme: string;
@@ -302,6 +303,7 @@ import { parseForumEntry, handleForumFlowPost } from "../../src/flow/entry-disco
   assert.equal(listed!.title, "一覧テスト議題", "未収束はディスカッションペーパー議題を表示タイトルにする");
   assert.equal(listed!.concluded, false, "未収束は concluded=false");
   assert.equal(listed!.state, "live", "開始済み未収束は state=live");
+  assert.ok(listed!.discussionNo > 0, "議論には人間向け番号が付く");
   const done = sessionsBody.sessions.find((s) => s.sessionId === "done-sess-1");
   assert.ok(done, "収束済み議論が一覧に出る");
   assert.equal(done!.title, "収束時のタイトル", "収束済みは収束時のタイトルを表示タイトルにする");
@@ -310,11 +312,13 @@ import { parseForumEntry, handleForumFlowPost } from "../../src/flow/entry-disco
   const draft = sessionsBody.sessions.find((s) => s.sessionId === "draft-sess-1");
   assert.ok(draft, "ドラフトも一覧に出る");
   assert.equal(draft!.state, "draft", "ドラフトは state=draft");
+  assert.notEqual(draft!.discussionNo, listed!.discussionNo, "議論番号は議論ごとに重複しない");
   // ドラフトは /paper で復元でき編集を再開できる (メモリに無くても rehydrate)。
   const rDraftPaper = await app.request("/api/flow/draft-sess-1/paper");
-  const draftPaper = (await rDraftPaper.json()) as { ok: boolean; ready: boolean; paper: { bodyMd: string } | null };
+  const draftPaper = (await rDraftPaper.json()) as { ok: boolean; ready: boolean; discussionNo: number; paper: { bodyMd: string } | null };
   assert.equal(draftPaper.ok, true, "draft paper 取得");
   assert.equal(draftPaper.ready, true, "draft は ready (rehydrate)");
+  assert.equal(draftPaper.discussionNo, draft!.discussionNo, "下書き再開でも同じ議論番号を返す");
   assert.ok(draftPaper.paper?.bodyMd.includes("下書き議題"), "復元した本文が読める");
   const rApplyFix = await post("/api/flow/draft-sess-1/paper/fix-suggestion/apply", {
     suggestionIndex: 0,

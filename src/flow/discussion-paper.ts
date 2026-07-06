@@ -284,6 +284,13 @@ export function upsertDiscussionTitleCache(
     .run(sessionId, normalizeDiscussionDisplayTitle(rawTitle), source, updatedAt, discussionType, originUi);
 }
 
+function nextDiscussionNo(db: ReturnType<typeof getFlowDb>): number {
+  const row = db
+    .prepare(`SELECT COALESCE(MAX(discussion_no), 0) + 1 AS n FROM discussion_paper`)
+    .get() as { n: number } | undefined;
+  return row?.n ?? 1;
+}
+
 /**
  * discussion_paper を DB に保存し paperId を返す。
  * @param flow フロー種別 ("discussion" / "improvement" 等)。既定 "discussion"。
@@ -297,13 +304,14 @@ export function persistPaper(
   const now = Date.now();
   // 同 session の行 (= 編集ゲートで作った draft) があれば 'started' に upsert (重複行を作らない)。
   const existing = db
-    .prepare(`SELECT id FROM discussion_paper WHERE session_id = ?`)
-    .get(paper.sessionId) as { id: string } | undefined;
+    .prepare(`SELECT id, discussion_no FROM discussion_paper WHERE session_id = ?`)
+    .get(paper.sessionId) as { id: string; discussion_no: number | null } | undefined;
   if (existing) {
+    const discussionNo = existing.discussion_no ?? nextDiscussionNo(db);
     db.prepare(
       `UPDATE discussion_paper
           SET flow = ?, theme = ?, tags_json = ?, mechanics_json = ?, supplement = ?, body_md = ?,
-              status = 'started', updated_at = ?
+              status = 'started', discussion_no = COALESCE(discussion_no, ?), updated_at = ?
         WHERE id = ?`
     ).run(
       flow,
@@ -312,6 +320,7 @@ export function persistPaper(
       JSON.stringify(paper.mechanics),
       paper.supplement,
       paper.bodyMd ?? null,
+      discussionNo,
       now,
       existing.id
     );
@@ -322,9 +331,10 @@ export function persistPaper(
     return existing.id;
   }
   const paperId = randomUUID();
+  const discussionNo = nextDiscussionNo(db);
   db.prepare(
-    `INSERT INTO discussion_paper (id, flow, session_id, theme, tags_json, mechanics_json, supplement, body_md, status, created_at, updated_at)
-     VALUES (?, ?, ?, ?, ?, ?, ?, ?, 'started', ?, ?)`
+    `INSERT INTO discussion_paper (id, flow, session_id, theme, tags_json, mechanics_json, supplement, body_md, status, discussion_no, created_at, updated_at)
+     VALUES (?, ?, ?, ?, ?, ?, ?, ?, 'started', ?, ?, ?)`
   ).run(
     paperId,
     flow,
@@ -334,6 +344,7 @@ export function persistPaper(
     JSON.stringify(paper.mechanics),
     paper.supplement,
     paper.bodyMd ?? null,
+    discussionNo,
     now,
     now
   );
@@ -402,12 +413,14 @@ export function persistDraftPaper(
   const db = getFlowDb();
   const now = Date.now();
   const existing = db
-    .prepare(`SELECT id FROM discussion_paper WHERE session_id = ?`)
-    .get(paper.sessionId) as { id: string } | undefined;
+    .prepare(`SELECT id, discussion_no FROM discussion_paper WHERE session_id = ?`)
+    .get(paper.sessionId) as { id: string; discussion_no: number | null } | undefined;
   if (existing) {
+    const discussionNo = existing.discussion_no ?? nextDiscussionNo(db);
     db.prepare(
       `UPDATE discussion_paper
-          SET flow = ?, theme = ?, tags_json = ?, mechanics_json = ?, supplement = ?, body_md = ?, updated_at = ?
+          SET flow = ?, theme = ?, tags_json = ?, mechanics_json = ?, supplement = ?, body_md = ?,
+              discussion_no = COALESCE(discussion_no, ?), updated_at = ?
         WHERE id = ?`
     ).run(
       flow,
@@ -416,6 +429,7 @@ export function persistDraftPaper(
       JSON.stringify(paper.mechanics),
       paper.supplement,
       paper.bodyMd ?? null,
+      discussionNo,
       now,
       existing.id
     );
@@ -426,9 +440,10 @@ export function persistDraftPaper(
     return existing.id;
   }
   const paperId = randomUUID();
+  const discussionNo = nextDiscussionNo(db);
   db.prepare(
-    `INSERT INTO discussion_paper (id, flow, session_id, theme, tags_json, mechanics_json, supplement, body_md, status, created_at, updated_at)
-     VALUES (?, ?, ?, ?, ?, ?, ?, ?, 'draft', ?, ?)`
+    `INSERT INTO discussion_paper (id, flow, session_id, theme, tags_json, mechanics_json, supplement, body_md, status, discussion_no, created_at, updated_at)
+     VALUES (?, ?, ?, ?, ?, ?, ?, ?, 'draft', ?, ?, ?)`
   ).run(
     paperId,
     flow,
@@ -438,6 +453,7 @@ export function persistDraftPaper(
     JSON.stringify(paper.mechanics),
     paper.supplement,
     paper.bodyMd ?? null,
+    discussionNo,
     now,
     now
   );
@@ -581,11 +597,22 @@ export function getPaperBodyBySession(sessionId: string): string | null {
   return row?.body_md ?? null;
 }
 
+/** セッションに割り当てた人間向け議論番号を返す (無ければ null)。 */
+export function getDiscussionNumberBySession(sessionId: string): number | null {
+  const row = getFlowDb()
+    .prepare(
+      `SELECT discussion_no FROM discussion_paper WHERE session_id = ? ORDER BY created_at DESC LIMIT 1`
+    )
+    .get(sessionId) as { discussion_no: number | null } | undefined;
+  return row?.discussion_no ?? null;
+}
+
 /** 議論一覧の絞り込み状態。'all'=全件 / 'draft'=下書き / 'live'=進行中(未収束) / 'concluded'=結論あり。 */
 export type FlowSessionState = "all" | "draft" | "live" | "concluded";
 
 /** 議論一覧 1 行 (state は呼び出し側が concluded/status から導出)。 */
 export interface FlowSessionRow {
+  discussionNo: number | null;
   sessionId: string;
   title: string;
   theme: string;
@@ -644,7 +671,8 @@ export function listFlowSessions(opts: {
   ).n;
   const rows = db
     .prepare(
-      `SELECT dp.session_id AS sessionId,
+      `SELECT dp.discussion_no AS discussionNo,
+              dp.session_id AS sessionId,
               COALESCE(NULLIF(tc.title, ''), dp.theme) AS title,
               dp.theme AS theme, dp.flow AS flow, dp.status AS status,
               COALESCE(tc.discussion_type, dp.flow) AS discussionType,

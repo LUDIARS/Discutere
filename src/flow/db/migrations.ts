@@ -443,6 +443,23 @@ const MIGRATIONS: Array<{ id: string; sql: string[] }> = [
     id: "flow_0021_paper_review_info",
     sql: [`ALTER TABLE discussion_paper ADD COLUMN review_info_json TEXT`],
   },
+  {
+    // 人間が議論を短い番号で特定できるように、作成順の永続番号を持つ。
+    // 既存行は created_at 昇順で 1..N を割り当て、新規行は最大値 + 1 を使う。
+    id: "flow_0022_discussion_no",
+    sql: [
+      `ALTER TABLE discussion_paper ADD COLUMN discussion_no INTEGER`,
+      `UPDATE discussion_paper
+          SET discussion_no = (
+            SELECT COUNT(*)
+              FROM discussion_paper older
+             WHERE older.created_at < discussion_paper.created_at
+                OR (older.created_at = discussion_paper.created_at AND older.id <= discussion_paper.id)
+          )
+        WHERE discussion_no IS NULL`,
+      `CREATE UNIQUE INDEX IF NOT EXISTS idx_discussion_paper_no ON discussion_paper(discussion_no) WHERE discussion_no IS NOT NULL`,
+    ],
+  },
 ];
 
 function isIgnorableMigrationError(stmt: string, error: unknown): boolean {

@@ -167,7 +167,9 @@ export const FLOW_HTML = `<!doctype html>
   .sess:hover { border-color: var(--primary); background: var(--surface-soft); }
   .sess-del { flex: 0 0 auto; background: var(--danger-bg); color: var(--danger-fg); border: 1px solid var(--border); border-radius: 8px; padding: 0 0.7rem; cursor: pointer; font-size: 1rem; }
   .sess-del:hover { filter: brightness(0.95); }
-  .sess .th { font-weight: 600; }
+  .sess .th { font-weight: 600; display: flex; align-items: baseline; gap: 0.45rem; min-width: 0; }
+  .sess .dno { flex: 0 0 auto; color: var(--primary); font-weight: 800; font-size: 0.82rem; }
+  .sess .ttl { min-width: 0; overflow-wrap: anywhere; }
   .sess .meta { font-size: 0.78rem; color: var(--muted); margin-top: 0.15rem; }
   .badge, .mark { display: inline-block; font-size: 11px; border-radius: 5px; padding: 2px 7px; margin-right: 4px; background: var(--soft); color: var(--fg); font-weight: 700; }
   .mark.vote { background: #fef3c7; color: #92400e; }
@@ -1041,9 +1043,10 @@ function buildSessionRow(s) {
       ? '<span class="badge done">結論あり</span>'
       : '<span class="badge live">進行/未収束</span>';
   const when = new Date(s.createdAt).toLocaleString();
+  const discussionNo = Number.isFinite(s.discussionNo) && s.discussionNo > 0 ? "#" + s.discussionNo : "#?";
   const b = document.createElement("button");
   b.className = "sess"; b.dataset.sid = s.sessionId; b.dataset.state = state; b.type = "button";
-  b.innerHTML = '<div class="th">' + escapeHtml(s.title || s.theme || "(無題)") + '</div>' +
+  b.innerHTML = '<div class="th"><span class="dno">' + escapeHtml(discussionNo) + '</span><span class="ttl">' + escapeHtml(s.title || s.theme || "(無題)") + '</span></div>' +
     '<div class="meta">' + badge + escapeHtml(s.flow) + ' / 発話 ' + s.utterances + ' 件 / ' + when + '</div>';
   const del = document.createElement("button");
   del.className = "sess-del"; del.dataset.del = s.sessionId; del.type = "button";
