@@ -85,6 +85,8 @@ export interface PaperReviewInfo {
   fixSuggestions?: PaperFixSuggestion[];
   /** LLM が把握しているゲームメカニクス知識の確認結果。 */
   mechanicsKnowledge?: PaperMechanicsKnowledge;
+  /** ユーザの声を LLM で仮想生成して補助シミュレーションできるかの示唆。 */
+  voiceSimulation?: PaperVoiceSimulation;
 }
 
 export interface PaperUnderstanding {
@@ -97,6 +99,10 @@ export interface PaperFixSuggestion {
   title: string;
   reason: string;
   suggestedChange: string;
+  /** Web UI でこの提案を本文へ反映した時刻。 */
+  appliedAt?: number;
+  /** プレースホルダ入力後、実際に本文へ追記した内容。 */
+  appliedText?: string;
 }
 
 export interface PaperMechanicsKnowledge {
@@ -105,6 +111,14 @@ export interface PaperMechanicsKnowledge {
   summary: string;
   knownMechanics: string[];
   missingQuestions: string[];
+}
+
+export interface PaperVoiceSimulation {
+  possible: boolean;
+  confidence: "low" | "medium" | "high";
+  summary: string;
+  caveat: string;
+  nextAction: string;
 }
 
 export interface BuildPaperDraftDeps {

@@ -110,6 +110,15 @@ export const FLOW_HTML = `<!doctype html>
   .debat.warn { display: block; border-left-color: #f59e0b; }
   .debat strong { display: block; margin-bottom: 4px; }
   .debat .rec { margin-top: 6px; padding: 8px 10px; background: var(--soft); border-radius: 6px; }
+  .suggestion-item { border-top: 1px solid var(--border); padding-top: 10px; margin-top: 10px; }
+  .suggestion-item:first-of-type { border-top: 0; padding-top: 0; }
+  .suggestion-title { font-weight: 700; margin-bottom: 4px; }
+  .suggestion-reason { color: var(--muted); margin-bottom: 6px; }
+  .suggestion-fill { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px 10px; margin-top: 8px; }
+  .suggestion-fill label { margin: 0; }
+  .suggestion-fill input { width: 100%; }
+  .suggestion-actions { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; margin-top: 8px; }
+  .suggestion-applied { color: var(--success); font-size: 0.85rem; }
   .learn-panel { display: none; border: 1px solid var(--border); border-left: 4px solid var(--primary); border-radius: 8px; padding: 12px; margin: 10px 0; background: var(--surface); }
   .learn-panel strong { display: block; margin-bottom: 6px; }
   .learn-actions { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 10px; align-items: center; }
@@ -182,6 +191,7 @@ export const FLOW_HTML = `<!doctype html>
     body { margin: 14px auto; padding: 0 12px 32px; }
     .panel { padding: 12px; }
     .rvbar input[type=text] { min-width: 100%; }
+    .suggestion-fill { grid-template-columns: 1fr; }
     #paperToggle { display: inline-block; }
     #paperPanel.collapsed #paperBody { display: none; }
     #paperPanel.collapsed { padding-bottom: 12px; }
@@ -316,6 +326,7 @@ export const FLOW_HTML = `<!doctype html>
     <div id="reviewInfo" class="muted">準備中…</div>
     <div id="understanding" class="understanding"></div>
     <div id="debatability" class="debat"></div>
+    <div id="voiceSimulation" class="understanding"></div>
     <div id="fixSuggestions" class="debat"></div>
     <div id="mechanicsKnowledge" class="understanding"></div>
     <div id="reviewLearning" class="learn-panel">
@@ -616,17 +627,122 @@ function renderDebatability(info) {
   el.innerHTML = html;
   el.style.display = "block";
 }
+function renderVoiceSimulation(info) {
+  const el = $("voiceSimulation");
+  const v = info && info.voiceSimulation;
+  if (!v) { el.style.display = "none"; el.className = "understanding"; el.innerHTML = ""; return; }
+  el.className = "understanding " + (v.possible ? "ok" : "warn");
+  el.innerHTML = "<strong>ユーザの声のLLM生成シミュレーション: " +
+    (v.possible ? "可能" : "先に補強推奨") + " / " + escapeHtml(v.confidence || "low") + "</strong>" +
+    "<div>" + escapeHtml(v.summary || "") + "</div>" +
+    (v.nextAction ? '<div class="rec">' + escapeHtml(v.nextAction) + "</div>" : "") +
+    (v.caveat ? '<div class="muted">' + escapeHtml(v.caveat) + "</div>" : "");
+  el.style.display = "block";
+}
+function suggestionPlaceholders(template) {
+  const re = /\\{\\{([^{}\\n]{1,80})\\}\\}|\\[([^\\[\\]\\n]{1,80})\\]|＜([^＜＞\\n]{1,80})＞|<([^<>\\n]{1,80})>/g;
+  const found = [];
+  const byKey = new Map();
+  let m;
+  while ((m = re.exec(template))) {
+    const label = (m[1] || m[2] || m[3] || m[4] || "").trim();
+    if (!label || label.startsWith("http://") || label.startsWith("https://")) continue;
+    const key = label.toLowerCase();
+    let item = byKey.get(key);
+    if (!item) {
+      item = { id: "ph" + found.length, label, raws: [] };
+      byKey.set(key, item);
+      found.push(item);
+    }
+    if (!item.raws.includes(m[0])) item.raws.push(m[0]);
+  }
+  return found.slice(0, 8);
+}
+function fillSuggestionTemplate(item, requireAll) {
+  let text = item._template || "";
+  const placeholders = item._placeholders || [];
+  for (const ph of placeholders) {
+    const input = item.querySelector('input[data-ph-id="' + ph.id + '"]');
+    const value = input ? input.value.trim() : "";
+    if (!value && requireAll) return { ok: false, missing: input, text };
+    for (const raw of ph.raws) text = text.split(raw).join(value || raw);
+  }
+  return { ok: true, text: text.trim() };
+}
+function updateSuggestionPreview(item) {
+  const preview = item.querySelector(".suggestion-preview");
+  if (!preview) return;
+  const filled = fillSuggestionTemplate(item, false);
+  preview.textContent = filled.text || item._template || "";
+}
 function renderFixSuggestions(info) {
   const el = $("fixSuggestions");
   const suggestions = (info && info.fixSuggestions) || [];
   if (!suggestions.length) { el.style.display = "none"; el.className = "debat"; el.innerHTML = ""; return; }
   el.className = "debat warn";
-  el.innerHTML = "<strong>指摘内容の修正提案</strong>" +
-    "<ul>" + suggestions.map((s) =>
-      "<li><strong>" + escapeHtml(s.title || "") + "</strong><br>" +
-      escapeHtml(s.reason || "") +
-      '<div class="rec">' + escapeHtml(s.suggestedChange || "") + "</div></li>"
-    ).join("") + "</ul>";
+  el.innerHTML = "";
+  const heading = document.createElement("strong");
+  heading.textContent = "指摘内容の修正提案";
+  el.appendChild(heading);
+  for (let i = 0; i < suggestions.length; i++) {
+    const s = suggestions[i] || {};
+    const item = document.createElement("div");
+    item.className = "suggestion-item";
+    item.dataset.index = String(i);
+    item._template = String(s.appliedText || s.suggestedChange || "");
+    item._placeholders = s.appliedAt ? [] : suggestionPlaceholders(item._template);
+
+    const title = document.createElement("div");
+    title.className = "suggestion-title";
+    title.textContent = s.title || "修正提案";
+    item.appendChild(title);
+    if (s.reason) {
+      const reason = document.createElement("div");
+      reason.className = "suggestion-reason";
+      reason.textContent = s.reason;
+      item.appendChild(reason);
+    }
+    if (item._placeholders.length) {
+      const fill = document.createElement("div");
+      fill.className = "suggestion-fill";
+      for (const ph of item._placeholders) {
+        const label = document.createElement("label");
+        label.textContent = ph.label;
+        const input = document.createElement("input");
+        input.type = "text";
+        input.placeholder = ph.label;
+        input.dataset.phId = ph.id;
+        label.appendChild(input);
+        fill.appendChild(label);
+      }
+      item.appendChild(fill);
+    }
+    const preview = document.createElement("div");
+    preview.className = "rec suggestion-preview";
+    item.appendChild(preview);
+    const actions = document.createElement("div");
+    actions.className = "suggestion-actions";
+    const applyBtn = document.createElement("button");
+    applyBtn.type = "button";
+    applyBtn.dataset.act = "apply-fix";
+    applyBtn.textContent = s.appliedAt ? "反映済み" : "調整";
+    applyBtn.disabled = !!s.appliedAt;
+    actions.appendChild(applyBtn);
+    if (s.appliedAt) {
+      const applied = document.createElement("span");
+      applied.className = "suggestion-applied";
+      applied.textContent = "本文に追記済み";
+      actions.appendChild(applied);
+    } else if (item._placeholders.length) {
+      const help = document.createElement("span");
+      help.className = "muted";
+      help.textContent = "空欄を埋めると追記文に反映されます。";
+      actions.appendChild(help);
+    }
+    item.appendChild(actions);
+    el.appendChild(item);
+    updateSuggestionPreview(item);
+  }
   el.style.display = "block";
 }
 function renderMechanicsKnowledge(info) {
@@ -657,6 +773,7 @@ function renderFixedForm(res) {
   setInputValue("rvTurnsPerRound", settings.turnsPerRound == null ? "" : settings.turnsPerRound);
   renderUnderstanding(res.info);
   renderDebatability(res.info);
+  renderVoiceSimulation(res.info);
   renderFixSuggestions(res.info);
   renderMechanicsKnowledge(res.info);
 }
@@ -751,6 +868,37 @@ async function pollPaper() {
   }
   applyPayload(res);
 }
+
+$("fixSuggestions").addEventListener("input", (e) => {
+  const input = e.target.closest("input[data-ph-id]");
+  if (!input) return;
+  const item = input.closest(".suggestion-item");
+  if (item) updateSuggestionPreview(item);
+});
+$("fixSuggestions").addEventListener("click", async (e) => {
+  const btn = e.target.closest('button[data-act="apply-fix"]');
+  if (!btn || btn.disabled || !sessionId) return;
+  const item = btn.closest(".suggestion-item");
+  if (!item) return;
+  const filled = fillSuggestionTemplate(item, true);
+  if (!filled.ok) {
+    $("rvMsg").textContent = "未入力のプレースホルダがあります";
+    if (filled.missing) filled.missing.focus();
+    return;
+  }
+  const suggestionIndex = Number(item.dataset.index);
+  btn.disabled = true;
+  const saved = await saveFixedForm("調整前に保存中…");
+  if (!saved) { btn.disabled = false; return; }
+  $("rvMsg").textContent = "修正提案を追記中…";
+  const res = await paperApi("/fix-suggestion/apply", { suggestionIndex, text: filled.text });
+  if (!res || !res.ok) {
+    $("rvMsg").textContent = res && res.error ? res.error : "修正提案の追記に失敗しました";
+    return;
+  }
+  applyPayload(res);
+  $("rvMsg").textContent = "修正提案を追記しました";
+});
 
 // ブロック操作 (イベント委譲)
 $("blocks").addEventListener("click", async (e) => {
@@ -951,7 +1099,7 @@ function resetView() {
   $("backBar").style.display = "none"; $("start").style.display = "none";
   $("fixedPaper").style.display = "none"; $("understanding").style.display = "none";
   $("debatability").style.display = "none";
-  $("fixSuggestions").style.display = "none"; $("mechanicsKnowledge").style.display = "none"; $("reviewLearning").style.display = "none";
+  $("voiceSimulation").style.display = "none"; $("fixSuggestions").style.display = "none"; $("mechanicsKnowledge").style.display = "none"; $("reviewLearning").style.display = "none";
   $("go").disabled = false;
 }
 // 既存議論を開いて閲覧する (進行中はライブ、収束済みは最終状態)。

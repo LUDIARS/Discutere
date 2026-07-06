@@ -188,6 +188,10 @@ import { parseForumEntry, handleForumFlowPost } from "../../src/flow/entry-disco
   assert.ok(pageHtml.includes('id="rvRefreshSuggestions"'), "UI に 指摘内容の修正提案 ボタンがある");
   assert.ok(pageHtml.includes('id="rvMechanicsCheck"'), "UI に メカニクス知識確認 ボタンがある");
   assert.ok(pageHtml.includes('id="rvLearningLink"'), "UI に 追加学習ページ導線がある");
+  assert.ok(pageHtml.includes('id="voiceSimulation"'), "UI にユーザの声シミュレーション示唆がある");
+  assert.ok(pageHtml.includes("ユーザの声のLLM生成シミュレーション"), "UI に LLM 生成シミュレーション可否の表示がある");
+  assert.ok(pageHtml.includes("apply-fix"), "UI に修正提案の調整ボタン処理がある");
+  assert.ok(pageHtml.includes("/fix-suggestion/apply"), "UI に修正提案適用 API 呼び出しがある");
   assert.ok(!pageHtml.includes('id="rvEdit"'), "旧 全体調整 入力は表示しない");
   assert.ok(!pageHtml.includes('id="rvEditBtn"'), "旧 全体調整 ボタンは表示しない");
   const pageScript = /<script>([\s\S]*?)<\/script>/.exec(pageHtml)?.[1];
@@ -195,7 +199,9 @@ import { parseForumEntry, handleForumFlowPost } from "../../src/flow/entry-disco
   assert.doesNotThrow(() => new Function(pageScript), "UI script が構文エラーなく parse できる");
 
   // 議論一覧: 開始済み (discussion_paper 永続) の議論が在庫として並ぶ (進行中も含む)。
-  const { persistPaper, persistDraftPaper, upsertDiscussionTitleCache } = await import("../../src/flow/discussion-paper.js");
+  const { persistPaper, persistDraftPaper, upsertDiscussionTitleCache, setPaperReviewInfo } = await import(
+    "../../src/flow/discussion-paper.js"
+  );
   const { getFlowDb } = await import("../../src/flow/db/connection.js");
   persistPaper(
     { sessionId: "list-sess-1", theme: "一覧テスト議題", tags: [], mechanics: [], supplement: "", bodyMd: "# 議題\n一覧テスト議題" },
@@ -216,6 +222,18 @@ import { parseForumEntry, handleForumFlowPost } from "../../src/flow/entry-disco
     { sessionId: "draft-sess-1", theme: "下書き議題", tags: [], mechanics: [], supplement: "", bodyMd: "# 議題\n下書き議題" },
     "discussion"
   );
+  setPaperReviewInfo("draft-sess-1", {
+    voiceCount: 0,
+    countCapped: false,
+    samples: [],
+    fixSuggestions: [
+      {
+        title: "論点補強",
+        reason: "対立軸が弱い",
+        suggestedChange: "{{具体例}} をもとに、賛成側と反対側の争点を追記する。",
+      },
+    ],
+  });
   const rSessions = await app.request("/api/flow/sessions");
   const sessionsBody = (await rSessions.json()) as {
     ok: boolean;
@@ -250,6 +268,24 @@ import { parseForumEntry, handleForumFlowPost } from "../../src/flow/entry-disco
   assert.equal(draftPaper.ok, true, "draft paper 取得");
   assert.equal(draftPaper.ready, true, "draft は ready (rehydrate)");
   assert.ok(draftPaper.paper?.bodyMd.includes("下書き議題"), "復元した本文が読める");
+  const rApplyFix = await post("/api/flow/draft-sess-1/paper/fix-suggestion/apply", {
+    suggestionIndex: 0,
+    text: "周回報酬の緩和案をもとに、賛成側と反対側の争点を追記する。",
+  });
+  assert.equal(rApplyFix.status, 200, "修正提案を適用できる");
+  const appliedFix = (await rApplyFix.json()) as {
+    ok: boolean;
+    fixedFields: { discussionContent: string };
+    info: {
+      fixSuggestions: Array<{ appliedAt?: number; appliedText?: string }>;
+      voiceSimulation?: { possible: boolean; confidence: string; summary: string };
+    };
+  };
+  assert.equal(appliedFix.ok, true, "修正提案適用 ok");
+  assert.ok(appliedFix.fixedFields.discussionContent.includes("修正追記: 論点補強"), "議論内容へ追記される");
+  assert.ok(appliedFix.fixedFields.discussionContent.includes("周回報酬の緩和案"), "入力済みテキストが追記される");
+  assert.ok(appliedFix.info.fixSuggestions[0].appliedAt, "提案は反映済みとして保存される");
+  assert.ok(appliedFix.info.voiceSimulation?.summary, "ユーザの声の LLM 生成シミュレーション可否を返す");
   const rStartedPaper = await app.request("/api/flow/list-sess-1/paper");
   const startedPaper = (await rStartedPaper.json()) as { ok: boolean; ready: boolean; started?: boolean; status?: string };
   assert.equal(rStartedPaper.status, 200, "開始済み paper 取得も 404 にしない");
