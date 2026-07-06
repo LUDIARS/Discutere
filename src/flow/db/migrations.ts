@@ -435,6 +435,14 @@ const MIGRATIONS: Array<{ id: string; sql: string[] }> = [
       `CREATE INDEX IF NOT EXISTS idx_flow_synthesis_tension ON flow_synthesis(tension_id)`,
     ],
   },
+  {
+    // ペーパー編集画面の LLM チェック結果表示用キャッシュ。
+    // discussion_paper.debatability_json は監査用の単体結果として残しつつ、
+    // review_info_json には voiceCount / samples / understanding / debatability をまとめて保持する。
+    // これにより下書き再開時も、前回の「議論可能か確認する」結果を常に表示できる。
+    id: "flow_0021_paper_review_info",
+    sql: [`ALTER TABLE discussion_paper ADD COLUMN review_info_json TEXT`],
+  },
 ];
 
 function isIgnorableMigrationError(stmt: string, error: unknown): boolean {

@@ -268,6 +268,22 @@ function appendTrainMechanics(text) {
   const cur = el.value.trim();
   el.value = cur ? cur + "\\n\\n" + text : text;
 }
+function applyTrainParams() {
+  const params = new URLSearchParams(location.search);
+  const setIfPresent = (id, key) => {
+    const value = params.get(key);
+    if (value) byId(id).value = value;
+  };
+  setIfPresent("trainGameTitle", "gameTitle");
+  setIfPresent("trainTheme", "theme");
+  setIfPresent("trainQuery", "query");
+  setIfPresent("trainSubreddit", "subreddit");
+  setIfPresent("trainSteamAppId", "appId");
+  setIfPresent("trainSpecUrl", "specUrl");
+  setIfPresent("trainGithubRepoUrl", "githubRepoUrl");
+  setIfPresent("trainGithubPath", "githubPath");
+  setIfPresent("trainGithubRef", "githubRef");
+}
 async function loadTrainGithubAuth() {
   const el = byId("trainGithubAuth");
   const res = await fetch("/api/spec/github/auth").then(r => r.json()).catch(() => null);
@@ -710,6 +726,7 @@ document.getElementById("trainSpecFile").addEventListener("change", (e) => {
   const file = e.target.files && e.target.files[0];
   if (file) void uploadTrainSpec(file);
 });
+applyTrainParams();
 void loadTrainGithubAuth();
 setActiveLayer(currentLayer);
 </script>

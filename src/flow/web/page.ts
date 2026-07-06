@@ -110,6 +110,11 @@ export const FLOW_HTML = `<!doctype html>
   .debat.warn { display: block; border-left-color: #f59e0b; }
   .debat strong { display: block; margin-bottom: 4px; }
   .debat .rec { margin-top: 6px; padding: 8px 10px; background: var(--soft); border-radius: 6px; }
+  .learn-panel { display: none; border: 1px solid var(--border); border-left: 4px solid var(--primary); border-radius: 8px; padding: 12px; margin: 10px 0; background: var(--surface); }
+  .learn-panel strong { display: block; margin-bottom: 6px; }
+  .learn-actions { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 10px; align-items: center; }
+  .learn-status { white-space: pre-wrap; }
+  .learn-link { display: inline-block; padding: 8px 15px; border: 1px solid var(--primary); border-radius: 6px; background: var(--primary); color: var(--primary-fg); text-decoration: none; }
   .badge.hypo { background: #fae8ff; color: #86198f; }
   #review input[type=text] { width: 100%; }
   #review .row { margin: 0.5rem 0; }
@@ -311,6 +316,16 @@ export const FLOW_HTML = `<!doctype html>
     <div id="reviewInfo" class="muted">準備中…</div>
     <div id="understanding" class="understanding"></div>
     <div id="debatability" class="debat"></div>
+    <div id="fixSuggestions" class="debat"></div>
+    <div id="mechanicsKnowledge" class="understanding"></div>
+    <div id="reviewLearning" class="learn-panel">
+      <strong>追加学習</strong>
+      <div class="muted">学習不足が指摘されています。追加学習は学習ページで実行します。</div>
+      <div class="learn-actions">
+        <a id="rvLearningLink" class="learn-link" href="/learning" target="_blank" rel="noreferrer">追加学習ページを開く</a>
+        <span id="rvLearningStatus" class="muted learn-status">学習後、この画面で再度「議論可能か確認する」を実行してください。</span>
+      </div>
+    </div>
     <div id="fixedPaper" class="paper-form">
       <label>ゲームタイトル（または主目的）
         <input id="rvGameTitle" type="text" />
@@ -342,12 +357,13 @@ export const FLOW_HTML = `<!doctype html>
         <label>ラウンド数 <input id="rvRounds" type="number" min="1" max="10" placeholder="既定" /></label>
         <label>ターン数/ラウンド <input id="rvTurnsPerRound" type="number" min="1" max="20" placeholder="既定" /></label>
         <button id="rvSaveFields" type="button">内容を保存</button>
+        <button id="rvCheckDebate" type="button">議論可能か確認する</button>
       </div>
     </div>
     <div id="blocks" style="display:none"></div>
     <div class="rvbar">
-      <input id="rvEdit" type="text" placeholder="全体を自然文で調整 (例: メカニクスにガチャを追加)" />
-      <button id="rvEditBtn" type="button">全体調整</button>
+      <button id="rvRefreshSuggestions" type="button">指摘内容の修正提案</button>
+      <button id="rvMechanicsCheck" type="button">メカニクス知識を確認</button>
       <button id="rvRevert" type="button" disabled>↶ 戻す</button>
     </div>
     <div id="rvMsg" class="muted"></div>
@@ -560,10 +576,34 @@ function renderUnderstanding(info) {
     "<div>" + escapeHtml(u.rationale || "") + "</div>" +
     (qs ? "<ul>" + qs + "</ul>" : "");
 }
+function renderReviewLearning(d) {
+  const panel = $("reviewLearning");
+  if (!d || d.degraded || d.debatable || !d.recommendation || d.recommendation.flow !== "learning") {
+    panel.style.display = "none";
+    return;
+  }
+  panel.style.display = "block";
+  const p = new URLSearchParams();
+  const gameTitle = $("rvGameTitle").value.trim();
+  const theme = $("rvDiscussionTheme").value.trim();
+  if (gameTitle) p.set("gameTitle", gameTitle);
+  if (theme) p.set("theme", theme);
+  p.set("query", [gameTitle, theme, "review"].filter(Boolean).join(" "));
+  p.set("source", "balanced");
+  $("rvLearningLink").href = "/learning?" + p.toString();
+}
 function renderDebatability(info) {
   const el = $("debatability");
   const d = info && info.debatability;
-  if (!d || d.degraded) { el.style.display = "none"; el.className = "debat"; el.innerHTML = ""; return; }
+  renderReviewLearning(d);
+  if (!d) { el.style.display = "none"; el.className = "debat"; el.innerHTML = ""; return; }
+  if (d.degraded) {
+    el.className = "debat warn";
+    el.innerHTML = "<strong>議論適性チェック: 判定を完了できませんでした</strong>" +
+      "<div>" + escapeHtml(d.message || "LLMチェックに失敗しました。内容は保存されています。") + "</div>";
+    el.style.display = "block";
+    return;
+  }
   el.className = "debat " + (d.debatable ? "ok" : "warn");
   let html = "<strong>議論適性ゲート: " + (d.debatable ? "議論に向いています" : "議論不適 (再提案あり)") + "</strong>" +
     "<div>" + escapeHtml(d.message || "") + "</div>";
@@ -574,6 +614,32 @@ function renderDebatability(info) {
       '<div class="muted">このまま下の「議論開始」で強行することもできます (人間が最終決定)。</div></div>';
   }
   el.innerHTML = html;
+  el.style.display = "block";
+}
+function renderFixSuggestions(info) {
+  const el = $("fixSuggestions");
+  const suggestions = (info && info.fixSuggestions) || [];
+  if (!suggestions.length) { el.style.display = "none"; el.className = "debat"; el.innerHTML = ""; return; }
+  el.className = "debat warn";
+  el.innerHTML = "<strong>指摘内容の修正提案</strong>" +
+    "<ul>" + suggestions.map((s) =>
+      "<li><strong>" + escapeHtml(s.title || "") + "</strong><br>" +
+      escapeHtml(s.reason || "") +
+      '<div class="rec">' + escapeHtml(s.suggestedChange || "") + "</div></li>"
+    ).join("") + "</ul>";
+  el.style.display = "block";
+}
+function renderMechanicsKnowledge(info) {
+  const el = $("mechanicsKnowledge");
+  const k = info && info.mechanicsKnowledge;
+  if (!k) { el.style.display = "none"; el.className = "understanding"; el.innerHTML = ""; return; }
+  el.className = "understanding " + (k.ok ? "ok" : "warn");
+  const known = (k.knownMechanics || []).map(v => "<li>" + escapeHtml(v) + "</li>").join("");
+  const missing = (k.missingQuestions || []).map(v => "<li>" + escapeHtml(v) + "</li>").join("");
+  el.innerHTML = "<strong>メカニクス知識確認: " + escapeHtml(k.confidence || "low") + "</strong>" +
+    "<div>" + escapeHtml(k.summary || "") + "</div>" +
+    (known ? '<div class="muted">把握している内容</div><ul>' + known + "</ul>" : "") +
+    (missing ? '<div class="muted">不足している確認事項</div><ul>' + missing + "</ul>" : "");
   el.style.display = "block";
 }
 function renderFixedForm(res) {
@@ -591,6 +657,8 @@ function renderFixedForm(res) {
   setInputValue("rvTurnsPerRound", settings.turnsPerRound == null ? "" : settings.turnsPerRound);
   renderUnderstanding(res.info);
   renderDebatability(res.info);
+  renderFixSuggestions(res.info);
+  renderMechanicsKnowledge(res.info);
 }
 function collectFixedForm() {
   return {
@@ -741,16 +809,35 @@ $("blocks").addEventListener("click", async (e) => {
 
 $("rvSaveFields").addEventListener("click", () => { void saveFixedForm("保存中…"); });
 
-$("rvEditBtn").addEventListener("click", async () => {
-  const instruction = $("rvEdit").value.trim();
-  if (!instruction || !sessionId) return;
-  $("rvMsg").textContent = "全体調整中…";
-  const res = await paperApi("/edit", { instruction });
-  if (!res || !res.ok) { $("rvMsg").textContent = "反映に失敗しました"; return; }
-  $("rvEdit").value = "";
+async function runDebatabilityCheck() {
+  if (!sessionId) return;
+  const saved = await saveFixedForm("確認前に保存中…");
+  if (!saved) return;
+  $("rvCheckDebate").disabled = true;
+  $("rvRefreshSuggestions").disabled = true;
+  $("rvMsg").textContent = "議論可能性を確認中…";
+  const res = await paperApi("/debatability/check", {});
+  $("rvCheckDebate").disabled = false;
+  $("rvRefreshSuggestions").disabled = false;
+  if (!res || !res.ok) { $("rvMsg").textContent = res && res.error ? res.error : "確認に失敗しました"; return; }
   applyPayload(res);
-  $("rvMsg").textContent = (res.applied ? "✏️ " : "⚠️ ") + (res.changeSummary || "");
-});
+  $("rvMsg").textContent = "議論可能性を確認しました";
+}
+async function runMechanicsKnowledgeCheck() {
+  if (!sessionId) return;
+  const saved = await saveFixedForm("確認前に保存中…");
+  if (!saved) return;
+  $("rvMechanicsCheck").disabled = true;
+  $("rvMsg").textContent = "メカニクス知識を確認中…";
+  const res = await paperApi("/mechanics/check", {});
+  $("rvMechanicsCheck").disabled = false;
+  if (!res || !res.ok) { $("rvMsg").textContent = res && res.error ? res.error : "確認に失敗しました"; return; }
+  applyPayload(res);
+  $("rvMsg").textContent = "メカニクス知識を確認しました";
+}
+$("rvCheckDebate").addEventListener("click", () => { void runDebatabilityCheck(); });
+$("rvRefreshSuggestions").addEventListener("click", () => { void runDebatabilityCheck(); });
+$("rvMechanicsCheck").addEventListener("click", () => { void runMechanicsKnowledgeCheck(); });
 $("rvRevert").addEventListener("click", async () => {
   const res = await paperApi("/revert", {});
   if (!res || !res.ok) { $("rvMsg").textContent = res ? res.error : "戻せませんでした"; return; }
@@ -864,6 +951,7 @@ function resetView() {
   $("backBar").style.display = "none"; $("start").style.display = "none";
   $("fixedPaper").style.display = "none"; $("understanding").style.display = "none";
   $("debatability").style.display = "none";
+  $("fixSuggestions").style.display = "none"; $("mechanicsKnowledge").style.display = "none"; $("reviewLearning").style.display = "none";
   $("go").disabled = false;
 }
 // 既存議論を開いて閲覧する (進行中はライブ、収束済みは最終状態)。

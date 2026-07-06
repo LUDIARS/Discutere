@@ -81,11 +81,29 @@ export interface PaperReviewInfo {
   understanding?: PaperUnderstanding;
   /** 議論適性ゲート (09) の評価結果 (ゲート有効時のみ)。 */
   debatability?: DebatabilityResult;
+  /** LLM チェック結果から生成した、編集者向けの修正提案。 */
+  fixSuggestions?: PaperFixSuggestion[];
+  /** LLM が把握しているゲームメカニクス知識の確認結果。 */
+  mechanicsKnowledge?: PaperMechanicsKnowledge;
 }
 
 export interface PaperUnderstanding {
   ok: boolean;
   rationale: string;
+  missingQuestions: string[];
+}
+
+export interface PaperFixSuggestion {
+  title: string;
+  reason: string;
+  suggestedChange: string;
+}
+
+export interface PaperMechanicsKnowledge {
+  ok: boolean;
+  confidence: "low" | "medium" | "high";
+  summary: string;
+  knownMechanics: string[];
   missingQuestions: string[];
 }
 

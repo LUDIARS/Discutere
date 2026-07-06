@@ -144,6 +144,11 @@ import { parseForumEntry, handleForumFlowPost } from "../../src/flow/entry-disco
   assert.equal(r400.status, 400, "flow 未指定は 400");
 
   // テーマ未指定 → 400
+  const rEditGone = await post("/api/flow/nope/paper/edit", { instruction: "全体を調整して" });
+  assert.equal(rEditGone.status, 410, "旧 全体調整 API は廃止");
+  const editGoneBody = (await rEditGone.json()) as { ok: boolean; error: string };
+  assert.equal(editGoneBody.ok, false, "旧 全体調整 API は LLM に流さない");
+
   const rNoTheme = await post("/api/flow/start", { theme: "", flow: "discussion" });
   assert.equal(rNoTheme.status, 400, "テーマ未指定は 400");
 
@@ -179,6 +184,12 @@ import { parseForumEntry, handleForumFlowPost } from "../../src/flow/entry-disco
   assert.ok(pageHtml.includes("新規議論開始"), "UI に新規議論開始ボタンがある");
   assert.ok(pageHtml.includes('data-state="draft"'), "UI に state フィルタタブがある");
   assert.ok(pageHtml.includes("もっと見る"), "UI に「もっと見る」(ページング) がある");
+  assert.ok(pageHtml.includes('id="rvCheckDebate"'), "UI に 議論可能か確認する ボタンがある");
+  assert.ok(pageHtml.includes('id="rvRefreshSuggestions"'), "UI に 指摘内容の修正提案 ボタンがある");
+  assert.ok(pageHtml.includes('id="rvMechanicsCheck"'), "UI に メカニクス知識確認 ボタンがある");
+  assert.ok(pageHtml.includes('id="rvLearningLink"'), "UI に 追加学習ページ導線がある");
+  assert.ok(!pageHtml.includes('id="rvEdit"'), "旧 全体調整 入力は表示しない");
+  assert.ok(!pageHtml.includes('id="rvEditBtn"'), "旧 全体調整 ボタンは表示しない");
   const pageScript = /<script>([\s\S]*?)<\/script>/.exec(pageHtml)?.[1];
   assert.ok(pageScript, "UI に script がある");
   assert.doesNotThrow(() => new Function(pageScript), "UI script が構文エラーなく parse できる");

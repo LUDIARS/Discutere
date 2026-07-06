@@ -22,9 +22,11 @@ import {
   persistDraftPaper,
   getDraftPaper,
   getPaperSnapshot,
+  getPaperReviewInfo,
   deleteFlowSession,
   listFlowSessions,
   setPaperDebatability,
+  setPaperReviewInfo,
 } from "../discussion-paper.js";
 import { resolveDebatabilityGate } from "../information-gate-runner.js";
 
@@ -53,14 +55,16 @@ import {
 import {
   buildPaperDraft,
   assessPaperUnderstanding,
-  applyPaperEdit,
   coercePaperDraft,
   reviewBlock,
   gatherEvidence,
   withDerivedStructure,
+  type PaperFixSuggestion,
+  type PaperMechanicsKnowledge,
   type PaperDraft,
   type PaperReviewInfo,
 } from "../paper-review.js";
+import { assessDebatability, annotatedIssues } from "../debatability.js";
 import { splitBlocks, replaceBlock, insertBlockAfter } from "../paper-blocks.js";
 import { paperDraftToMarkdown, paperFixedFieldsFromMarkdown, type PaperFixedFields } from "../paper-markdown.js";
 import { appendRevision, canRevert, revertLast, listRevisions } from "../paper-revisions.js";
@@ -116,7 +120,7 @@ const finished = new Set<string>();
 /**
  * ペーパーレビュー待ち (sessionId → 草案 + 起動入力)。
  * /start で草案構築をバックグラウンド起動し、ready になったら ブラウザが /paper で取得して
- * 調整 (/paper/edit or 直接編集) → /paper/approve で議論を開始する。
+ * 直接編集 → /paper/approve で議論を開始する。
  */
 interface WebPaperReview {
   flow: FlowKind;
@@ -361,6 +365,175 @@ function defaultPaperInfo(existing?: PaperReviewInfo): PaperReviewInfo {
   return existing ?? { voiceCount: 0, countCapped: false, samples: [] };
 }
 
+function storedPaperReviewInfo(sessionId: string): PaperReviewInfo | undefined {
+  const info = getPaperReviewInfo(sessionId);
+  return info && typeof info === "object" ? (info as PaperReviewInfo) : undefined;
+}
+
+function savePaperReviewInfo(sessionId: string, info: PaperReviewInfo): void {
+  try {
+    setPaperReviewInfo(sessionId, info);
+  } catch (e) {
+    console.warn(`[flow-web/paper ${sessionId}] review info 保存失敗: ${(e as Error).message}`);
+  }
+}
+
+const REVIEW_INFO_SAMPLE_LIMIT = 9;
+const DEBATABILITY_VOICE_LIMIT = 50;
+
+function reviewInfoSamples(voices: readonly ContextVoice[]): PaperReviewInfo["samples"] {
+  return voices.slice(0, REVIEW_INFO_SAMPLE_LIMIT).map((v) => ({
+    content: v.content.length > 120 ? `${v.content.slice(0, 120)}...` : v.content,
+    source: v.source,
+  }));
+}
+
+function manualDebatabilityGate(
+  kind: FlowKind,
+  sessionId: string,
+  llm: LLMClient
+): { llm: LLMClient; minArmableIssues: number } | undefined {
+  if (kind !== "discussion" && kind !== "improvement") return undefined;
+  return (
+    resolveDebatabilityGate({ kind, sessionId, llm }) ?? {
+      llm,
+      minArmableIssues: getConfig().flow.debatability.minArmableIssues,
+    }
+  );
+}
+
+function extractJsonObject(raw: string): Record<string, unknown> | null {
+  const start = raw.indexOf("{");
+  const end = raw.lastIndexOf("}");
+  if (start < 0 || end <= start) return null;
+  try {
+    const parsed = JSON.parse(raw.slice(start, end + 1));
+    return parsed && typeof parsed === "object" && !Array.isArray(parsed)
+      ? (parsed as Record<string, unknown>)
+      : null;
+  } catch {
+    return null;
+  }
+}
+
+function shortString(raw: unknown, fallback = ""): string {
+  return typeof raw === "string" ? raw.trim().slice(0, 2000) : fallback;
+}
+
+function stringArray(raw: unknown, limit: number): string[] {
+  return Array.isArray(raw)
+    ? raw
+        .filter((v): v is string => typeof v === "string" && v.trim() !== "")
+        .map((v) => v.trim().slice(0, 1000))
+        .slice(0, limit)
+    : [];
+}
+
+async function suggestFixesForPaper(args: {
+  draft: PaperDraft;
+  info: PaperReviewInfo;
+  llm: LLMClient;
+  model?: string;
+  warn: (msg: string) => void;
+}): Promise<PaperFixSuggestion[]> {
+  const hasFindings =
+    args.info.understanding?.ok === false ||
+    (args.info.debatability && !args.info.debatability.degraded && !args.info.debatability.debatable);
+  if (!hasFindings) return [];
+  const system =
+    "You review a Japanese discussion paper before debate. Return JSON only. " +
+    "Create concrete fix suggestions from the provided check findings. Do not rewrite the whole paper.";
+  const prompt = JSON.stringify(
+    {
+      paperMd: args.draft.bodyMd,
+      understanding: args.info.understanding ?? null,
+      debatability: args.info.debatability ?? null,
+      expectedShape: [
+        { title: "短い見出し", reason: "指摘理由", suggestedChange: "編集者が追記・修正すべき具体内容" },
+      ],
+    },
+    null,
+    2
+  );
+  try {
+    const res = await args.llm.invoke({ system, prompt, model: args.model, maxTokens: 1800 });
+    if (!res.ok) {
+      args.warn(`paper-fix-suggestions LLM error: ${res.error}`);
+      return [];
+    }
+    const arr = extractJsonArray(res.text);
+    if (!arr) return [];
+    return arr
+      .map((raw): PaperFixSuggestion | null => {
+        if (!raw || typeof raw !== "object") return null;
+        const o = raw as Record<string, unknown>;
+        const title = shortString(o.title);
+        const reason = shortString(o.reason);
+        const suggestedChange = shortString(o.suggestedChange);
+        return title && suggestedChange ? { title, reason, suggestedChange } : null;
+      })
+      .filter((item): item is PaperFixSuggestion => item !== null)
+      .slice(0, 5);
+  } catch (e) {
+    args.warn(`paper-fix-suggestions threw: ${(e as Error).message}`);
+    return [];
+  }
+}
+
+async function checkMechanicsKnowledge(args: {
+  draft: PaperDraft;
+  fields: PaperFixedFields;
+  llm: LLMClient;
+  model?: string;
+  warn: (msg: string) => void;
+}): Promise<PaperMechanicsKnowledge> {
+  const system =
+    "You check whether you have enough game mechanics knowledge to support a debate. " +
+    "Return JSON only. Do not invent certainty; mark low confidence when details are missing.";
+  const prompt = JSON.stringify(
+    {
+      gameTitle: args.fields.gameTitle,
+      discussionTheme: args.fields.discussionTheme || args.draft.theme,
+      providedMechanicsContext: args.fields.mechanicsContext,
+      extractedMechanics: args.draft.mechanics.slice(0, 30),
+      expectedShape: {
+        ok: true,
+        confidence: "low|medium|high",
+        summary: "理解状況の短い説明",
+        knownMechanics: ["把握しているメカニクス"],
+        missingQuestions: ["不足している確認事項"],
+      },
+    },
+    null,
+    2
+  );
+  try {
+    const res = await args.llm.invoke({ system, prompt, model: args.model, maxTokens: 1800 });
+    if (!res.ok) throw new Error(res.error);
+    const obj = extractJsonObject(res.text);
+    if (!obj) throw new Error("no JSON object");
+    const confidence = obj.confidence === "high" || obj.confidence === "medium" ? obj.confidence : "low";
+    const knownMechanics = stringArray(obj.knownMechanics, 12);
+    const missingQuestions = stringArray(obj.missingQuestions, 8);
+    return {
+      ok: typeof obj.ok === "boolean" ? obj.ok : confidence !== "low" && missingQuestions.length === 0,
+      confidence,
+      summary: shortString(obj.summary, "メカニクス理解度を確認しました。"),
+      knownMechanics,
+      missingQuestions,
+    };
+  } catch (e) {
+    args.warn(`mechanics-knowledge check failed: ${(e as Error).message}`);
+    return {
+      ok: false,
+      confidence: "low",
+      summary: "メカニクス知識確認に失敗しました。仕様書・ゲーム内容・主要ループを補足してください。",
+      knownMechanics: [],
+      missingQuestions: ["ゲームの基本ループ、主要システム、報酬、制約を補足してください。"],
+    };
+  }
+}
+
 export const flowRoutes = new Hono();
 
 flowRoutes.get("/flow", (c) => c.html(FLOW_HTML));
@@ -558,6 +731,13 @@ flowRoutes.post("/api/flow/start", async (c) => {
         debatability: resolveDebatabilityGate({ kind, sessionId, llm: webDeps.llm }),
         warn: (m) => console.warn(`[flow-web/paper ${sessionId}] ${m}`),
       });
+      info.fixSuggestions = await suggestFixesForPaper({
+        draft,
+        info,
+        llm: webDeps.llm,
+        model: getConfig().flow.paperReview.model || undefined,
+        warn: (m) => console.warn(`[flow-web/paper ${sessionId}] ${m}`),
+      });
       const entry = paperReviews.get(sessionId);
       if (entry) {
         Object.assign(entry, { ready: true, draft, info });
@@ -568,6 +748,7 @@ flowRoutes.post("/api/flow/start", async (c) => {
           { sessionId, theme: draft.theme, tags: draft.tags, mechanics: draft.mechanics, supplement: draft.supplement, bodyMd: draft.bodyMd },
           kind
         );
+        savePaperReviewInfo(sessionId, info);
         scheduleWebAutoApprove(sessionId, webDeps); // 無操作タイムアウト (timeoutMs>0 時のみ)
       }
     })().catch((e) => {
@@ -591,6 +772,7 @@ flowRoutes.post("/api/flow/start", async (c) => {
 function paperPayload(sessionId: string, draft: PaperDraft, entry?: WebPaperReview) {
   return {
     paper: draft,
+    info: entry?.info ?? storedPaperReviewInfo(sessionId) ?? null,
     fixedFields: paperFixedFieldsFromMarkdown(draft.bodyMd, draft),
     settings: {
       rounds: entry?.rounds ?? null,
@@ -643,7 +825,12 @@ function rehydrateDraftEntry(sessionId: string): WebPaperReview | null {
     supplement: row.supplement,
     mechanics: row.mechanics,
   });
-  const entry: WebPaperReview = { flow: row.flow as FlowKind, ready: true, draft };
+  const entry: WebPaperReview = {
+    flow: row.flow as FlowKind,
+    ready: true,
+    draft,
+    info: storedPaperReviewInfo(sessionId),
+  };
   paperReviews.set(sessionId, entry);
   return entry;
 }
@@ -661,7 +848,7 @@ flowRoutes.get("/api/flow/:session/paper", (c) => {
         started: persisted.status !== "draft",
         status: persisted.status,
         error: null,
-        info: null,
+        info: storedPaperReviewInfo(sessionId) ?? null,
         paper: null,
         blocks: [],
         paperMd: persisted.bodyMd,
@@ -675,8 +862,9 @@ flowRoutes.get("/api/flow/:session/paper", (c) => {
     started: false,
     missing: false,
     error: entry.error ?? null,
-    info: entry.info ?? null,
-    ...(entry.ready && entry.draft ? paperPayload(sessionId, entry.draft, entry) : { paper: null, blocks: [] }),
+    ...(entry.ready && entry.draft
+      ? paperPayload(sessionId, entry.draft, entry)
+      : { info: entry.info ?? null, paper: null, blocks: [] }),
   });
 });
 
@@ -720,27 +908,99 @@ flowRoutes.post("/api/flow/:session/paper/form/apply", async (c) => {
     model: getConfig().flow.paperReview.model || undefined,
     warn: (m) => console.warn(`[flow-web/paper ${sessionId}] ${m}`),
   });
-  entry.info = info;
-  return c.json({ ok: true, info: entry.info, ...paperPayload(sessionId, entry.draft, entry) });
-});
-
-/** 自然文の調整指示をペーパー全体に反映する (Web の NL 編集・本文 md 再生成)。 */
-flowRoutes.post("/api/flow/:session/paper/edit", async (c) => {
-  if (!deps) return c.json({ ok: false, error: "flow web 未初期化" }, 500);
-  const webDeps = deps;
-  const sessionId = c.req.param("session");
-  const entry = paperReviews.get(sessionId);
-  if (!entry || !entry.ready || !entry.draft) return c.json({ ok: false, error: "編集準備中です" }, 409);
-  const body = (await c.req.json().catch(() => ({}))) as { instruction?: unknown };
-  const instruction = typeof body.instruction === "string" ? body.instruction.trim() : "";
-  if (!instruction) return c.json({ ok: false, error: "調整指示が空です" }, 400);
-  const edited = await applyPaperEdit(entry.draft, instruction, webDeps.llm, {
+  info.fixSuggestions = await suggestFixesForPaper({
+    draft,
+    info,
+    llm: webDeps.llm,
     model: getConfig().flow.paperReview.model || undefined,
     warn: (m) => console.warn(`[flow-web/paper ${sessionId}] ${m}`),
   });
-  if (edited.applied) commitBodyMd(sessionId, entry, edited.draft.bodyMd, edited.changeSummary, "llm-edit", webDeps);
-  return c.json({ ok: true, changeSummary: edited.changeSummary, applied: edited.applied, ...paperPayload(sessionId, entry.draft, entry) });
+  entry.info = info;
+  savePaperReviewInfo(sessionId, info);
+  return c.json({ ok: true, ...paperPayload(sessionId, entry.draft, entry) });
 });
+
+/** 保存済みドラフトを対象に、議論可能性を明示チェックする。結果は下書きに永続して常時表示する。 */
+flowRoutes.post("/api/flow/:session/paper/debatability/check", async (c) => {
+  if (!deps) return c.json({ ok: false, error: "flow web 未初期化" }, 500);
+  const webDeps = deps;
+  const sessionId = c.req.param("session");
+  const entry = paperReviews.get(sessionId) ?? rehydrateDraftEntry(sessionId);
+  if (!entry || !entry.ready || !entry.draft) return c.json({ ok: false, error: "編集準備中です" }, 409);
+  const gate = manualDebatabilityGate(entry.flow, sessionId, webDeps.llm);
+  if (!gate) return c.json({ ok: false, error: "このフローでは議論可能性チェックを実行できません" }, 400);
+
+  const voices = webDeps.listExternalVoices
+    ? webDeps.listExternalVoices([entry.draft.theme], DEBATABILITY_VOICE_LIMIT)
+    : [];
+  const result = await assessDebatability({
+    theme: entry.draft.theme,
+    paperMd: entry.draft.bodyMd,
+    voices,
+    llm: gate.llm,
+    minArmableIssues: gate.minArmableIssues,
+    warn: (m) => console.warn(`[flow-web/paper ${sessionId}] ${m}`),
+  });
+
+  const info: PaperReviewInfo = {
+    ...defaultPaperInfo(entry.info),
+    voiceCount: voices.length,
+    countCapped: voices.length >= DEBATABILITY_VOICE_LIMIT,
+    samples: reviewInfoSamples(voices),
+    debatability: result,
+  };
+  info.fixSuggestions = await suggestFixesForPaper({
+    draft: entry.draft,
+    info,
+    llm: webDeps.llm,
+    model: getConfig().flow.paperReview.model || undefined,
+    warn: (m) => console.warn(`[flow-web/paper ${sessionId}] ${m}`),
+  });
+  entry.info = info;
+  savePaperReviewInfo(sessionId, info);
+
+  const issues = annotatedIssues(result);
+  if (issues.length > 0) {
+    const nextMd = paperDraftToMarkdown({ ...entry.draft, issues });
+    commitBodyMd(sessionId, entry, nextMd, "議論可能性チェック", "manual", webDeps);
+  }
+
+  return c.json({ ok: true, ...paperPayload(sessionId, entry.draft, entry) });
+});
+
+/** LLM が持っているゲームメカニクス理解度を確認し、結果を保存する。 */
+flowRoutes.post("/api/flow/:session/paper/mechanics/check", async (c) => {
+  if (!deps) return c.json({ ok: false, error: "flow web 未初期化" }, 500);
+  const webDeps = deps;
+  const sessionId = c.req.param("session");
+  const entry = paperReviews.get(sessionId) ?? rehydrateDraftEntry(sessionId);
+  if (!entry || !entry.ready || !entry.draft) return c.json({ ok: false, error: "編集準備中です" }, 409);
+  const fields = paperFixedFieldsFromMarkdown(entry.draft.bodyMd, entry.draft);
+  const info: PaperReviewInfo = {
+    ...defaultPaperInfo(entry.info),
+    mechanicsKnowledge: await checkMechanicsKnowledge({
+      draft: entry.draft,
+      fields,
+      llm: webDeps.llm,
+      model: getConfig().flow.paperReview.model || undefined,
+      warn: (m) => console.warn(`[flow-web/paper ${sessionId}] ${m}`),
+    }),
+  };
+  entry.info = info;
+  savePaperReviewInfo(sessionId, info);
+  return c.json({ ok: true, ...paperPayload(sessionId, entry.draft, entry) });
+});
+
+/** 旧「全体調整」は任意指示を LLM に渡すため廃止。チェック系の固定パターンだけを使う。 */
+flowRoutes.post("/api/flow/:session/paper/edit", (c) =>
+  c.json(
+    {
+      ok: false,
+      error: "全体調整は廃止しました。議論可能か確認する、メカニクス知識を確認、追加学習を使ってください。",
+    },
+    410
+  )
+);
 
 /** 1 ブロックを LLM で改稿提案する (適用しない=UI が diff 提示して採否)。 */
 flowRoutes.post("/api/flow/:session/paper/block/review", async (c) => {

@@ -13,9 +13,15 @@ _resetFlowDb();
 const { appendRevision, latestRevision, listRevisions, canRevert, revertLast } = await import(
   "../../src/flow/paper-revisions.js"
 );
-const { persistPaper, persistDraftPaper, getDraftPaper, updatePaperBody, getPaperBodyBySession } = await import(
-  "../../src/flow/discussion-paper.js"
-);
+const {
+  persistPaper,
+  persistDraftPaper,
+  getDraftPaper,
+  updatePaperBody,
+  getPaperBodyBySession,
+  setPaperReviewInfo,
+  getPaperReviewInfo,
+} = await import("../../src/flow/discussion-paper.js");
 
 const SID = "rev-session-1";
 
@@ -66,6 +72,31 @@ const SID = "rev-session-1";
   updatePaperBody(paperId, "# 議題\nT\n\n# 議論の経過\n\n## ラウンド 1\nまとめ");
   assert.ok(getPaperBodyBySession(sid)?.includes("# 議論の経過"), "更新後の本文が読める");
   assert.equal(getPaperBodyBySession("no-such-session"), null);
+}
+
+// ── discussion paper review info: LLM check results are persisted for the edit UI ──
+{
+  const sid = "paper-review-info-session";
+  persistDraftPaper(
+    { sessionId: sid, theme: "T", tags: [], mechanics: [], supplement: "", bodyMd: "# 議題\nT" },
+    "discussion"
+  );
+  const info = {
+    voiceCount: 2,
+    countCapped: false,
+    samples: [{ content: "賛否が割れている", source: "learning" }],
+    fixSuggestions: [{ title: "論点不足", reason: "対立軸が弱い", suggestedChange: "賛成/反対の論点を追記する" }],
+    debatability: { degraded: false, debatable: false, message: "材料不足", recommendation: { flow: "learning" } },
+    mechanicsKnowledge: {
+      ok: false,
+      confidence: "low",
+      summary: "ゲームの基本ループが不足",
+      knownMechanics: [],
+      missingQuestions: ["主要メカニクスを補足する"],
+    },
+  };
+  setPaperReviewInfo(sid, info);
+  assert.deepEqual(getPaperReviewInfo(sid), info, "LLM チェック結果を review_info_json に保存して復元できる");
 }
 
 // ── persistDraftPaper / getDraftPaper / persistPaper upsert (draft → started) ──

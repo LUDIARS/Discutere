@@ -514,6 +514,61 @@ export function setPaperDebatability(sessionId: string, result: unknown | null):
     .run(result == null ? null : JSON.stringify(result), Date.now(), sessionId);
 }
 
+function parseStoredJson(raw: string | null | undefined): unknown | null {
+  if (!raw) return null;
+  try {
+    return JSON.parse(raw);
+  } catch {
+    return null;
+  }
+}
+
+/**
+ * ペーパー編集画面で表示する LLM チェック情報を保存する。
+ * `debatability_json` は既存の監査列として同期し、`review_info_json` は UI 復元用にまとめて保存する。
+ */
+export function setPaperReviewInfo(sessionId: string, info: unknown | null): void {
+  const debatability =
+    info && typeof info === "object" && "debatability" in info
+      ? (info as { debatability?: unknown }).debatability
+      : null;
+  getFlowDb()
+    .prepare(
+      `UPDATE discussion_paper
+          SET review_info_json = ?, debatability_json = ?, updated_at = ?
+        WHERE session_id = ?`
+    )
+    .run(
+      info == null ? null : JSON.stringify(info),
+      debatability == null ? null : JSON.stringify(debatability),
+      Date.now(),
+      sessionId
+    );
+}
+
+/**
+ * ペーパー編集画面の LLM チェック情報を復元する。
+ * 旧データで review_info_json が無い場合は debatability_json から最小表示情報を組み立てる。
+ */
+export function getPaperReviewInfo(sessionId: string): unknown | null {
+  const row = getFlowDb()
+    .prepare(
+      `SELECT review_info_json, debatability_json
+         FROM discussion_paper
+        WHERE session_id = ?
+        ORDER BY created_at DESC
+        LIMIT 1`
+    )
+    .get(sessionId) as { review_info_json: string | null; debatability_json: string | null } | undefined;
+  if (!row) return null;
+  const info = parseStoredJson(row.review_info_json);
+  if (info) return info;
+  const debatability = parseStoredJson(row.debatability_json);
+  return debatability
+    ? { voiceCount: 0, countCapped: false, samples: [], debatability }
+    : null;
+}
+
 /** セッションの最新ペーパー本文 markdown を返す (無ければ null)。 */
 export function getPaperBodyBySession(sessionId: string): string | null {
   const row = getFlowDb()
