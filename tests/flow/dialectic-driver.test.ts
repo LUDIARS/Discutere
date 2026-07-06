@@ -350,6 +350,10 @@ const db = () => new Database(DB_PATH);
     (llm.prompts.synthesize ?? []).some((p) => p.includes("批准フィードバック")),
     "修正ループで missing がフィードバックされる"
   );
+  assert.ok(
+    (llm.prompts.synthesize ?? []).some((p) => p.includes("前回候補の言い換えは禁止")),
+    "修正ループは前回案の反復を禁止する"
+  );
   console.log("  [ok] dialectic driver: 批准 reject → 修正 2 回で打ち切り → agreed_disagree");
 }
 

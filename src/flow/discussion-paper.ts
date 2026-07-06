@@ -225,6 +225,8 @@ export function buildPersonaUserPrompt(p: PersonaPaper, stance: FlowStance, pers
     ...(coreClaimsLine ? [coreClaimsLine] : []),
     "Discord のチャットで実在の人間が話すように、自然な口語で 1〜2 文だけ書く。",
     "ラベルや箇条書きは使わない。既出の繰り返しは避け、議論を一歩進める。",
+    "直近の発言と同じ結論・同じ理由の言い換えは禁止。重複しそうなら、未検討のユーザ層、メカニクス条件、反例、判断基準のいずれかを新しく出す。",
+    "合意できない場合も同じ賛否を往復せず、未決条件、検証方法、または小さな修正案に分解する。",
     "発言テキストのみを返す (JSON や前置きは不要)。付け足す事が無ければ空行のみ返す。",
     ...(volatile.length ? ["", "---", ...volatile] : []),
   ].join("\n");

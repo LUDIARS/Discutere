@@ -94,7 +94,7 @@ export function buildSynthesisPrompt(args: {
     missingFeedback && missingFeedback.length > 0
       ? `\n# 前回候補への批准フィードバック (これらの根拠が保存されておらず reject された)\n` +
         missingFeedback.map((m) => `- ${m}`).join("\n") +
-        `\n欠けている根拠を保存する形に修正してください。\n`
+        `\n前回候補の言い換えは禁止です。欠けていた根拠を、どの条件・対象・検証方法で保存したかが分かる形に修正してください。\n`
       : "";
   return (
     `# 論点\n${issueTitle}\n\n` +
@@ -106,6 +106,7 @@ export function buildSynthesisPrompt(args: {
     `- preserves: 各陣営から何を保存したか (上の根拠 id で指す。両陣営から挙げる)\n` +
     `- negates: 何を放棄させたか (根拠 id)\n` +
     `- elevates: 導入した新しい枠 (上位目標 / 条件分割 / 再定義)。単なる「両方やる」は不可\n\n` +
+    `text には、保存した根拠がどう両立するかを短く含める。既存案の反復や「状況に応じて両方」は不可。\n\n` +
     `次の JSON 1 個だけを返してください (前後に説明やコードフェンスを付けない):\n` +
     `{"text": "<統合案の口語 1〜3 文>", "preserves": ["<根拠id>"], "negates": ["<根拠id>"], ` +
     `"elevates": "<新しい枠の説明 1 文>"}`

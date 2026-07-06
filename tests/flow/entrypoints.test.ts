@@ -122,7 +122,9 @@ import { parseForumEntry, handleForumFlowPost } from "../../src/flow/entry-disco
   const { _resetConfig } = await import("../../src/config.js");
   const { MockLLMClient } = await import("../../src/persona-engine/llm/mock.js");
   const { Hono } = await import("hono");
-  const { flowRoutes, setFlowWebDeps, _resetFlowWeb } = await import("../../src/flow/web/routes.js");
+  const { flowRoutes, setFlowWebDeps, _resetFlowWeb, normalizeSyntheticLearningOpinions } = await import(
+    "../../src/flow/web/routes.js"
+  );
 
   _resetFlowDb();
   _resetConfig();
@@ -197,6 +199,51 @@ import { parseForumEntry, handleForumFlowPost } from "../../src/flow/entry-disco
   const pageScript = /<script>([\s\S]*?)<\/script>/.exec(pageHtml)?.[1];
   assert.ok(pageScript, "UI に script がある");
   assert.doesNotThrow(() => new Function(pageScript), "UI script が構文エラーなく parse できる");
+
+  const syntheticVoices = normalizeSyntheticLearningOpinions(
+    [
+      {
+        segment: "初心者",
+        polarity: "negative",
+        concern: "チュートリアル理解",
+        content: "[synthetic] 何をすれば強くなるのか最初に分からず、説明を飛ばしたら戻れないのがつらい。",
+      },
+      {
+        segment: "初心者",
+        polarity: "negative",
+        concern: "チュートリアル理解",
+        content: "[synthetic] 最初に何をすれば強くなるのか分からず、説明を飛ばすと戻れないのがつらい。",
+      },
+      {
+        segment: "復帰者",
+        polarity: "mixed",
+        concern: "UI変化",
+        content: "[synthetic] 昔より便利そうだが、復帰直後は画面の情報量が多くて迷う。",
+      },
+      {
+        segment: "上級者",
+        polarity: "positive",
+        concern: "序盤テンポ",
+        content: "[synthetic] 既存プレイヤーには短い導線だけで十分で、すぐクエストへ行ける方が良い。",
+      },
+      {
+        segment: "無課金",
+        polarity: "negative",
+        concern: "ガチャ導線",
+        content: "[synthetic] 序盤からガチャと育成素材の説明が絡むと、課金前提に見えて身構える。",
+      },
+      {
+        segment: "友達紹介",
+        polarity: "mixed",
+        concern: "協力プレイ",
+        content: "[synthetic] 友達に誘われた人にはマルチの楽しさを早く見せたいが、操作説明が長いと離れそう。",
+      },
+    ],
+    1000
+  );
+  assert.equal(syntheticVoices.length, 5, "仮想ユーザ声は同じセグメント+論点の重複を除外する");
+  assert.ok(syntheticVoices.every((v) => v.content.startsWith("[synthetic] (")), "仮想声は仮説ラベルと軸を保持する");
+  assert.ok(syntheticVoices.some((v) => v.content.includes("復帰者")), "異なるユーザ層は残す");
 
   // 議論一覧: 開始済み (discussion_paper 永続) の議論が在庫として並ぶ (進行中も含む)。
   const { persistPaper, persistDraftPaper, upsertDiscussionTitleCache, setPaperReviewInfo } = await import(

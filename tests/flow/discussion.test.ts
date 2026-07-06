@@ -26,7 +26,7 @@ _resetFlowDb();
 
 const { MockLLMClient } = await import("../../src/persona-engine/llm/mock.js");
 const { runDiscussionFlow } = await import("../../src/flow/director.js");
-const { buildPersonaPaper, synthesizeOpinions } = await import("../../src/flow/discussion-paper.js");
+const { buildPersonaPaper, buildPersonaUserPrompt, synthesizeOpinions } = await import("../../src/flow/discussion-paper.js");
 const { generateFlowPersonas, pickRandomPersona } = await import("../../src/flow/personas.js");
 const { investigateTheme } = await import("../../src/flow/investigate.js");
 const { canCollectExternal } = await import("../../src/flow/tags.js");
@@ -142,6 +142,13 @@ const { _resetConfig } = await import("../../src/config.js");
     syntheticOpinions: [],
   });
   assert.ok(lp.userOpinionsText?.includes("ユーザの声1"), "local LLM debater: has user voices");
+  const prompt = buildPersonaUserPrompt(
+    { ...dp, currentRoundUtterances: ["A: チュートリアルは短くするべき。", "B: でも初心者には説明が必要。"] },
+    "pro",
+    debater
+  );
+  assert.ok(prompt.includes("同じ結論・同じ理由の言い換えは禁止"), "発話プロンプトは反復を禁止する");
+  assert.ok(prompt.includes("未決条件、検証方法"), "合意不能時は条件・検証に分解させる");
 
   // 機密: synthetic opinions
   const confidentialPaper = { ...paper, tags: ["機密"] as const };

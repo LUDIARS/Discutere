@@ -306,6 +306,136 @@ function mergeMechanicsContext(
   return { ...(seed ?? {}), mechanicsContext: values.join("\n\n") };
 }
 
+type SyntheticVoicePolarity = "positive" | "negative" | "mixed";
+
+interface SyntheticLearningVoiceCandidate {
+  content: string;
+  segment: string;
+  concern: string;
+  polarity: SyntheticVoicePolarity;
+  similarityText: string;
+}
+
+const SYNTHETIC_VOICE_POLARITY_LABEL: Record<SyntheticVoicePolarity, string> = {
+  positive: "肯定",
+  negative: "否定",
+  mixed: "混合",
+};
+
+function compactSyntheticLabel(raw: unknown, fallback: string): string {
+  if (typeof raw !== "string") return fallback;
+  const text = raw.trim().replace(/\s+/g, " ").slice(0, 32);
+  return text || fallback;
+}
+
+function coerceSyntheticPolarity(raw: unknown): SyntheticVoicePolarity {
+  if (typeof raw !== "string") return "mixed";
+  const text = raw.trim().toLowerCase();
+  if (text === "positive" || text.includes("肯定") || text.includes("賛成")) return "positive";
+  if (text === "negative" || text.includes("否定") || text.includes("反対") || text.includes("不満")) {
+    return "negative";
+  }
+  return "mixed";
+}
+
+function normalizeSyntheticVoiceText(raw: string): string {
+  return raw
+    .replace(/^\s*\[synthetic\]\s*/i, "")
+    .replace(/^\s*\[[^\]]*synthetic[^\]]*\]\s*/i, "")
+    .replace(/\s+/g, " ")
+    .trim()
+    .slice(0, 500);
+}
+
+function syntheticSimilarityKey(text: string): string {
+  return text
+    .toLowerCase()
+    .replace(/\[synthetic\]/g, "")
+    .replace(/[^\p{L}\p{N}]+/gu, "");
+}
+
+function syntheticShingles(key: string): Set<string> {
+  if (key.length <= 2) return new Set(key ? [key] : []);
+  const out = new Set<string>();
+  for (let i = 0; i < key.length - 1; i++) out.add(key.slice(i, i + 2));
+  return out;
+}
+
+function syntheticVoiceSimilarity(a: string, b: string): number {
+  const ak = syntheticSimilarityKey(a);
+  const bk = syntheticSimilarityKey(b);
+  if (!ak || !bk) return 0;
+  const short = ak.length <= bk.length ? ak : bk;
+  const long = ak.length > bk.length ? ak : bk;
+  if (short.length >= 18 && long.includes(short)) return 1;
+  const as = syntheticShingles(ak);
+  const bs = syntheticShingles(bk);
+  let overlap = 0;
+  for (const s of as) if (bs.has(s)) overlap++;
+  const union = as.size + bs.size - overlap;
+  return union > 0 ? overlap / union : 0;
+}
+
+function coerceSyntheticVoiceCandidate(raw: unknown): SyntheticLearningVoiceCandidate | null {
+  const obj = raw && typeof raw === "object" && !Array.isArray(raw) ? (raw as Record<string, unknown>) : null;
+  const content = normalizeSyntheticVoiceText(
+    typeof raw === "string" ? raw : typeof obj?.content === "string" ? obj.content : ""
+  );
+  if (!content) return null;
+  const segment = compactSyntheticLabel(obj?.segment ?? obj?.persona ?? obj?.userSegment, "仮想ユーザ");
+  const concern = compactSyntheticLabel(obj?.concern ?? obj?.issue ?? obj?.topic, "未分類の論点");
+  const polarity = coerceSyntheticPolarity(obj?.polarity ?? obj?.sentiment);
+  return {
+    segment,
+    concern,
+    polarity,
+    similarityText: `${segment} ${concern} ${content}`,
+    content: `[synthetic] (${segment} / ${concern} / ${SYNTHETIC_VOICE_POLARITY_LABEL[polarity]}) ${content}`,
+  };
+}
+
+function selectDiverseSyntheticVoiceCandidates(rawItems: unknown[], limit = 8): SyntheticLearningVoiceCandidate[] {
+  const candidates = rawItems
+    .map(coerceSyntheticVoiceCandidate)
+    .filter((item): item is SyntheticLearningVoiceCandidate => item !== null);
+  const selected: SyntheticLearningVoiceCandidate[] = [];
+  const selectedIndexes = new Set<number>();
+  const usedSlots = new Set<string>();
+  const order: SyntheticVoicePolarity[] = ["negative", "mixed", "positive", "negative", "mixed", "positive", "negative", "mixed"];
+
+  const tryPick = (wanted?: SyntheticVoicePolarity) => {
+    for (let i = 0; i < candidates.length; i++) {
+      if (selectedIndexes.has(i)) continue;
+      const c = candidates[i];
+      if (wanted && c.polarity !== wanted) continue;
+      const slot = `${c.segment.toLowerCase()}|${c.concern.toLowerCase()}`;
+      if (usedSlots.has(slot)) continue;
+      if (selected.some((s) => syntheticVoiceSimilarity(s.similarityText, c.similarityText) >= 0.58)) continue;
+      selected.push(c);
+      selectedIndexes.add(i);
+      usedSlots.add(slot);
+      return true;
+    }
+    return false;
+  };
+
+  for (const polarity of order) {
+    if (selected.length >= limit) break;
+    tryPick(polarity);
+  }
+  while (selected.length < limit && tryPick()) {
+    // Fill with any remaining non-overlapping candidate.
+  }
+  return selected;
+}
+
+export function normalizeSyntheticLearningOpinions(rawItems: unknown[], postedAt = Date.now()): LearningOpinion[] {
+  return selectDiverseSyntheticVoiceCandidates(rawItems).map((item, i) => ({
+    content: item.content,
+    postedAt: postedAt + i,
+  }));
+}
+
 async function synthesizeLearningOpinions(args: {
   theme: string;
   mechanics: GameMechanicEntry[];
@@ -321,11 +451,16 @@ async function synthesizeLearningOpinions(args: {
           .join("\n")
       : args.mechanicsContext?.slice(0, 6000) || args.theme;
   const system =
-    "You create plausible pre-release player feedback for game design learning. Return JSON only. Do not include real personal data.";
+    "You create plausible hypothesis-labeled player feedback for game design learning. " +
+    "Return JSON only. Do not include real personal data or claim these are real reviews.";
   const prompt =
     `Game/theme:\n${args.theme}\n\nMechanics/design notes:\n${mechanicsText}\n\n` +
-    "Create 8 anonymized user voice snippets as a JSON array. Balance positive, negative, and mixed reactions. " +
-    'Each item must be {"content":"..."} and the content should start with "[synthetic] ".';
+    "Create 12 candidate user voice snippets so the application can keep the most diverse 8. " +
+    "Use Japanese unless the input is not Japanese. Cover distinct player segments such as first-time player, returning player, experienced player, no-pay/casual player, co-op helper, and monetization-sensitive player. " +
+    "Cover distinct concerns such as tutorial clarity, early difficulty, reward pacing, onboarding UI, character growth/gacha, social/co-op, and re-engagement. " +
+    "Balance polarity with at least 4 negative, 3 mixed, and 3 positive candidates. " +
+    "Do not repeat the same segment+concern pair, conclusion, or sentence frame. " +
+    'Each item must be {"segment":"...","polarity":"positive|negative|mixed","concern":"...","content":"..."} and content must start with "[synthetic] ".';
   try {
     const res = await args.llm.invoke({ system, prompt, maxTokens: 2500 });
     if (!res.ok) {
@@ -334,16 +469,11 @@ async function synthesizeLearningOpinions(args: {
     }
     const arr = extractJsonArray(res.text);
     if (!arr) return [];
-    return arr
-      .map((raw): LearningOpinion | null => {
-        if (!raw || typeof raw !== "object") return null;
-        const content = typeof (raw as Record<string, unknown>).content === "string"
-          ? ((raw as Record<string, unknown>).content as string).trim()
-          : "";
-        return content ? { content, postedAt: Date.now() } : null;
-      })
-      .filter((item): item is LearningOpinion => item !== null)
-      .slice(0, 12);
+    const opinions = normalizeSyntheticLearningOpinions(arr);
+    if (opinions.length < 5) {
+      args.warn(`synthetic user voice generation produced only ${opinions.length} diverse items`);
+    }
+    return opinions;
   } catch (e) {
     args.warn(`synthetic user voice generation threw: ${(e as Error).message}`);
     return [];
