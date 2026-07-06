@@ -202,6 +202,7 @@ import { parseForumEntry, handleForumFlowPost } from "../../src/flow/entry-disco
   const { persistPaper, persistDraftPaper, upsertDiscussionTitleCache, setPaperReviewInfo } = await import(
     "../../src/flow/discussion-paper.js"
   );
+  const { paperDraftToMarkdown } = await import("../../src/flow/paper-markdown.js");
   const { getFlowDb } = await import("../../src/flow/db/connection.js");
   persistPaper(
     { sessionId: "list-sess-1", theme: "一覧テスト議題", tags: [], mechanics: [], supplement: "", bodyMd: "# 議題\n一覧テスト議題" },
@@ -292,6 +293,55 @@ import { parseForumEntry, handleForumFlowPost } from "../../src/flow/entry-disco
   assert.equal(startedPaper.ok, true, "開始済み paper 取得");
   assert.equal(startedPaper.started, true, "開始済み paper は started=true");
   assert.equal(startedPaper.status, "started", "開始済み paper の status を返す");
+
+  const simBody = paperDraftToMarkdown({
+    theme: "仮想ユーザ補填テーマ",
+    gameTitle: "Test Game",
+    discussionTheme: "仮想ユーザ補填テーマ",
+    discussionContent: "既存の実ユーザ声は肯定に偏っている。",
+    mechanicsContext: "基本ループはステージ周回、報酬獲得、強化、再挑戦で構成される。失敗時の損失、報酬密度、待ち時間、課金圧がユーザ反応を左右する。",
+    themeSupplement: "",
+    tags: [],
+    supplement: "",
+    mechanics: [{ name: "周回", description: "報酬獲得と強化を繰り返す" }],
+  });
+  persistDraftPaper(
+    { sessionId: "sim-sess-1", theme: "仮想ユーザ補填テーマ", tags: [], mechanics: [{ name: "周回", description: "報酬獲得と強化を繰り返す" }], supplement: "", bodyMd: simBody },
+    "discussion"
+  );
+  setPaperReviewInfo("sim-sess-1", {
+    voiceCount: 50,
+    countCapped: true,
+    samples: [],
+    debatability: {
+      issues: ["争点A", "争点B", "争点C"],
+      armability: [
+        { issue: "争点A", armable: "pro-only" },
+        { issue: "争点B", armable: "pro-only" },
+        { issue: "争点C", armable: "neither" },
+      ],
+      armableBothCount: 0,
+      minArmableIssues: 2,
+      evidence: { voiceCount: 50, positive: 50, negative: 0, neutral: 0, polaritySkew: 1, dominantSource: { name: "learning", share: 1 } },
+      debatable: false,
+      degraded: false,
+      recommendation: { flow: "learning", reason: "材料不足" },
+      message: "議論適性: 低",
+    },
+  });
+  const rSimPaper = await app.request("/api/flow/sim-sess-1/paper");
+  const simPaper = (await rSimPaper.json()) as {
+    ok: boolean;
+    info: {
+      debatability: { debatable: boolean; recommendation: unknown; message: string };
+      voiceSimulation: { possible: boolean; confidence: string };
+    };
+  };
+  assert.equal(simPaper.ok, true, "simulation paper 取得");
+  assert.equal(simPaper.info.voiceSimulation.confidence, "high", "ユーザの声を高信頼で仮説補填できる");
+  assert.equal(simPaper.info.debatability.debatable, true, "LLM 仮想ユーザ補填可能なら議論適性あり");
+  assert.equal(simPaper.info.debatability.recommendation, null, "学習再提案は消える");
+  assert.ok(simPaper.info.debatability.message.includes("仮想ユーザ補填"), "昇格理由を message に残す");
 
   // 絞り込み: state=draft はドラフトのみ、state=live は開始済み未収束のみ。
   const rDraftOnly = (await (await app.request("/api/flow/sessions?state=draft")).json()) as {

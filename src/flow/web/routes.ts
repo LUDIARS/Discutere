@@ -593,6 +593,21 @@ function assessVoiceSimulationReadiness(draft: PaperDraft, info: PaperReviewInfo
   };
 }
 
+function promoteDebatabilityWithVoiceSimulation(info: PaperReviewInfo): void {
+  const d = info.debatability;
+  const sim = info.voiceSimulation;
+  if (!d || d.degraded || d.debatable || d.recommendation?.flow !== "learning") return;
+  if (!sim?.possible || sim.confidence !== "high") return;
+  info.debatability = {
+    ...d,
+    debatable: true,
+    recommendation: null,
+    message:
+      `${d.message} / ユーザの声はLLMで不足セグメントを高信頼に仮説補填できるため、` +
+      "仮想ユーザ補填前提で議論適性あり扱いにします。",
+  };
+}
+
 export const flowRoutes = new Hono();
 
 flowRoutes.get("/flow", (c) => c.html(FLOW_HTML));
@@ -790,6 +805,8 @@ flowRoutes.post("/api/flow/start", async (c) => {
         debatability: resolveDebatabilityGate({ kind, sessionId, llm: webDeps.llm }),
         warn: (m) => console.warn(`[flow-web/paper ${sessionId}] ${m}`),
       });
+      info.voiceSimulation = assessVoiceSimulationReadiness(draft, info);
+      promoteDebatabilityWithVoiceSimulation(info);
       info.fixSuggestions = await suggestFixesForPaper({
         draft,
         info,
@@ -797,7 +814,6 @@ flowRoutes.post("/api/flow/start", async (c) => {
         model: getConfig().flow.paperReview.model || undefined,
         warn: (m) => console.warn(`[flow-web/paper ${sessionId}] ${m}`),
       });
-      info.voiceSimulation = assessVoiceSimulationReadiness(draft, info);
       const entry = paperReviews.get(sessionId);
       if (entry) {
         Object.assign(entry, { ready: true, draft, info });
@@ -834,6 +850,7 @@ function paperPayload(sessionId: string, draft: PaperDraft, entry?: WebPaperRevi
   const displayInfo = info
     ? { ...info, voiceSimulation: info.voiceSimulation ?? assessVoiceSimulationReadiness(draft, info) }
     : null;
+  if (displayInfo) promoteDebatabilityWithVoiceSimulation(displayInfo);
   return {
     paper: draft,
     info: displayInfo,
@@ -1015,6 +1032,8 @@ flowRoutes.post("/api/flow/:session/paper/debatability/check", async (c) => {
     samples: reviewInfoSamples(voices),
     debatability: result,
   };
+  info.voiceSimulation = assessVoiceSimulationReadiness(entry.draft, info);
+  promoteDebatabilityWithVoiceSimulation(info);
   info.fixSuggestions = await suggestFixesForPaper({
     draft: entry.draft,
     info,
@@ -1022,11 +1041,10 @@ flowRoutes.post("/api/flow/:session/paper/debatability/check", async (c) => {
     model: getConfig().flow.paperReview.model || undefined,
     warn: (m) => console.warn(`[flow-web/paper ${sessionId}] ${m}`),
   });
-  info.voiceSimulation = assessVoiceSimulationReadiness(entry.draft, info);
   entry.info = info;
   savePaperReviewInfo(sessionId, info);
 
-  const issues = annotatedIssues(result);
+  const issues = info.debatability ? annotatedIssues(info.debatability) : [];
   if (issues.length > 0) {
     const nextMd = paperDraftToMarkdown({ ...entry.draft, issues });
     commitBodyMd(sessionId, entry, nextMd, "議論可能性チェック", "manual", webDeps);
@@ -1054,6 +1072,7 @@ flowRoutes.post("/api/flow/:session/paper/mechanics/check", async (c) => {
     }),
   };
   info.voiceSimulation = assessVoiceSimulationReadiness(entry.draft, info);
+  promoteDebatabilityWithVoiceSimulation(info);
   entry.info = info;
   savePaperReviewInfo(sessionId, info);
   return c.json({ ok: true, ...paperPayload(sessionId, entry.draft, entry) });
