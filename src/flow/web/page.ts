@@ -261,8 +261,9 @@ export const FLOW_HTML = `<!doctype html>
       <label>ターン数/ラウンド <input id="turnsPerRound" type="number" min="1" max="20" placeholder="既定" style="width:5rem" /></label>
     </fieldset>
     <fieldset class="tags">
-      <legend>壁打ち相手 (壁打ちのみ・任意)</legend>
+      <legend>生成済みペルソナ指定 (任意)</legend>
       <label>ペルソナ名/ID (カンマ区切り) <input id="opponent" type="text" placeholder="例: ローグ好き太郎,ソシャゲ花子" style="width:60%" /></label>
+      <span class="field-note">議論/改善では指定ペルソナをキャストに含め、壁打ちでは相手にします。</span>
     </fieldset>
     <fieldset class="tags">
       <legend>学習データ自動取得 (議論/改善のみ・学習データ不足時だけ実行)</legend>
@@ -512,7 +513,7 @@ $("start").addEventListener("submit", async (e) => {
   const tags = [...document.querySelectorAll('input[name=tag]:checked')].map(c => c.value);
   const rounds = $("rounds").value.trim() === "" ? undefined : Number($("rounds").value);
   const turnsPerRound = $("turnsPerRound").value.trim() === "" ? undefined : Number($("turnsPerRound").value);
-  const opponent = $("opponent").value.trim() || undefined;
+  const personaIds = $("opponent").value.trim() || undefined;
   const learningSource = $("learningSource").value || undefined;
   const learningQuery = $("learningQuery").value.trim() || undefined;
   const learningAppId = $("learningAppId").value.trim() === "" ? undefined : Number($("learningAppId").value);
@@ -529,7 +530,7 @@ $("start").addEventListener("submit", async (e) => {
   $("go").disabled = true;
   const res = await fetch("/api/flow/start", {
     method: "POST", headers: { "content-type": "application/json" },
-    body: JSON.stringify({ theme, gameTitle, discussionTheme, discussionContent, mechanicsContext, themeSupplement, flow, tags, rounds, turnsPerRound, opponent, learningSource, learningQuery, learningAppId, learningSubreddit, learningUrls, learningBalanced, specText, specUrl, githubRepoUrl, githubPath, githubRef, anatomiaProject, anatomiaRepo }),
+    body: JSON.stringify({ theme, gameTitle, discussionTheme, discussionContent, mechanicsContext, themeSupplement, flow, tags, rounds, turnsPerRound, personaIds, opponent: personaIds, learningSource, learningQuery, learningAppId, learningSubreddit, learningUrls, learningBalanced, specText, specUrl, githubRepoUrl, githubPath, githubRef, anatomiaProject, anatomiaRepo }),
   }).then(r => r.json()).catch(() => ({ ok: false, error: "通信失敗" }));
   if (!res.ok) { alert(res.error || "開始に失敗"); $("go").disabled = false; return; }
   sessionId = res.sessionId; kind = res.kind;

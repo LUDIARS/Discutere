@@ -25,7 +25,8 @@ import {
   type FlowRunOptions,
   type FlowUtteranceRecord,
 } from "../director.js";
-import { generateFlowPersonas, personaStance, type FlowPersona, type Rng } from "../personas.js";
+import { personaStance, type FlowPersona, type Rng } from "../personas.js";
+import { buildFlowCast } from "../persona-cast.js";
 import { setupSessionPersonas } from "../persona-setup.js";
 import { setupFlowPaper } from "../flow-setup.js";
 import { createVoiceCache } from "../voice-cache.js";
@@ -148,16 +149,18 @@ export async function runDialecticFlow(
 
   // ── キャスト (stance セッション固定 + 価値軸/核主張 + flow_session_persona 永続) ──
   const defaultModel = cfg.llm.model ?? "claude-haiku-4-5-20251001";
-  const generated = generateFlowPersonas({
+  const seedCast = buildFlowCast({
     count: cfg.flow.personaCount,
     defaultModel,
     isLocal,
     rng: rng as Rng,
+    personaIds: options.personaIds,
+    warn,
   });
   const enriched = await setupSessionPersonas({
     theme,
     sessionId,
-    personas: generated,
+    personas: seedCast,
     llm,
     flow,
     model: cfg.flow.personaSetupModel || undefined,

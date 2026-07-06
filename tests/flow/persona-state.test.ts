@@ -29,6 +29,9 @@ const { setupSessionPersonas, buildPersonaSetupPrompt } = await import("../../sr
 const { buildPersonaUserPrompt } = await import("../../src/flow/discussion-paper.js");
 const { runDiscussionFlow } = await import("../../src/flow/director.js");
 const { MockLLMClient } = await import("../../src/persona-engine/llm/mock.js");
+const { buildFlowCast } = await import("../../src/flow/persona-cast.js");
+const { insertPoolPersona } = await import("../../src/flow/persona-pool.js");
+const { DIM } = await import("../../src/flow/sentiment-vector.js");
 
 function lcg(seedInit: number) {
   let seed = seedInit;
@@ -43,6 +46,7 @@ function lcg(seedInit: number) {
   // count=6 → facilitator 1 + opinion 1 + debater 4
   const personas = generateFlowPersonas({ count: 6, defaultModel: "m", isLocal: false, rng: lcg(1) });
   const debaters = personas.filter((p) => p.role === "debater");
+  assert.ok(personas.every((p) => /\S+[\s　]\S+/.test(p.name)), "生成ペルソナ名はフルネーム");
   assert.equal(debaters.length, 4, "debater 4 人");
   assert.equal(debaters.filter((d) => d.stance === "pro").length, 2, "pro 2");
   assert.equal(debaters.filter((d) => d.stance === "con").length, 2, "con 2");
@@ -83,6 +87,39 @@ function lcg(seedInit: number) {
     if (p.role === "debater") assert.ok(s1 === "pro" || s1 === "con");
   }
   console.log("  [ok] personaStance: pure (no per-turn re-roll)");
+}
+
+// ── 生成済み/プールペルソナ指定: 通常議論キャストに含める ───────────────
+{
+  _resetFlowDb();
+  process.env.DATABASE_PATH = path.join(TMP_DIR, "specified-cast.db");
+  const zeros = (): number[] => new Array(DIM as number).fill(0);
+  insertPoolPersona({
+    id: "p-specified",
+    name: "指定 太郎",
+    role: "opinion",
+    speechStyle: "指定された利用者の声に近い口調",
+    traits: ["指定"],
+    affectVector: zeros(),
+    origin: "generated",
+    parentIds: [],
+  });
+
+  const warns: string[] = [];
+  const cast = buildFlowCast({
+    count: 4,
+    defaultModel: "m",
+    isLocal: false,
+    rng: lcg(13),
+    personaIds: ["p-specified"],
+    warn: (m) => warns.push(m),
+  });
+
+  assert.equal(warns.length, 0, "指定ペルソナ解決で warn なし");
+  assert.equal(cast[0].role, "facilitator", "先頭は生成 facilitator");
+  assert.ok(cast.some((p) => p.id === "p-specified" && p.name === "指定 太郎"), "指定ペルソナをキャストに含める");
+  assert.equal(cast.length, 4, "既定人数までは生成ペルソナで補完");
+  console.log("  [ok] buildFlowCast: specified pool persona joins regular cast");
 }
 
 // ── setupSessionPersonas: 価値軸/核主張のマージ + flow_session_persona 永続 ─────

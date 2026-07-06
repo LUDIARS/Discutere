@@ -127,6 +127,7 @@ interface WebPaperReview {
   flow: FlowKind;
   rounds?: number;
   turnsPerRound?: number;
+  personaIds?: string[];
   /** 草案構築が完了したか (false の間はブラウザは待つ)。 */
   ready: boolean;
   /** 構築失敗時のメッセージ (あれば)。 */
@@ -164,7 +165,14 @@ function startApprovedFlow(
     }
   }
   void dispatchFlow(
-    { theme: finalPaper.theme, tags: finalPaper.tags, flow: entry.flow, rounds: entry.rounds, turnsPerRound: entry.turnsPerRound },
+    {
+      theme: finalPaper.theme,
+      tags: finalPaper.tags,
+      flow: entry.flow,
+      rounds: entry.rounds,
+      turnsPerRound: entry.turnsPerRound,
+      personaIds: entry.personaIds,
+    },
     {
       ...dispatchDeps,
       sessionId,
@@ -232,6 +240,17 @@ function parseIssuesField(raw: unknown): string[] | undefined {
   return values
     .map((s) => s.replace(/^(?:\d+[.)]\s+|[-*]\s+)/, "").trim())
     .filter(Boolean);
+}
+
+function parsePersonaIds(raw: unknown): string[] | undefined {
+  const values = Array.isArray(raw)
+    ? raw.filter((v): v is string => typeof v === "string")
+    : typeof raw === "string"
+      ? raw.split(",")
+      : undefined;
+  if (!values) return undefined;
+  const ids = values.map((s) => s.trim()).filter(Boolean);
+  return ids.length > 0 ? ids : undefined;
 }
 
 function fixedSeedFromBody(body: Record<string, unknown>): Partial<PaperFixedFields> | undefined {
@@ -757,6 +776,7 @@ flowRoutes.post("/api/flow/start", async (c) => {
     tags?: unknown;
     rounds?: unknown;
     turnsPerRound?: unknown;
+    personaIds?: unknown;
     opponent?: unknown;
     learningSource?: unknown;
     learningQuery?: unknown;
@@ -793,10 +813,7 @@ flowRoutes.post("/api/flow/start", async (c) => {
   const rounds = readOptionalInt(body.rounds, 1, 10);
   const turnsPerRound = readOptionalInt(body.turnsPerRound, 1, 20);
   // G: 壁打ち相手 (カンマ区切りの名前/ID)。sparring のみ反映。
-  const opponentPersonaIds =
-    typeof body.opponent === "string" && body.opponent.trim() !== ""
-      ? body.opponent.split(",").map((s) => s.trim()).filter(Boolean)
-      : undefined;
+  const personaIds = parsePersonaIds(body.personaIds) ?? parsePersonaIds(body.opponent);
 
   if (!theme) return c.json({ ok: false, error: "テーマは必須です" }, 400);
   if (fixedMode && (!seed?.gameTitle || !seed?.discussionTheme)) {
@@ -816,7 +833,7 @@ flowRoutes.post("/api/flow/start", async (c) => {
   // 壁打ち: セッションを起動して登録 (対話継続)
   if (kind === "sparring") {
     const result = await dispatchFlow(
-      { theme, tags, flow: kind, scene: `web:flow-${randomUUID().slice(0, 8)}`, opponentPersonaIds },
+      { theme, tags, flow: kind, scene: `web:flow-${randomUUID().slice(0, 8)}`, opponentPersonaIds: personaIds },
       dispatchDeps
     );
     if (result.kind !== "sparring") return c.json({ ok: false, error: "internal" }, 500);
@@ -911,7 +928,7 @@ flowRoutes.post("/api/flow/start", async (c) => {
 
   // ペーパー編集ゲート (Web 正規フロー): 情報整備後に草案を作り、ブラウザの編集/承認を待つ。
   if (webPaperGateEnabled()) {
-    paperReviews.set(sessionId, { flow: kind, rounds, turnsPerRound, ready: false });
+    paperReviews.set(sessionId, { flow: kind, rounds, turnsPerRound, personaIds, ready: false });
     void (async () => {
       await prepareInformationBeforeFlow(kind, theme, tags, sessionId, autoCrawlSpec, webDeps);
       const richness = getConfig().flow.paperRichness;
@@ -968,7 +985,7 @@ flowRoutes.post("/api/flow/start", async (c) => {
 
   void (async () => {
     await prepareInformationBeforeFlow(kind, theme, tags, sessionId, autoCrawlSpec, webDeps);
-    await dispatchFlow({ theme, tags, flow: kind, rounds, turnsPerRound }, { ...dispatchDeps, sessionId });
+    await dispatchFlow({ theme, tags, flow: kind, rounds, turnsPerRound, personaIds }, { ...dispatchDeps, sessionId });
   })()
     .catch((e) => console.warn(`[flow-web] ${kind} 実行エラー: ${(e as Error).message}`))
     .finally(() => finished.add(sessionId));

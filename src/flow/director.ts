@@ -12,7 +12,8 @@ import { randomUUID } from "node:crypto";
 import type { LLMClient } from "../persona-engine/llm/client.js";
 import type { FlowTag } from "./tags.js";
 import { getConfig } from "../config.js";
-import { generateFlowPersonas, type FlowPersona, type Rng } from "./personas.js";
+import type { FlowPersona, Rng } from "./personas.js";
+import { buildFlowCast } from "./persona-cast.js";
 import { setupSessionPersonas } from "./persona-setup.js";
 import { selectPossessionByTheme, describePossession } from "./persona-pool.js";
 import { createVoiceCache } from "./voice-cache.js";
@@ -102,6 +103,8 @@ export interface FlowDirectorDeps {
   rounds?: number;
   /** このセッションの 1 ラウンドあたりターン数 (省略時は config.flow.turnsPerRound)。1..MAX_TURNS にクランプ。 */
   turnsPerRound?: number;
+  /** 議論/改善キャストに含める生成済みペルソナの id/name。 */
+  personaIds?: string[];
   /**
    * 憑依 (B): テーマから嗜好を類推し、プール最近傍ペルソナを投稿主体の 1 枠 (opinion) に充てる。
    * 既定 true。プールが空 / 一致なしなら従来生成キャストのまま (no-op)。
@@ -334,27 +337,30 @@ async function assembleCast(args: {
   isLocal: boolean;
   rng: Rng;
   possess: boolean;
+  personaIds?: readonly string[];
   log: (msg: string) => void;
   warn: (msg: string) => void;
 }): Promise<FlowPersona[]> {
   const cfg = getConfig();
-  const { theme, sessionId, flow, llm, isLocal, rng, possess, log, warn } = args;
+  const { theme, sessionId, flow, llm, isLocal, rng, possess, personaIds, log, warn } = args;
   const defaultModel = cfg.llm.model ?? "claude-haiku-4-5-20251001";
-  const generated = generateFlowPersonas({
+  const cast = buildFlowCast({
     count: cfg.flow.personaCount,
     defaultModel,
     isLocal,
     rng,
+    personaIds,
+    warn,
   });
-  if (possess) {
-    applyThemePossession(generated, theme, log, warn);
+  if (possess && !(personaIds && personaIds.length > 0)) {
+    applyThemePossession(cast, theme, log, warn);
   }
   // 価値軸 + 核主張の一括生成 (セッション 1 回の LLM 呼び出し) + flow_session_persona 永続。
   // LLM 失敗は valueAxis なしで degrade (persona-setup 内で warn)。
   const personas = await setupSessionPersonas({
     theme,
     sessionId,
-    personas: generated,
+    personas: cast,
     llm,
     flow,
     model: cfg.flow.personaSetupModel || undefined,
@@ -562,7 +568,13 @@ export async function runFlow(
   const base = { theme, sessionId, paperId, flow, llm, log, warn } as const;
 
   // ── [3] ペルソナ生成 (stance セッション固定 + 憑依 + 価値軸/核主張) ─────────
-  const personas = await assembleCast({ ...base, isLocal, rng, possess: options.possess !== false });
+  const personas = await assembleCast({
+    ...base,
+    isLocal,
+    rng,
+    possess: options.possess !== false,
+    personaIds: options.personaIds,
+  });
 
   // synthetic opinions (機密タグ用)
   const syntheticOpinions = tags.includes("機密") ? synthesizeOpinions(mechanics) : [];

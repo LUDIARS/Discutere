@@ -117,6 +117,8 @@ export interface DispatchInput {
   rounds?: number;
   /** この議論の 1 ラウンドあたりターン数 (省略時 config.flow.turnsPerRound)。discussion/improvement のみ反映。 */
   turnsPerRound?: number;
+  /** 議論/改善キャストに含める生成済みペルソナの id/name。 */
+  personaIds?: string[];
   /** 壁打ち相手に充てるプールペルソナの id/name (G。sparring のみ反映)。 */
   opponentPersonaIds?: string[];
 }
@@ -158,6 +160,7 @@ export async function dispatchFlow(input: DispatchInput, deps: DispatchDeps): Pr
     // 議論ごとのラウンド/ターン数 (discussion/improvement のみ。runFlow が config 既定にフォールバック)。
     rounds: input.rounds,
     turnsPerRound: input.turnsPerRound,
+    personaIds: input.personaIds,
   };
 
   // 議論エンジン (respec PR-B): flow.engine="dialectic" で discussion/improvement を
@@ -206,7 +209,7 @@ export async function dispatchFlow(input: DispatchInput, deps: DispatchDeps): Pr
         gamesDir: deps.gamesDir,
         log: deps.log,
         warn: deps.warn,
-        opponentPersonaIds: input.opponentPersonaIds,
+        opponentPersonaIds: input.opponentPersonaIds ?? input.personaIds,
       });
       await session.start();
       return { kind, flow: kind, session };

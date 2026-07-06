@@ -51,6 +51,20 @@ const NAME_POOL = [
   "悠真", "詩織", "大樹", "舞", "颯太", "真央", "啓介", "杏奈", "亮", "千夏",
 ];
 
+const SURNAME_POOL = [
+  "佐伯", "三上", "高瀬", "橘", "藤堂", "水野", "神谷", "篠原", "久我", "朝倉",
+  "一条", "白石", "桐生", "成瀬", "榊", "相馬", "黒川", "有馬", "二宮", "望月",
+];
+
+function toFullName(givenName: string, ordinal: number): string {
+  const name = givenName.trim();
+  if (!name) return `${SURNAME_POOL[ordinal % SURNAME_POOL.length]} 名称未設定`;
+  if (name.includes(" ") || name.includes("　")) return name;
+  return `${SURNAME_POOL[ordinal % SURNAME_POOL.length]} ${name}`;
+}
+
+const FULL_NAME_POOL = NAME_POOL.map((name, i) => toFullName(name, i));
+
 const ROLE_FLAVOR: Record<FlowRole, { style: string; traits: string[] }> = {
   facilitator: {
     style: "穏やかな進行役口調",
@@ -67,9 +81,9 @@ const ROLE_FLAVOR: Record<FlowRole, { style: string; traits: string[] }> = {
 };
 
 function pickName(used: Set<string>, rng: Rng): string {
-  const free = NAME_POOL.filter((n) => !used.has(n));
-  const pool = free.length > 0 ? free : NAME_POOL;
-  const name = pool[Math.floor(rng() * pool.length)] ?? NAME_POOL[0];
+  const free = FULL_NAME_POOL.filter((n) => !used.has(n));
+  const pool = free.length > 0 ? free : FULL_NAME_POOL;
+  const name = pool[Math.floor(rng() * pool.length)] ?? FULL_NAME_POOL[0];
   const final = used.has(name) ? `${name}${used.size}` : name;
   used.add(final);
   return final;
