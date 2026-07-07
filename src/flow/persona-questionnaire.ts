@@ -126,34 +126,16 @@ function baselineVector(args: BuildPersonaQuestionnaireArgs, baselineText: strin
   return averageVectors(vectors);
 }
 
-function fallbackQuestions(gameTitle: string): PersonaQuestion[] {
+export function genericPersonaQuestionBank(gameTitle = "対象ゲーム"): PersonaQuestion[] {
   return [
     {
-      id: "preferred-experience",
+      id: "primary-motivation",
       kind: "preference_metric",
-      metric: "重視する体験",
-      question: "ゲームで最も重視する体験は何ですか?",
+      metric: "主目的/動機",
+      question: "ゲームを遊ぶ時、最も満たしたい目的は何ですか?",
       options: ["達成感", "爽快感", "収集/育成", "対人/協力", "物語/世界観", "短時間の気晴らし"],
-      vectorHints: ["重視体験", "期待する報酬", "感情の方向"],
+      vectorHints: ["重視体験", "期待する報酬", "継続理由"],
       weight: 1.2,
-    },
-    {
-      id: "challenge-tolerance",
-      kind: "preference_metric",
-      metric: "難易度許容",
-      question: "難しいステージや失敗が続く状況をどう受け止めますか?",
-      options: ["燃える", "少しならよい", "報酬次第", "避けたい"],
-      vectorHints: ["緊張", "達成感", "離脱リスク"],
-      weight: 1,
-    },
-    {
-      id: "spending-attitude",
-      kind: "preference_metric",
-      metric: "課金/報酬感度",
-      question: "課金、ガチャ、報酬差についてどの程度気にしますか?",
-      options: ["かなり気にする", "納得感があれば許容", "あまり気にしない", "むしろ強い報酬差が楽しい"],
-      vectorHints: ["公平感", "報酬", "不満"],
-      weight: 1,
     },
     {
       id: "play-frequency",
@@ -162,6 +144,24 @@ function fallbackQuestions(gameTitle: string): PersonaQuestion[] {
       question: `${gameTitle}をどのくらいの頻度で遊ぶ想定ですか?`,
       options: ["毎日", "週に数回", "イベント時だけ", "ほぼ未プレイ"],
       vectorHints: ["継続", "習慣", "熱量"],
+      weight: 1,
+    },
+    {
+      id: "first-session-learning",
+      kind: "game_specific",
+      metric: "初回理解",
+      question: `${gameTitle}の初回プレイで、最初に理解できていると安心することは何ですか?`,
+      options: ["基本操作", "勝ち方", "育成/強化", "報酬の価値", "遊ぶ目的", "後で確認できる導線"],
+      vectorHints: ["チュートリアル", "理解負荷", "初回定着"],
+      weight: 1.4,
+    },
+    {
+      id: "challenge-tolerance",
+      kind: "preference_metric",
+      metric: "難易度許容",
+      question: "難しいステージや失敗が続く状況をどう受け止めますか?",
+      options: ["燃える", "少しならよい", "報酬次第", "避けたい"],
+      vectorHints: ["緊張", "達成感", "離脱リスク"],
       weight: 1,
     },
     {
@@ -174,30 +174,145 @@ function fallbackQuestions(gameTitle: string): PersonaQuestion[] {
       weight: 0.9,
     },
     {
-      id: "first-impression",
+      id: "expected-friction",
       kind: "game_specific",
-      metric: "初回体験",
-      question: `${gameTitle}の初回体験で、何が分かりやすい/分かりにくいと感じそうですか?`,
-      vectorHints: ["チュートリアル", "理解負荷", "初期離脱"],
-      weight: 1.4,
+      metric: "不安/離脱予兆",
+      question: `${gameTitle}で不満や離脱理由になりそうだと感じる点は何ですか?`,
+      options: ["説明不足", "作業感", "難しすぎる", "報酬が渋い", "課金圧", "人に迷惑をかける不安"],
+      vectorHints: ["摩擦", "負の感情", "改善要求"],
+      weight: 1.3,
     },
     {
-      id: "favorite-system",
+      id: "learning-style",
+      kind: "preference_metric",
+      metric: "学習スタイル",
+      question: "新しいルールや操作は、どのように覚えるのが好きですか?",
+      options: ["細かく説明してほしい", "触りながら覚えたい", "困った時だけ見たい", "攻略情報を自分で探したい"],
+      vectorHints: ["理解負荷", "自律性", "チュートリアル適性"],
+      weight: 1.2,
+    },
+    {
+      id: "session-length",
+      kind: "game_usage",
+      metric: "可処分時間",
+      question: "普段、1回のゲームにどのくらい時間を使いやすいですか?",
+      options: ["5分以内", "10-20分", "30分以上", "時間が取れる時だけ長く遊ぶ"],
+      vectorHints: ["短時間適性", "継続負荷", "生活導線"],
+      weight: 0.9,
+    },
+    {
+      id: "favorite-system-expectation",
       kind: "game_specific",
-      metric: "好むシステム",
+      metric: "期待する仕組み",
       question: `${gameTitle}で特に好きになりそうな仕組みは何ですか?`,
+      options: ["操作の気持ちよさ", "編成/戦略", "キャラ収集", "育成", "協力/対人", "イベント"],
       vectorHints: ["メカニクス適合", "満足要因", "継続理由"],
       weight: 1.2,
     },
     {
-      id: "friction-system",
+      id: "reward-rhythm",
+      kind: "preference_metric",
+      metric: "報酬テンポ",
+      question: "報酬や成長は、どのようなテンポだと続けやすいですか?",
+      options: ["毎回小さな報酬が欲しい", "節目で大きな報酬が欲しい", "努力量に比例してほしい", "報酬より遊び自体を重視"],
+      vectorHints: ["報酬", "成長実感", "継続"],
+      weight: 1.1,
+    },
+    {
+      id: "return-trigger",
+      kind: "game_usage",
+      metric: "復帰きっかけ",
+      question: "一度離れたゲームに戻るきっかけになりやすいものは何ですか?",
+      options: ["新イベント", "友人の誘い", "好きなキャラ/報酬", "改善アップデート", "暇な時間"],
+      vectorHints: ["復帰", "ライブ運用", "外部動機"],
+      weight: 1,
+    },
+    {
+      id: "mechanic-clarity",
       kind: "game_specific",
-      metric: "不満になりやすい点",
-      question: `${gameTitle}で不満や離脱理由になりそうな仕組みは何ですか?`,
-      vectorHints: ["摩擦", "負の感情", "改善要求"],
-      weight: 1.3,
+      metric: "仕様理解",
+      question: `${gameTitle}で「分からないと楽しみにくい」と感じそうな仕様は何ですか?`,
+      options: ["操作", "勝敗条件", "育成", "編成/相性", "報酬", "マルチ/協力"],
+      vectorHints: ["仕様理解", "説明不足", "不安"],
+      weight: 1.2,
+    },
+    {
+      id: "spending-attitude",
+      kind: "preference_metric",
+      metric: "課金/報酬感度",
+      question: "課金、ガチャ、報酬差についてどの程度気にしますか?",
+      options: ["かなり気にする", "納得感があれば許容", "あまり気にしない", "むしろ強い報酬差が楽しい"],
+      vectorHints: ["公平感", "報酬", "不満"],
+      weight: 1,
+    },
+    {
+      id: "social-comfort",
+      kind: "game_usage",
+      metric: "ソーシャル距離",
+      question: "他プレイヤーとの関わりはどの程度あると心地よいですか?",
+      options: ["一人で完結したい", "ゆるく協力したい", "固定メンバーで遊びたい", "競争/ランキングが欲しい"],
+      vectorHints: ["社会性", "協力", "競争ストレス"],
+      weight: 1,
+    },
+    {
+      id: "content-interest",
+      kind: "game_specific",
+      metric: "関心コンテンツ",
+      question: `${gameTitle}で最初に触ってみたいコンテンツやモードは何ですか?`,
+      options: ["ストーリー/通常攻略", "イベント", "高難度", "協力/マルチ", "育成/編成", "コレクション"],
+      vectorHints: ["初期導線", "関心対象", "探索"],
+      weight: 1,
+    },
+    {
+      id: "complexity-depth",
+      kind: "preference_metric",
+      metric: "複雑さ/奥深さ",
+      question: "複雑なシステムや最適化要素をどう感じますか?",
+      options: ["深く考えるほど楽しい", "基本だけ分かればよい", "段階的なら歓迎", "面倒に感じやすい"],
+      vectorHints: ["戦略性", "理解負荷", "奥深さ"],
+      weight: 1.1,
+    },
+    {
+      id: "notification-tolerance",
+      kind: "game_usage",
+      metric: "通知/時限要素",
+      question: "通知、ログインボーナス、時限イベントのような日課要素をどう受け止めますか?",
+      options: ["習慣化しやすくてよい", "報酬次第", "急かされると負担", "ほとんど不要"],
+      vectorHints: ["日課", "継続圧", "負担"],
+      weight: 1,
+    },
+    {
+      id: "identity-attachment",
+      kind: "preference_metric",
+      metric: "愛着形成",
+      question: "ゲーム内で愛着を持ちやすいものは何ですか?",
+      options: ["キャラクター", "自分の成長", "コレクション", "仲間/コミュニティ", "世界観", "実績"],
+      vectorHints: ["愛着", "所有感", "長期継続"],
+      weight: 1,
+    },
+    {
+      id: "failure-recovery",
+      kind: "game_usage",
+      metric: "失敗時の復帰",
+      question: "失敗した時、次も挑戦しようと思える条件は何ですか?",
+      options: ["原因が分かる", "すぐ再挑戦できる", "少し報酬が残る", "別の進め方がある", "仲間に助けてもらえる"],
+      vectorHints: ["再挑戦", "学習", "離脱防止"],
+      weight: 1.1,
+    },
+    {
+      id: "discussion-viewpoint",
+      kind: "preference_metric",
+      metric: "議論観点",
+      question: "ゲームについて意見を言う時、どの観点を重視しがちですか?",
+      options: ["初心者の分かりやすさ", "上達/攻略の深さ", "公平性", "継続しやすさ", "友人と遊ぶ楽しさ", "運営への信頼"],
+      vectorHints: ["議論材料", "評価軸", "価値観"],
+      weight: 1.2,
     },
   ];
+}
+
+function fallbackQuestions(gameTitle: string): PersonaQuestion[] {
+  return genericPersonaQuestionBank(gameTitle);
 }
 
 function normalizeQuestion(raw: unknown, index: number): PersonaQuestion | null {
@@ -247,12 +362,16 @@ function ensureQuestionCoverage(questions: PersonaQuestion[], gameTitle: string,
 }
 
 function buildQuestionnairePrompt(args: BuildPersonaQuestionnaireArgs, count: number, baselineText: string) {
+  const genericGuide = genericPersonaQuestionBank(args.gameTitle)
+    .map((q) => `- ${q.kind} / ${q.metric}: ${q.question}`)
+    .join("\n");
   const system =
     "あなたはゲームUXリサーチャーです。個人の嗜好と考え方からゲーム用ペルソナを作るための質問票を設計します。返答はJSON配列のみです。";
   const prompt =
     `# 対象ゲーム\n${args.gameTitle}\n\n` +
     `# 基本情報とユーザーの声\n${baselineText.slice(0, 6000)}\n\n` +
     `# ベクトル次元\n${VECTOR_DIMS.join(", ")}\n\n` +
+    `# 汎用質問集の観点\n${genericGuide}\n\n` +
     `${count}問の質問を作ってください。必ず以下を含めます。\n` +
     "- preference_metric: ゲーム嗜好を示す指標\n" +
     "- game_usage: 特定の仕様/ゲーム利用に関する質問\n" +

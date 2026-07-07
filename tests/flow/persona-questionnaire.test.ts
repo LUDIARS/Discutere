@@ -16,6 +16,7 @@ const { _resetFlowDb } = await import("../../src/flow/db/connection.js");
 _resetFlowDb();
 
 const {
+  genericPersonaQuestionBank,
   buildPersonaQuestionnaire,
   analyzeQuestionnaireAnswers,
   createPersonaFromQuestionnaireAnswers,
@@ -28,6 +29,21 @@ class StaticLlm {
   async invoke(_args: LLMInvokeArgs): Promise<LLMResult> {
     return { ok: true, text: this.text };
   }
+}
+
+{
+  const questions = genericPersonaQuestionBank("モンスターストライク");
+  const ids = new Set(questions.map((q) => q.id));
+  assert.ok(questions.length >= 18, "汎用質問集は十分な件数を持つ");
+  assert.equal(ids.size, questions.length, "汎用質問IDは重複しない");
+  assert.deepEqual(
+    [...new Set(questions.slice(0, 3).map((q) => q.kind))].sort(),
+    ["game_specific", "game_usage", "preference_metric"],
+    "先頭3問で主要分類を網羅"
+  );
+  assert.ok(questions.some((q) => q.metric === "学習スタイル"), "チュートリアル/学習の汎用質問あり");
+  assert.ok(questions.some((q) => q.question.includes("モンスターストライク")), "対象タイトルを質問文に反映");
+  console.log("  [ok] generic persona question bank coverage");
 }
 
 {

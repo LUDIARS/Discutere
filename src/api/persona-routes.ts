@@ -167,9 +167,11 @@ personaRoutes.post("/admin/personas/questionnaire", async (c) => {
     mechanicsContext?: unknown;
     userVoices?: unknown;
     questionCount?: unknown;
+    genericOnly?: unknown;
   };
   const gameTitle = typeof body.gameTitle === "string" ? body.gameTitle.trim() : "";
   if (!gameTitle) return c.json({ error: "gameTitle required" }, 400);
+  const genericOnly = boolValue(body.genericOnly, false);
   try {
     const questionnaire = await buildPersonaQuestionnaire({
       gameTitle,
@@ -180,7 +182,7 @@ personaRoutes.post("/admin/personas/questionnaire", async (c) => {
           : undefined,
       userVoices: stringList(body.userVoices),
       questionCount: numValue(body.questionCount, 9, 3, 24),
-      llm: createPersonaLlm(),
+      llm: genericOnly ? undefined : createPersonaLlm(),
     });
     return c.json({ ok: true, questionnaire });
   } catch (err) {
@@ -308,6 +310,7 @@ const PERSONA_HTML = `<!doctype html>
    <label>基本情報/メカニクス</label><textarea id="qMechanics" placeholder="ゲームの基本ループ、チュートリアル、報酬、育成、協力要素など"></textarea>
    <label>ユーザーの声 (1行1件)</label><textarea id="qVoices" placeholder="外部の声や学習済みの代表的な反応"></textarea>
    <button onclick="buildQuestionnaire()">質問票を構築</button>
+   <button class="ghost" onclick="buildGenericQuestionnaire()">汎用質問集を読み込む</button>
    <div id="qForm"></div>
    <div class="row"><div><label>persona name (optional)</label><input id="qPersonaName" placeholder="未指定なら自動"></div><div><label>role</label><select id="qRole"><option value="opinion">opinion</option><option value="debater">debater</option><option value="facilitator">facilitator</option></select></div></div>
    <button onclick="saveQuestionnairePersona()">回答からペルソナ保存</button>
@@ -352,6 +355,11 @@ async function buildQuestionnaire(){
  const gameTitle=$('qGameTitle').value.trim();
  if(!gameTitle){ alert('game title required'); return; }
  const j=await post('/api/admin/personas/questionnaire',{gameTitle,mechanicsContext:$('qMechanics').value,userVoices:$('qVoices').value,questionCount:Number($('qCount').value)});
+ if(j.ok) renderQuestionnaire(j.questionnaire);
+}
+async function buildGenericQuestionnaire(){
+ const gameTitle=$('qGameTitle').value.trim()||'対象ゲーム';
+ const j=await post('/api/admin/personas/questionnaire',{gameTitle,mechanicsContext:$('qMechanics').value,userVoices:$('qVoices').value,questionCount:Number($('qCount').value),genericOnly:true});
  if(j.ok) renderQuestionnaire(j.questionnaire);
 }
 function collectQuestionnaireAnswers(){
