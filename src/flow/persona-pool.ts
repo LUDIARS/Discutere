@@ -288,6 +288,25 @@ export function getUserAffect(userKey: string): UserAffect | null {
   };
 }
 
+export function bookmarkPersonaAsUser(args: { personaId: string; userKey?: string; label?: string }): UserAffect {
+  const persona = findPoolPersona(args.personaId);
+  if (!persona) throw new Error(`persona not found: ${args.personaId}`);
+  const desiredText = [
+    `bookmarked persona: ${persona.name}`,
+    `persona_id: ${persona.id}`,
+    persona.label ? `label: ${persona.label}` : "",
+    persona.traits.length ? `traits: ${persona.traits.join(" / ")}` : "",
+  ]
+    .filter(Boolean)
+    .join("\n");
+  return upsertUserAffect({
+    userKey: args.userKey?.trim() || "self",
+    label: args.label?.trim() || persona.name,
+    desiredText,
+    vector: persona.affectVector,
+  });
+}
+
 // ── 嗜好近傍選定 (憑依 / 壁打ち相手) ─────────────────────────────────────────
 
 export interface AffinityHit {

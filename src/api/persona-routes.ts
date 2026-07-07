@@ -18,6 +18,7 @@ import {
   createPersonaFromQuestionnaireAnswers,
   type PersonaQuestionnaire,
 } from "../flow/persona-questionnaire.js";
+import { bookmarkPersonaAsUser, getUserAffect } from "../flow/persona-pool.js";
 import { runAdoptFromKg } from "../flow/persona-adopt-runner.js";
 import { AnthropicSdkClient } from "../persona-engine/llm/anthropic.js";
 import { ClaudeCliClient } from "../persona-engine/llm/claude-cli.js";
@@ -92,11 +93,15 @@ personaRoutes.get("/admin/personas", (c) => c.html(PERSONA_HTML));
 
 personaRoutes.get("/admin/personas/data", (c) => {
   const cfg = getConfig();
+  const selfBookmark = getUserAffect("self");
   return c.json({
     autoAdoptOnCrawl: cfg.flow.autoAdoptOnCrawl,
     envOverride: process.env.DISCUTERE_FLOW_AUTO_ADOPT_ON_CRAWL ?? null,
     configPath: configPath(),
     games: loadGames().length,
+    selfBookmark: selfBookmark
+      ? { userKey: selfBookmark.userKey, label: selfBookmark.label, updatedAt: selfBookmark.updatedAt }
+      : null,
   });
 });
 
@@ -194,8 +199,12 @@ personaRoutes.post("/admin/personas/questionnaire/answer", async (c) => {
   const body = (await c.req.json().catch(() => ({}))) as {
     questionnaire?: unknown;
     answers?: unknown;
+    additionalInfo?: unknown;
     name?: unknown;
     role?: unknown;
+    persist?: unknown;
+    bookmarkSelf?: unknown;
+    selfKey?: unknown;
   };
   const questionnaire =
     body.questionnaire && typeof body.questionnaire === "object"
@@ -204,20 +213,36 @@ personaRoutes.post("/admin/personas/questionnaire/answer", async (c) => {
   if (!questionnaire) return c.json({ error: "questionnaire required" }, 400);
   const answers =
     body.answers && typeof body.answers === "object" ? (body.answers as Record<string, unknown>) : {};
+  const persist = boolValue(body.persist, true);
   try {
     const result = await createPersonaFromQuestionnaireAnswers({
       questionnaire,
       answers,
+      additionalInfo:
+        typeof body.additionalInfo === "string" && body.additionalInfo.trim()
+          ? body.additionalInfo.trim()
+          : undefined,
       name: typeof body.name === "string" && body.name.trim() ? body.name.trim() : undefined,
       role:
         body.role === "opinion" || body.role === "debater" || body.role === "facilitator"
           ? body.role
           : "opinion",
-      llm: createPersonaLlm(),
+      persist,
+      llm: persist ? createPersonaLlm() : undefined,
     });
+    const bookmark =
+      persist && boolValue(body.bookmarkSelf, false)
+        ? bookmarkPersonaAsUser({
+            personaId: result.persona.id,
+            userKey: typeof body.selfKey === "string" && body.selfKey.trim() ? body.selfKey.trim() : "self",
+          })
+        : null;
     return c.json({
       ok: true,
       saved: result.saved,
+      bookmark: bookmark
+        ? { userKey: bookmark.userKey, label: bookmark.label, updatedAt: bookmark.updatedAt }
+        : null,
       persona: {
         id: result.persona.id,
         name: result.persona.name,
@@ -233,6 +258,27 @@ personaRoutes.post("/admin/personas/questionnaire/answer", async (c) => {
         topPositiveDeltas: result.analysis.topPositiveDeltas,
         topNegativeDeltas: result.analysis.topNegativeDeltas,
       },
+    });
+  } catch (err) {
+    return c.json({ error: (err as Error).message }, 500);
+  }
+});
+
+personaRoutes.post("/admin/personas/bookmark-self", async (c) => {
+  const body = (await c.req.json().catch(() => ({}))) as {
+    personaId?: unknown;
+    selfKey?: unknown;
+  };
+  const personaId = typeof body.personaId === "string" ? body.personaId.trim() : "";
+  if (!personaId) return c.json({ error: "personaId required" }, 400);
+  try {
+    const bookmark = bookmarkPersonaAsUser({
+      personaId,
+      userKey: typeof body.selfKey === "string" && body.selfKey.trim() ? body.selfKey.trim() : "self",
+    });
+    return c.json({
+      ok: true,
+      bookmark: { userKey: bookmark.userKey, label: bookmark.label, updatedAt: bookmark.updatedAt },
     });
   } catch (err) {
     return c.json({ error: (err as Error).message }, 500);
@@ -281,6 +327,7 @@ const PERSONA_HTML = `<!doctype html>
  textarea{min-height:80px;resize:vertical}
  .row{display:flex;gap:12px;flex-wrap:wrap}.row>div{flex:1;min-width:150px}
  .qitem{border-top:1px solid var(--border);padding-top:10px;margin-top:10px}
+ .summary{border:1px solid var(--border);border-radius:8px;padding:10px;margin-top:10px;background:var(--field)}
  button{border:0;border-radius:8px;padding:8px 15px;font-size:13px;cursor:pointer;background:var(--primary);color:#fff;margin-top:10px}
  button.ghost{background:var(--secondary);color:var(--secondary-fg)}.ok{color:var(--ok)}.bad{color:var(--bad)}
  pre{white-space:pre-wrap;background:var(--field);border:1px solid var(--border);border-radius:8px;padding:10px;max-height:300px;overflow:auto}
@@ -315,8 +362,12 @@ const PERSONA_HTML = `<!doctype html>
    <button onclick="buildQuestionnaire()">質問票を構築</button>
    <button class="ghost" onclick="buildGenericQuestionnaire()">汎用質問集を読み込む</button>
    <div id="qForm"></div>
+   <label>追加情報</label><textarea id="qAdditionalInfo" placeholder="この人の背景、好きなゲーム、避けたい体験、口調、議論で重視する観点など"></textarea>
    <div class="row"><div><label>persona name (optional)</label><input id="qPersonaName" placeholder="未指定なら自動"></div><div><label>role</label><select id="qRole"><option value="opinion">opinion</option><option value="debater">debater</option><option value="facilitator">facilitator</option></select></div></div>
+   <div class="row"><div><label class="switch"><input id="qBookmarkSelf" type="checkbox"> 自分としてブックマーク</label></div><div><label>self key</label><input id="qSelfKey" value="self"></div></div>
+   <button class="ghost" onclick="previewQuestionnairePersona()">アンケートを試す</button>
    <button onclick="saveQuestionnairePersona()">回答からペルソナ保存</button>
+   <div id="qSummary"></div>
  </div>
  <div class="card">
    <h2>C2-b 母数推定</h2>
@@ -332,7 +383,7 @@ function show(x){ $('out').textContent=typeof x==='string'?x:JSON.stringify(x,nu
 async function load(){
  const j=await fetch('/api/admin/personas/data').then(r=>r.json());
  $('auto').checked=!!j.autoAdoptOnCrawl;
- $('autoMeta').textContent='config: '+j.configPath+' / games: '+j.games+(j.envOverride!==null?' / env override: '+j.envOverride:'');
+ $('autoMeta').textContent='config: '+j.configPath+' / games: '+j.games+(j.envOverride!==null?' / env override: '+j.envOverride:'')+(j.selfBookmark?' / self: '+(j.selfBookmark.label||j.selfBookmark.userKey):'');
 }
 async function post(url,body){ const r=await fetch(url,{method:'POST',headers:{'content-type':'application/json'},body:JSON.stringify(body)}); const j=await r.json(); show(j); return j; }
 async function saveAuto(){
@@ -343,6 +394,7 @@ async function runAdopt(){ await post('/api/admin/personas/adopt',{source:$('sou
 async function runSurvey(){ await post('/api/admin/personas/survey',{count:Number($('surveyCount').value),gamesPerIndividual:$('gamesPer').value?Number($('gamesPer').value):undefined}); }
 function renderQuestionnaire(q){
  currentQuestionnaire=q;
+ $('qSummary').innerHTML='';
  const html=q.questions.map((item,i)=>{
    const id='qa_'+item.id;
    const opts=(item.options||[]).map(o=>'<option value="'+escapeHtml(o)+'">'+escapeHtml(o)+'</option>').join('');
@@ -352,6 +404,12 @@ function renderQuestionnaire(q){
    return '<div class="qitem"><div class="muted">'+(i+1)+'. '+escapeHtml(item.kind)+' / '+escapeHtml(item.metric)+' / weight '+item.weight+'</div><label>'+escapeHtml(item.question)+'</label>'+field+'</div>';
  }).join('');
  $('qForm').innerHTML=html;
+}
+function renderPersonaResult(j){
+ if(!j || !j.ok){ return; }
+ const axes=(j.analysis&&j.analysis.topPreferenceAxes||[]).map(a=>escapeHtml(a.label)+': '+a.score).join(' / ');
+ const bookmark=j.bookmark?' / bookmarked: '+escapeHtml(j.bookmark.userKey):'';
+ $('qSummary').innerHTML='<div class="summary"><div><b>'+escapeHtml(j.saved?'保存結果':'試行結果')+'</b>'+bookmark+'</div><div>'+escapeHtml(j.persona.name)+' / '+escapeHtml(j.persona.label||'')+'</div><div class="muted">'+axes+'</div></div>';
 }
 function escapeHtml(s){ return String(s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c])); }
 async function buildQuestionnaire(){
@@ -374,9 +432,15 @@ function collectQuestionnaireAnswers(){
  }
  return out;
 }
+async function previewQuestionnairePersona(){
+ if(!currentQuestionnaire){ alert('先に質問票を構築してください'); return; }
+ const j=await post('/api/admin/personas/questionnaire/answer',{questionnaire:currentQuestionnaire,answers:collectQuestionnaireAnswers(),additionalInfo:$('qAdditionalInfo').value,name:$('qPersonaName').value,role:$('qRole').value,persist:false});
+ renderPersonaResult(j);
+}
 async function saveQuestionnairePersona(){
  if(!currentQuestionnaire){ alert('先に質問票を構築してください'); return; }
- await post('/api/admin/personas/questionnaire/answer',{questionnaire:currentQuestionnaire,answers:collectQuestionnaireAnswers(),name:$('qPersonaName').value,role:$('qRole').value});
+ const j=await post('/api/admin/personas/questionnaire/answer',{questionnaire:currentQuestionnaire,answers:collectQuestionnaireAnswers(),additionalInfo:$('qAdditionalInfo').value,name:$('qPersonaName').value,role:$('qRole').value,bookmarkSelf:$('qBookmarkSelf').checked,selfKey:$('qSelfKey').value});
+ renderPersonaResult(j); load();
 }
 async function runPop(){ await post('/api/admin/personas/populations',{threshold:Number($('threshold').value),bigRatio:Number($('bigRatio').value),realOrigins:$('realOrigins').value,persist:$('persist').checked}); }
 load();

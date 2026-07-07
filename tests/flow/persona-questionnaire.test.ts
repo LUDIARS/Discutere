@@ -126,17 +126,21 @@ class StaticLlm {
         : "協力プレイや友情コンボの使いどころを具体例で知りたい。"),
     ])
   );
-  const analysis = analyzeQuestionnaireAnswers(questionnaire, answers);
+  const analysis = analyzeQuestionnaireAnswers(questionnaire, answers, {
+    additionalInfo: "実際の友人には初心者が多く、説明不足にはかなり敏感。",
+  });
   assert.equal(analysis.affectVector.length, DIM as number, "affect vector dim");
   assert.equal(analysis.responseVector.length, DIM as number, "response vector dim");
   assert.equal(analysis.preferenceVector.length, PREFERENCE_AXES.length, "preference vector dim");
   assert.ok(analysis.topPreferenceAxes.length > 0, "嗜好軸スコアあり");
   assert.ok((analysis.preferenceScores["style.achiever"] ?? 0) > 0, "選択肢からAchieverが加点される");
-  assert.equal(analysis.answerVectors.length, questionnaire.questions.length, "全回答を解析");
+  assert.equal(analysis.answerVectors.length, questionnaire.questions.length + 1, "全回答と追加情報を解析");
+  assert.ok(analysis.answerVectors.some((v) => v.questionId === "__additional_info"), "追加情報を仮想回答として解析");
 
   const result = await createPersonaFromQuestionnaireAnswers({
     questionnaire,
     answers,
+    additionalInfo: "議論では初心者のつまずきを特に重視する。",
     name: "回答 太郎",
     persist: true,
   });
@@ -144,6 +148,7 @@ class StaticLlm {
   assert.equal(result.saved, true, "保存される");
   assert.equal(result.persona.name, "回答 太郎", "指定名を保持");
   assert.equal(result.persona.learningSource, "questionnaire", "learningSource=questionnaire");
+  assert.ok(result.persona.traits.includes("追加情報あり"), "追加情報がtraitsに反映");
   assert.equal(result.persona.affectVector.length, DIM as number, "persona vector dim");
   assert.ok(listPoolPersonas({ origin: "generated" }).some((p) => p.id === result.persona.id), "flow_persona に保存");
   console.log("  [ok] questionnaire answers create persisted persona + vector deltas");

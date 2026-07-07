@@ -25,6 +25,7 @@ const {
   archivePoolPersona,
   upsertUserAffect,
   getUserAffect,
+  bookmarkPersonaAsUser,
   selectByAffinity,
   selectPossessionByTheme,
   toFlowPersona,
@@ -105,6 +106,10 @@ const zeros = (): number[] => new Array(DIM as number).fill(0);
   // 上書き (upsert)
   upsertUserAffect({ userKey: "u1", desiredText: "別の体験", label: "L" });
   assert.equal(getUserAffect("u1")!.label, "L", "upsert で更新");
+  const bookmarked = bookmarkPersonaAsUser({ personaId: "p-gacha2", userKey: "self" });
+  assert.equal(bookmarked.label, "ソシャゲ花子", "bookmark label");
+  assert.deepEqual(bookmarked.vector, getPoolPersona("p-gacha2")!.affectVector, "bookmark uses persona vector");
+  assert.ok(getUserAffect("self")!.desiredText.includes("persona_id: p-gacha2"), "bookmark desiredText includes persona id");
   console.log("  [ok] user affect: upsert/get + text 由来ベクトル");
 }
 

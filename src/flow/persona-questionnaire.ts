@@ -112,6 +112,7 @@ export interface PersonaAnswerAnalysis {
 export interface CreatePersonaFromAnswersArgs {
   questionnaire: PersonaQuestionnaire;
   answers: PersonaAnswersInput;
+  additionalInfo?: string;
   name?: string;
   role?: FlowRole;
   llm?: LLMClient;
@@ -124,6 +125,10 @@ export interface CreatePersonaFromAnswersResult {
   persona: PoolPersona;
   analysis: PersonaAnswerAnalysis;
   saved: boolean;
+}
+
+export interface AnalyzeQuestionnaireAnswersOptions {
+  additionalInfo?: string;
 }
 
 interface PersonaMetadata {
@@ -796,7 +801,8 @@ function analyzePreferenceScores(
 
 export function analyzeQuestionnaireAnswers(
   questionnaire: PersonaQuestionnaire,
-  answers: PersonaAnswersInput
+  answers: PersonaAnswersInput,
+  options: AnalyzeQuestionnaireAnswersOptions = {}
 ): PersonaAnswerAnalysis {
   if (questionnaire.baselineVector.length !== DIM) {
     throw new Error(`baselineVector dim must be ${DIM}`);
@@ -814,6 +820,15 @@ export function analyzeQuestionnaireAnswers(
     vectors.push(vector);
     weights.push(q.weight);
     answerVectors.push({ questionId: q.id, weight: q.weight, vector, text });
+  }
+
+  const additionalInfo = options.additionalInfo?.trim();
+  if (additionalInfo) {
+    const text = `追加情報。${additionalInfo}`;
+    const vector = textToVector(text);
+    vectors.push(vector);
+    weights.push(0.8);
+    answerVectors.push({ questionId: "__additional_info", weight: 0.8, vector, text });
   }
 
   if (answerVectors.length === 0) throw new Error("answers are required");
@@ -839,10 +854,11 @@ function fallbackMetadata(args: CreatePersonaFromAnswersArgs, analysis: PersonaA
     .filter((v): v is string => !!v);
   const topDims = [...analysis.topPositiveDeltas, ...analysis.topNegativeDeltas].slice(0, 4).map((d) => d.dim);
   const topPreferenceLabels = analysis.topPreferenceAxes.slice(0, 4).map((d) => d.label);
+  const extraTraits = args.additionalInfo?.trim() ? ["追加情報あり"] : [];
   return {
     name: args.name?.trim() || `回答者#${randomUUID().slice(0, 6)}`,
     speechStyle: "自分の体験と納得感を軸に、具体例を交えて話す",
-    traits: [...new Set(["回答型ペルソナ", ...topPreferenceLabels, ...answeredMetrics.slice(0, 3), ...topDims])].slice(0, 8),
+    traits: [...new Set(["回答型ペルソナ", ...extraTraits, ...topPreferenceLabels, ...answeredMetrics.slice(0, 3), ...topDims])].slice(0, 8),
     label: `${args.questionnaire.gameTitle} / 回答ベクトル生成 / ${answeredMetrics.slice(0, 3).join("・")}`,
   };
 }
@@ -858,6 +874,7 @@ async function llmMetadata(args: CreatePersonaFromAnswersArgs, analysis: Persona
   const prompt =
     `対象ゲーム: ${args.questionnaire.gameTitle}\n` +
     `回答:\n${answerLines.slice(0, 5000)}\n\n` +
+    (args.additionalInfo?.trim() ? `追加情報:\n${args.additionalInfo.trim().slice(0, 2000)}\n\n` : "") +
     `嗜好軸: ${analysis.topPreferenceAxes.map((d) => `${d.label}:${d.score}`).join(", ")}\n` +
     `ベクトル差分(正): ${analysis.topPositiveDeltas.map((d) => `${d.dim}:${d.delta}`).join(", ")}\n` +
     `ベクトル差分(負): ${analysis.topNegativeDeltas.map((d) => `${d.dim}:${d.delta}`).join(", ")}\n\n` +
@@ -886,7 +903,9 @@ export async function createPersonaFromQuestionnaireAnswers(
   args: CreatePersonaFromAnswersArgs
 ): Promise<CreatePersonaFromAnswersResult> {
   const warn = args.warn ?? ((m) => console.warn(`[persona-questionnaire/warn] ${m}`));
-  const analysis = analyzeQuestionnaireAnswers(args.questionnaire, args.answers);
+  const analysis = analyzeQuestionnaireAnswers(args.questionnaire, args.answers, {
+    additionalInfo: args.additionalInfo,
+  });
   let metadata: PersonaMetadata | null = null;
   try {
     metadata = await llmMetadata(args, analysis);
