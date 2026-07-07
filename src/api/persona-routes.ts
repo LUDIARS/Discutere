@@ -13,6 +13,11 @@ import { getConfig, _resetConfig } from "../config.js";
 import { FallbackLlm } from "../flow/llm-fallback.js";
 import { estimatePopulations, persistPopulations } from "../flow/persona-populations.js";
 import { generateSyntheticPersonas, type SurveyGame } from "../flow/persona-survey.js";
+import {
+  buildPersonaQuestionnaire,
+  createPersonaFromQuestionnaireAnswers,
+  type PersonaQuestionnaire,
+} from "../flow/persona-questionnaire.js";
 import { runAdoptFromKg } from "../flow/persona-adopt-runner.js";
 import { AnthropicSdkClient } from "../persona-engine/llm/anthropic.js";
 import { ClaudeCliClient } from "../persona-engine/llm/claude-cli.js";
@@ -75,6 +80,12 @@ function numValue(v: unknown, fallback: number, min: number, max: number): numbe
   const n = typeof v === "number" ? v : Number(v);
   if (!Number.isFinite(n)) return fallback;
   return Math.max(min, Math.min(max, Math.floor(n)));
+}
+
+function stringList(v: unknown): string[] {
+  if (Array.isArray(v)) return v.map((item) => (typeof item === "string" ? item.trim() : "")).filter(Boolean);
+  if (typeof v === "string") return v.split(/\r?\n|,/).map((s) => s.trim()).filter(Boolean);
+  return [];
 }
 
 personaRoutes.get("/admin/personas", (c) => c.html(PERSONA_HTML));
@@ -149,6 +160,80 @@ personaRoutes.post("/admin/personas/survey", async (c) => {
   }
 });
 
+personaRoutes.post("/admin/personas/questionnaire", async (c) => {
+  const body = (await c.req.json().catch(() => ({}))) as {
+    gameTitle?: unknown;
+    gameSlug?: unknown;
+    mechanicsContext?: unknown;
+    userVoices?: unknown;
+    questionCount?: unknown;
+  };
+  const gameTitle = typeof body.gameTitle === "string" ? body.gameTitle.trim() : "";
+  if (!gameTitle) return c.json({ error: "gameTitle required" }, 400);
+  try {
+    const questionnaire = await buildPersonaQuestionnaire({
+      gameTitle,
+      gameSlug: typeof body.gameSlug === "string" && body.gameSlug.trim() ? body.gameSlug.trim() : undefined,
+      mechanicsContext:
+        typeof body.mechanicsContext === "string" && body.mechanicsContext.trim()
+          ? body.mechanicsContext.trim()
+          : undefined,
+      userVoices: stringList(body.userVoices),
+      questionCount: numValue(body.questionCount, 9, 3, 24),
+      llm: createPersonaLlm(),
+    });
+    return c.json({ ok: true, questionnaire });
+  } catch (err) {
+    return c.json({ error: (err as Error).message }, 500);
+  }
+});
+
+personaRoutes.post("/admin/personas/questionnaire/answer", async (c) => {
+  const body = (await c.req.json().catch(() => ({}))) as {
+    questionnaire?: unknown;
+    answers?: unknown;
+    name?: unknown;
+    role?: unknown;
+  };
+  const questionnaire =
+    body.questionnaire && typeof body.questionnaire === "object"
+      ? (body.questionnaire as PersonaQuestionnaire)
+      : null;
+  if (!questionnaire) return c.json({ error: "questionnaire required" }, 400);
+  const answers =
+    body.answers && typeof body.answers === "object" ? (body.answers as Record<string, unknown>) : {};
+  try {
+    const result = await createPersonaFromQuestionnaireAnswers({
+      questionnaire,
+      answers,
+      name: typeof body.name === "string" && body.name.trim() ? body.name.trim() : undefined,
+      role:
+        body.role === "opinion" || body.role === "debater" || body.role === "facilitator"
+          ? body.role
+          : "opinion",
+      llm: createPersonaLlm(),
+    });
+    return c.json({
+      ok: true,
+      saved: result.saved,
+      persona: {
+        id: result.persona.id,
+        name: result.persona.name,
+        role: result.persona.role,
+        label: result.persona.label,
+        traits: result.persona.traits,
+      },
+      analysis: {
+        responseVector: result.analysis.responseVector,
+        topPositiveDeltas: result.analysis.topPositiveDeltas,
+        topNegativeDeltas: result.analysis.topNegativeDeltas,
+      },
+    });
+  } catch (err) {
+    return c.json({ error: (err as Error).message }, 500);
+  }
+});
+
 personaRoutes.post("/admin/personas/populations", async (c) => {
   const body = (await c.req.json().catch(() => ({}))) as {
     threshold?: unknown;
@@ -187,8 +272,10 @@ const PERSONA_HTML = `<!doctype html>
  a{color:var(--link)} h1{font-size:20px;margin:0 0 6px} h2{font-size:15px;margin:22px 0 8px;color:var(--fg)}
  .sub,.muted{color:var(--muted);font-size:13px}.card{background:var(--surface);border:1px solid var(--border);border-radius:8px;padding:14px 16px;margin-bottom:14px}
  label{display:block;font-size:12px;color:var(--muted);margin:8px 0 3px}
- input{width:100%;box-sizing:border-box;background:var(--field);color:var(--fg);border:1px solid var(--border-strong);border-radius:7px;padding:8px 10px;font-size:13px}
+ input,textarea,select{width:100%;box-sizing:border-box;background:var(--field);color:var(--fg);border:1px solid var(--border-strong);border-radius:7px;padding:8px 10px;font-size:13px}
+ textarea{min-height:80px;resize:vertical}
  .row{display:flex;gap:12px;flex-wrap:wrap}.row>div{flex:1;min-width:150px}
+ .qitem{border-top:1px solid var(--border);padding-top:10px;margin-top:10px}
  button{border:0;border-radius:8px;padding:8px 15px;font-size:13px;cursor:pointer;background:var(--primary);color:#fff;margin-top:10px}
  button.ghost{background:var(--secondary);color:var(--secondary-fg)}.ok{color:var(--ok)}.bad{color:var(--bad)}
  pre{white-space:pre-wrap;background:var(--field);border:1px solid var(--border);border-radius:8px;padding:10px;max-height:300px;overflow:auto}
@@ -215,6 +302,17 @@ const PERSONA_HTML = `<!doctype html>
    <button onclick="runSurvey()">合成生成を実行</button>
  </div>
  <div class="card">
+   <h2>回答型ペルソナ生成</h2>
+   <p class="muted">個人の嗜好/考え方に答える質問票をLLMで構築し、回答をゲーム基準ベクトルとの差分として解析してペルソナ保存します。</p>
+   <div class="row"><div><label>game title</label><input id="qGameTitle" placeholder="モンスターストライク"></div><div><label>question count</label><input id="qCount" type="number" value="9" min="3" max="24"></div></div>
+   <label>基本情報/メカニクス</label><textarea id="qMechanics" placeholder="ゲームの基本ループ、チュートリアル、報酬、育成、協力要素など"></textarea>
+   <label>ユーザーの声 (1行1件)</label><textarea id="qVoices" placeholder="外部の声や学習済みの代表的な反応"></textarea>
+   <button onclick="buildQuestionnaire()">質問票を構築</button>
+   <div id="qForm"></div>
+   <div class="row"><div><label>persona name (optional)</label><input id="qPersonaName" placeholder="未指定なら自動"></div><div><label>role</label><select id="qRole"><option value="opinion">opinion</option><option value="debater">debater</option><option value="facilitator">facilitator</option></select></div></div>
+   <button onclick="saveQuestionnairePersona()">回答からペルソナ保存</button>
+ </div>
+ <div class="card">
    <h2>C2-b 母数推定</h2>
    <div class="row"><div><label>threshold</label><input id="threshold" value="0.9"></div><div><label>big ratio</label><input id="bigRatio" value="0.15"></div><div><label>real origins</label><input id="realOrigins" value="adopted"></div></div>
    <label class="switch"><input id="persist" type="checkbox" checked> 結果を書き戻す</label>
@@ -223,6 +321,7 @@ const PERSONA_HTML = `<!doctype html>
  <pre id="out"></pre>
 </div><script>
 const $=id=>document.getElementById(id);
+let currentQuestionnaire=null;
 function show(x){ $('out').textContent=typeof x==='string'?x:JSON.stringify(x,null,2); }
 async function load(){
  const j=await fetch('/api/admin/personas/data').then(r=>r.json());
@@ -236,6 +335,38 @@ async function saveAuto(){
 }
 async function runAdopt(){ await post('/api/admin/personas/adopt',{source:$('source').value,minOpinions:Number($('minOpinions').value),dry:$('dry').checked}); }
 async function runSurvey(){ await post('/api/admin/personas/survey',{count:Number($('surveyCount').value),gamesPerIndividual:$('gamesPer').value?Number($('gamesPer').value):undefined}); }
+function renderQuestionnaire(q){
+ currentQuestionnaire=q;
+ const html=q.questions.map((item,i)=>{
+   const id='qa_'+item.id;
+   const opts=(item.options||[]).map(o=>'<option value="'+escapeHtml(o)+'">'+escapeHtml(o)+'</option>').join('');
+   const field=opts
+     ? '<select id="'+id+'"><option value="">選択</option>'+opts+'</select>'
+     : '<textarea id="'+id+'" placeholder="回答を入力"></textarea>';
+   return '<div class="qitem"><div class="muted">'+(i+1)+'. '+escapeHtml(item.kind)+' / '+escapeHtml(item.metric)+' / weight '+item.weight+'</div><label>'+escapeHtml(item.question)+'</label>'+field+'</div>';
+ }).join('');
+ $('qForm').innerHTML=html;
+}
+function escapeHtml(s){ return String(s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c])); }
+async function buildQuestionnaire(){
+ const gameTitle=$('qGameTitle').value.trim();
+ if(!gameTitle){ alert('game title required'); return; }
+ const j=await post('/api/admin/personas/questionnaire',{gameTitle,mechanicsContext:$('qMechanics').value,userVoices:$('qVoices').value,questionCount:Number($('qCount').value)});
+ if(j.ok) renderQuestionnaire(j.questionnaire);
+}
+function collectQuestionnaireAnswers(){
+ const out={};
+ if(!currentQuestionnaire) return out;
+ for(const q of currentQuestionnaire.questions){
+   const el=$('qa_'+q.id);
+   if(el && el.value.trim()) out[q.id]=el.value.trim();
+ }
+ return out;
+}
+async function saveQuestionnairePersona(){
+ if(!currentQuestionnaire){ alert('先に質問票を構築してください'); return; }
+ await post('/api/admin/personas/questionnaire/answer',{questionnaire:currentQuestionnaire,answers:collectQuestionnaireAnswers(),name:$('qPersonaName').value,role:$('qRole').value});
+}
 async function runPop(){ await post('/api/admin/personas/populations',{threshold:Number($('threshold').value),bigRatio:Number($('bigRatio').value),realOrigins:$('realOrigins').value,persist:$('persist').checked}); }
 load();
 </script></body></html>`;
