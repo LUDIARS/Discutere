@@ -227,6 +227,9 @@ personaRoutes.post("/admin/personas/questionnaire/answer", async (c) => {
       },
       analysis: {
         responseVector: result.analysis.responseVector,
+        preferenceVector: result.analysis.preferenceVector,
+        preferenceScores: result.analysis.preferenceScores,
+        topPreferenceAxes: result.analysis.topPreferenceAxes,
         topPositiveDeltas: result.analysis.topPositiveDeltas,
         topNegativeDeltas: result.analysis.topNegativeDeltas,
       },

@@ -16,6 +16,8 @@ const { _resetFlowDb } = await import("../../src/flow/db/connection.js");
 _resetFlowDb();
 
 const {
+  PREFERENCE_AXES,
+  genericPersonaQuestionTemplates,
   genericPersonaQuestionBank,
   buildPersonaQuestionnaire,
   analyzeQuestionnaireAnswers,
@@ -32,8 +34,10 @@ class StaticLlm {
 }
 
 {
+  const templates = genericPersonaQuestionTemplates();
   const questions = genericPersonaQuestionBank("モンスターストライク");
   const ids = new Set(questions.map((q) => q.id));
+  assert.equal(templates.length, questions.length, "テンプレートから質問集を構築");
   assert.ok(questions.length >= 18, "汎用質問集は十分な件数を持つ");
   assert.equal(ids.size, questions.length, "汎用質問IDは重複しない");
   assert.deepEqual(
@@ -41,6 +45,8 @@ class StaticLlm {
     ["game_specific", "game_usage", "preference_metric"],
     "先頭3問で主要分類を網羅"
   );
+  assert.ok(templates.every((q) => q.essence.trim().length > 0), "質問の本質を持つ");
+  assert.equal(questions[0].scoring?.["達成感"]?.["style.achiever"], 0.9, "選択肢スコアを質問に展開");
   assert.ok(questions.some((q) => q.metric === "学習スタイル"), "チュートリアル/学習の汎用質問あり");
   assert.ok(questions.some((q) => q.question.includes("モンスターストライク")), "対象タイトルを質問文に反映");
   console.log("  [ok] generic persona question bank coverage");
@@ -114,14 +120,18 @@ class StaticLlm {
   const answers = Object.fromEntries(
     questionnaire.questions.map((q, i) => [
       q.id,
-      i % 2 === 0
+      q.options?.[0] ??
+        (i % 2 === 0
         ? "チュートリアルは短く、実際に触りながら理解したい。報酬と成長の納得感は重視する。"
-        : "協力プレイや友情コンボの使いどころを具体例で知りたい。",
+        : "協力プレイや友情コンボの使いどころを具体例で知りたい。"),
     ])
   );
   const analysis = analyzeQuestionnaireAnswers(questionnaire, answers);
   assert.equal(analysis.affectVector.length, DIM as number, "affect vector dim");
   assert.equal(analysis.responseVector.length, DIM as number, "response vector dim");
+  assert.equal(analysis.preferenceVector.length, PREFERENCE_AXES.length, "preference vector dim");
+  assert.ok(analysis.topPreferenceAxes.length > 0, "嗜好軸スコアあり");
+  assert.ok((analysis.preferenceScores["style.achiever"] ?? 0) > 0, "選択肢からAchieverが加点される");
   assert.equal(analysis.answerVectors.length, questionnaire.questions.length, "全回答を解析");
 
   const result = await createPersonaFromQuestionnaireAnswers({
