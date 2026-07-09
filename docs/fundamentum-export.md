@@ -44,5 +44,6 @@ Fundamentum を使うと:
 
 ## セットアップ
 
-`lib/fundamentum` は git submodule (private repo)。ローカルは `npm run setup:submodules` で
-init + build される (CLAUDE.md ルート README 参照)。
+`lib/fundamentum` は git submodule (public repo)。ローカルは `npm run setup:submodules` で
+init + build される (CLAUDE.md ルート README 参照)。まだ立てたばかりの土台で、Fundamentum 自体の
+安定動作は今後の対応次第 (現時点で過度な期待はしない)。

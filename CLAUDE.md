@@ -90,11 +90,12 @@ env)。`discutere.config.example.json` 参照。詳細は `docs/ws-gateway-confi
   から `lib/{lapilli,canalis,vestigium,fundamentum}` の git submodule + `file:` 参照に切替。
   **`NODE_AUTH_TOKEN` (packages:read PAT) が無くてもローカルで `npm install` できる**ようになった
   (これがローカル起動を阻んでいた実体)。初回セットアップは `npm run setup:submodules`
-  (`scripts/setup-submodules.mjs` — submodule init + 各パッケージ build)。CI (`ci.yml`/`desktop.yml`)
-  は `actions/checkout` に `submodules: recursive` + `secrets.SUBMODULE_PAT` フォールバック
-  (Fundamentum が private repo のため、`All-In-OneTest/service-all.yml` と同じ方式)。
+  (`scripts/setup-submodules.mjs` — submodule init + 各パッケージ build)。CI (`ci.yml`) は
+  `actions/checkout` に `submodules: recursive` を付けるだけで済む (4 submodule 全て public repo)。
   Vestigium は `src/index.ts` の `installConsoleCapture()` 直後に `serviceCode: "discutere"` で配線
   (Actio と同パターン、pino 不使用のため `pinoTransport: false`)、graceful shutdown で `shutdown()`。
+  デスクトップ配布 (`desktop.yml`) は基礎挙動と無関係なので PR トリガーから外し、手動/タグ push のみに縮小
+  (下記デスクトップアプリ配布の節も参照)。
 
 - **議論データ管理ツール (Fundamentum export, 2026-07-09, `docs/fundamentum-export.md`)**: 議論
   (paper + 発話 + 結論) を Fundamentum (`lib/fundamentum`) へ **個別 export** できるようにした。

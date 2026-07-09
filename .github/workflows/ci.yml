@@ -24,12 +24,10 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       # LUDIARS 依存 (llm-gateway/blackbox/canalis/vestigium/fundamentum) は lib/* submodule。
-      # Fundamentum は private repo のため素の GITHUB_TOKEN では取得できない場合がある → org PAT フォールバック
-      # (All-In-OneTest/.github/workflows/service-all.yml と同じ方式)。
+      # 全て public repo なので素の GITHUB_TOKEN で取得できる。
       - uses: actions/checkout@v4
         with:
           submodules: recursive
-          token: ${{ secrets.SUBMODULE_PAT || secrets.GITHUB_TOKEN }}
 
       - name: Setup Node
         uses: actions/setup-node@v4

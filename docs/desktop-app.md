@@ -49,8 +49,10 @@ bot token 無しでも Web UI (`/flow` のチャット議論・学習ビュー) 
 `.github/workflows/desktop.yml` が windows-latest で exe をビルドする。
 
 - 手動: Actions → **Desktop (Windows exe)** → Run workflow
-- タグ: `v*` を push
-- PR: `electron/**` / `electron-builder.yml` / workflow 自体を変更する PR で自動ビルド
+- タグ: `v*` を push (実配布はデータチューナー対応完了後の運用)
+
+配布 (パッケージビルド) は基礎挙動の CI (`ci.yml`) と無関係なので **PR では自動実行しない**
+(手動 dispatch かタグ push のみ)。
 
 成果物 (artifact `discutere-windows-<sha>`):
 
