@@ -10,6 +10,7 @@ import { dashboardRoutes } from "./api/dashboard-routes.js";
 import { errorsRoutes } from "./api/errors-routes.js";
 import { consensusRoutes } from "./api/consensus-routes.js";
 import { installConsoleCapture } from "./observability/console-capture.js";
+import { install as installVestigium } from "@ludiars/vestigium";
 import { createConsensusScorer, type ConsensusScorer } from "./persona-engine/scoring/consensus-scorer.js";
 import { learningViewRoutes } from "./api/learning-view-routes.js";
 import { createCore } from "./core/index.js";
@@ -77,6 +78,9 @@ import "./db/connection.js";
 // FEATURE ②: console.error/warn を error-buffer に取り込む (admin dashboard 可視化用)。
 // なるべく早く仕掛けて以降の全 console 出力を拾う。
 installConsoleCapture();
+
+// LUDIARS 横断ロギング (Concordia file-tail → error-detector で拾われる JSONL 出力)。
+const vestigium = installVestigium({ serviceCode: "discutere", captureConsole: true, pinoTransport: false });
 
 const config = getConfig();
 // production 起動の前提 (botToken 必須等) を fail-fast 検証する (dev/test は no-op)。
@@ -883,6 +887,11 @@ const gracefulShutdown = (sig: string) => {
   }
   try {
     slackSocket?.stop();
+  } catch {
+    /* best-effort */
+  }
+  try {
+    vestigium.shutdown().catch(() => {});
   } catch {
     /* best-effort */
   }

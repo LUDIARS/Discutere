@@ -48,6 +48,8 @@ function resolveTargets(config: DiscutereConfig): string[] {
   // Kuzu グラフ DB ディレクトリ (KUZU-MIGRATION §6/§8-6)
   const kuzuGraphPath = (config.discatier as Record<string, unknown>).kuzuGraphPath as string | undefined;
   if (kuzuGraphPath) targets.push(kuzuGraphPath);
+  // 議論データ管理ツール (Fundamentum export) の on-disk store
+  if (config.fundamentum.enabled) targets.push(config.fundamentum.dataDir);
   return targets;
 }
 

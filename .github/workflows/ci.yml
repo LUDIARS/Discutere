@@ -23,7 +23,13 @@ jobs:
   build-test:
     runs-on: ubuntu-latest
     steps:
+      # LUDIARS 依存 (llm-gateway/blackbox/canalis/vestigium/fundamentum) は lib/* submodule。
+      # Fundamentum は private repo のため素の GITHUB_TOKEN では取得できない場合がある → org PAT フォールバック
+      # (All-In-OneTest/.github/workflows/service-all.yml と同じ方式)。
       - uses: actions/checkout@v4
+        with:
+          submodules: recursive
+          token: ${{ secrets.SUBMODULE_PAT || secrets.GITHUB_TOKEN }}
 
       - name: Setup Node
         uses: actions/setup-node@v4
@@ -31,12 +37,12 @@ jobs:
           node-version-file: .nvmrc
           cache: npm
 
-      # .npmrc の @ludiars scope (GitHub Packages) を読むため NODE_AUTH_TOKEN を渡す。
-      # 組織内パッケージ @ludiars/canalis をビルトイン GITHUB_TOKEN (packages:read) で取得。
+      # checkout で submodule 取得済みなので --skip-git-update で二重取得を避ける。
+      - name: Build submodule deps (lib/*)
+        run: npm run setup:submodules -- --skip-git-update
+
       - name: Install deps
         run: npm ci
-        env:
-          NODE_AUTH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
       # 型チェック (tsc --noEmit) — build とは別ゲートで静的解析を明示
       - name: Typecheck (tsc --noEmit)
@@ -65,3 +71,4 @@ jobs:
           npm run test:runtime-settings
           npm run test:startup-guard
           npm run test:flow
+          npm run test:fundamentum-export

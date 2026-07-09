@@ -60,12 +60,15 @@ bot token 無しでも Web UI (`/flow` のチャット議論・学習ビュー) 
 ### ローカル (Windows マシン)
 
 ```bash
-# @ludiars scope (GitHub Packages) を読むトークンが要る (packages:read)
-set NODE_AUTH_TOKEN=<github token>
-npm ci
+npm run setup:submodules # lib/{lapilli,canalis,vestigium,fundamentum} を init + build (初回のみ)
+npm ci                    # @ludiars/* は全て file: submodule 参照。NODE_AUTH_TOKEN 不要
 npm run app:dist:win     # build → app:rebuild → electron-builder --win
 # 出力: release/*.exe
 ```
+
+> **パブリッシュ (配布) の順序**: exe をビルドするだけならこの手順で足りるが、実際の
+> リリース (`v*` タグ push → CI で成果物公開) はデータチューナー (Fundamentum 議論データ export、
+> `docs/fundamentum-export.md` 参照) 対応完了後に行う運用。
 
 開発時のウィンドウ確認は `npm run app:dev` (要: 事前に `npm run app:rebuild`)。
 

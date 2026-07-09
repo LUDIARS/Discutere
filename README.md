@@ -41,9 +41,10 @@ Hypothesis Lifecycle が弁証法的ループを形成する。詳細は [`docs/
 ## Quickstart (Discord で議論を最短で動かす)
 
 ```sh
-# 1. clone + 依存 + build
+# 1. clone + LUDIARS 依存 (submodule) + 本体依存 + build
 git clone https://github.com/LUDIARS/Discutere && cd Discutere
-npm install
+npm run setup:submodules   # lib/{lapilli,canalis,vestigium,fundamentum} を init + build
+npm install                # GitHub Packages の NODE_AUTH_TOKEN は不要 (依存は全て file: submodule 参照)
 npm run build
 
 # 2. config を用意 (実体は gitignore)

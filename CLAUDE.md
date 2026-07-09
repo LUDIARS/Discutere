@@ -82,6 +82,30 @@ env)。`discutere.config.example.json` 参照。詳細は `docs/ws-gateway-confi
   `.github/workflows/desktop.yml` (windows-latest) でビルド、ローカルは `npm run app:dist:win`。
   **kuzu は N-API でそのまま動くが better-sqlite3 は Electron ABI リビルド必須** (`app:rebuild`、
   素の Node に戻すのは `app:rebuild:undo`)。Tauri は Node sidecar 同梱が必要になるため不採用。
+  **実配布 (タグ push → CI release) は「議論データ管理ツール」対応完了後**に行う運用 (下記)。
+
+- **LUDIARS 依存の submodule 化 (2026-07-09)**: `@ludiars/llm-gateway` / `@ludiars/blackbox`
+  (実体は `LUDIARS/Lapilli` monorepo の `packages/{llm-gateway,blackbox}`) / `@ludiars/canalis` /
+  `@ludiars/vestigium` (新規追加) / `fundamentum` (新規追加) を GitHub Packages 経由の npm 依存
+  から `lib/{lapilli,canalis,vestigium,fundamentum}` の git submodule + `file:` 参照に切替。
+  **`NODE_AUTH_TOKEN` (packages:read PAT) が無くてもローカルで `npm install` できる**ようになった
+  (これがローカル起動を阻んでいた実体)。初回セットアップは `npm run setup:submodules`
+  (`scripts/setup-submodules.mjs` — submodule init + 各パッケージ build)。CI (`ci.yml`/`desktop.yml`)
+  は `actions/checkout` に `submodules: recursive` + `secrets.SUBMODULE_PAT` フォールバック
+  (Fundamentum が private repo のため、`All-In-OneTest/service-all.yml` と同じ方式)。
+  Vestigium は `src/index.ts` の `installConsoleCapture()` 直後に `serviceCode: "discutere"` で配線
+  (Actio と同パターン、pino 不使用のため `pinoTransport: false`)、graceful shutdown で `shutdown()`。
+
+- **議論データ管理ツール (Fundamentum export, 2026-07-09, `docs/fundamentum-export.md`)**: 議論
+  (paper + 発話 + 結論) を Fundamentum (`lib/fundamentum`) へ **個別 export** できるようにした。
+  `src/fundamentum-export/` が `ConclusionDetail` → 正規化 snapshot → `master.put` → catalog
+  `discutere/discussions` へ `discussionId` (= 既存の `gapId`/`flow:<sessionId>`) で登録する。
+  content-addressed なので **内容が変わらない再 export は no-op** (`exportedAt` 等の可変値は
+  snapshot に含めない — 含めると dedup が壊れる)。入口は CLI (`npm run export:discussions:fm`) と
+  Web UI (`/learning/conclusions` の「Fundamentum へ export」ボタン、
+  `POST /learning/conclusion/export/fundamentum`)。`config.fundamentum.{enabled,dataDir}`
+  (既定 `./data/fundamentum`) で、`enabled` なら `src/backup/runner.ts` のバックアップ対象にも
+  自動で入る。
 
 ## フォーラム集約 (2026-06-06, `discord.forum`)
 
