@@ -23,6 +23,7 @@ import {
 import { getFlowDb } from "../flow/db/connection.js";
 import { openAttributionStore } from "../crawler/sources/attribution-store.js";
 import { openLearningCacheReader, learningCacheExists } from "../visualize/learning-cache.js";
+import { exportDiscussionToFundamentum } from "../fundamentum-export/index.js";
 
 export const learningViewRoutes = new Hono();
 
@@ -138,6 +139,30 @@ learningViewRoutes.get("/learning/conclusion/export", (c) => {
       `attachment; filename="discussion.md"; filename*=UTF-8''${encodeURIComponent(filename)}`
     );
     return c.body(md);
+  } finally {
+    attribution?.close();
+    core?.close();
+  }
+});
+
+// 1 件の議論を Fundamentum (議論データ管理ツール) へ個別 export する (議論データチューナー)。
+learningViewRoutes.post("/learning/conclusion/export/fundamentum", async (c) => {
+  const config = getConfig();
+  const gapId = c.req.query("gap") ?? "";
+  let detail: ConclusionDetail | null;
+  let core: ReturnType<typeof createCore> | null = null;
+  let attribution: ReturnType<typeof openAttributionStore> | null = null;
+  try {
+    if (isFlowConclusionId(gapId)) {
+      detail = getFlowConclusionDetail(getFlowDb(), flowSessionIdFromGapId(gapId));
+    } else {
+      core = createCore(resolveActiveKgPath(getConfig()));
+      attribution = openAttributionStore();
+      detail = getConclusionDetail(core, config.workspace, gapId, attribution);
+    }
+    if (!detail) return c.json({ error: "not found" }, 404);
+    const result = await exportDiscussionToFundamentum(detail);
+    return c.json(result);
   } finally {
     attribution?.close();
     core?.close();
@@ -459,14 +484,37 @@ function renderConclusions(snap) {
           '</div>' +
           '<div style="margin-top:6px;">' + esc(c.conclusion || "(まとめ未生成)") + '</div>' +
           '<button class="detail-btn" data-gap="' + esc(c.gapId) + '" style="margin-top:8px;">論述データを見る</button> ' +
-          '<a class="md-btn" href="/learning/conclusion/export?gap=' + encodeURIComponent(c.gapId) + '" download>md エクスポート</a>' +
+          '<a class="md-btn" href="/learning/conclusion/export?gap=' + encodeURIComponent(c.gapId) + '" download>md エクスポート</a> ' +
+          '<button class="md-btn fm-btn" data-gap="' + esc(c.gapId) + '">Fundamentum へ export</button>' +
           '<div class="detail-slot"></div>' +
         '</article>').join("")
     : '<div class="muted">まだ収束した議論はありません</div>';
   document.querySelectorAll(".detail-btn").forEach((btn) => {
     btn.addEventListener("click", () => loadConclusionDetail(btn));
   });
+  document.querySelectorAll(".fm-btn").forEach((btn) => {
+    btn.addEventListener("click", () => exportToFundamentum(btn));
+  });
   renderGraph(list.map((c) => ({ title: c.title, size: c.utteranceCount, status: "closed" })), "結論なし");
+}
+
+async function exportToFundamentum(btn) {
+  const gap = btn.dataset.gap;
+  const original = btn.textContent;
+  btn.disabled = true;
+  btn.textContent = "exporting...";
+  try {
+    const res = await fetch("/learning/conclusion/export/fundamentum?gap=" + encodeURIComponent(gap), { method: "POST" });
+    const body = await res.json().catch(() => null);
+    if (!res.ok || !body || body.error) throw new Error((body && body.error) || ("http " + res.status));
+    btn.textContent = "✓ exported (v" + body.catalogVersion + ")";
+  } catch (err) {
+    btn.textContent = "export failed";
+    console.error("fundamentum export failed:", err);
+  } finally {
+    btn.disabled = false;
+    setTimeout(() => { btn.textContent = original; }, 4000);
+  }
 }
 
 async function loadConclusionDetail(btn) {

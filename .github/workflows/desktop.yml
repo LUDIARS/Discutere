@@ -2,16 +2,12 @@ name: Desktop (Windows exe)
 
 # Windows 向けデスクトップアプリ (Electron) のパッケージビルド。docs/desktop-app.md 参照。
 # 成果物: Discutere-Setup-*.exe (NSIS インストーラ) + Discutere-Portable-*.exe (単一 exe)。
-# 手動 (workflow_dispatch)・タグ push (v*)・パッケージング関連ファイルの PR で走る。
+# 配布 (パッケージビルド) は基礎挙動 (ci.yml) と無関係なので PR では走らせない。
+# 手動 (workflow_dispatch) か タグ push (v*、議論データ管理ツール対応完了後の運用) のみ。
 on:
   workflow_dispatch:
   push:
     tags: ["v*"]
-  pull_request:
-    paths:
-      - "electron/**"
-      - "electron-builder.yml"
-      - ".github/workflows/desktop.yml"
 
 permissions:
   contents: read
@@ -25,7 +21,10 @@ jobs:
   build-win:
     runs-on: windows-latest
     steps:
+      # LUDIARS 依存 (llm-gateway/blackbox/canalis/vestigium/fundamentum) は lib/* submodule (全て public)。
       - uses: actions/checkout@v4
+        with:
+          submodules: recursive
 
       - name: Setup Node
         uses: actions/setup-node@v4
@@ -33,11 +32,11 @@ jobs:
           node-version-file: .nvmrc
           cache: npm
 
-      # .npmrc の @ludiars scope (GitHub Packages) を読むため NODE_AUTH_TOKEN を渡す (ci.yml と同じ)。
+      - name: Build submodule deps (lib/*)
+        run: npm run setup:submodules -- --skip-git-update
+
       - name: Install deps
         run: npm ci
-        env:
-          NODE_AUTH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
       # サーバ本体を dist/ にビルド (tsc + 資産コピー)。
       - name: Build server (tsc)

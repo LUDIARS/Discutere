@@ -497,6 +497,16 @@ export interface DiscutereConfig {
     /** 最終実行時刻を記録する state ファイル */
     stateFile: string;
   };
+  /**
+   * 議論データ管理ツール (Fundamentum 組込, `lib/fundamentum` submodule)。
+   * 議論 (paper + 発話 + 結論) を content-addressed スナップショットとして個別 export する。
+   */
+  fundamentum: {
+    /** export の API/UI/CLI を有効化するか。既定 true (submodule 未 build なら export 時にエラーで判る)。 */
+    enabled: boolean;
+    /** Fundamentum on-disk store の配置先 (cwd 相対、Electron は userData chdir 後で解決)。 */
+    dataDir: string;
+  };
   /** KG 共有同期 (spec/data/core/KG-SYNC.md)。follower が master の共有知識を pull する。 */
   kgSync: {
     /** follower が差分を取得する URL (master endpoint or 静的 publish)。未設定なら pull 無効。 */
@@ -566,6 +576,7 @@ interface RawFileConfig {
     adminIds?: string[];
   };
   backup?: Partial<DiscutereConfig["backup"]>;
+  fundamentum?: Partial<DiscutereConfig["fundamentum"]>;
   kgSync?: Partial<DiscutereConfig["kgSync"]>;
   cost?: { relay?: Partial<DiscutereConfig["cost"]["relay"]> };
 }
@@ -1102,6 +1113,14 @@ export function loadConfig(): DiscutereConfig {
         process.env.DISCUTERE_BACKUP_STATE_FILE,
         file.backup?.stateFile,
         path.resolve("./data/backup-state.json")
+      ),
+    },
+    fundamentum: {
+      enabled: pickBool(process.env.DISCUTERE_FUNDAMENTUM_ENABLED, file.fundamentum?.enabled, true),
+      dataDir: pick(
+        process.env.DISCUTERE_FUNDAMENTUM_DATA_DIR,
+        file.fundamentum?.dataDir,
+        path.resolve("./data/fundamentum")
       ),
     },
     kgSync: {

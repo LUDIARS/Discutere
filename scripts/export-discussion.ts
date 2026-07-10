@@ -32,19 +32,22 @@ import {
   renderConclusionMarkdown,
   safeSlug,
 } from "../src/visualize/conclusion-markdown.js";
+import { exportDiscussionToFundamentum } from "../src/fundamentum-export/index.js";
 
 interface Args {
   out: string;
   id?: string;
   limit: number;
+  fundamentum: boolean;
 }
 
 function parseArgs(argv: string[]): Args {
-  const out: Args = { out: "./data/export/discussions", limit: 200 };
+  const out: Args = { out: "./data/export/discussions", limit: 200, fundamentum: false };
   for (let i = 0; i < argv.length; i += 1) {
     if (argv[i] === "--out") out.out = argv[++i];
     else if (argv[i] === "--id") out.id = argv[++i];
     else if (argv[i] === "--limit") out.limit = Number(argv[++i]) || out.limit;
+    else if (argv[i] === "--fundamentum") out.fundamentum = true;
   }
   return out;
 }
@@ -54,6 +57,15 @@ function writeMd(dir: string, detail: ConclusionDetail): string {
   const file = path.join(dir, `${safeSlug(detail.title, detail.sessionId || "discussion")}.md`);
   fs.writeFileSync(file, md, "utf8");
   return file;
+}
+
+/** --fundamentum 指定時は md の代わりに Fundamentum へ export し、結果を文字列で返す。 */
+async function exportOne(dir: string, detail: ConclusionDetail, useFundamentum: boolean): Promise<string> {
+  if (useFundamentum) {
+    const result = await exportDiscussionToFundamentum(detail);
+    return `fundamentum: ${result.discussionId} -> ${result.contentId} (catalog v${result.catalogVersion})`;
+  }
+  return path.relative(process.cwd(), writeMd(dir, detail));
 }
 
 async function main(): Promise<void> {
@@ -75,8 +87,8 @@ async function main(): Promise<void> {
         console.error(`結論が見つかりません: ${args.id}`);
         process.exit(1);
       }
-      const file = writeMd(args.out, detail);
-      console.log(`書き出し: ${path.relative(process.cwd(), file)}`);
+      const out = await exportOne(args.out, detail, args.fundamentum);
+      console.log(`書き出し: ${out}`);
       return;
     }
 
@@ -84,18 +96,22 @@ async function main(): Promise<void> {
     for (const s of listConclusions(core, config.workspace, args.limit)) {
       const detail = getConclusionDetail(core, config.workspace, s.gapId, attribution);
       if (detail) {
-        writeMd(args.out, detail);
+        await exportOne(args.out, detail, args.fundamentum);
         written += 1;
       }
     }
     for (const s of listFlowConclusions(flowDb, args.limit)) {
       const detail = getFlowConclusionDetail(flowDb, s.sessionId);
       if (detail) {
-        writeMd(args.out, detail);
+        await exportOne(args.out, detail, args.fundamentum);
         written += 1;
       }
     }
-    console.log(`${written} 件を ${path.resolve(args.out)} に書き出しました`);
+    console.log(
+      args.fundamentum
+        ? `${written} 件を Fundamentum (${config.fundamentum.dataDir}) へ export しました`
+        : `${written} 件を ${path.resolve(args.out)} に書き出しました`
+    );
   } finally {
     attribution.close();
     core.close();

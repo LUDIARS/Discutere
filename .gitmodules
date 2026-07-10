@@ -1,0 +1,12 @@
+[submodule "lib/lapilli"]
+	path = lib/lapilli
+	url = https://github.com/LUDIARS/Lapilli.git
+[submodule "lib/canalis"]
+	path = lib/canalis
+	url = https://github.com/LUDIARS/Canalis.git
+[submodule "lib/vestigium"]
+	path = lib/vestigium
+	url = https://github.com/LUDIARS/Vestigium.git
+[submodule "lib/fundamentum"]
+	path = lib/fundamentum
+	url = https://github.com/LUDIARS/Fundamentum.git
