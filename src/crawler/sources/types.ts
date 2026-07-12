@@ -48,6 +48,8 @@ export interface ExternalUtterance {
   lang?: string;
   /** epoch ms */
   postedAt: number;
+  /** 0-based elapsed milliseconds within a source video, when the source provides it. */
+  videoOffsetMs?: number;
   /**
    * 公開・安定な同一性 ID (SteamID64 / channelId / username 等)。
    * persona の判定アンカーとして保持する (spec §6「情報精度 > プライバシー」)。
