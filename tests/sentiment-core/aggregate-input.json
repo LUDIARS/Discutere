@@ -1,0 +1,10 @@
+{
+  "fetched_date": "2026-07-12",
+  "by_source": [{ "source": "steam", "status": "ok", "n": 4 }],
+  "records": [
+    { "text": "最高に面白い!", "posted_at": "2026-07-01T00:00:00Z", "meta": { "voted_up": true } },
+    { "text": "つまらないしバグだらけ", "posted_at": "2026-07-02T00:00:00Z", "meta": { "voted_up": false } },
+    { "text": "beautiful story but laggy", "posted_at": "2026-07-03T00:00:00Z", "meta": {} },
+    { "text": "普通", "posted_at": "2026-07-04T00:00:00Z", "meta": {} }
+  ]
+}

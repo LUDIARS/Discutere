@@ -26,6 +26,7 @@ assert.equal(u.content, "ここで震えた！:heart:");
 assert.equal(u.authorId, "UCxxxxxxxxxxxxxxxxxxxxxx");
 assert.equal(u.authorName, "ゲームユーザー太郎");
 assert.equal(u.postedAt, 1700000000000, "timestampUsec → epoch ms");
+assert.equal(u.videoOffsetMs, 12345, "動画内オフセットを構造化フィールドで保持する");
 assert.equal(u.sourceUrl, "https://www.youtube.com/watch?v=dQw4w9WgXcQ&t=12", "オフセット秒付き URL");
 assert.equal(u.signal, undefined, "通常メッセージは signal なし");
 console.log("ok mapLiveChatRenderer basic");
@@ -83,8 +84,10 @@ const items = parseLiveChatJsonl(jsonl, "vidXYZ", "shadow-of-the-colossus");
 assert.equal(items.length, 2, "有効なチャット 2 件のみ取得");
 assert.equal(items[0].content, "神ゲー");
 assert.equal(items[0].sourceUrl, "https://www.youtube.com/watch?v=vidXYZ&t=60");
+assert.equal(items[0].videoOffsetMs, 60000);
 assert.equal(items[1].content, "泣いた");
 assert.equal(items[1].sourceUrl, "https://www.youtube.com/watch?v=vidXYZ&t=120");
+assert.equal(items[1].videoOffsetMs, 120000);
 console.log("ok parseLiveChatJsonl");
 
 // 空 JSONL は空配列

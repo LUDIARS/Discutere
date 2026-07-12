@@ -101,6 +101,7 @@ export function mapLiveChatRenderer(
     threadKey: videoId,
     content,
     postedAt,
+    videoOffsetMs: offsetMs,
     authorId: channelId,
     authorName: renderer.authorName?.simpleText,
     // スパチャは目印として upvotes=0 を付ける

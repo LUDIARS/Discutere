@@ -1,5 +1,5 @@
 #!/usr/bin/env node
-// LUDIARS 依存 (llm-gateway / blackbox / canalis / vestigium / fundamentum) を
+// LUDIARS 依存 (llm-gateway / blackbox / sentiment-core / canalis / vestigium / fundamentum) を
 // git submodule (lib/*) として取得・ビルドする。GitHub Packages の NODE_AUTH_TOKEN は不要。
 import { execFileSync } from "node:child_process";
 import path from "node:path";
@@ -15,7 +15,7 @@ function run(cmd, args, cwd) {
 function buildPackage(relDir) {
   const cwd = path.resolve(repoRoot, relDir);
   // NODE_ENV=production だと devDependencies (typescript 等) が入らず tsc が失敗するため明示。
-  run("npm", ["install", "--include=dev"], cwd);
+  run("npm", ["install", "--include=dev", "--package-lock=false"], cwd);
   run("npm", ["run", "build"], cwd);
 }
 
@@ -28,9 +28,13 @@ for (const relDir of ["lib/vestigium", "lib/canalis", "lib/fundamentum"]) {
   buildPackage(relDir);
 }
 
-// Lapilli は pnpm workspace だが、必要な2パッケージは自己完結した build script を持つため
+// Lapilli は pnpm workspace だが、必要なパッケージは自己完結した build script を持つため
 // pnpm 無しで個別に npm install/build できる。
-for (const relDir of ["lib/lapilli/packages/llm-gateway", "lib/lapilli/packages/blackbox"]) {
+for (const relDir of [
+  "lib/lapilli/packages/llm-gateway",
+  "lib/lapilli/packages/blackbox",
+  "lib/lapilli/packages/sentiment-core",
+]) {
   buildPackage(relDir);
 }
 

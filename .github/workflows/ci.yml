@@ -23,7 +23,7 @@ jobs:
   build-test:
     runs-on: ubuntu-latest
     steps:
-      # LUDIARS 依存 (llm-gateway/blackbox/canalis/vestigium/fundamentum) は lib/* submodule。
+      # LUDIARS 依存 (llm-gateway/blackbox/sentiment-core/canalis/vestigium/fundamentum) は lib/* submodule。
       # 全て public repo なので素の GITHUB_TOKEN で取得できる。
       - uses: actions/checkout@v4
         with:
@@ -41,6 +41,9 @@ jobs:
 
       - name: Install deps
         run: npm ci
+
+      - name: Check shared sentiment assets
+        run: npm run check:sentiment-assets
 
       # 型チェック (tsc --noEmit) — build とは別ゲートで静的解析を明示
       - name: Typecheck (tsc --noEmit)
