@@ -6,15 +6,21 @@ import { Hono } from "hono";
 const TMP_DIR = path.resolve(".tmp/flow-test/persona-routes");
 fs.mkdirSync(TMP_DIR, { recursive: true });
 const configFile = path.join(TMP_DIR, "discutere.config.json");
+const databaseFile = path.join(TMP_DIR, "discutere.db");
+for (const suffix of ["", "-shm", "-wal"]) fs.rmSync(`${databaseFile}${suffix}`, { force: true });
 fs.writeFileSync(configFile, JSON.stringify({ flow: { autoAdoptOnCrawl: false } }, null, 2) + "\n", "utf8");
 
 const previousConfig = process.env.DISCUTERE_CONFIG;
+const previousDatabase = process.env.DATABASE_PATH;
 const previousAutoAdopt = process.env.DISCUTERE_FLOW_AUTO_ADOPT_ON_CRAWL;
 process.env.DISCUTERE_CONFIG = configFile;
+process.env.DATABASE_PATH = databaseFile;
 delete process.env.DISCUTERE_FLOW_AUTO_ADOPT_ON_CRAWL;
 
 const { _resetConfig } = await import("../../src/config.js");
+const { _resetFlowDb } = await import("../../src/flow/db/connection.js");
 _resetConfig();
+_resetFlowDb();
 
 try {
   const { personaRoutes } = await import("../../src/api/persona-routes.js");
@@ -38,10 +44,36 @@ try {
   };
   assert.equal(file.flow?.autoAdoptOnCrawl, true);
   console.log("  [ok] persona admin route: autoAdoptOnCrawl config save");
+
+  const imported = await app.request("/api/admin/personas/import", {
+    method: "POST",
+    headers: { "content-type": "application/json" },
+    body: JSON.stringify({
+      personas: [{
+        user_id: "ext:voluptas:abcdef0123456789",
+        affect_vector: new Array(20).fill(0.1),
+        vector_spec_version: 1,
+        traits: ["協力型"],
+      }],
+    }),
+  });
+  assert.equal(imported.status, 200);
+  assert.equal((await imported.json()).inserted, 1);
+
+  const rawSid = await app.request("/api/admin/personas/import", {
+    method: "POST",
+    headers: { "content-type": "application/json" },
+    body: JSON.stringify([{ user_id: "raw-sid", affect_vector: new Array(20).fill(0), vector_spec_version: 1 }]),
+  });
+  assert.equal(rawSid.status, 400);
+  console.log("  [ok] persona admin route: Voluptas pseudonymous import only");
 } finally {
   if (previousConfig === undefined) delete process.env.DISCUTERE_CONFIG;
   else process.env.DISCUTERE_CONFIG = previousConfig;
+  if (previousDatabase === undefined) delete process.env.DATABASE_PATH;
+  else process.env.DATABASE_PATH = previousDatabase;
   if (previousAutoAdopt === undefined) delete process.env.DISCUTERE_FLOW_AUTO_ADOPT_ON_CRAWL;
   else process.env.DISCUTERE_FLOW_AUTO_ADOPT_ON_CRAWL = previousAutoAdopt;
   _resetConfig();
+  _resetFlowDb();
 }

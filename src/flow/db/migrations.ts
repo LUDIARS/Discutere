@@ -126,9 +126,8 @@ const MIGRATIONS: Array<{ id: string; sql: string[] }> = [
     ],
   },
   {
-    // ペルソナプール (永続) + ユーザ嗜好ベクトル。
-    //  - flow_persona: 学習データ別に用意/合成した永続ペルソナ。affect_vector で嗜好近傍検索 (憑依/壁打ち相手)。
-    //  - flow_user_affect: ユーザ (Discord id 等) の「ゲームに望む感情/体験」ベクトル。憑依の検索キー。
+    // ペルソナプール (永続)。
+    //  - flow_persona: 外部データ由来の永続ペルソナ。affect_vector で嗜好近傍検索 (憑依/壁打ち相手)。
     // ベクトルは sentiment-vector.ts の 20 次元 (JSON 配列) を格納する。
     id: "flow_0005_persona_pool",
     sql: [
@@ -146,13 +145,6 @@ const MIGRATIONS: Array<{ id: string; sql: string[] }> = [
         model TEXT,
         archived INTEGER NOT NULL DEFAULT 0,
         created_at INTEGER NOT NULL
-      )`,
-      `CREATE TABLE IF NOT EXISTS flow_user_affect (
-        user_key TEXT PRIMARY KEY,
-        label TEXT,
-        desired_text TEXT NOT NULL DEFAULT '',
-        vector_json TEXT NOT NULL DEFAULT '[]',
-        updated_at INTEGER NOT NULL
       )`,
       `CREATE INDEX IF NOT EXISTS idx_flow_persona_origin ON flow_persona(origin, archived)`,
       `CREATE INDEX IF NOT EXISTS idx_flow_persona_source ON flow_persona(learning_source)`,
@@ -458,6 +450,18 @@ const MIGRATIONS: Array<{ id: string; sql: string[] }> = [
           )
         WHERE discussion_no IS NULL`,
       `CREATE UNIQUE INDEX IF NOT EXISTS idx_discussion_paper_no ON discussion_paper(discussion_no) WHERE discussion_no IS NOT NULL`,
+    ],
+  },
+  {
+    // Di はペルソナ生成主体にならない。Voluptas の HMAC 仮名 user_id を同一人物アンカーとして保持し、
+    // 旧 C2 合成データと Di 固有のユーザ嗜好表を利用対象から外す。
+    id: "flow_0023_external_persona_identity",
+    sql: [
+      `ALTER TABLE flow_persona ADD COLUMN user_id TEXT`,
+      `CREATE UNIQUE INDEX IF NOT EXISTS idx_flow_persona_user_id
+         ON flow_persona(user_id) WHERE user_id IS NOT NULL`,
+      `UPDATE flow_persona SET archived = 1 WHERE origin IN ('generated', 'synthesized')`,
+      `DROP TABLE IF EXISTS flow_user_affect`,
     ],
   },
 ];
