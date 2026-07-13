@@ -54,7 +54,7 @@ const TOP_HTML = `<!doctype html>
    <a class="card" href="/api/admin/noise"><div class="t">ノイズ管理</div><div class="d">議論データから別ゲーム/煽り等のノイズ発話を除外</div></a>
    <a class="card" href="/api/admin/consensus"><div class="t">合意スコア</div><div class="d">各意見 (人間/AI 同一) の合意度を AI が採点・👍 可視化</div></a>
    <a class="card" href="/api/admin/dashboard"><div class="t">管制ダッシュボード</div><div class="d">persona-engine 状態・kill switch・rule log</div></a>
-   <a class="card" href="/api/admin/personas"><div class="t">ペルソナ生成</div><div class="d">クロール後の自動採用 / C1 採用 / C2 合成生成 / 母数推定</div></a>
+   <a class="card" href="/api/admin/personas"><div class="t">匿名ペルソナ管理</div><div class="d">Voluptas からの匿名取込 / 公開レビュー話者の採用</div></a>
  </div>
  <h2>学習データ</h2>
  <div class="grid">

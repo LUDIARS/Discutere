@@ -1,8 +1,7 @@
 /**
- * ペルソナプール + ユーザ嗜好ベクトル + 嗜好近傍選定 (憑依/合成/壁打ち相手の共通基盤)。
+ * 匿名ペルソナプール + 嗜好近傍選定 (憑依/壁打ち相手の共通基盤)。
  *
- * - flow_persona: 学習データ別に用意 (C 生成) / 合成 (F) した永続ペルソナ。affect_vector を持つ。
- * - flow_user_affect: ユーザの「ゲームに望む感情/体験」ベクトル (B 憑依の検索キー)。
+ * - flow_persona: Voluptas 取込または公開レビュー話者の採用で得た永続ペルソナ。
  * - selectByAffinity: ベクトル最近傍 (cosine) でペルソナを選ぶ = 「憑依」/壁打ち相手の選定。
  *
  * ベクトル空間は sentiment-vector.ts の固定 20 次元 ([[feedback]]: 新空間は作らない)。
@@ -13,7 +12,7 @@ import { getFlowDb } from "./db/connection.js";
 import { cosine, textToVector, DIM } from "./sentiment-vector.js";
 import { roleDefaultStance, type FlowPersona, type FlowRole, type FlowStance } from "./personas.js";
 
-export type PersonaOrigin = "seed" | "generated" | "synthesized" | "adopted";
+export type PersonaOrigin = "seed" | "adopted" | "imported";
 
 export interface PoolPersona {
   id: string;
@@ -24,7 +23,7 @@ export interface PoolPersona {
   /** 固定 20 次元 affect ベクトル。 */
   affectVector: number[];
   origin: PersonaOrigin;
-  /** 合成 (synthesized) の親ペルソナ id。 */
+  /** 旧データとの互換用。新規の合成生成は行わない。 */
   parentIds: string[];
   /** 由来した学習データセット名 (C 生成時)。 */
   learningSource?: string;
@@ -32,26 +31,14 @@ export interface PoolPersona {
   model?: string;
   /** C1 実在採用の話者アンカー `ext:<source>:<authorId>` (upsert キー)。 */
   sourceSpeakerId?: string;
+  /** Voluptas が HMAC 仮名化した安定 user_id。生 SID は受理しない。 */
+  userId?: string;
   /** 母集団平均からの近さ (cosine, 高い=典型)。「平均値グループにいるか」の判断材料。 */
   typicality?: number;
   /** 極性の片寄り |pos-neg|/total (0=均衡 / 1=一方向)。affect 解像度向上 (#125)。 */
   polarityBias?: number;
   /** ゲーム間 affect のばらつき (per-game ベクトルの平均対距離)。affect 解像度向上 (#125)。 */
   affectDispersion?: number;
-  /** C2-b 母数推定: 所属クラスタの母数判定 ("大" | "小")。未推定なら undefined。 */
-  populationVerdict?: "大" | "小";
-  /** C2-b 母数推定: 所属クラスタ centroid の実分布近傍比率。 */
-  populationRatio?: number;
-  /** C2-b 母数推定の実行時刻 (epoch ms)。 */
-  populationEstimatedAt?: number;
-}
-
-export interface UserAffect {
-  userKey: string;
-  label?: string;
-  desiredText: string;
-  vector: number[];
-  updatedAt: number;
 }
 
 function parseJsonArray(s: string): unknown[] {
@@ -76,12 +63,10 @@ interface PersonaRow {
   label: string | null;
   model: string | null;
   source_speaker_id: string | null;
+  user_id: string | null;
   typicality: number | null;
   polarity_bias: number | null;
   affect_dispersion: number | null;
-  population_verdict: string | null;
-  population_ratio: number | null;
-  population_estimated_at: number | null;
 }
 
 function rowToPersona(r: PersonaRow): PoolPersona {
@@ -98,12 +83,10 @@ function rowToPersona(r: PersonaRow): PoolPersona {
     label: r.label ?? undefined,
     model: r.model ?? undefined,
     sourceSpeakerId: r.source_speaker_id ?? undefined,
+    userId: r.user_id ?? undefined,
     typicality: r.typicality ?? undefined,
     polarityBias: r.polarity_bias ?? undefined,
     affectDispersion: r.affect_dispersion ?? undefined,
-    populationVerdict: (r.population_verdict as "大" | "小" | null) ?? undefined,
-    populationRatio: r.population_ratio ?? undefined,
-    populationEstimatedAt: r.population_estimated_at ?? undefined,
   };
 }
 
@@ -116,9 +99,9 @@ export function insertPoolPersona(p: PoolPersona): void {
   db.prepare(
     `INSERT INTO flow_persona
        (id, name, role, speech_style, traits_json, affect_vector_json, origin, parent_ids_json,
-        learning_source, label, model, source_speaker_id, typicality, polarity_bias, affect_dispersion,
+        learning_source, label, model, source_speaker_id, user_id, typicality, polarity_bias, affect_dispersion,
         archived, created_at)
-     VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 0, ?)`
+     VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 0, ?)`
   ).run(
     p.id,
     p.name,
@@ -132,11 +115,51 @@ export function insertPoolPersona(p: PoolPersona): void {
     p.label ?? null,
     p.model ?? null,
     p.sourceSpeakerId ?? null,
+    p.userId ?? null,
     p.typicality ?? null,
     p.polarityBias ?? null,
     p.affectDispersion ?? null,
     Date.now()
   );
+}
+
+/** Voluptas の仮名 user_id で取込済みペルソナを引く。 */
+export function findPoolPersonaByUserId(userId: string): PoolPersona | null {
+  const row = getFlowDb()
+    .prepare(`SELECT * FROM flow_persona WHERE user_id = ? AND archived = 0 LIMIT 1`)
+    .get(userId) as PersonaRow | undefined;
+  return row ? rowToPersona(row) : null;
+}
+
+/** Voluptas 由来ペルソナを仮名 user_id 単位で冪等に取り込む。 */
+export function upsertPoolPersonaByUserId(persona: PoolPersona): PoolPersona {
+  if (!persona.userId) throw new Error("upsertPoolPersonaByUserId: userId required");
+  const existing = findPoolPersonaByUserId(persona.userId)
+    ?? (persona.sourceSpeakerId ? findPoolPersonaBySpeaker(persona.sourceSpeakerId) : null);
+  if (!existing) {
+    insertPoolPersona(persona);
+    return persona;
+  }
+  getFlowDb()
+    .prepare(
+      `UPDATE flow_persona SET name = ?, role = ?, speech_style = ?, traits_json = ?,
+         affect_vector_json = ?, origin = 'imported', learning_source = ?, label = ?, model = ?,
+         source_speaker_id = ?, user_id = ?, archived = 0 WHERE id = ?`
+    )
+    .run(
+      persona.name,
+      persona.role,
+      persona.speechStyle,
+      JSON.stringify(persona.traits),
+      JSON.stringify(persona.affectVector),
+      persona.learningSource ?? "voluptas",
+      persona.label ?? null,
+      persona.model ?? null,
+      persona.sourceSpeakerId ?? existing.sourceSpeakerId ?? null,
+      persona.userId,
+      existing.id
+    );
+  return { ...persona, id: existing.id };
 }
 
 /** source_speaker_id (ext:source:authorId) でプールペルソナを引く (C1 採用の upsert キー)。 */
@@ -157,6 +180,27 @@ export function upsertPoolPersonaBySpeaker(p: PoolPersona): PoolPersona {
   if (!existing) {
     insertPoolPersona(p);
     return p;
+  }
+  if (existing.origin === "imported" && existing.userId) {
+    getFlowDb()
+      .prepare(
+        `UPDATE flow_persona SET source_speaker_id = ?, typicality = ?, polarity_bias = ?,
+           affect_dispersion = ? WHERE id = ?`
+      )
+      .run(
+        p.sourceSpeakerId,
+        p.typicality ?? null,
+        p.polarityBias ?? null,
+        p.affectDispersion ?? null,
+        existing.id
+      );
+    return {
+      ...existing,
+      sourceSpeakerId: p.sourceSpeakerId,
+      typicality: p.typicality,
+      polarityBias: p.polarityBias,
+      affectDispersion: p.affectDispersion,
+    };
   }
   getFlowDb()
     .prepare(
@@ -183,18 +227,6 @@ export function upsertPoolPersonaBySpeaker(p: PoolPersona): PoolPersona {
 /** typicality を更新する (母集団平均確定後の再計算用)。 */
 export function setPoolPersonaTypicality(id: string, typicality: number): void {
   getFlowDb().prepare(`UPDATE flow_persona SET typicality = ? WHERE id = ?`).run(typicality, id);
-}
-
-/** C2-b 母数推定値 (所属クラスタの判定/比率) をペルソナへ書き戻す。 */
-export function setPoolPersonaPopulation(
-  id: string,
-  population: { verdict: "大" | "小"; ratio: number; estimatedAt: number }
-): void {
-  getFlowDb()
-    .prepare(
-      `UPDATE flow_persona SET population_verdict = ?, population_ratio = ?, population_estimated_at = ? WHERE id = ?`
-    )
-    .run(population.verdict, population.ratio, population.estimatedAt, id);
 }
 
 /** id でプールペルソナを取得する。 */
@@ -226,7 +258,7 @@ export function listPoolPersonas(filter?: { origin?: PersonaOrigin; learningSour
 }
 
 /**
- * id 完全一致 → name 完全一致の順でプールペルソナを探す (壁打ち相手指定 G / 合成 F の親解決)。
+ * id 完全一致 → name 完全一致の順でプールペルソナを探す (壁打ち相手指定)。
  * 非アーカイブのみ。見つからなければ null。
  */
 export function findPoolPersona(idOrName: string): PoolPersona | null {
@@ -243,68 +275,6 @@ export function findPoolPersona(idOrName: string): PoolPersona | null {
 /** ペルソナをアーカイブする (論理削除)。 */
 export function archivePoolPersona(id: string): void {
   getFlowDb().prepare(`UPDATE flow_persona SET archived = 1 WHERE id = ?`).run(id);
-}
-
-// ── ユーザ嗜好ベクトル ───────────────────────────────────────────────────────
-
-/** ユーザの「望む体験」テキスト + ベクトルを upsert する。ベクトル未指定なら text から導出。 */
-export function upsertUserAffect(args: {
-  userKey: string;
-  desiredText: string;
-  vector?: number[];
-  label?: string;
-}): UserAffect {
-  const vector = args.vector ?? textToVector(args.desiredText);
-  if (vector.length !== DIM) throw new Error(`user affect vector dim must be ${DIM}`);
-  const updatedAt = Date.now();
-  getFlowDb()
-    .prepare(
-      `INSERT INTO flow_user_affect (user_key, label, desired_text, vector_json, updated_at)
-       VALUES (?, ?, ?, ?, ?)
-       ON CONFLICT(user_key) DO UPDATE SET
-         label = excluded.label,
-         desired_text = excluded.desired_text,
-         vector_json = excluded.vector_json,
-         updated_at = excluded.updated_at`
-    )
-    .run(args.userKey, args.label ?? null, args.desiredText, JSON.stringify(vector), updatedAt);
-  return { userKey: args.userKey, label: args.label, desiredText: args.desiredText, vector, updatedAt };
-}
-
-/** ユーザ嗜好を取得する。未登録なら null。 */
-export function getUserAffect(userKey: string): UserAffect | null {
-  const r = getFlowDb()
-    .prepare(`SELECT user_key, label, desired_text, vector_json, updated_at FROM flow_user_affect WHERE user_key = ?`)
-    .get(userKey) as
-    | { user_key: string; label: string | null; desired_text: string; vector_json: string; updated_at: number }
-    | undefined;
-  if (!r) return null;
-  return {
-    userKey: r.user_key,
-    label: r.label ?? undefined,
-    desiredText: r.desired_text,
-    vector: parseJsonArray(r.vector_json) as number[],
-    updatedAt: r.updated_at,
-  };
-}
-
-export function bookmarkPersonaAsUser(args: { personaId: string; userKey?: string; label?: string }): UserAffect {
-  const persona = findPoolPersona(args.personaId);
-  if (!persona) throw new Error(`persona not found: ${args.personaId}`);
-  const desiredText = [
-    `bookmarked persona: ${persona.name}`,
-    `persona_id: ${persona.id}`,
-    persona.label ? `label: ${persona.label}` : "",
-    persona.traits.length ? `traits: ${persona.traits.join(" / ")}` : "",
-  ]
-    .filter(Boolean)
-    .join("\n");
-  return upsertUserAffect({
-    userKey: args.userKey?.trim() || "self",
-    label: args.label?.trim() || persona.name,
-    desiredText,
-    vector: persona.affectVector,
-  });
 }
 
 // ── 嗜好近傍選定 (憑依 / 壁打ち相手) ─────────────────────────────────────────
@@ -373,9 +343,6 @@ export function describePossession(p: PoolPersona): string {
   }
   if (typeof p.affectDispersion === "number" && p.affectDispersion >= 0.1) {
     parts.push("ゲームによって評価が大きく変わる");
-  }
-  if (p.populationVerdict) {
-    parts.push(p.populationVerdict === "大" ? "ボリューム層に近い嗜好" : "ニッチ層に近い嗜好");
   }
   return parts.length > 0
     ? `この人物像は実データ由来。${parts.join("、")}。この感性になりきって発言する。`
