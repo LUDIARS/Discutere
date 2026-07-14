@@ -70,6 +70,7 @@ export interface NicoComment {
   body: string;
   postedAt?: string;
   userId?: string;
+  vposMs?: number;
 }
 
 /** 1 動画の watch → nvComment → コメント取得。 */
@@ -119,6 +120,7 @@ export function mapNicoComment(
     content: c.body ?? "",
     lang: "ja",
     postedAt: c.postedAt ? Date.parse(c.postedAt) : 0,
+    videoOffsetMs: c.vposMs,
     // userId は匿名化済みハッシュで公開・安定。取れない弾幕は動画内 no で擬似アンカー化
     authorId: c.userId ? `nico:${c.userId}` : `nico-anon:${contentId}:${key}`,
     sourceUrl: `https://www.nicovideo.jp/watch/${contentId}`,

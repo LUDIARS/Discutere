@@ -1,5 +1,5 @@
 /**
- * ペルソナプール + ユーザ嗜好 + 嗜好近傍選定 (憑依) テスト。
+ * 外部由来ペルソナプール + 嗜好近傍選定 (憑依) テスト。
  */
 
 import assert from "node:assert/strict";
@@ -23,9 +23,6 @@ const {
   getPoolPersona,
   listPoolPersonas,
   archivePoolPersona,
-  upsertUserAffect,
-  getUserAffect,
-  bookmarkPersonaAsUser,
   selectByAffinity,
   selectPossessionByTheme,
   toFlowPersona,
@@ -51,7 +48,7 @@ const zeros = (): number[] => new Array(DIM as number).fill(0);
     speechStyle: "ストイック",
     traits: ["高難度志向", "上達快感"],
     affectVector: vecRogue,
-    origin: "generated",
+    origin: "seed",
     parentIds: [],
     learningSource: "roguelike",
   });
@@ -62,7 +59,7 @@ const zeros = (): number[] => new Array(DIM as number).fill(0);
     speechStyle: "カジュアル",
     traits: ["収集欲", "イベント追従"],
     affectVector: vecGacha,
-    origin: "generated",
+    origin: "seed",
     parentIds: [],
     learningSource: "gacha",
   });
@@ -89,28 +86,10 @@ const zeros = (): number[] => new Array(DIM as number).fill(0);
     speechStyle: "カジュアル",
     traits: ["収集欲"],
     affectVector: vecGacha,
-    origin: "generated",
+    origin: "seed",
     parentIds: [],
     learningSource: "gacha",
   });
-}
-
-// ── ユーザ嗜好 upsert / get + text 由来ベクトル ─────────────────
-{
-  const up = upsertUserAffect({ userKey: "u1", desiredText: "高難度をストイックに攻略して上達したい" });
-  assert.equal(up.vector.length, DIM as number, "user affect dim");
-  const got = getUserAffect("u1");
-  assert.ok(got, "getUserAffect");
-  assert.deepEqual(got!.vector, textToVector("高難度をストイックに攻略して上達したい"), "text→vector 一致");
-
-  // 上書き (upsert)
-  upsertUserAffect({ userKey: "u1", desiredText: "別の体験", label: "L" });
-  assert.equal(getUserAffect("u1")!.label, "L", "upsert で更新");
-  const bookmarked = bookmarkPersonaAsUser({ personaId: "p-gacha2", userKey: "self" });
-  assert.equal(bookmarked.label, "ソシャゲ花子", "bookmark label");
-  assert.deepEqual(bookmarked.vector, getPoolPersona("p-gacha2")!.affectVector, "bookmark uses persona vector");
-  assert.ok(getUserAffect("self")!.desiredText.includes("persona_id: p-gacha2"), "bookmark desiredText includes persona id");
-  console.log("  [ok] user affect: upsert/get + text 由来ベクトル");
 }
 
 // ── 憑依: ベクトル最近傍選定 ─────────────────────────────────────
@@ -147,7 +126,7 @@ const zeros = (): number[] => new Array(DIM as number).fill(0);
     speechStyle: "熱血",
     traits: ["達成感"],
     affectVector: themed,
-    origin: "generated",
+    origin: "seed",
     parentIds: [],
   });
   const hit = selectPossessionByTheme("高難度を上達する達成感について", 1)[0];
@@ -156,50 +135,13 @@ const zeros = (): number[] => new Array(DIM as number).fill(0);
   console.log("  [ok] 憑依: selectPossessionByTheme (テーマ類推)");
 }
 
-// ── findPoolPersona (G 相手解決 / F 親解決) ──────────────────────
+// ── findPoolPersona (壁打ち相手解決) ───────────────────────────
 {
   const { findPoolPersona } = await import("../../src/flow/persona-pool.js");
   assert.equal(findPoolPersona("p-rogue")?.id, "p-rogue", "id 一致");
   assert.equal(findPoolPersona("ローグ好き太郎")?.id, "p-rogue", "name 一致");
   assert.equal(findPoolPersona("存在しない"), null, "未解決は null");
   console.log("  [ok] findPoolPersona: id/name 解決");
-}
-
-// ── F: 合成 (averageVectors + synthesizePersona, mock LLM) ───────
-{
-  const { averageVectors, synthesizePersona } = await import("../../src/flow/persona-synthesize.js");
-  const a = new Array(DIM as number).fill(0);
-  a[0] = 1;
-  const b = new Array(DIM as number).fill(0);
-  b[0] = 0;
-  b[1] = 1;
-  const avg = averageVectors([a, b]);
-  assert.equal(avg[0], 0.5, "平均[0]");
-  assert.equal(avg[1], 0.5, "平均[1]");
-
-  const mockLlm = {
-    async invoke() {
-      return {
-        ok: true as const,
-        text: '{"name":"融合ザムザ","speechStyle":"二面性","traits":["高難度志向","収集欲"]}',
-      };
-    },
-  };
-  const syn = await synthesizePersona({ parentRefs: ["p-rogue", "ソシャゲ花子"], llm: mockLlm });
-  assert.equal(syn.origin, "synthesized", "origin=synthesized");
-  assert.equal(syn.name, "融合ザムザ", "LLM 由来 name");
-  assert.deepEqual(syn.parentIds.sort(), ["p-gacha2", "p-rogue"].sort(), "parentIds");
-  assert.equal(syn.affectVector.length, DIM as number, "affect dim");
-  // 保存され、プールから引ける
-  assert.ok(getPoolPersona(syn.id), "合成ペルソナがプールに保存される");
-  console.log("  [ok] F 合成: averageVectors + synthesizePersona (mock LLM)");
-
-  // 親 2 体未満はエラー
-  await assert.rejects(
-    () => synthesizePersona({ parentRefs: ["p-rogue"], llm: mockLlm }),
-    /親が 2 体以上/,
-    "親不足はエラー"
-  );
 }
 
 // ── C1 実在ユーザ採用 (evaluateSpeakers + adoptPersonas) ─────────

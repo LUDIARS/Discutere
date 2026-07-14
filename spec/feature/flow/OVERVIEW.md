@@ -283,6 +283,7 @@ Discord (`src/flow/discord-live.ts`) と Slack (`src/slack/slack-live.ts`) の�
 5. **発話時の DB 参照キャッシュ (item5)**: `src/flow/voice-cache.ts`。同一テーマ/語の外部の声 lookup を
    セッション内で 1 回に集約し、全ペルソナのターンで使い回す。
 6. **Slack 対応 (item6)**: §9-3 (Socket Mode)。
-7. **憑依対象ペルソナの生成 (item7)**: 既存 C1 採用 (`runAdoptFromKg`) / C2 合成を、`/admin/personas` WebUI に加え
-   Discord `/persona-generate` (admin) / Slack からも起動できるよう配線。クロール済み外部発話から生成し
-   `flow_persona` に upsert (個人は `論者#xxxxxx` で仮名化)。
+7. **匿名ペルソナの取込と採用 (item7)**: Voluptas が生成した匿名ペルソナは、HMAC 仮名化済みの
+   `user_id` を同一人物アンカーとして `flow_persona` に upsert する。Di は質問票や回答からペルソナを
+   生成しない。公開レビュー話者については既存 C1 採用 (`runAdoptFromKg`) を維持し、SteamID 等の公開
+   platform ID を同一人物アンカーとして `論者#xxxxxx` へ仮名化する。
