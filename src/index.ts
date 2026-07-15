@@ -71,6 +71,7 @@ import { assertStartupHealth } from "./startup-guard.js";
 import { getInfisicalRuntimeSecret } from "./secrets/infisical-runtime.js";
 import { createEconomyGraphRoutes } from "./api/economy-graph-routes.js";
 import { analyzeEconomy, toSlug } from "./ludus/economy-analyzer.js";
+import { glabIntegrationRoutes } from "./api/glab-integration-routes.js";
 
 // Initialize DB (triggers schema creation)
 import "./db/connection.js";
@@ -109,6 +110,9 @@ app.use("*", cors({
 
 // Health check (認証不要E
 app.get("/health", (c) => c.json({ status: "ok", service: "discutere" }));
+
+// GLab backend だけが発行できる one-time launch ticket。Cernere IDをブラウザへ露出させない。
+app.route("/", glabIntegrationRoutes);
 
 // ─── トップページ (各 Web UI への入口、 認証不要・loopback) ──────────
 app.route("/", topPageRoutes);

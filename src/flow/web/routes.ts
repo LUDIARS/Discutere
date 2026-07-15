@@ -12,6 +12,7 @@
 
 import { Hono } from "hono";
 import { randomUUID } from "node:crypto";
+import { setCookie } from "hono/cookie";
 
 import type { LLMClient } from "../../persona-engine/llm/client.js";
 import type { CascadeClients } from "../../crawler/sentiment/cascade.js";
@@ -73,6 +74,9 @@ import { getConfig } from "../../config.js";
 import { getAnatomiaMechanics, resolveAnatomiaSource } from "../anatomia/index.js";
 import type { MechanicSummary } from "../investigate.js";
 import { FLOW_HTML } from "./page.js";
+import { getCernereUserId } from "../../middleware/auth.js";
+import { GLAB_ACTOR_COOKIE, glabLaunchStore } from "../../integrations/glab-launch.js";
+import { associateCernereActor } from "../actor-trace.js";
 
 let deps: FlowWebDeps | null = null;
 
@@ -760,11 +764,27 @@ function promoteDebatabilityWithVoiceSimulation(info: PaperReviewInfo): void {
 
 export const flowRoutes = new Hono();
 
-flowRoutes.get("/flow", (c) => c.html(FLOW_HTML));
+flowRoutes.get("/flow", (c) => {
+  const ticket = c.req.query("glab_launch");
+  if (ticket) {
+    const launch = glabLaunchStore.consumeLaunch(ticket);
+    if (!launch) return c.html("GLab launch ticket is invalid or expired", 400);
+    setCookie(c, GLAB_ACTOR_COOKIE, launch.actorSession, {
+      httpOnly: true,
+      sameSite: "Lax",
+      secure: (c.req.header("x-forwarded-proto")?.split(",")[0]?.trim() ?? new URL(c.req.url).protocol)
+        .replace(/:$/, "") === "https",
+      path: "/",
+      maxAge: 8 * 60 * 60,
+    });
+  }
+  return c.html(FLOW_HTML);
+});
 
 flowRoutes.post("/api/flow/start", async (c) => {
   if (!deps) return c.json({ ok: false, error: "flow web 未初期化" }, 500);
   const webDeps = deps; // module-level let を closure で使うため const に束ねる
+  const cernereUserId = getCernereUserId(c);
   const body = (await c.req.json().catch(() => ({}))) as {
     theme?: unknown;
     gameTitle?: unknown;
@@ -838,6 +858,7 @@ flowRoutes.post("/api/flow/start", async (c) => {
     );
     if (result.kind !== "sparring") return c.json({ ok: false, error: "internal" }, 500);
     sparringSessions.set(result.session.sessionId, result.session);
+    if (cernereUserId) associateCernereActor(result.session.sessionId, cernereUserId);
     return c.json({ ok: true, kind, sessionId: result.session.sessionId });
   }
 
@@ -924,6 +945,7 @@ flowRoutes.post("/api/flow/start", async (c) => {
   // 議論 / 改善: sessionId を先に発番し、バックグラウンドで完走させてポーリングで追う。
   // 学習データが不足していれば、議論を始める前に指定ソースでクロール → 取込する (事前学習の UI 化)。
   const sessionId = randomUUID();
+  if (cernereUserId) associateCernereActor(sessionId, cernereUserId);
   const autoCrawlSpec = buildAutoCrawlSpec(body);
 
   // ペーパー編集ゲート (Web 正規フロー): 情報整備後に草案を作り、ブラウザの編集/承認を待つ。

@@ -93,6 +93,7 @@ fs.mkdirSync(TMP_DIR, { recursive: true });
   ).map((r) => r.name);
 
   assert.ok(tables.includes("discussion_paper"), "discussion_paper created");
+  assert.ok(tables.includes("flow_actor_trace"), "GLab Cernere actor trace created");
   assert.ok(tables.includes("discussion_paper_round"), "discussion_paper_round created");
   assert.ok(tables.includes("vote"), "vote created");
   assert.ok(tables.includes("llm_call_log"), "llm_call_log created");

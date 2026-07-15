@@ -13,10 +13,13 @@
 
 import type { Context } from "hono";
 import { createMiddleware } from "hono/factory";
+import { getCookie } from "hono/cookie";
+import { GLAB_ACTOR_COOKIE, glabLaunchStore } from "../integrations/glab-launch.js";
 
 function setAnonymous(c: Context): void {
   c.set("userId" as never, "anonymous" as never);
   c.set("userRole" as never, "general" as never);
+  c.set("cernereUserId" as never, null as never);
 }
 
 /** リクエストが loopback (同一ホスト) からか判定する。@hono/node-server の生 socket を見る。 */
@@ -41,14 +44,22 @@ export function isLoopbackRequest(c: Context): boolean {
  */
 export function userContext() {
   return createMiddleware(async (c, next) => {
+    const actorSession = getCookie(c, GLAB_ACTOR_COOKIE);
+    const cernereUserId = actorSession ? glabLaunchStore.resolveActor(actorSession) : null;
     const headerUserId = c.req.header("X-User-Id");
     const headerRole = c.req.header("X-User-Role");
-    if (headerUserId) {
+    if (cernereUserId) {
+      c.set("userId" as never, cernereUserId as never);
+      c.set("userRole" as never, "general" as never);
+      c.set("cernereUserId" as never, cernereUserId as never);
+    } else if (headerUserId) {
       c.set("userId" as never, headerUserId as never);
       c.set("userRole" as never, (headerRole ?? "general") as never);
+      c.set("cernereUserId" as never, null as never);
     } else if (isLoopbackRequest(c)) {
       c.set("userId" as never, "loopback-admin" as never);
       c.set("userRole" as never, "admin" as never);
+      c.set("cernereUserId" as never, null as never);
     } else {
       setAnonymous(c);
     }
@@ -75,6 +86,10 @@ export function getUserId(c: Context): string {
 
 export function getUserRole(c: Context): string {
   return (c.get("userRole") as string) || c.req.header("X-User-Role") || "general";
+}
+
+export function getCernereUserId(c: Context): string | null {
+  return (c.get("cernereUserId" as never) as string | null | undefined) ?? null;
 }
 
 export function getUserName(c: Context): string {
