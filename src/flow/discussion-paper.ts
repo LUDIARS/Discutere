@@ -716,6 +716,7 @@ export function deleteFlowSession(sessionId: string): boolean {
       "discussion_paper_revision",
       "conclusion_cache",
       "discussion_title_cache",
+      "flow_actor_trace",
     ]) {
       db.prepare(`DELETE FROM ${table} WHERE session_id = ?`).run(sessionId);
     }

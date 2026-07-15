@@ -464,6 +464,20 @@ const MIGRATIONS: Array<{ id: string; sql: string[] }> = [
       `DROP TABLE IF EXISTS flow_user_affect`,
     ],
   },
+  {
+    id: "flow_0024_glab_actor_trace",
+    sql: [
+      `CREATE TABLE IF NOT EXISTS flow_actor_trace (
+        session_id TEXT PRIMARY KEY,
+        cernere_user_id TEXT NOT NULL,
+        source TEXT NOT NULL,
+        associated_at INTEGER NOT NULL,
+        CHECK (source = 'glab')
+      )`,
+      `CREATE INDEX IF NOT EXISTS idx_flow_actor_cernere_time
+         ON flow_actor_trace(cernere_user_id, associated_at DESC)`,
+    ],
+  },
 ];
 
 function isIgnorableMigrationError(stmt: string, error: unknown): boolean {
