@@ -33,6 +33,7 @@ await import("./cost-relay.test.js");
 await import("./worker-pool-usage.test.js");
 await import("./cost-estimate.test.js");
 await import("./paper-markdown.test.js");
+await import("./paper-auto-start.test.js");
 await import("./paper-provenance.test.js");
 await import("./debatability.test.js");
 await import("./paper-blocks.test.js");

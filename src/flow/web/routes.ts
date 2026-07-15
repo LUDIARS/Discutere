@@ -3,6 +3,7 @@
  *
  *   GET  /flow                       簡素な 1 ページ UI (テーマ + 議論タイプ + タグ)
  *   POST /api/flow/start             フロー起動 (theme, flow, tags) → dispatch
+ *   POST /api/flow/start-from-paper  完成済みペーパーからレビュー待ちなしで自動開始
  *   POST /api/flow/:session/say      壁打ちのユーザ発話投入
  *   GET  /api/flow/:session/status   発話 + 結論をポーリング取得 (?since=<ms>)
  *
@@ -68,6 +69,7 @@ import {
 import { assessDebatability, annotatedIssues } from "../debatability.js";
 import { splitBlocks, replaceBlock, insertBlockAfter } from "../paper-blocks.js";
 import { paperDraftToMarkdown, paperFixedFieldsFromMarkdown, type PaperFixedFields } from "../paper-markdown.js";
+import { PaperAutoStartInputError, paperDraftForAutoStart } from "../paper-auto-start.js";
 import { appendRevision, canRevert, revertLast, listRevisions } from "../paper-revisions.js";
 import { getConfig } from "../../config.js";
 import { getAnatomiaMechanics, resolveAnatomiaSource } from "../anatomia/index.js";
@@ -761,6 +763,58 @@ function promoteDebatabilityWithVoiceSimulation(info: PaperReviewInfo): void {
 export const flowRoutes = new Hono();
 
 flowRoutes.get("/flow", (c) => c.html(FLOW_HTML));
+
+/**
+ * Omnipotens 等が作成済みのディスカッションペーパーを、その内容のまま自動議論へ送る。
+ * 完成済み入力なので、情報収集と人間レビューゲートは意図的に省略する。
+ */
+flowRoutes.post("/api/flow/start-from-paper", async (c) => {
+  if (!deps) return c.json({ ok: false, error: "flow web 未初期化" }, 500);
+  const webDeps = deps;
+  const body = (await c.req.json().catch(() => ({}))) as {
+    paperMd?: unknown;
+    bodyMd?: unknown;
+    theme?: unknown;
+    flow?: unknown;
+    tags?: unknown;
+    rounds?: unknown;
+    turnsPerRound?: unknown;
+    personaIds?: unknown;
+  };
+  const flowLabel = typeof body.flow === "string" && body.flow.trim() ? body.flow : "discussion";
+  const kind = parseFlowKind(flowLabel);
+  if (kind !== "discussion" && kind !== "improvement") {
+    return c.json({ ok: false, error: "ペーパー自動開始は discussion / improvement のみ対応します" }, 400);
+  }
+  const rawTags = Array.isArray(body.tags) ? body.tags : [];
+  const tags = rawTags.filter(
+    (tag): tag is FlowTag => typeof tag === "string" && VALID_REVIEW_TAGS.has(tag as FlowTag)
+  );
+  const rawMd = typeof body.paperMd === "string" ? body.paperMd : typeof body.bodyMd === "string" ? body.bodyMd : "";
+  let draft: PaperDraft;
+  try {
+    draft = paperDraftForAutoStart({
+      bodyMd: rawMd,
+      theme: typeof body.theme === "string" ? body.theme : undefined,
+      tags,
+    });
+  } catch (error) {
+    if (error instanceof PaperAutoStartInputError) return c.json({ ok: false, error: error.message }, 400);
+    throw error;
+  }
+
+  const sessionId = randomUUID();
+  const entry: WebPaperReview = {
+    flow: kind,
+    rounds: readOptionalInt(body.rounds, 1, 10),
+    turnsPerRound: readOptionalInt(body.turnsPerRound, 1, 20),
+    personaIds: parsePersonaIds(body.personaIds),
+    ready: true,
+    draft,
+  };
+  startApprovedFlow(sessionId, entry, draft, webDeps);
+  return c.json({ ok: true, kind, sessionId, autoStarted: true });
+});
 
 flowRoutes.post("/api/flow/start", async (c) => {
   if (!deps) return c.json({ ok: false, error: "flow web 未初期化" }, 500);

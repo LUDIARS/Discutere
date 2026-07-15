@@ -15,7 +15,7 @@ import Database from "better-sqlite3";
   const { estimateCostUsd, modelFamily } = await import("../../src/persona-engine/llm/pricing.js");
 
   assert.equal(modelFamily("claude-opus-4-8"), "opus");
-  assert.equal(modelFamily("claude-sonnet-4-6"), "sonnet");
+  assert.equal(modelFamily("claude-sonnet-5"), "sonnet");
   assert.equal(modelFamily("claude-haiku-4-5"), "haiku");
   assert.equal(modelFamily("gemma4:12b"), null);
   assert.equal(modelFamily(undefined), null);

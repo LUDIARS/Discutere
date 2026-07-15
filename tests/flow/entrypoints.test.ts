@@ -154,6 +154,34 @@ import { parseForumEntry, handleForumFlowPost } from "../../src/flow/entry-disco
   const rNoTheme = await post("/api/flow/start", { theme: "", flow: "discussion" });
   assert.equal(rNoTheme.status, 400, "テーマ未指定は 400");
 
+  // 完成済みペーパー → レビューゲートを挟まず自動開始。
+  const rPaperStart = await post("/api/flow/start-from-paper", {
+    paperMd: "# 議題\n自動開始できるか\n\n# 論点\n1. 人手の承認を省いてよいか",
+    flow: "discussion",
+    tags: ["開発", "不正タグ"],
+    rounds: 1,
+    turnsPerRound: 1,
+  });
+  assert.equal(rPaperStart.status, 200, "完成済みペーパーを受理する");
+  const paperStartBody = (await rPaperStart.json()) as {
+    ok: boolean;
+    kind: string;
+    sessionId: string;
+    autoStarted: boolean;
+  };
+  assert.equal(paperStartBody.ok, true);
+  assert.equal(paperStartBody.kind, "discussion");
+  assert.equal(paperStartBody.autoStarted, true, "レビュー待ちではなく自動開始したことを明示する");
+  assert.ok(paperStartBody.sessionId, "自動開始セッション ID を返す");
+
+  const rPaperEmpty = await post("/api/flow/start-from-paper", { paperMd: "", flow: "discussion" });
+  assert.equal(rPaperEmpty.status, 400, "空のペーパーは拒否する");
+  const rPaperUnsupported = await post("/api/flow/start-from-paper", {
+    paperMd: "# 議題\n壁打ち",
+    flow: "sparring",
+  });
+  assert.equal(rPaperUnsupported.status, 400, "自動開始対象外のフローを拒否する");
+
   // 壁打ち起動 → sessionId、say → 応答、status → 発話取得
   const rStart = await post("/api/flow/start", { theme: "壁打ちテーマ", flow: "壁打ち", tags: [] });
   const startBody = (await rStart.json()) as { ok: boolean; kind: string; sessionId: string };

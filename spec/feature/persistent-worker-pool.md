@@ -51,11 +51,11 @@ persona-engine の発話生成は従来 `ClaudeCliClient`（`claude -p` を per-
 | `facilitator`     | ファシリテーター（止揚収束・人間優先） | claude | claude-opus-4-8 |
 | `pro-opus`        | 正論派 | claude | claude-opus-4-8 |
 | `con-opus`        | 否定派 | claude | claude-opus-4-8 |
-| `pro-gpt`         | 正論派 | codex  | gpt-5.5 |
-| `con-gpt`         | 否定派 | codex  | gpt-5.5 |
+| `pro-gpt`         | 正論派 | codex  | gpt-5.6 |
+| `con-gpt`         | 否定派 | codex  | gpt-5.6 |
 | `opinion-opus`    | 意見屋 | claude | claude-opus-4-8 |
-| `opinion-sonnet`  | 意見屋 | claude | claude-sonnet-4-6 |
-| `opinion-gpt`     | 意見屋 | codex  | gpt-5.5 |
+| `opinion-sonnet`  | 意見屋 | claude | claude-sonnet-5 |
+| `opinion-gpt`     | 意見屋 | codex  | gpt-5.6 |
 
 各ワーカーの **standing persona prompt**（auto-inject される本文）は:
 1. 役割・口調ルール（prompt-builder.ts の現行ルールを踏襲: ラベル禁止 / 一文ごと改行 / 1〜3文 / 自然口語）。
@@ -146,7 +146,7 @@ worker-home/
 
 - **権限ゲート**: `LICTOR_DISABLE_CONCORDIA=1` で permission-hook が付かない前提（wrap.ts は concordia 有効時のみ hook 付与）。さらに claude は edit-mode + worker-home の allow-list 済 node スクリプトで register/send するので待ち無しで通る（§4.8）。**Concordia 連携を切ることが前提条件**。
 - **port 取得の堅牢性**: 現状は worker 自己登録（LLM が起動時に `node scripts/register.mjs` を1回）。失敗時は registerTimeoutMs で諦め respawn。将来硬化: Lictor に `LICTOR_PORT_FILE` env を足し、port をファイルに書かせて pool が deterministic に読む（Lictor 側 3 行、別 PR）。
-- **codex provider**: gpt-5.5 ワーカーは Codex CLI 経由。auto-inject の submit 戦略は provider 差（codex は 2 段 submit）を Lictor が吸収済。codex は claude の settings.json / `--permission-mode` を共有しないため、register/send の node スクリプトを Codex セッション内で実行できるか（承認モード）は **要実機確認**。
+- **codex provider**: gpt-5.6 ワーカーは Codex CLI 経由。auto-inject の submit 戦略は provider 差（codex は 2 段 submit）を Lictor が吸収済。codex は claude の settings.json / `--permission-mode` を共有しないため、register/send の node スクリプトを Codex セッション内で実行できるか（承認モード）は **要実機確認**。
 - **レイテンシ**: 1ターン = 注入 + 生成（数秒〜十数秒）。常駐なので spawn コストはターンに乗らない。
 - **8セッション常時占有**: サブスクのセッション枠を8消費。
 
