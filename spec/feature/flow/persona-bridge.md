@@ -99,19 +99,19 @@ preference_axes_json の上位 2 軸 + 下位 1 軸 (「探索と物語を強く
   本文とタイムスタンプのみ。persona (AI) 発話・他人の発話は返さない。
 - Vo 側は voice 相当の evidence として取り込む (Vo 側 §4.6)。
 
-## 5. sentiment 空間の一本化
+## 5. sentiment 空間の一本化 (大部分は main で実施済み — 2026-07-27 訂正)
 
-- 現状: Di `src/flow/sentiment-vector.ts` + `src/crawler/sentiment/analyze.mjs` (正本) vs
-  Vo `@ludiars/sentiment-core` (Lapilli `packages/sentiment-core`、Di の実装から抽出)。
-- 方針: **`@ludiars/sentiment-core` を正本に昇格**し、Di も参照する。
-  1. `lib/lapilli` submodule を sentiment-core 入りリビジョンへ bump、`file:` 依存を追加。
-  2. `sentiment-vector.ts` の `textToVector`/`VECTOR_DIMS` を sentiment-core への
-     re-export に置換 (呼び出し面は不変)。`analyze.mjs` は crawl バッチ最適化 (n>1 集計) が
-     あるため当面残し、`VECTOR_SPEC_VERSION` と次元名配列の一致を **起動時 assert** する。
-  3. lexicon.json の変更は今後 sentiment-core 側で行い、Di の crawler lexicon は
+- **実施済み (main)**: `@ludiars/sentiment-core` の `file:` 依存追加、
+  `src/flow/sentiment-vector.ts` の sentiment-core re-export 化 (flow 層 + `cascade.ts`)。
+  初版スペックはレビュー時に旧ブランチのチェックアウトを参照していたため「未着手」と
+  誤記していた。
+- **残り**: `src/crawler/sentiment/analyze.mjs` (crawl バッチ最適化 n>1 集計) が独自
+  lexicon.json を持ったまま。
+  1. `VECTOR_SPEC_VERSION` と次元名配列の sentiment-core との一致を **起動時 assert** する。
+  2. lexicon.json の変更は今後 sentiment-core 側で行い、Di の crawler lexicon は
      そこから同期する (乖離したら assert が落ちる)。
-- ブリッジの取込検証 (§1.3) が vectorSpecVersion を見るため、一本化前でも取込は安全に動く
-  (バージョン不一致なら skip されるだけ)。一本化はブリッジの前提ではなく並行タスク。
+- ブリッジの取込検証 (§1.3) が vectorSpecVersion を見るため、assert 未実装でも取込は安全に
+  動く (バージョン不一致なら skip されるだけ)。一本化残作業はブリッジの前提ではなく並行タスク。
 
 ## 6. 非目標
 
@@ -128,4 +128,4 @@ preference_axes_json の上位 2 軸 + 下位 1 軸 (「探索と物語を強く
 | D2 | `persona-descriptor.ts` (構造化 descriptor 純関数) + 憑依/壁打ち/toFlowPersona 配線 + テスト | D1 |
 | D3 | `estimatePopulations` の imported 対応 + `--report` 出力 + テスト | D1 |
 | D4 | utterance エクスポート API (認証 + human 発話 filter) + テスト | なし (Vo T16 と同時リリース) |
-| D5 | sentiment-core 一本化 (submodule bump / re-export / 起動時 assert) + テスト | なし (並行可) |
+| D5 | sentiment-core 一本化の残作業 (analyze.mjs の起動時 assert + lexicon 同期方針) + テスト | なし (並行可。dep追加とre-exportはmainで実施済み) |
