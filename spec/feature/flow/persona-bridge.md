@@ -5,14 +5,16 @@
 > 関連: [persona-pool.md](./persona-pool.md) (プール/憑依/採用/合成)、
 > `spec/feature/crawler/SENTIMENT.md` (20 次元空間の正本)。
 
-## 0. 背景 (レビュー所見)
+## 0. 背景 (レビュー所見。2026-07-27 現状訂正済み)
 
-- Voluptas は仮名ペルソナ (pseudoId + 20 次元 affect + traits) のエクスポートスクリプトを
-  持つが、Di 側に取込先が無く、両リポで揃えた 15 軸語彙・20 次元空間が未接続 (R4)。
+- **ブリッジ v1 は main に既存** (初版スペックの「Di 側に取込先が無い」は旧ブランチ参照の誤記):
+  Vo `scripts/export-personas.js` (user_id=`ext:voluptas:<hmac16>` + affect_vector + traits) →
+  Di `src/flow/persona-import.ts` + loopback 管理画面 `/admin/personas` (ファイル upload) +
+  `POST /api/admin/personas/import`。origin="imported" で upsert 済み。
+- ただし v1 は **affect + traits のみ・手動ファイル渡し・同意ゲート無し**。15 軸/忌避/属性/
+  メカニクス反応は運ばれず、憑依 descriptor は薄いまま (P2)。本書はこの v1 を v2 に拡張する。
 - Di の採用ペルソナ (`論者#xxxx`) は affect ベクトルと極性特徴のみで属性が無く、
   憑依 descriptor が薄い。合成ペルソナの属性 (年代・課金) は LLM の想像 (P2)。
-- 20 次元空間の実装が二重化している: Di は `src/flow/sentiment-vector.ts` (crawler lexicon 移植)、
-  Vo は `@ludiars/sentiment-core` (Lapilli)。仕様同一のまま実装が乖離するリスクがある。
 
 ## 1. インポート (Vo → Di)
 
@@ -23,17 +25,18 @@ Voluptas エクスポート v2 (JSONL、詳細は Vo 側設計 §6.1):
 attributes{ageBand?,spending?} / mechanicReactions / exportSpecVersion:2`。
 同意済みユーザのみ・仮名のみが前提 (Vo 側で担保)。
 
-### 1.2 取込
+### 1.2 取込 (既存 v1 の拡張)
 
-- CLI: `npm run persona:import -- --file <jsonl> | --url <voluptas export endpoint>`
-  (`src/flow/persona-import.ts` + `scripts/persona-import.ts`)。
-- `flow_persona` へ upsert:
-  - `origin = "imported"` (新値。既存: adopted / generated / synthesized)
-  - `source_speaker_id = "vo:<pseudoId>"` (再取込で別個体を量産しない。adopted の
-    `ext:<source>:<authorId>` と同じ規約)
-  - `affect_vector` = affectVector (vectorSpecVersion 一致を検証、非一致は skip + 警告)
-  - 露出名は `論者#xxxxxx` (`maskedPersonaLabel` 流用。個人データ方針は adopted と同一)
-- 新カラム (migration `flow_00xx_persona_import`):
+- **既存**: `importVoluptasPersonas` (`src/flow/persona-import.ts`) が
+  `user_id = ext:voluptas:<hmac16>` で `upsertPoolPersonaByUserId` (origin="imported")、
+  vector_spec_version 検証済み。入口は `/admin/personas` (loopback) のファイル upload +
+  `POST /api/admin/personas/import`。**この規約 (user_id キー) を維持して拡張する** —
+  初版スペックの `source_speaker_id="vo:<pseudoId>"` 案は撤回。
+- **v2 拡張**: payload に preferenceAxes / aversions / attributes / mechanicReactions /
+  exportSpecVersion を追加 (未知フィールドは無視 = v1 ファイルも引き続き取込可)。
+  `--url` 取得の CLI (`npm run persona:import`) を追加し、手動ファイル渡しに加えて
+  Vo エンドポイントからの pull に対応。
+- 新カラム (migration `flow_00xx_persona_import_v2`):
   - `preference_axes_json` — 15 軸スコア (adopted/generated にも将来書ける汎用列)
   - `attributes_json` — ageBand / spending 等の任意属性
   - `aversions_json` — 忌避
@@ -124,7 +127,7 @@ preference_axes_json の上位 2 軸 + 下位 1 軸 (「探索と物語を強く
 
 | # | タスク | 依存 |
 |---|---|---|
-| D1 | migration + `persona-import.ts` (+ CLI, dry-run, 検証, upsert) + テスト | Vo T13 (形式確定) と形式合意のみ。ファイル取込はスタブ JSONL でテスト可 |
+| D1 | 既存 persona-import の v2 拡張 (migration + payload拡張 + URL pull CLI) + テスト | Vo T13 (形式確定) と形式合意のみ。v1ファイル互換維持 |
 | D2 | `persona-descriptor.ts` (構造化 descriptor 純関数) + 憑依/壁打ち/toFlowPersona 配線 + テスト | D1 |
 | D3 | `estimatePopulations` の imported 対応 + `--report` 出力 + テスト | D1 |
 | D4 | utterance エクスポート API (認証 + human 発話 filter) + テスト | なし (Vo T16 と同時リリース) |
