@@ -49,5 +49,8 @@ await import("./argument-graph.test.js");
 await import("./turn-prompt.test.js");
 await import("./dialectic-scheduler.test.js");
 await import("./dialectic-driver.test.js");
+await import("./policy-discussion-input.test.js");
+await import("./volputas-local.test.js");
+await import("./discussion-quality.test.js");
 
 console.log("flow tests: all passed");

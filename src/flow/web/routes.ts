@@ -72,6 +72,16 @@ import { appendRevision, canRevert, revertLast, listRevisions } from "../paper-r
 import { getConfig } from "../../config.js";
 import { getAnatomiaMechanics, resolveAnatomiaSource } from "../anatomia/index.js";
 import type { MechanicSummary } from "../investigate.js";
+import {
+  applyPolicyItems,
+  parsePolicyDiscussionInput,
+} from "../policy-discussion-input.js";
+import {
+  fetchLocalVolputasPersona,
+  formatVolputasPersonaContext,
+  toPersonaDiscussionSnapshot,
+} from "../volputas-local.js";
+import { getDiscussionQuality } from "../discussion-quality.js";
 import { FLOW_HTML } from "./page.js";
 
 let deps: FlowWebDeps | null = null;
@@ -86,26 +96,31 @@ async function resolveAnatomiaExtraMechanics(
   theme: string,
   anatomiaProject: string,
   anatomiaRepo: string,
+  useAnatomia: boolean,
+  refineWithLlm: boolean,
   llm: LLMClient,
   warn: (msg: string) => void
 ): Promise<MechanicSummary[] | undefined> {
+  if (!useAnatomia) return undefined;
   const source = resolveAnatomiaSource(anatomiaProject, anatomiaRepo);
-  if (!source) return undefined;
+  if (!source) throw new Error("Anatomia を使う場合はプロジェクト名またはリポジトリパスが必要です");
   const cfg = getConfig().flow.anatomia;
   if (!cfg.enabled) {
-    warn("Anatomia 連携は無効 (flow.anatomia.enabled=false) のため指定を無視します");
-    return undefined;
+    throw new Error("Anatomia 連携が無効です (flow.anatomia.enabled=false)");
   }
   const mechanics = await getAnatomiaMechanics(source, {
     binPath: cfg.binPath,
     autoDraft: cfg.autoDraft,
     timeoutMs: cfg.timeoutMs,
     refineModel: cfg.refineModel,
-    llm,
+    llm: refineWithLlm ? llm : undefined,
     theme,
     warn,
   });
-  warn(`Anatomia 由来メカニクス ${mechanics.length} 件を事前情報に追加`);
+  warn(
+    `Anatomia 由来メカニクス ${mechanics.length} 件を事前情報に追加` +
+    (refineWithLlm ? " (LLM 精製あり)" : " (LLM 不使用)")
+  );
   return mechanics;
 }
 
@@ -117,6 +132,8 @@ export function setFlowWebDeps(d: FlowWebDeps): void {
 const sparringSessions = new Map<string, SparringSession>();
 /** discussion/improvement の完了状態 (status の done 判定用)。 */
 const finished = new Set<string>();
+/** 結論生成後の品質評価が終わるまで status.done を待たせる。 */
+const qualityPending = new Set<string>();
 
 /**
  * ペーパーレビュー待ち (sessionId → 草案 + 起動入力)。
@@ -154,6 +171,8 @@ function startApprovedFlow(
     sentimentClients: webDeps.sentimentClients,
     gamesDir: webDeps.gamesDir,
     workspaceId: webDeps.workspaceId,
+    assessQuality: true,
+    qualityModel: getConfig().flow.paperReview.model || undefined,
   };
   // 議論適性: 低のまま強行した場合は評価結果を discussion_paper に記録する (09 監査ログ)。
   const debatability = entry.info?.debatability;
@@ -164,6 +183,7 @@ function startApprovedFlow(
       console.warn(`[flow-web] debatability 記録失敗 (議論は続行): ${(e as Error).message}`);
     }
   }
+  qualityPending.add(sessionId);
   void dispatchFlow(
     {
       theme: finalPaper.theme,
@@ -194,7 +214,10 @@ function startApprovedFlow(
     }
   )
     .catch((e) => console.warn(`[flow-web] ${entry.flow} 実行エラー: ${(e as Error).message}`))
-    .finally(() => finished.add(sessionId));
+    .finally(() => {
+      qualityPending.delete(sessionId);
+      finished.add(sessionId);
+    });
 }
 
 /** 無操作の自動開始タイマーを (張り直して) 仕掛ける。timeoutMs<=0 なら何もしない。 */
@@ -762,6 +785,42 @@ export const flowRoutes = new Hono();
 
 flowRoutes.get("/flow", (c) => c.html(FLOW_HTML));
 
+flowRoutes.get("/api/flow/volputas-persona", async (c) => {
+  try {
+    const status = await fetchLocalVolputasPersona();
+    return c.json({
+      ok: true,
+      status: {
+        hasAnalysis: status.analysis !== null,
+        evidenceCount: status.evidenceCount,
+        stale: status.stale,
+      },
+      persona: status.analysis ? toPersonaDiscussionSnapshot(status) : null,
+      context: status.analysis ? formatVolputasPersonaContext(status) : null,
+    });
+  } catch (error) {
+    return c.json({ ok: false, error: (error as Error).message }, 502);
+  }
+});
+
+flowRoutes.post("/api/flow/volputas-persona/analyze", async (c) => {
+  try {
+    const status = await fetchLocalVolputasPersona({ refresh: true });
+    return c.json({
+      ok: true,
+      status: {
+        hasAnalysis: true,
+        evidenceCount: status.evidenceCount,
+        stale: status.stale,
+      },
+      persona: toPersonaDiscussionSnapshot(status),
+      context: formatVolputasPersonaContext(status),
+    });
+  } catch (error) {
+    return c.json({ ok: false, error: (error as Error).message }, 502);
+  }
+});
+
 flowRoutes.post("/api/flow/start", async (c) => {
   if (!deps) return c.json({ ok: false, error: "flow web 未初期化" }, 500);
   const webDeps = deps; // module-level let を closure で使うため const に束ねる
@@ -791,10 +850,39 @@ flowRoutes.post("/api/flow/start", async (c) => {
     githubRef?: unknown;
     anatomiaProject?: unknown;
     anatomiaRepo?: unknown;
+    anatomiaUseLlm?: unknown;
+    useAnatomia?: unknown;
+    useVolputasPersona?: unknown;
+    discussionInputKind?: unknown;
+    policyItems?: unknown;
+  };
+  let policyInput;
+  try {
+    policyInput = parsePolicyDiscussionInput(body as Record<string, unknown>);
+  } catch (error) {
+    return c.json({ ok: false, error: (error as Error).message }, 400);
+  }
+  const useVolputasPersona = body.useVolputasPersona === true;
+  let volputasContext = "";
+  if (useVolputasPersona) {
+    try {
+      const status = await fetchLocalVolputasPersona({ refresh: true });
+      volputasContext = formatVolputasPersonaContext(status);
+    } catch (error) {
+      return c.json({ ok: false, error: `Vo ペルソナ取得失敗: ${(error as Error).message}` }, 502);
+    }
+  }
+  const effectiveBody = {
+    ...body,
+    discussionContent: applyPolicyItems(body.discussionContent, policyInput.policyItems),
+    themeSupplement: [
+      typeof body.themeSupplement === "string" ? body.themeSupplement.trim() : "",
+      volputasContext,
+    ].filter(Boolean).join("\n\n"),
   };
   const legacyTheme = typeof body.theme === "string" ? body.theme.trim() : "";
-  const additionalSpecText = await resolveAdditionalSpecText(body, (m) => console.warn(m));
-  const baseSeed = fixedSeedFromBody(body as Record<string, unknown>);
+  const additionalSpecText = await resolveAdditionalSpecText(effectiveBody, (m) => console.warn(m));
+  const baseSeed = fixedSeedFromBody(effectiveBody as Record<string, unknown>);
   const seed = mergeMechanicsContext(
     baseSeed,
     typeof body.specText === "string" ? body.specText : undefined,
@@ -805,6 +893,10 @@ flowRoutes.post("/api/flow/start", async (c) => {
   // Anatomia 事前情報: 登録済みプロジェクト名 or リポ絶対パス (どちらか)。config で有効時のみ使う。
   const anatomiaProject = typeof body.anatomiaProject === "string" ? body.anatomiaProject.trim() : "";
   const anatomiaRepo = typeof body.anatomiaRepo === "string" ? body.anatomiaRepo.trim() : "";
+  const useAnatomia =
+    body.useAnatomia === true ||
+    (body.useAnatomia === undefined && Boolean(anatomiaProject || anatomiaRepo));
+  const anatomiaUseLlm = body.anatomiaUseLlm === true;
   const flowLabel = typeof body.flow === "string" ? body.flow : "";
   const tags = Array.isArray(body.tags)
     ? (body.tags.filter((t) => typeof t === "string") as FlowTag[])
@@ -821,6 +913,12 @@ flowRoutes.post("/api/flow/start", async (c) => {
   }
   const kind = parseFlowKind(flowLabel);
   if (!kind) return c.json({ ok: false, error: "議論タイプ (必須) を選択してください" }, 400);
+  if (useAnatomia && !resolveAnatomiaSource(anatomiaProject, anatomiaRepo)) {
+    return c.json({ ok: false, error: "Anatomia を使う場合はプロジェクト名またはリポジトリパスが必要です" }, 400);
+  }
+  if (useAnatomia && !getConfig().flow.anatomia.enabled) {
+    return c.json({ ok: false, error: "Anatomia 連携が無効です (flow.anatomia.enabled=false)" }, 400);
+  }
 
   const dispatchDeps: DispatchDeps = {
     llm: deps.llm,
@@ -828,6 +926,8 @@ flowRoutes.post("/api/flow/start", async (c) => {
     sentimentClients: deps.sentimentClients,
     gamesDir: deps.gamesDir,
     workspaceId: deps.workspaceId,
+    assessQuality: true,
+    qualityModel: getConfig().flow.paperReview.model || undefined,
   };
 
   // 壁打ち: セッションを起動して登録 (対話継続)
@@ -869,6 +969,8 @@ flowRoutes.post("/api/flow/start", async (c) => {
         theme,
         anatomiaProject,
         anatomiaRepo,
+        useAnatomia,
+        anatomiaUseLlm,
         webDeps.llm,
         (m) => console.warn(`[flow-web/anatomia learning] ${m}`)
       );
@@ -937,6 +1039,8 @@ flowRoutes.post("/api/flow/start", async (c) => {
         theme,
         anatomiaProject,
         anatomiaRepo,
+        useAnatomia,
+        anatomiaUseLlm,
         webDeps.llm,
         (m) => console.warn(`[flow-web/anatomia ${sessionId}] ${m}`)
       );
@@ -983,12 +1087,16 @@ flowRoutes.post("/api/flow/start", async (c) => {
     return c.json({ ok: true, kind, sessionId, review: true });
   }
 
+  qualityPending.add(sessionId);
   void (async () => {
     await prepareInformationBeforeFlow(kind, theme, tags, sessionId, autoCrawlSpec, webDeps);
     await dispatchFlow({ theme, tags, flow: kind, rounds, turnsPerRound, personaIds }, { ...dispatchDeps, sessionId });
   })()
     .catch((e) => console.warn(`[flow-web] ${kind} 実行エラー: ${(e as Error).message}`))
-    .finally(() => finished.add(sessionId));
+    .finally(() => {
+      qualityPending.delete(sessionId);
+      finished.add(sessionId);
+    });
   return c.json({ ok: true, kind, sessionId });
 });
 
@@ -1523,7 +1631,9 @@ flowRoutes.get("/api/flow/:session/status", (c) => {
     .get(sessionId) as { summary: string; concluded: number } | undefined;
 
   const session = sparringSessions.get(sessionId);
-  const done = finished.has(sessionId) || (session?.isEnded ?? false) || !!conclusionRow;
+  const quality = getDiscussionQuality(sessionId);
+  const done = !qualityPending.has(sessionId) &&
+    (finished.has(sessionId) || (session?.isEnded ?? false) || !!conclusionRow);
 
   return c.json({
     ok: true,
@@ -1552,6 +1662,7 @@ flowRoutes.get("/api/flow/:session/status", (c) => {
       .filter((m) => m.votes > 0 || m.isWinner || m.roundAufhebung.length > 0),
     conclusion: conclusionRow?.summary ?? null,
     concluded: conclusionRow?.concluded === 1,
+    quality,
     // ライブのディスカッションペーパー本文 (議論進行で更新されていく)。
     paperMd: getPaperBodyBySession(sessionId),
     done,
@@ -1562,6 +1673,7 @@ flowRoutes.get("/api/flow/:session/status", (c) => {
 export function _resetFlowWeb(): void {
   sparringSessions.clear();
   finished.clear();
+  qualityPending.clear();
   for (const r of paperReviews.values()) if (r.timer) clearTimeout(r.timer);
   paperReviews.clear();
 }

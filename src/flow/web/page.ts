@@ -90,6 +90,10 @@ export const FLOW_HTML = `<!doctype html>
   .err { color: var(--danger-fg); }
   #conclusion { border-left: 4px solid var(--success); }
   #conclusionBody { white-space: pre-wrap; font-weight: 600; word-break: break-word; }
+  #discussionQuality { margin-top: 14px; border-top: 1px solid var(--border); padding-top: 12px; }
+  .quality-grid { display: grid; gap: 10px; grid-template-columns: repeat(auto-fit,minmax(220px,1fr)); }
+  .quality-card { border: 1px solid var(--border); border-radius: 8px; padding: 10px; background: var(--surface-soft); }
+  .quality-score { font-size: 1.35rem; font-weight: 800; color: var(--primary); }
   #say { display: none; margin-top: 1rem; }
   .muted { color: var(--muted); font-size: 0.85rem; }
   .form-grid { display: grid; gap: 12px; }
@@ -240,6 +244,22 @@ export const FLOW_HTML = `<!doctype html>
       <textarea id="discussionContent" rows="4" placeholder="判断したい論点、比較したい案、避けたい方向性など"></textarea>
     </fieldset>
     <fieldset>
+      <legend>議論資料</legend>
+      <label>入力形式
+        <select id="discussionInputKind" style="width:auto">
+          <option value="freeform">自由入力（従来どおり）</option>
+          <option value="specification">議論仕様書</option>
+          <option value="policy-list">施策リスト</option>
+        </select>
+      </label>
+      <div id="policyItemsWrap" style="display:none">
+        <label>検討する施策（1行1件）
+          <textarea id="policyItems" rows="5" placeholder="初回導線を短くする&#10;報酬の提示タイミングを早める"></textarea>
+        </label>
+      </div>
+      <span class="field-note">議論仕様書は下の「システム/メカニクスの説明」、ファイル、URL、GitHubのいずれかで指定します。</span>
+    </fieldset>
+    <fieldset>
       <legend>議論タイプ (必須)</legend>
       <select id="flow" required>
         <option value="discussion" selected>AI議論</option>
@@ -261,9 +281,16 @@ export const FLOW_HTML = `<!doctype html>
       <label>ターン数/ラウンド <input id="turnsPerRound" type="number" min="1" max="20" placeholder="既定" style="width:5rem" /></label>
     </fieldset>
     <fieldset class="tags">
-      <legend>生成済みペルソナ指定 (任意)</legend>
+      <legend>取り込み済み匿名ペルソナ指定 (任意)</legend>
       <label>ペルソナ名/ID (カンマ区切り) <input id="opponent" type="text" placeholder="例: ローグ好き太郎,ソシャゲ花子" style="width:60%" /></label>
-      <span class="field-note">議論/改善では指定ペルソナをキャストに含め、壁打ちでは相手にします。</span>
+      <span class="field-note">Vo等から取り込んだ匿名ペルソナです。議論/改善ではキャストに含め、壁打ちでは相手にします。</span>
+    </fieldset>
+    <fieldset>
+      <legend>Vo ローカルペルソナ（任意）</legend>
+      <label><input id="useVolputasPersona" type="checkbox" /> Vo の自分のペルソナを当事者視点として使う</label>
+      <button id="previewVolputasPersona" type="button">Voから取得して確認</button>
+      <pre id="volputasPersonaStatus" class="muted" style="white-space:pre-wrap;margin:8px 0 0"></pre>
+      <span class="field-note">開始時にVo側の入力差分を確認し、更新がある場合だけ再分析します。個人名は取得しません。</span>
     </fieldset>
     <fieldset class="tags">
       <legend>学習データ自動取得 (議論/改善のみ・学習データ不足時だけ実行)</legend>
@@ -307,10 +334,14 @@ export const FLOW_HTML = `<!doctype html>
       <div id="githubCheckMsg" class="muted"></div>
     </fieldset>
     <fieldset>
-      <legend>Anatomia プロジェクトコード (任意)</legend>
-      <label>登録済みプロジェクト名 <input id="anatomiaProject" type="text" placeholder="例: pagus (anatomia project add 済み)" style="width:50%" /></label>
-      <label>または リポジトリ絶対パス <input id="anatomiaRepo" type="text" placeholder="例: E:/Document/Ars/Pagus" style="width:60%" /></label>
-      <p class="muted" style="margin:4px 0 0;font-size:0.82rem">サーバ設定で Anatomia 連携が有効な場合のみ反映。ドメイン下地が無ければ初回は自動解析で時間がかかります。</p>
+      <legend>Anatomia コード調査</legend>
+      <label><input id="useAnatomia" type="checkbox" /> Anatomiaを利用してコードレベルの情報を追加する</label>
+      <div id="anatomiaOptions" style="display:none">
+        <label>登録済みプロジェクト名 <input id="anatomiaProject" type="text" placeholder="例: pagus (anatomia project add 済み)" style="width:50%" /></label>
+        <label>または リポジトリ絶対パス <input id="anatomiaRepo" type="text" placeholder="例: E:/Document/Ars/Pagus" style="width:60%" /></label>
+        <label><input id="anatomiaUseLlm" type="checkbox" /> 取得したドメインをLLMでプレイヤー向けに言い換える</label>
+      </div>
+      <p class="muted" style="margin:4px 0 0;font-size:0.82rem">既定はLLMを使わず、Anatomiaの解析結果を決定論的に整理します。初回のみドメイン下地の解析に時間がかかる場合があります。</p>
     </fieldset>
     <fieldset>
       <legend>テーマについての補足情報</legend>
@@ -400,6 +431,10 @@ export const FLOW_HTML = `<!doctype html>
       <div id="conclusion" style="display:none">
         <div class="panel-head"><h2>収束結果</h2></div>
         <div id="conclusionBody"></div>
+        <div id="discussionQuality" style="display:none">
+          <h3 style="margin:0 0 8px">議論スコア</h3>
+          <div id="discussionQualityBody"></div>
+        </div>
       </div>
     </div>
   </div>
@@ -419,6 +454,41 @@ function notifyPaperReady(message) {
   if (!("Notification" in window) || Notification.permission !== "granted") return;
   new Notification("Discutere", { body: message || "Discussion paper is ready.", tag: "discutere-paper-" + sessionId });
 }
+
+function syncDiscussionInputKind() {
+  $("policyItemsWrap").style.display =
+    $("discussionInputKind").value === "policy-list" ? "block" : "none";
+}
+$("discussionInputKind").addEventListener("change", syncDiscussionInputKind);
+syncDiscussionInputKind();
+
+function syncAnatomiaOptions() {
+  $("anatomiaOptions").style.display = $("useAnatomia").checked ? "block" : "none";
+}
+$("useAnatomia").addEventListener("change", syncAnatomiaOptions);
+syncAnatomiaOptions();
+
+$("previewVolputasPersona").addEventListener("click", async () => {
+  const button = $("previewVolputasPersona");
+  const status = $("volputasPersonaStatus");
+  button.disabled = true;
+  status.textContent = "Voから取得中…";
+  try {
+    const response = await fetch("/api/flow/volputas-persona").then(r => r.json());
+    if (!response.ok) throw new Error(response.error || "取得に失敗");
+    if (!response.status?.hasAnalysis) {
+      status.textContent = "ペルソナは未分析です。Voで入力を登録して分析してください。";
+      return;
+    }
+    status.textContent = response.context +
+      (response.status.stale ? "\\n\\n入力が更新されています。議論開始時に再分析します。" : "");
+    $("useVolputasPersona").checked = true;
+  } catch (error) {
+    status.textContent = "取得失敗: " + error.message;
+  } finally {
+    button.disabled = false;
+  }
+});
 
 // 仕様書ファイル選択: 対応形式はサーバ抽出エンドポイント経由で mechanicsContext 欄へ展開する。
 const SPEC_FILE_MAX_BYTES = 5 * 1024 * 1024; // 5MB
@@ -505,6 +575,8 @@ $("start").addEventListener("submit", async (e) => {
   const gameTitle = $("gameTitle").value.trim();
   const discussionTheme = $("discussionTheme").value.trim();
   const discussionContent = $("discussionContent").value.trim() || undefined;
+  const discussionInputKind = $("discussionInputKind").value;
+  const policyItems = $("policyItems").value.trim() || undefined;
   const mechanicsContext = $("mechanicsContext").value.trim() || undefined;
   const themeSupplement = $("themeSupplement").value.trim() || undefined;
   const theme = [gameTitle, discussionTheme].filter(Boolean).join(" / ");
@@ -514,6 +586,7 @@ $("start").addEventListener("submit", async (e) => {
   const rounds = $("rounds").value.trim() === "" ? undefined : Number($("rounds").value);
   const turnsPerRound = $("turnsPerRound").value.trim() === "" ? undefined : Number($("turnsPerRound").value);
   const personaIds = $("opponent").value.trim() || undefined;
+  const useVolputasPersona = $("useVolputasPersona").checked;
   const learningSource = $("learningSource").value || undefined;
   const learningQuery = $("learningQuery").value.trim() || undefined;
   const learningAppId = $("learningAppId").value.trim() === "" ? undefined : Number($("learningAppId").value);
@@ -527,10 +600,12 @@ $("start").addEventListener("submit", async (e) => {
   const githubRef = $("githubRef").value.trim() || undefined;
   const anatomiaProject = $("anatomiaProject").value.trim() || undefined;
   const anatomiaRepo = $("anatomiaRepo").value.trim() || undefined;
+  const useAnatomia = $("useAnatomia").checked;
+  const anatomiaUseLlm = $("anatomiaUseLlm").checked;
   $("go").disabled = true;
   const res = await fetch("/api/flow/start", {
     method: "POST", headers: { "content-type": "application/json" },
-    body: JSON.stringify({ theme, gameTitle, discussionTheme, discussionContent, mechanicsContext, themeSupplement, flow, tags, rounds, turnsPerRound, personaIds, opponent: personaIds, learningSource, learningQuery, learningAppId, learningSubreddit, learningUrls, learningBalanced, specText, specUrl, githubRepoUrl, githubPath, githubRef, anatomiaProject, anatomiaRepo }),
+    body: JSON.stringify({ theme, gameTitle, discussionTheme, discussionContent, discussionInputKind, policyItems, mechanicsContext, themeSupplement, flow, tags, rounds, turnsPerRound, personaIds, opponent: personaIds, useVolputasPersona, learningSource, learningQuery, learningAppId, learningSubreddit, learningUrls, learningBalanced, specText, specUrl, githubRepoUrl, githubPath, githubRef, useAnatomia, anatomiaProject, anatomiaRepo, anatomiaUseLlm }),
   }).then(r => r.json()).catch(() => ({ ok: false, error: "通信失敗" }));
   if (!res.ok) { alert(res.error || "開始に失敗"); $("go").disabled = false; return; }
   sessionId = res.sessionId; kind = res.kind;
@@ -1098,6 +1173,7 @@ function resetView() {
   if (timer) clearInterval(timer);
   sessionId = null; kind = null; since = 0; lastPaperMd = null; paperPollMisses = 0; paperReadyNotifiedFor = null;
   $("log").innerHTML = ""; $("paperBody").innerHTML = ""; $("paperLive").textContent = ""; $("conclusionBody").textContent = "";
+  $("discussionQualityBody").innerHTML = ""; $("discussionQuality").style.display = "none";
   $("live").style.display = "none"; $("review").style.display = "none";
   $("conclusion").style.display = "none"; $("say").style.display = "none";
   $("backBar").style.display = "none"; $("start").style.display = "none";
@@ -1177,6 +1253,28 @@ function updateUtteranceMarks(node, u) {
   const el = node.querySelector(".marks");
   if (el) el.innerHTML = utteranceMarks(u);
 }
+function renderDiscussionQuality(quality) {
+  if (!quality) return;
+  $("discussionQuality").style.display = "block";
+  if (quality.status !== "scored") {
+    $("discussionQualityBody").textContent = "AI評価を取得できませんでした: " + (quality.error || "不明なエラー");
+    return;
+  }
+  const card = (title, item) => {
+    const missing = Array.isArray(item.missing) && item.missing.length
+      ? '<div class="muted">不足: ' + item.missing.map(escapeHtml).join(" / ") + '</div>'
+      : '<div class="muted">重大な不足なし</div>';
+    return '<div class="quality-card"><div><strong>' + escapeHtml(title) + '</strong></div>' +
+      '<div class="quality-score">' + Number(item.score) + ' / 100</div>' +
+      '<div>' + escapeHtml(item.rationale) + '</div>' + missing + '</div>';
+  };
+  $("discussionQualityBody").innerHTML =
+    '<div class="muted" style="margin-bottom:8px">総合 ' + Number(quality.overallScore) + ' / 100</div>' +
+    '<div class="quality-grid">' +
+    card("情報が足りているか", quality.informationSufficiency) +
+    card("議論の内容に意味があるか", quality.meaningfulness) +
+    '</div>';
+}
 async function poll() {
   if (!sessionId) return;
   const res = await fetch("/api/flow/" + sessionId + "/status?since=" + since).then(r => r.json()).catch(() => null);
@@ -1215,6 +1313,7 @@ async function poll() {
     $("conclusion").style.display = "block";
     $("conclusionBody").textContent = res.conclusion;
   }
+  if (res.quality) renderDiscussionQuality(res.quality);
   if (res.done) { clearInterval(timer); $("go").disabled = false; $("paperLive").textContent = "確定"; }
 }
 

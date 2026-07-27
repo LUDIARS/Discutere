@@ -61,6 +61,8 @@ export interface FetchAnatomiaDomainsOpts {
   binPath?: string;
   /** domains list が空のとき domains draft を自動実行するか。既定 true。 */
   autoDraft?: boolean;
+  /** 自動 draft を決定論的 skeleton 生成に限定する。既定 true (`--no-llm`)。 */
+  noLlmDraft?: boolean;
   /** CLI 1 コマンドのタイムアウト (ms)。既定 180000。 */
   timeoutMs?: number;
   runner?: AnatomiaCliRunner;
@@ -125,6 +127,7 @@ export async function fetchAnatomiaDomains(
   const runner = opts.runner ?? defaultAnatomiaCliRunner;
   const timeoutMs = opts.timeoutMs ?? 180000;
   const autoDraft = opts.autoDraft ?? true;
+  const noLlmDraft = opts.noLlmDraft ?? true;
   const warn = opts.warn ?? (() => {});
 
   const binPath = opts.binPath?.trim() ? opts.binPath.trim() : defaultSiblingBin();
@@ -148,8 +151,12 @@ export async function fetchAnatomiaDomains(
 
   let domains = await list();
   if (domains.length === 0 && autoDraft) {
-    warn("Anatomia: ドメイン下地が無いため domains draft を実行します (初回は解析で時間がかかります)");
-    const { exitCode } = await runner.run(binPath, ["domains", "draft", ...src, "--json"], timeoutMs, anatomiaHome);
+    warn(
+      "Anatomia: ドメイン下地が無いため domains draft を実行します" +
+      (noLlmDraft ? " (--no-llm)" : "")
+    );
+    const args = ["domains", "draft", ...src, ...(noLlmDraft ? ["--no-llm"] : []), "--json"];
+    const { exitCode } = await runner.run(binPath, args, timeoutMs, anatomiaHome);
     if (exitCode !== 0) throw new Error(`anatomia domains draft 失敗 (exit ${exitCode})`);
     domains = await list();
   }

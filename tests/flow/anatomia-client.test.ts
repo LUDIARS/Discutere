@@ -68,6 +68,7 @@ function makeRunner(listOutputs: string[]): { runner: AnatomiaCliRunner; calls: 
   assert.equal(domains.length, 2, "draft 後の再 list で取得");
   assert.equal(calls[0][1], "list");
   assert.equal(calls[1][1], "draft");
+  assert.ok(calls[1].includes("--no-llm"), "auto draft は既定で LLM を使わない");
   assert.equal(calls[2][1], "list");
 }
 

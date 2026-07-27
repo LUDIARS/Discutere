@@ -21,6 +21,8 @@ export interface GetAnatomiaMechanicsDeps {
   /** Anatomia bin/anatomia.mjs の絶対パス (空なら sibling 解決)。 */
   binPath?: string;
   autoDraft?: boolean;
+  /** 初回ドメイン下地も LLM を使わず生成する。既定 true。 */
+  noLlmDraft?: boolean;
   timeoutMs?: number;
   /** 精製に使う LLM (未指定なら決定論フォールバック)。 */
   llm?: LLMClient;
@@ -43,6 +45,7 @@ export async function getAnatomiaMechanics(
   const cards = await fetchAnatomiaDomains(source, {
     binPath: deps.binPath,
     autoDraft: deps.autoDraft,
+    noLlmDraft: deps.noLlmDraft,
     timeoutMs: deps.timeoutMs,
     runner: deps.runner,
     warn: deps.warn,

@@ -17,7 +17,7 @@ import type { createCore } from "../core/index.js";
 import type { LLMClient } from "../persona-engine/llm/client.js";
 import type { CascadeClients } from "../crawler/sentiment/cascade.js";
 import type { FlowTag } from "./tags.js";
-import type { ContextVoice } from "./discussion-paper.js";
+import { getPaperBodyBySession, type ContextVoice } from "./discussion-paper.js";
 import type { YoutubeSearchFn } from "./investigate.js";
 import { runDiscussionFlow, runFlow, type FlowDirectorResult, type FlowUtteranceRecord, type VoteEvent, type PaperOverride } from "./director.js";
 import { runImprovementFlow } from "./improvement.js";
@@ -26,6 +26,7 @@ import { getConfig } from "../config.js";
 import { runLearningFlow, type LearningCrawlSpec, type LearningFlowResult, type LearningOpinion } from "./learning.js";
 import { SparringSession } from "./sparring.js";
 import type { GameMechanicEntry } from "./games-md.js";
+import { assessAndSaveDiscussionQuality } from "./discussion-quality.js";
 
 type Core = ReturnType<typeof createCore>;
 
@@ -87,6 +88,10 @@ export interface DispatchDeps {
   workspaceId?: string;
   /** WebUI が起動前に id を返すための固定 sessionId (discussion/improvement)。 */
   sessionId?: string;
+  /** 完了後に情報充足度/有意味性を AI 採点し、結論へ永続する。Web 仕様・施策議論で有効化する。 */
+  assessQuality?: boolean;
+  /** 品質採点モデル。未指定なら LLM 既定。 */
+  qualityModel?: string;
   /**
    * 確定済みディスカッションペーパー (人間レビューゲートで承認したもの)。
    * discussion/improvement のみ反映。指定時は investigate を省略する。
@@ -136,6 +141,32 @@ export class FlowTypeRequiredError extends Error {
   }
 }
 
+async function assessQualityIfRequested(
+  theme: string,
+  result: FlowDirectorResult,
+  deps: DispatchDeps
+): Promise<void> {
+  if (!deps.assessQuality) return;
+  try {
+    await assessAndSaveDiscussionQuality({
+      sessionId: result.sessionId,
+      theme,
+      paper: getPaperBodyBySession(result.sessionId) ?? "",
+      conclusion: result.conclusion,
+      utterances: result.utterances.map((utterance) => ({
+        personaName: utterance.personaName,
+        text: utterance.text,
+      })),
+      llm: deps.llm,
+      model: deps.qualityModel,
+    });
+  } catch (error) {
+    (deps.warn ?? console.warn)(
+      `[flow] 議論品質スコアの保存に失敗: ${(error as Error).message}`
+    );
+  }
+}
+
 /**
  * フローを起動する。flow=壁打ち のときは起動済み SparringSession を返す (対話継続用)。
  * 他フローは完走させて結果を返す。
@@ -173,13 +204,17 @@ export async function dispatchFlow(input: DispatchInput, deps: DispatchDeps): Pr
       const run =
         deps.drivers?.discussion ??
         (engine === "dialectic" ? runDialecticDiscussionFlow : runDiscussionFlow);
-      return { kind, flow: kind, result: await run(theme, tags, flowDeps) };
+      const result = await run(theme, tags, flowDeps);
+      await assessQualityIfRequested(theme, result, deps);
+      return { kind, flow: kind, result };
     }
     case "improvement": {
       const run =
         deps.drivers?.improvement ??
         (engine === "dialectic" ? runDialecticImprovementFlow : runImprovementFlow);
-      return { kind, flow: kind, result: await run(theme, tags, flowDeps) };
+      const result = await run(theme, tags, flowDeps);
+      await assessQualityIfRequested(theme, result, deps);
+      return { kind, flow: kind, result };
     }
     case "learning": {
       const run = deps.drivers?.learning ?? runLearningFlow;

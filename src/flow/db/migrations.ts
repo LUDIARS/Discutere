@@ -464,6 +464,11 @@ const MIGRATIONS: Array<{ id: string; sql: string[] }> = [
       `DROP TABLE IF EXISTS flow_user_affect`,
     ],
   },
+  {
+    // Web の仕様・施策議論が完了した後、AI による情報充足度/有意味性の評価を結論へ添付する。
+    id: "flow_0024_discussion_quality",
+    sql: [`ALTER TABLE flow_conclusion ADD COLUMN quality_json TEXT`],
+  },
 ];
 
 function isIgnorableMigrationError(stmt: string, error: unknown): boolean {
