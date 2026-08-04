@@ -1,0 +1,33 @@
+# Excubitor catalog 断片 — このリポジトリが所有するサービス定義。
+# Excubitor が ${ARS_ROOT} 配下を走査して集積する (Excubitor/catalog/FRAGMENTS.md)。
+#
+# 中央 catalog/services.yaml の撤去 (Excubitor: require service-owned definitions) に伴い、
+# 旧 catalog にあった定義をそのまま移設したもの。
+services:
+  - code: discutere
+    name: Discutere (Discord 議論)
+    domain: di${DOMAIN_ROOT}
+    tier: saas
+    project_code: discutere
+    subdomain: di
+    component: backend
+    port: 3110
+    repo: LUDIARS/Discutere
+    runtime: node
+    cwd: ${ARS_ROOT}/Discutere
+    command: npm run dev:server
+    allow_hot_reload: true
+    # BACKEND_PORT=3110 は env: で spawn env に注入され、 npm → node が継承する
+    # (Nuntius(3100) との port 競合回避)。
+    autostart: false
+    env:
+      BACKEND_PORT: "3110"
+    health:
+      type: http
+      url: http://localhost:3110/health
+      interval_sec: 30
+    provides:
+      DISCUTERE_URL: http://${host}:${port}
+
+  # ─────────────── personal (本人 PC 専用ツール / tier: personal) ───────────────
+  # 個人ローカル開発用 server (個人ログ専用、 port 5180)。 シェアサーバ (Hub) とは別。
