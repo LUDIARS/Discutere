@@ -81,7 +81,7 @@
   },
   "dependencies": {
     "@aws-sdk/client-s3": "^3.658.0",
-    "@hono/node-server": "^1.14.3",
+    "@hono/node-server": "^2.0.12",
     "@ludiars/blackbox": "file:./lib/lapilli/packages/blackbox",
     "@ludiars/canalis": "file:./lib/canalis",
     "@ludiars/llm-gateway": "file:./lib/lapilli/packages/llm-gateway",
