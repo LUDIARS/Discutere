@@ -7,8 +7,10 @@ import { Hono } from "hono";
 import { getConfig, _resetConfig } from "../config.js";
 import { runAdoptFromKg } from "../flow/persona-adopt-runner.js";
 import { importVoluptasPersonas } from "../flow/persona-import.js";
+import { parsePersonaDocument } from "../flow/persona-import-document.js";
 import { listPoolPersonas } from "../flow/persona-pool.js";
 
+// @spec インポート (Vo → Di)
 const personaRoutes = new Hono();
 
 function configPath(): string {
@@ -70,10 +72,16 @@ personaRoutes.put("/admin/personas/auto-adopt", async (context) => {
   });
 });
 
+// 本文は JSON 配列 / { personas: [] } / NDJSON のいずれでもよい。CLI (`npm run persona:import`) と
+// 同じ parsePersonaDocument で解釈し、壊れた行は落とさず skip 件数として返す。
 personaRoutes.post("/admin/personas/import", async (context) => {
-  const body = await context.req.json().catch(() => null);
+  const body = await context.req.text().catch(() => "");
   try {
-    return context.json({ ok: true, ...importVoluptasPersonas(body) });
+    const document = parsePersonaDocument(body);
+    return context.json({
+      ok: true,
+      ...importVoluptasPersonas(document.personas, { invalidJsonLines: document.invalidJsonLines }),
+    });
   } catch (error) {
     return context.json({ error: (error as Error).message }, 400);
   }
@@ -116,7 +124,7 @@ const PERSONA_HTML = `<!doctype html>
  <div class="card">
    <h2>Voluptas から取り込む</h2>
    <p class="muted">Voluptas の <code>export:personas</code> で生成した JSON のみ受理します。生 SID・表示名・メールは保存しません。</p>
-   <input id="importFile" type="file" accept="application/json,.json">
+   <input id="importFile" type="file" accept="application/json,application/x-ndjson,.json,.jsonl,.ndjson">
    <button onclick="runImport()">匿名ペルソナを取り込む</button>
  </div>
  <div class="card">
@@ -134,7 +142,20 @@ const byId=id=>document.getElementById(id);
 function show(value){byId('out').textContent=typeof value==='string'?value:JSON.stringify(value,null,2)}
 async function load(){const data=await fetch('/api/admin/personas/data').then(r=>r.json());byId('auto').checked=!!data.autoAdoptOnCrawl;byId('autoMeta').textContent='imported: '+data.imported+' / adopted: '+data.adopted+' / config: '+data.configPath+(data.envOverride!==null?' / env override: '+data.envOverride:'')}
 async function post(url,body){const response=await fetch(url,{method:'POST',headers:{'content-type':'application/json'},body:JSON.stringify(body)});const data=await response.json();show(data);return data}
-async function runImport(){const file=byId('importFile').files[0];if(!file){alert('JSON file required');return}const data=JSON.parse(await file.text());await post('/api/admin/personas/import',data);await load()}
+async function runImport(){
+  const file=byId('importFile').files[0];
+  if(!file){
+    alert('JSON/JSONL file required');
+    return;
+  }
+  const response=await fetch('/api/admin/personas/import',{
+    method:'POST',
+    headers:{'content-type':'application/x-ndjson'},
+    body:await file.text()
+  });
+  show(await response.json());
+  await load();
+}
 async function saveAuto(){const response=await fetch('/api/admin/personas/auto-adopt',{method:'PUT',headers:{'content-type':'application/json'},body:JSON.stringify({enabled:byId('auto').checked})});const data=await response.json();byId('autoMsg').className=data.ok?'ok':'bad';byId('autoMsg').textContent=data.ok?'保存しました':'失敗';show(data);await load()}
 async function runAdopt(){await post('/api/admin/personas/adopt',{source:byId('source').value,minOpinions:Number(byId('minOpinions').value),dry:byId('dry').checked});await load()}
 load();

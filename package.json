@@ -72,6 +72,7 @@
     "import:youtube": "tsx scripts/import-youtube-comments.ts",
     "ext:canalis": "tsx scripts/ext-canalis-run.ts",
     "persona:import": "tsx scripts/persona-import.ts",
+    "persona:populations": "tsx scripts/persona-populations.ts",
     "persona:adopt": "tsx scripts/persona-adopt.ts",
     "app:rebuild": "electron-rebuild -f -w better-sqlite3",
     "app:rebuild:undo": "npm rebuild better-sqlite3",

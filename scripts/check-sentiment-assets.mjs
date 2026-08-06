@@ -2,6 +2,8 @@ import { readFileSync } from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 
+// @spec sentiment 空間の一本化
+
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
 const pairs = [
   ["src/crawler/sentiment/lexicon.json", "lib/lapilli/packages/sentiment-core/data/lexicon.json"],

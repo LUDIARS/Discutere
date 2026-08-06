@@ -15,6 +15,7 @@
 //   node src/crawler/sentiment/analyze.mjs --in <collected.json> --slug <slug> --title "<Title>" [--genre <g>] [--out data/games]
 import fs from "fs";
 import path from "path";
+import { assertCrawlerVectorSpec } from "./vector-spec.mjs";
 
 const lex = JSON.parse(fs.readFileSync(new URL("./lexicon.json", import.meta.url), "utf8"));
 const EMO = Object.keys(lex.emotions); // 8
@@ -25,6 +26,8 @@ export const VECTOR_SPEC = [
   ...ASP.map(a => "asp." + a),
   "meta.positive_ratio", "meta.volume_log",
 ]; // 20 dims, 0..1
+export const VECTOR_SPEC_VERSION = 1;
+assertCrawlerVectorSpec(VECTOR_SPEC, VECTOR_SPEC_VERSION);
 
 const arg = (n, d = null) => { const i = process.argv.indexOf("--" + n); return i >= 0 ? process.argv[i + 1] : d; };
 const n01 = v => Math.max(0, Math.min(1, v));
@@ -135,7 +138,7 @@ const res = analyze(collected);
 writeMd(outDir, slug, title, genre, collected, res);
 const side = { game: title, slug, fetched_date: collected.fetched_date,
   method: "hybrid (lexicon first-pass; composite fixed vector computed in-code / Claude Code, no external embedding API)",
-  vector_spec: VECTOR_SPEC, vector_range: "0..1",
+  vector_spec: VECTOR_SPEC, vector_spec_version: VECTOR_SPEC_VERSION, vector_range: "0..1",
   sources: (collected.by_source || []).filter(s => s.status === "ok").map(s => ({ source: s.source, n: s.n })), ...res };
 fs.writeFileSync(path.join(outDir, `${slug}.sentiment.json`), JSON.stringify(side, null, 2));
 console.log(`wrote ${outDir}/${slug}.md + ${slug}.sentiment.json  (vector dims=${VECTOR_SPEC.length})`);

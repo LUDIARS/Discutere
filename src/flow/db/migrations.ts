@@ -162,8 +162,11 @@ const MIGRATIONS: Array<{ id: string; sql: string[] }> = [
     ],
   },
   {
-    // C2-b 母数推定値の永続化: 合成ペルソナ (origin=generated) の所属クラスタが実分布で持つ
-    // 母数判定 (大/小) と実近傍比率を flow_persona に書き戻す (estimatePopulations の結果)。
+    // C2-b 母数推定値の永続化 (legacy): 合成ペルソナ (origin=generated) の所属クラスタが実分布で
+    // 持つ母数判定 (大/小) と実近傍比率を flow_persona に書き戻していた列。
+    // flow_0023 で合成ペルソナごと撤去され、母数推定は estimatePopulationReport の JSON 出力
+    // (spec/feature/flow/persona-bridge.md §3) に置き換わったため、現在どこからも読み書きしない。
+    // 既存 DB との互換のため列自体は残す。
     // ALTER ADD COLUMN の後に INDEX (既存 DB で no such column を避ける共通ルール)。
     id: "flow_0007_persona_population",
     sql: [
@@ -462,6 +465,30 @@ const MIGRATIONS: Array<{ id: string; sql: string[] }> = [
          ON flow_persona(user_id) WHERE user_id IS NOT NULL`,
       `UPDATE flow_persona SET archived = 1 WHERE origin IN ('generated', 'synthesized')`,
       `DROP TABLE IF EXISTS flow_user_affect`,
+    ],
+  },
+  {
+    // Voluptas persona export v2 の派生 compartment。本文や provenance は保存しない。
+    id: "flow_0024_persona_import_v2",
+    sql: [
+      `ALTER TABLE flow_persona ADD COLUMN preference_axes_json TEXT NOT NULL DEFAULT '{}'`,
+      `ALTER TABLE flow_persona ADD COLUMN attributes_json TEXT NOT NULL DEFAULT '{}'`,
+      `ALTER TABLE flow_persona ADD COLUMN aversions_json TEXT NOT NULL DEFAULT '[]'`,
+      `ALTER TABLE flow_persona ADD COLUMN mechanic_reactions_json TEXT NOT NULL DEFAULT '[]'`,
+      `ALTER TABLE flow_persona ADD COLUMN export_spec_version INTEGER`,
+    ],
+  },
+  {
+    // Vo が発行する短期 authorization assertion の jti を期限まで保持する。
+    // プロセス再起動後も同じ assertion を再利用できないよう SQLite を正本にする。
+    id: "flow_0025_persona_bridge_assertion_nonce",
+    sql: [
+      `CREATE TABLE IF NOT EXISTS persona_bridge_assertion_nonce (
+        jti TEXT PRIMARY KEY,
+        expires_at INTEGER NOT NULL
+      )`,
+      `CREATE INDEX IF NOT EXISTS idx_persona_bridge_assertion_expiry
+         ON persona_bridge_assertion_nonce(expires_at)`,
     ],
   },
 ];

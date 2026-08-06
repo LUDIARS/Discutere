@@ -65,8 +65,34 @@ try {
     headers: { "content-type": "application/json" },
     body: JSON.stringify([{ user_id: "raw-sid", affect_vector: new Array(20).fill(0), vector_spec_version: 1 }]),
   });
-  assert.equal(rawSid.status, 400);
+  assert.equal(rawSid.status, 200);
+  assert.equal((await rawSid.json()).skipped, 1);
   console.log("  [ok] persona admin route: Voluptas pseudonymous import only");
+
+  // NDJSON は壊れた行があっても取込全体を落とさず、件数だけ返す (CLI と同じ挙動)。
+  const ndjson = await app.request("/api/admin/personas/import", {
+    method: "POST",
+    headers: { "content-type": "application/x-ndjson" },
+    body: [
+      JSON.stringify({
+        pseudoId: "ext:voluptas:fedcba9876543210",
+        affectVector: new Array(20).fill(0.2),
+        vectorSpecVersion: 1,
+      }),
+      "not-json",
+      "",
+    ].join("\n"),
+  });
+  assert.equal(ndjson.status, 200);
+  const ndjsonSummary = await ndjson.json() as {
+    inserted: number;
+    skipped: number;
+    skipReasons: Record<string, number>;
+  };
+  assert.equal(ndjsonSummary.inserted, 1);
+  assert.equal(ndjsonSummary.skipped, 1);
+  assert.deepEqual(ndjsonSummary.skipReasons, { "invalid-json": 1 });
+  console.log("  [ok] persona admin route: NDJSON upload degrades on broken lines");
 } finally {
   if (previousConfig === undefined) delete process.env.DISCUTERE_CONFIG;
   else process.env.DISCUTERE_CONFIG = previousConfig;

@@ -22,6 +22,7 @@ await import("./entrypoints.test.js");
 await import("./persona-pool.test.js");
 await import("./claude-code-auth.test.js");
 await import("./persona-import.test.js");
+await import("./persona-bridge.test.js");
 await import("./persona-display.test.js");
 await import("./voice-cache.test.js");
 await import("./possession-vote.test.js");

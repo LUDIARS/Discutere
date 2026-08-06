@@ -1,0 +1,17 @@
+{
+  "name": "persona-bridge",
+  "description": "Voluptas と Discutere の匿名 persona import、descriptor、population report、consented Discord utterance export、および共有 sentiment vector 契約。",
+  "presetRules": [],
+  "templateRules": [],
+  "membership": [
+    {
+      "pathPattern": "(^|/)(scripts/(persona-(import|populations)\\.ts|(setup-submodules|check-sentiment-assets)\\.mjs)|src/index\\.ts|src/api/persona(-bridge)?-routes\\.ts|src/persona-bridge/[^/]+\\.ts|src/flow/(db/migrations|persona-(descriptor|import|import-document|pool|populations)|voluptas-persona-client|sentiment-vector)\\.ts|src/analysis/affect-score\\.ts|src/crawler/sentiment/(analyze|cascade|vector-spec)\\.(ts|mjs))$"
+    }
+  ],
+  "specRefs": [
+    "SPEC-PERSONA-BRIDGE-PERSONA-PULL",
+    "SPEC-PERSONA-BRIDGE-UTTERANCE-EXPORT",
+    "Voluptas ペルソナブリッジ — 設計"
+  ],
+  "source": "spec-review"
+}

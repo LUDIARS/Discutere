@@ -3,7 +3,8 @@
 > 状態: ドラフト (2026-07-27)。2026-07-27 ペルソナエンジンレビュー (Vo/Di 横断) の Di 側対応。
 > 対リポ側設計: Voluptas `persona-engine-v2-design.md` (エクスポート形式 v2・同意・母集団レポート取込)。
 > 関連: [persona-pool.md](./persona-pool.md) (canonical: プール/憑依/採用/責務境界)、
-> `spec/feature/crawler/SENTIMENT.md` (20 次元空間の正本)。
+> `spec/feature/crawler/SENTIMENT.md` (20 次元空間の正本)、
+> [persona bridge API](../../interface/persona-bridge.md) (外部境界の正本)。
 
 ## 0. 背景 (レビュー所見。2026-07-27 現状訂正済み)
 
@@ -39,13 +40,13 @@ attributes{ageBand?,spending?} / mechanicReactions / exportSpecVersion:2`。
   CLI は既存の `npm run persona:import -- --input <file>` (`scripts/persona-import.ts`) に
   `--url` を足す形で拡張し、手動ファイル渡しに加えて Vo エンドポイントからの pull に対応する
   (CLI 自体は v1 で既に存在する)。
-- 新カラム (migration `flow_00xx_persona_import_v2`):
+- 新カラム (migration `flow_0024_persona_import_v2`):
   - `preference_axes_json` — 15 軸スコア (adopted/generated にも将来書ける汎用列)
   - `attributes_json` — ageBand / spending 等の任意属性
   - `aversions_json` — 忌避
   - `mechanic_reactions_json` — メカニクス反応
-- `--url` は Cernere project credential での認証 (Vo 側 §6.2)。認証情報は config
-  (`voluptas.{baseUrl, clientId, clientSecret}`) に置き、ログへ出さない。
+- `--url` は Vo 側 §6.2 の専用 Bearer token で認証する。token は
+  `DISCUTERE_VOLUPTAS_EXPORT_TOKEN` からのみ読み、引数・設定ファイル・ログへ出さない。
 
 ### 1.3 検証
 
@@ -69,7 +70,8 @@ preference_axes_json の上位 2 軸 + 下位 1 軸 (「探索と物語を強く
   axis id→日本語表現の辞書は **Di 側に既存のものが無い** (`persona-questionnaire.ts` と
   `PREFERENCE_AXES` は persona-pool 責務境界の整理で main から削除済み)。
   `persona-descriptor.ts` 内に定数として新設し、axis id は Vo のエクスポート
-  (Vo が 15 軸の正本) と一致させる。Di 側に質問票・回答保存を戻すことはしない
+  (Vo が 15 軸の正本) と一致させる。日本語 label は旧 `PREFERENCE_AXES` を引き継いだ
+  `AXIS_LABELS` を同ファイル内の正本とし、Di 側に質問票・回答保存を戻すことはしない
   ([persona-pool.md](./persona-pool.md) 「責務境界」)。
 - adopted ペルソナも同関数を通す (使える材料が affect/極性特徴だけなら従来相当の薄い
   descriptor に degrade)。既存挙動を壊さない。
@@ -81,8 +83,8 @@ preference_axes_json の上位 2 軸 + 下位 1 軸 (「探索と物語を強く
 
 - **前提訂正 (2026-07-27)**: `src/flow/persona-populations.ts` / `estimatePopulations` /
   `npm run persona:populations` は persona-pool 責務境界の整理で **main から削除済み**。
-  D3 は「既存実装の拡張」ではなく **新規実装** になる。
-- クラスタリング対象は `flow_persona` の非アーカイブ行 (imported + adopted)、
+  D3 は「既存実装の拡張」ではなく、`estimatePopulationReport` として再構成した **新規実装**。
+- `estimatePopulationReport` の対象は `flow_persona` の非アーカイブ行 (imported + adopted)、
   距離は既存の 20D affect cosine ([persona-pool.md](./persona-pool.md) の近傍選択と同じ空間)。
   adopted = 公開レビュー由来の実分布側、imported = 判定対象、という切り分けは従来どおり。
 - 新 CLI (`npm run persona:populations -- --report <path>`) を再度用意し、
@@ -111,14 +113,16 @@ preference_axes_json の上位 2 軸 + 下位 1 軸 (「探索と物語を強く
   発言の還流に同意」した場合のみ。紐付け情報は Vo (Cernere) 側が持ち、Di は
   「このユーザ id の発言をエクスポートして」という **pull 要求に応えるだけ** にする
   (Di に Vo のユーザ対応表を持たせない。匿名 workspace 方針を保つ)。
-- エクスポート: `GET /api/persona-bridge/utterances?authorId=<discord id>&since=`。project credential
-  だけで caller 指定の `authorId` を読めてはならない。Vo は同意済みの Discord account と
+- エクスポート契約は [persona bridge API](../../interface/persona-bridge.md) を正本とする。
+  `DISCUTERE_PERSONA_BRIDGE_TOKEN` の専用 Bearer token (32 文字以上) に加え、Vo は
+  同意済みの Discord account と
   `authorId` を束縛した、Di 宛て・短期有効・一回限りの署名済み authorization assertion を各 pull
   に添付し、Di は署名・audience・expiry・replay と query の `authorId` 一致を検証する。これにより
-  Di は Vo の対応表を永続化せず、credential 漏えい時にも任意の Discord ID の発話を列挙できない。
-  返すのは assertion の `authorId` と一致する human 発話の本文とタイムスタンプのみ。web-chat は
-  認証済みの account ID を保存して一致を確認できる行だけを対象にし、任意入力の表示名を identity
-  として扱わない。persona (AI) 発話・他人の発話は返さない。
+  Di は Vo の対応表を永続化せず、project credential 漏えい時にも任意の Discord ID の発話を
+  列挙できない。認証前提が未設定なら経路ごと 503 = default-deny。返すのは core `utterances` に
+  assertion の `authorId` と一致する Discord human 発話として保存された本文とタイムスタンプのみ。
+  persona (AI) 発話・外部データ・他人の発話は返さない。匿名表示名しか保持しない web-chat 発話は
+  安全なアカウント紐付けができないため対象外。
 - Vo 側は voice 相当の evidence として取り込む (Vo 側 §4.6)。
 
 ## 5. sentiment 空間の一本化 (大部分は main で実施済み — 2026-07-27 訂正)
@@ -140,7 +144,10 @@ preference_axes_json の上位 2 軸 + 下位 1 軸 (「探索と物語を強く
 - 憑依の選定アルゴリズム変更 (affect cosine のまま)。
 - embedding ベース affect (#125 別トラック)。
 - Vo 側スキーマ・UI (Vo 設計の範囲)。
-- imported ペルソナの Discord 表示名に Vo 由来であることを出す (出さない。論者# で統一)。
+- imported ペルソナの表示名に Vo 側の識別子 (SID / pseudoId / 表示名) を出す。
+  表示名は pseudoId とは別の一方向 hash から導いた `プレイヤー#xxxxxxxx`
+  ([persona-pool.md](./persona-pool.md) の取込契約が正本。採用話者の `論者#xxxxxx` とは接頭辞で
+  区別するが、どちらも個人を辿れる情報は含まない)。
 
 ## 7. 実装タスク分解 (フルセット)
 

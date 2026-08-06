@@ -8,11 +8,23 @@
  * テキストからのベクトル化は textToVector を流用する。
  */
 
+// @spec 憑依 descriptor の強化
 import { getFlowDb } from "./db/connection.js";
+import { buildPersonaDescriptor } from "./persona-descriptor.js";
 import { cosine, textToVector, DIM } from "./sentiment-vector.js";
 import { roleDefaultStance, type FlowPersona, type FlowRole, type FlowStance } from "./personas.js";
 
 export type PersonaOrigin = "seed" | "adopted" | "imported";
+
+export interface PersonaAversion {
+  target: string;
+  strength: number;
+}
+
+export interface PersonaMechanicReaction {
+  mechanicId: string;
+  sentiment: number;
+}
 
 export interface PoolPersona {
   id: string;
@@ -39,6 +51,11 @@ export interface PoolPersona {
   polarityBias?: number;
   /** ゲーム間 affect のばらつき (per-game ベクトルの平均対距離)。affect 解像度向上 (#125)。 */
   affectDispersion?: number;
+  preferenceAxes?: Record<string, number>;
+  attributes?: { ageBand?: string; spending?: string };
+  aversions?: PersonaAversion[];
+  mechanicReactions?: PersonaMechanicReaction[];
+  exportSpecVersion?: number;
 }
 
 function parseJsonArray(s: string): unknown[] {
@@ -47,6 +64,17 @@ function parseJsonArray(s: string): unknown[] {
     return Array.isArray(v) ? v : [];
   } catch {
     return [];
+  }
+}
+
+function parseJsonObject(s: string): Record<string, unknown> {
+  try {
+    const value = JSON.parse(s);
+    return value && typeof value === "object" && !Array.isArray(value)
+      ? value as Record<string, unknown>
+      : {};
+  } catch {
+    return {};
   }
 }
 
@@ -67,6 +95,11 @@ interface PersonaRow {
   typicality: number | null;
   polarity_bias: number | null;
   affect_dispersion: number | null;
+  preference_axes_json: string;
+  attributes_json: string;
+  aversions_json: string;
+  mechanic_reactions_json: string;
+  export_spec_version: number | null;
 }
 
 function rowToPersona(r: PersonaRow): PoolPersona {
@@ -87,6 +120,11 @@ function rowToPersona(r: PersonaRow): PoolPersona {
     typicality: r.typicality ?? undefined,
     polarityBias: r.polarity_bias ?? undefined,
     affectDispersion: r.affect_dispersion ?? undefined,
+    preferenceAxes: parseJsonObject(r.preference_axes_json) as Record<string, number>,
+    attributes: parseJsonObject(r.attributes_json) as PoolPersona["attributes"],
+    aversions: parseJsonArray(r.aversions_json) as PersonaAversion[],
+    mechanicReactions: parseJsonArray(r.mechanic_reactions_json) as PersonaMechanicReaction[],
+    exportSpecVersion: r.export_spec_version ?? undefined,
   };
 }
 
@@ -100,8 +138,9 @@ export function insertPoolPersona(p: PoolPersona): void {
     `INSERT INTO flow_persona
        (id, name, role, speech_style, traits_json, affect_vector_json, origin, parent_ids_json,
         learning_source, label, model, source_speaker_id, user_id, typicality, polarity_bias, affect_dispersion,
-        archived, created_at)
-     VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 0, ?)`
+        preference_axes_json, attributes_json, aversions_json, mechanic_reactions_json,
+        export_spec_version, archived, created_at)
+     VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 0, ?)`
   ).run(
     p.id,
     p.name,
@@ -119,22 +158,39 @@ export function insertPoolPersona(p: PoolPersona): void {
     p.typicality ?? null,
     p.polarityBias ?? null,
     p.affectDispersion ?? null,
+    JSON.stringify(p.preferenceAxes ?? {}),
+    JSON.stringify(p.attributes ?? {}),
+    JSON.stringify(p.aversions ?? []),
+    JSON.stringify(p.mechanicReactions ?? []),
+    p.exportSpecVersion ?? null,
     Date.now()
   );
 }
 
-/** Voluptas の仮名 user_id で取込済みペルソナを引く。 */
-export function findPoolPersonaByUserId(userId: string): PoolPersona | null {
+/**
+ * Voluptas の仮名 user_id で取込済みペルソナを引く。
+ *
+ * `includeArchived` はアーカイブ行も対象にする。 unique index
+ * `idx_flow_persona_user_id` は archived を問わず全行に効くので、 upsert の存在判定は
+ * これを付けないと「アーカイブ済みの同一人物」を見落として INSERT が制約違反で落ちる。
+ */
+export function findPoolPersonaByUserId(
+  userId: string,
+  opts: { includeArchived?: boolean } = {}
+): PoolPersona | null {
   const row = getFlowDb()
-    .prepare(`SELECT * FROM flow_persona WHERE user_id = ? AND archived = 0 LIMIT 1`)
+    .prepare(
+      `SELECT * FROM flow_persona WHERE user_id = ?${opts.includeArchived ? "" : " AND archived = 0"}
+        ORDER BY created_at ASC LIMIT 1`
+    )
     .get(userId) as PersonaRow | undefined;
   return row ? rowToPersona(row) : null;
 }
 
-/** Voluptas 由来ペルソナを仮名 user_id 単位で冪等に取り込む。 */
+/** Voluptas 由来ペルソナを仮名 user_id 単位で冪等に取り込む (アーカイブ済みは復帰させる)。 */
 export function upsertPoolPersonaByUserId(persona: PoolPersona): PoolPersona {
   if (!persona.userId) throw new Error("upsertPoolPersonaByUserId: userId required");
-  const existing = findPoolPersonaByUserId(persona.userId)
+  const existing = findPoolPersonaByUserId(persona.userId, { includeArchived: true })
     ?? (persona.sourceSpeakerId ? findPoolPersonaBySpeaker(persona.sourceSpeakerId) : null);
   if (!existing) {
     insertPoolPersona(persona);
@@ -144,7 +200,9 @@ export function upsertPoolPersonaByUserId(persona: PoolPersona): PoolPersona {
     .prepare(
       `UPDATE flow_persona SET name = ?, role = ?, speech_style = ?, traits_json = ?,
          affect_vector_json = ?, origin = 'imported', learning_source = ?, label = ?, model = ?,
-         source_speaker_id = ?, user_id = ?, archived = 0 WHERE id = ?`
+         source_speaker_id = ?, user_id = ?, preference_axes_json = ?, attributes_json = ?,
+         aversions_json = ?, mechanic_reactions_json = ?, export_spec_version = ?,
+         archived = 0 WHERE id = ?`
     )
     .run(
       persona.name,
@@ -157,6 +215,11 @@ export function upsertPoolPersonaByUserId(persona: PoolPersona): PoolPersona {
       persona.model ?? null,
       persona.sourceSpeakerId ?? existing.sourceSpeakerId ?? null,
       persona.userId,
+      JSON.stringify(persona.preferenceAxes ?? {}),
+      JSON.stringify(persona.attributes ?? {}),
+      JSON.stringify(persona.aversions ?? []),
+      JSON.stringify(persona.mechanicReactions ?? []),
+      persona.exportSpecVersion ?? null,
       existing.id
     );
   return { ...persona, id: existing.id };
@@ -331,20 +394,5 @@ export function toFlowPersona(
  * 出所・典型度・極性偏り・ゲーム間ばらつき等のメタから人物像を言語化する。
  */
 export function describePossession(p: PoolPersona): string {
-  const parts: string[] = [];
-  if (p.traits.length > 0) parts.push(`特徴: ${p.traits.join(" / ")}`);
-  if (p.speechStyle) parts.push(`話し方: ${p.speechStyle}`);
-  if (p.learningSource) parts.push(`出所: ${p.learningSource}`);
-  if (typeof p.typicality === "number") {
-    parts.push(p.typicality >= 0.9 ? "多数派寄りの感性" : "やや独自の感性");
-  }
-  if (typeof p.polarityBias === "number") {
-    parts.push(p.polarityBias >= 0.5 ? "好き嫌いがはっきりしている" : "是々非々で評価する");
-  }
-  if (typeof p.affectDispersion === "number" && p.affectDispersion >= 0.1) {
-    parts.push("ゲームによって評価が大きく変わる");
-  }
-  return parts.length > 0
-    ? `この人物像は実データ由来。${parts.join("、")}。この感性になりきって発言する。`
-    : "この人物像は実データ由来の感性を持つ。その立場になりきって発言する。";
+  return buildPersonaDescriptor(p);
 }

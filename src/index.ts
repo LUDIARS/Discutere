@@ -34,6 +34,7 @@ import { workerRoutes, setWorkerPool } from "./api/worker.js";
 import { workerPoolControlRoutes, setWorkerPoolControl } from "./api/worker-pool-control.js";
 import { tuningRoutes, setRuntimeSettings } from "./api/tuning-routes.js";
 import { personaRoutes } from "./api/persona-routes.js";
+import { personaBridgeRoutes } from "./api/persona-bridge-routes.js";
 import { topPageRoutes } from "./api/top-page-routes.js";
 import { webChatRoutes, setWebChatDeps } from "./api/web-chat-routes.js";
 import { flowRoutes, setFlowWebDeps } from "./flow/web/routes.js";
@@ -154,6 +155,7 @@ app.route("/api", workerPoolControlRoutes);
 // ─── 議論チューニング UI/API (/api/admin/tuning) ───────────────
 app.route("/api", tuningRoutes);
 app.route("/api", personaRoutes);
+app.route("/api", personaBridgeRoutes);
 
 // ─── 成長型ブラックボックス (情報密度判定のルール卒業) レビュー & 管理 ──
 app.route("/api", blackboxRoutes);

@@ -286,4 +286,6 @@ Discord (`src/flow/discord-live.ts`) と Slack (`src/slack/slack-live.ts`) の�
 7. **匿名ペルソナの取込と採用 (item7)**: Voluptas が生成した匿名ペルソナは、HMAC 仮名化済みの
    `user_id` を同一人物アンカーとして `flow_persona` に upsert する。Di は質問票や回答からペルソナを
    生成しない。公開レビュー話者については既存 C1 採用 (`runAdoptFromKg`) を維持し、SteamID 等の公開
-   platform ID を同一人物アンカーとして `論者#xxxxxx` へ仮名化する。
+   platform ID を同一人物アンカーとして `論者#xxxxxx` へ仮名化する。C1 採用の起動口は
+   `/admin/personas` WebUI と Discord `/persona-generate` (admin only、名前は歴史的経緯で残るが
+   実体は採用トリガ) の 2 つ。

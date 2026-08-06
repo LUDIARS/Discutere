@@ -1,3 +1,4 @@
+// @spec sentiment 空間の一本化
 /** Backward-compatible import path for the canonical shared 20-dimensional sentiment core. */
 export {
   ASP_KEYS,
