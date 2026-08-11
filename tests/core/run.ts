@@ -6,6 +6,10 @@ import { createCore } from "../../src/core/index.js";
 
 // KG レジストリ解決 (タスク別 KG / 後方互換) の単体検証。
 import "./kg-registry.test.js";
+// ハイブリッド検索の順位融合・多様化 (純関数) の単体検証。
+import "./hybrid-rank.test.js";
+// 非同期 warm の DB 寿命・設定検証・本文非保存。
+import "./query-embed-cache.test.js";
 
 function rmrf(p: string) {
   if (fs.existsSync(p)) fs.rmSync(p, { recursive: true, force: true });

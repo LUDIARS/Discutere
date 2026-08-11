@@ -1,0 +1,22 @@
+{
+  "name": "voice-rag-hybrid",
+  "description": "外部の声 RAG のハイブリッド検索 (キーワード recall + 埋め込み rerank + 多様化)。クエリ埋め込みキャッシュ、Ludus game-lexicon 用語別名、声側ベクトルの offline 構築、検索精度評価ハーネス。",
+  "presetRules": [],
+  "templateRules": [],
+  "membership": [
+    {
+      "pathPattern": "(^|/)(src/discatier-engine-adapter/(voice-search|ludus-term-aliases|game-aliases|keyword-terms|index)\\.ts|src/core/vectors/(embedder|hybrid-rank|query-embed-cache|vector-search|vector-math|embedding)\\.ts|src/config\\.ts|src/flow/design-gap\\.ts|scripts/(build-voice-embeddings|build-ludus-term-aliases|eval-retrieval|build-conclusion-cache)\\.ts|tests/core/(hybrid-rank|query-embed-cache)\\.test\\.ts|tests/persona-engine/(game-aliases|external-voices-lookup)\\.test\\.ts)$"
+    }
+  ],
+  "specRefs": [
+    "SPEC-VOICE-RAG-HYBRID-SEARCH",
+    "SPEC-VOICE-RAG-HYBRID-QUERY-CACHE",
+    "SPEC-VOICE-RAG-HYBRID-CONFIG",
+    "SPEC-VOICE-RAG-HYBRID-OPS",
+    "SPEC-VOICE-RAG-HYBRID-EVAL",
+    "SPEC-VOICE-RAG-HYBRID-DEGRADE",
+    "SPEC-GEMMA-FT-DISTILL-QUALITY",
+    "外部の声 RAG ハイブリッド検索 (キーワード recall + ベクトル rerank)"
+  ],
+  "source": "spec-review"
+}

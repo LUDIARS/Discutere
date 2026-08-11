@@ -65,3 +65,18 @@ console.log("ok buildAliasGroups");
 console.log("ok expandAliases");
 
 console.log("game-aliases tests: all passed");
+
+// ── extraGroups (Ludus 用語辞書) をマージできる ─────────────────────────────
+{
+  const groups = buildAliasGroups(
+    ["モンスターストライク"],
+    [["経験値", "XP", "EXP"], ["単独語のみ"]]
+  );
+  const xp = expandAliases(["経験値"], groups);
+  assert.ok(xp.includes("xp") && xp.includes("exp"), "用語辞書の言い換えを補う");
+  // 1 要素の extra グループは展開に寄与しない (buildAliasGroups が落とす)。
+  assert.deepEqual(expandAliases(["単独語のみ"], groups), ["単独語のみ"]);
+  // 既存のゲーム名グループと独立に共存する。
+  assert.ok(expandAliases(["モンスト"], groups).includes("モンスターストライク"));
+}
+console.log("ok buildAliasGroups extraGroups");

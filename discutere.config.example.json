@@ -99,6 +99,14 @@
       "timeoutMs": 120000
     }
   },
+  "embedding": {
+    "enabled": false,
+    "baseUrl": "http://localhost:11434/v1",
+    "model": "bge-m3",
+    "apiKey": "",
+    "timeoutMs": 30000,
+    "batchSize": 32
+  },
   "classifier": {
     "backend": "claude-cli",
     "model": "claude-haiku-4-5-20251001",

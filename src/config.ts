@@ -321,6 +321,27 @@ export interface DiscutereConfig {
     };
   };
   /**
+   * 埋め込み (意味検索) 設定 — 外部の声 RAG のハイブリッド検索用。
+   * OpenAI 互換 `/embeddings` (Ollama / vLLM / LM Studio) を叩く。
+   * llm.local (chat) とは独立 (埋め込み専用モデルを使うため)。
+   * enabled=false (既定) なら従来のキーワード検索のみで動く (opt-in)。
+   * spec/feature/voice-rag-hybrid.md。
+   */
+  embedding: {
+    /** ハイブリッド検索 (キーワード + ベクトル再ランク) を有効にするか。 */
+    enabled: boolean;
+    /** OpenAI 互換ベース URL (末尾 `/v1`)。既定 Ollama。 */
+    baseUrl: string;
+    /** 埋め込みモデル名。既定 bge-m3 (多言語・ローカル実績あり)。 */
+    model: string;
+    /** 任意。設定時のみ Bearer 認証 (vLLM 等)。 */
+    apiKey?: string;
+    /** 応答待ちタイムアウト ms。 */
+    timeoutMs: number;
+    /** 一括埋め込み時の 1 リクエスト最大テキスト数 (build スクリプト用)。 */
+    batchSize: number;
+  };
+  /**
    * 投稿→議題化の分類器 (classifyDiscordMessage) 専用 LLM 設定。
    * persona engine の worker-pool ルーティングとは独立させ、軽量モデル (Haiku)
    * を既定とする。Lictor 経由 (claude-cli) でも API 直 (anthropic) でも呼べる。
@@ -553,6 +574,7 @@ interface RawFileConfig {
   facilitator?: Partial<DiscutereConfig["facilitator"]>;
   autoSeed?: Partial<DiscutereConfig["autoSeed"]>;
   llm?: Partial<DiscutereConfig["llm"]>;
+  embedding?: Partial<DiscutereConfig["embedding"]>;
   classifier?: Partial<DiscutereConfig["classifier"]>;
   discussion?: Partial<DiscutereConfig["discussion"]>;
   workerPool?: Partial<Omit<DiscutereConfig["workerPool"], "workers">> & { workers?: WorkerPoolWorker[] };
@@ -629,6 +651,21 @@ function pickNum(envValue: string | undefined, fileValue: unknown, dflt: number)
     if (Number.isFinite(n)) return n;
   }
   return dflt;
+}
+
+/** 正の整数が必須な設定。指定値が不正なら既定値へ黙って戻さず fail-fast する。 */
+function pickPositiveInteger(
+  envValue: string | undefined,
+  fileValue: unknown,
+  dflt: number,
+  name: string
+): number {
+  const raw = envValue !== undefined && envValue !== "" ? envValue : fileValue ?? dflt;
+  const value = typeof raw === "number" || typeof raw === "string" ? Number(raw) : Number.NaN;
+  if (!Number.isInteger(value) || value <= 0) {
+    throw new Error(`${name} must be a positive integer`);
+  }
+  return value;
 }
 
 /** カンマ区切り env → 無ければ file の string 配列 → 無ければ空。両者の最初に存在した方を採用 */
@@ -963,6 +1000,28 @@ export function loadConfig(): DiscutereConfig {
         apiKey: pickOpt(process.env.LLM_LOCAL_API_KEY, file.llm?.local?.apiKey),
         timeoutMs: pickNum(process.env.LLM_LOCAL_TIMEOUT_MS, file.llm?.local?.timeoutMs, 120_000),
       },
+    },
+    embedding: {
+      enabled: pickBool(process.env.DISCUTERE_EMBEDDING_ENABLED, file.embedding?.enabled, false),
+      baseUrl: pick(
+        process.env.DISCUTERE_EMBEDDING_BASE_URL,
+        file.embedding?.baseUrl,
+        "http://localhost:11434/v1"
+      ),
+      model: pick(process.env.DISCUTERE_EMBEDDING_MODEL, file.embedding?.model, "bge-m3"),
+      apiKey: pickOpt(process.env.DISCUTERE_EMBEDDING_API_KEY, file.embedding?.apiKey),
+      timeoutMs: pickPositiveInteger(
+        process.env.DISCUTERE_EMBEDDING_TIMEOUT_MS,
+        file.embedding?.timeoutMs,
+        30_000,
+        "embedding.timeoutMs"
+      ),
+      batchSize: pickPositiveInteger(
+        process.env.DISCUTERE_EMBEDDING_BATCH_SIZE,
+        file.embedding?.batchSize,
+        32,
+        "embedding.batchSize"
+      ),
     },
     classifier: {
       backend: classifierBackend,

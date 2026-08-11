@@ -16,6 +16,7 @@ import path from "node:path";
 import matter from "gray-matter";
 import { ASP_KEYS, EMO_KEYS, DIM, VECTOR_DIMS, subtract } from "./sentiment-vector.js";
 import { buildAliasGroups, expandAliases } from "../discatier-engine-adapter/game-aliases.js";
+import { LUDUS_TERM_ALIAS_GROUPS } from "../discatier-engine-adapter/ludus-term-aliases.js";
 import type { MechanicSummary } from "./investigate.js";
 
 const ASP_INDEX = new Map(ASP_KEYS.map((a, i) => [a, 2 + EMO_KEYS.length + i]));
@@ -82,7 +83,7 @@ export function loadCurrentVector(
     .split(/\s+/)
     .filter((w) => w.length >= 2);
   // 別名展開: games タイトル (md frontmatter / sentiment.json) + 静的略称辞書。
-  const terms = expandAliases(words, buildAliasGroups(collectGameTitles(gamesDir)));
+  const terms = expandAliases(words, buildAliasGroups(collectGameTitles(gamesDir), LUDUS_TERM_ALIAS_GROUPS));
 
   for (const f of files) {
     const lower = f.toLowerCase();

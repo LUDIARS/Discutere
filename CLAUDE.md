@@ -299,6 +299,21 @@ KG に大量 (41 万件超) あっても新着に埋もれた + 日本語フル�
 規則) し、関連語があれば **全件を SQL LIKE で照合** (直近 N 件制限を撤廃)、無ければ従来どおり直近 N 件を
 opinion-score で拾う。実 DB で 0→数十〜数百件に改善。
 
+**外部の声 RAG ハイブリッド検索 (2026-08-11, `spec/feature/voice-rag-hybrid.md`)**: キーワード
+recall (従来) + ベクトル rerank + 多様化の 3 段構え。`src/discatier-engine-adapter/voice-search.ts`
+に検索コアを分離し、`config.embedding` (既定 **enabled=false** = opt-in、OpenAI 互換 `/embeddings`
+既定 Ollama bge-m3) が有効なら候補上位のベクトルを **RRF** でキーワード順位と融合、
+**bigram Jaccard 近似重複畳み + MMR** で多様化してから limit 件を返す。同期 interface を
+壊さないため **クエリ埋め込みだけ** をキャッシュ (`embedding_query_cache` + メモリ、
+`src/core/vectors/query-embed-cache.ts`) し、未命中はキーワードで返しつつ裏で温める
+(初回のみキーワード、以降ハイブリッド)。声側インデックスは `npm run build:voice-embeddings`
+(増分・`--rebuild` 対応) で offline 構築。別名展開は Ludus game-lexicon 由来の用語辞書
+(`ludus-term-aliases.ts`、`npm run build:ludus-term-aliases` で再生成・生成物コミット) を
+ゲーム名グループにマージ (`buildAliasGroups(titles, extraGroups)`)。検索精度は
+`npm run eval:retrieval` (ゴールデンセット `data/eval/retrieval-golden.json`、雛形は
+`.example.json`) で keyword/hybrid を数字比較する。埋め込み不通は warn ログ + キーワード
+継続 (議論を止めない・silent にしない)。
+
 **ゲーム名の別名展開 (#301, 2026-06-23)**: 口語略称 (「モンスト」4000 件超 vs 正式名「モンスターストライク」
 数十件) を取りこぼさないよう、検索語をゲーム名の別名で拡張する。`game-aliases.ts` が games タイトル
 "EN (JP)" を機械分解 (`parseTitleAliases`) し、機械導出できない口語略称の静的辞書 (`STATIC_ALIAS_GROUPS`)

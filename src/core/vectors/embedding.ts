@@ -1,6 +1,7 @@
 ﻿import { randomUUID } from "node:crypto";
 
 import type { KuzuClient } from "../db/kuzu-client.js";
+import { isEmbeddingVector } from "./vector-math.js";
 
 export function registerEmbedding(client: KuzuClient, input: {
   workspaceId: string;
@@ -8,6 +9,9 @@ export function registerEmbedding(client: KuzuClient, input: {
   nodeId: string;
   vector: number[];
 }): void {
+  if (!isEmbeddingVector(input.vector)) {
+    throw new Error("embedding vector must be a non-empty array of finite numbers");
+  }
   client.raw.prepare(
     `INSERT INTO embeddings (id, workspace_id, node_type, node_id, vector_json, created_at)
      VALUES (?, ?, ?, ?, ?, ?)

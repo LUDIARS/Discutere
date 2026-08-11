@@ -7,6 +7,10 @@ data/*
 !data/discussions/**
 !data/affects/
 !data/affects/**
+# 検索精度評価のゴールデンセット: 雛形のみ追跡 (実セットは KG 固有なのでローカル)。
+!data/eval/
+data/eval/*
+!data/eval/retrieval-golden.example.json
 .env
 .env.secrets
 .env.youtube.key

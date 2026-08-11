@@ -227,3 +227,42 @@ Discutere/
 - **WSL2**: CUDA passthrough (NVIDIA driver ≥ 555)
 - **Di headless**: `npm run headless -- --persist` が動作すること
 - **`data/worker-turns/`**: 5,000 ターン以上のペアが揃っていること
+
+---
+
+## 9. 蒸留品質の改善計画 (2026-08-11, 精度向上方針 D) {#SPEC-GEMMA-FT-DISTILL-QUALITY}
+
+v1 の SFT は「teacher の全出力を無選別に学習」しており、teacher の失敗ターン
+(浅い相槌・論点の繰り返し・skip すべきだった発話) までコピーする。student の
+精度は教師データの質で決まるため、次の 4 段で品質を上げる。
+
+### 9-1. エクスポート時の決定的品質フィルタ (先行実装候補)
+
+`export-ft-data.ts` に機械判定のフィルタを足す (LLM 不要・コストゼロ):
+
+- **短文/定型除去**: 本文 < 40 文字、`{action:"skip"}` 近傍の空返答、同一 persona の
+  直前ターンとの bigram Jaccard > 0.9 (繰り返し) を落とす。
+- **役割リーク除去**: system prompt の指示文をそのまま復唱しているターンを落とす。
+- **セッション偏り制限**: 1 セッションからの採用上限を設け、長い 1 議論への過適合を防ぐ。
+
+### 9-2. Rejection sampling (teacher best-of-N)
+
+`generate-training-data.ts` に `--best-of N` を追加: 同一ターンを teacher に N 回
+生成させ、judge (Haiku で可: 論点新規性/具体性/persona 口調の 3 軸採点) が最高点の
+1 本だけを学習データに採用する。生成コストは N 倍だが、SFT はデータ質 > 量。
+
+### 9-3. DPO ペアの併産
+
+9-2 の best/worst ペアをそのまま DPO (chosen/rejected) 用 JSONL に併産し、
+SFT 後に DPO を 1 epoch 当てる (Unsloth 対応済み)。「悪い発話の型」を明示的に
+遠ざけられるのは SFT 単独に無い利点。
+
+### 9-4. 蒸留の評価 (卒業判定)
+
+held-out 議題 20 件で di-debate と teacher の発話を並べ、judge が blind 勝率を出す
+(`scripts/ft/` に eval を追加)。勝率 > 40% を「ローカル切替可」の目安とする。
+判定の再現性のため judge prompt と採点軸は spec に固定する。
+
+> 実行順: 9-1 (決定的・即効) → 9-2/9-3 (生成コストを伴う) → 9-4 (卒業判定)。
+> 9-2 以降は teacher 生成 100 セッション級のバッチが要るため、Cc delegation の
+> バックグラウンドジョブとして回すのが妥当。

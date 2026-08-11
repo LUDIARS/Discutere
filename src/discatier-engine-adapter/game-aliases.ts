@@ -42,8 +42,14 @@ function shares(a: Set<string>, b: readonly string[]): boolean {
 /**
  * games タイトル群 + 静的略称をマージした別名グループ集合を作る。
  * 共通要素を持つグループは 1 つに畳む (例: タイトル「Genshin Impact (原神)」と静的 [genshin...] が原神で繋がる)。
+ * @param extraGroups 追加の別名グループ (例: Ludus game-lexicon 由来の用語辞書
+ *   `LUDUS_TERM_ALIAS_GROUPS`)。ゲーム名だけでなく「経験値⇄XP⇄EXP」のような
+ *   用語の言い換えも検索拡張に乗せる。
  */
-export function buildAliasGroups(titles: readonly string[]): string[][] {
+export function buildAliasGroups(
+  titles: readonly string[],
+  extraGroups: readonly (readonly string[])[] = []
+): string[][] {
   const groups: string[][] = [];
   const lowerSets: Set<string>[] = [];
 
@@ -68,6 +74,7 @@ export function buildAliasGroups(titles: readonly string[]): string[][] {
 
   for (const title of titles) addGroup(parseTitleAliases(title));
   for (const g of STATIC_ALIAS_GROUPS) addGroup(g);
+  for (const g of extraGroups) addGroup(g);
   // 単一要素グループ (別名が無い) は展開に寄与しないので落とす。
   return groups.filter((g) => g.length >= 2);
 }

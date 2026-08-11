@@ -19,13 +19,10 @@ import type {
   PostUtteranceInput,
   ProposeHypothesisInput,
 } from "../persona-engine/context-provider.js";
-import { ensureReactionTables, getOpinionScore } from "../discord-hook/reactions.js";
 import { listFacilitatorDirectives } from "../discord-hook/facilitator-directives.js";
-import { listExcludedIds } from "../core/noise/exclusions.js";
 import { openAttributionStore } from "../crawler/sources/attribution-store.js";
 import { maskedPersonaLabel } from "../crawler/sources/persona.js";
-import { extractKeyTerms } from "./keyword-terms.js";
-import { buildAliasGroups, expandAliases } from "./game-aliases.js";
+import { searchExternalVoiceRows } from "./voice-search.js";
 
 type Core = ReturnType<typeof createCore>;
 
@@ -161,87 +158,25 @@ export function createDiscatierContextProvider(
 
     listRelevantExternalVoices(workspaceId, terms, limit): ContextExternalVoice[] {
       if (limit <= 0) return [];
-      // 候補: 取り込み済み外部発話 (speaker_id が ext:%) を集めてスコアし上位を返す。active KG に閉じる。
-      //
-      // 議題語は extractKeyTerms で検索キーワードに分解する (フル議題文を 1 語で includes 照合すると
-      // 日本語議題はほぼ一致せず 0 件になる実害を回避)。関連語があれば **全件を SQL LIKE で照合**し
-      // (直近 N 件しか見ない旧 CANDIDATE_CAP の盲点 — 大半のゲームの材料が新着 300 件に入らず 0 件に
-      // なっていた事故の修正)、無ければ直近 N 件を opinion-score だけで拾う (従来動作の保持)。
-      const RECENT_CAP = 300; // 関連語が無い時に opinion で拾う直近件数。
-      const KEYWORD_CAP = 2000; // LIKE 一致候補の上限 (早期打ち切りで全件 LIKE でも軽い)。
       const CONTENT_CAP = 200; // prompt トークン節約: 1 件の本文上限。
-      // 議題語を分解し、ゲーム名の別名 (略称⇄正式名・和名⇄英名) で拡張する (#301)。
-      // 例:「モンスターストライク」→「モンスト」も照合に含め、口語略称の材料を取りこぼさない。
-      let keyTerms = extractKeyTerms(terms);
-      if (keyTerms.length > 0) {
-        try {
-          const titles = (
-            core.client.raw
-              .prepare("SELECT title FROM games WHERE workspace_id = ?")
-              .all(workspaceId) as Array<{ title: string }>
-          ).map((g) => g.title);
-          keyTerms = expandAliases(keyTerms, buildAliasGroups(titles));
-        } catch {
-          // games 取得に失敗しても分解済みの語で続行 (別名拡張は best-effort)。
-        }
-      }
-      // opinion_scores はリアクション系テーブル。 boot 前/単体呼び出しでも落ちないよう冪等保証。
-      ensureReactionTables(core.client.raw);
-      const excluded = listExcludedIds(core.client.raw);
-
-      type VoiceRow = { id: string; speaker_id: string | null; raw_content: string };
-      let rows: VoiceRow[];
-      if (keyTerms.length === 0) {
-        rows = core.client.raw
-          .prepare(
-            `SELECT id, speaker_id, raw_content
-               FROM utterances
-              WHERE workspace_id = ? AND speaker_id LIKE 'ext:%'
-              ORDER BY posted_at DESC LIMIT ?`
-          )
-          .all(workspaceId, RECENT_CAP) as VoiceRow[];
-      } else {
-        // LIKE のワイルドカード (% _ \) をエスケープして部分一致に倒す。
-        const escapeLike = (t: string): string => t.replace(/[\\%_]/g, (c) => `\\${c}`);
-        const likeClauses = keyTerms.map(() => `raw_content LIKE ? ESCAPE '\\'`).join(" OR ");
-        rows = core.client.raw
-          .prepare(
-            `SELECT id, speaker_id, raw_content
-               FROM utterances
-              WHERE workspace_id = ? AND speaker_id LIKE 'ext:%' AND (${likeClauses})
-              LIMIT ?`
-          )
-          .all(workspaceId, ...keyTerms.map((t) => `%${escapeLike(t)}%`), KEYWORD_CAP) as VoiceRow[];
-      }
+      // 検索本体 (キーワード recall + ベクトル rerank + 多様化) は voice-search.ts。
+      // ここは attribution (出所透過) と個人マスク (§6) だけを担う。
+      const rows = searchExternalVoiceRows(core, workspaceId, terms, limit);
       if (rows.length === 0) return [];
 
       const attribution = openAttributionStore();
       try {
-        const scored = rows
-          .filter((r) => !excluded.has(r.id))
-          .map((r) => {
-            const content = r.raw_content ?? "";
-            const lc = content.toLowerCase();
-            const hits = keyTerms.reduce((n, t) => (lc.includes(t) ? n + 1 : n), 0);
-            const opinion = getOpinionScore(core.client.raw, r.id);
-            // キーワード一致を主、 opinion-score (合意/支持) を従にした合成スコア。
-            return { r, score: hits * 10 + opinion };
-          })
-          // 関連語ヒットも支持スコアも無い声は議論を薄めるので落とす。
-          .filter((x) => x.score > 0)
-          .sort((a, b) => b.score - a.score)
-          .slice(0, limit);
-        return scored.map(({ r, score }) => {
+        return rows.map((r) => {
           const a = attribution.get(r.id);
-          const content = r.raw_content ?? "";
+          const content = r.rawContent;
           return {
             id: r.id,
             content: content.length > CONTENT_CAP ? content.slice(0, CONTENT_CAP) + "…" : content,
             source: a?.source ?? "external",
             sourceUrl: a?.sourceUrl ?? null,
             // §6: 個人 (speaker_id = 公開 ID) はペルソナ名へマスク。 公開 ID は出さない。
-            speakerLabel: r.speaker_id ? maskedPersonaLabel(r.speaker_id) : "外部の声",
-            score,
+            speakerLabel: r.speakerId ? maskedPersonaLabel(r.speakerId) : "外部の声",
+            score: r.score,
           };
         });
       } finally {

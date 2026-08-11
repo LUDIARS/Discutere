@@ -26,6 +26,7 @@ import {
 import type { ConclusionSummary } from "../src/visualize/conclusions.js";
 import { topicTermsFromTitle } from "../src/visualize/topic-terms.js";
 import { buildAliasGroups, expandAliases } from "../src/discatier-engine-adapter/game-aliases.js";
+import { LUDUS_TERM_ALIAS_GROUPS } from "../src/discatier-engine-adapter/ludus-term-aliases.js";
 
 type Core = ReturnType<typeof createCore>;
 
@@ -63,7 +64,7 @@ function main(): void {
       .prepare("SELECT title FROM games WHERE workspace_id = ?")
       .all(config.workspace) as Array<{ title: string }>
   ).map((g) => g.title);
-  const aliasGroups = buildAliasGroups(titles);
+  const aliasGroups = buildAliasGroups(titles, LUDUS_TERM_ALIAS_GROUPS);
   try {
     if (!onlyMaterial) {
       // 1) 全結論を upsert (発話数 = discussionVolume)。materialCount は温存 (-1 渡し)。
