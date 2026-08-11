@@ -1045,7 +1045,7 @@ export function loadConfig(): DiscutereConfig {
         Array.isArray(file.discussion?.opinionModels) && file.discussion!.opinionModels.length > 0
           ? file.discussion!.opinionModels
           : [
-              { model: "claude-sonnet-4-6", weight: 6 },
+              { model: "claude-sonnet-5", weight: 6 },
               { model: "claude-haiku-4-5-20251001", weight: 4 },
             ],
       minTotal: pickNum(process.env.DISCUTERE_DISCUSSION_MIN_TOTAL, file.discussion?.minTotal, 4),

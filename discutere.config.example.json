@@ -118,7 +118,7 @@
     "facilitatorModel": "claude-opus-4-8",
     "keymanModel": "claude-opus-4-8",
     "opinionModels": [
-      { "model": "claude-sonnet-4-6", "weight": 6 },
+      { "model": "claude-sonnet-5", "weight": 6 },
       { "model": "claude-haiku-4-5-20251001", "weight": 4 }
     ],
     "minTotal": 4,
