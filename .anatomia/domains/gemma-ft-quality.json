@@ -1,0 +1,16 @@
+{
+  "name": "gemma-ft-quality",
+  "description": "Gemma 蒸留の教師データ品質 (spec/feature/gemma-ft.md §9)。エクスポート時の決定的品質フィルタ、将来の rejection sampling / DPO / 卒業判定。",
+  "presetRules": [],
+  "templateRules": [],
+  "membership": [
+    {
+      "pathPattern": "(^|/)(scripts/(export-ft-data|generate-training-data|headless-discuss)\\.ts|scripts/ft/[^/]+\\.(ts|py)|tests/ft/[^/]+\\.ts)$"
+    }
+  ],
+  "specRefs": [
+    "SPEC-GEMMA-FT-DISTILL-QUALITY",
+    "Di FT パイプライン仕様 — Gemma-3-12b QLoRA teacher-student 蒸留"
+  ],
+  "source": "spec-review"
+}

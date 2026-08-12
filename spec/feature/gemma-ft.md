@@ -236,14 +236,18 @@ v1 の SFT は「teacher の全出力を無選別に学習」しており、teac
 (浅い相槌・論点の繰り返し・skip すべきだった発話) までコピーする。student の
 精度は教師データの質で決まるため、次の 4 段で品質を上げる。
 
-### 9-1. エクスポート時の決定的品質フィルタ (先行実装候補)
+### 9-1. エクスポート時の決定的品質フィルタ (実装済 2026-08-12)
 
 `export-ft-data.ts` に機械判定のフィルタを足す (LLM 不要・コストゼロ):
 
-- **短文/定型除去**: 本文 < 40 文字、`{action:"skip"}` 近傍の空返答、同一 persona の
-  直前ターンとの bigram Jaccard > 0.9 (繰り返し) を落とす。
-- **役割リーク除去**: system prompt の指示文をそのまま復唱しているターンを落とす。
-- **セッション偏り制限**: 1 セッションからの採用上限を設け、長い 1 議論への過適合を防ぐ。
+- **短文/定型除去**: 本文 < 40 文字 (`--min-length`)、`{action:"skip"}` 近傍の空返答、
+  同一 persona の直前採用ターンとの bigram Jaccard > 0.9 (繰り返し) を落とす。
+- **役割リーク除去**: system prompt の長い行 (30 文字以上) をそのまま復唱しているターンを落とす。
+- **グループ偏り制限** (`--group-cap`, 既定 0=無効): 採用上限で過適合を防ぐ。単位は
+  turn record に sessionId があれば sessionId、現行 writer のように無ければ workerId。
+- 実装: `scripts/ft/quality-filter.ts` (純関数、`npm run test:ft`) を
+  `export-ft-data.ts` が使う。除外は理由別に集計ログへ出す (silent drop 禁止)。
+  `--no-filter` で v1 互換の全量エクスポート。
 
 ### 9-2. Rejection sampling (teacher best-of-N)
 

@@ -91,6 +91,15 @@ function bigrams(text: string): Set<string> {
   return out;
 }
 
+/**
+ * 2 テキストの文字 bigram Jaccard 類似度 (0..1)。近似重複判定の共有部品
+ * (FT エクスポートの繰り返し除去などが再利用する)。
+ * @implements SPEC-GEMMA-FT-DISTILL-QUALITY
+ */
+export function bigramJaccardSimilarity(a: string, b: string): number {
+  return jaccard(bigrams(a), bigrams(b));
+}
+
 function jaccard(a: Set<string>, b: Set<string>): number {
   if (a.size === 0 || b.size === 0) return 0;
   let inter = 0;

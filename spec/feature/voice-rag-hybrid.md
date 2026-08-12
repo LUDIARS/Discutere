@@ -64,6 +64,7 @@ ollama pull bge-m3
 
 # 2. 声側インデックスを構築 (増分。初回はデータ量次第で長時間)
 npm run build:voice-embeddings -- --limit 5000    # まず様子見
+npm run build:voice-embeddings -- --query "モンスターストライク"  # 議題を優先して部分構築
 npm run build:voice-embeddings                     # 全量
 
 # 3. 有効化
@@ -76,6 +77,7 @@ npm run eval:retrieval
 ```
 
 モデルを変えたら `npm run build:voice-embeddings -- --rebuild` (空間が混ざるため)。
+`--rebuild` と `--query` は、全削除後の部分再構築を防ぐため同時指定しない。
 Ludus 辞書更新後は `npm run build:ludus-term-aliases <path-to-game-lexicon>` で
 `ludus-term-aliases.ts` を再生成してコミットする (実行時に Ludus リポへ依存しない)。
 
