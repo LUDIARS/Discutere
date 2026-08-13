@@ -41,6 +41,7 @@
     "test:fundamentum-export": "tsx tests/fundamentum-export/run.ts",
     "test:web-chat": "tsx tests/web-chat/run.ts",
     "crawl": "tsx scripts/crawl.ts",
+    "steam-persona": "tsx scripts/steam-persona.ts",
     "export:discussions": "tsx scripts/export-discussion.ts",
     "export:discussions:fm": "tsx scripts/export-discussion.ts --fundamentum",
     "cost-report": "tsx scripts/cost-report.ts",

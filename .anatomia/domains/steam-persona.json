@@ -1,0 +1,18 @@
+{
+  "name": "steam-persona",
+  "description": "Steam 新作レビューの定期取得から横断投稿者 (同一 SteamID64 が複数ゲームにレビュー) を検出し、その ID のレビューを集中収集してペルソナ元データ JSONL を作るパイプライン。取得層は Canalis steam adapter、制御・状態 (sidecar SQLite) と出力はこのドメイン。",
+  "presetRules": [],
+  "templateRules": [],
+  "membership": [
+    {
+      "pathPattern": "(^|/)(src/crawler/steam-persona/(store|ports|discover|track|collect|runner)\\.ts|scripts/steam-persona\\.ts|tests/crawler/external/steam-persona\\.test\\.ts)$"
+    }
+  ],
+  "specRefs": [
+    "SPEC-STEAM-PERSONA-PIPELINE",
+    "SPEC-STEAM-PERSONA-STORE",
+    "SPEC-STEAM-PERSONA-OUTPUT",
+    "Steam 横断レビュアーの検出と集中収集"
+  ],
+  "source": "spec-review"
+}
