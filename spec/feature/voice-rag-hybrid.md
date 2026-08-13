@@ -50,7 +50,7 @@ sidecar にはクエリ本文を保存せず、モデル名と正規化本文の
 | `baseUrl` | `DISCUTERE_EMBEDDING_BASE_URL` | `http://localhost:11434/v1` | OpenAI 互換 `/embeddings` |
 | `model` | `DISCUTERE_EMBEDDING_MODEL` | `bge-m3` | 多言語・ローカル実績 (Genius recall@8=0.95) |
 | `apiKey` | `DISCUTERE_EMBEDDING_API_KEY` | — | vLLM 等のみ |
-| `timeoutMs` | `DISCUTERE_EMBEDDING_TIMEOUT_MS` | `30000` | |
+| `timeoutMs` | `DISCUTERE_EMBEDDING_TIMEOUT_MS` | `60000` | 一過性遅延はバッチ単位で指数バックオフ再試行 |
 | `batchSize` | `DISCUTERE_EMBEDDING_BATCH_SIZE` | `32` | バッチ構築用 |
 
 `llm.local` (chat) とは独立 (埋め込み専用モデルのため)。Ollama GPU が PTX 不一致で
@@ -87,6 +87,12 @@ Ludus 辞書更新後は `npm run build:ludus-term-aliases <path-to-game-lexicon
 keyword / hybrid 両モードで検索し、marker ヒット数・marker カバレッジ・
 (ラベル済みなら) recall@k を並べて出す。「精度が上がった」を主観でなく
 数字で判定するための基盤。ケースは実 KG に合わせて育てる。
+
+marker 指標は部分文字列一致なのでキーワード検索に構造的に有利 (MMR の多様化が
+重複マーカーを削ると損に見える)。意味検索の利得は **`--judge`** で測る:
+config.classifier の LLM が議題×声の関連度を 0/1/2 で採点し、judgedRelevant /
+avgScore を併記する。採点は `data/eval/relevance-judgments.json` にキャッシュされ、
+同じ (モデル, 議題, 声) を再採点しない (コスト有界・再実行決定的)。
 
 ## degrade 方針 (議論を止めない) {#SPEC-VOICE-RAG-HYBRID-DEGRADE}
 

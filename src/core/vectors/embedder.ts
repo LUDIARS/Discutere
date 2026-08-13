@@ -9,6 +9,12 @@
  */
 
 import { isEmbeddingVector } from "./vector-math.js";
+import {
+  DEFAULT_EMBED_RETRY,
+  EmbeddingHttpError,
+  withEmbedRetry,
+  type EmbedRetryOptions,
+} from "./embed-retry.js";
 
 export interface EmbeddingConfig {
   /** 意味検索 (ハイブリッド RAG) を有効にするか。false なら従来のキーワード検索のみ。 */
@@ -36,9 +42,16 @@ interface OpenAiEmbeddingResponse {
 
 /**
  * OpenAI 互換 `/embeddings` クライアントを作る。
+ * 一過性の失敗 (タイムアウト / ネットワーク断 / 5xx / 429) はバッチ単位で
+ * 指数バックオフ再試行する (embed-retry.ts)。恒常エラーは即 throw。
  * @implements SPEC-VOICE-RAG-HYBRID-CONFIG
  */
-export function createOpenAiCompatEmbedder(config: EmbeddingConfig): EmbeddingClient {
+export function createOpenAiCompatEmbedder(
+  config: EmbeddingConfig,
+  hooks: { warn?: (msg: string) => void; retry?: EmbedRetryOptions } = {}
+): EmbeddingClient {
+  const warn = hooks.warn ?? ((m: string) => console.warn(`[embedder] ${m}`));
+  const retry = hooks.retry ?? DEFAULT_EMBED_RETRY;
   if (!Number.isInteger(config.batchSize) || config.batchSize <= 0) {
     throw new Error("embedding.batchSize must be a positive integer");
   }
@@ -77,7 +90,7 @@ export function createOpenAiCompatEmbedder(config: EmbeddingConfig): EmbeddingCl
       });
       if (!res.ok) {
         // 応答本文は入力テキストや上流設定を含み得るためログへ伝播させない。
-        throw new Error(`embedding HTTP ${res.status} ${res.statusText}`.trim());
+        throw new EmbeddingHttpError(res.status, res.statusText);
       }
       const json = (await res.json()) as OpenAiEmbeddingResponse;
       const data = json.data ?? [];
@@ -116,7 +129,7 @@ export function createOpenAiCompatEmbedder(config: EmbeddingConfig): EmbeddingCl
       const out: number[][] = [];
       for (let i = 0; i < texts.length; i += config.batchSize) {
         const batch = texts.slice(i, i + config.batchSize);
-        out.push(...(await embedBatch(batch)));
+        out.push(...(await withEmbedRetry(() => embedBatch(batch), retry, warn)));
       }
       return out;
     },

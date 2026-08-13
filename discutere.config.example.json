@@ -104,7 +104,7 @@
     "baseUrl": "http://localhost:11434/v1",
     "model": "bge-m3",
     "apiKey": "",
-    "timeoutMs": 30000,
+    "timeoutMs": 60000,
     "batchSize": 32
   },
   "classifier": {

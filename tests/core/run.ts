@@ -10,6 +10,8 @@ import "./kg-registry.test.js";
 import "./hybrid-rank.test.js";
 // 非同期 warm の DB 寿命・設定検証・本文非保存。
 import "./query-embed-cache.test.js";
+// 埋め込みリトライ (一過性/恒常の分類と指数バックオフ)。
+import "./embed-retry.test.js";
 
 function rmrf(p: string) {
   if (fs.existsSync(p)) fs.rmSync(p, { recursive: true, force: true });

@@ -1010,10 +1010,12 @@ export function loadConfig(): DiscutereConfig {
       ),
       model: pick(process.env.DISCUTERE_EMBEDDING_MODEL, file.embedding?.model, "bge-m3"),
       apiKey: pickOpt(process.env.DISCUTERE_EMBEDDING_API_KEY, file.embedding?.apiKey),
+      // CPU 埋め込み (bge-m3) はバッチ処理中の一過性遅延で 30s を超えることが実測で
+      // あった (全量構築が 2 万件時点で即死した実障害)。既定は余裕を持たせる。
       timeoutMs: pickPositiveInteger(
         process.env.DISCUTERE_EMBEDDING_TIMEOUT_MS,
         file.embedding?.timeoutMs,
-        30_000,
+        60_000,
         "embedding.timeoutMs"
       ),
       batchSize: pickPositiveInteger(
