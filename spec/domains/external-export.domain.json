@@ -1,0 +1,17 @@
+{
+  "name": "external-export",
+  "description": "外部への書き出し。 Fundamentum 形式のエクスポートと Ludus 連携、 可視化成果物。",
+  "presetRules": [],
+  "templateRules": [],
+  "membership": [
+    {
+      "pathPattern": "(^|/)src/fundamentum-export/(?:.*/)?[^/]+$"
+    },
+    {
+      "pathPattern": "(^|/)src/ludus/(?:.*/)?[^/]+$"
+    },
+    {
+      "pathPattern": "(^|/)src/visualize/(?:.*/)?[^/]+$"
+    }
+  ]
+}

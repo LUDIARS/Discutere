@@ -1,0 +1,14 @@
+{
+  "name": "persistence",
+  "description": "永続化とバックアップ。 スキーマ、 リポジトリ、 退避と復元。",
+  "presetRules": [],
+  "templateRules": [],
+  "membership": [
+    {
+      "pathPattern": "(^|/)src/db/(?:.*/)?[^/]+$"
+    },
+    {
+      "pathPattern": "(^|/)src/backup/(?:.*/)?[^/]+$"
+    }
+  ]
+}

@@ -1,0 +1,32 @@
+{
+  "name": "service-runtime",
+  "description": "プロセスとしての Discutere。 起動、 設定と秘匿値、 キュー、 観測、 共有ユーティリティ。",
+  "presetRules": [],
+  "templateRules": [],
+  "membership": [
+    {
+      "pathPattern": "(^|/)src/config/(?:.*/)?[^/]+$"
+    },
+    {
+      "pathPattern": "(^|/)src/runtime-settings/(?:.*/)?[^/]+$"
+    },
+    {
+      "pathPattern": "(^|/)src/secrets/(?:.*/)?[^/]+$"
+    },
+    {
+      "pathPattern": "(^|/)src/queue/(?:.*/)?[^/]+$"
+    },
+    {
+      "pathPattern": "(^|/)src/observability/(?:.*/)?[^/]+$"
+    },
+    {
+      "pathPattern": "(^|/)src/shared/(?:.*/)?[^/]+$"
+    },
+    {
+      "pathPattern": "(^|/)src/(?:index|config|startup-guard)\\.ts$"
+    },
+    {
+      "pathPattern": "(^|/)lib/(?:.*/)?[^/]+$"
+    }
+  ]
+}

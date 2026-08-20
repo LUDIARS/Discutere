@@ -1,0 +1,17 @@
+{
+  "name": "conversation-flow",
+  "description": "対話の進行制御。 フロー定義と遷移、 Discatier エンジンとの接続。",
+  "presetRules": [],
+  "templateRules": [],
+  "membership": [
+    {
+      "pathPattern": "(^|/)src/flow/(?:.*/)?[^/]+$"
+    },
+    {
+      "pathPattern": "(^|/)src/discatier-engine-adapter/(?:.*/)?[^/]+$"
+    },
+    {
+      "pathPattern": "(^|/)tests/flow/(?:.*/)?[^/]+$"
+    }
+  ]
+}

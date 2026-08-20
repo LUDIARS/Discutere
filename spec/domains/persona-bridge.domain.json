@@ -6,12 +6,17 @@
   "membership": [
     {
       "pathPattern": "(^|/)(scripts/(persona-(import|populations)\\.ts|(setup-submodules|check-sentiment-assets)\\.mjs)|src/index\\.ts|src/api/persona(-bridge)?-routes\\.ts|src/persona-bridge/[^/]+\\.ts|src/flow/(db/migrations|persona-(descriptor|import|import-document|pool|populations)|voluptas-persona-client|sentiment-vector)\\.ts|src/analysis/affect-score\\.ts|src/crawler/sentiment/(analyze|cascade|vector-spec)\\.(ts|mjs))$"
+    },
+    {
+      "pathPattern": "(^|/)src/persona-bridge/(?:.*/)?[^/]+$"
+    },
+    {
+      "pathPattern": "(^|/)src/persona-engine/(?:.*/)?[^/]+$"
     }
   ],
   "specRefs": [
     "SPEC-PERSONA-BRIDGE-PERSONA-PULL",
     "SPEC-PERSONA-BRIDGE-UTTERANCE-EXPORT",
     "Voluptas ペルソナブリッジ — 設計"
-  ],
-  "source": "spec-review"
+  ]
 }

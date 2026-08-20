@@ -13,6 +13,5 @@
     "SPEC-STEAM-PERSONA-STORE",
     "SPEC-STEAM-PERSONA-OUTPUT",
     "Steam 横断レビュアーの検出と集中収集"
-  ],
-  "source": "spec-review"
+  ]
 }

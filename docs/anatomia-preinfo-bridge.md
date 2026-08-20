@@ -69,7 +69,7 @@ Di の議論はゲームデザインの「狙った体験」と「観測され�
 - `--project <name>` を使うなら、対象リポを Anatomia に登録しておく (`anatomia project add <name> <repo>`)。
   登録簿は `<Anatomia home>/.anatomia/projects.json`。ブリッジは CLI を **Anatomia repo root を cwd** に
   して起動するのでそこを home として解決する。
-- リポ絶対パス (`anatomiaRepo`) なら登録不要 (`--repo` で都度解析)。下地 (`.anatomia/domains`) は
+- リポ絶対パス (`anatomiaRepo`) なら登録不要 (`--repo` で都度解析)。下地 (`spec/domains`) は
   対象リポ側に書かれる。
 - Anatomia 側のコードを変更したら `npm run build` (bin は dist をロードする)。
 

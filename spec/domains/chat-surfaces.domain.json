@@ -1,0 +1,26 @@
+{
+  "name": "chat-surfaces",
+  "description": "利用者との接点。 Discord hook、 Slack、 Web チャット画面。",
+  "presetRules": [],
+  "templateRules": [],
+  "membership": [
+    {
+      "pathPattern": "(^|/)src/discord-hook/(?:.*/)?[^/]+$"
+    },
+    {
+      "pathPattern": "(^|/)src/slack/(?:.*/)?[^/]+$"
+    },
+    {
+      "pathPattern": "(^|/)src/web-chat/(?:.*/)?[^/]+$"
+    },
+    {
+      "pathPattern": "(^|/)frontend/(?:.*/)?[^/]+$"
+    },
+    {
+      "pathPattern": "(^|/)site/(?:.*/)?[^/]+$"
+    },
+    {
+      "pathPattern": "(^|/)electron/(?:.*/)?[^/]+$"
+    }
+  ]
+}

@@ -24,7 +24,7 @@ export interface AnatomiaDomainCard {
 
 /** Anatomia `domains list --json` のレスポンス全体。 */
 export interface AnatomiaDomainsResponse {
-  /** カードの保存ディレクトリ (`<repo>/.anatomia/domains`)。 */
+  /** カードの保存ディレクトリ (`<repo>/spec/domains`)。 */
   dir: string;
   domains: AnatomiaDomainCard[];
 }

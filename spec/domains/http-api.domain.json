@@ -1,0 +1,14 @@
+{
+  "name": "http-api",
+  "description": "HTTP の受口とミドルウェア。 ルート登録と横断的な前処理。",
+  "presetRules": [],
+  "templateRules": [],
+  "membership": [
+    {
+      "pathPattern": "(^|/)src/api/(?:.*/)?[^/]+$"
+    },
+    {
+      "pathPattern": "(^|/)src/middleware/(?:.*/)?[^/]+$"
+    }
+  ]
+}

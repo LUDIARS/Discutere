@@ -1,0 +1,23 @@
+{
+  "name": "discussion-core",
+  "description": "議論そのものの正本。 議論・設問の生成と保管、 シード投入、 再構成、 フィードバックの取り込み。",
+  "presetRules": [],
+  "templateRules": [],
+  "membership": [
+    {
+      "pathPattern": "(^|/)src/discussion/(?:.*/)?[^/]+$"
+    },
+    {
+      "pathPattern": "(^|/)src/discussion-seed/(?:.*/)?[^/]+$"
+    },
+    {
+      "pathPattern": "(^|/)src/restructure/(?:.*/)?[^/]+$"
+    },
+    {
+      "pathPattern": "(^|/)src/feedback/(?:.*/)?[^/]+$"
+    },
+    {
+      "pathPattern": "(^|/)src/core/(?:.*/)?[^/]+$"
+    }
+  ]
+}

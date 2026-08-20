@@ -16,7 +16,7 @@ import { fetchAnatomiaDomains, type AnatomiaCliRunner } from "../../src/flow/ana
 const EXISTING_BIN = fileURLToPath(import.meta.url);
 
 const RESPONSE = JSON.stringify({
-  dir: "X/.anatomia/domains",
+  dir: "X/spec/domains",
   domains: [
     { name: "Trial", description: "裁判", mechanics: ["trial"], specRefs: ["spec/A"], rationale: "境界" },
     { name: "NoName placeholder", description: "x", mechanics: [] },

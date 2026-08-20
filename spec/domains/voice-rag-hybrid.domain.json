@@ -6,6 +6,12 @@
   "membership": [
     {
       "pathPattern": "(^|/)(src/discatier-engine-adapter/(voice-search|ludus-term-aliases|game-aliases|keyword-terms|index)\\.ts|src/core/vectors/(embedder|embed-retry|hybrid-rank|query-embed-cache|vector-search|vector-math|embedding)\\.ts|src/config\\.ts|src/flow/design-gap\\.ts|scripts/(build-voice-embeddings|build-ludus-term-aliases|eval-retrieval|build-conclusion-cache)\\.ts|scripts/lib/relevance-judge\\.ts|tests/core/(hybrid-rank|query-embed-cache|embed-retry)\\.test\\.ts|tests/eval/relevance-judge\\.test\\.ts|tests/persona-engine/(game-aliases|external-voices-lookup)\\.test\\.ts)$"
+    },
+    {
+      "pathPattern": "(^|/)src/analysis/(?:.*/)?[^/]+$"
+    },
+    {
+      "pathPattern": "(^|/)src/kg-sync/(?:.*/)?[^/]+$"
     }
   ],
   "specRefs": [
@@ -17,6 +23,5 @@
     "SPEC-VOICE-RAG-HYBRID-DEGRADE",
     "SPEC-GEMMA-FT-DISTILL-QUALITY",
     "外部の声 RAG ハイブリッド検索 (キーワード recall + ベクトル rerank)"
-  ],
-  "source": "spec-review"
+  ]
 }

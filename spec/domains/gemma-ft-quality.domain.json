@@ -11,6 +11,5 @@
   "specRefs": [
     "SPEC-GEMMA-FT-DISTILL-QUALITY",
     "Di FT パイプライン仕様 — Gemma-3-12b QLoRA teacher-student 蒸留"
-  ],
-  "source": "spec-review"
+  ]
 }
