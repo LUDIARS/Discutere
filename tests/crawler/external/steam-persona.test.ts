@@ -81,6 +81,40 @@ assert.equal(second.detected, 0);
 assert.equal(second.collectedAuthors, 0);
 assert.ok(stopSeen.slice(-2).every((s) => s === "r1" || s === "r3")); // 前回先頭 id で打ち切り
 
+// ---- 集中収集: 取得失敗 (非公開プロフィール等) は 0 件で記録しループを継続する (spec §2-4)
+{
+  const failDb = path.join(tmp, "state-fail.sqlite");
+  const failOut = path.join(tmp, "authors-fail");
+  const seen: string[] = [];
+  const failingPorts: SteamFetchPorts = {
+    ...ports,
+    fetchAppReviews: async ({ appId, stopAtRecommendationId }) => {
+      if (stopAtRecommendationId) return [];
+      return appId === 111 ? [appReview("f1", A1), appReview("f2", A2)] : [appReview("f3", A1), appReview("f4", A2)];
+    },
+    // A1 は非公開プロフィール想定で失敗、A2 は成功 → 失敗が後続を止めないことを固定する
+    fetchUserReviews: async ({ steamId }) => {
+      seen.push(steamId);
+      if (steamId === A1) throw new Error("profile is private");
+      return [{ steamId, appId: 111, recommended: true, text: "ok", url: "https://example.invalid/" }];
+    },
+  };
+
+  const run = await runSteamPersona(failingPorts, { dbPath: failDb, outDir: failOut, minTotalReviews: 200, now });
+  assert.deepEqual(seen, [A1, A2]); // A1 の失敗で打ち切られず A2 まで進む
+  assert.equal(run.detected, 2);
+  assert.equal(run.collectedAuthors, 2); // 失敗分も「収集試行済み」として記録
+  assert.equal(run.failedAuthors, 1); // うち 1 人は取得失敗 (成功 0 件と区別できる)
+  assert.equal(run.collectedReviews, 1); // A2 の 1 件のみ
+  assert.equal(fs.existsSync(path.join(failOut, `${A1}.jsonl`)), false); // 失敗時は JSONL を作らない
+  assert.equal(fs.existsSync(path.join(failOut, `${A2}.jsonl`)), true);
+
+  // 失敗した投稿者も収集済みになり、次周で再試行されない (無限リトライしない)
+  const again = await runSteamPersona(failingPorts, { dbPath: failDb, outDir: failOut, minTotalReviews: 200, now });
+  assert.equal(again.collectedAuthors, 0);
+  assert.equal(again.failedAuthors, 0);
+}
+
 // ---- mapUserReviewToUtterance: recommended 不明なら signal を持たない
 const anon = mapUserReviewToUtterance(
   { steamId: A2, appId: 5, text: "t", url: "https://example.invalid/" },

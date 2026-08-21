@@ -35,6 +35,8 @@ export interface SteamPersonaRunSummary {
   detected: number;
   collectedAuthors: number;
   collectedReviews: number;
+  /** collectedAuthors のうち取得に失敗して 0 件で記録した数 (非公開プロフィール等)。 */
+  failedAuthors: number;
 }
 
 /** 1 周分のパイプラインを回す。 */
@@ -73,6 +75,7 @@ export async function runSteamPersona(
       detected: detected.length,
       collectedAuthors: collect.authors,
       collectedReviews: collect.reviews,
+      failedAuthors: collect.failedAuthors,
     };
   } finally {
     store.close();

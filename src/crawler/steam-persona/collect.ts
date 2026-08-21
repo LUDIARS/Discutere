@@ -26,8 +26,11 @@ export interface CollectOptions {
 }
 
 export interface CollectResult {
+  /** 収集を試みて収集済みに記録した投稿者数 (取得失敗の 0 件記録を含む)。 */
   authors: number;
   reviews: number;
+  /** うち取得に失敗して 0 件で記録した投稿者数 (非公開プロフィール等)。 */
+  failedAuthors: number;
 }
 
 /** @implements SPEC-STEAM-PERSONA-OUTPUT — ユーザ別レビューを ExternalUtterance に正規化する。 */
@@ -63,17 +66,34 @@ export async function collectCrossAuthors(
   opts: CollectOptions
 ): Promise<CollectResult> {
   const targets = store.listUncollectedAuthors().slice(0, opts.maxAuthorsPerRun);
+  let authors = 0;
   let reviews = 0;
+  let failedAuthors = 0;
 
   for (const author of targets) {
-    const entries = await ports.fetchUserReviews({ steamId: author.steamId });
+    // Spec §2-4: 非公開プロフィール等の「取得」失敗は 0 件で記録して次へ進む (エラーにしない)。
+    // catch は fetch だけに掛ける — 後続の書き出しは SteamID64 検証 (出力パス保護) を含むため、
+    // そこでの失敗は取得失敗ではなく不変条件違反として呼び出し元へ伝播させる。
+    let entries: UserReviewEntry[];
+    try {
+      entries = await ports.fetchUserReviews({ steamId: author.steamId });
+    } catch (err) {
+      const message = err instanceof Error ? err.message : String(err);
+      opts.log?.(`author ${author.steamId}: fetch failed (${message}), record 0 reviews`);
+      store.markAuthorCollected(author.steamId, opts.now(), 0);
+      authors++;
+      failedAuthors++;
+      continue;
+    }
+
     const at = opts.now();
     const items = entries.map((e) => mapUserReviewToUtterance(e, at));
     const file = writeAuthorJsonl(opts.outDir, author.steamId, items);
     store.markAuthorCollected(author.steamId, at, items.length);
     reviews += items.length;
+    authors++;
     opts.log?.(`author ${author.steamId}: ${items.length} reviews -> ${file}`);
   }
 
-  return { authors: targets.length, reviews };
+  return { authors, reviews, failedAuthors };
 }
