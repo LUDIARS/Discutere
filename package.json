@@ -94,7 +94,7 @@
     "@ludiars/llm-gateway": "file:./lib/lapilli/packages/llm-gateway",
     "@ludiars/sentiment-core": "file:./lib/lapilli/packages/sentiment-core",
     "@ludiars/vestigium": "file:./lib/vestigium",
-    "better-sqlite3": "^12.11.1",
+    "better-sqlite3": "13.0.3",
     "discord.js": "^14.27.0",
     "drizzle-orm": "^0.45.2",
     "fundamentum": "file:./lib/fundamentum",
@@ -113,7 +113,7 @@
   },
   "devDependencies": {
     "@electron/rebuild": "^4.1.0",
-    "@types/better-sqlite3": "^7.6.8",
+    "@types/better-sqlite3": "7.6.13",
     "@types/node": "^22.0.0",
     "@types/pdf-parse": "^1.1.5",
     "@types/uuid": "^10.0.0",
