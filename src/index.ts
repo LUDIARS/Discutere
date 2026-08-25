@@ -72,6 +72,7 @@ import { assertStartupHealth } from "./startup-guard.js";
 import { getInfisicalRuntimeSecret } from "./secrets/infisical-runtime.js";
 import { createEconomyGraphRoutes } from "./api/economy-graph-routes.js";
 import { analyzeEconomy, toSlug } from "./ludus/economy-analyzer.js";
+import { glabReviewTrendRoutes } from "./api/glab-review-trend-routes.js";
 
 // Initialize DB (triggers schema creation)
 import "./db/connection.js";
@@ -127,6 +128,9 @@ app.route("/internal", workerRoutes);
 // Cernere / 独自 JWT 認証層は Discord-only pivot で撤去。実認可は Discord
 // Gateway (bot token + admin-id allowlist) 側。詳細は middleware/auth.ts、E
 app.use("/api/*", userContext());
+
+// GLAB には Di が取得済みの Steam レビューをゲーム別に集約した結果だけを渡す。
+app.route("/api", glabReviewTrendRoutes);
 
 // ─── Admin (PR-B: 人閁EↁEAI 介�E経路) ────────────────────────
 app.route("/api", adminRoutes);

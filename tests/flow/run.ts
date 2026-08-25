@@ -19,6 +19,7 @@ await import("./effect-predict.test.js");
 await import("./learning.test.js");
 await import("./sparring.test.js");
 await import("./entrypoints.test.js");
+await import("./glab-review-trends.test.js");
 await import("./persona-pool.test.js");
 await import("./claude-code-auth.test.js");
 await import("./persona-import.test.js");
