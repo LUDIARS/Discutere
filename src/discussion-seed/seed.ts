@@ -22,6 +22,8 @@ export interface SeedHeadlessDiscussionArgs {
   personas: PersonasRepo;
   workspaceId: string;
   topic: SeedTopic;
+  /** 任意のゲームに紐づく議論の種にする。 */
+  gameId?: string;
   /** 議論の出自タグ (evidence_json に残す。 例 "auto:genre" / "auto:store-trend") */
   origin?: string;
 }
@@ -37,6 +39,7 @@ export function seedHeadlessDiscussion(args: SeedHeadlessDiscussionArgs): Seeded
   // 1) design gap (headless = discord 紐付けの guild/channel を持たない)
   const gapId = core.repos.designGap.create({
     workspaceId,
+    gameId: args.gameId,
     title: topic.title,
     description: topic.description,
     status: "open",

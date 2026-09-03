@@ -17,8 +17,13 @@ import { createCore } from "../core/index.js";
 import { resolveActiveKgPath } from "../core/kg-registry.js";
 import { getConfig } from "../config.js";
 import { FACILITATOR_PERSONA_ID } from "../persona-engine/facilitator/facilitator.js";
+import { consensusPersonaRoutes } from "./consensus-persona-routes.js";
+import { gapCreationRoutes } from "./gap-creation-routes.js";
 
 export const consensusRoutes = new Hono();
+
+consensusRoutes.route("/", consensusPersonaRoutes);
+consensusRoutes.route("/", gapCreationRoutes);
 
 interface ConsensusGap {
   gapId: string;
