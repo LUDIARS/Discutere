@@ -15,10 +15,10 @@ import {
 const CFG: PartyConfig = {
   expectedUtterances: 20,
   keymanCount: 2,
-  facilitatorModel: "claude-opus-4-8",
-  keymanModel: "claude-opus-4-8",
+  facilitatorModel: "claude-opus-5",
+  keymanModel: "claude-opus-5",
   opinionModels: [
-    { model: "claude-sonnet-4-6", weight: 6 },
+    { model: "claude-sonnet-5", weight: 6 },
     { model: "claude-haiku-4-5-20251001", weight: 4 },
   ],
   minTotal: 4,
@@ -38,9 +38,9 @@ assert.equal(partySize(100), 26, "100 → 26");
 console.log("ok partySize");
 
 // 2. pickWeightedModel: rng=0 → 先頭、rng≈1 → 末尾
-assert.equal(pickWeightedModel(CFG.opinionModels, () => 0), "claude-sonnet-4-6");
+assert.equal(pickWeightedModel(CFG.opinionModels, () => 0), "claude-sonnet-5");
 assert.equal(pickWeightedModel(CFG.opinionModels, () => 0.99), "claude-haiku-4-5-20251001");
-assert.equal(pickWeightedModel(CFG.opinionModels, () => 0.5), "claude-sonnet-4-6", "0.5*10=5 < 6 → sonnet");
+assert.equal(pickWeightedModel(CFG.opinionModels, () => 0.5), "claude-sonnet-5", "0.5*10=5 < 6 → sonnet");
 console.log("ok pickWeightedModel");
 
 // 3. formParty: expected=20 → 6 名 (司会1 + キーマン2 + 意見3)
@@ -49,7 +49,7 @@ assert.equal(party.length, 6, "6 名");
 assert.equal(party.filter((m) => m.tier === "facilitator").length, 1);
 assert.equal(party.filter((m) => m.tier === "keyman").length, 2);
 assert.equal(party.filter((m) => m.tier === "opinion").length, 3);
-assert.ok(party.filter((m) => m.tier !== "opinion").every((m) => m.model === "claude-opus-4-8"), "司会/キーマンは Opus");
+assert.ok(party.filter((m) => m.tier !== "opinion").every((m) => m.model === "claude-opus-5"), "司会/キーマンは Opus");
 assert.ok(
   party.filter((m) => m.tier === "opinion").every((m) => /sonnet|haiku/.test(m.model)),
   "意見は Sonnet/Haiku"
@@ -66,7 +66,7 @@ assert.deepEqual(facAfter, facBefore, "司会は不変");
 const changed = swapped.filter((m, i) => m.personaName !== party[i].personaName);
 assert.equal(changed.length, 2, "半数 (2 名) 入替");
 assert.ok(
-  swapped.filter((m) => m.tier === "keyman").every((m) => m.model === "claude-opus-4-8"),
+  swapped.filter((m) => m.tier === "keyman").every((m) => m.model === "claude-opus-5"),
   "入替後もキーマンは Opus"
 );
 console.log("ok swapHalf (司会固定 / 2 名入替 / キーマン Opus 維持)");

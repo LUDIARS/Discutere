@@ -19,6 +19,7 @@ import type { LLMClient, LLMInvokeArgs, LLMResult } from "./client.js";
 import type { TokenUsage } from "../types.js";
 import { logLlm } from "./llm-vg.js";
 import { reportConcordiaCostOneShot } from "./concordia-cost.js";
+import { parseModelSpec, validateModelSpec } from "./model-spec.js";
 
 export interface ClaudeCliClientOptions {
   /** 任意 — claude CLI のフルパス (PATH に乗ってる場合は不要) */
@@ -54,6 +55,7 @@ export class ClaudeCliClient implements LLMClient {
       timeoutMs,
       gitBashPath: this.gitBashPath,
       // delegation 準拠: per-invoke model > client 既定 model。未指定なら CLI 既定。
+      // model spec (`<model>@<effort>`) は spawn 側で分解する。
       model: args.model ?? this.defaultModel,
     });
   }
@@ -74,6 +76,11 @@ interface SpawnArgs {
 }
 
 function spawnClaude(args: SpawnArgs): Promise<LLMResult> {
+  const spec = parseModelSpec(args.model);
+  if (args.model) {
+    const validationError = validateModelSpec(spec, "claude");
+    if (validationError) return Promise.resolve({ ok: false, error: `claude cli: ${validationError}` });
+  }
   return new Promise((resolve) => {
     const startedAt = Date.now();
     const env: NodeJS.ProcessEnv = { ...process.env };
@@ -100,7 +107,8 @@ function spawnClaude(args: SpawnArgs): Promise<LLMResult> {
     // usage(cache_read/creation 含む) + total_cost_usd を取得できるようにする。
     // サブスク(OAuth) でも total_cost_usd は等価 API 換算で populated される。
     const cliArgs = ["-p", "--output-format", "json"];
-    if (args.model) cliArgs.push("--model", args.model);
+    if (spec.model) cliArgs.push("--model", spec.model);
+    if (spec.effort) cliArgs.push("--effort", spec.effort);
     let child;
     try {
       child = spawn(args.cliPath, cliArgs, {

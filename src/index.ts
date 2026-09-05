@@ -42,6 +42,8 @@ import { specExtractRoutes } from "./flow/web/spec-extract-route.js";
 import { makeListExternalVoices } from "./flow/external-voices.js";
 import { runAdoptFromKg } from "./flow/persona-adopt-runner.js";
 import { FallbackLlm } from "./flow/llm-fallback.js";
+import { ModelRouterLlm } from "./flow/model-router.js";
+import { CodexCliClient } from "./persona-engine/llm/codex-cli.js";
 import { createGuideRoutes } from "./api/guide-routes.js";
 import { createRuntimeSettingsStore, type RuntimeSettingsStore } from "./runtime-settings/store.js";
 import { setRolePromptResolver, ROLE_GUIDANCE_DEFAULTS } from "./persona-engine/worker-pool/persona-prompts.js";
@@ -622,7 +624,7 @@ const personaEngineLifecycle = (() => {
 // FallbackLlm で worker-pool を試行 → 外れたら claude -p に回す。worker が起動していれば
 // 発話は worker に流れ、いなければ claude -p。backend が worker-pool 以外なら persona-engine
 // の llm (claude-cli/local/anthropic) をそのまま使い、それも無ければ classifier にフォールバック。
-const flowEngineLlm: LLMClient | null = (() => {
+const flowClaudeLlm: LLMClient | null = (() => {
   if (autoDiscussionLlm && config.llm.backend === "worker-pool") {
     // E: SDK (サブスク OAuth + cache_control)。Claude Code 認証トークンを動的に読む。
     // usage が返るので cost-logger のトークン計上が有効化する。
@@ -643,6 +645,14 @@ const flowEngineLlm: LLMClient | null = (() => {
   }
   return autoDiscussionLlm ?? classifierLlm;
 })();
+// model spec が `gpt-*` (Sol/Terra/Luna) のペルソナは Codex CLI (`codex exec`) へ、
+// それ以外は上の Claude チェーンへ振り分ける (flow.roster でモデル混在を組む前提)。
+const flowEngineLlm: LLMClient | null = flowClaudeLlm
+  ? new ModelRouterLlm(
+      flowClaudeLlm,
+      new CodexCliClient({ cwd: join(process.cwd(), "worker-home") })
+    )
+  : null;
 
 // ─── 議論フロー WebUI (/flow) — 4 フロー (議論/改善/学習/壁打ち) の正式入口 (T7) ───
 // テーマ + 議論タイプ (必須) + タグ を受けて dispatch する。LLM backend がある時のみ有効。

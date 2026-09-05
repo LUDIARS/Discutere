@@ -25,7 +25,7 @@ import {
   type FlowRunOptions,
   type FlowUtteranceRecord,
 } from "../director.js";
-import { personaStance, type FlowPersona, type Rng } from "../personas.js";
+import { personaStance, rosterPersonaCount, type FlowPersona, type Rng } from "../personas.js";
 import { buildFlowCast } from "../persona-cast.js";
 import { setupSessionPersonas } from "../persona-setup.js";
 import { setupFlowPaper } from "../flow-setup.js";
@@ -150,11 +150,12 @@ export async function runDialecticFlow(
   // ── キャスト (stance セッション固定 + 価値軸/核主張 + flow_session_persona 永続) ──
   const defaultModel = cfg.llm.model ?? "claude-haiku-4-5-20251001";
   const seedCast = buildFlowCast({
-    count: cfg.flow.personaCount,
+    count: rosterPersonaCount(cfg.flow.personaCount, cfg.flow.roster),
     defaultModel,
     isLocal,
     rng: rng as Rng,
     personaIds: options.personaIds,
+    roster: cfg.flow.roster,
     warn,
   });
   const enriched = await setupSessionPersonas({
@@ -254,7 +255,13 @@ export async function runDialecticFlow(
     issueSource = "llm";
     try {
       const decomposeLlm = withCostLog(llm, { flow, sessionId, location: "issue-decompose" });
-      issueTitles = await decomposeIssues({ theme, paperMd: paperSystem, llm: decomposeLlm, warn });
+      issueTitles = await decomposeIssues({
+        theme,
+        paperMd: paperSystem,
+        llm: decomposeLlm,
+        model: facilitator.model,
+        warn,
+      });
     } catch (e) {
       warn(`[0] 論点分解失敗: ${(e as Error).message} — テーマ 1 論点で degrade`);
       issueTitles = [];
@@ -281,7 +288,7 @@ export async function runDialecticFlow(
     const openingText = await renderFacilitatorLine({
       content: `論点 ${round}「${issue.title}」について議論します。まず賛成側の${pro.name}さん、続いて反対側の${con.name}さんに定立をお願いします。`,
       llm: facilitatorLlm,
-      model: judgeModel,
+      model: facilitator.model,
       warn,
     });
     await commit(makeRecord({ persona: facilitator, round, turn: 0, text: openingText }));
@@ -345,7 +352,7 @@ export async function runDialecticFlow(
           personaName: persona.name,
           target: decision.targetUtteranceId ? utteranceIndex.get(decision.targetUtteranceId) : undefined,
           llm: facilitatorLlm,
-          model: judgeModel,
+          model: facilitator.model,
           warn,
         });
         await commit(makeRecord({ persona: facilitator, round, turn, text: nomination }));
@@ -476,6 +483,8 @@ export async function runDialecticFlow(
           genLlm: withCostLog(llm, { flow, sessionId, round, location: "synthesize" }),
           gateLlm: withCostLog(llm, { flow, sessionId, round, location: "elevation-gate" }),
           ratifyLlm: withCostLog(llm, { flow, sessionId, round, location: "ratify" }),
+          // 止揚の生成は進行役のモデル (編成表 facilitator)。判定/批准は judgeModel。
+          mainModel: facilitator.model,
           judgeModel,
           warn,
         });

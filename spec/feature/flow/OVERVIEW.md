@@ -45,7 +45,8 @@ Discutere の「議論」を **4 つのフロー** に分けて定義するド�
 |---|---|---|---|
 | **ラウンド数** | `flow.rounds` | 議論を進める最大ラウンド数 | 現 `discussion.maxRounds` を流用/改名 |
 | **ターン数** | `flow.turnsPerRound` | 1 ラウンドあたりのターン数 | 現 `discussion.expectedUtterances` に相当 |
-| **議論参加ペルソナ人数** | `flow.personaCount` | 議論プレイヤーの人数 | 現 composition の総数算出を置換 |
+| **議論参加ペルソナ人数** | `flow.personaCount` | 議論プレイヤーの人数 | 現 composition の総数算出を置換。`flow.roster.discussants` があればその数が優先 |
+| **モデル編成** | `flow.roster.{facilitator,discussants[]}` | 進行役 / 議論者ごとの model spec (`<model>@<effort>`) | [model-roster.md](model-roster.md)。`gpt-*` は Codex 経路 |
 | **投票参加人数** | `flow.voterCount` | 投票フェーズの投票者数 | 新規。中立投票者の数 |
 | **タグ** | `flow.tags[]` / テーマ単位 | `機密` `内部` `運用` `開発` 等 | §3。テーマ受信時に付与 |
 

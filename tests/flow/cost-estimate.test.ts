@@ -14,15 +14,15 @@ import Database from "better-sqlite3";
 {
   const { estimateCostUsd, modelFamily } = await import("../../src/persona-engine/llm/pricing.js");
 
-  assert.equal(modelFamily("claude-opus-4-8"), "opus");
-  assert.equal(modelFamily("claude-sonnet-4-6"), "sonnet");
+  assert.equal(modelFamily("claude-opus-5"), "opus");
+  assert.equal(modelFamily("claude-sonnet-5"), "sonnet");
   assert.equal(modelFamily("claude-haiku-4-5"), "haiku");
   assert.equal(modelFamily("gemma4:12b"), null);
   assert.equal(modelFamily(undefined), null);
   console.log("  [ok] modelFamily 正規化");
 
   // opus: input 5 / output 25 / cacheRead 0.5 / cacheWrite 6.25 per MTok
-  const cost = estimateCostUsd("claude-opus-4-8", {
+  const cost = estimateCostUsd("claude-opus-5", {
     input_tokens: 1_000_000,
     output_tokens: 1_000_000,
     cache_read_input_tokens: 1_000_000,
@@ -32,14 +32,14 @@ import Database from "better-sqlite3";
   console.log("  [ok] estimateCostUsd opus (input+output+cache)");
 
   // token のみ (worker-pool 形): cache 無し
-  const tokenOnly = estimateCostUsd("claude-opus-4-8", { input_tokens: 2_000_000, output_tokens: 0 });
+  const tokenOnly = estimateCostUsd("claude-opus-5", { input_tokens: 2_000_000, output_tokens: 0 });
   assert.ok(Math.abs(tokenOnly! - 10) < 1e-9, "2M input = $10");
   console.log("  [ok] estimateCostUsd token-only");
 
   // 未知モデル / 空 usage → undefined
   assert.equal(estimateCostUsd("gemma4:12b", { input_tokens: 100 }), undefined, "未知モデル → undefined");
-  assert.equal(estimateCostUsd("claude-opus-4-8", {}), undefined, "空 usage → undefined");
-  assert.equal(estimateCostUsd("claude-opus-4-8", undefined), undefined, "usage 無し → undefined");
+  assert.equal(estimateCostUsd("claude-opus-5", {}), undefined, "空 usage → undefined");
+  assert.equal(estimateCostUsd("claude-opus-5", undefined), undefined, "usage 無し → undefined");
   console.log("  [ok] estimateCostUsd 未知/空 → undefined");
 }
 
@@ -64,7 +64,7 @@ fs.mkdirSync(TMP_DIR, { recursive: true });
     sessionId: "S-wp",
     location: "utterance",
     backend: "worker-pool",
-  }).invoke({ prompt: "p", model: "claude-opus-4-8" });
+  }).invoke({ prompt: "p", model: "claude-opus-5" });
 
   const db = new Database(process.env.DATABASE_PATH);
   const row = db.prepare("SELECT * FROM llm_call_log ORDER BY id DESC LIMIT 1").get() as Record<string, unknown>;
@@ -83,7 +83,7 @@ fs.mkdirSync(TMP_DIR, { recursive: true });
     sessionId: "S-cli",
     location: "utterance",
     backend: "claude-cli",
-  }).invoke({ prompt: "p", model: "claude-opus-4-8" });
+  }).invoke({ prompt: "p", model: "claude-opus-5" });
 
   const db2 = new Database(process.env.DATABASE_PATH);
   const row2 = db2.prepare("SELECT * FROM llm_call_log ORDER BY id DESC LIMIT 1").get() as Record<string, unknown>;

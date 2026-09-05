@@ -21,6 +21,9 @@ const DB_PATH = path.join(TMP_DIR, "test.db");
 process.env.DATABASE_PATH = DB_PATH;
 process.env.DISCUTERE_FLOW_PERSONA_COUNT = "4";
 process.env.DISCUTERE_FLOW_VOTER_COUNT = "3";
+process.env.DISCUTERE_FLOW_ROSTER_FACILITATOR = "gpt-facilitator@high";
+process.env.DISCUTERE_FLOW_ROSTER_DISCUSSANTS = "claude-pro@high,gpt-con@medium,claude-opinion@low";
+process.env.DISCUTERE_FLOW_DIALECTIC_JUDGE_MODEL = "claude-judge@low";
 
 const { _resetFlowDb } = await import("../../src/flow/db/connection.js");
 const { _resetConfig } = await import("../../src/config.js");
@@ -48,6 +51,7 @@ function extractOwnGroundIds(prompt: string): string[] {
 function makeRouterLlm(overrides: Partial<Record<string, (p: string) => string>> = {}) {
   const stats: Record<string, number> = {};
   const prompts: Record<string, string[]> = {};
+  const models: Record<string, Array<string | undefined>> = {};
   const routes: Route[] = [
     { name: "persona-setup", match: (p) => p.includes("重視する価値 (価値軸)"), respond: () => "[]" },
     {
@@ -119,12 +123,14 @@ function makeRouterLlm(overrides: Partial<Record<string, (p: string) => string>>
   return {
     stats,
     prompts,
-    async invoke(args: { prompt: string; system?: string }) {
+    models,
+    async invoke(args: { prompt: string; system?: string; model?: string }) {
       const p = args.prompt;
       for (const r of routes) {
         if (r.match(p)) {
           stats[r.name] = (stats[r.name] ?? 0) + 1;
           (prompts[r.name] ??= []).push(p);
+          (models[r.name] ??= []).push(args.model);
           const responder = overrides[r.name] ?? r.respond;
           return { ok: true as const, text: responder(p) };
         }
@@ -159,6 +165,18 @@ const db = () => new Database(DB_PATH);
   });
 
   assert.equal(llm.stats.unmatched ?? 0, 0, "未ルーティングの LLM 呼び出しなし");
+  assert.ok(
+    ["issue-decompose", "facilitator", "synthesize"].every((route) =>
+      (llm.models[route] ?? []).every((model) => model === "gpt-facilitator@high")
+    ),
+    "論点分解・進行文・止揚生成は roster.facilitator を使う"
+  );
+  assert.ok(
+    ["tension-classify", "elevation-gate", "ratify"].every((route) =>
+      (llm.models[route] ?? []).every((model) => model === "claude-judge@low")
+    ),
+    "分類・折衷ゲート・批准は judgeModel を使う"
+  );
   assert.equal(result.sessionId, "dlx-basic");
   assert.ok(result.concluded, "結論が concluded=true");
   assert.ok(result.conclusion.startsWith("【収束】"), "結論が【収束】形式");

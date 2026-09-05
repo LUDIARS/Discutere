@@ -16,7 +16,19 @@
     "dialectic": {
       "rebutTurns": 4,
       "staleTurns": 6,
-      "judgeModel": "claude-haiku-4-5-20251001"
+      "judgeModel": "claude-fable-5-1"
+    },
+    "$comment_roster": "roster: モデル編成 (spec/feature/flow/model-roster.md)。値は model spec `<model>@<effort>`。facilitator=進行役 (止揚の生成にも使う)、discussants=議論者へ順に割り当て (人数 = 要素数、personaCount より優先)。gpt-* は Codex CLI (codex exec)、claude-* は Claude 経路。env DISCUTERE_FLOW_ROSTER_FACILITATOR / _DISCUSSANTS (カンマ区切り)。",
+    "roster": {
+      "facilitator": "claude-fable-5-1",
+      "discussants": [
+        "claude-opus-5@xhigh",
+        "claude-opus-5@medium",
+        "gpt-5.6-sol@xhigh",
+        "gpt-5.6-sol@medium",
+        "claude-sonnet-5@high",
+        "gpt-5.6-terra@high"
+      ]
     },
     "$comment": "autoCrawl: 議論/改善の開始時にテーマの学習データが不足していたら指定ソースで自動クロール→KG取込してから議論する (事前学習のUI化)。UI(/flow)で議論ごとに source/query/appId/urls を上書きでき、ここはその既定値。sources は情報ゲートが横断する自動ソース群 (テーマだけで引ける niconico が既定、youtube は DISCUTERE_YOUTUBE_API_KEY があれば自動追加)。website/steam は URL/appId 要のため自動経路では使われない (UI/Discord で明示指定時のみ)。source は後方互換の単数指定。maxItems は1ソース1クロールの取込上限。",
     "autoCrawl": {
@@ -115,10 +127,10 @@
   "discussion": {
     "expectedUtterances": 20,
     "keymanCount": 2,
-    "facilitatorModel": "claude-opus-4-8",
-    "keymanModel": "claude-opus-4-8",
+    "facilitatorModel": "claude-opus-5",
+    "keymanModel": "claude-opus-5",
     "opinionModels": [
-      { "model": "claude-sonnet-4-6", "weight": 6 },
+      { "model": "claude-sonnet-5", "weight": 6 },
       { "model": "claude-haiku-4-5-20251001", "weight": 4 }
     ],
     "minTotal": 4,

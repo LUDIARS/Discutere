@@ -47,7 +47,8 @@ const RATES_BY_FAMILY: Record<"opus" | "sonnet" | "haiku", TokenRates> = {
 /** model id (例 `claude-opus-4-8`) をファミリに正規化。未知は null。 */
 export function modelFamily(model: string | undefined): "opus" | "sonnet" | "haiku" | null {
   if (!model) return null;
-  const m = model.toLowerCase();
+  // model spec (`<model>@<effort>`) の effort 部は無視する。
+  const m = model.toLowerCase().split("@")[0];
   if (m.includes("opus")) return "opus";
   if (m.includes("sonnet")) return "sonnet";
   if (m.includes("haiku")) return "haiku";

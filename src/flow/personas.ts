@@ -109,6 +109,17 @@ export function personaStance(persona: FlowPersona): FlowStance {
     : roleDefaultStance(persona.role);
 }
 
+/**
+ * モデル編成 (spec/feature/flow/model-roster.md)。
+ * 文字列は model spec (`<model>@<effort>`、`persona-engine/llm/model-spec.ts`)。
+ * - facilitator: 進行役 (止揚の生成にも使う)。
+ * - discussants: 議論者に順番に割り当てる。空なら全員 defaultModel。
+ */
+export interface FlowModelRoster {
+  facilitator?: string;
+  discussants: readonly string[];
+}
+
 export interface GeneratePersonasArgs {
   count: number;
   /** 議論メンバーの LLM モデル (既定: config から取得) */
@@ -116,6 +127,18 @@ export interface GeneratePersonasArgs {
   /** ローカル LLM backend かどうか */
   isLocal: boolean;
   rng: Rng;
+  /** モデル編成 (任意)。指定時は facilitator / 議論者のモデルをここから採る。 */
+  roster?: FlowModelRoster;
+}
+
+/**
+ * 編成から議論キャスト人数を決める (純関数)。
+ * discussants が 1 つ以上あれば「進行役 1 + 議論者 = discussants の数」で
+ * 各モデルをちょうど 1 回ずつ使う。空なら personaCount をそのまま使う。
+ */
+export function rosterPersonaCount(personaCount: number, roster: FlowModelRoster | undefined): number {
+  const n = roster?.discussants.length ?? 0;
+  return n > 0 ? 1 + n : personaCount;
 }
 
 /**
@@ -124,11 +147,17 @@ export interface GeneratePersonasArgs {
  * debater の stance は pro/con に均等割 (奇数なら rng で余り 1 を振る) でセッション固定する。
  */
 export function generateFlowPersonas(args: GeneratePersonasArgs): FlowPersona[] {
-  const { count, defaultModel, isLocal, rng } = args;
+  const { count, defaultModel, isLocal, rng, roster } = args;
   if (count < 1) throw new Error("personaCount must be >= 1");
 
   const used = new Set<string>();
   const personas: FlowPersona[] = [];
+  const facilitatorModel = roster?.facilitator || defaultModel;
+  const discussantModels = roster?.discussants ?? [];
+  // 議論者のモデルは編成表を先頭から順に (足りなければ巡回) 割り当てる。
+  const discussantModel = (index: number): string =>
+    discussantModels.length > 0 ? discussantModels[index % discussantModels.length] : defaultModel;
+  let discussantIndex = 0;
 
   // 1 人目はファシリテーター
   personas.push({
@@ -138,7 +167,7 @@ export function generateFlowPersonas(args: GeneratePersonasArgs): FlowPersona[] 
     stance: "neutral",
     speechStyle: ROLE_FLAVOR.facilitator.style,
     traits: ROLE_FLAVOR.facilitator.traits,
-    model: defaultModel,
+    model: facilitatorModel,
     isLocal,
   });
 
@@ -155,7 +184,7 @@ export function generateFlowPersonas(args: GeneratePersonasArgs): FlowPersona[] 
       stance: "opinion",
       speechStyle: ROLE_FLAVOR.opinion.style,
       traits: ROLE_FLAVOR.opinion.traits,
-      model: defaultModel,
+      model: discussantModel(discussantIndex++),
       isLocal,
     });
   }
@@ -170,7 +199,7 @@ export function generateFlowPersonas(args: GeneratePersonasArgs): FlowPersona[] 
       stance: i < proCount ? "pro" : "con",
       speechStyle: ROLE_FLAVOR.debater.style,
       traits: ROLE_FLAVOR.debater.traits,
-      model: defaultModel,
+      model: discussantModel(discussantIndex++),
       isLocal,
     });
   }

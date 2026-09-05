@@ -11,6 +11,7 @@
 
 import type { LLMClient, LLMInvokeArgs, LLMResult } from "./client.js";
 import { OAUTH_BETA_HEADER } from "./claude-code-auth.js";
+import { parseModelSpec, validateModelSpec } from "./model-spec.js";
 import { logLlm } from "./llm-vg.js";
 
 const DEFAULT_MODEL = "claude-haiku-4-5-20251001";
@@ -66,7 +67,13 @@ export class AnthropicSdkClient implements LLMClient {
       return { ok: false, error: "no credentials (OAuth token / ANTHROPIC_API_KEY 共に無し)" };
     }
 
-    const model = args.model ?? this.defaultModel;
+    // model spec (`<model>@<effort>`) を分解。effort は output_config.effort に落とす
+    // (Opus 4.5+ / Sonnet 5 / Fable 系が受ける。未指定なら送らない = API 既定)。
+    const spec = parseModelSpec(args.model ?? this.defaultModel);
+    const validationError = validateModelSpec(spec, "claude");
+    if (validationError) return { ok: false, error: `anthropic: ${validationError}` };
+    const model = spec.model || this.defaultModel;
+    const effort = spec.effort;
     const maxTokens = args.maxTokens ?? DEFAULT_MAX_TOKENS;
     const timeoutMs = args.timeoutMs ?? DEFAULT_TIMEOUT_MS;
 
@@ -105,6 +112,7 @@ export class AnthropicSdkClient implements LLMClient {
           max_tokens: maxTokens,
           system,
           messages: [{ role: "user", content: args.prompt }],
+          ...(effort ? { output_config: { effort } } : {}),
         }),
         signal: controller.signal,
       });

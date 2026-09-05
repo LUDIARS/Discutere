@@ -34,6 +34,7 @@ await import("./cost-instrumentation.test.js");
 await import("./cost-relay.test.js");
 await import("./worker-pool-usage.test.js");
 await import("./cost-estimate.test.js");
+await import("./model-roster.test.js");
 await import("./paper-markdown.test.js");
 await import("./paper-provenance.test.js");
 await import("./debatability.test.js");

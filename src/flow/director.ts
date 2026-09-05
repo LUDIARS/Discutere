@@ -12,7 +12,7 @@ import { randomUUID } from "node:crypto";
 import type { LLMClient } from "../persona-engine/llm/client.js";
 import type { FlowTag } from "./tags.js";
 import { getConfig } from "../config.js";
-import type { FlowPersona, Rng } from "./personas.js";
+import { rosterPersonaCount, type FlowPersona, type Rng } from "./personas.js";
 import { buildFlowCast } from "./persona-cast.js";
 import { setupSessionPersonas } from "./persona-setup.js";
 import { selectPossessionByTheme, describePossession } from "./persona-pool.js";
@@ -345,11 +345,12 @@ async function assembleCast(args: {
   const { theme, sessionId, flow, llm, isLocal, rng, possess, personaIds, log, warn } = args;
   const defaultModel = cfg.llm.model ?? "claude-haiku-4-5-20251001";
   const cast = buildFlowCast({
-    count: cfg.flow.personaCount,
+    count: rosterPersonaCount(cfg.flow.personaCount, cfg.flow.roster),
     defaultModel,
     isLocal,
     rng,
     personaIds,
+    roster: cfg.flow.roster,
     warn,
   });
   if (possess && !(personaIds && personaIds.length > 0)) {

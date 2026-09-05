@@ -1,0 +1,17 @@
+{
+  "name": "llm-clients",
+  "description": "LLM 呼び出しの境界。 LLMClient 契約と provider 別クライアント (Anthropic SDK / claude CLI / codex CLI / ローカル OpenAI 互換 / mock)、 model spec の分解、 コスト単価、 認証トークン読み取り。 議論の中身は持たない。",
+  "presetRules": [],
+  "templateRules": [],
+  "membership": [
+    {
+      "pathPattern": "(^|/)src/persona-engine/llm/(?:.*/)?[^/]+$"
+    },
+    {
+      "pathPattern": "(^|/)src/flow/(model-router|llm-fallback)\\.ts$"
+    },
+    {
+      "pathPattern": "(^|/)tests/flow/model-roster\\.test\\.ts$"
+    }
+  ]
+}

@@ -44,6 +44,16 @@ export interface DiscutereConfig {
     turnsPerRound: number;
     /** 議論プレイヤー人数 */
     personaCount: number;
+    /**
+     * モデル編成 (spec/feature/flow/model-roster.md)。各値は model spec
+     * (`<model>@<effort>`、例 `claude-opus-5@xhigh` / `gpt-5.6-sol@medium`)。
+     * discussants が 1 つ以上あれば議論者人数 = その数 (personaCount より優先)。
+     * `gpt-*` は Codex CLI 経路 (`codex exec`)、それ以外は Claude 経路。
+     */
+    roster: {
+      facilitator: string;
+      discussants: string[];
+    };
     /** 投票者数 (中立) */
     voterCount: number;
     /**
@@ -73,8 +83,8 @@ export interface DiscutereConfig {
       /** 新規 claim 枯渇判定の窓 K (直近 K ターン新 claim なしで収束シグナル (c))。既定 6。 */
       staleTurns: number;
       /**
-       * 判定・批准 (tension-classify / fact-resolve / elevation-gate / ratify / facilitator
-       * レンダリング) に使う小モデル。生成 (position/utterance/synthesize) はメインモデル。
+       * 判定・批准 (tension-classify / fact-resolve / elevation-gate / ratify) に使う小モデル。
+       * 進行文と生成 (position/utterance/synthesize) は各担当ペルソナのモデル。
        * 既定 claude-haiku-4-5-20251001。
        */
       judgeModel: string;
@@ -764,6 +774,10 @@ export function loadConfig(): DiscutereConfig {
       rounds: pickNum(process.env.DISCUTERE_FLOW_ROUNDS, file.flow?.rounds, 3),
       turnsPerRound: pickNum(process.env.DISCUTERE_FLOW_TURNS_PER_ROUND, file.flow?.turnsPerRound, 6),
       personaCount: pickNum(process.env.DISCUTERE_FLOW_PERSONA_COUNT, file.flow?.personaCount, 4),
+      roster: {
+        facilitator: pick(process.env.DISCUTERE_FLOW_ROSTER_FACILITATOR, file.flow?.roster?.facilitator, ""),
+        discussants: parseStringList(process.env.DISCUTERE_FLOW_ROSTER_DISCUSSANTS, file.flow?.roster?.discussants),
+      },
       voterCount: pickNum(process.env.DISCUTERE_FLOW_VOTER_COUNT, file.flow?.voterCount, 3),
       voteLenses: parseVoteLenses(process.env.DISCUTERE_FLOW_VOTE_LENSES, file.flow?.voteLenses),
       convergeShare: pickNum(process.env.DISCUTERE_FLOW_CONVERGE_SHARE, file.flow?.convergeShare, 0.6),
@@ -1040,14 +1054,14 @@ export function loadConfig(): DiscutereConfig {
       facilitatorModel: pick(
         process.env.DISCUTERE_DISCUSSION_FACILITATOR_MODEL,
         file.discussion?.facilitatorModel,
-        "claude-opus-4-8"
+        "claude-opus-5"
       ),
-      keymanModel: pick(process.env.DISCUTERE_DISCUSSION_KEYMAN_MODEL, file.discussion?.keymanModel, "claude-opus-4-8"),
+      keymanModel: pick(process.env.DISCUTERE_DISCUSSION_KEYMAN_MODEL, file.discussion?.keymanModel, "claude-opus-5"),
       opinionModels:
         Array.isArray(file.discussion?.opinionModels) && file.discussion!.opinionModels.length > 0
           ? file.discussion!.opinionModels
           : [
-              { model: "claude-sonnet-4-6", weight: 6 },
+              { model: "claude-sonnet-5", weight: 6 },
               { model: "claude-haiku-4-5-20251001", weight: 4 },
             ],
       minTotal: pickNum(process.env.DISCUTERE_DISCUSSION_MIN_TOTAL, file.discussion?.minTotal, 4),

@@ -149,7 +149,7 @@ export function nominationFallbackText(
 export interface RenderFacilitatorLineArgs {
   /** レンダリング対象の進行内容 (決定的 fallback 文を兼ねる)。 */
   content: string;
-  /** withCostLog 済み判定 LLM (judgeModel, location="facilitator")。 */
+  /** withCostLog 済み進行役 LLM (roster.facilitator, location="facilitator")。 */
   llm: LLMClient;
   model?: string;
   warn?: (msg: string) => void;
@@ -181,7 +181,7 @@ export interface RenderNominationArgs {
   decision: ScheduleDecision;
   personaName: string;
   target?: UtteranceDigest;
-  /** withCostLog 済み判定 LLM (judgeModel, location="facilitator")。 */
+  /** withCostLog 済み進行役 LLM (roster.facilitator, location="facilitator")。 */
   llm: LLMClient;
   model?: string;
   warn?: (msg: string) => void;

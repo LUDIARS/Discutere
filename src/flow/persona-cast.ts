@@ -1,4 +1,11 @@
-import { generateFlowPersonas, type FlowPersona, type FlowRole, type FlowStance, type Rng } from "./personas.js";
+import {
+  generateFlowPersonas,
+  type FlowModelRoster,
+  type FlowPersona,
+  type FlowRole,
+  type FlowStance,
+  type Rng,
+} from "./personas.js";
 import { findPoolPersona, toFlowPersona } from "./persona-pool.js";
 
 export interface BuildFlowCastArgs {
@@ -7,6 +14,8 @@ export interface BuildFlowCastArgs {
   isLocal: boolean;
   rng: Rng;
   personaIds?: readonly string[];
+  /** モデル編成 (config flow.roster)。生成ペルソナのモデル割当に使う。 */
+  roster?: FlowModelRoster;
   warn?: (msg: string) => void;
 }
 
@@ -32,8 +41,8 @@ function specifiedStance(role: FlowRole, debaterIndex: number): FlowStance | und
 }
 
 export function buildFlowCast(args: BuildFlowCastArgs): FlowPersona[] {
-  const { count, defaultModel, isLocal, rng, warn = () => {} } = args;
-  const generated = generateFlowPersonas({ count, defaultModel, isLocal, rng });
+  const { count, defaultModel, isLocal, rng, roster, warn = () => {} } = args;
+  const generated = generateFlowPersonas({ count, defaultModel, isLocal, rng, roster });
   const facilitator = generated[0];
   const specified: FlowPersona[] = [];
   const seenPoolIds = new Set<string>();
