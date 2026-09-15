@@ -18,6 +18,7 @@ export interface YoutubeCommentRaw {
   id: string;
   snippet?: {
     textOriginal?: string;
+    textDisplay?: string;
     authorDisplayName?: string;
     authorChannelId?: { value?: string };
     publishedAt?: string;
@@ -46,7 +47,8 @@ export function mapYoutubeComment(
     nativeId: c.id,
     gameSlug,
     threadKey: videoId,
-    content: c.snippet?.textOriginal ?? "",
+    // API-key reads of other users' comments expose textDisplay, not author-only textOriginal.
+    content: c.snippet?.textOriginal ?? c.snippet?.textDisplay ?? "",
     postedAt: c.snippet?.publishedAt ? Date.parse(c.snippet.publishedAt) : 0,
     authorId: channelId, // channelId(UCxxxx) = 公開・安定な persona アンカー
     authorName: c.snippet?.authorDisplayName,
@@ -98,7 +100,7 @@ export async function fetchVideoComments(opts: YoutubeCommentsOptions): Promise<
   for (;;) {
     if (opts.quota && !opts.quota.canSpend(YT_COST.list)) break;
     const url =
-      `${API_BASE}/commentThreads?part=snippet,replies&maxResults=100` +
+      `${API_BASE}/commentThreads?part=snippet,replies&maxResults=100&textFormat=plainText` +
       `&order=${order}&videoId=${opts.videoId}` +
       (pageToken ? `&pageToken=${pageToken}` : "") +
       `&key=${opts.apiKey}`;

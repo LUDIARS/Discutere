@@ -1,6 +1,8 @@
 import { createHash } from "node:crypto";
 
 import { DIM } from "./sentiment-vector.js";
+import { getFlowDb } from "./db/connection.js";
+import { parseHistoryEvidence, saveHistoryEvidence, type PersonaHistoryEvidence } from "./persona-history-evidence.js";
 import {
   findPoolPersonaByUserId,
   upsertPoolPersonaByUserId,
@@ -27,6 +29,7 @@ export interface VoluptasPersonaPayload {
   aversions: PersonaAversion[];
   mechanicReactions: PersonaMechanicReaction[];
   exportSpecVersion?: number;
+  historyEvidence?: PersonaHistoryEvidence;
 }
 
 export interface PersonaImportSummary {
@@ -189,6 +192,7 @@ export function parseVoluptasPersonaPayload(value: unknown): VoluptasPersonaPayl
   return {
     ...parseVersionedPersonaCore(input),
     ...parsePersonaCompartments(input),
+    historyEvidence: parseHistoryEvidence(input.historyEvidence),
   };
 }
 
@@ -222,7 +226,9 @@ function toPoolPersona(payload: VoluptasPersonaPayload): PoolPersona {
     origin: "imported",
     parentIds: [],
     learningSource: "voluptas",
-    label: "Voluptas 匿名プロフィール",
+    label: payload.historyEvidence
+      ? `Voluptas 外部コメント由来 (${payload.historyEvidence.sampleCount}件・${payload.historyEvidence.observedMonths}観測月・${payload.historyEvidence.coverage})`
+      : "Voluptas 匿名プロフィール",
     sourceSpeakerId: `ext:feedback:${payload.pseudoId}`,
     userId: payload.pseudoId,
     preferenceAxes: payload.preferenceAxes,
@@ -273,7 +279,13 @@ export function importVoluptasPersonas(
     // アーカイブ済みの同一人物も「更新」扱い (upsert が復帰させる)。
     const exists = findPoolPersonaByUserId(payload.pseudoId, { includeArchived: true });
     try {
-      if (!summary.dryRun) upsertPoolPersonaByUserId(toPoolPersona(payload));
+      if (!summary.dryRun) {
+        const db = getFlowDb();
+        db.transaction(() => {
+          upsertPoolPersonaByUserId(toPoolPersona(payload));
+          saveHistoryEvidence(db, payload.pseudoId, payload.historyEvidence);
+        })();
+      }
     } catch {
       // 1 行の書き込み失敗で残りの取込を落とさない (spec persona-bridge §1.3)。
       countSkip(summary, "write-failed");

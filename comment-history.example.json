@@ -1,0 +1,8 @@
+{
+  "database": "./data/external/comment-history.sqlite",
+  "youtubeDailyUnits": 8000,
+  "youtubeRetentionDays": 30,
+  "maxRequests": 100,
+  "videos": [],
+  "steam": []
+}

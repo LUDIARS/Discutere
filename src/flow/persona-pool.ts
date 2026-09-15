@@ -9,12 +9,19 @@
  */
 
 // @spec 憑依 descriptor の強化
-import { getFlowDb } from "./db/connection.js";
+import { getFlowDb as getDatabase } from "./db/connection.js";
+import { purgeHistoryPersonas } from "./persona-history-evidence.js";
 import { buildPersonaDescriptor } from "./persona-descriptor.js";
 import { cosine, textToVector, DIM } from "./sentiment-vector.js";
 import { roleDefaultStance, type FlowPersona, type FlowRole, type FlowStance } from "./personas.js";
 
 export type PersonaOrigin = "seed" | "adopted" | "imported";
+
+function getFlowDb(): ReturnType<typeof getDatabase> {
+  const db = getDatabase();
+  purgeHistoryPersonas(db);
+  return db;
+}
 
 export interface PersonaAversion {
   target: string;

@@ -491,6 +491,14 @@ const MIGRATIONS: Array<{ id: string; sql: string[] }> = [
          ON persona_bridge_assertion_nonce(expires_at)`,
     ],
   },
+  {
+    id: "flow_0026_persona_history_evidence",
+    sql: [
+      `CREATE TABLE IF NOT EXISTS flow_persona_history
+        (user_id TEXT PRIMARY KEY, expires_at INTEGER NOT NULL, payload TEXT NOT NULL)`,
+      `CREATE INDEX IF NOT EXISTS idx_flow_persona_history_expiry ON flow_persona_history(expires_at)`,
+    ],
+  },
 ];
 
 function isIgnorableMigrationError(stmt: string, error: unknown): boolean {
