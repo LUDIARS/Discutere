@@ -8,6 +8,8 @@
 import type { TokenUsage } from "../types.js";
 
 export interface LLMInvokeArgs {
+  /** External conversations must never gain agent tools or a persistent worker's privileges. */
+  conversationOnly?: boolean;
   prompt: string;
   /** persona の speech_style など、 system message に乗せる固定指示 */
   system?: string;

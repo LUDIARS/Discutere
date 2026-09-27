@@ -37,6 +37,9 @@ import { personaRoutes } from "./api/persona-routes.js";
 import { personaBridgeRoutes } from "./api/persona-bridge-routes.js";
 import { topPageRoutes } from "./api/top-page-routes.js";
 import { webChatRoutes, setWebChatDeps } from "./api/web-chat-routes.js";
+import { externalDiscussionRoutes } from "./api/external-discussion-routes.js";
+import { ExternalDiscussionService } from "./external-discussion/service.js";
+import { ParticipationStore } from "./external-discussion/store.js";
 import { flowRoutes, setFlowWebDeps } from "./flow/web/routes.js";
 import { specExtractRoutes } from "./flow/web/spec-extract-route.js";
 import { makeListExternalVoices } from "./flow/external-voices.js";
@@ -673,6 +676,16 @@ if (flowEngineLlm) {
 }
 
 const port = config.server.port;
+// This endpoint returns proposals only; Actio owns transport and human task approval.
+const externalSecret = config.externalDiscussion?.sharedSecret ?? "";
+const externalModel = config.flow.roster.discussants[0] || config.llm.model;
+if (externalSecret && !externalModel) throw new Error("External discussion requires a configured model");
+app.route("/internal/external-discussion", externalDiscussionRoutes(
+  externalSecret && externalModel && flowEngineLlm ? new ExternalDiscussionService(
+    new ParticipationStore(getFlowDb()), flowEngineLlm,
+    externalModel,
+  ) : null, externalSecret,
+));
 
 // ─── S3 バックアチE�E: 月次自動スケジューラ起勁E(enabled かつ bucket 設定時のみ) ──
 //   手動トリガ (slash /discutere-backup・npm run backup) は scheduler.trigger() を�E有、E

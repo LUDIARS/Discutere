@@ -24,6 +24,7 @@ export interface WorkerPoolWorker {
 }
 
 export interface DiscutereConfig {
+  externalDiscussion?: { sharedSecret: string };
   nodeEnv: string;
   server: {
     port: number;
@@ -765,6 +766,7 @@ export function loadConfig(): DiscutereConfig {
 
   return Object.freeze({
     nodeEnv: pick(process.env.NODE_ENV, undefined, "development"),
+    externalDiscussion: { sharedSecret: process.env.DISCUTERE_EXTERNAL_DISCUSSION_SECRET ?? "" },
     server: {
       port: pickNum(process.env.BACKEND_PORT, file.server?.port, 3110),
       host: pick(process.env.BACKEND_HOST, file.server?.host, "127.0.0.1"),

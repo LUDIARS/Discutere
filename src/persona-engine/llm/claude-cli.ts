@@ -57,6 +57,7 @@ export class ClaudeCliClient implements LLMClient {
       // delegation 準拠: per-invoke model > client 既定 model。未指定なら CLI 既定。
       // model spec (`<model>@<effort>`) は spawn 側で分解する。
       model: args.model ?? this.defaultModel,
+      conversationOnly: args.conversationOnly,
     });
   }
 }
@@ -67,6 +68,7 @@ function composePrompt(system: string | undefined, user: string): string {
 }
 
 interface SpawnArgs {
+  conversationOnly?: boolean;
   cliPath: string;
   prompt: string;
   timeoutMs: number;
@@ -107,6 +109,7 @@ function spawnClaude(args: SpawnArgs): Promise<LLMResult> {
     // usage(cache_read/creation 含む) + total_cost_usd を取得できるようにする。
     // サブスク(OAuth) でも total_cost_usd は等価 API 換算で populated される。
     const cliArgs = ["-p", "--output-format", "json"];
+    if (args.conversationOnly) cliArgs.push("--tools=", "--strict-mcp-config", "--disable-slash-commands", "--safe-mode");
     if (spec.model) cliArgs.push("--model", spec.model);
     if (spec.effort) cliArgs.push("--effort", spec.effort);
     let child;

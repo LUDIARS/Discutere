@@ -8,6 +8,7 @@
  * 順次 dynamic import で完全逐次実行を保証する。
  */
 await import("./foundation.test.js");
+await import("./external-discussion.test.js");
 await import("./discussion.test.js");
 await import("./vote-conclude.test.js");
 await import("./persona-state.test.js");

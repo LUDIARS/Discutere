@@ -83,6 +83,7 @@ export class CodexCliClient implements LLMClient {
   }
 
   async invoke(args: LLMInvokeArgs): Promise<LLMResult> {
+    if (args.conversationOnly) return { ok: false, error: "Codex CLI conversation-only capability is not configured" };
     const spec = parseModelSpec(args.model ?? this.defaultModel);
     const validationError = validateModelSpec(spec, "codex");
     if (validationError) return { ok: false, error: `codex-cli: ${validationError}` };

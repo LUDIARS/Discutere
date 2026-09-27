@@ -27,6 +27,7 @@ export class WorkerPoolClient implements LLMClient {
   ) {}
 
   async invoke(args: LLMInvokeArgs): Promise<LLMResult> {
+    if (args.conversationOnly) return { ok: false, error: "Persistent worker cannot accept external conversation-only requests" };
     const workerId = args.personaId;
     if (!workerId) {
       return { ok: false, error: "worker-pool: personaId 未指定 (ルーティング不能)" };
