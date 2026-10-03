@@ -3,6 +3,7 @@
   "description": "LLM 呼び出しの境界。 LLMClient 契約と provider 別クライアント (Anthropic SDK / claude CLI / codex CLI / ローカル OpenAI 互換 / mock)、 model spec の分解、 コスト単価、 認証トークン読み取り。 議論の中身は持たない。",
   "presetRules": [],
   "templateRules": [],
+  "specRefs": ["spec/feature/shared-one-shot.md"],
   "membership": [
     {
       "pathPattern": "(^|/)src/persona-engine/llm/(?:.*/)?[^/]+$"

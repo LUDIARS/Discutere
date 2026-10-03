@@ -89,6 +89,7 @@
     "app:dist:win": "npm run build && npm run app:rebuild && electron-builder --win --publish never"
   },
   "dependencies": {
+    "@ludiars/one-shot": "file:lib/lapilli/packages/one-shot",
     "@aws-sdk/client-s3": "^3.658.0",
     "@hono/node-server": "^2.0.12",
     "@ludiars/blackbox": "file:./lib/lapilli/packages/blackbox",

@@ -10,7 +10,7 @@
  * - sandbox は read-only、`--ephemeral` でセッションを残さない、cwd は worker-home。
  */
 
-import { spawn } from "node:child_process";
+import { spawnOneShot as spawn } from "@ludiars/one-shot";
 import { mkdtempSync, readFileSync, rmSync, statSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
@@ -120,9 +120,7 @@ export class CodexCliClient implements LLMClient {
           child = spawn(this.cliPath, cliArgs, {
             cwd: this.cwd,
             env: buildCodexEnvironment(process.env),
-            // npm の Windows shim (.cmd) を起動するため shell が必要。model / effort は
-            // validateModelSpec で shell メタ文字を拒否してから argv に入れる。
-            shell: process.platform === "win32",
+            // Lapilli resolves native/npm executables without command-shell interpolation.
             windowsHide: true,
             stdio: ["pipe", "pipe", "pipe"],
           });

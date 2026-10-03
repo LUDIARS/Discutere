@@ -10,6 +10,7 @@
  */
 
 import { existsSync, readFileSync } from "node:fs";
+import { resolveModel } from "@ludiars/one-shot";
 import path from "node:path";
 import { DEFAULT_VOTE_LENSES, type VoteLens } from "./flow/vote-lenses.js";
 
@@ -1056,15 +1057,15 @@ export function loadConfig(): DiscutereConfig {
       facilitatorModel: pick(
         process.env.DISCUTERE_DISCUSSION_FACILITATOR_MODEL,
         file.discussion?.facilitatorModel,
-        "claude-opus-5"
+        resolveModel("opus", "claude")
       ),
-      keymanModel: pick(process.env.DISCUTERE_DISCUSSION_KEYMAN_MODEL, file.discussion?.keymanModel, "claude-opus-5"),
+      keymanModel: pick(process.env.DISCUTERE_DISCUSSION_KEYMAN_MODEL, file.discussion?.keymanModel, resolveModel("opus", "claude")),
       opinionModels:
         Array.isArray(file.discussion?.opinionModels) && file.discussion!.opinionModels.length > 0
           ? file.discussion!.opinionModels
           : [
-              { model: "claude-sonnet-5", weight: 6 },
-              { model: "claude-haiku-4-5-20251001", weight: 4 },
+              { model: resolveModel("sonnet", "claude"), weight: 6 },
+              { model: resolveModel("haiku", "claude"), weight: 4 },
             ],
       minTotal: pickNum(process.env.DISCUTERE_DISCUSSION_MIN_TOTAL, file.discussion?.minTotal, 4),
       turnDelayMs: pickNum(process.env.DISCUTERE_DISCUSSION_TURN_DELAY_MS, file.discussion?.turnDelayMs, 4_000),

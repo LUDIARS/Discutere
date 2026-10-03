@@ -12,7 +12,7 @@
  * pooling 化は Phase 1 で。
  */
 
-import { spawn } from "node:child_process";
+import { spawnOneShot as spawn } from "@ludiars/one-shot";
 import { existsSync } from "node:fs";
 
 import type { LLMClient, LLMInvokeArgs, LLMResult } from "./client.js";
@@ -116,7 +116,7 @@ function spawnClaude(args: SpawnArgs): Promise<LLMResult> {
     try {
       child = spawn(args.cliPath, cliArgs, {
         env,
-        shell: process.platform === "win32",
+        cwd: process.cwd(),
         windowsHide: true,
       });
     } catch (e) {
