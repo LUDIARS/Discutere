@@ -364,7 +364,7 @@ work queue `data/external/youtube/videos/<gameSlug>.jsonl` (`{videoId,title,chan
 **鍵類は平文 config に書かない**:
 
 - `youtube.apiKey` / `reddit.clientId` / `reddit.clientSecret`
-  → **env or Infisical 経由** で起動時取得 (`externalSources` には非シークレットのみ)。
+  → **Excubitor Vault から起動時に注入された env** を参照 (`externalSources` には非シークレットのみ)。
 - env 名: `DISCUTERE_YOUTUBE_API_KEY` / `DISCUTERE_REDDIT_CLIENT_ID` /
   `DISCUTERE_REDDIT_CLIENT_SECRET`。
 

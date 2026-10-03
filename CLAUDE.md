@@ -27,6 +27,11 @@ Discutere は **半ローカルツール(Discord ギルド内限定の議論 Cha
 
 ## 設定 (config ファイル化)
 
+サービス起動は Excubitor 経由。秘密情報は Ex Vault で管理し、起動時に env へ注入する。
+非秘密の運用環境変数は `excubitor.catalog.yaml` の `env` に置く。
+アプリから Infisical や `.env` を読まず、キー更新 API も持たない。
+Vault 変更は Ex からの次回起動時に反映する。
+
 env 散在は `src/config.ts` の単一 typed config に集約 (優先順 default < `discutere.config.json` <
 env)。`discutere.config.example.json` 参照。詳細は `docs/ws-gateway-config-recovery.md`。
 

@@ -14,7 +14,7 @@ import { createCore } from "../../core/index.js";
 import { resolveActiveKgPath } from "../../core/kg-registry.js";
 
 import { runAdoptFromKg } from "../../flow/persona-adopt-runner.js";
-import { getInfisicalRuntimeSecret } from "../../secrets/infisical-runtime.js";
+import { getYoutubeApiKey } from "../../secrets/youtube-env.js";
 import { importExternalUtterances } from "./importer.js";
 import { openAttributionStore } from "./attribution-store.js";
 import { openIngestedStore } from "./ingested-store.js";
@@ -36,9 +36,9 @@ import type { ExternalUtterance } from "./types.js";
 const STAGE_DIR = path.resolve("./data/external");
 
 async function youtubeApiKey(): Promise<string> {
-  const key = await getInfisicalRuntimeSecret("DISCUTERE_YOUTUBE_API_KEY");
+  const key = await getYoutubeApiKey();
   if (!key) {
-    console.error("YouTube API key is not configured in encrypted config: DISCUTERE_YOUTUBE_API_KEY");
+    console.error("YouTube API key is not configured in the Excubitor-injected environment: DISCUTERE_YOUTUBE_API_KEY");
     process.exit(2);
   }
   return key;

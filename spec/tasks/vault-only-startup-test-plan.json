@@ -1,0 +1,195 @@
+{
+  "summary": "Lead with \"Behavior-preserving characterization tests\" (high), then refactor in behavior-preserving steps. 2 test suggestions, 2 fix steps.",
+  "testPlan": {
+    "suggestions": [
+      {
+        "id": "test-001",
+        "title": "Behavior-preserving characterization tests",
+        "kind": "unit",
+        "priority": "high",
+        "confidence": 0.75,
+        "targetFiles": [
+          "env-cli.config.ts",
+          "package.json",
+          "scripts/ext-canalis-run.ts",
+          "scripts/import-youtube-api-key-from-gcloud.ts",
+          "src/api/tuning-routes.ts",
+          "src/crawler/sources/cli.ts",
+          "src/index.ts",
+          "src/secrets/gcloud-secret.ts",
+          "src/secrets/infisical-runtime.ts"
+        ],
+        "rationale": "A refactor must not change behavior; characterization tests pin the current behavior before code moves.",
+        "draft": {
+          "description": "Given the current observable behavior of the refactored area, when the refactored code runs, then outputs match the pre-refactor baseline exactly."
+        },
+        "evidenceIds": [
+          "ev-001",
+          "ev-002",
+          "ev-003",
+          "ev-004",
+          "ev-005",
+          "ev-006",
+          "ev-007",
+          "ev-008",
+          "ev-009",
+          "ev-010",
+          "ev-011"
+        ]
+      },
+      {
+        "id": "test-002",
+        "title": "Existing contract checks stay green",
+        "kind": "contract",
+        "priority": "high",
+        "confidence": 0.65,
+        "rationale": "Consumers of the refactored surface must see no difference.",
+        "draft": {
+          "description": "Given the public surface of the refactored modules, when existing contract tests run, then all pass unchanged."
+        },
+        "evidenceIds": [
+          "ev-001",
+          "ev-002",
+          "ev-003",
+          "ev-004",
+          "ev-005",
+          "ev-006",
+          "ev-007",
+          "ev-008",
+          "ev-009",
+          "ev-010",
+          "ev-011"
+        ]
+      }
+    ]
+  },
+  "fixPolicy": {
+    "strategy": "behavior_preserving",
+    "steps": [
+      {
+        "id": "fix-001",
+        "title": "Pin current behavior",
+        "description": "Add or verify characterization tests over the code to be moved before changing structure.",
+        "targetFiles": [
+          "env-cli.config.ts",
+          "package.json",
+          "scripts/ext-canalis-run.ts",
+          "scripts/import-youtube-api-key-from-gcloud.ts",
+          "src/api/tuning-routes.ts",
+          "src/crawler/sources/cli.ts",
+          "src/index.ts",
+          "src/secrets/gcloud-secret.ts",
+          "src/secrets/infisical-runtime.ts"
+        ],
+        "evidenceIds": [
+          "ev-001",
+          "ev-002",
+          "ev-003",
+          "ev-004",
+          "ev-005",
+          "ev-006",
+          "ev-007",
+          "ev-008",
+          "ev-009",
+          "ev-010",
+          "ev-011"
+        ]
+      },
+      {
+        "id": "fix-002",
+        "title": "Refactor in reviewable steps",
+        "description": "Restructure in small, individually green steps; never combine behavior changes with structure changes.",
+        "dependsOn": [
+          "fix-001"
+        ],
+        "evidenceIds": [
+          "ev-001",
+          "ev-002",
+          "ev-003",
+          "ev-004",
+          "ev-005",
+          "ev-006",
+          "ev-007",
+          "ev-008",
+          "ev-009",
+          "ev-010",
+          "ev-011"
+        ]
+      }
+    ],
+    "risks": [
+      {
+        "id": "risk-001",
+        "severity": "medium",
+        "description": "Uncovered behavior in the refactored area can change silently; coverage gaps are the main refactor risk."
+      }
+    ],
+    "rollback": "Each refactor step is independently revertible; revert the latest step on any behavioral difference."
+  },
+  "evidence": [
+    {
+      "id": "ev-001",
+      "type": "objective",
+      "detail": "Caller requested refactor: Vault-only startup and injected YouTube credentials; test missing/blank/present env, non-disclosing status, removed secret mutation routes and plain launch scripts"
+    },
+    {
+      "id": "ev-002",
+      "type": "diff",
+      "detail": "A code diff was supplied with the request."
+    },
+    {
+      "id": "ev-003",
+      "type": "changed_file",
+      "file": "env-cli.config.ts",
+      "detail": "Changed file: env-cli.config.ts"
+    },
+    {
+      "id": "ev-004",
+      "type": "changed_file",
+      "file": "package.json",
+      "detail": "Changed file: package.json"
+    },
+    {
+      "id": "ev-005",
+      "type": "changed_file",
+      "file": "scripts/ext-canalis-run.ts",
+      "detail": "Changed file: scripts/ext-canalis-run.ts"
+    },
+    {
+      "id": "ev-006",
+      "type": "changed_file",
+      "file": "scripts/import-youtube-api-key-from-gcloud.ts",
+      "detail": "Changed file: scripts/import-youtube-api-key-from-gcloud.ts"
+    },
+    {
+      "id": "ev-007",
+      "type": "changed_file",
+      "file": "src/api/tuning-routes.ts",
+      "detail": "Changed file: src/api/tuning-routes.ts"
+    },
+    {
+      "id": "ev-008",
+      "type": "changed_file",
+      "file": "src/crawler/sources/cli.ts",
+      "detail": "Changed file: src/crawler/sources/cli.ts"
+    },
+    {
+      "id": "ev-009",
+      "type": "changed_file",
+      "file": "src/index.ts",
+      "detail": "Changed file: src/index.ts"
+    },
+    {
+      "id": "ev-010",
+      "type": "changed_file",
+      "file": "src/secrets/gcloud-secret.ts",
+      "detail": "Changed file: src/secrets/gcloud-secret.ts"
+    },
+    {
+      "id": "ev-011",
+      "type": "changed_file",
+      "file": "src/secrets/infisical-runtime.ts",
+      "detail": "Changed file: src/secrets/infisical-runtime.ts"
+    }
+  ]
+}

@@ -10,9 +10,11 @@ default < discutere.config.json < env
 
 - config ファイルパスは env `DISCUTERE_CONFIG` で変更可 (既定 `./discutere.config.json`)。
 - 実装は [`src/config.ts`](../../src/config.ts) の単一 typed config。
-- 雛形は [`discutere.config.example.json`](../../discutere.config.example.json) /
-  [`.env.example`](../../.env.example)。
-- **秘密情報 (botToken / anthropicApiKey / AWS 鍵) は config に直書きせず env 上書きを推奨**。
+- 雛形は [`discutere.config.example.json`](../../discutere.config.example.json)。
+- **秘密情報 (botToken / anthropicApiKey / AWS 鍵) は Excubitor Vault で管理し、起動時に env へ注入する**。
+- 非秘密の運用環境変数は `excubitor.catalog.yaml` の `env` に置く。
+- Ex 内の優先順は topology < catalog env < 暗号化 runtime config < Vault。
+- `.env` 生成・読込、Infisical 接続は行わない。必須設定の欠落は既存の startup guard と利用機能の入口で拒否する。
 
 ## server
 

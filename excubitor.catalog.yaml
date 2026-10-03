@@ -22,6 +22,7 @@ services:
     autostart: false
     env:
       BACKEND_PORT: "3110"
+      DATABASE_PATH: "data/discutere.db"
     health:
       type: http
       url: http://localhost:3110/health

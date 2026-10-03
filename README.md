@@ -158,10 +158,15 @@ Discatier KG (kuzu) + persona-engine.db + discutere.db を **tar.gz にまとめ
 | **全設定キーを確認する** | [spec/setup/config-reference.md](spec/setup/config-reference.md) |
 
 設定は `default < discutere.config.json < env` の順で解決 (`DISCUTERE_CONFIG` で config パス変更可)。
-雛形は [`discutere.config.example.json`](discutere.config.example.json) /
-[`.env.example`](.env.example)。秘密情報は env 上書き推奨。
+雛形は [`discutere.config.example.json`](discutere.config.example.json)。
+サービスは Excubitor から起動し、秘密情報は Vault から注入する。
+非秘密の運用環境変数は `excubitor.catalog.yaml` の `env` で管理する。
+`.env` の生成・読込やアプリ内の secret 取得は行わない。
 
 ## 開発
+
+以下の起動コマンドは Excubitor による環境変数注入を前提とする。
+YouTube キーの管理は [Vault 運用ガイド](docs/youtube-api-key-gcloud.md) を参照。
 
 ```sh
 npm run dev:server   # tsx watch (ホットリロード)

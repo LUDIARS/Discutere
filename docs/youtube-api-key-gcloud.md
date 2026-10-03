@@ -1,48 +1,13 @@
-# YouTube API Key From gcloud
+# YouTube API キーの Vault 管理
 
-Discutere enables YouTube learning when `DISCUTERE_YOUTUBE_API_KEY` exists in
-Infisical. The key is not written to `.env` or process environment variables.
-Di reads it directly from encrypted config using `.env.secrets` only as
-Infisical bootstrap credentials.
+`DISCUTERE_YOUTUBE_API_KEY` は Excubitor Vault に登録し、`discutere` に紐付ける。
+Discutere は Ex が起動時に注入する `process.env` のみを参照する。
+非秘密の設定は `excubitor.catalog.yaml` の `env` で管理する。
 
-Preferred path:
+設定画面の YouTube 欄は現在のプロセスでキーが設定済みかだけを表示する。
+キー本文の表示・入力・保存、gcloud 取込、アプリからの秘密情報再取得は行わない。
+Vault の変更は Ex からの次回起動で反映される。
 
-```powershell
-# Start Di, then open:
-http://localhost:3100/api/admin/tuning
-```
-
-The YouTube API key panel can:
-
-- Save an API key directly to Infisical.
-- Read a Google Secret Manager secret via `gcloud` and save it to Infisical.
-- Refresh Di's runtime cache without restarting.
-
-CLI fallback:
-
-```powershell
-npm run env:youtube:gcloud
-```
-
-Defaults:
-
-- Google Secret Manager secret: `discutere-youtube-api-key`
-- Google Secret Manager version: `latest`
-- Infisical key: `DISCUTERE_YOUTUBE_API_KEY`
-
-Overrides:
-
-```powershell
-npm run env:youtube:gcloud -- --secret my-youtube-api-key --project my-gcp-project
-npm run env:youtube:gcloud -- --secret my-youtube-api-key --version 3
-```
-
-Prerequisites:
-
-- `gcloud` is installed and authenticated.
-- The active gcloud account can read the Secret Manager secret.
-- `npm run env:setup` has already created `.env.secrets` for Infisical bootstrap.
-
-After the CLI command succeeds, use the tuning UI refresh action to reload Di's
-runtime cache without restarting. Information gating and learning add `youtube`
-to the automatic crawl sources when the key is available in the runtime cache.
+キー未設定でも YouTube 以外の機能は使える。YouTube クロールを要求した場合は
+`DISCUTERE_YOUTUBE_API_KEY` の未設定エラーとなる。
+旧 `.env` / `.env.secrets` の移行確認・削除は管理者の別作業とする。

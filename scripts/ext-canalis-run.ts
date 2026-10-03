@@ -27,7 +27,7 @@ import { AnthropicSdkClient } from "../src/persona-engine/llm/anthropic.js";
 import type { LLMClient } from "../src/persona-engine/llm/client.js";
 import { resolveActiveKgPath } from "../src/core/kg-registry.js";
 import { loadConfig } from "../src/config.js";
-import { getInfisicalRuntimeSecret } from "../src/secrets/infisical-runtime.js";
+import { getYoutubeApiKey } from "../src/secrets/youtube-env.js";
 
 function parseArgs(argv: string[]): {
   source: string;
@@ -54,8 +54,8 @@ function parseArgs(argv: string[]): {
 
 async function crawl(args: ReturnType<typeof parseArgs>): Promise<RawRecord[]> {
   if (args.source === "youtube") {
-    const apiKey = await getInfisicalRuntimeSecret("DISCUTERE_YOUTUBE_API_KEY");
-    if (!apiKey) throw new Error("DISCUTERE_YOUTUBE_API_KEY is not set in encrypted config");
+    const apiKey = await getYoutubeApiKey();
+    if (!apiKey) throw new Error("DISCUTERE_YOUTUBE_API_KEY is not set in the Excubitor-injected environment");
     if (!args.videoId) throw new Error("--video-id is required for source=youtube");
     const src = new YouTubeSource();
     return src.crawl({ videoId: args.videoId, apiKey, maxResults: args.maxResults ?? 200 });

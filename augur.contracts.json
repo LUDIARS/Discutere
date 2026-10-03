@@ -1,0 +1,25 @@
+{
+  "version": 1,
+  "contractsDir": "contracts",
+  "importFrom": "@ludiars/log-weaver",
+  "contracts": [
+    {
+      "id": "C-1",
+      "criterion": "C-1 getYoutubeApiKey(env): 注入環境変数のみを参照し、未設定なら null を返す",
+      "symbol": "getYoutubeApiKey",
+      "file": "src/secrets/youtube-env.ts",
+      "module": "contracts/youtube-env.contract.ts",
+      "mode": "observe",
+      "sample": 1
+    },
+    {
+      "id": "C-2",
+      "criterion": "C-2 getYoutubeApiKeyStatus(env): キー本文を含まず設定有無だけを返す",
+      "symbol": "getYoutubeApiKeyStatus",
+      "file": "src/secrets/youtube-env.ts",
+      "module": "contracts/youtube-status.contract.ts",
+      "mode": "observe",
+      "sample": 1
+    }
+  ]
+}
