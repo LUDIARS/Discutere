@@ -2,7 +2,7 @@
  * ペーパー作成の入力に含まれる **Notion リンクを Canalis でクロール**して本文 md に展開する。
  *
  * - token (env NOTION_TOKEN) があれば Canalis `crawlPage` で API から取得し、子ページを深さ N まで辿る。
- * - token が無ければ Canalis `NotionPublicSource` で公開ページをブラウザ取得する (起点ページのみ)。
+ * - token が無ければ Canalis `crawlPublicPages` で公開ページをブラウザ取得し、本文中のページリンクを深さ N まで辿る。
  * - 深さは既定 `flow.notionLinks.maxDepth` (2)。本文の「深さ:N」/「depth:N」指示で上書きできる。
  *
  * 取得失敗は warn して他リンク・議論を止めない (graceful)。Notion API / ブラウザは注入境界。
@@ -10,8 +10,8 @@
 
 import {
   NotionApiClient,
-  NotionPublicSource,
   crawlPage,
+  crawlPublicPages,
   findNotionUrls,
   parseNotionPageId,
   type NotionApi,
@@ -23,14 +23,24 @@ export const MAX_NOTION_DEPTH = 5;
 
 const DEPTH_RE = /(?:深さ|depth)\s*[:：=]\s*(\d+)/i;
 
-/** 公開ページ取得 (token 無し時)。 */
-export type NotionPublicFetch = (url: string) => Promise<{ title?: string; markdown: string }>;
+interface NotionLinkPage {
+  url: string;
+  title: string;
+  depth: number;
+  markdown: string;
+}
+
+/** 公開ページ取得 (token 無し時)。起点から深さ maxDepth までのページを返す。 */
+export type NotionPublicCrawl = (
+  url: string,
+  opts: { maxDepth: number; maxPages: number }
+) => Promise<{ pages: NotionLinkPage[]; errors: Array<{ url: string; message: string }>; truncated: boolean }>;
 
 export interface NotionLinkDeps {
   /** Notion API。null なら公開ページ取得へ回す。省略時は env NOTION_TOKEN から生成。 */
   api?: NotionApi | null;
-  /** 公開ページ取得。省略時は Canalis NotionPublicSource。 */
-  fetchPublic?: NotionPublicFetch;
+  /** 公開ページ取得。省略時は Canalis crawlPublicPages。 */
+  crawlPublic?: NotionPublicCrawl;
 }
 
 export interface ExpandNotionOpts {
@@ -54,12 +64,18 @@ function defaultApi(): NotionApi | null {
   return token ? new NotionApiClient({ token, notionVersion: process.env.NOTION_VERSION }) : null;
 }
 
-const defaultFetchPublic: NotionPublicFetch = async (url) => {
-  const [rec] = await new NotionPublicSource().crawl({ url });
-  return { title: rec?.title, markdown: rec?.text ?? "" };
-};
+const defaultCrawlPublic: NotionPublicCrawl = (url, opts) => crawlPublicPages(url, opts);
 
-/** 1 リンクを md に解決する。API 経由は子ページを見出し付きで連結する。 */
+/** 取得したページ群を、深さに応じた見出し + 出典付きで連結する。 */
+function renderPages(pages: readonly NotionLinkPage[], fallbackUrl: string): string {
+  return pages
+    .map((p) =>
+      `${"#".repeat(Math.min(6, 2 + p.depth))} ${p.title || "(無題)"}\n出典: ${p.url || fallbackUrl}\n\n${p.markdown}`.trim()
+    )
+    .join("\n\n");
+}
+
+/** 1 リンクを md に解決する。子ページは深さに応じた見出しで連結する。 */
 export async function resolveNotionUrl(
   url: string,
   opts: { depth: number; maxPages: number; deps?: NotionLinkDeps; warn?: (msg: string) => void }
@@ -70,15 +86,16 @@ export async function resolveNotionUrl(
     const r = await crawlPage(api, pageId, { maxDepth: opts.depth, maxPages: opts.maxPages });
     for (const e of r.errors) opts.warn?.(`Notion ${e.stage} 失敗 (${e.id}): ${e.message}`);
     if (r.truncated) opts.warn?.(`Notion ページ数上限 ${opts.maxPages} で打ち切り (${url})`);
-    if (r.pages.length > 0) {
-      return r.pages
-        .map((p) => `${"#".repeat(Math.min(6, 2 + p.depth))} ${p.title || "(無題)"}\n出典: ${p.url || url}\n\n${p.markdown}`.trim())
-        .join("\n\n");
-    }
+    if (r.pages.length > 0) return renderPages(r.pages, url);
     opts.warn?.(`Notion API で取得できず公開ページ取得へ切替 (${url})`);
   }
-  const page = await (opts.deps?.fetchPublic ?? defaultFetchPublic)(url);
-  return `## ${page.title || "(無題)"}\n出典: ${url}\n\n${page.markdown}`.trim();
+  const pub = await (opts.deps?.crawlPublic ?? defaultCrawlPublic)(url, {
+    maxDepth: opts.depth,
+    maxPages: opts.maxPages,
+  });
+  for (const e of pub.errors) opts.warn?.(`Notion 公開ページ取得失敗 (${e.url}): ${e.message}`);
+  if (pub.truncated) opts.warn?.(`Notion ページ数上限 ${opts.maxPages} で打ち切り (${url})`);
+  return renderPages(pub.pages, url);
 }
 
 /**

@@ -281,9 +281,11 @@ bot 名義で締める (収束時 `finalizeForumPost` で lock+archive+まとめ
 
 - **ペーパー作成時の Notion リンク読込 (Canalis クロール, 2026-10-05)**: 素の fetch では Notion の
   本文が取れず、渡した Notion リンクがペーパーに反映されていなかった。`src/flow/notion-link.ts` の
-  `expandNotionLinks` が本文中の Notion URL を Canalis (`crawlPage` / `NotionPublicSource`) で取得し
-  `# Notion 資料` 節の md にして「ゲーム内容」(mechanicsContext) に足す。token (env `NOTION_TOKEN`、
-  Ex Vault) があれば API で子ページを **深さ 2 (既定・起点=0)** まで辿り、無ければ公開ページのみ取得。
+  `expandNotionLinks` が本文中の Notion URL (notion.so / app.notion.com / *.notion.site) を Canalis
+  (`crawlPage` / `crawlPublicPages`) で取得し `# Notion 資料` 節の md にして「ゲーム内容」(mechanicsContext)
+  に足す。token (env `NOTION_TOKEN`、Ex Vault) があれば API で、無ければ公開ページをブラウザ (Playwright
+  chromium、`lib/canalis` で `npx playwright install chromium` が必要) で取得し、どちらも子ページを
+  **深さ 2 (既定・起点=0)** まで辿る。
   深さは本文の「深さ:N」指示で議論ごとに上書き (上限 5)、既定は `flow.notionLinks.{maxDepth,maxPages}`。
   入口: Web `/api/flow/start` (仕様書 URL 欄 + 本文系欄) と Discord フォーラム starter (議論/改善は
   草案 seed、学習は仕様書解析の材料)。取得失敗は warn して議論を止めない。

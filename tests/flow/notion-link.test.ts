@@ -75,20 +75,50 @@ console.log("  [ok] notion-link: Notion リンク無しは空");
 
 // ── token なし: 公開ページ取得 ───────────────────────────────────────────────
 {
-  const seen: string[] = [];
+  const seen: Array<{ url: string; maxDepth: number }> = [];
   const md = await expandNotionLinks(`${URL}。`, {
     deps: {
       api: null,
-      fetchPublic: async (url) => {
-        seen.push(url);
-        return { title: "公開ページ", markdown: "公開本文" };
+      crawlPublic: async (url, opts) => {
+        seen.push({ url, maxDepth: opts.maxDepth });
+        return {
+          pages: [
+            { url, title: "公開ページ", depth: 0, markdown: "公開本文" },
+            { url: "https://acme.notion.site/Child", title: "子ページ", depth: 1, markdown: "子本文" },
+          ],
+          errors: [],
+          truncated: false,
+        };
       },
     },
   });
-  assert.deepEqual(seen, [URL], "末尾の句読点を除いた URL で取得");
+  assert.deepEqual(seen, [{ url: URL, maxDepth: 2 }], "末尾の句読点を除いた URL を既定深さ 2 で取得");
   assert.match(md, /## 公開ページ/);
   assert.match(md, /公開本文/);
-  console.log("  [ok] notion-link: token 無しは公開ページ取得");
+  assert.match(md, /### 子ページ/, "公開ページも子ページを深さ見出しで連結");
+  console.log("  [ok] notion-link: token 無しは公開ページを深さ 2 まで取得");
+}
+
+// ── 公開ページの部分失敗は warn に出し、取れた分は使う ─────────────────────
+{
+  const warns: string[] = [];
+  const md = await expandNotionLinks(`${URL} 深さ:1`, {
+    deps: {
+      api: null,
+      crawlPublic: async (url, opts) => {
+        assert.equal(opts.maxDepth, 1, "本文の深さ指示が公開ページ取得にも効く");
+        return {
+          pages: [{ url, title: "公開ページ", depth: 0, markdown: "公開本文" }],
+          errors: [{ url: "https://acme.notion.site/Gone", message: "404" }],
+          truncated: false,
+        };
+      },
+    },
+    warn: (m) => warns.push(m),
+  });
+  assert.match(md, /公開本文/);
+  assert.ok(warns.some((w) => w.includes("404")), "取れなかった子ページを warn に出す");
+  console.log("  [ok] notion-link: 公開ページの部分失敗は warn して続行");
 }
 
 // ── 取得失敗は warn して空 ───────────────────────────────────────────────────
@@ -97,7 +127,7 @@ console.log("  [ok] notion-link: Notion リンク無しは空");
   const md = await expandNotionLinks(URL, {
     deps: {
       api: null,
-      fetchPublic: async () => {
+      crawlPublic: async () => {
         throw new Error("timeout");
       },
     },

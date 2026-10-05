@@ -65,7 +65,7 @@
       "enrichMechanics": true,
       "enrichModel": ""
     },
-    "$comment4n": "notionLinks: ペーパー作成時、入力欄 (仕様書 URL / 本文系) や Discord starter 中の Notion リンクを Canalis でクロールして「ゲーム内容」に足す。token は env NOTION_TOKEN (Ex Vault)。あれば API で子ページを maxDepth (既定2、起点=0) まで辿り、無ければ公開ページのみブラウザ取得。本文に「深さ:N」と書けば議論ごとに上書き (上限5)。maxPages は 1 リンクあたりの取得上限。",
+    "$comment4n": "notionLinks: ペーパー作成時、入力欄 (仕様書 URL / 本文系) や Discord starter 中の Notion リンクを Canalis でクロールして「ゲーム内容」に足す。token は env NOTION_TOKEN (Ex Vault)。あれば API、無ければ公開ページをブラウザ (Playwright chromium) で取得し、どちらも子ページを maxDepth (既定2、起点=0) まで辿る。本文に「深さ:N」と書けば議論ごとに上書き (上限5)。maxPages は 1 リンクあたりの取得上限。",
     "notionLinks": {
       "maxDepth": 2,
       "maxPages": 50
