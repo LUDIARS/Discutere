@@ -46,6 +46,7 @@ import {
 import { persistDraftPaper, getDraftPaper, setPaperDebatability, deleteFlowSession } from "./discussion-paper.js";
 import { appendRevision, revertLast, canRevert } from "./paper-revisions.js";
 import { getConfig } from "../config.js";
+import { expandNotionLinks } from "./notion-link.js";
 import type { SparringSession } from "./sparring.js";
 import {
   ensureChannelWebhook,
@@ -94,7 +95,10 @@ export interface StartForumFlowInput {
   turnsPerRound?: number;
   /** 壁打ち相手のプールペルソナ id/name (任意。sparring のみ反映)。 */
   opponentPersonaIds?: string[];
-  /** starter 本文 (任意。学習で仕様書解析 ② に使う。タイトルと別物のときだけ渡る)。 */
+  /**
+   * starter 本文 (任意。タイトルと別物のときだけ渡る)。学習では仕様書解析 ② に使い、
+   * 全フローで本文中の Notion リンクを Canalis でクロールしてペーパー材料にする。
+   */
   specText?: string;
   /** starter のテキスト系添付ファイル URL (任意。学習で仕様書解析 ③ に使う)。 */
   specAttachmentUrls?: string[];
@@ -379,6 +383,8 @@ export async function startForumFlow(
       // まとめて LLM 解析 → mechanics として記録。添付は URL 取得 (ローカルパス読みは不許可)。
       const specParts: string[] = [];
       if (input.specText) specParts.push(input.specText);
+      const notionMd = await resolveStarterNotion(input);
+      if (notionMd) specParts.push(notionMd);
       for (const url of input.specAttachmentUrls ?? []) {
         try {
           specParts.push(await resolveSpecText(url, { allowLocalPath: false }));
@@ -435,14 +441,28 @@ export async function startForumFlow(
       }`
     );
     await prepareInformationBeforeForumFlow(input, deps);
+    // starter / 議題中の Notion リンクはペーパーの「ゲーム内容」材料として展開する。
+    const notionMd = await resolveStarterNotion(input);
+    if (notionMd) {
+      await postThreadNotice(deps, input.threadId, "📎 Notion リンクを読み込み、ペーパーの材料に加えました。");
+    }
 
     // ペーパーレビューゲート (有効時): 草案 + 集めた情報を出し、調整/承認をスレッド返信で待つ。
     if (reviewEnabled) {
-      await startPaperReview(input, deps, hooks);
+      await startPaperReview(input, deps, hooks, notionMd);
       return;
     }
 
-    // 通常: そのまま完走させて結論を投稿。
+    // 通常: そのまま完走させて結論を投稿 (Notion 資料があればそれを載せた草案で確定させる)。
+    if (notionMd) {
+      const { draft } = await buildForumPaperDraft(input, deps, notionMd);
+      await runDiscussionDispatch(input, deps, hooks, {
+        mechanics: draft.mechanics,
+        supplement: draft.supplement,
+        bodyMd: draft.bodyMd,
+      });
+      return;
+    }
     await runDiscussionDispatch(input, deps, hooks);
   } catch (err) {
     console.warn(`  flow-live: ${input.flow} 起動失敗 (thread=${input.threadId}): ${(err as Error).message}`);
@@ -457,19 +477,10 @@ export async function startForumFlow(
 async function startPaperReview(
   input: StartForumFlowInput,
   deps: FlowDiscordDeps,
-  hooks?: FlowLiveHooks
+  hooks?: FlowLiveHooks,
+  notionMd?: string
 ): Promise<void> {
-  const richness = getConfig().flow.paperRichness;
-  const { draft, info } = await buildPaperDraft(input.theme, input.tags, {
-    gamesDir: deps.gamesDir,
-    listExternalVoices: deps.listExternalVoices,
-    llm: richness.enrichMechanics ? deps.llm : undefined,
-    mechanicsTarget: richness.mechanicsTarget,
-    enrichModel: richness.enrichModel || undefined,
-    // 議論適性ゲート (09): 情報ゲートの後段・人間レビューの前 (無効時は undefined = 現行挙動)。
-    debatability: resolveDebatabilityGate({ kind: input.flow, sessionId: input.threadId, llm: deps.llm }),
-    warn: (m) => console.warn(`  [paper-review ${input.threadId}] ${m}`),
-  });
+  const { draft, info } = await buildForumPaperDraft(input, deps, notionMd);
   paperReviewByThread.set(input.threadId, { input, draft, info, hooks });
   // ドラフトを discussion_paper(status='draft') に永続 → 議論一覧に「下書き」として出す/再開できる
   // (session_id=threadId。承認時に同 session 行を 'started' へ upsert する)。
@@ -500,6 +511,29 @@ async function startPaperReview(
     }
   }
   scheduleReviewAutoStart(input.threadId, deps);
+}
+
+/** フォーラム議論のペーパー草案を作る。Notion 資料があれば「ゲーム内容」(mechanicsContext) に載せる。 */
+function buildForumPaperDraft(input: StartForumFlowInput, deps: FlowDiscordDeps, notionMd?: string) {
+  const richness = getConfig().flow.paperRichness;
+  return buildPaperDraft(input.theme, input.tags, {
+    gamesDir: deps.gamesDir,
+    listExternalVoices: deps.listExternalVoices,
+    llm: richness.enrichMechanics ? deps.llm : undefined,
+    mechanicsTarget: richness.mechanicsTarget,
+    enrichModel: richness.enrichModel || undefined,
+    seed: notionMd ? { mechanicsContext: notionMd } : undefined,
+    // 議論適性ゲート (09): 情報ゲートの後段・人間レビューの前 (無効時は undefined = 現行挙動)。
+    debatability: resolveDebatabilityGate({ kind: input.flow, sessionId: input.threadId, llm: deps.llm }),
+    warn: (m) => console.warn(`  [paper-review ${input.threadId}] ${m}`),
+  });
+}
+
+/** 議題 (スレッド名) と starter 本文中の Notion リンクを Canalis でクロールして md にする (無ければ "")。 */
+function resolveStarterNotion(input: StartForumFlowInput): Promise<string> {
+  return expandNotionLinks([input.theme, input.specText ?? ""].join("\n"), {
+    warn: (m) => console.warn(`  [notion ${input.threadId}] ${m}`),
+  });
 }
 
 /** Discord レビュー草案を discussion_paper(status='draft') に永続/同期する (session_id=threadId)。 */

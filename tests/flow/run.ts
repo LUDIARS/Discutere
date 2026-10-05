@@ -46,6 +46,7 @@ await import("./mechanic-extract.test.js");
 await import("./paper-refine.test.js");
 await import("./spec-analyze.test.js");
 await import("./spec-source.test.js");
+await import("./notion-link.test.js");
 await import("./persona-routes.test.js");
 await import("../api/consensus-persona-aggregation.test.js");
 await import("./anatomia-refine.test.js");

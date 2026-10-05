@@ -41,6 +41,8 @@ import type { FlowRole, FlowStance } from "../personas.js";
 import type { AutoCrawlSpec } from "../learning-autocrawl.js";
 import { analyzeSpecMechanics } from "../spec-analyze.js";
 import { buildGithubSpecSource, fetchGithubSpecText, resolveSpecText } from "../spec-source.js";
+import { expandNotionLinks } from "../notion-link.js";
+import { isNotionUrl } from "@ludiars/canalis";
 import { getGitHubCliToken } from "../github-cli.js";
 import { mechanicSummaryToEntry, type GameMechanicEntry } from "../games-md.js";
 import type { LearningOpinion } from "../learning.js";
@@ -264,16 +266,34 @@ function fixedSeedFromBody(body: Record<string, unknown>): Partial<PaperFixedFie
   return Object.values(seed).some(Boolean) ? seed : undefined;
 }
 
+/** Notion リンクを探す入力欄 (仕様書 URL 欄 + 本文系の自由入力欄)。 */
+const NOTION_SOURCE_FIELDS = [
+  "specUrl",
+  "specText",
+  "theme",
+  "discussionTheme",
+  "discussionContent",
+  "mechanicsContext",
+  "themeSupplement",
+] as const;
+
 async function resolveAdditionalSpecText(
   body: {
     specUrl?: unknown;
     githubRepoUrl?: unknown;
     githubPath?: unknown;
     githubRef?: unknown;
-  },
+  } & Partial<Record<(typeof NOTION_SOURCE_FIELDS)[number], unknown>>,
   warn: (msg: string) => void
 ): Promise<string> {
   const parts: string[] = [];
+  // Notion リンクはどの欄に貼られても Canalis でクロールする (素の fetch では本文が取れない)。
+  // 深さは既定 flow.notionLinks.maxDepth、本文の「深さ:N」指示で上書き。
+  const notionSource = NOTION_SOURCE_FIELDS.map((k) => body[k])
+    .filter((v): v is string => typeof v === "string")
+    .join("\n");
+  const notionMd = await expandNotionLinks(notionSource, { warn: (m) => warn(`[flow-web/notion] ${m}`) });
+  if (notionMd) parts.push(notionMd);
   const specUrl = typeof body.specUrl === "string" ? body.specUrl.trim() : "";
   const githubRepoUrl = typeof body.githubRepoUrl === "string" ? body.githubRepoUrl.trim() : "";
   const githubPath = typeof body.githubPath === "string" ? body.githubPath.trim() : "";
@@ -285,7 +305,7 @@ async function resolveAdditionalSpecText(
     return githubToken;
   };
 
-  if (specUrl) {
+  if (specUrl && !isNotionUrl(specUrl)) {
     try {
       const needsGithubToken = /(?:github\.com|raw\.githubusercontent\.com|git@github\.com)/i.test(specUrl);
       parts.push(

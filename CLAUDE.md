@@ -279,6 +279,15 @@ bot 名義で締める (収束時 `finalizeForumPost` で lock+archive+まとめ
   配線: paper-review 経路 (`buildPaperDraft`) と非レビューの `runFlow` 投資ゲート後の両方。**材料 (感想)
   が無ければ増補しない**・LLM 失敗時は既存件数で degrade (議論を止めない)。LLM コスト=議論ごとに 1 回増。
 
+- **ペーパー作成時の Notion リンク読込 (Canalis クロール, 2026-10-05)**: 素の fetch では Notion の
+  本文が取れず、渡した Notion リンクがペーパーに反映されていなかった。`src/flow/notion-link.ts` の
+  `expandNotionLinks` が本文中の Notion URL を Canalis (`crawlPage` / `NotionPublicSource`) で取得し
+  `# Notion 資料` 節の md にして「ゲーム内容」(mechanicsContext) に足す。token (env `NOTION_TOKEN`、
+  Ex Vault) があれば API で子ページを **深さ 2 (既定・起点=0)** まで辿り、無ければ公開ページのみ取得。
+  深さは本文の「深さ:N」指示で議論ごとに上書き (上限 5)、既定は `flow.notionLinks.{maxDepth,maxPages}`。
+  入口: Web `/api/flow/start` (仕様書 URL 欄 + 本文系欄) と Discord フォーラム starter (議論/改善は
+  草案 seed、学習は仕様書解析の材料)。取得失敗は warn して議論を止めない。
+
 ## 個人データ
 
 匿名 workspace (`DISCATIER_WORKSPACE` 既定 `knowledge`)。攻略 KG / 議論ノードに編集者名・アカウント名を保存しない (`spec/feature/crawler/DESIGN.md` 準拠)。

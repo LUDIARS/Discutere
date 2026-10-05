@@ -221,7 +221,16 @@ export async function startDiscordGateway(
   // 進行量設定 select/modal の待ち (threadId → フロー解決済みの起動情報、item1)。
   const pendingFlowSettings = new Map<
     string,
-    { guildId: string; theme: string; flow: FlowKind; tags: FlowTag[]; opponentPersonaIds?: string[] }
+    {
+      guildId: string;
+      theme: string;
+      flow: FlowKind;
+      tags: FlowTag[];
+      opponentPersonaIds?: string[];
+      /** starter 本文 (Notion リンク展開・仕様書解析の材料)。 */
+      specText?: string;
+      specAttachmentUrls?: string[];
+    }
   >();
   // 収束時にフォーラムスレッドを締める (lock+archive + まとめ転記)。
   const flowHooks: FlowLiveHooks = {
@@ -443,6 +452,8 @@ export async function startDiscordGateway(
         flow: info.flow,
         tags: info.tags,
         opponentPersonaIds: info.opponentPersonaIds,
+        specText: info.specText,
+        specAttachmentUrls: info.specAttachmentUrls,
       });
       await postFlowSettingsMenu(info.threadId);
       return;
@@ -480,6 +491,8 @@ export async function startDiscordGateway(
         rounds,
         turnsPerRound,
         opponentPersonaIds: pending.opponentPersonaIds,
+        specText: pending.specText,
+        specAttachmentUrls: pending.specAttachmentUrls,
       },
       deps.flowLive,
       flowHooks

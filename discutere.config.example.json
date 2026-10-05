@@ -65,6 +65,11 @@
       "enrichMechanics": true,
       "enrichModel": ""
     },
+    "$comment4n": "notionLinks: ペーパー作成時、入力欄 (仕様書 URL / 本文系) や Discord starter 中の Notion リンクを Canalis でクロールして「ゲーム内容」に足す。token は env NOTION_TOKEN (Ex Vault)。あれば API で子ページを maxDepth (既定2、起点=0) まで辿り、無ければ公開ページのみブラウザ取得。本文に「深さ:N」と書けば議論ごとに上書き (上限5)。maxPages は 1 リンクあたりの取得上限。",
+    "notionLinks": {
+      "maxDepth": 2,
+      "maxPages": 50
+    },
     "$comment4b": "improvement: 改善フローのスコアリング(2026-07-02 改訂)。各意見を『採用した場合に体験の20次元がどう動くか』を effectModel(既定 Haiku 級)で構造化予測し、予測変化ベクトルを design_gap へ射影してスコアする(文面感情の旧 lexicon 方式はカテゴリエラーのため LLM 失敗時の意見単位 fallback に降格。improvement_score.method に記録)。effectModel 空=LLM 既定モデル。",
     "improvement": {
       "effectModel": "claude-haiku-4-5-20251001"

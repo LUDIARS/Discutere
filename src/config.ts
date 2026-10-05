@@ -195,6 +195,17 @@ export interface DiscutereConfig {
       enrichModel: string;
     };
     /**
+     * ペーパー作成時に入力本文 / 仕様書 URL 中の Notion リンクを Canalis でクロールして材料に足す。
+     * token (env NOTION_TOKEN, Ex Vault 注入) があれば API で子ページまで辿り、無ければ公開ページを
+     * ブラウザ取得する (起点ページのみ)。深さは本文の「深さ:N」指示で議論ごとに上書きできる。
+     */
+    notionLinks: {
+      /** 起点ページから辿る子ページの深さ (起点=0)。既定 2。 */
+      maxDepth: number;
+      /** 1 リンクあたりの最大取得ページ数 (安全弁)。既定 50。 */
+      maxPages: number;
+    };
+    /**
      * 改善フローのスコアリング (improvement.md (2) 2026-07-02 改訂)。
      * 各意見の「採用した場合の体験変化」を小モデル LLM で構造化予測し design_gap へ射影する。
      * LLM 失敗時は意見単位で旧 lexicon 方式へフォールバック (improvement_score.method に記録)。
@@ -921,6 +932,10 @@ export function loadConfig(): DiscutereConfig {
           file.flow?.paperRichness?.enrichModel,
           ""
         ),
+      },
+      notionLinks: {
+        maxDepth: pickNum(process.env.DISCUTERE_NOTION_MAX_DEPTH, file.flow?.notionLinks?.maxDepth, 2),
+        maxPages: pickNum(process.env.DISCUTERE_NOTION_MAX_PAGES, file.flow?.notionLinks?.maxPages, 50),
       },
       improvement: {
         effectModel: pick(
