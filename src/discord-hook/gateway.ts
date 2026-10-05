@@ -43,6 +43,7 @@ import {
 import { ensureManagedChannels } from "./managed-channels.js";
 import { handleDirectiveMessage } from "./directive-handler.js";
 import { stripBotMention } from "./facilitator-directives.js";
+import { ackPaperReviewReply } from "./paper-review-ack.js";
 import type { AnyThreadChannel } from "discord.js";
 import { createDebateRunner, type DebateRunner } from "../discussion/director-live.js";
 import { ensureGameFeedbackCategory, extractGameFeedback } from "./game-feedback-channel.js";
@@ -614,7 +615,8 @@ export async function startDiscordGateway(
       if (!isForumStarterMessage(msg) && deps.flowLive) {
         const flowLive = deps.flowLive;
         void (async () => {
-          // ペーパーレビュー返信を最優先 (壁打ちより先)。
+          // ペーパーレビュー返信を最優先 (壁打ちより先)。受け取った意見には確認済みリアクションを付ける。
+          await ackPaperReviewReply(msg, hasPaperReview(msg.channelId));
           if (await handlePaperReviewReply(msg.channelId, msg.guildId ?? "dm", msg.content, flowLive, flowHooks)) {
             return;
           }

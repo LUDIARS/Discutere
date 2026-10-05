@@ -269,6 +269,8 @@ bot 名義で締める (収束時 `finalizeForumPost` で lock+archive+まとめ
   `persistPaper` upsert(draft→started、bodyMd も override で運ぶ)。③ **「戻す」返信**で版履歴 revert
   (`isRevertText`+`revertLast`、編集ごとに `appendRevision`)。Notion 風ブロック編集 UI 自体は Web ネイティブ
   操作なので Discord には載せない(返信ベースの NL 調整 + 戻す + ✅/「開始」承認で機能パリティ)。
+  レビュー中スレッドへのユーザー返信には、受け取った時点で確認済みリアクション **☑️** を付ける
+  (`discord-hook/paper-review-ack.ts`。✅ は承認操作なので別絵文字、bot のリアクションは承認判定で無視される)。
 
 - **ペーパーの分量増強 (感想3倍 + メカニクスLLM増補, 2026-06-23)**: ペーパーが薄い問題への対処。
   設定 `flow.paperRichness` (`voices` 既定15 / `mechanicsTarget` 既定30 / `enrichMechanics` 既定true /
