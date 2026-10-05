@@ -1,8 +1,39 @@
+import type { ServiceTokenProvider } from "../cernere-service-token/service-token-client.js";
 import { parsePersonaDocument } from "./persona-import-document.js";
 
 // @implements SPEC-PERSONA-BRIDGE-PERSONA-PULL
 const MAX_PAGES = 100;
 const LOOPBACK_HOSTS = new Set(["localhost", "127.0.0.1", "[::1]"]);
+/** 認証集約 P4: Voluptas persona export を呼ぶ service token の宛先 (scope は persona-export:read)。 */
+export const VOLUPTAS_TARGET_PROJECT_KEY = "volputas";
+
+/**
+ * Cernere service token を優先し、 発行に失敗した時だけ固定トークンへ落とす (P4 移行期間)。
+ * 理由コードだけを 1 行ログし、 token 本体は出さない。 P5 で固定トークン経路を撤去する。
+ */
+export async function resolveVoluptasBearer({
+  serviceToken,
+  fallbackToken,
+  log = (line: string) => console.warn(line),
+}: {
+  serviceToken?: ServiceTokenProvider;
+  fallbackToken: string;
+  log?: (line: string) => void;
+}): Promise<string> {
+  if (serviceToken) {
+    const issued = await serviceToken();
+    if (issued.ok) return issued.token;
+    if (fallbackToken) {
+      log(`[persona-import] cernere service token unavailable (reason=${issued.reason}); using fixed token`);
+      return fallbackToken;
+    }
+    throw new Error(
+      `Cernere service token unavailable (reason=${issued.reason}) and DISCUTERE_VOLUPTAS_EXPORT_TOKEN is not set`
+    );
+  }
+  if (!fallbackToken) throw new Error("DISCUTERE_VOLUPTAS_EXPORT_TOKEN is required");
+  return fallbackToken;
+}
 
 export interface PersonaPullResult {
   personas: unknown[];
@@ -13,11 +44,16 @@ export interface PersonaPullResult {
 export async function pullVoluptasPersonas({
   url,
   token,
+  serviceToken,
   fetchImpl = fetch,
+  log,
 }: {
   url: string;
+  /** 従来の固定トークン。 P4 では service token 発行失敗時のフォールバック。 */
   token: string;
+  serviceToken?: ServiceTokenProvider;
   fetchImpl?: typeof fetch;
+  log?: (line: string) => void;
 }): Promise<PersonaPullResult> {
   const endpoint = new URL(url);
   if (
@@ -26,7 +62,7 @@ export async function pullVoluptasPersonas({
   ) {
     throw new Error("Voluptas export URL must use HTTPS (HTTP is allowed only on loopback)");
   }
-  if (!token) throw new Error("DISCUTERE_VOLUPTAS_EXPORT_TOKEN is required");
+  const bearer = await resolveVoluptasBearer({ serviceToken, fallbackToken: token, log });
 
   const personas: unknown[] = [];
   let invalidJsonLines = 0;
@@ -40,7 +76,7 @@ export async function pullVoluptasPersonas({
       redirect: "manual",
       headers: {
         accept: "application/x-ndjson",
-        authorization: `Bearer ${token}`,
+        authorization: `Bearer ${bearer}`,
       },
     });
     // Authorization を別 endpoint へ転送しない。redirect は呼び出し元が明示的に URL を

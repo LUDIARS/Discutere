@@ -23,6 +23,16 @@ services:
     env:
       BACKEND_PORT: "3110"
       DATABASE_PATH: "data/discutere.db"
+      # 認証集約 P4: persona bridge が受ける Cernere service token の aud (= Discutere の storage_slug)。
+      CERNERE_PROJECT_STORAGE_SLUG: "discutere"
+    # 認証集約 P4: service token の検証 (公開鍵取得) と発行 (persona import の送り側) に使う。
+    # CERNERE_BASE_URL は cernere サービスの provides から解決する。未設定でも起動は止めず、
+    # service token だけが 503 になる (固定トークン経路は従来どおり)。
+    requires_secret:
+      - service: cernere
+        keys: [EXCUBITOR_CERNERE_CLIENT_ID, EXCUBITOR_CERNERE_CLIENT_SECRET]
+    cernere_launch_credentials:
+      target_project: discutere
     health:
       type: http
       url: http://localhost:3110/health

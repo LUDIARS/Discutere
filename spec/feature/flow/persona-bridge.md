@@ -47,6 +47,10 @@ attributes{ageBand?,spending?} / mechanicReactions / exportSpecVersion:2`。
   - `mechanic_reactions_json` — メカニクス反応
 - `--url` は Vo 側 §6.2 の専用 Bearer token で認証する。token は
   `DISCUTERE_VOLUPTAS_EXPORT_TOKEN` からのみ読み、引数・設定ファイル・ログへ出さない。
+- 認証集約 P4 (actio:19a2dca4-7b5f-4129-baa0-f03d5e6f3fcc): `--url` は Cernere service token
+  (`target_project_key=volputas`、scope `persona-export:read`) を優先して同じ `Authorization: Bearer`
+  で送る。発行に失敗した時 (credentials 未設定 / 401 / 403 / 404 / ネットワーク) だけ固定トークンへ
+  フォールバックし、理由コードを 1 行ログする。詳細は [interface](../../interface/persona-bridge.md)。
 
 ### 1.3 検証
 

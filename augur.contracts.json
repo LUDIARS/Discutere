@@ -20,6 +20,24 @@
       "module": "contracts/youtube-status.contract.ts",
       "mode": "observe",
       "sample": 1
+    },
+    {
+      "id": "C-3",
+      "criterion": "C-3 verifyServiceToken(input): kind=service・exp 未到来・aud=自分の storage_slug・要求 scope を満たす token だけを受理し、拒否は 401/403/503 に限る",
+      "symbol": "verifyServiceToken",
+      "file": "src/cernere-service-token/service-token-verify.ts",
+      "module": "contracts/service-token-verify.contract.ts",
+      "mode": "observe",
+      "sample": 1
+    },
+    {
+      "id": "C-4",
+      "criterion": "C-4 resolveVoluptasBearer(input): 発行できた service token を優先し、固定トークンは発行失敗時のフォールバックにだけ使う",
+      "symbol": "resolveVoluptasBearer",
+      "file": "src/flow/voluptas-persona-client.ts",
+      "module": "contracts/voluptas-bearer.contract.ts",
+      "mode": "observe",
+      "sample": 1
     }
   ]
 }

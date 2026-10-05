@@ -3,7 +3,14 @@ import path from "node:path";
 
 import { importVoluptasPersonas } from "../src/flow/persona-import.js";
 import { parsePersonaDocument } from "../src/flow/persona-import-document.js";
-import { pullVoluptasPersonas } from "../src/flow/voluptas-persona-client.js";
+import {
+  pullVoluptasPersonas,
+  VOLUPTAS_TARGET_PROJECT_KEY,
+} from "../src/flow/voluptas-persona-client.js";
+import {
+  createServiceTokenProvider,
+  serviceTokenClientConfigFromEnv,
+} from "../src/cernere-service-token/service-token-client.js";
 
 // @spec インポート (Vo → Di)
 function valueOf(flag: string): string | undefined {
@@ -28,6 +35,10 @@ async function loadInput(): Promise<{
   return pullVoluptasPersonas({
     url: url!,
     token: process.env.DISCUTERE_VOLUPTAS_EXPORT_TOKEN ?? "",
+    serviceToken: createServiceTokenProvider({
+      targetProjectKey: VOLUPTAS_TARGET_PROJECT_KEY,
+      config: () => serviceTokenClientConfigFromEnv(),
+    }),
   });
 }
 

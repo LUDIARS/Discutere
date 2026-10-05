@@ -12,6 +12,13 @@ Discord 発話だけを pull する外部境界。機能全体の目的と非目
 HTTP を許可する。自動 redirect は拒否し、Authorization を別 endpoint へ転送しない。
 `x-next-cursor` は同じ明示済み endpoint の query にだけ設定し、最大 100 page で停止する。
 
+認証集約 P4 では、送り側は Cernere project client credentials (`CERNERE_PROJECT_CLIENT_ID` /
+`CERNERE_PROJECT_CLIENT_SECRET`) で `POST {CERNERE_BASE_URL}/api/auth/service-token`
+(`target_project_key=volputas`、scope `persona-export:read`) を呼び、得た service token を従来と同じ
+`Authorization: Bearer` で送る。token は `exp - 60 秒` まで process memory にだけ保持する。発行に
+失敗した時だけ `DISCUTERE_VOLUPTAS_EXPORT_TOKEN` へフォールバックし、理由コードだけをログに出す。
+client credentials は Cernere (HTTPS、開発用 loopback のみ HTTP) 以外へ送らない。
+
 ## Utterance export {#SPEC-PERSONA-BRIDGE-UTTERANCE-EXPORT}
 
 `GET /api/persona-bridge/utterances`
@@ -19,6 +26,12 @@ HTTP を許可する。自動 redirect は拒否し、Authorization を別 endpo
 - 認証: 32 文字以上の専用 Bearer token と、`authorId`、audience、expiry、jti を束縛して
   `x-discutere-persona-assertion` で送る Ed25519 authorization assertion の両方を必須とする。assertion は 5 分以内に失効し、jti は
   SQLite で一回限りに消費する。未設定は 503、検証失敗と replay は 401 とする。
+- 認証集約 P4 (新旧両受理): Bearer 値が `v4.public.` で始まれば Cernere service token として、
+  `CERNERE_BASE_URL` の `/.well-known/cernere-public-key` (10 分キャッシュ) で署名を検証し、
+  `kind=service`・`exp`・`aud = CERNERE_PROJECT_STORAGE_SLUG`・scope `persona-bridge:write` を照合する。
+  呼出元名 (`sub`) では分岐しない。不正は 401、scope 不足は 403、storage_slug 未設定や公開鍵取得
+  不能は 503。それ以外の Bearer は従来の固定トークン照合へ進む。assertion はどちらの経路でも必須。
+  固定トークン経路は P5 で撤去する。
 - query: `authorId` は Discord snowflake。初回は任意の `since` (ISO 8601 または epoch ms) と
   `limit` (1..1000) を受け取る。2 ページ目以降は応答の `nextCursor` だけを渡し、`since` と
   `cursor` の併用は 400 とする。

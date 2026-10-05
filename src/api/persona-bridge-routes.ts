@@ -5,6 +5,12 @@ import { getConfig } from "../config.js";
 import { createCore } from "../core/index.js";
 import { resolveActiveKgPath } from "../core/kg-registry.js";
 import {
+  createCernerePublicKeyLoader,
+  type PublicKeyLoader,
+} from "../cernere-service-token/cernere-public-keys.js";
+import { isPasetoV4Public } from "../cernere-service-token/paseto-v4-public.js";
+import { verifyServiceToken } from "../cernere-service-token/service-token-verify.js";
+import {
   PersonaBridgeAssertionConfigurationError,
   PersonaBridgeAssertionVerificationError,
   verifyPersonaBridgeAssertion,
@@ -30,6 +36,8 @@ import {
 const MIN_TOKEN_LENGTH = 32;
 const MAX_LIMIT = 1_000;
 export const PERSONA_BRIDGE_ASSERTION_HEADER = "x-discutere-persona-assertion";
+/** 認証集約 P4: Cernere service token でこの endpoint を呼ぶのに要る scope。 */
+export const PERSONA_BRIDGE_SERVICE_SCOPE = "persona-bridge:write";
 
 type UtteranceReader = (input: {
   authorId: string;
@@ -96,32 +104,65 @@ function defaultReader(input: UtteranceQuery): ExportableUtteranceRecord[] {
   }
 }
 
+const defaultServiceTokenKeyLoader = createCernerePublicKeyLoader({
+  baseUrl: () => process.env.CERNERE_BASE_URL ?? "",
+});
+
 // @implements SPEC-PERSONA-BRIDGE-UTTERANCE-EXPORT
 export function createPersonaBridgeRoutes({
   readUtterances = defaultReader,
   token = () => process.env.DISCUTERE_PERSONA_BRIDGE_TOKEN ?? "",
+  serviceAudience = () => process.env.CERNERE_PROJECT_STORAGE_SLUG ?? "",
+  loadServiceTokenKeys = defaultServiceTokenKeyLoader,
   assertionPublicKey = () => process.env.DISCUTERE_PERSONA_BRIDGE_ASSERTION_PUBLIC_KEY ?? "",
   consumeAssertion = consumeDefaultPersonaBridgeAssertion,
   now = () => Date.now(),
 }: {
   readUtterances?: UtteranceReader;
   token?: () => string;
+  serviceAudience?: () => string;
+  loadServiceTokenKeys?: PublicKeyLoader;
   assertionPublicKey?: () => string;
   consumeAssertion?: AssertionReplayConsumer;
   now?: () => number;
 } = {}): Hono {
   const routes = new Hono();
-  routes.get("/persona-bridge/utterances", (context) => {
+  routes.get("/persona-bridge/utterances", async (context) => {
     context.header("cache-control", "private, no-store");
-    const expected = token();
-    if (expected.length < MIN_TOKEN_LENGTH) {
-      return context.json({
-        ok: false,
-        error: `persona bridge is not configured (DISCUTERE_PERSONA_BRIDGE_TOKEN must be at least ${MIN_TOKEN_LENGTH} characters)`,
-      }, 503);
-    }
-    if (!secureMatch(bearerToken(context.req.header("authorization")), expected)) {
-      return context.json({ ok: false, error: "unauthorized" }, 401);
+    const presented = bearerToken(context.req.header("authorization"));
+    // 認証集約 P4: Cernere service token と従来の固定トークンの両受理。
+    // PASETO v4.public の Bearer は service token として検証し、 それ以外は従来照合へ進む。
+    // P5 で固定トークン経路 (else 節) を撤去する。
+    if (isPasetoV4Public(presented)) {
+      const verdict = await verifyServiceToken({
+        token: presented,
+        audience: serviceAudience(),
+        requiredScope: PERSONA_BRIDGE_SERVICE_SCOPE,
+        loadKeys: loadServiceTokenKeys,
+        nowMs: now(),
+      });
+      if (!verdict.ok) {
+        if (verdict.status === 503) {
+          console.warn(`[persona-bridge] service token verification unavailable (reason=${verdict.reason})`);
+          return context.json({
+            ok: false,
+            error: "persona bridge service token verification is not configured",
+          }, 503);
+        }
+        if (verdict.status === 403) return context.json({ ok: false, error: "forbidden" }, 403);
+        return context.json({ ok: false, error: "unauthorized" }, 401);
+      }
+    } else {
+      const expected = token();
+      if (expected.length < MIN_TOKEN_LENGTH) {
+        return context.json({
+          ok: false,
+          error: `persona bridge is not configured (DISCUTERE_PERSONA_BRIDGE_TOKEN must be at least ${MIN_TOKEN_LENGTH} characters)`,
+        }, 503);
+      }
+      if (!secureMatch(presented, expected)) {
+        return context.json({ ok: false, error: "unauthorized" }, 401);
+      }
     }
     const publicKey = assertionPublicKey();
     if (!publicKey.trim()) {
