@@ -497,6 +497,14 @@ export function getPaperSnapshot(sessionId: string): PaperSnapshotRow | null {
   return { ...storedPaperToDraft(row), status: row.status };
 }
 
+/** session に結論 (flow_conclusion) が記録済みか。途中で止まった議論の判定に使う。 */
+export function hasFlowConclusion(sessionId: string): boolean {
+  const row = getFlowDb()
+    .prepare(`SELECT 1 AS ok FROM flow_conclusion WHERE session_id = ? LIMIT 1`)
+    .get(sessionId) as { ok: number } | undefined;
+  return row !== undefined;
+}
+
 /**
  * 既存ペーパーの本文 markdown を更新する (議論進行中の「ペーパーが更新されていく」用)。
  * ラウンドごとに base ブリーフ + 議論の経過 (まとめ/止揚) を焼き直して上書きする。

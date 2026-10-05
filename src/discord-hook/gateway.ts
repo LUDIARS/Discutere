@@ -50,6 +50,7 @@ import { ensureGameFeedbackCategory, extractGameFeedback } from "./game-feedback
 import { parseForumEntry, parseRoundsTurns, parseOpponents } from "../flow/entry-discord.js";
 import {
   handleForumFlowReply,
+  handleInterruptedDiscussionReply,
   handlePaperReviewReply,
   handlePaperReviewApproval,
   hasPaperReview,
@@ -618,6 +619,10 @@ export async function startDiscordGateway(
           // ペーパーレビュー返信を最優先 (壁打ちより先)。受け取った意見には確認済みリアクションを付ける。
           await ackPaperReviewReply(msg, hasPaperReview(msg.channelId));
           if (await handlePaperReviewReply(msg.channelId, msg.guildId ?? "dm", msg.content, flowLive, flowHooks)) {
+            return;
+          }
+          // 再起動などで途中で止まった議論は「再開」返信で同じペーパーからやり直す。
+          if (await handleInterruptedDiscussionReply(msg.channelId, msg.guildId ?? "dm", msg.content, flowLive, flowHooks)) {
             return;
           }
           await handleForumFlowReply(msg.channelId, msg.guildId ?? "dm", msg.content, flowLive, flowHooks);

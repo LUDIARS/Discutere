@@ -277,6 +277,12 @@ bot 名義で締める (収束時 `finalizeForumPost` で lock+archive+まとめ
   **類似するゲーム (メカニクスの代替)** (「類似ゲーム」「似たゲーム」「代替」等。挙げたゲームの data/games
   メカニクスを「(参考: ゲーム名)」付きで追加、無いゲームは LLM の一般知識で補う)。3 種類とも最後は
   `applyPaperEdit` に流すので md 正本・版履歴・戻すはそのまま効く。
+  **途中で止まった議論のやり直し**: 議論の進行 (キャスト・ラウンド位置) はメモリにしか無く、Discutere の
+  再起動で失われると続きからは再開できない。開始済み (status='started')・結論なし・このプロセスで進行中
+  でない議論のスレッドに「再開」「やり直し」「再議論」等と返信すると、確定済みペーパー (本文から
+  `stripProgress` で経過節を除いたもの) で議論を最初から回し直す (`flow/discussion-redo.ts` の
+  `decideRedo` + `discord-live` の `handleInterruptedDiscussionReply`)。ラウンド/ターン数は既定値。
+  進行中のスレッドは `runningDiscussions` で二重起動を防ぐ。止まる前の発言は消さずに残る。
 
 - **ペーパーの分量増強 (感想3倍 + メカニクスLLM増補, 2026-06-23)**: ペーパーが薄い問題への対処。
   設定 `flow.paperRichness` (`voices` 既定15 / `mechanicsTarget` 既定30 / `enrichMechanics` 既定true /

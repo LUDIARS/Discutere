@@ -49,7 +49,16 @@ import {
   type PaperDraft,
   type PaperReviewInfo,
 } from "./paper-review.js";
-import { persistDraftPaper, getDraftPaper, setPaperDebatability, deleteFlowSession } from "./discussion-paper.js";
+import {
+  persistDraftPaper,
+  getDraftPaper,
+  getPaperSnapshot,
+  hasFlowConclusion,
+  setPaperDebatability,
+  deleteFlowSession,
+} from "./discussion-paper.js";
+import { decideRedo, isRedoText } from "./discussion-redo.js";
+import { stripProgress } from "./paper-markdown.js";
 import { appendRevision, revertLast, canRevert } from "./paper-revisions.js";
 import { getConfig } from "../config.js";
 import { expandNotionLinks } from "./notion-link.js";
@@ -673,8 +682,25 @@ function recordForcedDebatability(threadId: string, info: PaperReviewInfo): void
   }
 }
 
+/** このプロセスで進行中の議論/改善スレッド (やり直しの二重起動を防ぐ)。 */
+const runningDiscussions = new Set<string>();
+
 /** 確定ペーパー (任意) で議論/改善を完走させ、結論を投稿する。 */
 async function runDiscussionDispatch(
+  input: StartForumFlowInput,
+  deps: FlowDiscordDeps,
+  hooks?: FlowLiveHooks,
+  paperOverride?: PaperOverride
+): Promise<void> {
+  runningDiscussions.add(input.threadId);
+  try {
+    await runDiscussionDispatchInner(input, deps, hooks, paperOverride);
+  } finally {
+    runningDiscussions.delete(input.threadId);
+  }
+}
+
+async function runDiscussionDispatchInner(
   input: StartForumFlowInput,
   deps: FlowDiscordDeps,
   hooks?: FlowLiveHooks,
@@ -863,6 +889,64 @@ export function cancelPaperReview(threadId: string): boolean {
     console.warn(`  [paper-review ${threadId}] レビュー破棄で draft 削除失敗: ${(e as Error).message}`);
   }
   return hadMemory || hadDraft;
+}
+
+/**
+ * 途中で止まった議論のスレッドで「再開」等と返信されたら、確定済みのペーパーで議論を最初から回し直す。
+ * 対象外 (ペーパー無し / 下書き / 結論済み / 学習・壁打ち) は false を返し、通常のルーティングに任せる。
+ * @returns やり直しとして処理した (または進行中を案内した) なら true。
+ */
+export async function handleInterruptedDiscussionReply(
+  threadId: string,
+  guildId: string,
+  text: string,
+  deps: FlowDiscordDeps,
+  hooks?: FlowLiveHooks
+): Promise<boolean> {
+  if (!isRedoText(text)) return false;
+  const paper = getPaperSnapshot(threadId);
+  const decision = decideRedo({
+    paper,
+    concluded: paper ? hasFlowConclusion(threadId) : false,
+    running: runningDiscussions.has(threadId),
+  });
+  if (!decision.ok) {
+    if (decision.reason === "running") {
+      await postThreadNotice(deps, threadId, "⏳ この議論は進行中です。終わるまでお待ちください。");
+      return true;
+    }
+    return false;
+  }
+  const draft = withDerivedStructure(stripProgress(paper!.bodyMd), {
+    theme: paper!.theme,
+    tags: paper!.tags,
+    supplement: paper!.supplement,
+    mechanics: paper!.mechanics,
+  });
+  const input: StartForumFlowInput = {
+    guildId,
+    threadId,
+    theme: paper!.theme,
+    flow: paper!.flow as FlowKind,
+    tags: paper!.tags,
+  };
+  await postThreadNotice(
+    deps,
+    threadId,
+    "🔁 途中で止まった議論を、確定済みのペーパーで最初からやり直します…\n(ラウンド数・ターン数は既定値です)"
+  );
+  try {
+    await runDiscussionDispatch(input, deps, hooks, {
+      mechanics: draft.mechanics,
+      supplement: draft.supplement,
+      bodyMd: draft.bodyMd,
+      issues: draft.issues,
+    });
+  } catch (err) {
+    console.warn(`  flow-live: 議論のやり直し失敗 (thread=${threadId}): ${(err as Error).message}`);
+    await postThreadNotice(deps, threadId, `⚠️ 議論のやり直しに失敗しました: ${(err as Error).message}`);
+  }
+  return true;
 }
 
 /**
