@@ -271,6 +271,12 @@ bot 名義で締める (収束時 `finalizeForumPost` で lock+archive+まとめ
   操作なので Discord には載せない(返信ベースの NL 調整 + 戻す + ✅/「開始」承認で機能パリティ)。
   レビュー中スレッドへのユーザー返信には、受け取った時点で確認済みリアクション **☑️** を付ける
   (`discord-hook/paper-review-ack.ts`。✅ は承認操作なので別絵文字、bot のリアクションは承認判定で無視される)。
+  調整の返信はキーワードで 3 種類に振り分ける (`flow/paper-review-intent.ts` → `paper-review-enrich.ts`):
+  **議論内容の調整** (既定・本文をそのまま) / **外部の声の取り込み** (「外部の声」「口コミ」「感想を集めて」等。
+  「」の指定語 (無ければ議題) で autoCrawl ソース横断クロール → `gatherEvidence` の声を根拠に) /
+  **類似するゲーム (メカニクスの代替)** (「類似ゲーム」「似たゲーム」「代替」等。挙げたゲームの data/games
+  メカニクスを「(参考: ゲーム名)」付きで追加、無いゲームは LLM の一般知識で補う)。3 種類とも最後は
+  `applyPaperEdit` に流すので md 正本・版履歴・戻すはそのまま効く。
 
 - **ペーパーの分量増強 (感想3倍 + メカニクスLLM増補, 2026-06-23)**: ペーパーが薄い問題への対処。
   設定 `flow.paperRichness` (`voices` 既定15 / `mechanicsTarget` 既定30 / `enrichMechanics` 既定true /

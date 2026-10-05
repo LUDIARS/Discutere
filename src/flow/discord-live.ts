@@ -28,7 +28,13 @@ import {
   voteNoticeTitle,
 } from "./vote-display.js";
 import { dispatchFlow, type DispatchDeps, type FlowKind } from "./dispatch.js";
-import { ensureLearningData, isAutoCrawlSource, resolveAutoCrawlSources, deriveSlug } from "./learning-autocrawl.js";
+import {
+  collectAndImport,
+  ensureLearningData,
+  isAutoCrawlSource,
+  resolveAutoCrawlSources,
+  deriveSlug,
+} from "./learning-autocrawl.js";
 import { analyzeSpecMechanics } from "./spec-analyze.js";
 import { resolveSpecText } from "./spec-source.js";
 import type { GameMechanicEntry } from "./games-md.js";
@@ -47,6 +53,8 @@ import { persistDraftPaper, getDraftPaper, setPaperDebatability, deleteFlowSessi
 import { appendRevision, revertLast, canRevert } from "./paper-revisions.js";
 import { getConfig } from "../config.js";
 import { expandNotionLinks } from "./notion-link.js";
+import { classifyPaperReviewIntent, PAPER_REVIEW_INTENT_LABELS } from "./paper-review-intent.js";
+import { buildIntentInstruction, type PaperIntentDeps } from "./paper-review-enrich.js";
 import type { SparringSession } from "./sparring.js";
 import {
   ensureChannelWebhook,
@@ -529,6 +537,56 @@ function buildForumPaperDraft(input: StartForumFlowInput, deps: FlowDiscordDeps,
   });
 }
 
+/**
+ * ペーパー調整指示の材料集めに使う依存を組む。外部の声のクロールは config.flow.autoCrawl の
+ * 自動経路ソース横断で、指定語を検索クエリにして KG へ取り込む (Core が無ければクロールしない)。
+ */
+function buildIntentDeps(input: StartForumFlowInput, deps: FlowDiscordDeps): PaperIntentDeps {
+  const warn = (m: string) => console.warn(`  [paper-intent ${input.threadId}] ${m}`);
+  const openCore = deps.openCore;
+  const crawl = openCore
+    ? async (query: string): Promise<{ imported: number }> => {
+        const cfg = getConfig().flow.autoCrawl;
+        const youtubeApiKey = (await resolveYoutubeApiKey(deps)) ?? undefined;
+        const sources = resolveAutoCrawlSources(cfg.sources, youtubeApiKey);
+        const core = openCore();
+        let imported = 0;
+        try {
+          for (const source of sources) {
+            try {
+              const r = await collectAndImport({
+                core,
+                theme: input.theme,
+                slug: deriveSlug(input.theme),
+                workspaceId: deps.workspaceId ?? getConfig().workspace,
+                spec: { source, query },
+                maxItems: Math.min(cfg.maxItems, 100),
+                youtubeApiKey,
+                log: (m) => console.log(`  [paper-intent ${input.threadId}] ${m}`),
+                warn,
+              });
+              imported += r.imported;
+            } catch (e) {
+              warn(`${source} のクロール失敗: ${(e as Error).message}`);
+            }
+          }
+        } finally {
+          core.close?.();
+        }
+        return { imported };
+      }
+    : undefined;
+  return {
+    theme: input.theme,
+    tags: input.tags,
+    gamesDir: deps.gamesDir,
+    listExternalVoices: deps.listExternalVoices,
+    llm: deps.llm,
+    crawl,
+    warn,
+  };
+}
+
 /** 議題 (スレッド名) と starter 本文中の Notion リンクを Canalis でクロールして md にする (無ければ "")。 */
 function resolveStarterNotion(input: StartForumFlowInput): Promise<string> {
   return expandNotionLinks([input.theme, input.specText ?? ""].join("\n"), {
@@ -555,7 +613,10 @@ function persistDiscordDraft(input: StartForumFlowInput, draft: PaperDraft): voi
 function approvalGuide(): string {
   const timeoutMs = getConfig().flow.paperReview.timeoutMs;
   const base =
-    "✏️ 調整があればこのスレッドに返信してください (例:「メカニクスにガチャを追加」「観点補足を初心者向けに」)。\n" +
+    "✏️ 調整があればこのスレッドに返信してください。返信の言葉で次の 3 つに振り分けて処理します。\n" +
+    "・議論内容の調整 (例:「メカニクスにガチャを追加」「観点補足を初心者向けに」)\n" +
+    "・外部の声の取り込み (例:「外部の声を取り込んで「周回」」— 指定語 (無ければ議題) で集めて根拠に反映)\n" +
+    "・類似するゲーム / メカニクスの代替 (例:「類似ゲーム: 「モンスト」「パズドラ」」— 挙げたゲームのメカニクスを参考として追加)\n" +
     "よければ **「開始」** と返信するか ✅ を付けると議論を始めます。";
   if (timeoutMs > 0) {
     const min = Math.round(timeoutMs / 60000);
@@ -728,8 +789,16 @@ export async function handlePaperReviewReply(
       return true;
     }
 
-    // 調整 → LLM でペーパーに反映し、更新版を再掲。
-    const edited = await applyPaperEdit(pending.draft, trimmed, deps.llm, {
+    // 調整 → キーワードで「議論内容の調整 / 外部の声の取り込み / 類似ゲーム (メカニクスの代替)」に
+    // 振り分け、種類ごとの材料を足した指示を LLM でペーパーに反映し、更新版を再掲。
+    const intent = classifyPaperReviewIntent(trimmed);
+    if (intent.kind !== "adjust") {
+      await postThreadNotice(deps, threadId, `🔎 「${PAPER_REVIEW_INTENT_LABELS[intent.kind]}」として処理します…`);
+    }
+    const built = await buildIntentInstruction(intent, buildIntentDeps(pending.input, deps));
+    if (built.notice) await postThreadNotice(deps, threadId, `🔎 ${built.notice}`);
+    if (!built.instruction) return true;
+    const edited = await applyPaperEdit(pending.draft, built.instruction, deps.llm, {
       model: getConfig().flow.paperReview.model || undefined,
       warn: (m) => console.warn(`  [paper-review ${threadId}] ${m}`),
     });
