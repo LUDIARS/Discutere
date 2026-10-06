@@ -24,6 +24,8 @@ process.env.DISCUTERE_FLOW_VOTER_COUNT = "3";
 process.env.DISCUTERE_FLOW_ROSTER_FACILITATOR = "gpt-facilitator@high";
 process.env.DISCUTERE_FLOW_ROSTER_DISCUSSANTS = "claude-pro@high,gpt-con@medium,claude-opinion@low";
 process.env.DISCUTERE_FLOW_DIALECTIC_JUDGE_MODEL = "claude-judge@low";
+// 既存シナリオは旧来の止揚 (synthesis) を検証する。すり合わせ (alignment) は専用シナリオで切り替える。
+process.env.DISCUTERE_FLOW_DIALECTIC_SETTLEMENT = "synthesis";
 
 const { _resetFlowDb } = await import("../../src/flow/db/connection.js");
 const { _resetConfig } = await import("../../src/config.js");
@@ -100,10 +102,27 @@ function makeRouterLlm(overrides: Partial<Record<string, (p: string) => string>>
           target: null,
           attack: "warrant",
           groundId: pickOpponentGroundId(p),
+          data: "似た緩和をしたゲームでは継続率が変わらなかった",
+          warrant: "主因が天井でないなら緩和しても継続しない",
           text: "その根拠は怪しいと思う。",
         }),
     },
     { name: "rule-check", match: (p) => p.includes("前提ルールを守っているかを判定"), respond: () => "ok" },
+    {
+      name: "align",
+      match: (p) => p.includes("# 指示 (すり合わせ)"),
+      respond: (p) => {
+        const ids = extractGroundIds(p);
+        return JSON.stringify({
+          experience: "天井に届かなくても欲しいキャラに近づける体験",
+          measure: "天井を下げる",
+          references: "同じ緩和をした他ゲームでは継続率が上がった",
+          agreed: ids.slice(0, 1),
+          open: ids.slice(1).map((id) => ({ groundId: id, point: "data", need: "緩和前後の継続率の比較" })),
+          text: "体験と施策は揃いました。残りは継続率のデータ次第です。",
+        });
+      },
+    },
     { name: "tension-classify", match: (p) => p.includes("この対立の「型」を 1 つだけ選んで"), respond: () => "values" },
     { name: "fact-resolve", match: (p) => p.includes("証拠はどちらの主張を支持しますか"), respond: () => "A" },
     {
@@ -473,17 +492,68 @@ const db = () => new Database(DB_PATH);
   console.log("  [ok] dispatch: flow.engine=dialectic で dialectic 経路に分岐");
 }
 
+// ── シナリオ: すり合わせ (settlement=alignment) — 体験/施策/他ゲーム事例 + 合意/未決 ──
+
+{
+  process.env.DISCUTERE_FLOW_DIALECTIC_SETTLEMENT = "alignment";
+  _resetConfig();
+  const llm = makeRouterLlm();
+  const result = await runDialecticFlow("ガチャ天井を下げるか", [], {
+    llm,
+    rng: makeRng(11),
+    gamesDir: path.join(TMP_DIR, "no-games-dir"),
+    sessionId: "dlx-alignment",
+    log: () => {},
+    warn: () => {},
+  });
+  process.env.DISCUTERE_FLOW_DIALECTIC_SETTLEMENT = "synthesis";
+  _resetConfig();
+
+  assert.equal(llm.stats.synthesize ?? 0, 0, "すり合わせでは止揚を生成しない");
+  assert.ok((llm.stats.align ?? 0) > 0, "すり合わせを生成する");
+  const d = db();
+  const issue = d
+    .prepare("SELECT * FROM flow_issue WHERE session_id = ? AND status = 'concluded' ORDER BY ordinal")
+    .get("dlx-alignment") as any;
+  const tension = d.prepare("SELECT * FROM flow_tension WHERE issue_id = ?").get(issue.id) as any;
+  assert.equal(tension.status, "partially_aligned", "未決が残れば partially_aligned");
+  const alignment = d.prepare("SELECT * FROM flow_alignment WHERE tension_id = ?").get(tension.id) as any;
+  assert.ok(alignment, "flow_alignment に永続");
+  assert.equal(alignment.measure, "天井を下げる");
+  assert.equal(JSON.parse(alignment.agreed_json).length, 1, "合意した根拠が記録される");
+  const open = JSON.parse(alignment.open_json);
+  assert.ok(open.length > 0 && open.every((o: any) => o.need), "未決の点に「何が分かれば決まるか」が付く");
+  assert.equal(
+    (d.prepare("SELECT COUNT(*) AS n FROM flow_synthesis WHERE tension_id = ?").get(tension.id) as any).n,
+    0,
+    "flow_synthesis は作らない"
+  );
+  const utterances = d.prepare("SELECT * FROM flow_utterance WHERE session_id = ?").all("dlx-alignment") as any[];
+  assert.ok(utterances.some((u) => u.text.startsWith("すり合わせ: ")), "進行役がすり合わせを流す");
+  d.close();
+  assert.ok(result.concluded, "すり合わせでも結論に到達する");
+  console.log("  [ok] dialectic driver: すり合わせ → partially_aligned + flow_alignment 永続");
+}
+
 // ── シナリオ: 前提ルール違反 — 突く要素なし / 判定 LLM が範囲外 → question に格下げ ──
 
 for (const [label, overrides, judgeCalled] of [
   [
+    "反論のデータと論拠なし",
+    { "turn-attack": () => JSON.stringify({ act: "rebut", target: null, attack: "data", text: "それって感想だよね。" }) },
+    false,
+  ],
+  [
     "突く要素と根拠の宣言なし",
-    { "turn-attack": () => JSON.stringify({ act: "rebut", target: null, text: "それって感想だよね。" }) },
+    {
+      "turn-attack": () =>
+        JSON.stringify({ act: "rebut", target: null, data: "事例がある", warrant: "だから違う", text: "違うと思う。" }),
+    },
     false,
   ],
   ["判定 LLM が限定の外側と判定", { "rule-check": () => "out_of_scope" }, true],
 ] as const) {
-  const sessionId = `dlx-foul-${judgeCalled ? "judge" : "anchor"}`;
+  const sessionId = `dlx-foul-${label}`;
   const llm = makeRouterLlm(overrides as Partial<Record<string, (p: string) => string>>);
   await runDialecticFlow("前提ルールのテーマ", [], {
     llm,
@@ -521,6 +591,7 @@ for (const [label, overrides, judgeCalled] of [
 // クリーンアップ
 delete process.env.DISCUTERE_FLOW_PERSONA_COUNT;
 delete process.env.DISCUTERE_FLOW_VOTER_COUNT;
+delete process.env.DISCUTERE_FLOW_DIALECTIC_SETTLEMENT;
 delete process.env.DATABASE_PATH;
 _resetConfig();
 _resetFlowDb();

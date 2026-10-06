@@ -50,17 +50,28 @@ function fakeLlm(response: { ok: true; text: string } | { ok: false; error: stri
 // ── アンカー検査 ──────────────────────────────────────────────────────────────
 
 {
-  assert.deepEqual(checkRebutAnchor({ position, attack: null, groundId: "pro-G1" }), { ok: false, foul: "unanchored" });
-  assert.deepEqual(checkRebutAnchor({ position, attack: "data", groundId: null }), { ok: false, foul: "unanchored" });
-  assert.deepEqual(checkRebutAnchor({ position, attack: "data", groundId: "pro-G9" }), { ok: false, foul: "unanchored" });
+  const tw = { data: "コア層の離脱理由は天井ではない", warrant: "主因でなければ緩和しても継続しない" };
   assert.deepEqual(
-    checkRebutAnchor({ position, attack: "warrant", groundId: "pro-G2" }),
+    checkRebutAnchor({ position, attack: "warrant", groundId: "pro-G1", data: null, warrant: tw.warrant }),
+    { ok: false, foul: "incomplete" },
+    "反論自身のデータが無ければトゥールミンを満たさない"
+  );
+  assert.deepEqual(
+    checkRebutAnchor({ position, attack: "warrant", groundId: "pro-G1", data: tw.data, warrant: null }),
+    { ok: false, foul: "incomplete" },
+    "反論自身の論拠が無ければトゥールミンを満たさない"
+  );
+  assert.deepEqual(checkRebutAnchor({ position, attack: null, groundId: "pro-G1", ...tw }), { ok: false, foul: "unanchored" });
+  assert.deepEqual(checkRebutAnchor({ position, attack: "data", groundId: null, ...tw }), { ok: false, foul: "unanchored" });
+  assert.deepEqual(checkRebutAnchor({ position, attack: "data", groundId: "pro-G9", ...tw }), { ok: false, foul: "unanchored" });
+  assert.deepEqual(
+    checkRebutAnchor({ position, attack: "warrant", groundId: "pro-G2", ...tw }),
     { ok: false, foul: "unanchored" },
     "譲歩済みの根拠は突けない"
   );
-  const ok = checkRebutAnchor({ position, attack: "warrant", groundId: "pro-G1" });
-  assert.ok(ok.ok && ok.ground?.id === "pro-G1", "未譲歩の根拠を指せば通る");
-  const q = checkRebutAnchor({ position, attack: "qualifier", groundId: null });
+  const ok = checkRebutAnchor({ position, attack: "warrant", groundId: "pro-G1", ...tw });
+  assert.ok(ok.ok && ok.ground?.id === "pro-G1", "トゥールミンを満たし未譲歩の根拠を指せば有効");
+  const q = checkRebutAnchor({ position, attack: "qualifier", groundId: null, ...tw });
   assert.ok(q.ok && q.ground === null, "限定を突くなら根拠 id は不要");
   console.log("  [ok] checkRebutAnchor: 突く要素と根拠 id の宣言を検査");
 }
@@ -73,12 +84,29 @@ function fakeLlm(response: { ok: true; text: string } | { ok: false; error: stri
   assert.equal(parseRuleVerdict("OK"), "ok");
   assert.equal(parseRuleVerdict("わからない"), null);
 
-  const prompt = buildRuleJudgePrompt({ issue, position, ground: position.grounds[0], attack: "warrant", rebutText: "コア層は離脱しないよ" });
+  const prompt = buildRuleJudgePrompt({
+    issue,
+    position,
+    ground: position.grounds[0],
+    attack: "warrant",
+    rebutText: "コア層は離脱しないよ",
+    rebutData: "コア層の離脱理由は天井ではない",
+    rebutWarrant: "主因でなければ緩和しても継続しない",
+  });
+  assert.ok(prompt.includes("反論のデータ: コア層の離脱理由は天井ではない"), "反論のデータが判定材料に載る");
   assert.ok(prompt.includes("限定: 天井で離脱するライト層"), "限定が判定材料に載る");
   assert.ok(prompt.includes("論拠: 主因を緩めれば継続する"), "論拠が判定材料に載る");
   assert.ok(prompt.includes("「論拠」を突くと宣言"), "宣言した要素が載る");
 
-  const args = { issue, position, ground: position.grounds[0], attack: "warrant" as const, rebutText: "x" };
+  const args = {
+    issue,
+    position,
+    ground: position.grounds[0],
+    attack: "warrant" as const,
+    rebutText: "x",
+    rebutData: "d",
+    rebutWarrant: "w",
+  };
   assert.equal(await judgeRuleViolation({ ...args, llm: fakeLlm({ ok: true, text: "straw_man" }) as any }), "straw_man");
 
   const warnings: string[] = [];
@@ -100,7 +128,16 @@ function fakeLlm(response: { ok: true; text: string } | { ok: false; error: stri
 
 {
   const llm = fakeLlm({ ok: true, text: "topic_shift" });
-  const base = { issue, position, attack: "data" as const, groundId: "pro-G1", rebutText: "x", llm: llm as any };
+  const base = {
+    issue,
+    position,
+    attack: "data" as const,
+    groundId: "pro-G1",
+    data: "d",
+    warrant: "w",
+    rebutText: "x",
+    llm: llm as any,
+  };
   const skipped = await gateRebut({ ...base, judge: false });
   assert.ok(skipped.accepted, "judge=false はアンカー検査だけで通す");
   assert.equal(llm.calls.length, 0, "judge=false は判定 LLM を呼ばない");

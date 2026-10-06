@@ -1,8 +1,8 @@
 /**
  * 前提ルール違反の検査 (dialectic.md §2.5) — 反論 (rebut) を論証グラフへ入れる前のゲート。
  *
- * 2 段で検査する:
- *   1. checkRebutAnchor (コードのみ・決定的): Position への反論は、突くトゥールミン要素
+ * 反論はトゥールミンモデルを満たして初めて有効になる。2 段で検査する:
+ *   1. checkRebutAnchor (コードのみ・決定的): 反論自身のデータと論拠を持ち、突く要素
  *      (データ / 論拠 / 限定) を宣言し、データ・論拠なら攻撃対象の根拠 id を指していなければならない。
  *   2. judgeRuleViolation (判定 LLM・小モデル): 宣言した要素を本当に突いているか、
  *      前提の外から主張を曲げていないか (範囲外・すり替え・中身に触れない却下・論点ずらし) を単一ラベルで判定。
@@ -19,15 +19,18 @@ import {
 } from "./premise-rules.js";
 import type { Ground, IssueRecord, PositionRecord } from "./store.js";
 
-/** 違反の種類。unanchored だけがコード判定、他は判定 LLM。 */
+/** 違反の種類。incomplete / unanchored はコード判定、他は判定 LLM。 */
 export type RuleFoul =
+  | "incomplete"
   | "unanchored"
   | "out_of_scope"
   | "straw_man"
   | "dismissal"
   | "topic_shift";
 
-const LLM_FOULS: readonly Exclude<RuleFoul, "unanchored">[] = [
+type CodeFoul = "incomplete" | "unanchored";
+
+const LLM_FOULS: readonly Exclude<RuleFoul, CodeFoul>[] = [
   "out_of_scope",
   "straw_man",
   "dismissal",
@@ -35,6 +38,7 @@ const LLM_FOULS: readonly Exclude<RuleFoul, "unanchored">[] = [
 ];
 
 export const RULE_FOUL_LABEL: Record<RuleFoul, string> = {
+  incomplete: "反論自身のデータか論拠が示されていない",
   unanchored: "どの根拠のデータ・論拠・限定を突くのかが示されていない",
   out_of_scope: "相手の主張の限定の外側から全体を否定している",
   straw_man: "相手が言っていない主張に置き換えている",
@@ -44,20 +48,26 @@ export const RULE_FOUL_LABEL: Record<RuleFoul, string> = {
 
 export type AnchorResult =
   | { ok: true; ground: Ground | null }
-  | { ok: false; foul: "unanchored" };
+  | { ok: false; foul: CodeFoul };
 
-/**
- * 反論のアンカー検査 (決定的)。
- * - attack 未宣言 → 違反
- * - data / warrant → groundId が反論先 Position の未譲歩の根拠を指していなければ違反
- * - qualifier → 主張の限定そのものを突くので根拠 id は不要 (ground=null)
- */
-export function checkRebutAnchor(args: {
-  position: PositionRecord;
+/** 反論 1 件のトゥールミン要素 (LLM 申告)。 */
+export interface RebutClaim {
   attack: AttackPoint | null;
   groundId: string | null;
-}): AnchorResult {
+  data: string | null;
+  warrant: string | null;
+}
+
+/**
+ * 反論のトゥールミン検査 (決定的)。
+ * - 反論自身のデータか論拠が無い → incomplete
+ * - attack 未宣言 → unanchored
+ * - data / warrant → groundId が反論先 Position の未譲歩の根拠を指していなければ unanchored
+ * - qualifier → 主張の限定そのものを突くので根拠 id は不要 (ground=null)
+ */
+export function checkRebutAnchor(args: RebutClaim & { position: PositionRecord }): AnchorResult {
   const { position, attack, groundId } = args;
+  if (!args.data || !args.warrant) return { ok: false, foul: "incomplete" };
   if (!attack) return { ok: false, foul: "unanchored" };
   if (attack === "qualifier") return { ok: true, ground: null };
   const ground = groundId
@@ -79,18 +89,24 @@ function renderTarget(position: PositionRecord, ground: Ground | null): string {
   return lines.join("\n");
 }
 
-/** 判定プロンプト (テスト用に export)。 */
-export function buildRuleJudgePrompt(args: {
+export interface RuleJudgeInput {
   issue: IssueRecord;
   position: PositionRecord;
   ground: Ground | null;
   attack: AttackPoint;
   rebutText: string;
-}): string {
+  rebutData: string;
+  rebutWarrant: string;
+}
+
+/** 判定プロンプト (テスト用に export)。 */
+export function buildRuleJudgePrompt(args: RuleJudgeInput): string {
   return (
     `# 論点\n${args.issue.title}\n\n` +
     `# 反論された側\n${renderTarget(args.position, args.ground)}\n\n` +
-    `# 反論 (「${ATTACK_POINT_LABEL[args.attack]}」を突くと宣言)\n${args.rebutText}\n\n` +
+    `# 反論 (「${ATTACK_POINT_LABEL[args.attack]}」を突くと宣言)\n${args.rebutText}\n` +
+    `  反論のデータ: ${args.rebutData}\n` +
+    `  反論の論拠: ${args.rebutWarrant}\n\n` +
     `この反論が議論の前提ルールを守っているかを判定し、ラベルを 1 つだけ返してください (説明不要):\n` +
     `- ok: 宣言した要素 (データの真偽・論拠の妥当性・限定の範囲) を、相手の主張の限定の内側で突いている\n` +
     `- out_of_scope: 相手の限定の外側にある層・条件・事例を持ち出して主張全体を否定している\n` +
@@ -112,12 +128,7 @@ export function parseRuleVerdict(text: string): RuleFoul | "ok" | null {
   return best?.label ?? null;
 }
 
-export interface JudgeRuleArgs {
-  issue: IssueRecord;
-  position: PositionRecord;
-  ground: Ground | null;
-  attack: AttackPoint;
-  rebutText: string;
+export interface JudgeRuleArgs extends RuleJudgeInput {
   /** withCostLog 済み判定 LLM (judgeModel, location="rule-check")。 */
   llm: LLMClient;
   model?: string;
@@ -149,29 +160,34 @@ export type RebutGateResult =
   | { accepted: false; foul: RuleFoul };
 
 /**
- * Position への反論 1 件をゲートする (アンカー検査 → 判定 LLM)。
- * judge=false なら判定 LLM を呼ばずアンカー検査だけで通す (config flow.dialectic.ruleCheck)。
+ * Position への反論 1 件をゲートする (トゥールミン検査 → 判定 LLM)。
+ * judge=false なら判定 LLM を呼ばずトゥールミン検査だけで通す (config flow.dialectic.ruleCheck)。
  */
-export async function gateRebut(args: {
-  issue: IssueRecord;
-  position: PositionRecord;
-  attack: AttackPoint | null;
-  groundId: string | null;
-  rebutText: string;
-  judge: boolean;
-  llm: LLMClient;
-  model?: string;
-  warn?: (msg: string) => void;
-}): Promise<RebutGateResult> {
+export async function gateRebut(
+  args: RebutClaim & {
+    issue: IssueRecord;
+    position: PositionRecord;
+    rebutText: string;
+    judge: boolean;
+    llm: LLMClient;
+    model?: string;
+    warn?: (msg: string) => void;
+  },
+): Promise<RebutGateResult> {
   const anchor = checkRebutAnchor(args);
   if (!anchor.ok) return { accepted: false, foul: anchor.foul };
-  if (!args.judge || !args.attack) return { accepted: true, ground: anchor.ground };
+  // checkRebutAnchor が通った時点で attack / data / warrant は揃っている。
+  if (!args.judge || !args.attack || !args.data || !args.warrant) {
+    return { accepted: true, ground: anchor.ground };
+  }
   const verdict = await judgeRuleViolation({
     issue: args.issue,
     position: args.position,
     ground: anchor.ground,
     attack: args.attack,
     rebutText: args.rebutText,
+    rebutData: args.data,
+    rebutWarrant: args.warrant,
     llm: args.llm,
     model: args.model,
     warn: args.warn,
@@ -183,6 +199,6 @@ export async function gateRebut(args: {
 export function renderFoulNotice(personaName: string, foul: RuleFoul): string {
   return (
     `${personaName}さんの今の反論は「${RULE_FOUL_LABEL[foul]}」ので、根拠への反論としては数えずに問いとして扱いますね。` +
-    `相手の主張の範囲の中で、データ・論拠・限定のどれが違うのかを示してもらえると議論が進みます。`
+    `反論のデータと論拠を示し、相手の主張の範囲の中でデータ・論拠・限定のどれが違うのかを突いてもらえると議論が進みます。`
   );
 }

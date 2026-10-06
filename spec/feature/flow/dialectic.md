@@ -86,20 +86,39 @@ Issue (論点)           テーマから分解した争点。1 議論に 3〜5 �
 
 - Position は `claim` (主張) と `qualifier` (限定 = どの層・どの条件の話か) を持つ。
 - 根拠は `text` (データ) と `warrant` (論拠) を分けて持つ。データが正しくても論拠が誤れば主張は誤り。
-- 反論 (rebut) は `attack` = data / warrant / qualifier のどれを突くかを宣言し、data / warrant なら
-  `groundId` で攻撃対象の根拠を指す。
+- 反論 (rebut) は**トゥールミンモデルを満たしていれば有効**。反論自身の `data` (データ) と `warrant` (論拠) を持ち、
+  `attack` = data / warrant / qualifier のどれを突くかを宣言し、data / warrant なら `groundId` で攻撃対象の根拠を指す。
 
 **ゲート** (`src/flow/dialectic/rule-check.ts`):
 
-1. アンカー検査 (コードのみ): Position への反論で `attack` が無い、または data / warrant なのに未譲歩の根拠を
-   指していなければ違反 (`unanchored`)。
+1. トゥールミン検査 (コードのみ): Position への反論で、反論自身のデータか論拠が無ければ違反 (`incomplete`)。
+   `attack` が無い、または data / warrant なのに未譲歩の根拠を指していなければ違反 (`unanchored`)。
 2. 判定 LLM (`judgeModel`、`flow.dialectic.ruleCheck` 既定 true): 宣言した要素を相手の限定の内側で突いているかを
    単一ラベルで判定 — `out_of_scope` (限定の外側から全体否定) / `straw_man` (言っていない主張への置き換え) /
    `dismissal` (中身に触れない却下) / `topic_shift` (論点ずらし)。障害・ラベル不明は ok に倒す。
 3. 違反した反論は発話としては残すが act を `question` に格下げし、根拠を challenged にしない。
    進行役が違反の理由を一言流す。
 
-止揚 [4] は Tension の決着手段の一つとして残すが、議論のゴールではない (収束は §6 の計測値で決まる)。
+## 4.5 すり合わせ — 止揚に代わる決着 (2026-10-07)
+
+`flow.dialectic.settlement` (既定 `alignment`) で、事実対立以外の Tension を止揚 [4] ではなく
+**すり合わせ**で決着させる (`src/flow/dialectic/alignment.ts`、永続 `flow_alignment`)。
+旧来の止揚 (§4 と §5 の批准) は `settlement=synthesis` で戻せる。
+
+| 項目 | 中身 |
+|---|---|
+| `experience` | この論点でつくりたい体験 |
+| `measure` | 試したい施策 (アイデア) |
+| `references` | 他のゲームではどうしているか、どうなっているか |
+| `agreed` | 両者が受け入れられる根拠 id |
+| `open` | まだ決まらない点 (`groundId` / `point` = data・warrant・qualifier / `need` = 何が分かれば決まるか) |
+
+- 何の数字を改善すべきかは決めない (施策の主張は人間が定義する)。
+- 生成は進行役モデル 1 call。コードが検証する: 不明・譲歩済みの根拠 id は捨てる / 合意と未決の両方に
+  挙がった id は未決を優先する / どちらにも挙がらなかった未譲歩の根拠は未決に補う (黙って落とさない)。
+- 未決が無ければ Tension は `aligned`、残れば `partially_aligned`。LLM 障害・パース失敗は全根拠を
+  未決にして `partially_aligned` (議論を止めない)。
+- すり合わせは止揚ストックに数えない。収束は §6 の計測値で決まる。
 
 ## 3. アルゴリズム (位相駆動)
 

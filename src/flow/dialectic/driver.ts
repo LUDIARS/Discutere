@@ -59,6 +59,8 @@ import {
 import { classifyTension, resolveFactTension } from "./tension.js";
 import { runSynthesisLoop } from "./synthesis.js";
 import { gateRebut, renderFoulNotice, type RuleFoul } from "./rule-check.js";
+import { alignmentStatus, generateAlignment } from "./alignment.js";
+import { insertAlignment, type AlignmentRecord } from "./alignment-store.js";
 import { assessConvergence } from "./convergence.js";
 import { concludeDialectic, settlementToRoundSummary, type IssueSettlement } from "./conclusion.js";
 
@@ -413,6 +415,8 @@ export async function runDialecticFlow(
           position: targetPosition,
           attack: parsed.attack,
           groundId: parsed.groundId,
+          data: parsed.data,
+          warrant: parsed.warrant,
           rebutText: parsed.text,
           judge: cfg.flow.dialectic.ruleCheck,
           llm: withCostLog(llm, { flow, sessionId, round, turn, location: "rule-check" }),
@@ -457,6 +461,7 @@ export async function runDialecticFlow(
     const [positionA, positionB] = positions;
     const tensions: TensionRecord[] = [];
     const syntheses: SynthesisRecord[] = [];
+    const alignments: AlignmentRecord[] = [];
     const aAlive = positionA.grounds.some((g) => g.state !== "conceded");
     const bAlive = positionB.grounds.some((g) => g.state !== "conceded");
 
@@ -495,6 +500,34 @@ export async function runDialecticFlow(
             ? `事実確認の結果です: ${resolution.note}`
             : `この論点の事実対立は照会でも解消できませんでした。未解決の事実問題として結論に明記します。`;
         await commit(makeRecord({ persona: facilitator, round, turn: ++turn, text: factText }));
+      } else if (cfg.flow.dialectic.settlement === "alignment") {
+        // ── [4] すり合わせ (体験 / 施策 / 他ゲーム事例 + 合意 / 未決。dialectic.md §4.5) ──
+        const generated = await generateAlignment({
+          issueTitle: issue.title,
+          tension,
+          positionA,
+          positionB,
+          paperSystem,
+          llm: withCostLog(llm, { flow, sessionId, round, location: "align" }),
+          // すり合わせの生成は進行役のモデル (編成表 facilitator)。
+          model: facilitator.model,
+          warn,
+        });
+        const alignment = insertAlignment({
+          tensionId: tension.id,
+          experience: generated.experience,
+          measure: generated.measure,
+          references: generated.references,
+          agreed: generated.agreed,
+          open: generated.open,
+          text: generated.text,
+        });
+        alignments.push(alignment);
+        tension.status = alignmentStatus(alignment);
+        updateTensionStatus(tension.id, tension.status);
+        await commit(
+          makeRecord({ persona: facilitator, round, turn: ++turn, text: `すり合わせ: ${alignment.text}` })
+        );
       } else {
         // ── [4] 止揚 (生成 → 折衷ゲート → 敵対的批准 → 修正ループ ≤2) ──────
         const outcome = await runSynthesisLoop({
@@ -545,7 +578,7 @@ export async function runDialecticFlow(
 
     updateIssueStatus(issue.id, "concluded");
     issue.status = "concluded";
-    const settlement: IssueSettlement = { issue, positions, tensions, syntheses };
+    const settlement: IssueSettlement = { issue, positions, tensions, syntheses, alignments };
     settlements.push(settlement);
 
     // ── issue 決着ごとのレンズ投票 (03 流用。winnerShare が収束シグナル (b)) ──

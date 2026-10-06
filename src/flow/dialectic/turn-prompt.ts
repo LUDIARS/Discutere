@@ -124,9 +124,11 @@ export function buildDialecticTurnPrompt(args: DialecticTurnPromptArgs): string 
       `{"act": "<${actList}>", "target": "<応答先 utterance id (claim/question は null 可)>", ` +
       `"attack": "<rebut のとき必須: data | warrant | qualifier (突くのはデータ・論拠・限定のどれか)>", ` +
       `"groundId": "<rebut で data/warrant を突くとき必須: 攻撃対象の根拠 id>", ` +
+      `"data": "<rebut のとき必須: 反論のデータ (事実・事例・仕様)>", ` +
+      `"warrant": "<rebut のとき必須: 反論の論拠 (そのデータで相手のどこが崩れるか)>", ` +
       `"text": "<Discord に流す口語 1〜3 文>"}\n` +
       `act は今の議論状態で最も議論を前に進める手を選ぶ (許可: ${actList})。\n` +
-      `rebut は相手の主張の限定の内側で、宣言したデータ・論拠・限定を突く。突く先を示せない反論は根拠への反論として数えない。\n` +
+      `rebut は相手の主張の限定の内側で、宣言したデータ・論拠・限定を突く。反論もトゥールミンモデルを満たす (反論自身のデータと論拠を書く)。満たさない反論・突く先を示せない反論は根拠への反論として数えない。\n` +
       `text は実在の人間の雑談のような自然な口語で書く (ラベル・箇条書き禁止)。`,
   ].join("\n");
 }
@@ -139,6 +141,10 @@ export interface ParsedTurn {
   groundId: string | null;
   /** rebut が突くトゥールミン要素 (LLM 申告。無ければ null = 前提ルール違反の候補)。 */
   attack: AttackPoint | null;
+  /** rebut 自身のデータ (トゥールミンの data)。無ければ null。 */
+  data: string | null;
+  /** rebut 自身の論拠 (トゥールミンの warrant)。無ければ null。 */
+  warrant: string | null;
   text: string;
   /** JSON が取れず全文 claim として受理した (degrade) か。 */
   degraded: boolean;
@@ -164,7 +170,7 @@ export function parseTurnResponse(raw: string, opts: ParseTurnOptions): ParsedTu
   const obj = extractJsonObject(raw);
   if (!obj || typeof obj.text !== "string" || !obj.text.trim()) {
     warn(`発話 JSON パース失敗 — 全文を act=claim として受理 (degrade): ${fallbackText.slice(0, 60)}`);
-    return { act: "claim", targetId: null, groundId: null, attack: null, text: fallbackText, degraded: true };
+    return { act: "claim", targetId: null, groundId: null, attack: null, data: null, warrant: null, text: fallbackText, degraded: true };
   }
 
   let act = coerceAct(typeof obj.act === "string" ? obj.act : null);
@@ -191,5 +197,8 @@ export function parseTurnResponse(raw: string, opts: ParseTurnOptions): ParsedTu
 
   const attack = coerceAttackPoint(obj.attack);
 
-  return { act, targetId, groundId, attack, text: obj.text.trim(), degraded: false };
+  const data = typeof obj.data === "string" && obj.data.trim() ? obj.data.trim() : null;
+  const warrant = typeof obj.warrant === "string" && obj.warrant.trim() ? obj.warrant.trim() : null;
+
+  return { act, targetId, groundId, attack, data, warrant, text: obj.text.trim(), degraded: false };
 }

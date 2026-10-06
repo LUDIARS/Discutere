@@ -505,6 +505,25 @@ const MIGRATIONS: Array<{ id: string; sql: string[] }> = [
     id: "flow_0027_position_qualifier",
     sql: [`ALTER TABLE flow_position ADD COLUMN qualifier TEXT`],
   },
+  {
+    // すり合わせ (dialectic.md §4.5): 止揚に代わる Tension の決着。体験 / 施策 / 他ゲーム事例と、
+    // 合意した根拠 id・未決の点 (何が分かれば決まるか) を持つ。
+    id: "flow_0028_alignment",
+    sql: [
+      `CREATE TABLE IF NOT EXISTS flow_alignment (
+        id TEXT PRIMARY KEY,
+        tension_id TEXT NOT NULL,
+        experience TEXT NOT NULL,
+        measure TEXT NOT NULL,
+        reference_cases TEXT NOT NULL,
+        agreed_json TEXT NOT NULL,
+        open_json TEXT NOT NULL,
+        text TEXT NOT NULL,
+        created_at INTEGER NOT NULL
+      )`,
+      `CREATE INDEX IF NOT EXISTS idx_flow_alignment_tension ON flow_alignment(tension_id)`,
+    ],
+  },
 ];
 
 function isIgnorableMigrationError(stmt: string, error: unknown): boolean {

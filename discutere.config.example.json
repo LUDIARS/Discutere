@@ -11,13 +11,14 @@
     "kuzuPath": "./data/discatier.kuzu"
   },
   "flow": {
-    "$comment0": "engine: 議論エンジン (respec PR-B)。dialectic(既定, 2026-07-03〜)=論証状態機械 (Issue/Position/Tension/Synthesis + 敵対的批准 + 計測型収束)。rounds=旧ラウンド×ターン制 (フォールバック)。discussion/improvement の起動時に dispatch が分岐する (env DISCUTERE_FLOW_ENGINE)。dialectic: rebutTurns=issue あたりの反定立ターン上限(既定4)。staleTurns=新規主張の枯渇判定の窓 K(直近 K ターン新 claim なしで収束シグナル、既定6)。judgeModel=判定・批准 (型分類/事実照会/折衷ゲート/批准/進行文レンダリング) に使う小モデル(既定 Haiku 級。生成はメインモデル)。ruleCheck=前提ルール判定 (dialectic.md §2.5。反論ごとに judgeModel で範囲外・すり替え・中身に触れない却下・論点ずらしを判定し違反は question に格下げ。false でも突く要素と根拠 id の宣言検査は常に行う、既定 true)。env は DISCUTERE_FLOW_DIALECTIC_REBUT_TURNS / _STALE_TURNS / _JUDGE_MODEL / _RULE_CHECK。",
+    "$comment0": "engine: 議論エンジン (respec PR-B)。dialectic(既定, 2026-07-03〜)=論証状態機械 (Issue/Position/Tension/Synthesis + 敵対的批准 + 計測型収束)。rounds=旧ラウンド×ターン制 (フォールバック)。discussion/improvement の起動時に dispatch が分岐する (env DISCUTERE_FLOW_ENGINE)。dialectic: rebutTurns=issue あたりの反定立ターン上限(既定4)。staleTurns=新規主張の枯渇判定の窓 K(直近 K ターン新 claim なしで収束シグナル、既定6)。judgeModel=判定・批准 (型分類/事実照会/折衷ゲート/批准/進行文レンダリング) に使う小モデル(既定 Haiku 級。生成はメインモデル)。ruleCheck=前提ルール判定 (dialectic.md §2.5。反論ごとに judgeModel で範囲外・すり替え・中身に触れない却下・論点ずらしを判定し違反は question に格下げ。false でも突く要素と根拠 id の宣言検査は常に行う、既定 true)。settlement=Tension の決着方法 (dialectic.md §4.5。alignment(既定)=すり合わせ: 体験/施策/他ゲーム事例 + 合意した根拠/未決の点。synthesis=旧来の止揚)。env は DISCUTERE_FLOW_DIALECTIC_REBUT_TURNS / _STALE_TURNS / _JUDGE_MODEL / _RULE_CHECK / _SETTLEMENT。",
     "engine": "dialectic",
     "dialectic": {
       "rebutTurns": 4,
       "staleTurns": 6,
       "judgeModel": "claude-fable-5-1",
-      "ruleCheck": true
+      "ruleCheck": true,
+      "settlement": "alignment"
     },
     "$comment_roster": "roster: モデル編成 (spec/feature/flow/model-roster.md)。値は model spec `<model>@<effort>`。facilitator=進行役 (止揚の生成にも使う)、discussants=議論者へ順に割り当て (人数 = 要素数、personaCount より優先)。gpt-* は Codex CLI (codex exec)、claude-* は Claude 経路。env DISCUTERE_FLOW_ROSTER_FACILITATOR / _DISCUSSANTS (カンマ区切り)。",
     "roster": {
