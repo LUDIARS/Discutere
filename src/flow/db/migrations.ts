@@ -506,8 +506,8 @@ const MIGRATIONS: Array<{ id: string; sql: string[] }> = [
     sql: [`ALTER TABLE flow_position ADD COLUMN qualifier TEXT`],
   },
   {
-    // すり合わせ (dialectic.md §4.5): 止揚に代わる Tension の決着。体験 / 施策 / 他ゲーム事例と、
-    // 合意した根拠 id・未決の点 (何が分かれば決まるか) を持つ。
+    // 旧すり合わせ (2026-10-07 に導入し同日撤去)。AI の議論はすり合わせをゴールに置かない方針になり
+    // 書き込み元は無い。適用済み環境があるため migration は残す (表は未使用)。
     id: "flow_0028_alignment",
     sql: [
       `CREATE TABLE IF NOT EXISTS flow_alignment (

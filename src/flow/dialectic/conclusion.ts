@@ -17,7 +17,6 @@ import type { FlowUtteranceRecord } from "../director.js";
 import type { VoteResult } from "../vote.js";
 import { generateConclusion, type ConclusionResult } from "../conclusion.js";
 import type { IssueRecord, PositionRecord, SynthesisRecord, TensionRecord } from "./store.js";
-import type { AlignmentRecord } from "./alignment-store.js";
 
 /** issue 1 件の決着スナップショット (driver が組み立てる)。 */
 export interface IssueSettlement {
@@ -26,42 +25,28 @@ export interface IssueSettlement {
   tensions: TensionRecord[];
   /** tension ごとの最終 Synthesis (無ければ空)。 */
   syntheses: SynthesisRecord[];
-  /** tension ごとのすり合わせ (settlement=alignment のとき。無ければ空)。 */
-  alignments: AlignmentRecord[];
-}
-
-/** すり合わせ 1 件を人間可読にする (体験 / 施策 / 他ゲーム事例 / 合意 / 未決)。 */
-function alignmentLine(a: AlignmentRecord | undefined): string {
-  if (!a) return "(本文なし)";
-  const parts = [
-    a.experience && `体験: ${a.experience}`,
-    a.measure && `施策: ${a.measure}`,
-    a.references && `他ゲーム: ${a.references}`,
-    a.agreed.length > 0 && `合意した根拠: ${a.agreed.join(", ")}`,
-    a.open.length > 0 && `未決: ${a.open.map((o) => `${o.groundId ?? "限定"} — ${o.need}`).join(" / ")}`,
-  ].filter(Boolean);
-  return parts.length > 0 ? parts.join(" / ") : a.text;
+  /** 論破で決着した場合の判定文 (Tension を立てない)。論破でなければ null。 */
+  refutation: string | null;
 }
 
 /** tension の決着 1 行を人間可読にする。 */
 function settleTensionLine(
   t: TensionRecord,
-  syntheses: readonly SynthesisRecord[],
-  alignments: readonly AlignmentRecord[]
+  syntheses: readonly SynthesisRecord[]
 ): string {
   const s = syntheses.find((x) => x.tensionId === t.id);
-  const a = alignments.find((x) => x.tensionId === t.id);
   switch (t.status) {
+    case "agreed":
+      return `合意 (ジンテーゼ): ${t.resolutionNote ?? "(記録なし)"}`;
     case "aligned":
-      return `すり合わせ (全根拠合意): ${alignmentLine(a)}`;
     case "partially_aligned":
-      return `すり合わせ (未決あり): ${alignmentLine(a)}`;
+      return "すり合わせ (旧方式・詳細は記録なし)";
     case "synthesized":
       return `止揚 (批准済み): ${s?.text ?? "(本文なし)"}${s?.elevates ? ` — 新しい枠: ${s.elevates}` : ""}`;
     case "compromised":
-      return `折衷 (批准済み・止揚ではない): ${s?.text ?? "(本文なし)"}`;
+      return `ゴール未到達 — 折衷 (批准済み・止揚ではない): ${s?.text ?? "(本文なし)"}`;
     case "agreed_disagree":
-      return `合意不能 (両論併記): 批准が成立せず対立が残った${s ? ` — 最終候補: ${s.text}` : ""}`;
+      return `ゴール未到達 — 合意不能 (両論併記): 批准が成立せず対立が残った${s ? ` — 最終候補: ${s.text}` : ""}`;
     case "resolved":
       return `事実解消: ${t.resolutionNote ?? "(記録なし)"}`;
     case "unresolved_fact":
@@ -85,8 +70,10 @@ export function settlementToRoundSummary(
     .join(" / ");
   const tensionLines =
     s.tensions.length > 0
-      ? s.tensions.map((t) => settleTensionLine(t, s.syntheses, s.alignments)).join(" / ")
-      : "対立なし (片側譲歩または論点未成立)";
+      ? s.tensions.map((t) => settleTensionLine(t, s.syntheses)).join(" / ")
+      : s.refutation
+        ? `論破: ${s.refutation}`
+        : "対立なし (論点未成立)";
   const share = winnerShare === null ? "" : ` / 投票集中度 ${winnerShare.toFixed(2)}`;
   const aufhebung = s.tensions
     .filter((t) => t.status === "synthesized")

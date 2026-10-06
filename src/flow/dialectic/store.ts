@@ -57,9 +57,10 @@ export type TensionStatus =
   | "compromised"
   | "agreed_disagree"
   | "unresolved_fact"
-  /** すり合わせ (dialectic.md §4.5) で残った根拠がすべて合意された。 */
+  /** ゴール (dialectic.md §4.5): 両者が同じ結論になった (合意 = ジンテーゼ)。論破は Tension を立てない。 */
+  | "agreed"
+  /** 旧すり合わせ (2026-10-07 の短期間だけ使用。読み出し互換のため残す)。 */
   | "aligned"
-  /** すり合わせで未決の点 (何が分かれば決まるか) が残った。 */
   | "partially_aligned";
 
 export interface TensionRecord {
@@ -266,6 +267,7 @@ export function listTensions(issueId: string): TensionRecord[] {
       "compromised",
       "agreed_disagree",
       "unresolved_fact",
+      "agreed",
       "aligned",
       "partially_aligned",
     ].includes(r.status)

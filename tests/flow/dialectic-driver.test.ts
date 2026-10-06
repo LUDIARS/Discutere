@@ -24,8 +24,6 @@ process.env.DISCUTERE_FLOW_VOTER_COUNT = "3";
 process.env.DISCUTERE_FLOW_ROSTER_FACILITATOR = "gpt-facilitator@high";
 process.env.DISCUTERE_FLOW_ROSTER_DISCUSSANTS = "claude-pro@high,gpt-con@medium,claude-opinion@low";
 process.env.DISCUTERE_FLOW_DIALECTIC_JUDGE_MODEL = "claude-judge@low";
-// 既存シナリオは旧来の止揚 (synthesis) を検証する。すり合わせ (alignment) は専用シナリオで切り替える。
-process.env.DISCUTERE_FLOW_DIALECTIC_SETTLEMENT = "synthesis";
 
 const { _resetFlowDb } = await import("../../src/flow/db/connection.js");
 const { _resetConfig } = await import("../../src/config.js");
@@ -108,21 +106,8 @@ function makeRouterLlm(overrides: Partial<Record<string, (p: string) => string>>
         }),
     },
     { name: "rule-check", match: (p) => p.includes("前提ルールを守っているかを判定"), respond: () => "ok" },
-    {
-      name: "align",
-      match: (p) => p.includes("# 指示 (すり合わせ)"),
-      respond: (p) => {
-        const ids = extractGroundIds(p);
-        return JSON.stringify({
-          experience: "天井に届かなくても欲しいキャラに近づける体験",
-          measure: "天井を下げる",
-          references: "同じ緩和をした他ゲームでは継続率が上がった",
-          agreed: ids.slice(0, 1),
-          open: ids.slice(1).map((id) => ({ groundId: id, point: "data", need: "緩和前後の継続率の比較" })),
-          text: "体験と施策は揃いました。残りは継続率のデータ次第です。",
-        });
-      },
-    },
+    // 合意 (ジンテーゼ) 判定。既定は「結論が異なる」→ 止揚へ進む。
+    { name: "agreement", match: (p) => p.includes("合意しているか) を判定"), respond: () => "different" },
     { name: "tension-classify", match: (p) => p.includes("この対立の「型」を 1 つだけ選んで"), respond: () => "values" },
     { name: "fact-resolve", match: (p) => p.includes("証拠はどちらの主張を支持しますか"), respond: () => "A" },
     {
@@ -293,6 +278,7 @@ const db = () => new Database(DB_PATH);
     "elevation-gate",
     "ratify",
     "rule-check",
+    "agreement",
     "facilitator",
     "vote",
     "summary",
@@ -492,47 +478,70 @@ const db = () => new Database(DB_PATH);
   console.log("  [ok] dispatch: flow.engine=dialectic で dialectic 経路に分岐");
 }
 
-// ── シナリオ: すり合わせ (settlement=alignment) — 体験/施策/他ゲーム事例 + 合意/未決 ──
+// ── シナリオ: ゴール 2 合意 (ジンテーゼ) — 止揚を生成せず agreed で決着 ──
 
 {
-  process.env.DISCUTERE_FLOW_DIALECTIC_SETTLEMENT = "alignment";
-  _resetConfig();
-  const llm = makeRouterLlm();
-  const result = await runDialecticFlow("ガチャ天井を下げるか", [], {
+  const llm = makeRouterLlm({ agreement: () => "same" });
+  const result = await runDialecticFlow("合意に至るテーマ", [], {
     llm,
     rng: makeRng(11),
     gamesDir: path.join(TMP_DIR, "no-games-dir"),
-    sessionId: "dlx-alignment",
+    sessionId: "dlx-agreed",
     log: () => {},
     warn: () => {},
   });
-  process.env.DISCUTERE_FLOW_DIALECTIC_SETTLEMENT = "synthesis";
-  _resetConfig();
-
-  assert.equal(llm.stats.synthesize ?? 0, 0, "すり合わせでは止揚を生成しない");
-  assert.ok((llm.stats.align ?? 0) > 0, "すり合わせを生成する");
+  assert.equal(llm.stats.synthesize ?? 0, 0, "合意したら止揚を生成しない");
   const d = db();
   const issue = d
     .prepare("SELECT * FROM flow_issue WHERE session_id = ? AND status = 'concluded' ORDER BY ordinal")
-    .get("dlx-alignment") as any;
+    .get("dlx-agreed") as any;
   const tension = d.prepare("SELECT * FROM flow_tension WHERE issue_id = ?").get(issue.id) as any;
-  assert.equal(tension.status, "partially_aligned", "未決が残れば partially_aligned");
-  const alignment = d.prepare("SELECT * FROM flow_alignment WHERE tension_id = ?").get(tension.id) as any;
-  assert.ok(alignment, "flow_alignment に永続");
-  assert.equal(alignment.measure, "天井を下げる");
-  assert.equal(JSON.parse(alignment.agreed_json).length, 1, "合意した根拠が記録される");
-  const open = JSON.parse(alignment.open_json);
-  assert.ok(open.length > 0 && open.every((o: any) => o.need), "未決の点に「何が分かれば決まるか」が付く");
-  assert.equal(
-    (d.prepare("SELECT COUNT(*) AS n FROM flow_synthesis WHERE tension_id = ?").get(tension.id) as any).n,
-    0,
-    "flow_synthesis は作らない"
-  );
-  const utterances = d.prepare("SELECT * FROM flow_utterance WHERE session_id = ?").all("dlx-alignment") as any[];
-  assert.ok(utterances.some((u) => u.text.startsWith("すり合わせ: ")), "進行役がすり合わせを流す");
+  assert.equal(tension.status, "agreed", "合意 → agreed");
+  assert.ok(tension.resolution_note.includes("ジンテーゼ"), "判定文が残る");
+  const utterances = d.prepare("SELECT * FROM flow_utterance WHERE session_id = ?").all("dlx-agreed") as any[];
+  assert.ok(utterances.some((u) => u.text.startsWith("合意: ")), "進行役が合意を流す");
   d.close();
-  assert.ok(result.concluded, "すり合わせでも結論に到達する");
-  console.log("  [ok] dialectic driver: すり合わせ → partially_aligned + flow_alignment 永続");
+  assert.ok(result.concluded, "合意でも結論に到達する");
+  console.log("  [ok] dialectic driver: ゴール 2 合意 (ジンテーゼ) → agreed");
+}
+
+// ── シナリオ: ゴール 1 論破 — 反論を受けた側が譲歩を重ねて根拠がすべて崩れる → 論破で決着 ──
+
+{
+  process.env.DISCUTERE_FLOW_DIALECTIC_REBUT_TURNS = "12";
+  _resetConfig();
+  const llm = makeRouterLlm({
+    "turn-respond": () => JSON.stringify({ act: "concede", target: null, text: "そこは認めるよ。" }),
+  });
+  await runDialecticFlow("論破されるテーマ", [], {
+    llm,
+    rng: makeRng(5),
+    gamesDir: path.join(TMP_DIR, "no-games-dir"),
+    sessionId: "dlx-refuted",
+    log: () => {},
+    warn: () => {},
+  });
+  delete process.env.DISCUTERE_FLOW_DIALECTIC_REBUT_TURNS;
+  _resetConfig();
+
+  const d = db();
+  const issue = d
+    .prepare("SELECT * FROM flow_issue WHERE session_id = ? AND status = 'concluded' ORDER BY ordinal")
+    .get("dlx-refuted") as any;
+  const positions = d.prepare("SELECT grounds_json FROM flow_position WHERE issue_id = ?").all(issue.id) as any[];
+  assert.ok(
+    positions.some((p) => JSON.parse(p.grounds_json).every((g: any) => g.state === "conceded" || g.state === "challenged")),
+    "根拠がすべて崩れた側がある"
+  );
+  assert.equal(
+    (d.prepare("SELECT COUNT(*) AS n FROM flow_tension WHERE issue_id = ?").get(issue.id) as any).n,
+    0,
+    "論破は Tension を立てない (型分類・合意判定・止揚に進まない)"
+  );
+  const utterances = d.prepare("SELECT * FROM flow_utterance WHERE session_id = ? AND round = 1").all("dlx-refuted") as any[];
+  assert.ok(utterances.some((u) => u.text.startsWith("論破: ")), "進行役が論破を流す");
+  d.close();
+  console.log("  [ok] dialectic driver: ゴール 1 論破 → Tension を立てず論破で決着");
 }
 
 // ── シナリオ: 前提ルール違反 — 突く要素なし / 判定 LLM が範囲外 → question に格下げ ──
@@ -591,7 +600,6 @@ for (const [label, overrides, judgeCalled] of [
 // クリーンアップ
 delete process.env.DISCUTERE_FLOW_PERSONA_COUNT;
 delete process.env.DISCUTERE_FLOW_VOTER_COUNT;
-delete process.env.DISCUTERE_FLOW_DIALECTIC_SETTLEMENT;
 delete process.env.DATABASE_PATH;
 _resetConfig();
 _resetFlowDb();

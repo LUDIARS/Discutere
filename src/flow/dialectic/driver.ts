@@ -59,8 +59,7 @@ import {
 import { classifyTension, resolveFactTension } from "./tension.js";
 import { runSynthesisLoop } from "./synthesis.js";
 import { gateRebut, renderFoulNotice, type RuleFoul } from "./rule-check.js";
-import { alignmentStatus, generateAlignment } from "./alignment.js";
-import { insertAlignment, type AlignmentRecord } from "./alignment-store.js";
+import { agreementNote, detectRefutation, judgeAgreement } from "./goal.js";
 import { assessConvergence } from "./convergence.js";
 import { concludeDialectic, settlementToRoundSummary, type IssueSettlement } from "./conclusion.js";
 
@@ -461,11 +460,14 @@ export async function runDialecticFlow(
     const [positionA, positionB] = positions;
     const tensions: TensionRecord[] = [];
     const syntheses: SynthesisRecord[] = [];
-    const alignments: AlignmentRecord[] = [];
-    const aAlive = positionA.grounds.some((g) => g.state !== "conceded");
-    const bAlive = positionB.grounds.some((g) => g.state !== "conceded");
+    // ── [4] ゴール 1: 論破 を先に判定 (一方の根拠がすべて崩れた = 意見が出なくなった。コードのみ。
+    //    dialectic.md §4.5)。譲歩で崩れても、反論に応答できずに崩れても論破として決着する。
+    const refutation = detectRefutation(positionA, positionB);
 
-    if (aAlive && bAlive) {
+    if (refutation.note) {
+      log(`論点 ${round}: 論破で決着`);
+      await commit(makeRecord({ persona: facilitator, round, turn: ++turn, text: `論破: ${refutation.note}` }));
+    } else {
       const classifyLlm = withCostLog(llm, { flow, sessionId, round, location: "tension-classify" });
       const type = await classifyTension({ issue, positionA, positionB, llm: classifyLlm, model: judgeModel, warn });
       const tension = insertTension({
@@ -500,36 +502,25 @@ export async function runDialecticFlow(
             ? `事実確認の結果です: ${resolution.note}`
             : `この論点の事実対立は照会でも解消できませんでした。未解決の事実問題として結論に明記します。`;
         await commit(makeRecord({ persona: facilitator, round, turn: ++turn, text: factText }));
-      } else if (cfg.flow.dialectic.settlement === "alignment") {
-        // ── [4] すり合わせ (体験 / 施策 / 他ゲーム事例 + 合意 / 未決。dialectic.md §4.5) ──
-        const generated = await generateAlignment({
-          issueTitle: issue.title,
-          tension,
+      } else if (
+        await judgeAgreement({
+          issue,
           positionA,
           positionB,
-          paperSystem,
-          llm: withCostLog(llm, { flow, sessionId, round, location: "align" }),
-          // すり合わせの生成は進行役のモデル (編成表 facilitator)。
-          model: facilitator.model,
+          llm: withCostLog(llm, { flow, sessionId, round, location: "agreement" }),
+          model: judgeModel,
           warn,
-        });
-        const alignment = insertAlignment({
-          tensionId: tension.id,
-          experience: generated.experience,
-          measure: generated.measure,
-          references: generated.references,
-          agreed: generated.agreed,
-          open: generated.open,
-          text: generated.text,
-        });
-        alignments.push(alignment);
-        tension.status = alignmentStatus(alignment);
-        updateTensionStatus(tension.id, tension.status);
-        await commit(
-          makeRecord({ persona: facilitator, round, turn: ++turn, text: `すり合わせ: ${alignment.text}` })
-        );
+        })
+      ) {
+        // ── [4] ゴール 2: 合意 (ジンテーゼ = 結論の同一性) ──
+        const note = agreementNote(positionA, positionB);
+        tension.status = "agreed";
+        tension.resolutionNote = note;
+        updateTensionStatus(tension.id, "agreed", note);
+        await commit(makeRecord({ persona: facilitator, round, turn: ++turn, text: `合意: ${note}` }));
       } else {
-        // ── [4] 止揚 (生成 → 折衷ゲート → 敵対的批准 → 修正ループ ≤2) ──────
+        // ── [4] ゴール 3: 止揚 (生成 → 折衷ゲート → 敵対的批准 → 修正ループ ≤2)。
+        //    批准されなければ (折衷・合意不能) ゴール未到達として記録する。
         const outcome = await runSynthesisLoop({
           issueTitle: issue.title,
           tension,
@@ -572,13 +563,11 @@ export async function runDialecticFlow(
         // 折衷は止揚ストックに数えない (dialectic.md §4)。
         if (outcome.tensionStatus === "synthesized") ratifiedAufheben.push(outcome.record.text);
       }
-    } else {
-      log(`論点 ${round}: 片側が根拠を全て譲歩 — Tension を立てず決着`);
     }
 
     updateIssueStatus(issue.id, "concluded");
     issue.status = "concluded";
-    const settlement: IssueSettlement = { issue, positions, tensions, syntheses, alignments };
+    const settlement: IssueSettlement = { issue, positions, tensions, syntheses, refutation: refutation.note };
     settlements.push(settlement);
 
     // ── issue 決着ごとのレンズ投票 (03 流用。winnerShare が収束シグナル (b)) ──

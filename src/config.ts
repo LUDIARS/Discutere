@@ -96,12 +96,6 @@ export interface DiscutereConfig {
        * false でも「突く要素と根拠 id の宣言」のコード検査は常に行う。既定 true。
        */
       ruleCheck: boolean;
-      /**
-       * Tension の決着方法 (dialectic.md §4.5)。"alignment" (既定) = すり合わせ
-       * (体験 / 施策 / 他ゲーム事例 + 合意した根拠 / 未決の点)。"synthesis" = 旧来の止揚
-       * (生成 → 折衷ゲート → 敵対的批准)。
-       */
-      settlement: "alignment" | "synthesis";
     };
     /**
      * ペルソナ価値軸/核主張の一括生成 (persona-setup) に使うモデル ("" なら LLM の既定モデル)。
@@ -833,14 +827,6 @@ export function loadConfig(): DiscutereConfig {
           file.flow?.dialectic?.ruleCheck,
           true
         ),
-        // "synthesis" 以外の値 (未設定・不正値) はすり合わせに倒す。
-        settlement: (pick(
-          process.env.DISCUTERE_FLOW_DIALECTIC_SETTLEMENT,
-          file.flow?.dialectic?.settlement,
-          "alignment"
-        ) === "synthesis"
-          ? "synthesis"
-          : "alignment") as DiscutereConfig["flow"]["dialectic"]["settlement"],
       },
       personaSetupModel: pick(
         process.env.DISCUTERE_FLOW_PERSONA_SETUP_MODEL,
