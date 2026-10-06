@@ -66,6 +66,14 @@
       "enrichMechanics": true,
       "enrichModel": ""
     },
+    "$comment_userVoices": "userVoices: ユーザーの声の収集 (spec/feature/flow/user-voices.md)。議論/改善の準備時に、議題のゲーム (+ 類似ゲーム) が Steam でリリース済みならレビュー、無ければ Voluptas の遊んだ感想を取り込み、ベクトル化 (embedding.enabled 時) する。類似ゲームがあればゲームごとに均等に混ぜて議論へ渡す。voluptasBaseUrl が空なら Voluptas からは集めない (env DISCUTERE_VOLUPTAS_BASE_URL)。",
+    "userVoices": {
+      "enabled": true,
+      "steamMaxReviews": 300,
+      "steamLanguages": ["japanese", "english"],
+      "glabMaxImpressions": 100,
+      "voluptasBaseUrl": ""
+    },
     "$comment4n": "notionLinks: ペーパー作成時、入力欄 (仕様書 URL / 本文系) や Discord starter 中の Notion リンクを Canalis でクロールして「ゲーム内容」に足す。token は env NOTION_TOKEN (Ex Vault)。あれば API、無ければ公開ページをブラウザ (Playwright chromium) で取得し、どちらも子ページを maxDepth (既定2、起点=0) まで辿る。本文に「深さ:N」と書けば議論ごとに上書き (上限5)。maxPages は 1 リンクあたりの取得上限。",
     "notionLinks": {
       "maxDepth": 2,

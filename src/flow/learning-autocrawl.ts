@@ -214,7 +214,8 @@ export function countLearningVoices(
   }
 }
 
-function defaultImport(core: Core, items: ExternalUtterance[], workspaceId: string): number {
+/** 外部の声を KG に取り込む既定実装 (dedup sidecar + 出所メタ付き)。ユーザーの声の収集でも使う。 */
+export function defaultImport(core: Core, items: ExternalUtterance[], workspaceId: string): number {
   const ingested = openIngestedStore();
   const attribution = openAttributionStore();
   try {

@@ -73,6 +73,8 @@ import {
   reactDiscord,
   resolveWebhookTarget,
 } from "../discord-hook/poster.js";
+import { describeVoiceReport } from "./user-voices/collect.js";
+import { parseSimilarGames, prepareUserVoices } from "./user-voices/runtime.js";
 import {
   _resetReviewSessions,
   bufferReply,
@@ -130,6 +132,8 @@ export interface StartForumFlowInput {
   specText?: string;
   /** starter のテキスト系添付ファイル URL (任意。学習で仕様書解析 ③ に使う)。 */
   specAttachmentUrls?: string[];
+  /** 類似ゲーム (ユーザーの声をゲームごとに均等に混ぜる)。starter 本文の「類似ゲーム「A」」やペーパー調整で増える。 */
+  similarGames?: string[];
 }
 
 /** 収束時フック (gateway が finalizeForumPost に結線する)。 */
@@ -150,6 +154,48 @@ export interface FlowLiveHooks {
 /** 進行中の壁打ちセッション (threadId → session)。スレッド返信を submitUser へ橋渡しする。 */
 const sparringByThread = new Map<string, SparringSession>();
 
+/**
+ * スレッドごとのユーザーの声の検索 (Steam / Voluptas から集めた声をゲームごとに均等に混ぜたもの)。
+ * 未設定のスレッドは既存の外部の声検索 (deps.listExternalVoices) を使う。
+ */
+const userVoiceLookups = new Map<string, (terms: string[], limit: number) => ContextVoice[]>();
+
+function voiceLookupFor(
+  threadId: string,
+  deps: FlowDiscordDeps
+): ((terms: string[], limit: number) => ContextVoice[]) | undefined {
+  return userVoiceLookups.get(threadId) ?? deps.listExternalVoices;
+}
+
+/**
+ * 議題のゲーム + 類似ゲームのユーザーの声を集め (リリース済みなら Steam、無ければ Voluptas)、
+ * スレッドの声の検索を均等混合に差し替える。結果はスレッドに一言で知らせる。失敗は議論を止めない。
+ */
+async function collectUserVoicesForThread(input: StartForumFlowInput, deps: FlowDiscordDeps): Promise<void> {
+  try {
+    const prepared = await prepareUserVoices({
+      theme: input.theme,
+      similarGames: input.similarGames ?? [],
+      openCore: deps.openCore,
+      workspaceId: deps.workspaceId ?? getConfig().workspace,
+      baseLookup: deps.listExternalVoices,
+      log: (m) => console.log(`  [user-voices ${input.threadId}] ${m}`),
+      warn: (m) => console.warn(`  [user-voices ${input.threadId}] ${m}`),
+    });
+    if (prepared.lookup) userVoiceLookups.set(input.threadId, prepared.lookup);
+    if (prepared.reports.length > 0) {
+      const mixed = prepared.reports.length > 1 ? "\n(ゲームごとに同じ件数ずつ混ぜて議論に使います)" : "";
+      await postThreadNotice(
+        deps,
+        input.threadId,
+        `🎮 ユーザーの声:\n${prepared.reports.map((r) => `・${describeVoiceReport(r)}`).join("\n")}${mixed}`
+      );
+    }
+  } catch (err) {
+    console.warn(`  [user-voices ${input.threadId}] 収集失敗 (既存の外部の声で継続): ${(err as Error).message}`);
+  }
+}
+
 /** レビュー待ちのディスカッションペーパー (threadId → 草案 + 起動入力)。スレッド返信で調整/承認する。 */
 interface PendingPaperReview {
   input: StartForumFlowInput;
@@ -167,6 +213,7 @@ export function _resetFlowLive(): void {
   for (const p of paperReviewByThread.values()) if (p.timer) clearTimeout(p.timer);
   paperReviewByThread.clear();
   _resetReviewSessions();
+  userVoiceLookups.clear();
 }
 
 /** そのスレッドで進行中の壁打ちがあるか。 */
@@ -269,7 +316,7 @@ function buildDispatchDeps(deps: FlowDiscordDeps, threadId: string): DispatchDep
   const ctx = newThreadPostCtx();
   return {
     llm: deps.llm,
-    listExternalVoices: deps.listExternalVoices,
+    listExternalVoices: voiceLookupFor(threadId, deps),
     sentimentClients: deps.sentimentClients,
     gamesDir: deps.gamesDir,
     workspaceId: deps.workspaceId,
@@ -301,7 +348,7 @@ async function prepareInformationBeforeForumFlow(
       llm: deps.llm,
       openCore: deps.openCore,
       workspaceId: deps.workspaceId ?? getConfig().workspace,
-      listExternalVoices: deps.listExternalVoices,
+      listExternalVoices: voiceLookupFor(input.threadId, deps),
       sessionId: input.threadId,
       log: (m) => console.log(`  [forum-gate ${input.threadId}] ${m}`),
       warn: (m) => console.warn(`  [forum-gate ${input.threadId}] ${m}`),
@@ -345,7 +392,7 @@ async function legacyAutoCrawlBeforeForumFlow(
       spec: { source: cfg.source },
       minVoices: cfg.minVoices,
       maxItems: cfg.maxItems,
-      listExternalVoices: deps.listExternalVoices,
+      listExternalVoices: voiceLookupFor(input.threadId, deps),
       youtubeApiKey: youtubeApiKey ?? undefined,
       log: (m) => console.log(`  [forum-autocrawl ${input.threadId}] ${m}`),
       warn: (m) => console.warn(`  [forum-autocrawl ${input.threadId}] ${m}`),
@@ -476,6 +523,10 @@ export async function startForumFlow(
         input.tags.length ? `\nタグ: ${input.tags.join(" / ")}` : ""
       }`
     );
+    // ユーザーの声: 議題のゲーム (+ starter の類似ゲーム指定) がリリース済みなら Steam レビュー、
+    // 無ければ Voluptas の遊んだ感想を取り込み・ベクトル化する。情報ゲートより先に集める。
+    input = { ...input, similarGames: input.similarGames ?? parseSimilarGames(input.specText ?? input.theme) };
+    await collectUserVoicesForThread(input, deps);
     await prepareInformationBeforeForumFlow(input, deps);
     // starter / 議題中の Notion リンクはペーパーの「ゲーム内容」材料として展開する。
     const notionMd = await resolveStarterNotion(input);
@@ -564,7 +615,7 @@ function buildForumPaperDraft(input: StartForumFlowInput, deps: FlowDiscordDeps,
   const richness = getConfig().flow.paperRichness;
   return buildPaperDraft(input.theme, input.tags, {
     gamesDir: deps.gamesDir,
-    listExternalVoices: deps.listExternalVoices,
+    listExternalVoices: voiceLookupFor(input.threadId, deps),
     llm: richness.enrichMechanics ? deps.llm : undefined,
     mechanicsTarget: richness.mechanicsTarget,
     enrichModel: richness.enrichModel || undefined,
@@ -618,7 +669,7 @@ function buildIntentDeps(input: StartForumFlowInput, deps: FlowDiscordDeps): Pap
     theme: input.theme,
     tags: input.tags,
     gamesDir: deps.gamesDir,
-    listExternalVoices: deps.listExternalVoices,
+    listExternalVoices: voiceLookupFor(input.threadId, deps),
     llm: deps.llm,
     crawl,
     warn,
@@ -724,6 +775,7 @@ async function runDiscussionDispatch(
     await runDiscussionDispatchInner(input, deps, hooks, paperOverride);
   } finally {
     runningDiscussions.delete(input.threadId);
+    userVoiceLookups.delete(input.threadId);
   }
 }
 
@@ -865,6 +917,12 @@ async function processPaperReviewReply(
     const intent = classifyPaperReviewIntent(trimmed);
     if (intent.kind !== "adjust") {
       await postThreadNotice(deps, threadId, `🔎 「${PAPER_REVIEW_INTENT_LABELS[intent.kind]}」として処理します…`);
+    }
+    if (intent.kind === "similar_games" && intent.terms.length > 0) {
+      // 類似ゲームの声も集めて、議題のゲームの声と均等に混ぜる。
+      const merged = [...new Set([...(pending.input.similarGames ?? []), ...intent.terms])];
+      pending.input = { ...pending.input, similarGames: merged };
+      await collectUserVoicesForThread(pending.input, deps);
     }
     const built = await buildIntentInstruction(intent, buildIntentDeps(pending.input, deps));
     if (built.notice) await postThreadNotice(deps, threadId, `🔎 ${built.notice}`);

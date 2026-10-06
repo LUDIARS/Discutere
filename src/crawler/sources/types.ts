@@ -17,7 +17,10 @@ export type ExternalSource =
   | "opencritic"
   // 内部のゲーム感想チャンネル / 学習フロー収集の匿名意見 (外部クロールではない)。
   // 出所は透明 (source="feedback")、個人アンカーは持たない (authorId は匿名)。
-  | "feedback";
+  | "feedback"
+  // GLAB で集めた「遊んだ感想」(Voluptas の書き出し口)。Steam に無いゲームのユーザーの声。
+  // 書き手の情報は Voluptas 側で落としてあり、authorId は匿名の固定値。
+  | "glab";
 
 /** 賛否 / 人気度 (取得元にあれば) */
 export interface ExternalSignal {

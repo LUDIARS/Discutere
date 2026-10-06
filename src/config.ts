@@ -201,6 +201,23 @@ export interface DiscutereConfig {
       enrichModel: string;
     };
     /**
+     * ユーザーの声の収集 (spec/feature/flow/user-voices.md)。議論/改善の準備時に、議題のゲーム
+     * (+ 類似ゲーム) がリリース済みなら Steam レビュー、無ければ Voluptas の遊んだ感想を取り込み、
+     * ベクトル化する。類似ゲームがあればゲームごとに均等に混ぜて議論へ渡す。
+     */
+    userVoices: {
+      /** 有効化。既定 true。 */
+      enabled: boolean;
+      /** 1 ゲームあたりの Steam レビュー取得上限。既定 300。 */
+      steamMaxReviews: number;
+      /** Steam レビューの言語 (Steam の language 値)。既定 ["japanese", "english"]。 */
+      steamLanguages: string[];
+      /** 1 ゲームあたりの Voluptas 感想取得上限 (1-200)。既定 100。 */
+      glabMaxImpressions: number;
+      /** Voluptas の origin。空なら Voluptas からは集めない (env DISCUTERE_VOLUPTAS_BASE_URL)。 */
+      voluptasBaseUrl: string;
+    };
+    /**
      * ペーパー作成時に入力本文 / 仕様書 URL 中の Notion リンクを Canalis でクロールして材料に足す。
      * token (env NOTION_TOKEN, Ex Vault 注入) があれば API で子ページまで辿り、無ければ公開ページを
      * ブラウザ取得する (どちらも子ページを辿る)。深さは本文の「深さ:N」指示で議論ごとに上書きできる。
@@ -941,6 +958,28 @@ export function loadConfig(): DiscutereConfig {
         enrichModel: pick(
           process.env.DISCUTERE_FLOW_PAPER_ENRICH_MODEL,
           file.flow?.paperRichness?.enrichModel,
+          ""
+        ),
+      },
+      userVoices: {
+        enabled: pickBool(process.env.DISCUTERE_FLOW_USER_VOICES_ENABLED, file.flow?.userVoices?.enabled, true),
+        steamMaxReviews: pickNum(
+          process.env.DISCUTERE_FLOW_USER_VOICES_STEAM_MAX,
+          file.flow?.userVoices?.steamMaxReviews,
+          300
+        ),
+        steamLanguages: parseStringList(
+          process.env.DISCUTERE_FLOW_USER_VOICES_STEAM_LANGUAGES,
+          file.flow?.userVoices?.steamLanguages ?? ["japanese", "english"]
+        ),
+        glabMaxImpressions: pickNum(
+          process.env.DISCUTERE_FLOW_USER_VOICES_GLAB_MAX,
+          file.flow?.userVoices?.glabMaxImpressions,
+          100
+        ),
+        voluptasBaseUrl: pick(
+          process.env.DISCUTERE_VOLUPTAS_BASE_URL,
+          file.flow?.userVoices?.voluptasBaseUrl,
           ""
         ),
       },

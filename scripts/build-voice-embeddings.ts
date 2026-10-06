@@ -20,6 +20,7 @@ import { getConfig } from "../src/config.js";
 import { createCore } from "../src/core/index.js";
 import { resolveActiveKgPath } from "../src/core/kg-registry.js";
 import { createOpenAiCompatEmbedder } from "../src/core/vectors/embedder.js";
+import { embedVoiceRows } from "../src/core/vectors/voice-index.js";
 import { buildSearchTerms } from "../src/discatier-engine-adapter/voice-search.js";
 
 function parseArgs(): { limit: number; rebuild: boolean; query?: string } {
@@ -49,9 +50,6 @@ function parseArgs(): { limit: number; rebuild: boolean; query?: string } {
   }
   return { limit, rebuild, query };
 }
-
-/** 埋め込み対象テキスト: 長文はモデルの実効長に合わせて先頭を使う (bge-m3 は 8k token だが安全側)。 */
-const EMBED_TEXT_CAP = 2000;
 
 /** @implements SPEC-VOICE-RAG-HYBRID-OPS */
 async function main(): Promise<void> {
@@ -111,30 +109,15 @@ async function main(): Promise<void> {
       .slice(0, limit === Infinity ? pending.length : limit);
     console.log(`未埋め込みの外部の声: ${pending.length} 件 (今回処理: ${targets.length} 件)`);
 
-    const batchSize = config.embedding.batchSize;
-    let done = 0;
-    for (let i = 0; i < targets.length; i += batchSize) {
-      const batch = targets.slice(i, i + batchSize);
-      const vectors = await embedder.embed(
-        batch.map((r) => (r.raw_content ?? "").slice(0, EMBED_TEXT_CAP))
-      );
-      // 1 バッチ 1 トランザクションで書く (途中中断しても再実行で続きから)。
-      const insert = core.client.raw.transaction((rows: Array<{ id: string; vec: number[] }>) => {
-        for (const row of rows) {
-          core.vectors.registerEmbedding({
-            workspaceId,
-            nodeType: "utterance",
-            nodeId: row.id,
-            vector: row.vec,
-          });
+    const done = await embedVoiceRows(core, embedder, targets, {
+      workspaceId,
+      batchSize: config.embedding.batchSize,
+      onProgress: (n, total) => {
+        if (n % (config.embedding.batchSize * 10) === 0 || n === total) {
+          console.log(`  ${n}/${total} 件 完了`);
         }
-      });
-      insert(batch.map((r, j) => ({ id: r.id, vec: vectors[j] })));
-      done += batch.length;
-      if (done % (batchSize * 10) === 0 || done === targets.length) {
-        console.log(`  ${done}/${targets.length} 件 完了`);
-      }
-    }
+      },
+    });
     console.log(`埋め込み構築完了: ${done} 件 (model=${config.embedding.model})`);
   } finally {
     core.close?.();

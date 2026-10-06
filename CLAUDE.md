@@ -311,6 +311,14 @@ bot 名義で締める (収束時 `finalizeForumPost` で lock+archive+まとめ
   入口: Web `/api/flow/start` (仕様書 URL 欄 + 本文系欄) と Discord フォーラム starter (議論/改善は
   草案 seed、学習は仕様書解析の材料)。取得失敗は warn して議論を止めない。
 
+- **ユーザーの声の収集 (Steam / Voluptas + 類似ゲームの均等混合, 2026-10-07, `spec/feature/flow/user-voices.md`)**:
+  議論/改善の準備時 (情報ゲートより前) に、議題のゲームが Steam でリリース済みならレビュー、Steam に無ければ
+  Voluptas の遊んだ感想 (`GET /api/personas/impressions`、source=`glab`・書き手は匿名) を KG に取り込み、
+  ベクトル化する (`src/flow/user-voices/`)。starter の「類似ゲーム「A」」やペーパー調整の類似ゲーム指定が
+  あれば類似ゲームの声も集め、ゲーム単位 (gameSlug) に引いて**ゲームごとに同じ件数ずつ混ぜた**声を、
+  ペーパー・情報ゲート・議論のすべてに渡す (スレッドごとの `userVoiceLookups`)。設定 `flow.userVoices`、
+  Voluptas の接続先は `DISCUTERE_VOLUPTAS_BASE_URL` (空なら Voluptas からは集めない)。
+
 ## 個人データ
 
 匿名 workspace (`DISCATIER_WORKSPACE` 既定 `knowledge`)。攻略 KG / 議論ノードに編集者名・アカウント名を保存しない (`spec/feature/crawler/DESIGN.md` 準拠)。
