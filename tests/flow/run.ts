@@ -56,6 +56,7 @@ await import("./anatomia-refine.test.js");
 await import("./anatomia-client.test.js");
 await import("./argument-graph.test.js");
 await import("./turn-prompt.test.js");
+await import("./rule-check.test.js");
 await import("./dialectic-scheduler.test.js");
 await import("./dialectic-driver.test.js");
 

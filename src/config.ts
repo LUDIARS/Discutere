@@ -90,6 +90,12 @@ export interface DiscutereConfig {
        * 既定 claude-haiku-4-5-20251001。
        */
       judgeModel: string;
+      /**
+       * 前提ルール判定 (dialectic.md §2.5)。true なら Position への反論ごとに judgeModel で
+       * 範囲外・すり替え・中身に触れない却下・論点ずらしを判定し、違反は question に格下げする。
+       * false でも「突く要素と根拠 id の宣言」のコード検査は常に行う。既定 true。
+       */
+      ruleCheck: boolean;
     };
     /**
      * ペルソナ価値軸/核主張の一括生成 (persona-setup) に使うモデル ("" なら LLM の既定モデル)。
@@ -815,6 +821,11 @@ export function loadConfig(): DiscutereConfig {
           process.env.DISCUTERE_FLOW_DIALECTIC_JUDGE_MODEL,
           file.flow?.dialectic?.judgeModel,
           "claude-haiku-4-5-20251001"
+        ),
+        ruleCheck: pickBool(
+          process.env.DISCUTERE_FLOW_DIALECTIC_RULE_CHECK,
+          file.flow?.dialectic?.ruleCheck,
+          true
         ),
       },
       personaSetupModel: pick(

@@ -58,6 +58,7 @@ import {
 } from "./scheduler.js";
 import { classifyTension, resolveFactTension } from "./tension.js";
 import { runSynthesisLoop } from "./synthesis.js";
+import { gateRebut, renderFoulNotice, type RuleFoul } from "./rule-check.js";
 import { assessConvergence } from "./convergence.js";
 import { concludeDialectic, settlementToRoundSummary, type IssueSettlement } from "./conclusion.js";
 
@@ -325,6 +326,7 @@ export async function runDialecticFlow(
         personaId: persona.id,
         stance,
         claim: gp.claim,
+        qualifier: gp.qualifier,
         grounds: gp.grounds,
         values: gp.values,
       });
@@ -398,33 +400,55 @@ export async function runDialecticFlow(
         log(`論点 ${round} ターン ${turn} (${persona.name}): 空応答 (スキップ)`);
         continue;
       }
+      // 前提ルールのゲート (dialectic.md §2.5): Position への反論は突く要素と根拠を示し、
+      // 限定の内側で突いていなければ根拠を challenged にせず question に格下げする。
+      let act = parsed.act;
+      let challengedGroundId: string | null = null;
+      let foul: RuleFoul | null = null;
+      const targetPosition =
+        parsed.act === "rebut" && parsed.targetId ? positionByUtterance.get(parsed.targetId) : undefined;
+      if (targetPosition) {
+        const gate = await gateRebut({
+          issue,
+          position: targetPosition,
+          attack: parsed.attack,
+          groundId: parsed.groundId,
+          rebutText: parsed.text,
+          judge: cfg.flow.dialectic.ruleCheck,
+          llm: withCostLog(llm, { flow, sessionId, round, turn, location: "rule-check" }),
+          model: judgeModel,
+          warn,
+        });
+        if (gate.accepted) {
+          challengedGroundId = gate.ground?.id ?? null;
+        } else {
+          foul = gate.foul;
+          act = "question";
+          warn(`論点 ${round} ターン ${turn} (${persona.name}): 前提ルール違反 (${foul}) — question に格下げ`);
+        }
+      }
+
       const record = makeRecord({
         persona,
         round,
         turn,
         text: parsed.text,
-        act: parsed.act,
+        act,
         targetId: parsed.targetId ?? undefined,
       });
       await commit(record);
       graph.apply({
         id: record.id,
         personaId: persona.id,
-        act: parsed.act,
+        act,
         targetId: parsed.targetId,
         turn: ++globalTurn,
       });
-
-      // rebut が Position を狙った場合: 攻撃対象の根拠を紐付け (challenged へ)。
-      if (parsed.act === "rebut" && parsed.targetId) {
-        const position = positionByUtterance.get(parsed.targetId);
-        if (position) {
-          const ground =
-            (parsed.groundId && position.grounds.find((g) => g.id === parsed.groundId && g.state !== "conceded")) ||
-            position.grounds.find((g) => g.state === "unchallenged") ||
-            position.grounds.find((g) => g.state !== "conceded");
-          if (ground) rebutGroundLinks.set(record.id, { position, groundId: ground.id });
-        }
+      if (targetPosition && challengedGroundId) {
+        rebutGroundLinks.set(record.id, { position: targetPosition, groundId: challengedGroundId });
+      }
+      if (foul) {
+        await commit(makeRecord({ persona: facilitator, round, turn: ++turn, text: renderFoulNotice(persona.name, foul) }));
       }
       syncGroundStates();
     }

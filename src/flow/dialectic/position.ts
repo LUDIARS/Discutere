@@ -11,9 +11,12 @@ import type { LLMClient } from "../../persona-engine/llm/client.js";
 import type { FlowPersona } from "../personas.js";
 import { extractJsonObject } from "../effect-predict.js";
 import type { Ground, IssueRecord } from "./store.js";
+import { coerceInferenceKind, PREMISE_RULES_TEXT } from "./premise-rules.js";
 
 export interface GeneratedPosition {
   claim: string;
+  /** 主張の限定 (どの層・どの条件の話か)。返らなければ null。 */
+  qualifier: string | null;
   grounds: Ground[];
   values: string[];
   /** 露出用の口語文 (Discord/Web に流す)。 */
@@ -53,11 +56,15 @@ export function buildPositionPrompt(args: {
     (persona.valueAxis ? `あなたが重視する価値: ${persona.valueAxis}\n` : "") +
     seed +
     `\n# 論点 ${issue.ordinal}\n${issue.title}\n\n` +
+    `${PREMISE_RULES_TEXT}\n\n` +
     `この論点についてあなたは【${stanceJa}】の立場 (${stance}) で定立 (Position) を張ります。\n` +
     `次の JSON 1 個だけを返してください (前後に説明やコードフェンスを付けない):\n` +
-    `{"claim": "<主張 1 文>", "grounds": ["<根拠 1>", "<根拠 2>"], ` +
+    `{"claim": "<主張 1 文>", "qualifier": "<主張の限定: どのプレイヤー層・どの条件の話か>", ` +
+    `"grounds": [{"kind": "<deduction|induction|abduction>", "data": "<データ: 事実・事例・仕様>", ` +
+    `"warrant": "<論拠: データから主張が言える理由>"}], ` +
     `"values": ["<価値前提 (例: 収益 > 体験)>"], "text": "<Discord に流す口語 1〜3 文>"}\n` +
-    `grounds は 2〜4 個。text は実在の人間の雑談のような自然な口語で書く。`
+    `grounds は 2〜4 個。data と warrant は混ぜずに分ける。` +
+    `text は実在の人間の雑談のような自然な口語で書く。`
   );
 }
 
@@ -72,6 +79,33 @@ function coerceStringArray(v: unknown, max: number): string[] {
     .filter((s): s is string => typeof s === "string" && s.trim().length > 0)
     .map((s) => s.trim())
     .slice(0, max);
+}
+
+type ParsedGround = Pick<Ground, "text"> & Partial<Pick<Ground, "kind" | "warrant">>;
+
+/**
+ * grounds を正規化する。トゥールミン形式 ({kind, data, warrant}) と旧形式 (文字列) の両方を受ける
+ * (旧形式は kind/warrant 未設定 = データだけの根拠として扱う)。
+ */
+function coerceGrounds(v: unknown, max: number): ParsedGround[] {
+  if (!Array.isArray(v)) return [];
+  const out: ParsedGround[] = [];
+  for (const item of v) {
+    if (out.length >= max) break;
+    if (typeof item === "string") {
+      if (item.trim()) out.push({ text: item.trim() });
+      continue;
+    }
+    if (!item || typeof item !== "object") continue;
+    const o = item as Record<string, unknown>;
+    const raw = typeof o.data === "string" ? o.data : typeof o.text === "string" ? o.text : "";
+    const data = raw.trim();
+    if (!data) continue;
+    const kind = coerceInferenceKind(o.kind);
+    const warrant = typeof o.warrant === "string" && o.warrant.trim() ? o.warrant.trim() : undefined;
+    out.push({ text: data, ...(kind ? { kind } : {}), ...(warrant ? { warrant } : {}) });
+  }
+  return out;
 }
 
 /**
@@ -94,6 +128,7 @@ export async function generatePosition(args: GeneratePositionArgs): Promise<Gene
       persona.coreClaims?.[0] ?? `${issue.title} に${stance === "pro" ? "賛成" : "反対"}の立場を取る`;
     return {
       claim,
+      qualifier: null,
       grounds: [{ id: groundId(stance, 0), text: claim, state: "unchallenged" }],
       values: persona.valueAxis ? [persona.valueAxis] : [],
       text: claim,
@@ -107,6 +142,7 @@ export async function generatePosition(args: GeneratePositionArgs): Promise<Gene
     const text = result.text.trim();
     return {
       claim: text.slice(0, 200) || issue.title,
+      qualifier: null,
       grounds: [{ id: groundId(stance, 0), text: text.slice(0, 200) || issue.title, state: "unchallenged" }],
       values: [],
       text: text || issue.title,
@@ -114,17 +150,21 @@ export async function generatePosition(args: GeneratePositionArgs): Promise<Gene
     };
   }
 
-  const groundTexts = coerceStringArray(obj.grounds, 4);
   const claim = obj.claim.trim();
-  const grounds: Ground[] = (groundTexts.length > 0 ? groundTexts : [claim]).map((text, i) => ({
+  const parsedGrounds = coerceGrounds(obj.grounds, 4);
+  const grounds: Ground[] = (parsedGrounds.length > 0 ? parsedGrounds : [{ text: claim }]).map((g, i) => ({
     id: groundId(stance, i),
-    text,
+    text: g.text,
     state: "unchallenged",
+    ...(g.kind ? { kind: g.kind } : {}),
+    ...(g.warrant ? { warrant: g.warrant } : {}),
   }));
+  const qualifier = typeof obj.qualifier === "string" && obj.qualifier.trim() ? obj.qualifier.trim() : null;
   const text = typeof obj.text === "string" && obj.text.trim() ? obj.text.trim() : claim;
 
   return {
     claim,
+    qualifier,
     grounds,
     values: coerceStringArray(obj.values, 4),
     text,

@@ -499,6 +499,12 @@ const MIGRATIONS: Array<{ id: string; sql: string[] }> = [
       `CREATE INDEX IF NOT EXISTS idx_flow_persona_history_expiry ON flow_persona_history(expires_at)`,
     ],
   },
+  {
+    // 議論の前提ルール (dialectic.md §2.5): 主張の限定 (トゥールミンの qualifier)。
+    // 根拠側の kind/warrant は grounds_json 内の任意フィールドなので列追加は不要。
+    id: "flow_0027_position_qualifier",
+    sql: [`ALTER TABLE flow_position ADD COLUMN qualifier TEXT`],
+  },
 ];
 
 function isIgnorableMigrationError(stmt: string, error: unknown): boolean {

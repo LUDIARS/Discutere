@@ -48,6 +48,17 @@ function extractOwnGroundIds(prompt: string): string[] {
   return m ? m[1].split(",").map((s) => s.trim()).filter(Boolean) : [];
 }
 
+/** 反論先 (相手陣営) の未攻撃の根拠 id を 1 つ選ぶ (無ければ相手の先頭根拠)。 */
+function pickOpponentGroundId(prompt: string): string | null {
+  const own = prompt.match(/\(あなた\) \((pro|con)\)/);
+  const opp = own ? (own[1] === "pro" ? "con" : "pro") : null;
+  if (!opp) return null;
+  const fresh = prompt.match(new RegExp(`\\[(${opp}-G\\d+)\\] \\(unchallenged`));
+  if (fresh) return fresh[1];
+  const any = prompt.match(new RegExp(`\\[(${opp}-G\\d+)\\]`));
+  return any ? any[1] : null;
+}
+
 function makeRouterLlm(overrides: Partial<Record<string, (p: string) => string>> = {}) {
   const stats: Record<string, number> = {};
   const prompts: Record<string, string[]> = {};
@@ -83,8 +94,16 @@ function makeRouterLlm(overrides: Partial<Record<string, (p: string) => string>>
     {
       name: "turn-attack",
       match: (p) => p.includes("あなたの発言は次の JSON 1 個だけで返す"),
-      respond: () => JSON.stringify({ act: "rebut", target: null, text: "その根拠は怪しいと思う。" }),
+      respond: (p) =>
+        JSON.stringify({
+          act: "rebut",
+          target: null,
+          attack: "warrant",
+          groundId: pickOpponentGroundId(p),
+          text: "その根拠は怪しいと思う。",
+        }),
     },
+    { name: "rule-check", match: (p) => p.includes("前提ルールを守っているかを判定"), respond: () => "ok" },
     { name: "tension-classify", match: (p) => p.includes("この対立の「型」を 1 つだけ選んで"), respond: () => "values" },
     { name: "fact-resolve", match: (p) => p.includes("証拠はどちらの主張を支持しますか"), respond: () => "A" },
     {
@@ -254,6 +273,7 @@ const db = () => new Database(DB_PATH);
     "synthesize",
     "elevation-gate",
     "ratify",
+    "rule-check",
     "facilitator",
     "vote",
     "summary",
@@ -451,6 +471,51 @@ const db = () => new Database(DB_PATH);
   delete process.env.DISCUTERE_FLOW_ENGINE;
   _resetConfig();
   console.log("  [ok] dispatch: flow.engine=dialectic で dialectic 経路に分岐");
+}
+
+// ── シナリオ: 前提ルール違反 — 突く要素なし / 判定 LLM が範囲外 → question に格下げ ──
+
+for (const [label, overrides, judgeCalled] of [
+  [
+    "突く要素と根拠の宣言なし",
+    { "turn-attack": () => JSON.stringify({ act: "rebut", target: null, text: "それって感想だよね。" }) },
+    false,
+  ],
+  ["判定 LLM が限定の外側と判定", { "rule-check": () => "out_of_scope" }, true],
+] as const) {
+  const sessionId = `dlx-foul-${judgeCalled ? "judge" : "anchor"}`;
+  const llm = makeRouterLlm(overrides as Partial<Record<string, (p: string) => string>>);
+  await runDialecticFlow("前提ルールのテーマ", [], {
+    llm,
+    rng: makeRng(7),
+    gamesDir: path.join(TMP_DIR, "no-games-dir"),
+    sessionId,
+    log: () => {},
+    warn: () => {},
+  });
+
+  assert.equal((llm.stats["rule-check"] ?? 0) > 0, judgeCalled, `${label}: 判定 LLM の呼び出し有無`);
+  const d = db();
+  const utterances = d
+    .prepare("SELECT * FROM flow_utterance WHERE session_id = ? ORDER BY created_at, turn")
+    .all(sessionId) as any[];
+  assert.ok(!utterances.some((u) => u.act === "rebut"), `${label}: 違反した反論は rebut として残らない`);
+  assert.ok(utterances.some((u) => u.act === "question"), `${label}: question に格下げされる`);
+  assert.ok(
+    utterances.some((u) => u.role === "facilitator" && u.text.includes("根拠への反論としては数えずに")),
+    `${label}: 進行役が違反を一言で示す`
+  );
+  const positions = d
+    .prepare(
+      `SELECT p.* FROM flow_position p JOIN flow_issue i ON i.id = p.issue_id WHERE i.session_id = ?`
+    )
+    .all(sessionId) as any[];
+  assert.ok(
+    positions.every((p) => JSON.parse(p.grounds_json).every((g: any) => g.state === "unchallenged")),
+    `${label}: 根拠は challenged にならない`
+  );
+  d.close();
+  console.log(`  [ok] dialectic driver: 前提ルール違反 (${label}) → question に格下げ`);
 }
 
 // クリーンアップ

@@ -52,14 +52,15 @@ export const DEBATE_RULE_SEEDS: RuleSeed[] = [
   { id: "tick-opinion-gpt", description: "意見屋(GPT)が独自の角度で", trigger_type: "tick", target: "opinion-gpt", tick_sec: 125, cooldown_sec: 125, instructions: SPEAK("意見屋") },
   {
     id: "tick-facilitator-steer",
-    description: "ファシリテーターが論点を絞る/止揚で収束を促す",
+    description: "ファシリテーターが論点を絞る/前提のずれを正して収束を促す",
     trigger_type: "tick",
     target: "facilitator",
     tick_sec: 150,
     cooldown_sec: 150,
     instructions:
-      "議論の流れを見て、対立を止揚 (アウフヘーベン) する方向に論点を一つ投げるか、" +
-      "十分まとまっていれば収束を促してください。promotしすぎず、不要なら skip。",
+      "議論の流れを見て、主張の範囲外から曲げる発言があれば論点に戻し、" +
+      "作りたい体験 / 試したい施策 / 他ゲームの事例のどれがまだ揃っていないかを一つ投げるか、" +
+      "十分まとまっていれば収束を促してください。促しすぎず、不要なら skip。",
   },
 ];
 

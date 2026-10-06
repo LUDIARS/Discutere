@@ -17,6 +17,12 @@ import type { DialogueAct, RebuttalEdge } from "../argument-graph.js";
 import { coerceAct } from "../argument-graph.js";
 import { stanceLine } from "../discussion-paper.js";
 import type { IssueRecord, PositionRecord } from "./store.js";
+import {
+  coerceAttackPoint,
+  INFERENCE_KIND_LABEL,
+  PREMISE_RULES_TEXT,
+  type AttackPoint,
+} from "./premise-rules.js";
 
 /** ターゲット表示用の発話 lookup (id → 発話主体名 + 本文)。 */
 export interface UtteranceDigest {
@@ -48,10 +54,15 @@ export interface DialecticTurnPromptArgs {
 /** Position をダイジェスト行にする (根拠は id 付き = rebut/批准のターゲット指定用)。 */
 export function renderPositionDigest(p: PositionRecord, personaName: string): string {
   const grounds = p.grounds
-    .map((g) => `  - [${g.id}] (${g.state}) ${g.text}`)
+    .map((g) => {
+      const kind = g.kind ? ` ${INFERENCE_KIND_LABEL[g.kind]}` : "";
+      const warrant = g.warrant ? `\n      論拠: ${g.warrant}` : "";
+      return `  - [${g.id}] (${g.state}${kind}) データ: ${g.text}${warrant}`;
+    })
     .join("\n");
+  const qualifier = p.qualifier ? `\n  限定: ${p.qualifier}` : "";
   const values = p.values.length > 0 ? `\n  価値前提: ${p.values.join(" / ")}` : "";
-  return `${personaName} (${p.stance}): ${p.claim}\n${grounds}${values}`;
+  return `${personaName} (${p.stance}): ${p.claim}${qualifier}\n${grounds}${values}`;
 }
 
 /** dialectic ターンの user プロンプトを組み立てる (system はペーパー base 固定)。 */
@@ -96,6 +107,8 @@ export function buildDialecticTurnPrompt(args: DialecticTurnPromptArgs): string 
     ...(persona.valueAxis ? [`あなたが重視する価値: ${persona.valueAxis}`] : []),
     stanceLine(stance),
     "",
+    PREMISE_RULES_TEXT,
+    "",
     `# 論点 ${issue.ordinal}`,
     issue.title,
     "",
@@ -109,9 +122,11 @@ export function buildDialecticTurnPrompt(args: DialecticTurnPromptArgs): string 
       `# 指示\n` +
       `あなたの発言は次の JSON 1 個だけで返す (前後に説明やコードフェンスを付けない):\n` +
       `{"act": "<${actList}>", "target": "<応答先 utterance id (claim/question は null 可)>", ` +
-      `"groundId": "<rebut のとき攻撃対象の根拠 id (任意)>", ` +
+      `"attack": "<rebut のとき必須: data | warrant | qualifier (突くのはデータ・論拠・限定のどれか)>", ` +
+      `"groundId": "<rebut で data/warrant を突くとき必須: 攻撃対象の根拠 id>", ` +
       `"text": "<Discord に流す口語 1〜3 文>"}\n` +
       `act は今の議論状態で最も議論を前に進める手を選ぶ (許可: ${actList})。\n` +
+      `rebut は相手の主張の限定の内側で、宣言したデータ・論拠・限定を突く。突く先を示せない反論は根拠への反論として数えない。\n` +
       `text は実在の人間の雑談のような自然な口語で書く (ラベル・箇条書き禁止)。`,
   ].join("\n");
 }
@@ -122,6 +137,8 @@ export interface ParsedTurn {
   targetId: string | null;
   /** rebut の攻撃対象根拠 id (LLM 申告。無ければ null → 呼び出し側が決定的に選ぶ)。 */
   groundId: string | null;
+  /** rebut が突くトゥールミン要素 (LLM 申告。無ければ null = 前提ルール違反の候補)。 */
+  attack: AttackPoint | null;
   text: string;
   /** JSON が取れず全文 claim として受理した (degrade) か。 */
   degraded: boolean;
@@ -147,7 +164,7 @@ export function parseTurnResponse(raw: string, opts: ParseTurnOptions): ParsedTu
   const obj = extractJsonObject(raw);
   if (!obj || typeof obj.text !== "string" || !obj.text.trim()) {
     warn(`発話 JSON パース失敗 — 全文を act=claim として受理 (degrade): ${fallbackText.slice(0, 60)}`);
-    return { act: "claim", targetId: null, groundId: null, text: fallbackText, degraded: true };
+    return { act: "claim", targetId: null, groundId: null, attack: null, text: fallbackText, degraded: true };
   }
 
   let act = coerceAct(typeof obj.act === "string" ? obj.act : null);
@@ -172,5 +189,7 @@ export function parseTurnResponse(raw: string, opts: ParseTurnOptions): ParsedTu
 
   const groundId = typeof obj.groundId === "string" && obj.groundId.trim() ? obj.groundId.trim() : null;
 
-  return { act, targetId, groundId, text: obj.text.trim(), degraded: false };
+  const attack = coerceAttackPoint(obj.attack);
+
+  return { act, targetId, groundId, attack, text: obj.text.trim(), degraded: false };
 }

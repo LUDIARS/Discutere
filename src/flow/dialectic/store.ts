@@ -7,6 +7,7 @@
 
 import { randomUUID } from "node:crypto";
 import { getFlowDb } from "../db/connection.js";
+import type { InferenceKind } from "./premise-rules.js";
 
 // ── ドメイン型 ────────────────────────────────────────────────────────────────
 
@@ -15,8 +16,13 @@ export type GroundState = "unchallenged" | "challenged" | "defended" | "conceded
 
 export interface Ground {
   id: string;
+  /** データ (事実・事例)。トゥールミンの data。 */
   text: string;
   state: GroundState;
+  /** 論拠の種類 (演繹/帰納/アブダクション)。旧行・degrade 時は未設定。 */
+  kind?: InferenceKind;
+  /** 論拠 (データから主張への橋渡し)。トゥールミンの warrant。旧行・degrade 時は未設定。 */
+  warrant?: string;
 }
 
 export interface IssueRecord {
@@ -35,6 +41,8 @@ export interface PositionRecord {
   personaId: string;
   stance: "pro" | "con";
   claim: string;
+  /** 主張の限定 (どの層・どの条件の話か)。トゥールミンの qualifier。未指定は null。 */
+  qualifier: string | null;
   grounds: Ground[];
   values: string[];
 }
@@ -132,8 +140,8 @@ export function insertPosition(position: Omit<PositionRecord, "id"> & { id?: str
   const id = position.id ?? randomUUID();
   getFlowDb()
     .prepare(
-      `INSERT INTO flow_position (id, issue_id, persona_id, stance, claim, grounds_json, values_json, created_at)
-       VALUES (?, ?, ?, ?, ?, ?, ?, ?)`
+      `INSERT INTO flow_position (id, issue_id, persona_id, stance, claim, qualifier, grounds_json, values_json, created_at)
+       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)`
     )
     .run(
       id,
@@ -141,6 +149,7 @@ export function insertPosition(position: Omit<PositionRecord, "id"> & { id?: str
       position.personaId,
       position.stance,
       position.claim,
+      position.qualifier,
       JSON.stringify(position.grounds),
       JSON.stringify(position.values),
       Date.now()
@@ -166,7 +175,7 @@ function parseJson<T>(s: string, fallback: T): T {
 export function listPositions(issueId: string): PositionRecord[] {
   const rows = getFlowDb()
     .prepare(
-      `SELECT id, issue_id, persona_id, stance, claim, grounds_json, values_json
+      `SELECT id, issue_id, persona_id, stance, claim, qualifier, grounds_json, values_json
          FROM flow_position WHERE issue_id = ? ORDER BY created_at, id`
     )
     .all(issueId) as Array<{
@@ -175,6 +184,7 @@ export function listPositions(issueId: string): PositionRecord[] {
     persona_id: string;
     stance: string;
     claim: string;
+    qualifier: string | null;
     grounds_json: string;
     values_json: string;
   }>;
@@ -184,6 +194,7 @@ export function listPositions(issueId: string): PositionRecord[] {
     personaId: r.persona_id,
     stance: r.stance === "con" ? "con" : "pro",
     claim: r.claim,
+    qualifier: r.qualifier,
     grounds: parseJson<Ground[]>(r.grounds_json, []),
     values: parseJson<string[]>(r.values_json, []),
   }));

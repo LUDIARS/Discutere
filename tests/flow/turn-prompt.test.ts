@@ -40,8 +40,15 @@ const positions = [
     personaId: "p-pro",
     stance: "pro" as const,
     claim: "緩和は継続率を上げ長期売上に効く",
+    qualifier: "天井で離脱するライト層",
     grounds: [
-      { id: "pro-G1", text: "離脱理由の 1 位が天井の高さ", state: "unchallenged" as const },
+      {
+        id: "pro-G1",
+        text: "離脱理由の 1 位が天井の高さ",
+        state: "unchallenged" as const,
+        kind: "deduction" as const,
+        warrant: "離脱の主因を緩めれば継続する",
+      },
       { id: "pro-G2", text: "緩和後に DAU が伸びた事例", state: "challenged" as const },
     ],
     values: ["体験 > 短期収益"],
@@ -52,6 +59,7 @@ const positions = [
     personaId: "p-con",
     stance: "con" as const,
     claim: "緩和は ARPU を直撃し売上を下げる",
+    qualifier: null,
     grounds: [{ id: "con-G1", text: "重課金層の支出が下がる", state: "unchallenged" as const }],
     values: ["収益 > 体験"],
   },
@@ -90,6 +98,11 @@ const positions = [
   assert.ok(prompt.includes("# 応答対象"), "応答対象ブロックが載る");
   assert.ok(prompt.includes("緩和は継続率を上げると思う"), "ターゲット本文が載る");
   assert.ok(prompt.includes("# 未応答の反論"), "未応答反論の節が載る");
+  assert.ok(prompt.includes("# 議論の前提ルール"), "前提ルールが載る");
+  assert.ok(prompt.includes("限定: 天井で離脱するライト層"), "主張の限定が載る");
+  assert.ok(prompt.includes("論拠: 離脱の主因を緩めれば継続する"), "根拠の論拠が載る");
+  assert.ok(prompt.includes("演繹"), "論拠の種類が載る");
+  assert.ok(prompt.includes('"attack"'), "rebut の突く要素を求める");
   console.log("  [ok] buildDialecticTurnPrompt: ダイジェスト + 許可 act + 応答対象");
 }
 
@@ -97,12 +110,13 @@ const positions = [
 
 {
   const parsed = parseTurnResponse(
-    '{"act": "rebut", "target": "u1", "groundId": "pro-G1", "text": "その事例は条件が違うよ"}',
+    '{"act": "rebut", "target": "u1", "attack": "warrant", "groundId": "pro-G1", "text": "その事例は条件が違うよ"}',
     { allowedActs: ["rebut", "question"], validTargets: new Set(["u1", "u2"]) }
   );
   assert.equal(parsed.act, "rebut");
   assert.equal(parsed.targetId, "u1");
   assert.equal(parsed.groundId, "pro-G1");
+  assert.equal(parsed.attack, "warrant");
   assert.equal(parsed.text, "その事例は条件が違うよ");
   assert.equal(parsed.degraded, false);
   console.log("  [ok] parseTurnResponse: 正常 JSON");
@@ -169,6 +183,7 @@ const positions = [
     }
   );
   assert.equal(parsed.targetId, "u1", "不明 target → 指名ターゲット");
+  assert.equal(parsed.attack, null, "attack 未申告は null");
   assert.ok(warnings.some((w) => w.includes("不明な utterance id")), "warn が出る");
   console.log("  [ok] parseTurnResponse: 不明 target のフォールバック");
 }
