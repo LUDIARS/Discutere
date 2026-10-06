@@ -977,10 +977,12 @@ export function loadConfig(): DiscutereConfig {
           file.flow?.userVoices?.glabMaxImpressions,
           100
         ),
+        // 明示指定 > config ファイル > Excubitor が全サービスへ配る topology env (VOLPUTAS_URL)。
+        // ポートを catalog に直書きしないため、既定は Excubitor の配る接続先を使う。
         voluptasBaseUrl: pick(
           process.env.DISCUTERE_VOLUPTAS_BASE_URL,
           file.flow?.userVoices?.voluptasBaseUrl,
-          ""
+          process.env.VOLPUTAS_URL ?? ""
         ),
       },
       notionLinks: {
