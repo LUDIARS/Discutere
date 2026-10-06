@@ -55,6 +55,7 @@ import {
   handlePaperReviewApproval,
   hasPaperReview,
   cancelPaperReview,
+  continuePaperReviewWithFlow,
   startForumFlow,
   type FlowDiscordDeps,
   type FlowLiveHooks,
@@ -827,7 +828,15 @@ export async function startDiscordGateway(
         return;
       }
       pendingFlowPicks.delete(threadId);
-      // フロー再提案からの選び直し (09): 進行中のペーパーレビュー待ちは破棄して新タイプで起動する
+      // フロー再提案からの選び直し (09): 議論/改善なら今のペーパーのまま続ける (ペーパー確定までは
+      // 単一セッション。破棄して作り直すとペーパーと再提案が再投稿される)。
+      if (await continuePaperReviewWithFlow(threadId, flow, deps.flowLive, pending.guildId)) {
+        await interaction
+          .update({ content: `✅ 「${interaction.values[0]}」を選択 (今のペーパーで続行)`, components: [] })
+          .catch(() => {});
+        return;
+      }
+      // 壁打ち/学習を選んだら、進行中のペーパーレビュー待ちは破棄して新タイプで起動する
       // (破棄しないとレビュー返信ハンドラが新フローの返信を横取りする)。
       cancelPaperReview(threadId);
       await interaction

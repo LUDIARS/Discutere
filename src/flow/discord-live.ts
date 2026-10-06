@@ -73,6 +73,17 @@ import {
   reactDiscord,
   resolveWebhookTarget,
 } from "../discord-hook/poster.js";
+import {
+  _resetReviewSessions,
+  bufferReply,
+  claimRepropose,
+  closeReviewSession,
+  hasReviewSession,
+  isPreparing,
+  markReviewing,
+  openPreparing,
+  runSerial,
+} from "./paper-review-session.js";
 
 /** 投票の可視化に使う絵文字 (item3)。 */
 const VOTE_WINNER_EMOJI = "🏆";
@@ -155,6 +166,7 @@ export function _resetFlowLive(): void {
   sparringByThread.clear();
   for (const p of paperReviewByThread.values()) if (p.timer) clearTimeout(p.timer);
   paperReviewByThread.clear();
+  _resetReviewSessions();
 }
 
 /** そのスレッドで進行中の壁打ちがあるか。 */
@@ -164,7 +176,8 @@ export function hasSparringSession(threadId: string): boolean {
 
 /** そのスレッドでペーパーレビュー待ちか (メモリ + 永続ドラフトの両方を見る)。 */
 export function hasPaperReview(threadId: string): boolean {
-  return paperReviewByThread.has(threadId) || getDraftPaper(threadId) !== null;
+  // 準備中 (草案を出す前) もレビューセッションに含める: その間の返信も受け付けて溜める。
+  return hasReviewSession(threadId) || paperReviewByThread.has(threadId) || getDraftPaper(threadId) !== null;
 }
 
 /** 1 議論ぶんの投稿コンテキスト (utterance_id → 投稿 message_id を保持し、投票で参照する)。 */
@@ -450,6 +463,12 @@ export async function startForumFlow(
     const flowLabel = input.flow === "improvement" ? "改善" : "議論";
     // 議論前の情報ゲート (LLM 密度評価 + 不足観点学習) / フォールバック autoCrawl で材料を整える。
     const reviewEnabled = getConfig().flow.paperReview.enabled;
+    // ペーパー確定までは 1 スレッド = 1 セッション。準備・レビュー中のスレッドで準備を二重に始めない
+    // (二重に始めるとペーパーとフロー再提案が再投稿される)。
+    if (reviewEnabled && (hasPaperReview(input.threadId) || !openPreparing(input.threadId))) {
+      console.warn(`  flow-live: ペーパー確認中のため準備を重ねて始めない (thread=${input.threadId})`);
+      return;
+    }
     await postThreadNotice(
       deps,
       input.threadId,
@@ -482,6 +501,8 @@ export async function startForumFlow(
     }
     await runDiscussionDispatch(input, deps, hooks);
   } catch (err) {
+    // 準備中に失敗したらセッションを閉じる (残すと以後の返信が溜まり続ける)。
+    if (isPreparing(input.threadId)) closeReviewSession(input.threadId);
     console.warn(`  flow-live: ${input.flow} 起動失敗 (thread=${input.threadId}): ${(err as Error).message}`);
     await postThreadNotice(deps, input.threadId, `⚠️ フロー実行中にエラーが発生しました: ${(err as Error).message}`);
   }
@@ -508,7 +529,7 @@ async function startPaperReview(
   // 議論不適 → フロー再提案 (09): 提案リプライ + 議論タイプ選択メニュー再提示 (hook 経由)。
   // レビュー待ちは維持する (「開始」で強行も可 — 人間が最終決定)。
   const d = info.debatability;
-  if (d && !d.degraded && !d.debatable && d.recommendation) {
+  if (d && !d.degraded && !d.debatable && d.recommendation && claimRepropose(input.threadId)) {
     const label = d.recommendation.flow === "sparring" ? "壁打ち" : "学習";
     await postThreadNotice(
       deps,
@@ -528,6 +549,14 @@ async function startPaperReview(
     }
   }
   scheduleReviewAutoStart(input.threadId, deps);
+  // 準備中に届いた返信を、草案を出した後で届いた順に処理する (返信を捨てない)。
+  await runSerial(input.threadId, async () => {
+    for (const text of markReviewing(input.threadId)) {
+      // 溜まっていた「開始」で確定したら、残りはレビューとして扱わない。
+      if (!hasReviewSession(input.threadId)) break;
+      await processPaperReviewReply(input.threadId, input.guildId, text, deps, hooks);
+    }
+  });
 }
 
 /** フォーラム議論のペーパー草案を作る。Notion 資料があれば「ゲーム内容」(mechanicsContext) に載せる。 */
@@ -642,14 +671,12 @@ function scheduleReviewAutoStart(threadId: string, deps: FlowDiscordDeps): void 
   if (timeoutMs <= 0) return;
   if (pending.timer) clearTimeout(pending.timer);
   pending.timer = setTimeout(() => {
-    void (async () => {
+    // 調整の処理中に割り込まないよう、返信と同じ直列キューで自動開始する。
+    void runSerial(threadId, async () => {
       const p = paperReviewByThread.get(threadId);
       if (!p) return;
-      paperReviewByThread.delete(threadId);
-      await postThreadNotice(deps, threadId, "⏱️ 無操作のため草案のまま議論を始めます…");
-      recordForcedDebatability(threadId, p.info);
-      await runDiscussionDispatch(p.input, deps, p.hooks, overrideFromPending(p));
-    })().catch((err) =>
+      await approvePending(threadId, p, deps, p.hooks, "⏱️ 無操作のため草案のまま議論を始めます…");
+    }).catch((err) =>
       console.warn(`  flow-live: ペーパー自動開始失敗 (thread=${threadId}): ${(err as Error).message}`)
     );
   }, timeoutMs);
@@ -743,6 +770,9 @@ function rehydratePaperReview(
   guildId: string,
   hooks?: FlowLiveHooks
 ): PendingPaperReview | null {
+  // 承認直後は議論の開始記録 (draft→started) より先に返信が届くことがある。議論の実行中は
+  // 下書きからレビューを復活させない (確定したペーパーのセッションを開き直さない)。
+  if (runningDiscussions.has(threadId)) return null;
   const row = getDraftPaper(threadId);
   if (!row) return null;
   const draft = withDerivedStructure(row.bodyMd, {
@@ -762,6 +792,7 @@ function rehydratePaperReview(
   const info: PaperReviewInfo = { voiceCount: 0, countCapped: false, samples: [] };
   const pending: PendingPaperReview = { input, draft, info, hooks };
   paperReviewByThread.set(threadId, pending);
+  markReviewing(threadId);
   return pending;
 }
 
@@ -796,6 +827,20 @@ export async function handlePaperReviewReply(
   deps: FlowDiscordDeps,
   hooks?: FlowLiveHooks
 ): Promise<boolean> {
+  // 同じスレッドの返信は 1 件ずつ処理する (同時処理でペーパーが重複投稿されるのを防ぐ)。
+  return runSerial(threadId, () => processPaperReviewReply(threadId, guildId, text, deps, hooks));
+}
+
+/** レビュー返信 1 件の処理本体 (直列キューの中で呼ぶ)。 */
+async function processPaperReviewReply(
+  threadId: string,
+  guildId: string,
+  text: string,
+  deps: FlowDiscordDeps,
+  hooks?: FlowLiveHooks
+): Promise<boolean> {
+  // 準備中 (草案を出す前) の返信は捨てずに溜め、草案を出した後で処理する。
+  if (bufferReply(threadId, text)) return true;
   // メモリに無くても永続ドラフト (status='draft') があれば再開する (再起動/別プロセス跨ぎ)。
   const pending = paperReviewByThread.get(threadId) ?? rehydratePaperReview(threadId, guildId, hooks);
   if (!pending) return false;
@@ -805,7 +850,7 @@ export async function handlePaperReviewReply(
   try {
     // 承認 → 確定ペーパーで議論開始。
     if (isApprovalText(trimmed)) {
-      await handlePaperReviewApproval(threadId, deps, hooks);
+      await approvePending(threadId, pending, deps, hooks, "✅ ペーパーを承認しました。議論を始めます…");
       return true;
     }
 
@@ -860,15 +905,66 @@ export async function handlePaperReviewApproval(
   /** メモリに無い時の再開用 guildId (✅ リアクション経路から。scene 用)。 */
   guildId?: string
 ): Promise<boolean> {
-  const pending =
-    paperReviewByThread.get(threadId) ?? rehydratePaperReview(threadId, guildId ?? "dm", hooks);
-  if (!pending) return false;
+  return runSerial(threadId, async () => {
+    if (isPreparing(threadId)) return false; // 草案を出す前は承認できない
+    const pending =
+      paperReviewByThread.get(threadId) ?? rehydratePaperReview(threadId, guildId ?? "dm", hooks);
+    if (!pending) return false;
+    await approvePending(threadId, pending, deps, hooks, "✅ ペーパーを承認しました。議論を始めます…");
+    return true;
+  });
+}
+
+/**
+ * レビュー待ちを確定してセッションを閉じ、議論を始める (承認・自動開始 共通)。
+ * 議論の完走は待たない: 直列キューを議論の間ふさぐと、確定後の返信 (再開など) が滞るため。
+ */
+async function approvePending(
+  threadId: string,
+  pending: PendingPaperReview,
+  deps: FlowDiscordDeps,
+  hooks: FlowLiveHooks | undefined,
+  notice: string
+): Promise<void> {
   if (pending.timer) clearTimeout(pending.timer);
   paperReviewByThread.delete(threadId);
-  await postThreadNotice(deps, threadId, "✅ ペーパーを承認しました。議論を始めます…");
+  closeReviewSession(threadId);
+  await postThreadNotice(deps, threadId, notice);
   recordForcedDebatability(threadId, pending.info);
-  await runDiscussionDispatch(pending.input, deps, pending.hooks ?? hooks, overrideFromPending(pending));
-  return true;
+  void runDiscussionDispatch(pending.input, deps, pending.hooks ?? hooks, overrideFromPending(pending)).catch(
+    (err) => console.warn(`  flow-live: 議論開始失敗 (thread=${threadId}): ${(err as Error).message}`)
+  );
+}
+
+/**
+ * フロー再提案で「議論」「改善」を選び直したとき、今のペーパーのまま続ける
+ * (破棄して作り直すとペーパーと再提案が再投稿される)。タイプだけ切り替える。
+ * @returns レビュー中のペーパーがあって続行したら true。無ければ false (呼び出し側が新規起動する)。
+ */
+export async function continuePaperReviewWithFlow(
+  threadId: string,
+  flow: FlowKind,
+  deps: FlowDiscordDeps,
+  guildId?: string
+): Promise<boolean> {
+  if (flow !== "discussion" && flow !== "improvement") return false;
+  return runSerial(threadId, async () => {
+    if (isPreparing(threadId)) {
+      await postThreadNotice(deps, threadId, "⏳ ペーパーを準備中です。出来上がったらこのスレッドに投稿します。");
+      return true;
+    }
+    const pending = paperReviewByThread.get(threadId) ?? rehydratePaperReview(threadId, guildId ?? "dm");
+    if (!pending) return false;
+    pending.input = { ...pending.input, flow };
+    persistDiscordDraft(pending.input, pending.draft);
+    const label = flow === "improvement" ? "改善" : "議論";
+    await postThreadNotice(
+      deps,
+      threadId,
+      `👌 今のペーパーのまま「${label}」で続けます。調整があれば返信、よければ **「開始」** と返信 (または ✅) してください。`
+    );
+    return true;
+  });
 }
 
 /**
@@ -881,6 +977,8 @@ export function cancelPaperReview(threadId: string): boolean {
   const pending = paperReviewByThread.get(threadId);
   if (pending?.timer) clearTimeout(pending.timer);
   const hadMemory = paperReviewByThread.delete(threadId);
+  const hadSession = hasReviewSession(threadId);
+  closeReviewSession(threadId);
   let hadDraft = false;
   try {
     // draft 状態の行だけ消す (started 済みの議論データは触らない)。
@@ -888,7 +986,7 @@ export function cancelPaperReview(threadId: string): boolean {
   } catch (e) {
     console.warn(`  [paper-review ${threadId}] レビュー破棄で draft 削除失敗: ${(e as Error).message}`);
   }
-  return hadMemory || hadDraft;
+  return hadMemory || hadDraft || hadSession;
 }
 
 /**
