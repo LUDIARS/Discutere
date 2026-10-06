@@ -37,7 +37,7 @@ function settleTensionLine(
   const s = syntheses.find((x) => x.tensionId === t.id);
   switch (t.status) {
     case "agreed":
-      return `合意 (ジンテーゼ): ${t.resolutionNote ?? "(記録なし)"}`;
+      return `合意: ${t.resolutionNote ?? "(記録なし)"}`;
     case "aligned":
     case "partially_aligned":
       return "すり合わせ (旧方式・詳細は記録なし)";

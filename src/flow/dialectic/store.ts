@@ -57,7 +57,7 @@ export type TensionStatus =
   | "compromised"
   | "agreed_disagree"
   | "unresolved_fact"
-  /** ゴール (dialectic.md §4.5): 両者が同じ結論になった (合意 = ジンテーゼ)。論破は Tension を立てない。 */
+  /** ゴール (dialectic.md §4.5): 両者が同じ結論になった (合意 = 結論の同一性。ジンテーゼとは同一視しない)。論破は Tension を立てない。 */
   | "agreed"
   /** 旧すり合わせ (2026-10-07 の短期間だけ使用。読み出し互換のため残す)。 */
   | "aligned"

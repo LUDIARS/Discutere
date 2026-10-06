@@ -1,7 +1,7 @@
 /**
  * 論点のゴール判定 (dialectic.md §4.5) テスト。
  * - 論破: 根拠がすべて崩れた (challenged / conceded) 側を検出、片側・双方・無し
- * - 合意 (ジンテーゼ): ラベル抽出、障害・不明ラベルは合意なしに倒す
+ * - 合意: ラベル抽出、障害・不明ラベルは合意なしに倒す
  */
 
 import assert from "node:assert/strict";
@@ -43,7 +43,7 @@ const issue = { id: "i1", sessionId: "s1", title: "天井を下げるか", ordin
   console.log("  [ok] detectRefutation: 片側・双方・無し");
 }
 
-// ── 合意 (ジンテーゼ) ─────────────────────────────────────────────────────────
+// ── 合意 ─────────────────────────────────────────────────────────
 
 {
   assert.equal(parseAgreementVerdict("same"), "same");

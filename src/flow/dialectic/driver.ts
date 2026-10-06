@@ -512,7 +512,7 @@ export async function runDialecticFlow(
           warn,
         })
       ) {
-        // ── [4] ゴール 2: 合意 (ジンテーゼ = 結論の同一性) ──
+        // ── [4] ゴール 2: 合意 (結論の同一性) ──
         const note = agreementNote(positionA, positionB);
         tension.status = "agreed";
         tension.resolutionNote = note;

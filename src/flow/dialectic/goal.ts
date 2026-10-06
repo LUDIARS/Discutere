@@ -4,7 +4,8 @@
  * AI 同士の議論は「作りたい体験・試したい施策・他ゲームの事例についての共通見解は取れている」
  * 前提で進め、すり合わせはゴールに置かない。論点のゴールは次のいずれかの状態:
  *   1. 論破 (refuted)  — 一方の根拠がすべて崩れ、意見が出なくなった。コードのみで判定。
- *   2. 合意 (agreed)   — ジンテーゼ。両者の主張が限定の範囲で同じ結論になった (結論の同一性の担保)。判定 LLM。
+ *   2. 合意 (agreed)   — 両者の主張が限定の範囲で同じ結論になった (結論の同一性の担保)。判定 LLM。
+ *      合意は状態であり、ジンテーゼ (弁証法の総合) とは同一視しない。
  *   3. 止揚 (synthesized) — 止揚候補が両陣営に批准された。既存の synthesis ループ (synthesis.ts)。
  * driver がこの順に試し、どれにも達しなければゴール未到達として記録する。
  *
@@ -58,7 +59,7 @@ function renderSide(label: string, p: PositionRecord): string {
   return `${label}: ${p.claim}\n  限定: ${p.qualifier ?? "(明示なし)"}\n${grounds}`;
 }
 
-/** 合意 (ジンテーゼ = 結論の同一性) 判定プロンプト (テスト用に export)。 */
+/** 合意 (結論の同一性) 判定プロンプト (テスト用に export)。 */
 export function buildAgreementPrompt(issue: IssueRecord, a: PositionRecord, b: PositionRecord): string {
   return (
     `# 論点\n${issue.title}\n\n` +
@@ -83,7 +84,7 @@ export function parseAgreementVerdict(text: string): "same" | "different" | null
 }
 
 /**
- * 合意 (ジンテーゼ) を判定 LLM で確かめる。
+ * 合意を判定 LLM で確かめる。
  * 障害・ラベル不明は合意なしに倒す (合意を水増ししない、warn 明示)。
  */
 export async function judgeAgreement(args: {
@@ -115,5 +116,5 @@ export async function judgeAgreement(args: {
 
 /** 合意成立時の判定文。 */
 export function agreementNote(a: PositionRecord, b: PositionRecord): string {
-  return `合意した (ジンテーゼ): 「${a.claim}」${scope(a)} と「${b.claim}」${scope(b)} は同じ結論を述べている`;
+  return `合意した: 「${a.claim}」${scope(a)} と「${b.claim}」${scope(b)} は同じ結論を述べている`;
 }

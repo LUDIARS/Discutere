@@ -106,7 +106,7 @@ function makeRouterLlm(overrides: Partial<Record<string, (p: string) => string>>
         }),
     },
     { name: "rule-check", match: (p) => p.includes("前提ルールを守っているかを判定"), respond: () => "ok" },
-    // 合意 (ジンテーゼ) 判定。既定は「結論が異なる」→ 止揚へ進む。
+    // 合意判定。既定は「結論が異なる」→ 止揚へ進む。
     { name: "agreement", match: (p) => p.includes("合意しているか) を判定"), respond: () => "different" },
     { name: "tension-classify", match: (p) => p.includes("この対立の「型」を 1 つだけ選んで"), respond: () => "values" },
     { name: "fact-resolve", match: (p) => p.includes("証拠はどちらの主張を支持しますか"), respond: () => "A" },
@@ -478,7 +478,7 @@ const db = () => new Database(DB_PATH);
   console.log("  [ok] dispatch: flow.engine=dialectic で dialectic 経路に分岐");
 }
 
-// ── シナリオ: ゴール 2 合意 (ジンテーゼ) — 止揚を生成せず agreed で決着 ──
+// ── シナリオ: ゴール 2 合意 — 止揚を生成せず agreed で決着 ──
 
 {
   const llm = makeRouterLlm({ agreement: () => "same" });
@@ -497,12 +497,12 @@ const db = () => new Database(DB_PATH);
     .get("dlx-agreed") as any;
   const tension = d.prepare("SELECT * FROM flow_tension WHERE issue_id = ?").get(issue.id) as any;
   assert.equal(tension.status, "agreed", "合意 → agreed");
-  assert.ok(tension.resolution_note.includes("ジンテーゼ"), "判定文が残る");
+  assert.ok(tension.resolution_note.startsWith("合意した"), "判定文が残る");
   const utterances = d.prepare("SELECT * FROM flow_utterance WHERE session_id = ?").all("dlx-agreed") as any[];
   assert.ok(utterances.some((u) => u.text.startsWith("合意: ")), "進行役が合意を流す");
   d.close();
   assert.ok(result.concluded, "合意でも結論に到達する");
-  console.log("  [ok] dialectic driver: ゴール 2 合意 (ジンテーゼ) → agreed");
+  console.log("  [ok] dialectic driver: ゴール 2 合意 → agreed");
 }
 
 // ── シナリオ: ゴール 1 論破 — 反論を受けた側が譲歩を重ねて根拠がすべて崩れる → 論破で決着 ──
