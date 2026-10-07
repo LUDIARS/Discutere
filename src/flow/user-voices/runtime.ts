@@ -112,6 +112,8 @@ export interface PreparedUserVoices {
  */
 export async function prepareUserVoices(args: {
   theme: string;
+  /** 企画段階ではテーマ自体を既存ゲームとして検索しない。 */
+  includeThemeGame?: boolean;
   similarGames: readonly string[];
   openCore?: () => Core;
   workspaceId: string;
@@ -127,7 +129,8 @@ export async function prepareUserVoices(args: {
   const warn = args.warn ?? (() => {});
   if (!cfg.flow.userVoices.enabled || !args.openCore) return { reports: [], lookup: undefined };
 
-  const games = [themeGameRef(args.theme), ...args.similarGames.map(similarGameRef)];
+  const games = [...(args.includeThemeGame === false ? [] : [themeGameRef(args.theme)]), ...args.similarGames.map(similarGameRef)];
+  if (games.length === 0) return { reports: [], lookup: undefined };
   const core = args.openCore();
   let reports: GameVoiceReport[];
   let queryVector: number[] | null = null;
@@ -157,7 +160,7 @@ export async function prepareUserVoices(args: {
           return listGameVoices({ core: c, attribution, workspaceId: args.workspaceId, gameSlug: r.gameSlug, limit: perGroup, queryVector });
         }
         // 議題のゲームの声が集まらなければ、議題側は既存のキーワード検索で埋める。
-        return i === 0 && args.baseLookup ? args.baseLookup(terms, perGroup) : [];
+        return args.includeThemeGame !== false && i === 0 && args.baseLookup ? args.baseLookup(terms, perGroup) : [];
       });
     } catch (e) {
       warn(`ユーザーの声の引き出しに失敗 (既存の検索で継続): ${(e as Error).message}`);

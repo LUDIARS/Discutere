@@ -10,6 +10,7 @@ import path from "node:path";
 
 import {
   buildPaperDraft,
+  assessPaperUnderstanding,
   applyPaperEdit,
   coercePaperDraft,
   renderPaperReview,
@@ -24,6 +25,22 @@ import {
 import { MockLLMClient } from "../../src/persona-engine/llm/mock.js";
 
 const NONEXISTENT_GAMES = path.join(os.tmpdir(), "discutere-no-such-games-dir");
+
+// 企画段階では既存タイトルや実装済みメカニクスを要求しない。
+{
+  const seed = { gameTitle: "", discussionTheme: "短時間で協力を楽しむ企画", discussionContent: "役割分担案を比較する", mechanicsContext: "", themeSupplement: "" };
+  let searches = 0;
+  const { draft, info } = await buildPaperDraft(seed.discussionTheme, [], {
+    flow: "discussion", seed, gamesDir: NONEXISTENT_GAMES,
+    youtubeSearch: async () => { searches++; return []; },
+  });
+  assert.equal(searches, 0, "企画テーマを既存作品として検索しない");
+  assert.equal(draft.gameTitle, "");
+  assert.deepEqual(draft.mechanics, []);
+  assert.equal(info.understanding?.ok, true);
+  const improvement = await assessPaperUnderstanding(seed, [], [], undefined, { flow: "improvement" });
+  assert.equal(improvement.ok, false, "改善は対象と現状の情報を要求する");
+}
 
 // ── buildPaperDraft ──────────────────────────────────────────────────────────
 {

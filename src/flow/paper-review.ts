@@ -31,6 +31,7 @@ import {
 } from "./investigate.js";
 import { enrichMechanics } from "./mechanic-extract.js";
 import type { ContextVoice } from "./discussion-paper.js";
+import { projectPremise, requiresProjectTitle } from "./project-premise.js";
 import {
   paperDraftToMarkdown,
   markdownToPaperDraft,
@@ -122,6 +123,7 @@ export interface PaperVoiceSimulation {
 }
 
 export interface BuildPaperDraftDeps {
+  flow?: string;
   youtubeSearch?: YoutubeSearchFn;
   youtubeMaxComments?: number;
   gamesDir?: string;
@@ -191,10 +193,11 @@ function normalizeSeed(theme: string, seed?: Partial<PaperFixedFields>): PaperFi
 function deterministicUnderstanding(
   fields: PaperFixedFields,
   mechanics: readonly MechanicSummary[],
-  voices: readonly ContextVoice[]
+  voices: readonly ContextVoice[],
+  flow?: string
 ): PaperUnderstanding {
   const missingQuestions: string[] = [];
-  if (!fields.gameTitle.trim()) {
+  if (requiresProjectTitle(flow) && !fields.gameTitle.trim()) {
     missingQuestions.push("ゲームタイトル、またはプロジェクトの主目的を補足してください。");
   }
   if (!fields.discussionTheme.trim()) {
@@ -203,7 +206,7 @@ function deterministicUnderstanding(
   if (!fields.discussionContent.trim()) {
     missingQuestions.push("議論で判断したい論点、前提、迷っている案を補足してください。");
   }
-  if (!fields.mechanicsContext.trim() && mechanics.length === 0) {
+  if (flow !== "discussion" && !fields.mechanicsContext.trim() && mechanics.length === 0) {
     missingQuestions.push("基本ループ、主要システム、操作、報酬、制約などゲーム内容が分かる説明を補足してください。");
   }
   const hasExternalContext = voices.length > 0 || mechanics.length > 0;
@@ -222,14 +225,17 @@ export async function assessPaperUnderstanding(
   mechanics: readonly MechanicSummary[],
   voices: readonly ContextVoice[],
   llm?: LLMClient,
-  opts: { model?: string; warn?: (msg: string) => void } = {}
+  opts: { model?: string; warn?: (msg: string) => void; flow?: string } = {}
 ): Promise<PaperUnderstanding> {
-  const fallback = deterministicUnderstanding(fields, mechanics, voices);
+  const fallback = deterministicUnderstanding(fields, mechanics, voices, opts.flow);
   if (!llm) return fallback;
 
   const system =
-    "あなたはゲーム議論を始める前の確認担当です。入力されたディスカッションペーパーを読み、" +
-    "AIが基本的なゲーム内容を理解して議論できるか判定します。情報が足りない場合は、ユーザに補足してほしい質問を返します。" +
+    projectPremise(opts.flow) + "\nあなたはゲーム議論を始める前の確認担当です。入力されたディスカッションペーパーを読み、" +
+    (opts.flow === "discussion"
+      ? "目的やアイデアから企画を議論できるか判定します。未定のプロジェクト名・既存実装・ゲームメカニクスは不足扱いにしません。"
+      : "AIが対象プロジェクトの現状を理解して議論できるか判定します。") +
+    "情報が足りない場合は、ユーザに補足してほしい質問を返します。" +
     'JSON のみで {"ok":boolean,"rationale":string,"missingQuestions":string[]} を返してください。';
   const prompt = JSON.stringify(
     {
@@ -278,7 +284,7 @@ export async function buildPaperDraft(
   deps: BuildPaperDraftDeps
 ): Promise<{ draft: PaperDraft; info: PaperReviewInfo }> {
   const seed = normalizeSeed(theme, deps.seed);
-  const investigation = await investigateTheme({
+  const investigation = deps.flow === "discussion" ? { mechanics: [] } : await investigateTheme({
     theme,
     tags,
     gamesDir: deps.gamesDir,
@@ -294,7 +300,7 @@ export async function buildPaperDraft(
 
   // メカニクスを LLM で目標件数まで増補 (感想を根拠に。llm 未指定なら base の件数のまま)。
   let mechanics = base;
-  if (deps.llm) {
+  if (deps.llm && deps.flow !== "discussion") {
     mechanics = await enrichMechanics({
       theme,
       existing: base,
@@ -325,7 +331,7 @@ export async function buildPaperDraft(
     const assess = deps.debatability.assess ?? assessDebatability;
     debatability = await assess({
       theme,
-      paperMd: paperDraftToMarkdown(baseContent),
+      paperMd: [projectPremise(deps.flow), paperDraftToMarkdown(baseContent)].filter(Boolean).join("\n\n"),
       voices,
       llm: deps.debatability.llm,
       minArmableIssues: deps.debatability.minArmableIssues,
@@ -338,6 +344,7 @@ export async function buildPaperDraft(
   const draft: PaperDraft = withDerivedBody(baseContent);
   const understanding = seed
     ? await assessPaperUnderstanding(seed, mechanics, voices, deps.understandingLlm ?? deps.llm, {
+        flow: deps.flow,
         model: deps.enrichModel || undefined,
         warn: deps.warn,
       })

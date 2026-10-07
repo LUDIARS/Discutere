@@ -33,8 +33,8 @@ export type FlowKind = "discussion" | "improvement" | "learning" | "sparring";
 
 /** 議論タイプのラベル (WebUI select 値 / Discord タグ名) → FlowKind。 */
 const FLOW_KIND_ALIASES: Record<FlowKind, string[]> = {
-  discussion: ["discussion", "議論", "ディスカッション", "討論"],
-  improvement: ["improvement", "改善", "改善提案", "提案"],
+  discussion: ["discussion", "企画/議論", "企画／議論", "議論", "ディスカッション", "討論"],
+  improvement: ["improvement", "改善/議論", "改善／議論", "改善", "改善提案", "提案"],
   learning: ["learning", "学習", "収集", "感想収集"],
   sparring: ["sparring", "壁打ち", "壁打"],
 };
@@ -52,10 +52,11 @@ export function parseFlowKind(label: string | undefined | null): FlowKind | null
     if (aliases.some((a) => a.toLowerCase() === l)) return kind;
   }
   // 部分一致 (フォーラムタグ名に装飾が付く場合)
-  for (const [kind, aliases] of Object.entries(FLOW_KIND_ALIASES) as [FlowKind, string[]][]) {
-    if (aliases.some((a) => l.includes(a.toLowerCase()))) return kind;
-  }
-  return null;
+  // 「改善/議論」を短い「議論」へ誤分類しないよう、具体的な別名を優先する。
+  const matches = (Object.entries(FLOW_KIND_ALIASES) as [FlowKind, string[]][])
+    .flatMap(([kind, aliases]) => aliases.map((alias) => ({ kind, alias })))
+    .sort((a, b) => b.alias.length - a.alias.length);
+  return matches.find(({ alias }) => l.includes(alias.toLowerCase()))?.kind ?? null;
 }
 
 export interface DispatchDeps {

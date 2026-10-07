@@ -16,6 +16,9 @@ import { parseForumEntry, handleForumFlowPost } from "../../src/flow/entry-disco
 // ── parseFlowKind ─────────────────────────────────────────────────────────────
 {
   assert.equal(parseFlowKind("議論"), "discussion");
+  assert.equal(parseFlowKind("企画/議論"), "discussion");
+  assert.equal(parseFlowKind("改善/議論"), "improvement");
+  assert.equal(parseFlowKind("🔧 改善／議論"), "improvement", "装飾付きでも議論への誤分類を防ぐ");
   assert.equal(parseFlowKind("discussion"), "discussion");
   assert.equal(parseFlowKind("改善"), "improvement");
   assert.equal(parseFlowKind("改善提案"), "improvement");

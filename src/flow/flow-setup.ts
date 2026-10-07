@@ -17,6 +17,7 @@ import {
   type DiscussionPaper,
 } from "./discussion-paper.js";
 import { investigateTheme, type YoutubeSearchFn, type MechanicSummary } from "./investigate.js";
+import { projectPremise } from "./project-premise.js";
 
 /** 人間が調整・承認した確定ペーパーの上書き値 (investigate の出力を置き換える)。 */
 export interface PaperOverride {
@@ -83,6 +84,10 @@ export async function setupFlowPaper(args: FlowSetupArgs): Promise<FlowSetupResu
     supplement = override.supplement;
     bodyMd = override.bodyMd;
     log(`確定ペーパー使用: investigate スキップ (メカニクス ${mechanics.length} 件)`);
+  } else if (flow === "discussion") {
+    // 企画のテーマを既存作品名とみなして仕様を取り込まない。
+    mechanics = [];
+    supplement = (await import("./tags.js")).paperSupplement(tags);
   } else {
     log(`調査開始: "${theme}" (タグ: [${tags.join(", ")}])`);
     investigation = await investigateTheme({
@@ -133,7 +138,8 @@ export async function setupFlowPaper(args: FlowSetupArgs): Promise<FlowSetupResu
     tags: [...tags],
     mechanics,
     supplement,
-    bodyMd,
+    // 確定本文の保存値は維持し、両議論エンジンへ現在のモード前提を渡す。
+    bodyMd: [projectPremise(flow), bodyMd].filter(Boolean).join("\n\n"),
     rounds: [],
   };
 

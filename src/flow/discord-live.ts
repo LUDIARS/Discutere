@@ -78,6 +78,7 @@ import {
   resolveWebhookTarget,
 } from "../discord-hook/poster.js";
 import { describeVoiceReport } from "./user-voices/collect.js";
+import { PROJECT_PREMISES } from "./project-premise.js";
 import { parseSimilarGames, prepareUserVoices } from "./user-voices/runtime.js";
 import {
   _resetReviewSessions,
@@ -179,6 +180,7 @@ async function collectUserVoicesForThread(input: StartForumFlowInput, deps: Flow
   try {
     const prepared = await prepareUserVoices({
       theme: input.theme,
+      includeThemeGame: input.flow !== "discussion",
       similarGames: input.similarGames ?? [],
       openCore: deps.openCore,
       workspaceId: deps.workspaceId ?? getConfig().workspace,
@@ -511,7 +513,7 @@ export async function startForumFlow(
     }
 
     // ── 議論 / 改善 ──
-    const flowLabel = input.flow === "improvement" ? "改善" : "議論";
+    const flowLabel = PROJECT_PREMISES[input.flow === "improvement" ? "improvement" : "discussion"].label;
     // 議論前の情報ゲート (LLM 密度評価 + 不足観点学習) / フォールバック autoCrawl で材料を整える。
     const reviewEnabled = getConfig().flow.paperReview.enabled;
     // ペーパー確定までは 1 スレッド = 1 セッション。準備・レビュー中のスレッドで準備を二重に始めない
@@ -618,6 +620,7 @@ async function startPaperReview(
 function buildForumPaperDraft(input: StartForumFlowInput, deps: FlowDiscordDeps, notionMd?: string) {
   const richness = getConfig().flow.paperRichness;
   return buildPaperDraft(input.theme, input.tags, {
+    flow: input.flow,
     gamesDir: deps.gamesDir,
     listExternalVoices: voiceLookupFor(input.threadId, deps),
     llm: richness.enrichMechanics ? deps.llm : undefined,
@@ -1026,7 +1029,7 @@ export async function continuePaperReviewWithFlow(
     if (!pending) return false;
     pending.input = { ...pending.input, flow };
     persistDiscordDraft(pending.input, pending.draft);
-    const label = flow === "improvement" ? "改善" : "議論";
+    const label = PROJECT_PREMISES[flow === "improvement" ? "improvement" : "discussion"].label;
     await postThreadNotice(
       deps,
       threadId,

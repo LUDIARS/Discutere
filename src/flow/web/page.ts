@@ -228,8 +228,8 @@ export const FLOW_HTML = `<!doctype html>
 
   <form id="start" class="panel" style="display:none">
     <fieldset>
-      <legend>ゲームタイトル（または主目的）</legend>
-      <input id="gameTitle" type="text" placeholder="例: スイカゲーム / 学校連絡を整理する管理画面" required />
+      <legend>対象プロジェクト名（企画/議論では不要）</legend>
+      <input id="gameTitle" type="text" placeholder="改善するゲーム・サービス名" />
     </fieldset>
     <fieldset>
       <legend>議論したいテーマ</legend>
@@ -242,8 +242,8 @@ export const FLOW_HTML = `<!doctype html>
     <fieldset>
       <legend>議論タイプ (必須)</legend>
       <select id="flow" required>
-        <option value="discussion" selected>AI議論</option>
-        <option value="improvement">改善</option>
+        <option value="discussion" selected>企画/議論 — プロジェクトなし</option>
+        <option value="improvement">改善/議論 — プロジェクトあり</option>
         <option value="learning">学習 (収集)</option>
         <option value="sparring">壁打ち</option>
       </select>
@@ -341,7 +341,7 @@ export const FLOW_HTML = `<!doctype html>
       </div>
     </div>
     <div id="fixedPaper" class="paper-form">
-      <label>ゲームタイトル（または主目的）
+      <label>対象プロジェクト名（企画/議論では不要）
         <input id="rvGameTitle" type="text" />
       </label>
       <label>議論したいテーマ
@@ -407,6 +407,11 @@ export const FLOW_HTML = `<!doctype html>
 <script>
 const $ = (id) => document.getElementById(id);
 let sessionId = null, kind = null, since = 0, timer = null;
+function updateProjectRequirement() {
+  $("gameTitle").required = $("flow").value !== "discussion";
+}
+$("flow").addEventListener("change", updateProjectRequirement);
+updateProjectRequirement();
 let paperReadyNotifiedFor = null;
 
 function requestPaperNotificationPermission() {
@@ -509,7 +514,7 @@ $("start").addEventListener("submit", async (e) => {
   const themeSupplement = $("themeSupplement").value.trim() || undefined;
   const theme = [gameTitle, discussionTheme].filter(Boolean).join(" / ");
   const flow = $("flow").value;
-  if (!gameTitle || !discussionTheme || !flow) { alert("ゲームタイトル(または主目的)、議論したいテーマ、議論タイプは必須です"); return; }
+  if (!discussionTheme || !flow || (flow !== "discussion" && !gameTitle)) { alert("議論テーマは必須です。改善/議論には対象プロジェクト名も必要です"); return; }
   const tags = [...document.querySelectorAll('input[name=tag]:checked')].map(c => c.value);
   const rounds = $("rounds").value.trim() === "" ? undefined : Number($("rounds").value);
   const turnsPerRound = $("turnsPerRound").value.trim() === "" ? undefined : Number($("turnsPerRound").value);
@@ -564,6 +569,7 @@ let paperPollMisses = 0;
 const TYPE_LABEL = { heading: "見出し", paragraph: "段落", list: "箇条書き" };
 
 function applyPayload(res) {
+  if (res.flow) kind = res.flow;
   if (res.paper) curPaper = res.paper;
   renderFixedForm(res);
   $("rvRevert").disabled = !res.canRevert;
@@ -795,8 +801,8 @@ function collectFixedForm() {
 }
 async function saveFixedForm(message) {
   const form = collectFixedForm();
-  if (!form.gameTitle || !form.discussionTheme) {
-    $("rvMsg").textContent = "ゲームタイトル(または主目的)と議論したいテーマは必須です";
+  if (!form.discussionTheme || (kind !== "discussion" && !form.gameTitle)) {
+    $("rvMsg").textContent = "議論テーマは必須です。改善/議論には対象プロジェクト名も必要です";
     return null;
   }
   $("rvMsg").textContent = message || "保存中…";

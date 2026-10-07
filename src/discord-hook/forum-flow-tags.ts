@@ -26,6 +26,7 @@ import {
   type ForumChannel,
   type GuildForumTagData,
 } from "discord.js";
+import { PROJECT_PREMISES } from "../flow/project-premise.js";
 
 /** 議論タイプ (必須・1 つ選択) のフォーラムタグ名。順序は select UI の表示順。 */
 export const FLOW_KIND_TAG_NAMES = ["議論", "改善", "学習", "壁打ち"] as const;
@@ -44,8 +45,8 @@ export const FLOW_PICK_PREFIX = "flow-pick";
 
 /** select 値 (= FlowKind ラベル) と表示文。 */
 const FLOW_KIND_CHOICES: Array<{ value: string; label: string; description: string }> = [
-  { value: "議論", label: "議論", description: "中立投票で世論をまとめる" },
-  { value: "改善", label: "改善", description: "課題抽出 + 改善案 (design_gap スコア)" },
+  { value: "議論", label: PROJECT_PREMISES.discussion.label, description: PROJECT_PREMISES.discussion.description },
+  { value: "改善", label: PROJECT_PREMISES.improvement.label, description: PROJECT_PREMISES.improvement.description },
   { value: "学習", label: "学習", description: "外部の声を収集して KG に取り込む" },
   { value: "壁打ち", label: "壁打ち", description: "あなたの発言に AI が応答し続ける" },
 ];

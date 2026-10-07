@@ -12,6 +12,7 @@
 
 import { Hono } from "hono";
 import { randomUUID } from "node:crypto";
+import { projectPremise, requiresProjectTitle } from "../project-premise.js";
 
 import type { LLMClient } from "../../persona-engine/llm/client.js";
 import type { CascadeClients } from "../../crawler/sentiment/cascade.js";
@@ -600,6 +601,7 @@ function stringArray(raw: unknown, limit: number): string[] {
 }
 
 async function suggestFixesForPaper(args: {
+  flow?: string;
   draft: PaperDraft;
   info: PaperReviewInfo;
   llm: LLMClient;
@@ -616,7 +618,7 @@ async function suggestFixesForPaper(args: {
     "Make suggestedChange directly appendable. Use {{placeholder}} only when the editor must provide missing specifics.";
   const prompt = JSON.stringify(
     {
-      paperMd: args.draft.bodyMd,
+      paperMd: [projectPremise(args.flow), args.draft.bodyMd].filter(Boolean).join("\n\n"),
       understanding: args.info.understanding ?? null,
       debatability: args.info.debatability ?? null,
       expectedShape: [
@@ -709,12 +711,12 @@ async function checkMechanicsKnowledge(args: {
   }
 }
 
-function assessVoiceSimulationReadiness(draft: PaperDraft, info: PaperReviewInfo): PaperVoiceSimulation {
+function assessVoiceSimulationReadiness(draft: PaperDraft, info: PaperReviewInfo, flow?: string): PaperVoiceSimulation {
   const fields = paperFixedFieldsFromMarkdown(draft.bodyMd, draft);
   const voiceCount = info.voiceCount ?? 0;
-  const hasTheme = Boolean(fields.gameTitle.trim() && fields.discussionTheme.trim());
+  const hasTheme = Boolean((!requiresProjectTitle(flow) || fields.gameTitle.trim()) && fields.discussionTheme.trim());
   const mechanicsText = fields.mechanicsContext.trim();
-  const hasMechanicsContext = mechanicsText.length >= 80 || draft.mechanics.length > 0;
+  const hasMechanicsContext = flow === "discussion" ? fields.discussionContent.trim().length > 0 : mechanicsText.length >= 80 || draft.mechanics.length > 0;
   const mechanicsLowConfidence = info.mechanicsKnowledge?.ok === false && info.mechanicsKnowledge.confidence === "low";
   const caveat = "LLM生成のユーザの声は実ユーザの代替ではなく、仮説として扱ってください。";
 
@@ -836,11 +838,11 @@ flowRoutes.post("/api/flow/start", async (c) => {
   const personaIds = parsePersonaIds(body.personaIds) ?? parsePersonaIds(body.opponent);
 
   if (!theme) return c.json({ ok: false, error: "テーマは必須です" }, 400);
-  if (fixedMode && (!seed?.gameTitle || !seed?.discussionTheme)) {
-    return c.json({ ok: false, error: "ゲームタイトル(または主目的)と議論したいテーマは必須です" }, 400);
-  }
   const kind = parseFlowKind(flowLabel);
   if (!kind) return c.json({ ok: false, error: "議論タイプ (必須) を選択してください" }, 400);
+  if (fixedMode && (!seed?.discussionTheme || (requiresProjectTitle(kind) && !seed?.gameTitle))) {
+    return c.json({ ok: false, error: "議論テーマは必須です。改善/議論には対象プロジェクト名も必要です" }, 400);
+  }
 
   const dispatchDeps: DispatchDeps = {
     llm: deps.llm,
@@ -961,6 +963,7 @@ flowRoutes.post("/api/flow/start", async (c) => {
         (m) => console.warn(`[flow-web/anatomia ${sessionId}] ${m}`)
       );
       const { draft, info } = await buildPaperDraft(theme, tags, {
+        flow: kind,
         gamesDir: webDeps.gamesDir,
         listExternalVoices: webDeps.listExternalVoices,
         llm: richness.enrichMechanics ? webDeps.llm : undefined,
@@ -973,9 +976,10 @@ flowRoutes.post("/api/flow/start", async (c) => {
         debatability: resolveDebatabilityGate({ kind, sessionId, llm: webDeps.llm }),
         warn: (m) => console.warn(`[flow-web/paper ${sessionId}] ${m}`),
       });
-      info.voiceSimulation = assessVoiceSimulationReadiness(draft, info);
+      info.voiceSimulation = assessVoiceSimulationReadiness(draft, info, kind);
       promoteDebatabilityWithVoiceSimulation(info);
       info.fixSuggestions = await suggestFixesForPaper({
+        flow: kind,
         draft,
         info,
         llm: webDeps.llm,
@@ -1016,11 +1020,12 @@ flowRoutes.post("/api/flow/start", async (c) => {
 function paperPayload(sessionId: string, draft: PaperDraft, entry?: WebPaperReview) {
   const info = entry?.info ?? storedPaperReviewInfo(sessionId) ?? null;
   const displayInfo = info
-    ? { ...info, voiceSimulation: info.voiceSimulation ?? assessVoiceSimulationReadiness(draft, info) }
+    ? { ...info, voiceSimulation: info.voiceSimulation ?? assessVoiceSimulationReadiness(draft, info, entry?.flow) }
     : null;
   if (displayInfo) promoteDebatabilityWithVoiceSimulation(displayInfo);
   return {
     discussionNo: getDiscussionNumberBySession(sessionId),
+    flow: entry?.flow,
     paper: draft,
     info: displayInfo,
     fixedFields: paperFixedFieldsFromMarkdown(draft.bodyMd, draft),
@@ -1144,14 +1149,14 @@ flowRoutes.post("/api/flow/:session/paper/form/apply", async (c) => {
   const body = (await c.req.json().catch(() => ({}))) as Record<string, unknown>;
   const current = paperFixedFieldsFromMarkdown(entry.draft.bodyMd, entry.draft);
   const nextFields: PaperFixedFields = {
-    gameTitle: stringField(body, "gameTitle") || current.gameTitle,
+    gameTitle: "gameTitle" in body ? stringField(body, "gameTitle") : current.gameTitle,
     discussionTheme: stringField(body, "discussionTheme") || current.discussionTheme,
     discussionContent: "discussionContent" in body ? stringField(body, "discussionContent") : current.discussionContent,
     mechanicsContext: "mechanicsContext" in body ? stringField(body, "mechanicsContext") : current.mechanicsContext,
     themeSupplement: "themeSupplement" in body ? stringField(body, "themeSupplement") : current.themeSupplement,
   };
-  if (!nextFields.gameTitle || !nextFields.discussionTheme) {
-    return c.json({ ok: false, error: "ゲームタイトル(または主目的)と議論したいテーマは必須です" }, 400);
+  if (!nextFields.discussionTheme || (requiresProjectTitle(entry.flow) && !nextFields.gameTitle)) {
+    return c.json({ ok: false, error: "議論テーマは必須です。改善/議論には対象プロジェクト名も必要です" }, 400);
   }
   const tags = "tags" in body ? sanitizeReviewTags(body.tags, entry.draft.tags) : entry.draft.tags;
   entry.rounds = "rounds" in body ? readOptionalInt(body.rounds, 1, 10) : entry.rounds;
@@ -1187,7 +1192,7 @@ flowRoutes.post("/api/flow/:session/paper/debatability/check", async (c) => {
     : [];
   const result = await assessDebatability({
     theme: entry.draft.theme,
-    paperMd: entry.draft.bodyMd,
+    paperMd: [projectPremise(entry.flow), entry.draft.bodyMd].filter(Boolean).join("\n\n"),
     voices,
     llm: gate.llm,
     minArmableIssues: gate.minArmableIssues,
@@ -1201,9 +1206,10 @@ flowRoutes.post("/api/flow/:session/paper/debatability/check", async (c) => {
     samples: reviewInfoSamples(voices),
     debatability: result,
   };
-  info.voiceSimulation = assessVoiceSimulationReadiness(entry.draft, info);
+  info.voiceSimulation = assessVoiceSimulationReadiness(entry.draft, info, entry.flow);
   promoteDebatabilityWithVoiceSimulation(info);
   info.fixSuggestions = await suggestFixesForPaper({
+    flow: entry.flow,
     draft: entry.draft,
     info,
     llm: webDeps.llm,
@@ -1240,7 +1246,7 @@ flowRoutes.post("/api/flow/:session/paper/mechanics/check", async (c) => {
       warn: (m) => console.warn(`[flow-web/paper ${sessionId}] ${m}`),
     }),
   };
-  info.voiceSimulation = assessVoiceSimulationReadiness(entry.draft, info);
+  info.voiceSimulation = assessVoiceSimulationReadiness(entry.draft, info, entry.flow);
   promoteDebatabilityWithVoiceSimulation(info);
   entry.info = info;
   savePaperReviewInfo(sessionId, info);
