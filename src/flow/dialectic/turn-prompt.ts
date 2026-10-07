@@ -49,6 +49,8 @@ export interface DialecticTurnPromptArgs {
   targetUtteranceId?: string;
   /** ファシリテーターの指名文 (露出済み)。プロンプトにも文脈として載せる。 */
   nomination?: string;
+  /** 論点ごとのプレイヤーの声ブロック (renderIssueVoices)。無ければ空。 */
+  voicesBlock?: string;
 }
 
 /** Position をダイジェスト行にする (根拠は id 付き = rebut/批准のターゲット指定用)。 */
@@ -112,6 +114,7 @@ export function buildDialecticTurnPrompt(args: DialecticTurnPromptArgs): string 
     `# 論点 ${issue.ordinal}`,
     issue.title,
     "",
+    ...(args.voicesBlock ? [args.voicesBlock, ""] : []),
     `# 現在の論証状態 (根拠は [id] で指す)`,
     positionBlock || "(Position なし)",
     "",

@@ -339,6 +339,20 @@ const db = () => new Database(DB_PATH);
     warn: () => {},
   });
 
+  // 集めた外部の声が、定立と反論のプロンプトに根拠のデータとして載る (2026-10-07 neco 指摘)。
+  const positionPrompts = llm.prompts.position ?? [];
+  assert.ok(positionPrompts.length > 0);
+  assert.ok(
+    positionPrompts.every((p) => p.includes("# プレイヤーの声") && p.includes("[V1] 緩和後も売上は維持された")),
+    "定立のプロンプトに外部の声が載る"
+  );
+  const turnPrompts = [...(llm.prompts["turn-attack"] ?? []), ...(llm.prompts["turn-respond"] ?? [])];
+  assert.ok(turnPrompts.length > 0);
+  assert.ok(
+    turnPrompts.every((p) => p.includes("[V2] 実際 DAU が伸びて回復した（出所: youtube）")),
+    "反論のプロンプトにも外部の声が載る"
+  );
+
   const d = db();
   const issue = d
     .prepare("SELECT * FROM flow_issue WHERE session_id = ? AND status = 'concluded'")

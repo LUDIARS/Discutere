@@ -49,6 +49,7 @@ import {
   type TensionRecord,
 } from "./store.js";
 import { generatePosition } from "./position.js";
+import { renderIssueVoices } from "./issue-voices.js";
 import { buildDialecticTurnPrompt, parseTurnResponse, type UtteranceDigest } from "./turn-prompt.js";
 import {
   renderFacilitatorLine,
@@ -295,6 +296,11 @@ export async function runDialecticFlow(
     });
     await commit(makeRecord({ persona: facilitator, round, turn: 0, text: openingText }));
 
+    // 論点ごとのプレイヤーの声 (集めた外部の声)。定立と反論のプロンプトに根拠のデータとして載せる。
+    const issueVoices = voiceCache.lookup([issue.title, theme], cfg.flow.paperRichness.voices);
+    const voicesBlock = renderIssueVoices(issueVoices);
+    log(`論点 ${round}: プレイヤーの声 ${issueVoices.length} 件を議論者に渡す`);
+
     // ── [1] 定立 ──────────────────────────────────────────────────────────
     const positions: PositionRecord[] = [];
     const anchors: PositionAnchor[] = [];
@@ -318,6 +324,7 @@ export async function runDialecticFlow(
         persona,
         stance,
         paperSystem,
+        voicesBlock,
         llm: positionLlm,
         model: persona.model,
         warn,
@@ -380,6 +387,7 @@ export async function runDialecticFlow(
         personaNames,
         allowedActs: decision.allowedActs,
         targetUtteranceId: decision.targetUtteranceId ?? undefined,
+        voicesBlock,
       });
       const result = await turnLlm.invoke({ system: paperSystem, prompt, model: persona.model });
 

@@ -32,6 +32,8 @@ export interface GeneratePositionArgs {
   stance: "pro" | "con";
   /** ペーパー base (system に固定 = プロンプトキャッシュ戦略の維持)。 */
   paperSystem: string;
+  /** 論点ごとのプレイヤーの声ブロック (renderIssueVoices)。無ければ空。 */
+  voicesBlock?: string;
   /** withCostLog 済み LLM (location="position")。 */
   llm: LLMClient;
   model?: string;
@@ -43,8 +45,11 @@ export function buildPositionPrompt(args: {
   persona: FlowPersona;
   stance: "pro" | "con";
   issue: IssueRecord;
+  /** 論点ごとのプレイヤーの声ブロック (renderIssueVoices)。無ければ空。 */
+  voicesBlock?: string;
 }): string {
   const { persona, stance, issue } = args;
+  const voices = args.voicesBlock ? `${args.voicesBlock}\n\n` : "";
   const stanceJa = stance === "pro" ? "賛成" : "反対";
   const seed =
     persona.coreClaims && persona.coreClaims.length > 0
@@ -56,6 +61,7 @@ export function buildPositionPrompt(args: {
     (persona.valueAxis ? `あなたが重視する価値: ${persona.valueAxis}\n` : "") +
     seed +
     `\n# 論点 ${issue.ordinal}\n${issue.title}\n\n` +
+    voices +
     `${PREMISE_RULES_TEXT}\n\n` +
     `この論点についてあなたは【${stanceJa}】の立場 (${stance}) で定立 (Position) を張ります。\n` +
     `次の JSON 1 個だけを返してください (前後に説明やコードフェンスを付けない):\n` +
@@ -117,7 +123,7 @@ export async function generatePosition(args: GeneratePositionArgs): Promise<Gene
 
   const result = await llm.invoke({
     system: args.paperSystem,
-    prompt: buildPositionPrompt({ persona, stance, issue }),
+    prompt: buildPositionPrompt({ persona, stance, issue, voicesBlock: args.voicesBlock }),
     ...(model ? { model } : {}),
   });
 
