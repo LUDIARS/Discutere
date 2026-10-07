@@ -66,7 +66,7 @@
       "enrichMechanics": true,
       "enrichModel": ""
     },
-    "$comment_userVoices": "userVoices: ユーザーの声の収集 (spec/feature/flow/user-voices.md)。議論/改善の準備時に、議題のゲーム (+ 類似ゲーム) が Steam でリリース済みならレビュー、無ければ Voluptas の遊んだ感想を取り込み、ベクトル化 (embedding.enabled 時) する。類似ゲームがあればゲームごとに均等に混ぜて議論へ渡す。voluptasBaseUrl は env DISCUTERE_VOLUPTAS_BASE_URL > この値 > Excubitor が配る VOLPUTAS_URL の順で決まり、どれも空なら Voluptas からは集めない (通常は空のままで Excubitor の接続先を使う)。",
+    "$comment_userVoices": "userVoices: ユーザーの声の収集 (spec/feature/flow/user-voices.md)。議論/改善の準備時に、議題のゲーム (+ 類似ゲーム) が Steam でリリース済みならレビュー、無ければ Voluptas の遊んだ感想を取り込み、ベクトル化 (embedding.enabled 時) する。類似ゲームがあればゲームごとに均等に混ぜて議論へ渡す。voluptasBaseUrl は env DISCUTERE_VOLUPTAS_BASE_URL > この値 > Excubitor が配る VOLUPTAS_URL (旧綴り VOLPUTAS_URL も読む) の順で決まり、どれも空なら Voluptas からは集めない (通常は空のままで Excubitor の接続先を使う)。",
     "userVoices": {
       "enabled": true,
       "steamMaxReviews": 300,

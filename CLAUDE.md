@@ -317,7 +317,7 @@ bot 名義で締める (収束時 `finalizeForumPost` で lock+archive+まとめ
   ベクトル化する (`src/flow/user-voices/`)。starter の「類似ゲーム「A」」やペーパー調整の類似ゲーム指定が
   あれば類似ゲームの声も集め、ゲーム単位 (gameSlug) に引いて**ゲームごとに同じ件数ずつ混ぜた**声を、
   ペーパー・情報ゲート・議論のすべてに渡す (スレッドごとの `userVoiceLookups`)。設定 `flow.userVoices`、
-  Voluptas の接続先は `DISCUTERE_VOLUPTAS_BASE_URL` > config > Excubitor が配る `VOLPUTAS_URL` の順 (どれも無ければ Voluptas からは集めない)。
+  Voluptas の接続先は `DISCUTERE_VOLUPTAS_BASE_URL` > config > Excubitor が配る `VOLUPTAS_URL` (旧綴り `VOLPUTAS_URL` も読む) の順 (どれも無ければ Voluptas からは集めない)。
 
 ## 個人データ
 

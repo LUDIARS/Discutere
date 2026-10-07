@@ -41,7 +41,7 @@
 | `steamMaxReviews` | 300 | `DISCUTERE_FLOW_USER_VOICES_STEAM_MAX` |
 | `steamLanguages` | `["japanese","english"]` | `DISCUTERE_FLOW_USER_VOICES_STEAM_LANGUAGES` (カンマ区切り) |
 | `glabMaxImpressions` | 100 (1-200) | `DISCUTERE_FLOW_USER_VOICES_GLAB_MAX` |
-| `voluptasBaseUrl` | Excubitor が配る `VOLPUTAS_URL` (それも無ければ空 = Voluptas からは集めない) | `DISCUTERE_VOLUPTAS_BASE_URL` (明示指定が優先) |
+| `voluptasBaseUrl` | Excubitor が配る `VOLUPTAS_URL` (旧綴り `VOLPUTAS_URL` も読む。それも無ければ空 = Voluptas からは集めない) | `DISCUTERE_VOLUPTAS_BASE_URL` (明示指定が優先) |
 
 Voluptas の認証は Cernere service token (target `volputas`、scope `persona-export:read`)、
 移行期間は `DISCUTERE_VOLUPTAS_EXPORT_TOKEN` の固定トークンにも落ちる。
