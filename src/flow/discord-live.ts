@@ -706,11 +706,11 @@ function persistDiscordDraft(input: StartForumFlowInput, draft: PaperDraft): voi
 function approvalGuide(): string {
   const timeoutMs = getConfig().flow.paperReview.timeoutMs;
   const base =
-    "✏️ 調整があればこのスレッドに返信してください。返信の言葉で次の 3 つに振り分けて処理します。\n" +
+    "✏️ 調整があればこのスレッドで回答してください。回答の内容で次の 3 つに振り分けて処理します。\n" +
     "・議論内容の調整 (例:「メカニクスにガチャを追加」「観点補足を初心者向けに」)\n" +
     "・外部の声の取り込み (例:「外部の声を取り込んで「周回」」— 指定語 (無ければ議題) で集めて根拠に反映)\n" +
     "・類似するゲーム / メカニクスの代替 (例:「類似ゲーム: 「モンスト」「パズドラ」」— 挙げたゲームのメカニクスを参考として追加)\n" +
-    "よければ **「開始」** と返信するか ✅ を付けると議論を始めます。";
+    "よければ **「開始」** と回答するか ✅ を付けると議論を始めます。";
   if (timeoutMs > 0) {
     const min = Math.round(timeoutMs / 60000);
     return `${base}\n(${min > 0 ? `${min} 分` : `${Math.round(timeoutMs / 1000)} 秒`}無操作なら草案のまま自動で始めます)`;
@@ -954,7 +954,7 @@ async function processPaperReviewReply(
       appendRevision({ sessionId: threadId, bodyMd: edited.draft.bodyMd, changeSummary: edited.changeSummary, origin: "llm-edit" });
       persistDiscordDraft(pending.input, pending.draft);
       await postThreadNotice(deps, threadId, renderPaperReview(pending.draft, pending.info));
-      await postThreadNotice(deps, threadId, "他に調整があれば返信、よければ **「開始」** と返信 (または ✅)、1 手戻すなら **「戻す」** と返信してください。");
+      await postThreadNotice(deps, threadId, "他に調整があれば回答してください。よければ **「開始」** と回答 (または ✅)、1 手戻すなら **「戻す」** と回答してください。");
     }
   } catch (err) {
     console.warn(`  flow-live: ペーパーレビュー返信処理失敗 (thread=${threadId}): ${(err as Error).message}`);
@@ -1030,7 +1030,7 @@ export async function continuePaperReviewWithFlow(
     await postThreadNotice(
       deps,
       threadId,
-      `👌 今のペーパーのまま「${label}」で続けます。調整があれば返信、よければ **「開始」** と返信 (または ✅) してください。`
+      `👌 今のペーパーのまま「${label}」で続けます。調整があれば回答、よければ **「開始」** と回答 (または ✅) してください。`
     );
     return true;
   });

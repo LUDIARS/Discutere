@@ -24,6 +24,18 @@ function fakeMessage(content: string, fail = false) {
 
 assert.notEqual(PAPER_REVIEW_ACK_EMOJI, "✅", "承認 (✅) と区別できる絵文字");
 
+for (const content of ["ない", "はい"]) {
+  const m = fakeMessage(content);
+  assert.equal(await ackPaperReviewReply(m.msg, true), true);
+  assert.deepEqual(m.reacted, [PAPER_REVIEW_ACK_EMOJI], "編集を伴わない回答にも受付チェック");
+}
+
+{
+  const m = fakeMessage("開始");
+  assert.equal(await ackPaperReviewReply({ ...m.msg, reference: { messageId: "other" } }, true), false);
+  assert.deepEqual(m.reacted, [], "リプライには承認語でも反応しない");
+}
+
 {
   const m = fakeMessage("メカニクスにガチャを追加");
   assert.equal(await ackPaperReviewReply(m.msg, true), true);

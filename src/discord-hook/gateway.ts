@@ -44,8 +44,6 @@ import { ensureManagedChannels } from "./managed-channels.js";
 import { handleDirectiveMessage } from "./directive-handler.js";
 import { stripBotMention } from "./facilitator-directives.js";
 import { ackPaperReviewReply } from "./paper-review-ack.js";
-import { isApprovalText } from "../flow/paper-review.js";
-import { isNonInstructionReply } from "../flow/paper-review-intent.js";
 import type { AnyThreadChannel } from "discord.js";
 import { createDebateRunner, type DebateRunner } from "../discussion/director-live.js";
 import { ensureGameFeedbackCategory, extractGameFeedback } from "./game-feedback-channel.js";
@@ -543,6 +541,8 @@ export async function startDiscordGateway(
 
   client.on(Events.MessageCreate, (msg: Message) => {
     if (msg.author?.bot) return;
+    // Discord のリプライは宛先に関係なく対象外。通常投稿の回答だけを受け付ける。
+    if (msg.reference) return;
 
     // ゲーム感想チャンネル: カテゴリ「ゲーム感想」配下の投稿は議論にせず感想収集 (匿名)。
     if (deps.gameFeedback?.enabled) {
@@ -559,8 +559,7 @@ export async function startDiscordGateway(
     }
 
     // 進行役への調整指示: bot (@Discutere) へのメンションを「調整指示」として取り込み、
-    // 通常の utterance ルーティングには回さない。 persona へのリプライは通常の参加発言として
-    // 扱う (= ここでは横取りしない)。
+    // 通常の utterance ルーティングには回さない。リプライは入口で除外済み。
     if (
       forumEnabled &&
       deps.flowLive &&
@@ -610,17 +609,6 @@ export async function startDiscordGateway(
     return !!parentId && deps.discussionChannelIds.includes(parentId);
   }
 
-  /** 返信先が Discutere (bot 本体 / persona webhook) 以外の投稿か。取れなければ false。 */
-  async function isReplyToSomeoneElse(msg: Message): Promise<boolean> {
-    if (!msg.reference?.messageId) return false;
-    const ref = await msg.fetchReference().catch(() => null);
-    if (!ref) return false;
-    if (ref.author?.id === client.user?.id) return false;
-    // persona の発話は webhook 投稿 (Discutere 自身の発話)。
-    if (ref.webhookId) return false;
-    return true;
-  }
-
   /** 通常の議論ルーティング (フォーラム / クロール / 平文取り込み)。 */
   function routeDiscussionMessage(msg: Message): void {
     // フォーラムスレッド内の投稿: starter は ThreadCreate が処理済。後続投稿は
@@ -630,14 +618,9 @@ export async function startDiscordGateway(
       if (!isForumStarterMessage(msg) && deps.flowLive) {
         const flowLive = deps.flowLive;
         void (async () => {
-          // 他の投稿者 (別ボットや他の人) へのリプライは Discutere 宛てではない。ペーパーを決めるのは
-          // このスレッドの Discutere のセッションだけなので、調整にも議論にも取り込まない (2026-10-07:
-          // 同じスレッドの別ボットの質問に「ない」と答えた返信でペーパーが書き換わっていた)。
-          if (await isReplyToSomeoneElse(msg)) return;
-          // ペーパーレビュー返信を最優先 (壁打ちより先)。受け付けた意見 (調整・承認・戻す) にだけ
-          // 確認済みリアクションを付ける (相づち・別の質問への回答には付けない)。
-          const accepted = isApprovalText(msg.content) || !isNonInstructionReply(msg.content);
-          await ackPaperReviewReply(msg, hasPaperReview(msg.channelId) && accepted);
+          // 受付チェックは編集の有無と別。「ない」「はい」も回答として確認済みにする。
+          // 準備中の回答も対象にし、LLM の処理完了を待たずに受付を知らせる。
+          await ackPaperReviewReply(msg, hasPaperReview(msg.channelId));
           if (await handlePaperReviewReply(msg.channelId, msg.guildId ?? "dm", msg.content, flowLive, flowHooks)) {
             return;
           }
@@ -1001,6 +984,8 @@ export async function startDiscordGateway(
         for (const msg of messages.values()) {
           try {
             if (msg.author?.bot) continue;
+            // 過去投稿の再走査でも、ライブ受信と同様にリプライは取り込まない。
+            if (msg.reference) continue;
             // 既にこのボットが 👀 を付けている = 検知済なのでスキップ。
             const eyes = msg.reactions.cache.get("👀");
             if (eyes?.me) continue;
