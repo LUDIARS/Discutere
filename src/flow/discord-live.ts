@@ -62,7 +62,11 @@ import { stripProgress } from "./paper-markdown.js";
 import { appendRevision, revertLast, canRevert } from "./paper-revisions.js";
 import { getConfig } from "../config.js";
 import { expandNotionLinks } from "./notion-link.js";
-import { classifyPaperReviewIntent, PAPER_REVIEW_INTENT_LABELS } from "./paper-review-intent.js";
+import {
+  classifyPaperReviewIntent,
+  isNonInstructionReply,
+  PAPER_REVIEW_INTENT_LABELS,
+} from "./paper-review-intent.js";
 import { buildIntentInstruction, type PaperIntentDeps } from "./paper-review-enrich.js";
 import type { SparringSession } from "./sparring.js";
 import {
@@ -909,6 +913,13 @@ async function processPaperReviewReply(
     // 戻す → 1 手前の本文に戻す (Web の ↶戻すと対応)。
     if (isRevertText(trimmed)) {
       await handlePaperReviewRevert(threadId, pending, deps);
+      return true;
+    }
+
+    // 調整指示になっていない返信 (「ない」「はい」など、別の質問への回答や相づち) では
+    // ペーパーを書き換えない (勝手に更新されるのを防ぐ)。
+    if (isNonInstructionReply(trimmed)) {
+      console.log(`  [paper-review ${threadId}] 調整指示ではない返信のためペーパーを更新しない: ${JSON.stringify(trimmed.slice(0, 20))}`);
       return true;
     }
 

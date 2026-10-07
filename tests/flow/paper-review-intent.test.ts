@@ -4,7 +4,7 @@
  */
 
 import assert from "node:assert/strict";
-import { classifyPaperReviewIntent } from "../../src/flow/paper-review-intent.js";
+import { classifyPaperReviewIntent, isNonInstructionReply } from "../../src/flow/paper-review-intent.js";
 import { buildIntentInstruction } from "../../src/flow/paper-review-enrich.js";
 import type { investigateTheme } from "../../src/flow/investigate.js";
 
@@ -111,4 +111,15 @@ const voice = (content: string) => ({ content, source: "niconico" }) as never;
   assert.equal(r.instruction, "観点補足を初心者向けに", "議論内容の調整は本文をそのまま渡す");
   assert.equal(r.notice, "");
   console.log("  [ok] paper-review-enrich: 議論内容の調整はそのまま");
+}
+
+// ── 調整指示になっていない返信 (別の質問への回答・相づち) ───────────────────────
+{
+  for (const t of ["ない", "ない。", "なし", "特にない", "はい", "いいえ", "了解", "ありがとう", "👍", "…", "a", "  無い  "]) {
+    assert.equal(isNonInstructionReply(t), true, `${t} は指示ではない`);
+  }
+  for (const t of ["メカニクスにガチャを追加", "観点補足を初心者向けに", "ないものを足して", "類似ゲーム「モンスト」"]) {
+    assert.equal(isNonInstructionReply(t), false, `${t} は指示`);
+  }
+  console.log("  [ok] isNonInstructionReply: 相づち・否定・記号だけはペーパーを書き換えない");
 }

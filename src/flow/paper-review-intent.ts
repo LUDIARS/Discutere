@@ -58,6 +58,28 @@ function uniq(values: string[]): string[] {
   return [...new Set(values)];
 }
 
+/**
+ * 調整指示になっていない短い返信 (相づち・否定・別の質問への回答)。ペーパーを書き換えない。
+ * 例: 同じスレッドの別ボット (Concordia) の質問に「ない」と答えた返信が調整指示として
+ * ペーパーへ反映され、ペーパーが勝手に書き換わっていた (2026-10-07)。
+ * 「ok」「了解です」などの承認語は呼び出し側で先に isApprovalText で拾う前提。
+ */
+const NON_INSTRUCTION_REPLIES = new Set([
+  "ない", "無い", "なし", "無し", "ないです", "なしです", "ありません", "特にない", "特になし",
+  "とくにない", "とくになし", "なにもない", "何もない", "大丈夫", "だいじょうぶ", "大丈夫です",
+  "はい", "いいえ", "うん", "ううん", "いいよ", "りょうかい", "了解", "わかった", "分かった",
+  "ありがとう", "ありがとうございます", "どうも", "そう", "そうです", "違う", "ちがう",
+  "no", "none", "nope", "yes", "yep", "thanks", "thx",
+]);
+
+/** 指示になっていない返信か (相づち・否定・1 文字以下・記号や絵文字だけ)。 */
+export function isNonInstructionReply(raw: string): boolean {
+  const t = raw.trim().toLowerCase().replace(/[。、.,!！?？~〜ー\s]+$/u, "").replace(/^[\s「『]+|[」』]+$/gu, "");
+  if (t.length <= 1) return true;
+  if (!/[\p{L}\p{N}]/u.test(t)) return true; // 記号・絵文字だけ
+  return NON_INSTRUCTION_REPLIES.has(t);
+}
+
 /** 返信本文を 3 種類の指示に振り分ける。両方のキーワードがあれば外部の声を優先する。 */
 export function classifyPaperReviewIntent(raw: string): PaperReviewIntent {
   const text = raw.trim();
