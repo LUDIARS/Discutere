@@ -11,4 +11,5 @@ import "./paper-gap-ui.test.js";
 import "./facilitator-directives.test.js";
 import "./paper-review-ack.test.js";
 import "./mechanics-check.test.js";
+import "./level-check.test.js";
 console.log("discord-hook tests: all passed");

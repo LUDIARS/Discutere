@@ -1,11 +1,14 @@
 /** Compose conditional numerical findings and explicitly missing model conditions. */
-import type { ComparedStatement, DesignGap, MechanicsCheckRequest, PlayEnvelope, PlayEnvelopeDifference, PlayScenario } from "./contracts.js";
+import type { ComparedStatement, DesignGap } from "../design-diagnostic/contracts.js";
+import type { LevelCheckRequest, PlayEnvelope, PlayEnvelopeDifference, PlayScenario } from "./contracts.js";
 
 function modelStatement(text: string, quote: string): ComparedStatement {
   return { text, evidence: [{ referenceId: "playModel", quote }] };
 }
 function missingConditions(scenario: PlayScenario, envelope: PlayEnvelope): string[] {
   const missing: string[] = [];
+  if (!scenario.assumptions.ruleset) missing.push("適用ルールが未指定。配置差をルールの欠陥と断定できない。");
+  if (!scenario.assumptions.placement) missing.push("配置・遭遇・出現条件が未指定。");
   if (!scenario.skillBand) missing.push("技能帯が未指定。技能帯間の差をランダム分散と解釈できない。");
   if (!scenario.assumptions.information) missing.push("プレイヤーの情報条件が未指定。");
   if (!scenario.assumptions.initialState) missing.push("開始状態が未指定。");
@@ -20,6 +23,8 @@ function scenarioConditions(scenario: PlayScenario): string[] {
   const a = scenario.assumptions;
   return [
     "入力模型に対する条件付き計算。実プレイや面白さの証明ではない。",
+    ...(a.ruleset ? [`適用ルール: ${a.ruleset}`] : []),
+    ...(a.placement ? [`配置・遭遇・出現: ${a.placement}`] : []),
     ...(scenario.skillBand ? [`技能帯: ${scenario.skillBand}`] : []),
     ...(a.information ? [`情報: ${a.information}`] : []),
     ...(a.initialState ? [`開始状態: ${a.initialState}`] : []),
@@ -28,7 +33,7 @@ function scenarioConditions(scenario: PlayScenario): string[] {
     ...(a.other ?? []),
   ];
 }
-export function composePlayFindings(request: MechanicsCheckRequest, envelopes: PlayEnvelope[]): { differences: PlayEnvelopeDifference[]; gaps: DesignGap[] } {
+export function composePlayFindings(request: LevelCheckRequest, envelopes: PlayEnvelope[]): { differences: PlayEnvelopeDifference[]; gaps: DesignGap[] } {
   const model = request.playModel;
   if (!model) return { differences: [], gaps: [] };
   const gaps: DesignGap[] = [];
@@ -41,9 +46,9 @@ export function composePlayFindings(request: MechanicsCheckRequest, envelopes: P
       ? modelStatement(`本人の予測基準値: ${scenario.predictedBaseline.value} ${model.metric.unit}`, JSON.stringify(scenario.predictedBaseline))
       : { text: "本人の予測基準値は未提示。", evidence: [] };
     const right = modelStatement(`列挙した同時結果の幅: ${envelope.min}..${envelope.max} ${model.metric.unit} (${envelope.rangeScope})`, `"id":${JSON.stringify(scenario.id)}`);
-    const finding: PlayEnvelopeDifference = { kind: "play_envelope", target: scenario.id, left, right, status: "unknown", conditions, unknowns, envelope };
+    const finding: PlayEnvelopeDifference = { kind: "play_envelope", target: scenario.id, left, right, status: "unknown", causeDomain: "unknown", conditions, unknowns, envelope };
     // Calculation describes the supplied model; it does not judge a prediction as proved.
-    if (missing.length) gaps.push({ kind: "missing_condition", target: scenario.id, left, right, status: "unknown", conditions, unknowns: missing });
+    if (missing.length) gaps.push({ kind: "missing_condition", target: scenario.id, left, right, status: "unknown", causeDomain: "unknown", conditions, unknowns: missing });
     return finding;
   });
   return { differences, gaps };

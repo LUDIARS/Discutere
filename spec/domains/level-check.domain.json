@@ -1,0 +1,13 @@
+{
+  "name": "level-check",
+  "description": "議論を起動しない配置・遭遇・技能・予測可能性の単発診断。条件付きの明示同時結果、到達幅、領域別原因仮説。",
+  "presetRules": [],
+  "templateRules": [],
+  "membership": [
+    { "pathPattern": "(^|/)src/level-check/(?:.*/)?[^/]+$" },
+    { "pathPattern": "(^|/)src/design-diagnostic/(?:.*/)?[^/]+$" },
+    { "pathPattern": "(^|/)tests/level-check/(?:.*/)?[^/]+$" },
+    { "pathPattern": "(^|/)skills/level-check/(?:.*/)?[^/]+$" }
+  ],
+  "specRefs": ["DI-LC-01", "DI-LC-02", "DI-LC-03", "DI-LC-04", "DI-LC-05", "単発のレベル整合性診断"]
+}

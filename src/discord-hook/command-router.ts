@@ -95,7 +95,7 @@ export interface InboundRouteResult {
 
 export function routeSlashCommand(cmd: InboundSlashCommand, deps: CommandRouterDeps): SlashReply {
   // Even an incorrectly routed diagnostic must never become a persisted utterance.
-  if (cmd.name === "mechanics-check") return { content: "mechanics-check requires its dedicated async handler", ephemeral: true };
+  if (cmd.name === "mechanics-check" || cmd.name === "level-check") return { content: `${cmd.name} requires its dedicated async handler`, ephemeral: true };
   if (cmd.name === "discutere-kill" || cmd.name === "discutere-status") {
     return handleEngineSlash(cmd, deps);
   }

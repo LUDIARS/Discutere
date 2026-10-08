@@ -1,6 +1,6 @@
 /** Validate explicit joint outcomes and scenario boundaries before numeric calculation. */
-import { MECHANICS_CHECK_LIMITS as L, type PlayEvent, type PlayModel, type PlayOutcome, type PlayScenario } from "./contracts.js";
-import { array, choice, fail, finite, id, object, string, unique } from "./validation.js";
+import { LEVEL_CHECK_LIMITS as L, type PlayEvent, type PlayModel, type PlayOutcome, type PlayScenario } from "./contracts.js";
+import { array, choice, fail, finite, id, object, string, unique } from "../design-diagnostic/validation.js";
 
 const C = "invalid_input" as const;
 export const PROBABILITY_TOLERANCE = 1e-9;
@@ -37,9 +37,9 @@ function outcome(value: unknown, path: string, events: Set<string>, unit: string
 function scenario(value: unknown, i: number, events: Set<string>, unit: string): PlayScenario {
   const path = `playModel.scenarios[${i}]`;
   const s = object(value, path, ["id", "description", "skillBand", "assumptions", "predictedBaseline", "exhaustive", "outcomes"], C);
-  const a = object(s.assumptions, `${path}.assumptions`, ["information", "initialState", "timeLimitSeconds", "trialCount", "other"], C);
+  const a = object(s.assumptions, `${path}.assumptions`, ["ruleset", "placement", "information", "initialState", "timeLimitSeconds", "trialCount", "other"], C);
   const assumptions: PlayScenario["assumptions"] = {};
-  for (const key of ["information", "initialState"] as const) {
+  for (const key of ["ruleset", "placement", "information", "initialState"] as const) {
     if (a[key] !== undefined) assumptions[key] = string(a[key], `${path}.assumptions.${key}`, L.shortTextChars - 32, C);
   }
   if (a.timeLimitSeconds !== undefined) {
@@ -52,8 +52,8 @@ function scenario(value: unknown, i: number, events: Set<string>, unit: string):
     if (!Number.isSafeInteger(n) || n <= 0) fail(C, path, "trial count must be positive safe integer");
     assumptions.trialCount = n;
   }
-  // Six fixed condition descriptions may be added by the result composer.
-  if (a.other !== undefined) assumptions.other = array(a.other, `${path}.assumptions.other`, L.conditions - 6, C).map((v, j) => string(v, `${path}.assumptions.other[${j}]`, L.shortTextChars, C));
+  // Eight fixed condition descriptions may be added by the result composer.
+  if (a.other !== undefined) assumptions.other = array(a.other, `${path}.assumptions.other`, L.conditions - 8, C).map((v, j) => string(v, `${path}.assumptions.other[${j}]`, L.shortTextChars, C));
   let predictedBaseline: PlayScenario["predictedBaseline"];
   if (s.predictedBaseline !== undefined) {
     const b = object(s.predictedBaseline, `${path}.predictedBaseline`, ["value", "unit"], C);

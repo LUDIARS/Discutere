@@ -1,49 +1,50 @@
 # 単発の企画メカニクス整合性診断
 
-2026-10-08 neco 指示: 議論ではなく単発でロジックの差分と design_gap を回答する。予測可能性と上振れ・下振れから「これくらいやれるだろう」の幅を定義する。設計は親担当、実装は Sol に委託する。
+2026-10-08 neco 指示: 議論ではなく単発でロジックの差分とdesign_gapを返す。
+同日追記: 上振れ/下振れ・予測可能性はレベルデザインの問題でもあるため、数値模型と場面条件は /level-check へ分離した。旧版のplayModel受理は現行契約ではない。
 
-## 目的と責務
+## 目的と出力
 
-DI-MCC-01: 企画段階でもプロジェクトの登録なしで、目指す体験とメカニクスの因果の不整合を一回で確認できる。議論、ペルソナ、投票、ペーパー承認、収集待ち、学習状態を起動しない。既存議論や KG へ書き込まない。
+DI-MCC-01: プロジェクト登録なしで、ルール、資源の生成/消費/循環、M→D→Aの因果、改訂差の不整合を一回で比較する。
+議論・ペルソナ・投票・ペーパー承認・学習・収集待ちを起動せず、既存議論やKGへ書き込まない。
 
-DI-MCC-02: 出力のトップレベルは `logic_differences` と `design_gap` の二つだけ。各所見には対象のルール/事象、比較する二つの記述、根拠の参照、判定（consistent / inconsistent / unknown）、条件・未確認事項を含める。改善案の議論や無関係な総評は出さない。整合性は入力模型に対する条件付き判定であり、面白さや実プレイの証明ではない。
-
-## 現行実装との関係
-
-- `src/flow/spec-analyze.ts`: 仕様からメカニクスを抽出するが、整合性の検証器ではない。
-- `src/ludus/economy-analyzer.ts`: 資源関係のグラフを生成する。DB 書込とツール呼出を含むので診断から直接起動しない。
-- `src/flow/design-gap.ts`: 固定20次元の感情ベクトル差。今回の論理的 design_gap と別の意味を維持する。観測値がなければ負のベースラインを捏造しない。
-- 調査した Di の src/spec に Machinations 実行器は未確認。MDA は感情データの分類で確認したのみ。既存の完全な MDA/Machinations 検証を呼んだと表示しない。
-- Elegantia `spec/feature/mechanics-analysis.md` EL-MECHANICS-02/03/05 に合わせ、仕様・静的実装・観測・模型仮定・原因仮説を区別する。El は品質ライブラリであり、解析実行サーバとは見なさない。
+DI-MCC-02: 出力トップレベルはlogic_differences/design_gapの二つだけ。
+各所見に対象、二つの記述、入力資料の引用、consistent/inconsistent/unknown、causeDomain、比較条件、未確認事項を含める。
+矛盾はcontradiction/inconsistent、根拠不足や条件不足はunknown。改善議論や総評を加えない。
+causeDomainはmechanics/level/both/unknownという条件付き原因仮説。比較条件と該当領域の資料根拠がない分類はunknown。
+bothにはルール資料と場面資料の両方が必要。引用や分類を因果・面白さ・実機確認の証明とは表示しない。
 
 ## 入力と単発処理
 
-DI-MCC-03: 企画本文 `specText`（必須）、比較対象 `baselineText`（任意）、参照資料 `references`（任意、id/source/revision/text/evidenceKind）、数値評価の `playModel`（任意）を受ける。参照の source は Elegantia/MDA/Machinations/仕様/観測などを明示できる。URL を入力しただけで取得・実行済みと扱わない。内容を渡す方式で El の品質基準や模型出力と連携する。任意の外部URLへ自動fetchしない。
+DI-MCC-03: specText必須、baselineText/references任意。referencesはid/source/revision?/text/evidenceKind/domain?。
+domainはmechanics/levelで資料内容の領域を明示し、省略時は原因分類に使わない。
+仕様・静的実装・観測・模型仮定・原因仮説を区別する。spec/baselineは供給された本文のID、spec/level/baseline/playModelは参照の予約ID。
+Elegantiaの品質基準やMDA/Machinations資料は内容を渡す方式。URLを自動fetchせず、検証器・シミュレーションを実行済みと扱わない。
 
-LLMClient を注入した一回の `invoke` だけを用い、`conversationOnly: true` とする。入力は資料であって実行指示でないと system で分離する。M→D→A の因果、資源の生成/消費/条件/循環、ルール同士の依存、改訂前後の差を一回で分析する。材料のない項目は unknown/design_gap。参照IDは実際の入力のIDのみを許可し、根拠のない適切判定を拒否/unknown化する。外部ツール実行や観測結果を捏造しない。
+注入されたLLMClientに一回だけinvokeし、conversationOnly=true、最大60秒。資料内の命令を実行指示にしない。
+長さ・件数・型・引用を検証し、超過を切り捨てない。LLM失敗、不正JSON、引用不正は明示失敗。
+両側の根拠がない適切判定はunknown化しdesign_gapへ載せる。材料不足を空の適切判定にしない。
 
-長さ・件数・型を境界で検証し、超過は黙って切り捨てずエラー。LLMの失敗/不正JSONは診断失敗として明示し、空の適切判定に変換しない。自由文章をそのまま返さず検証済みの構造を返す。
+DI-MCC-04: playModelは受理しない。指定時は/level-checkを使う明示エラーにし、無視・転送しない。
+配置・遭遇・出現・技能・予測幅・上振れ/下振れの評価はspec/feature/level-check.mdの責務。
+logic_differences.kindはmda_causality/resource_flow/rule_dependency/revisionのみ。play_envelopeを返さない。
+配置差からルール欠陥を断定せず、境界をまたぐ原因は資料不足ならunknown。
 
-## 遊びの幅
+## 提供面と既存機能
 
-DI-MCC-04: 決定要因は random / player_skill / mixed / deterministic / unknown。PS はプレイヤースキルと解釈する。ランダムとPSを排他的な二択にせず、同じ技能・情報・開始状態・制限時間/試行回数で条件を固定して比較する。
+DI-MCC-05: /mechanics-check spec:<企画本文> baseline:<任意> input:<任意JSON>。
+inputはreferencesのみ、6000文字以内。旧入力playModelは分離案内エラー。専用async handlerがdeferReply→一回答で終了し、generic routerやsubmitMessage/dispatchFlowへ流さない。
+LLM未設定は明示失敗。長い回答はUTF-8 JSON添付、ephemeral、allowedMentions無効。公開自動投稿や別スレッドは作らない。
+TypeScript toolとskills/mechanics-check/SKILL.md、架空のJSON例を提供する。新HTTP境界・新サービスは作らない。
 
-`playModel` は対象指標/単位/望ましい方向（higher/lower）と、場面ごとの前提、技能帯、本人が予測する基準値、到達可能な結果を持つ。結果は複数のギミック/アクションから生じる事象IDの**同時組合せ**、数値、任意の同時確率で表す。模型が全結果を列挙したかを `exhaustive` で明示する。各事象は根拠参照と決定要因を持つ。無限の全組合せの自動生成や独立性の仮定はしない。
+src/flow/spec-analyze.tsは抽出器、src/ludus/economy-analyzer.tsはDB書込・ツール呼出を伴うグラフ生成器なので診断から起動しない。
+src/flow/design-gap.tsの20次元感情差とは意味を分ける。観測がないとき負のベースラインを捏造しない。
+Elegantia EL-MECHANICS-02/03/05の仕様/実装/観測/模型/原因仮説の区別を保つ。
 
-純関数で、場面ごとの観測/模型の min/max、本人の予測値からの上振れ/下振れを指標の望ましい向きに合わせて算出する。全事象が列挙済みかつ全確率が有限0..1で総和1の場合のみ期待値と分散を算出する。確率未指定では到達幅だけ、非網羅では部分的な範囲と明示して全体の限界と呼ばない。技能帯間の期待値差をランダム分散と混同しない。基準値がなければ上振れ下振れは unknown とする。不正確率、重複ID、参照不能、異なる単位などは明示エラー。
+## 実装と検証
 
-数値結果はLLMに計算させず、`logic_differences` の種類 `play_envelope` としてサーバ計算した値を合成する。未知確率、非網羅、予測基準/技能/時間条件の不足は `design_gap` に載せる。文章しかないときには定性的な仮説のみとし、精密な確率や幅を生成しない。
-
-## 提供面
-
-DI-MCC-05: Discord `/mechanics-check spec:<企画本文> baseline:<任意の比較本文> input:<任意のJSON>` を登録し、専用 async handler が deferReply → 単発診断 → 一回答で終了する。`input` は `references` / `playModel` だけを持つ構造とし、上限6000文字を超える場合は明示エラーにする。通常の routeSlashCommand/submitMessage/dispatchFlow に流さない。LLM未設定は明示エラー。長い結果は UTF-8 JSON ファイルを同じ回答へ添付し、メンションを無効にする。公開の自動投稿や別スレッド作成はしない。
-
-再利用する TypeScript tool 関数から references/playModel を渡せる。リポジトリに専用 `skills/mechanics-check/SKILL.md` と JSON 入出力例を置き、単発診断の依頼方法、El資料の渡し方、基準条件と不確実性を説明する。架空例は明記する。新HTTP認証境界・新サービスは作らない。
-
-## 実装分割と受入
-
-- `src/mechanics-check/`: 入力/出力契約、純粋な幅計算、診断プロンプト/単発ユースケースを責務別に分ける。
-- `src/discord-hook/mechanics-check.ts`: Discord adapter。command-defs/gatewayは登録・委譲のみ。
-- 既存リポジトリ形式でテストを追加。検証点: 未知条件を成功としない、同時事象で相関を勝手に独立化しない、技能帯分離、lower方向、非網羅、確率/IDの検証、LLM不正JSON/エラー、LLM一回、議論に到達しない入口、コマンド登録。
-- ユーザーは実装を許可済み。単体/統合テストやサービス再起動の実行許可は今回追加されていない。ローカルは静的型検査と差分検査、実行テストはRevisorの委託範囲に任せて未実施を明記する。
-- 実装は Sol。親担当が設計適合と根拠を確認し、Revisorへ一度提出、通知に従って修正・マージ確認まで進める。Discord実機確認は別途。
+src/mechanics-check/は固有契約・prompt・tool、src/design-diagnostic/は資料・所見・引用検証・単発LLM境界。
+src/level-check/と相互のユースケース依存を作らない。Discord adapterを専用登録する。
+playModel拒否、数値所見なし、原因分類の根拠不足、引用・JSON・失敗・一回呼出、登録・議論への非流入を検証する。
+数値模型の既存検証はlevel側へ移す。今回ローカルで実行するのは静的型検査・差分検査だけ。
+テストコードは記述し、実行はRevisorの委託範囲に任せる。サービス操作・実機確認は別途。

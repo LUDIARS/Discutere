@@ -35,6 +35,8 @@ import { MonitorCard } from "./monitor-card.js";
 import { registerSlashCommands } from "./register-commands.js";
 import { handleMechanicsCheckCommand, MECHANICS_CHECK_COMMAND_NAME } from "./mechanics-check.js";
 import type { MechanicsCheckDependencies } from "../mechanics-check/tool.js";
+import { handleLevelCheckCommand, LEVEL_CHECK_COMMAND_NAME } from "./level-check.js";
+import type { LevelCheckDependencies } from "../level-check/tool.js";
 import { handleCrawlMessage } from "./crawl-handler.js";
 import type { CrawlDeps } from "./crawl-channel.js";
 import {
@@ -126,6 +128,8 @@ export interface DiscordGatewayDeps extends CommandRouterDeps {
   flowLive?: FlowDiscordDeps;
   /** Single-shot mechanics diagnostic, without discussion/KG/learning dependencies. */
   mechanicsCheck?: MechanicsCheckDependencies;
+  /** Single-shot scene/skill/placement diagnostic. */
+  levelCheck?: LevelCheckDependencies;
   /** /debate のパーティ議論設定 (config.discussion)。未設定なら /debate 無効。 */
   debate?: import("../config.js").DiscutereConfig["discussion"];
   /** claude -p 用 git-bash パス (Windows)。 */
@@ -867,13 +871,14 @@ export async function startDiscordGateway(
 
     if (!interaction.isChatInputCommand()) return;
 
-    if (interaction.commandName === MECHANICS_CHECK_COMMAND_NAME) {
+    if (interaction.commandName === MECHANICS_CHECK_COMMAND_NAME || interaction.commandName === LEVEL_CHECK_COMMAND_NAME) {
       try {
-        await handleMechanicsCheckCommand(interaction, deps.mechanicsCheck);
+        if (interaction.commandName === MECHANICS_CHECK_COMMAND_NAME) await handleMechanicsCheckCommand(interaction, deps.mechanicsCheck);
+        else await handleLevelCheckCommand(interaction, deps.levelCheck);
       } catch {
         // Transport can reject defer/edit. Do not log user input or backend errors,
         // and never fall through to the generic persisted-discussion router.
-        console.warn("  discord-gateway: mechanics-check reply delivery failed");
+        console.warn("  discord-gateway: diagnostic reply delivery failed");
       }
       return;
     }

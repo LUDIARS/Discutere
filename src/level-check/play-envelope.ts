@@ -1,5 +1,5 @@
 /** Pure arithmetic over supplied joint outcomes; never synthesizes combinations. */
-import { MechanicsCheckError, type Determinant, type PlayEnvelope, type PlayModel, type PlayScenario } from "./contracts.js";
+import { LevelCheckError, type Determinant, type PlayEnvelope, type PlayModel, type PlayScenario } from "./contracts.js";
 
 function determinant(model: PlayModel, scenario: PlayScenario): Determinant {
   const included = new Set(scenario.outcomes.flatMap((outcome) => outcome.eventIds));
@@ -11,11 +11,11 @@ function determinant(model: PlayModel, scenario: PlayScenario): Determinant {
   return "deterministic";
 }
 function checked(value: number): number {
-  if (!Number.isFinite(value)) throw new MechanicsCheckError("invalid_input", "playModel: numeric calculation overflow");
+  if (!Number.isFinite(value)) throw new LevelCheckError("invalid_input", "playModel: numeric calculation overflow");
   return value;
 }
 
-/** The model must have passed validateMechanicsCheckRequest at the caller boundary. */
+/** The model must have passed validateLevelCheckRequest at the caller boundary. */
 export function calculatePlayEnvelopes(model: PlayModel): PlayEnvelope[] {
   return model.scenarios.map((scenario) => {
     const baseline = scenario.predictedBaseline?.value ?? null;

@@ -1,0 +1,117 @@
+{
+  "logic_differences": [
+    {
+      "kind": "play_envelope",
+      "target": "novice",
+      "left": {
+        "text": "本人の予測基準値: 60 points",
+        "evidence": [
+          {
+            "referenceId": "playModel",
+            "quote": "{\"value\":60,\"unit\":\"points\"}"
+          }
+        ]
+      },
+      "right": {
+        "text": "列挙した同時結果の幅: 20..100 points (enumerated_complete)",
+        "evidence": [
+          {
+            "referenceId": "playModel",
+            "quote": "\"id\":\"novice\""
+          }
+        ]
+      },
+      "status": "unknown",
+      "conditions": [
+        "入力模型に対する条件付き計算。実プレイや面白さの証明ではない。",
+        "適用ルール: 成功で得点、ランダムボーナス。変更しない。",
+        "配置・遭遇・出現: 一本道の固定敵配置。",
+        "技能帯: 初級者",
+        "情報: ルール既知",
+        "開始状態: 得点0",
+        "試行回数: 1"
+      ],
+      "unknowns": [
+        "入力模型の条件付き計算であり、実プレイでこの到達幅が生じるかは未確認。"
+      ],
+      "envelope": {
+        "scenarioId": "novice",
+        "metric": {
+          "id": "score",
+          "name": "得点",
+          "unit": "points",
+          "direction": "higher"
+        },
+        "skillBand": "初級者",
+        "determinant": "mixed",
+        "rangeScope": "enumerated_complete",
+        "min": 20,
+        "max": 100,
+        "predictedBaseline": 60,
+        "upside": 40,
+        "downside": 40,
+        "expectedValue": 60,
+        "variance": 800,
+        "probabilityStatus": "complete"
+      },
+      "causeDomain": "unknown"
+    }
+  ],
+  "design_gap": [
+    {
+      "kind": "missing_condition",
+      "target": "predictable_score",
+      "left": {
+        "text": "同じ初級者と配置で60 points前後を期待する。",
+        "evidence": [
+          {
+            "referenceId": "level",
+            "quote": "同じ初級者に一本道の敵配置で60 points前後を期待する。"
+          }
+        ]
+      },
+      "right": {
+        "text": "許容できる幅の基準が未定。",
+        "evidence": [
+          {
+            "referenceId": "level",
+            "quote": "許容範囲の基準は未定。"
+          }
+        ]
+      },
+      "status": "unknown",
+      "conditions": [
+        "架空の模型では20..100 pointsという条件付き到達幅。"
+      ],
+      "unknowns": [
+        "この幅が目指す予測可能性と一致するかの採否基準がない。"
+      ],
+      "causeDomain": "unknown"
+    },
+    {
+      "kind": "missing_evidence",
+      "target": "actual_level_experience",
+      "left": {
+        "text": "場面資料と条件付き模型の比較。",
+        "evidence": [
+          {
+            "referenceId": "level",
+            "quote": "【架空例】ルールは固定。同じ初級者に一本道の敵配置で60 points前後を期待する。許容範囲の基準は未定。"
+          }
+        ]
+      },
+      "right": {
+        "text": "実プレイの観測資料は未提示。",
+        "evidence": []
+      },
+      "status": "unknown",
+      "conditions": [
+        "入力された場面・技能・配置・適用ルールの前提に限定。"
+      ],
+      "unknowns": [
+        "実プレイの到達幅や体験は未確認。数値幅だけでは原因の所在を特定できない。"
+      ],
+      "causeDomain": "unknown"
+    }
+  ]
+}

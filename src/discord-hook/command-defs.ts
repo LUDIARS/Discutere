@@ -13,6 +13,7 @@ import { ApplicationCommandOptionType } from "discord.js";
 import type { RESTPostAPIChatInputApplicationCommandsJSONBody } from "discord.js";
 import { MECHANICS_CHECK_COMMAND_NAME } from "./mechanics-check.js";
 import { MECHANICS_CHECK_LIMITS } from "../mechanics-check/contracts.js";
+import { LEVEL_CHECK_COMMAND_NAME } from "./level-check.js";
 import {
   PAPER_GAP_COMMAND_NAME,
   PAPER_GAP_TYPE_CHOICES,
@@ -25,6 +26,15 @@ export const DISCORD_COMMAND_DEFS: RESTPostAPIChatInputApplicationCommandsJSONBo
     options: [
       { name: "spec", description: "企画本文 (目指す体験とルール)", type: ApplicationCommandOptionType.String, required: true, max_length: 6_000 },
       { name: "baseline", description: "比較する旧版や基準本文 (任意)", type: ApplicationCommandOptionType.String, required: false, max_length: 6_000 },
+      { name: "input", description: "references を含むJSON (模型は /level-check)", type: ApplicationCommandOptionType.String, required: false, max_length: MECHANICS_CHECK_LIMITS.discordInputChars },
+    ],
+  },
+  {
+    name: LEVEL_CHECK_COMMAND_NAME,
+    description: "配置・技能・予測可能性を単発診断 (logic_differences / design_gap)",
+    options: [
+      { name: "level", description: "場面本文 (配置・遭遇・適用ルール・目指す体験)", type: ApplicationCommandOptionType.String, required: true, max_length: 6_000 },
+      { name: "baseline", description: "比較する場面本文 (任意)", type: ApplicationCommandOptionType.String, required: false, max_length: 6_000 },
       { name: "input", description: "references / playModel を含むJSON (任意)", type: ApplicationCommandOptionType.String, required: false, max_length: MECHANICS_CHECK_LIMITS.discordInputChars },
     ],
   },
