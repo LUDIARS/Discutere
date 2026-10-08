@@ -1,0 +1,12 @@
+{
+  "name": "mechanics-check",
+  "description": "議論やKG書込を起動しない単発の企画メカニクス整合性診断。入力根拠検証、条件付き同時結果の到達幅計算、構造化論理差分。",
+  "presetRules": [],
+  "templateRules": [],
+  "membership": [
+    { "pathPattern": "(^|/)src/mechanics-check/(?:.*/)?[^/]+$" },
+    { "pathPattern": "(^|/)tests/mechanics-check/(?:.*/)?[^/]+$" },
+    { "pathPattern": "(^|/)skills/mechanics-check/(?:.*/)?[^/]+$" }
+  ],
+  "specRefs": ["DI-MCC-01", "DI-MCC-02", "DI-MCC-03", "DI-MCC-04", "DI-MCC-05", "単発の企画メカニクス整合性診断"]
+}

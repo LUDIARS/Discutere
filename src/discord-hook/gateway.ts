@@ -33,6 +33,8 @@ import {
 } from "./command-router.js";
 import { MonitorCard } from "./monitor-card.js";
 import { registerSlashCommands } from "./register-commands.js";
+import { handleMechanicsCheckCommand, MECHANICS_CHECK_COMMAND_NAME } from "./mechanics-check.js";
+import type { MechanicsCheckDependencies } from "../mechanics-check/tool.js";
 import { handleCrawlMessage } from "./crawl-handler.js";
 import type { CrawlDeps } from "./crawl-channel.js";
 import {
@@ -122,6 +124,8 @@ export interface DiscordGatewayDeps extends CommandRouterDeps {
    * 未設定なら forum 起動は skip (= LLM backend 無し)。
    */
   flowLive?: FlowDiscordDeps;
+  /** Single-shot mechanics diagnostic, without discussion/KG/learning dependencies. */
+  mechanicsCheck?: MechanicsCheckDependencies;
   /** /debate のパーティ議論設定 (config.discussion)。未設定なら /debate 無効。 */
   debate?: import("../config.js").DiscutereConfig["discussion"];
   /** claude -p 用 git-bash パス (Windows)。 */
@@ -862,6 +866,17 @@ export async function startDiscordGateway(
     }
 
     if (!interaction.isChatInputCommand()) return;
+
+    if (interaction.commandName === MECHANICS_CHECK_COMMAND_NAME) {
+      try {
+        await handleMechanicsCheckCommand(interaction, deps.mechanicsCheck);
+      } catch {
+        // Transport can reject defer/edit. Do not log user input or backend errors,
+        // and never fall through to the generic persisted-discussion router.
+        console.warn("  discord-gateway: mechanics-check reply delivery failed");
+      }
+      return;
+    }
 
     if (interaction.commandName === PAPER_GAP_COMMAND_NAME) {
       const rawType = interaction.options.getString("type", true);

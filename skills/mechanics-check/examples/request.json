@@ -1,0 +1,35 @@
+{
+  "specText": "【架空例】狙いは技能で予測可能な得点。成功で得点を得る。ボーナスはランダム。許容範囲の基準は未定。",
+  "baselineText": "【架空例】狙いは技能で予測可能な得点。ボーナスはない。",
+  "references": [
+    {
+      "id": "el-criterion",
+      "source": "Elegantia品質資料の架空の提供例 (実資料の引用ではない)",
+      "revision": "fictional-v1",
+      "text": "仕様、静的実装、観測、模型仮定、原因仮説を区別する。",
+      "evidenceKind": "specification"
+    }
+  ],
+  "playModel": {
+    "metric": { "id": "score", "name": "得点", "unit": "points", "direction": "higher" },
+    "events": [
+      { "id": "success", "description": "技能による成功", "determinant": "player_skill", "evidenceRefs": ["spec"] },
+      { "id": "bonus", "description": "ランダムボーナス", "determinant": "random", "evidenceRefs": ["spec"] }
+    ],
+    "scenarios": [
+      {
+        "id": "novice",
+        "description": "架空の初級者の一回の挑戦",
+        "skillBand": "初級者",
+        "assumptions": { "information": "ルール既知", "initialState": "得点0", "trialCount": 1 },
+        "predictedBaseline": { "value": 60, "unit": "points" },
+        "exhaustive": true,
+        "outcomes": [
+          { "id": "low", "eventIds": [], "value": 20, "unit": "points", "probability": 0.25 },
+          { "id": "middle", "eventIds": ["success"], "value": 60, "unit": "points", "probability": 0.5 },
+          { "id": "high", "eventIds": ["success", "bonus"], "value": 100, "unit": "points", "probability": 0.25 }
+        ]
+      }
+    ]
+  }
+}

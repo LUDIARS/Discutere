@@ -744,6 +744,7 @@ const discordGatewayLifecycle = startDiscordGateway({
   crawlChannelIds: config.discord.crawlChannelIds,
   // フォーラム集約: guild 内の全 Forum 監視 + データ学習依頼/まとめ投稿 を自動作成。
   forum: config.discord.forum,
+  mechanicsCheck: flowEngineLlm ? { llm: flowEngineLlm } : undefined,
   // 新フロー (議論/改善/学習/壁打ち) の Discord live 実行依存。LLM backend がある時のみ。
   // 設定するとフォーラムスレッドは新フローエンジンで起動する (旧 auto-discussion 経路は不使用)。
   flowLive: flowEngineLlm

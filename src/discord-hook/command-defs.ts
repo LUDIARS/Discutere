@@ -11,12 +11,23 @@
 
 import { ApplicationCommandOptionType } from "discord.js";
 import type { RESTPostAPIChatInputApplicationCommandsJSONBody } from "discord.js";
+import { MECHANICS_CHECK_COMMAND_NAME } from "./mechanics-check.js";
+import { MECHANICS_CHECK_LIMITS } from "../mechanics-check/contracts.js";
 import {
   PAPER_GAP_COMMAND_NAME,
   PAPER_GAP_TYPE_CHOICES,
 } from "./paper-gap-ui.js";
 
 export const DISCORD_COMMAND_DEFS: RESTPostAPIChatInputApplicationCommandsJSONBody[] = [
+  {
+    name: MECHANICS_CHECK_COMMAND_NAME,
+    description: "企画のメカニクス整合性を単発診断 (logic_differences / design_gap)",
+    options: [
+      { name: "spec", description: "企画本文 (目指す体験とルール)", type: ApplicationCommandOptionType.String, required: true, max_length: 6_000 },
+      { name: "baseline", description: "比較する旧版や基準本文 (任意)", type: ApplicationCommandOptionType.String, required: false, max_length: 6_000 },
+      { name: "input", description: "references / playModel を含むJSON (任意)", type: ApplicationCommandOptionType.String, required: false, max_length: MECHANICS_CHECK_LIMITS.discordInputChars },
+    ],
+  },
   {
     name: "propose",
     description: "hypothesis (跳躍的仮説) を提案して自走議論を起こす",

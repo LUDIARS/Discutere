@@ -8,6 +8,9 @@
       "pathPattern": "(^|/)src/discord-hook/(?:.*/)?[^/]+$"
     },
     {
+      "pathPattern": "(^|/)tests/discord-hook/mechanics-check\\.test\\.ts$"
+    },
+    {
       "pathPattern": "(^|/)src/slack/(?:.*/)?[^/]+$"
     },
     {
@@ -22,5 +25,6 @@
     {
       "pathPattern": "(^|/)electron/(?:.*/)?[^/]+$"
     }
-  ]
+  ],
+  "specRefs": ["DI-MCC-05", "単発の企画メカニクス整合性診断"]
 }

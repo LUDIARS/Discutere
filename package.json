@@ -34,6 +34,7 @@
     "test:visualize": "tsx tests/visualize/run.ts",
     "test:persona-engine": "tsx tests/persona-engine/run.ts",
     "test:discord-hook": "tsx tests/discord-hook/run.ts",
+    "test:mechanics-check": "tsx tests/mechanics-check/run.ts",
     "test:runtime-settings": "tsx tests/runtime-settings/run.ts",
     "test:startup-guard": "tsx tests/startup-guard/run.ts",
     "test:queue": "tsx tests/queue/run.ts",
