@@ -29,7 +29,7 @@ import {
 import { PROJECT_PREMISES } from "../flow/project-premise.js";
 
 /** 議論タイプ (必須・1 つ選択) のフォーラムタグ名。順序は select UI の表示順。 */
-export const FLOW_KIND_TAG_NAMES = ["議論", "改善", "壁打ち"] as const;
+export const FLOW_KIND_TAG_NAMES = ["議論", "改善"] as const;
 
 /** 機密度+観点 (任意・複数可) のフォーラムタグ名。FlowTag と一致。 */
 export const FLOW_ASPECT_TAG_NAMES = ["機密", "内部", "運用", "開発"] as const;
@@ -47,7 +47,6 @@ export const FLOW_PICK_PREFIX = "flow-pick";
 const FLOW_KIND_CHOICES: Array<{ value: string; label: string; description: string }> = [
   { value: "議論", label: PROJECT_PREMISES.discussion.label, description: PROJECT_PREMISES.discussion.description },
   { value: "改善", label: PROJECT_PREMISES.improvement.label, description: PROJECT_PREMISES.improvement.description },
-  { value: "壁打ち", label: "壁打ち", description: "あなたの発言に AI が応答し続ける" },
 ];
 
 /**
@@ -174,12 +173,13 @@ export function parseSettingsPreset(value: string): { rounds?: number; turnsPerR
  * 未登録分だけを末尾に追加する。上限を超える分は追加しない。
  */
 export function mergeForumTags(
-  existing: ReadonlyArray<{ name: string }>,
+  existing: ReadonlyArray<{ name: string; id?: string }>,
   want: readonly string[] = ALL_FLOW_TAG_NAMES
 ): { tags: GuildForumTagData[]; added: string[] } {
   const MAX = 20;
-  const have = new Set(existing.map((t) => t.name));
-  const tags: GuildForumTagData[] = existing.map((t) => ({ name: t.name }));
+  const retained = existing.filter(t => !["壁打ち", "壁打", "sparring", "学習", "learning"].includes(t.name.trim().toLowerCase()));
+  const have = new Set(retained.map((t) => t.name));
+  const tags: GuildForumTagData[] = retained.map((t) => ({ ...t }));
   const added: string[] = [];
   for (const name of want) {
     if (have.has(name)) continue;
@@ -197,7 +197,7 @@ export function mergeForumTags(
  */
 export async function ensureForumFlowTags(forum: ForumChannel): Promise<string[]> {
   const { tags, added } = mergeForumTags(forum.availableTags ?? []);
-  if (added.length === 0) return [];
+  if (added.length === 0 && tags.length === forum.availableTags.length) return [];
   await forum.setAvailableTags(tags);
   return added;
 }

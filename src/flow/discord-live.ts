@@ -594,12 +594,10 @@ async function startPaperReview(
   // レビュー待ちは維持する (「開始」で強行も可 — 人間が最終決定)。
   const d = info.debatability;
   if (d && !d.degraded && !d.debatable && d.recommendation && claimRepropose(input.threadId)) {
-    const label = d.recommendation.flow === "sparring" ? "壁打ち" : "参考情報の確認";
     await postThreadNotice(
       deps,
       input.threadId,
-      `💡 **フロー再提案**: このテーマは「${label}」が向いています。${d.recommendation.reason}\n` +
-        "下のメニューで議論タイプを選び直すか、このまま **「開始」** で議論を開始できます。"
+      "論点を追記・修正するか、このまま **「開始」** で議論を開始できます。"
     );
     try {
       await hooks?.onReproposeFlowType?.({

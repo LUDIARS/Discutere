@@ -213,17 +213,6 @@ export interface AssessDebatabilityArgs {
   warn?: (msg: string) => void;
 }
 
-/** 議論不適時のフロー再提案を決める (09 §2)。 */
-function recommendFlow(
-  issues: readonly string[],
-  evidence: EvidenceBalance
-): FlowRecommendation {
-  return {
-    flow: "sparring",
-    reason: `賛否が本気で割れる争点が ${issues.length} 件と少ないため、「壁打ち」で論点を練るのが向いています。`,
-  };
-}
-
 /**
  * 議論適性を評価する (3 検査 + 判定 + 再提案)。
  * LLM 失敗時はゲートで議論を止めず degraded=true で「適性あり扱い」に倒す (warn で明示)。
@@ -265,7 +254,7 @@ export async function assessDebatability(args: AssessDebatabilityArgs): Promise<
 
   const armableBothCount = armability.filter((a) => a.armable === "both").length;
   const debatable = issues.length > 0; // 声の量・偏り・両論の根拠不足は参考情報。開始条件にしない。
-  const recommendation = debatable ? null : recommendFlow(issues, evidence);
+  const recommendation = null; // 論点はペーパーで修正する。廃止した壁打ちへ誘導しない。
   const skewNote =
     Math.abs(evidence.polaritySkew) >= SKEW_THRESHOLD
       ? ` / 極性偏り ${evidence.polaritySkew.toFixed(2)}`

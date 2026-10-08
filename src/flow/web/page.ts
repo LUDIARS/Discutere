@@ -244,7 +244,6 @@ export const FLOW_HTML = `<!doctype html>
       <select id="flow" required>
         <option value="discussion" selected>企画/議論 — プロジェクトなし</option>
         <option value="improvement">改善/議論 — プロジェクトあり</option>
-        <option value="sparring">壁打ち</option>
       </select>
     </fieldset>
     <fieldset class="tags">
@@ -262,7 +261,7 @@ export const FLOW_HTML = `<!doctype html>
     <fieldset class="tags">
       <legend>生成済みペルソナ指定 (任意)</legend>
       <label>ペルソナ名/ID (カンマ区切り) <input id="opponent" type="text" placeholder="例: ローグ好き太郎,ソシャゲ花子" style="width:60%" /></label>
-      <span class="field-note">議論/改善では指定ペルソナをキャストに含め、壁打ちでは相手にします。</span>
+      <span class="field-note">指定ペルソナを議論のキャストに含めます。</span>
     </fieldset>
     <fieldset class="tags">
       <legend>参考情報の取得先（任意・外部の声なしでも議論できます）</legend>
@@ -627,10 +626,7 @@ function renderDebatability(info) {
   let html = "<strong>議論適性ゲート: " + (d.debatable ? "議論に向いています" : "議論不適 (再提案あり)") + "</strong>" +
     "<div>" + escapeHtml(d.message || "") + "</div>";
   if (!d.debatable && d.recommendation) {
-    const label = d.recommendation.flow === "sparring" ? "壁打ち" : "参考情報の確認";
-    html += '<div class="rec">💡 <strong>提案: 「' + label + '」フロー</strong>' +
-      escapeHtml(d.recommendation.reason || "") +
-      '<div class="muted">このまま下の「議論開始」で強行することもできます (人間が最終決定)。</div></div>';
+    html += '<div class="rec">論点を追記・修正するか、このまま「議論開始」で始められます。</div>';
   }
   el.innerHTML = html;
   el.style.display = "block";

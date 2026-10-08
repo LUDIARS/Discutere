@@ -23,8 +23,8 @@ import { parseForumEntry, handleForumFlowPost } from "../../src/flow/entry-disco
   assert.equal(parseFlowKind("改善"), "improvement");
   assert.equal(parseFlowKind("改善提案"), "improvement");
   assert.equal(parseFlowKind("学習"), null, "学習は議論の状態・タイプとして存在しない");
-  assert.equal(parseFlowKind("壁打ち"), "sparring");
-  assert.equal(parseFlowKind("sparring"), "sparring");
+  assert.equal(parseFlowKind("壁打ち"), null);
+  assert.equal(parseFlowKind("sparring"), null);
   assert.equal(parseFlowKind(""), null, "空は null");
   assert.equal(parseFlowKind(undefined), null, "undefined は null");
   assert.equal(parseFlowKind("雑談"), null, "未知ラベルは null");
@@ -64,13 +64,8 @@ import { parseForumEntry, handleForumFlowPost } from "../../src/flow/entry-disco
   await assert.rejects(dispatchFlow({ theme: "t", tags: [], flow: "学習" }, baseDeps), FlowTypeRequiredError);
   assert.deepEqual(calls, ["discussion", "improvement"], "ラベルごとに正しいドライバ");
 
-  // 壁打ちは SparringSession を返す (start 済み) — LLM は呼ばれない (start は調査のみ)
-  const spar = await dispatchFlow(
-    { theme: "壁打ちテーマ", tags: [], flow: "壁打ち" },
-    { llm: { invoke: async () => ({ ok: true as const, text: "" }) }, gamesDir: path.resolve(".tmp/none-xyz") }
-  );
-  assert.equal(spar.kind, "sparring", "壁打ち → sparring");
-  if (spar.kind === "sparring") assert.ok(typeof spar.session.submitUser === "function", "SparringSession を返す");
+  await assert.rejects(dispatchFlow({ theme: "t", tags: [], flow: "壁打ち" }, baseDeps), FlowTypeRequiredError);
+  await assert.rejects(dispatchFlow({ theme: "t", tags: [], flow: "sparring" }, baseDeps), FlowTypeRequiredError);
 
   // flow 必須: 不正/未指定は受理しない
   await assert.rejects(
@@ -85,7 +80,8 @@ import { parseForumEntry, handleForumFlowPost } from "../../src/flow/entry-disco
 // ── parseForumEntry: フォーラム適用タグ → (flow, tags) ──────────────────────
 {
   assert.deepEqual(parseForumEntry(["改善", "機密"]), { flow: "improvement", tags: ["機密"] }, "改善 + 機密");
-  assert.deepEqual(parseForumEntry(["壁打ち", "運用"]), { flow: "sparring", tags: ["運用"] }, "壁打ち + 運用");
+  assert.deepEqual(parseForumEntry(["壁打ち", "運用"]), { flow: null, tags: ["運用"] }, "廃止した壁打ちは起動しない");
+  assert.equal(parseForumEntry(["旧相談"], { flowKindTagNames: { sparring: ["旧相談"] } }).flow, null);
   assert.deepEqual(parseForumEntry(["議論"]), { flow: "discussion", tags: [] }, "議論のみ");
   // 議論タイプタグが無い → flow null (受理しない方針)
   assert.deepEqual(parseForumEntry(["面白さ"]).flow, null, "旧方向タグのみは flow null");

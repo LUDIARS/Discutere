@@ -53,7 +53,7 @@ export function parseForumEntry(appliedTagNames: string[], mapping?: ForumTagMap
       const matched = (Object.entries(override) as [FlowKind, string[]][]).find(([, names]) =>
         names.some((n) => name.trim() === n || name.trim().includes(n))
       );
-      if (matched) {
+      if (matched && (matched[0] === "discussion" || matched[0] === "improvement")) {
         flow = matched[0];
         break;
       }
@@ -131,7 +131,7 @@ export async function handleForumFlowPost(
       ok: false,
       reason: "flow-required",
       message:
-        "議論タイプのタグ (議論/改善/学習/壁打ち) が付いていません。フォーラムタグで議論タイプを指定してください。",
+        "議論タイプのタグが付いていません。「企画/議論」または「改善/議論」を選択してください。",
     };
   }
   const dispatch = await dispatchFlow(

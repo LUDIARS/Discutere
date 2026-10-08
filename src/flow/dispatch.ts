@@ -36,7 +36,7 @@ const FLOW_KIND_ALIASES: Record<FlowKind, string[]> = {
   discussion: ["discussion", "企画/議論", "企画／議論", "議論", "ディスカッション", "討論"],
   improvement: ["improvement", "改善/議論", "改善／議論", "改善", "改善提案", "提案"],
   learning: [],
-  sparring: ["sparring", "壁打ち", "壁打"],
+  sparring: [],
 };
 
 /**

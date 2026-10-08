@@ -13,9 +13,9 @@ import { parseFlowKind } from "../../src/flow/dispatch.js";
 import { canCollectExternal } from "../../src/flow/tags.js";
 
 // ── 定義済みタグ集合 ──
-assert.deepEqual([...FLOW_KIND_TAG_NAMES], ["議論", "改善", "壁打ち"]);
+assert.deepEqual([...FLOW_KIND_TAG_NAMES], ["議論", "改善"]);
 assert.deepEqual([...FLOW_ASPECT_TAG_NAMES], ["機密", "内部", "運用", "開発"]);
-assert.equal(ALL_FLOW_TAG_NAMES.length, 7);
+assert.equal(ALL_FLOW_TAG_NAMES.length, 6);
 console.log("ok flow tag sets");
 
 // ── 議論タイプタグは parseFlowKind で必ず解決できる (フロー起動の前提) ──
@@ -45,7 +45,10 @@ console.log("ok flow tag semantics");
   const partial = mergeForumTags([{ name: "議論" }, { name: "雑談" }]);
   assert.deepEqual(partial.tags.map((t) => t.name).slice(0, 2), ["議論", "雑談"]);
   assert.ok(!partial.added.includes("議論"));
-  assert.ok(partial.added.includes("壁打ち"));
+  assert.ok(!partial.added.includes("壁打ち"));
+  const retired = mergeForumTags([{ id: "p", name: "議論" }, { id: "s", name: "壁打ち" }, { name: "学習" }]);
+  assert.ok(!retired.tags.some(t => t.name === "壁打ち" || t.name === "学習"));
+  assert.equal(retired.tags.find(t => t.name === "議論")?.id, "p", "稼働中スレッドのタグIDを保持する");
   assert.ok(partial.tags.some((t) => t.name === "雑談")); // 無関係タグも残る
 
   // 既に全部あれば追加なし。
