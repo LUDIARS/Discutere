@@ -1,3 +1,4 @@
+import { VOICE_REFERENCE_POLICY } from "./user-voices/reference-policy.js";
 /**
  * 議論適性ゲート (09-paper-gate-debatability) — 情報ゲート (量) の後段の「質」チェック。
  *
@@ -154,7 +155,7 @@ export async function judgeIssueArmability(args: JudgeArmabilityArgs): Promise<I
           .join("\n")
       : "(材料なし)";
   const system =
-    "あなたは議論の準備担当です。 各論点について、 手元の材料 (プレイヤーの声) で" +
+    VOICE_REFERENCE_POLICY + "\nあなたは議論の準備担当です。 各論点について、手元の材料と前提・事前知識で" +
     " 賛成側 (pro) と反対側 (con) の両方が根拠を張れるかを判定します。 返答は JSON 配列のみ。";
   const prompt =
     `# 議題\n${theme}\n\n# 論点\n${issueText}\n\n# 手元の材料 (外部の声)\n${voiceText}\n\n` +
@@ -217,22 +218,6 @@ function recommendFlow(
   issues: readonly string[],
   evidence: EvidenceBalance
 ): FlowRecommendation {
-  const materialDeficient =
-    evidence.voiceCount < SPARSE_VOICES || Math.abs(evidence.polaritySkew) >= SKEW_THRESHOLD;
-  if (materialDeficient) {
-    const lacking =
-      evidence.polaritySkew >= SKEW_THRESHOLD
-        ? "否定・批判側"
-        : evidence.polaritySkew <= -SKEW_THRESHOLD
-          ? "肯定・支持側"
-          : "多様な観点";
-    return {
-      flow: "learning",
-      reason:
-        `材料不足が主因です (声 ${evidence.voiceCount} 件 / 極性偏り ${evidence.polaritySkew.toFixed(2)})。` +
-        `${lacking}の材料を「学習」で集めてから議論すると両論が立ちます。`,
-    };
-  }
   return {
     flow: "sparring",
     reason: `賛否が本気で割れる争点が ${issues.length} 件と少ないため、「壁打ち」で論点を練るのが向いています。`,
@@ -279,14 +264,14 @@ export async function assessDebatability(args: AssessDebatabilityArgs): Promise<
   }
 
   const armableBothCount = armability.filter((a) => a.armable === "both").length;
-  const debatable = armableBothCount >= minArmableIssues;
+  const debatable = issues.length > 0; // 声の量・偏り・両論の根拠不足は参考情報。開始条件にしない。
   const recommendation = debatable ? null : recommendFlow(issues, evidence);
   const skewNote =
     Math.abs(evidence.polaritySkew) >= SKEW_THRESHOLD
       ? ` / 極性偏り ${evidence.polaritySkew.toFixed(2)}`
       : "";
   const message = debatable
-    ? `議論適性: あり (両論武装可能な争点 ${armableBothCount}/${issues.length} 件${skewNote})`
+    ? `議論可能（外部の声は任意の参考値） (両論の参考根拠がある争点 ${armableBothCount}/${issues.length} 件${skewNote})`
     : `議論適性: 低 (両論武装可能な争点 ${armableBothCount}/${issues.length} 件 < ${minArmableIssues}${skewNote})`;
 
   return {

@@ -626,6 +626,7 @@ export async function startDiscordGateway(
           }
           // 再起動などで途中で止まった議論は「再開」返信で同じペーパーからやり直す。
           if (await handleInterruptedDiscussionReply(msg.channelId, msg.guildId ?? "dm", msg.content, flowLive, flowHooks)) {
+            await ackPaperReviewReply(msg, true);
             return;
           }
           await handleForumFlowReply(msg.channelId, msg.guildId ?? "dm", msg.content, flowLive, flowHooks);

@@ -1,3 +1,6 @@
+import { forumSessionId, openRediscussion } from "./discord-flow-runs.js";
+import { prepareVoiceChoice, readVoicePreparation, saveVoicePreparation, needsVoiceChoice, voicePreparationNotice, checkVoiceReceipt, type VoiceRequestPort } from "./user-voices/preparation.js";
+import { configuredVoiceRequest } from "./user-voices/request-client.js";
 /**
  * 新フロー議論エンジン (src/flow) の Discord live アダプタ。
  *
@@ -99,6 +102,7 @@ const VOTE_EMOJI = "👍";
 type Core = ReturnType<typeof createCore>;
 
 export interface FlowDiscordDeps {
+  voiceRequest?: VoiceRequestPort;
   /** webhook / message 投稿用 bot token。 */
   botToken: string;
   /** フロー実行用 LLM クライアント。 */
@@ -181,6 +185,7 @@ async function collectUserVoicesForThread(input: StartForumFlowInput, deps: Flow
     const prepared = await prepareUserVoices({
       theme: input.theme,
       includeThemeGame: input.flow !== "discussion",
+      youtubeApiKey: (await resolveYoutubeApiKey(deps)) ?? undefined,
       similarGames: input.similarGames ?? [],
       openCore: deps.openCore,
       workspaceId: deps.workspaceId ?? getConfig().workspace,
@@ -230,7 +235,7 @@ export function hasSparringSession(threadId: string): boolean {
 /** そのスレッドでペーパーレビュー待ちか (メモリ + 永続ドラフトの両方を見る)。 */
 export function hasPaperReview(threadId: string): boolean {
   // 準備中 (草案を出す前) もレビューセッションに含める: その間の返信も受け付けて溜める。
-  return hasReviewSession(threadId) || paperReviewByThread.has(threadId) || getDraftPaper(threadId) !== null;
+  return hasReviewSession(threadId) || paperReviewByThread.has(threadId) || getDraftPaper(forumSessionId(threadId)) !== null;
 }
 
 /** 1 議論ぶんの投稿コンテキスト (utterance_id → 投稿 message_id を保持し、投票で参照する)。 */
@@ -355,7 +360,7 @@ async function prepareInformationBeforeForumFlow(
       openCore: deps.openCore,
       workspaceId: deps.workspaceId ?? getConfig().workspace,
       listExternalVoices: voiceLookupFor(input.threadId, deps),
-      sessionId: input.threadId,
+      sessionId: forumSessionId(input.threadId),
       log: (m) => console.log(`  [forum-gate ${input.threadId}] ${m}`),
       warn: (m) => console.warn(`  [forum-gate ${input.threadId}] ${m}`),
       youtubeApiKey,
@@ -533,7 +538,7 @@ export async function startForumFlow(
     // 無ければ Voluptas の遊んだ感想を取り込み・ベクトル化する。情報ゲートより先に集める。
     input = { ...input, similarGames: input.similarGames ?? parseSimilarGames(input.specText ?? input.theme) };
     await collectUserVoicesForThread(input, deps);
-    await prepareInformationBeforeForumFlow(input, deps);
+    // 外部の声は参考値。件数・情報密度を満たすまで反復する独立した学習状態を置かない。
     // starter / 議題中の Notion リンクはペーパーの「ゲーム内容」材料として展開する。
     const notionMd = await resolveStarterNotion(input);
     if (notionMd) {
@@ -541,7 +546,7 @@ export async function startForumFlow(
     }
 
     // ペーパーレビューゲート (有効時): 草案 + 集めた情報を出し、調整/承認をスレッド返信で待つ。
-    if (reviewEnabled) {
+    if (reviewEnabled || !(voiceLookupFor(input.threadId, deps)?.([input.theme], 1).length)) {
       await startPaperReview(input, deps, hooks, notionMd);
       return;
     }
@@ -580,19 +585,21 @@ async function startPaperReview(
   // ドラフトを discussion_paper(status='draft') に永続 → 議論一覧に「下書き」として出す/再開できる
   // (session_id=threadId。承認時に同 session 行を 'started' へ upsert する)。
   persistDiscordDraft(input, draft);
-  appendRevision({ sessionId: input.threadId, bodyMd: draft.bodyMd, changeSummary: "初期草案", origin: "initial" });
+  appendRevision({ sessionId: forumSessionId(input.threadId), bodyMd: draft.bodyMd, changeSummary: "初期草案", origin: "initial" });
   await postThreadNotice(deps, input.threadId, renderPaperReview(draft, info));
+  const voiceState = await prepareVoiceChoice({ sessionId: forumSessionId(input.threadId), theme: input.theme, referenceCount: info.voiceCount, priorKnowledge: draft.mechanics.some(m => m.source !== "llm") || !!draft.mechanicsContext?.trim(), request: deps.voiceRequest ?? configuredVoiceRequest });
+  await postThreadNotice(deps, input.threadId, voicePreparationNotice(voiceState));
   await postThreadNotice(deps, input.threadId, approvalGuide());
   // 議論不適 → フロー再提案 (09): 提案リプライ + 議論タイプ選択メニュー再提示 (hook 経由)。
   // レビュー待ちは維持する (「開始」で強行も可 — 人間が最終決定)。
   const d = info.debatability;
   if (d && !d.degraded && !d.debatable && d.recommendation && claimRepropose(input.threadId)) {
-    const label = d.recommendation.flow === "sparring" ? "壁打ち" : "学習";
+    const label = d.recommendation.flow === "sparring" ? "壁打ち" : "参考情報の確認";
     await postThreadNotice(
       deps,
       input.threadId,
       `💡 **フロー再提案**: このテーマは「${label}」が向いています。${d.recommendation.reason}\n` +
-        "下のメニューで議論タイプを選び直すか、このまま **「開始」** で議論を強行できます。"
+        "下のメニューで議論タイプを選び直すか、このまま **「開始」** で議論を開始できます。"
     );
     try {
       await hooks?.onReproposeFlowType?.({
@@ -628,7 +635,7 @@ function buildForumPaperDraft(input: StartForumFlowInput, deps: FlowDiscordDeps,
     enrichModel: richness.enrichModel || undefined,
     seed: notionMd ? { mechanicsContext: notionMd } : undefined,
     // 議論適性ゲート (09): 情報ゲートの後段・人間レビューの前 (無効時は undefined = 現行挙動)。
-    debatability: resolveDebatabilityGate({ kind: input.flow, sessionId: input.threadId, llm: deps.llm }),
+    debatability: resolveDebatabilityGate({ kind: input.flow, sessionId: forumSessionId(input.threadId), llm: deps.llm }),
     warn: (m) => console.warn(`  [paper-review ${input.threadId}] ${m}`),
   });
 }
@@ -694,7 +701,7 @@ function resolveStarterNotion(input: StartForumFlowInput): Promise<string> {
 function persistDiscordDraft(input: StartForumFlowInput, draft: PaperDraft): void {
   persistDraftPaper(
     {
-      sessionId: input.threadId,
+      sessionId: forumSessionId(input.threadId),
       theme: draft.theme,
       tags: draft.tags,
       mechanics: draft.mechanics,
@@ -716,7 +723,7 @@ function approvalGuide(): string {
     "よければ **「開始」** と回答するか ✅ を付けると議論を始めます。";
   if (timeoutMs > 0) {
     const min = Math.round(timeoutMs / 60000);
-    return `${base}\n(${min > 0 ? `${min} 分` : `${Math.round(timeoutMs / 1000)} 秒`}無操作なら草案のまま自動で始めます)`;
+    return `${base}\n(${min > 0 ? `${min} 分` : `${Math.round(timeoutMs / 1000)} 秒`}無操作なら草案のまま自動で始めます。ただし外部の声の選択待ち・受付待ちでは自動開始しません)`;
   }
   return base;
 }
@@ -725,6 +732,7 @@ function approvalGuide(): string {
 function scheduleReviewAutoStart(threadId: string, deps: FlowDiscordDeps): void {
   const pending = paperReviewByThread.get(threadId);
   if (!pending) return;
+  if (needsVoiceChoice(readVoicePreparation(forumSessionId(threadId)))) return;
   const timeoutMs = getConfig().flow.paperReview.timeoutMs;
   if (timeoutMs <= 0) return;
   if (pending.timer) clearTimeout(pending.timer);
@@ -761,7 +769,7 @@ function recordForcedDebatability(threadId: string, info: PaperReviewInfo): void
   const d = info.debatability;
   if (!d || d.degraded || d.debatable) return;
   try {
-    setPaperDebatability(threadId, d);
+    setPaperDebatability(forumSessionId(threadId), d);
   } catch (e) {
     console.warn(`  [paper-review ${threadId}] debatability 記録失敗 (議論は続行): ${(e as Error).message}`);
   }
@@ -804,7 +812,7 @@ async function runDiscussionDispatchInner(
       turnsPerRound: input.turnsPerRound,
     },
     // session_id=threadId: 編集ゲートの draft 行を 'started' に upsert する (重複行を作らない)。
-    { ...dispatchDeps, sessionId: input.threadId, paperOverride }
+    { ...dispatchDeps, sessionId: forumSessionId(input.threadId), paperOverride }
   );
   if (result.kind === "discussion" || result.kind === "improvement") {
     const r = result.result;
@@ -832,7 +840,7 @@ function rehydratePaperReview(
   // 承認直後は議論の開始記録 (draft→started) より先に返信が届くことがある。議論の実行中は
   // 下書きからレビューを復活させない (確定したペーパーのセッションを開き直さない)。
   if (runningDiscussions.has(threadId)) return null;
-  const row = getDraftPaper(threadId);
+  const row = getDraftPaper(forumSessionId(threadId));
   if (!row) return null;
   const draft = withDerivedStructure(row.bodyMd, {
     theme: row.theme,
@@ -861,11 +869,11 @@ async function handlePaperReviewRevert(
   pending: PendingPaperReview,
   deps: FlowDiscordDeps
 ): Promise<void> {
-  if (!canRevert(threadId)) {
+  if (!canRevert(forumSessionId(threadId))) {
     await postThreadNotice(deps, threadId, "↶ これ以上戻せません。");
     return;
   }
-  const reverted = revertLast(threadId);
+  const reverted = revertLast(forumSessionId(threadId));
   if (!reverted) {
     await postThreadNotice(deps, threadId, "↶ これ以上戻せません。");
     return;
@@ -908,6 +916,35 @@ async function processPaperReviewReply(
 
   try {
     // 承認 → 確定ペーパーで議論開始。
+    const voiceSession = forumSessionId(threadId);
+    let voiceState = readVoicePreparation(voiceSession);
+    if (trimmed === "再議論") {
+      await postThreadNotice(deps, threadId, "修正用ペーパーを確認中です。変更を回答し、よければ「開始」と回答してください。");
+      return true;
+    }
+    if (trimmed === "受付を待つ") {
+      if (pending.timer) clearTimeout(pending.timer);
+      if (voiceState?.requestStatus === "not_needed") {
+        await postThreadNotice(deps, threadId, "参考情報があり、Voluptas への依頼はありません。内容を確認し、よければ「開始」と回答してください。");
+        return true;
+      }
+      if (voiceState) {
+        voiceState.choice = "wait";
+        saveVoicePreparation(voiceSession, voiceState);
+      }
+      await postThreadNotice(deps, threadId, voiceState ? voicePreparationNotice(voiceState) : "依頼情報がありません。外部の声なしで開始することもできます。");
+      return true;
+    }
+    if (trimmed === "受付確認") {
+      voiceState = await checkVoiceReceipt(voiceSession, deps.voiceRequest ?? configuredVoiceRequest);
+      await postThreadNotice(deps, threadId, voiceState ? voicePreparationNotice(voiceState) : "依頼情報がありません。");
+      return true;
+    }
+    if (["外部の声なしで開始", "声なしで開始", "声なし開始"].includes(trimmed)) {
+      if (voiceState) { voiceState.choice = "continue"; saveVoicePreparation(voiceSession, voiceState); }
+      await approvePending(threadId, pending, deps, hooks, "外部の声なしで議論を始めます。事前知識と仮説を区別し、後から再議論できます。");
+      return true;
+    }
     if (isApprovalText(trimmed)) {
       await approvePending(threadId, pending, deps, hooks, "✅ ペーパーを承認しました。議論を始めます…");
       return true;
@@ -954,7 +991,7 @@ async function processPaperReviewReply(
     await postThreadNotice(deps, threadId, `📝 ${edited.changeSummary}`);
     if (edited.applied) {
       // 版履歴に追記 (戻すの基点) + 一覧の下書き行を最新内容に同期。
-      appendRevision({ sessionId: threadId, bodyMd: edited.draft.bodyMd, changeSummary: edited.changeSummary, origin: "llm-edit" });
+      appendRevision({ sessionId: forumSessionId(threadId), bodyMd: edited.draft.bodyMd, changeSummary: edited.changeSummary, origin: "llm-edit" });
       persistDiscordDraft(pending.input, pending.draft);
       await postThreadNotice(deps, threadId, renderPaperReview(pending.draft, pending.info));
       await postThreadNotice(deps, threadId, "他に調整があれば回答してください。よければ **「開始」** と回答 (または ✅)、1 手戻すなら **「戻す」** と回答してください。");
@@ -998,6 +1035,12 @@ async function approvePending(
   hooks: FlowLiveHooks | undefined,
   notice: string
 ): Promise<void> {
+  const voiceState = readVoicePreparation(forumSessionId(threadId));
+  if (voiceState?.choice === "wait" && voiceState.requestStatus !== "accepted") {
+    await postThreadNotice(deps, threadId, "受付待ちを維持しています。「受付確認」または「外部の声なしで開始」と回答してください。");
+    return;
+  }
+  if (voiceState) { voiceState.choice = "continue"; saveVoicePreparation(forumSessionId(threadId), voiceState); }
   if (pending.timer) clearTimeout(pending.timer);
   paperReviewByThread.delete(threadId);
   closeReviewSession(threadId);
@@ -1054,7 +1097,7 @@ export function cancelPaperReview(threadId: string): boolean {
   let hadDraft = false;
   try {
     // draft 状態の行だけ消す (started 済みの議論データは触らない)。
-    if (getDraftPaper(threadId) !== null) hadDraft = deleteFlowSession(threadId);
+    if (getDraftPaper(forumSessionId(threadId)) !== null) hadDraft = deleteFlowSession(forumSessionId(threadId));
   } catch (e) {
     console.warn(`  [paper-review ${threadId}] レビュー破棄で draft 削除失敗: ${(e as Error).message}`);
   }
@@ -1074,10 +1117,26 @@ export async function handleInterruptedDiscussionReply(
   hooks?: FlowLiveHooks
 ): Promise<boolean> {
   if (!isRedoText(text)) return false;
-  const paper = getPaperSnapshot(threadId);
+  if (text.trim().startsWith("再議論")) {
+    return runSerial(threadId, async () => {
+      if (runningDiscussions.has(threadId)) {
+        await postThreadNotice(deps, threadId, "⏳ この議論は進行中です。終了後に再議論できます。");
+        return true;
+      }
+      const sessionId = openRediscussion(threadId);
+      if (!sessionId) return false;
+      const pending = paperReviewByThread.get(threadId) ?? rehydratePaperReview(threadId, guildId, hooks);
+      if (!pending) return false;
+      if (pending.timer) clearTimeout(pending.timer);
+      await postThreadNotice(deps, threadId, "🔁 前回の記録を残して、再議論の下書きを開きました。意見・内容・参考情報の修正を回答してください。確認後に「開始」で再議論します。外部の声はなくても開始できます。");
+      await postThreadNotice(deps, threadId, renderPaperReview(pending.draft, pending.info));
+      return true;
+    });
+  }
+  const paper = getPaperSnapshot(forumSessionId(threadId));
   const decision = decideRedo({
     paper,
-    concluded: paper ? hasFlowConclusion(threadId) : false,
+    concluded: paper ? hasFlowConclusion(forumSessionId(threadId)) : false,
     running: runningDiscussions.has(threadId),
   });
   if (!decision.ok) {

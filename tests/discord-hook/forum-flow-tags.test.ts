@@ -13,9 +13,9 @@ import { parseFlowKind } from "../../src/flow/dispatch.js";
 import { canCollectExternal } from "../../src/flow/tags.js";
 
 // ── 定義済みタグ集合 ──
-assert.deepEqual([...FLOW_KIND_TAG_NAMES], ["議論", "改善", "学習", "壁打ち"]);
+assert.deepEqual([...FLOW_KIND_TAG_NAMES], ["議論", "改善", "壁打ち"]);
 assert.deepEqual([...FLOW_ASPECT_TAG_NAMES], ["機密", "内部", "運用", "開発"]);
-assert.equal(ALL_FLOW_TAG_NAMES.length, 8);
+assert.equal(ALL_FLOW_TAG_NAMES.length, 7);
 console.log("ok flow tag sets");
 
 // ── 議論タイプタグは parseFlowKind で必ず解決できる (フロー起動の前提) ──

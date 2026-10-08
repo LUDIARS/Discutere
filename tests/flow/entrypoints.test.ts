@@ -22,7 +22,7 @@ import { parseForumEntry, handleForumFlowPost } from "../../src/flow/entry-disco
   assert.equal(parseFlowKind("discussion"), "discussion");
   assert.equal(parseFlowKind("改善"), "improvement");
   assert.equal(parseFlowKind("改善提案"), "improvement");
-  assert.equal(parseFlowKind("学習"), "learning");
+  assert.equal(parseFlowKind("学習"), null, "学習は議論の状態・タイプとして存在しない");
   assert.equal(parseFlowKind("壁打ち"), "sparring");
   assert.equal(parseFlowKind("sparring"), "sparring");
   assert.equal(parseFlowKind(""), null, "空は null");
@@ -61,8 +61,8 @@ import { parseForumEntry, handleForumFlowPost } from "../../src/flow/entry-disco
 
   await dispatchFlow({ theme: "t", tags: [], flow: "議論" }, baseDeps);
   await dispatchFlow({ theme: "t", tags: [], flow: "改善" }, baseDeps);
-  await dispatchFlow({ theme: "t", tags: [], flow: "学習" }, baseDeps);
-  assert.deepEqual(calls, ["discussion", "improvement", "learning"], "ラベルごとに正しいドライバ");
+  await assert.rejects(dispatchFlow({ theme: "t", tags: [], flow: "学習" }, baseDeps), FlowTypeRequiredError);
+  assert.deepEqual(calls, ["discussion", "improvement"], "ラベルごとに正しいドライバ");
 
   // 壁打ちは SparringSession を返す (start 済み) — LLM は呼ばれない (start は調査のみ)
   const spar = await dispatchFlow(
@@ -393,9 +393,9 @@ import { parseForumEntry, handleForumFlowPost } from "../../src/flow/entry-disco
   };
   assert.equal(simPaper.ok, true, "simulation paper 取得");
   assert.equal(simPaper.info.voiceSimulation.confidence, "high", "ユーザの声を高信頼で仮説補填できる");
-  assert.equal(simPaper.info.debatability.debatable, true, "LLM 仮想ユーザ補填可能なら議論適性あり");
-  assert.equal(simPaper.info.debatability.recommendation, null, "学習再提案は消える");
-  assert.ok(simPaper.info.debatability.message.includes("仮想ユーザ補填"), "昇格理由を message に残す");
+  assert.equal(simPaper.info.debatability.debatable, false, "合成した声で評価結果を書き換えない");
+  assert.ok(simPaper.info.debatability.recommendation, "保存済み評価は履歴として保持する");
+  assert.equal(simPaper.info.debatability.message, "議論適性: 低", "保存済み評価を改変しない");
 
   // 絞り込み: state=draft はドラフトのみ、state=live は開始済み未収束のみ。
   const rDraftOnly = (await (await app.request("/api/flow/sessions?state=draft")).json()) as {

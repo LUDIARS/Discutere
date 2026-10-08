@@ -9,6 +9,10 @@
 
 import type { ExternalUtterance } from "../../crawler/sources/types.js";
 
+export class VoluptasUnavailable extends Error {
+  constructor() { super("Voluptas（Vo）が停止中、または接続できません。"); }
+}
+
 /** 感想の書き手は特定しない (Voluptas は書き手の情報を返さない)。 */
 export const GLAB_ANONYMOUS_AUTHOR = "anonymous";
 
@@ -62,9 +66,14 @@ export async function fetchVoluptasImpressions(args: {
   }
   url.searchParams.set("game", args.game);
   url.searchParams.set("limit", String(Math.max(1, Math.min(args.limit, 200))));
-  const res = await (args.fetchImpl ?? fetch)(url, {
-    headers: { Authorization: `Bearer ${args.bearer}`, Accept: "application/json" },
-  });
+  let res: Response;
+  try {
+    res = await (args.fetchImpl ?? fetch)(url, {
+      redirect: "manual", signal: AbortSignal.timeout(10000),
+      headers: { Authorization: `Bearer ${args.bearer}`, Accept: "application/json" },
+    });
+  } catch { throw new VoluptasUnavailable(); }
+  if (res.status >= 500) throw new VoluptasUnavailable();
   if (!res.ok) throw new Error(`Voluptas impressions request failed with status ${res.status}`);
   const body = (await res.json()) as { data?: { impressions?: unknown[] } };
   return (body.data?.impressions ?? []).filter(isImpression).map((i) => mapImpression(args.gameSlug, i));

@@ -615,7 +615,7 @@ export function renderPaperReview(draft: PaperDraft, info: PaperReviewInfo): str
     } else {
       lines.push(`⚠️ ${d.message}`);
       if (d.recommendation) {
-        const label = d.recommendation.flow === "sparring" ? "壁打ち" : "学習";
+        const label = d.recommendation.flow === "sparring" ? "壁打ち" : "参考情報の確認";
         lines.push(`💡 **提案**: このテーマは「${label}」が向いています。${d.recommendation.reason}`);
         lines.push("(このまま議論を開始することもできます — 判断はお任せします)");
       }

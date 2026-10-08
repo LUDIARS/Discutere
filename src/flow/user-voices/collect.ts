@@ -11,6 +11,7 @@
 import type { createCore } from "../../core/index.js";
 import type { ExternalUtterance } from "../../crawler/sources/types.js";
 import type { SteamApp } from "./steam-app.js";
+import { VoluptasUnavailable } from "./voluptas-impressions.js";
 
 type Core = ReturnType<typeof createCore>;
 
@@ -24,7 +25,7 @@ export interface GameRef {
   matchAgainst: string;
 }
 
-export type VoiceChannel = "steam" | "glab" | "none";
+export type VoiceChannel = "di" | "steam" | "youtube" | "glab" | "none";
 
 export interface GameVoiceReport {
   title: string;
@@ -38,11 +39,14 @@ export interface GameVoiceReport {
   collected: number;
   imported: number;
   embedded: number;
+  voluptasDown?: boolean;
 }
 
 export interface CollectUserVoicesDeps {
   core: Core;
   workspaceId: string;
+  existingCount?: (game: GameRef) => number;
+  fetchYoutube?: (game: GameRef, gameSlug: string) => Promise<ExternalUtterance[]>;
   resolveSteam: (game: GameRef) => Promise<SteamApp | null>;
   fetchSteam: (app: SteamApp, gameSlug: string) => Promise<ExternalUtterance[]>;
   /** Voluptas 未設定なら undefined (Steam に無いゲームは声を集めない)。 */
@@ -91,6 +95,8 @@ async function importAndEmbed(
 /** ゲーム 1 本の声を集める。 */
 export async function collectGameVoices(game: GameRef, deps: CollectUserVoicesDeps): Promise<GameVoiceReport> {
   const base = { title: game.title, collected: 0, imported: 0, embedded: 0 };
+  const existing = deps.existingCount?.(game) ?? 0;
+  if (existing > 0) return { ...base, channel: "di", gameSlug: null, collected: existing };
   let app: SteamApp | null = null;
   try {
     app = await deps.resolveSteam(game);
@@ -104,14 +110,23 @@ export async function collectGameVoices(game: GameRef, deps: CollectUserVoicesDe
       const items = await deps.fetchSteam(app, gameSlug);
       const { imported, embedded } = await importAndEmbed(items, deps);
       deps.log?.(`Steam「${app.name}」(${app.appId}): ${items.length} 件取得 → 取込 ${imported} / ベクトル化 ${embedded}`);
-      return { ...base, channel: "steam", gameSlug, appId: app.appId, appName: app.name, collected: items.length, imported, embedded };
+      if (items.length > 0) return { ...base, channel: "steam", gameSlug, appId: app.appId, appName: app.name, collected: items.length, imported, embedded };
     } catch (e) {
       deps.warn?.(`Steam レビュー取得に失敗 (${app.name}): ${(e as Error).message}`);
-      return { ...base, channel: "none", gameSlug: null, appId: app.appId, appName: app.name };
     }
   }
 
-  const unreleased = app ? { unreleased: true, appId: app.appId, appName: app.name } : {};
+  if (deps.fetchYoutube) {
+    try {
+      const gameSlug = `youtube-${glabGameSlug(game.title)}`;
+      const items = await deps.fetchYoutube(game, gameSlug);
+      if (items.length > 0) {
+        const counts = await importAndEmbed(items, deps);
+        return { ...base, ...counts, channel: "youtube", gameSlug, collected: items.length };
+      }
+    } catch (e) { deps.warn?.(`YouTube 取得に失敗 (${game.title}): ${(e as Error).message}`); }
+  }
+  const unreleased = app && !app.released ? { unreleased: true, appId: app.appId, appName: app.name } : {};
   if (!deps.fetchGlab) return { ...base, ...unreleased, channel: "none", gameSlug: null };
   const gameSlug = glabGameSlug(game.title);
   try {
@@ -122,7 +137,7 @@ export async function collectGameVoices(game: GameRef, deps: CollectUserVoicesDe
     return { ...base, ...unreleased, channel: "glab", gameSlug, collected: items.length, imported, embedded };
   } catch (e) {
     deps.warn?.(`Voluptas の感想取得に失敗 (${game.title}): ${(e as Error).message}`);
-    return { ...base, ...unreleased, channel: "none", gameSlug: null };
+    return { ...base, ...unreleased, channel: "none", gameSlug: null, voluptasDown: e instanceof VoluptasUnavailable };
   }
 }
 
@@ -138,6 +153,9 @@ export async function collectUserVoices(
 
 /** スレッド/画面に出す収集結果の一言。 */
 export function describeVoiceReport(r: GameVoiceReport): string {
+  if (r.voluptasDown) return `「${r.title}」: Voluptas（Vo）が停止中、または接続できません。外部の声なしでも議論できます。`;
+  if (r.channel === "di") return `「${r.title}」: Di の収集済みデータ ${r.collected} 件を参考として使用`;
+  if (r.channel === "youtube") return `「${r.title}」: YouTube コメント ${r.collected} 件を参考として使用`;
   if (r.channel === "steam") {
     return `「${r.appName ?? r.title}」: Steam レビュー ${r.collected} 件 (取込 ${r.imported} / ベクトル化 ${r.embedded})`;
   }
@@ -145,5 +163,5 @@ export function describeVoiceReport(r: GameVoiceReport): string {
   if (r.channel === "glab") {
     return `${prefix}Voluptas の遊んだ感想 ${r.collected} 件 (取込 ${r.imported} / ベクトル化 ${r.embedded})`;
   }
-  return `${prefix}Voluptas の感想も無いため、収集済みの外部の声だけを使います`;
+  return `「${r.title}」: 今回の取得先から外部の声を取得できませんでした。0 件でも議論できます（通信失敗・未設定の場合も含みます）`;
 }

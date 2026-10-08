@@ -1,3 +1,4 @@
+import { VOICE_REFERENCE_POLICY } from "./user-voices/reference-policy.js";
 /**
  * フローセッションのセットアップ (discussion.md step 1〜2, respec 10 の runFlow 分割)。
  *
@@ -139,7 +140,7 @@ export async function setupFlowPaper(args: FlowSetupArgs): Promise<FlowSetupResu
     mechanics,
     supplement,
     // 確定本文の保存値は維持し、両議論エンジンへ現在のモード前提を渡す。
-    bodyMd: [projectPremise(flow), bodyMd].filter(Boolean).join("\n\n"),
+    bodyMd: [projectPremise(flow), VOICE_REFERENCE_POLICY, bodyMd].filter(Boolean).join("\n\n"),
     rounds: [],
   };
 

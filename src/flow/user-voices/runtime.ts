@@ -18,7 +18,7 @@ import {
   serviceTokenClientConfigFromEnv,
 } from "../../cernere-service-token/service-token-client.js";
 import type { ContextVoice } from "../discussion-paper.js";
-import { defaultImport } from "../learning-autocrawl.js";
+import { defaultImport, DEFAULT_COLLECTORS } from "../learning-autocrawl.js";
 import { classifyPaperReviewIntent } from "../paper-review-intent.js";
 import { resolveVoluptasBearer, VOLUPTAS_TARGET_PROJECT_KEY } from "../voluptas-persona-client.js";
 import { collectUserVoices, type CollectUserVoicesDeps, type GameRef, type GameVoiceReport } from "./collect.js";
@@ -112,6 +112,7 @@ export interface PreparedUserVoices {
  */
 export async function prepareUserVoices(args: {
   theme: string;
+  youtubeApiKey?: string;
   /** 企画段階ではテーマ自体を既存ゲームとして検索しない。 */
   includeThemeGame?: boolean;
   similarGames: readonly string[];
@@ -136,6 +137,10 @@ export async function prepareUserVoices(args: {
   let queryVector: number[] | null = null;
   try {
     const deps = args.collectDeps?.(core) ?? defaultCollectDeps(core, args.workspaceId, log, warn);
+    deps.existingCount ??= (game) => args.baseLookup?.([game.title], 20).filter(v => !/^\[synthetic\]/i.test(v.content) && v.source !== "llm").length ?? 0;
+    if (args.youtubeApiKey) deps.fetchYoutube ??= (game, gameSlug) => DEFAULT_COLLECTORS.youtube({
+      theme: game.title, gameSlug, spec: { source: "youtube", query: game.title }, maxItems: 50, youtubeApiKey: args.youtubeApiKey,
+    });
     reports = await collectUserVoices(games, deps);
     if (cfg.embedding.enabled && reports.some((r) => r.gameSlug)) {
       try {
@@ -156,6 +161,7 @@ export async function prepareUserVoices(args: {
     const attribution = openAttributionStore();
     try {
       return reports.map((r, i) => {
+        if (r.channel === "di") return args.baseLookup?.([r.title], perGroup) ?? [];
         if (r.gameSlug) {
           return listGameVoices({ core: c, attribution, workspaceId: args.workspaceId, gameSlug: r.gameSlug, limit: perGroup, queryVector });
         }

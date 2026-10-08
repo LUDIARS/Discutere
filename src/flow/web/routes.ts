@@ -735,7 +735,7 @@ function assessVoiceSimulationReadiness(draft: PaperDraft, info: PaperReviewInfo
       confidence: "low",
       summary: "メカニクス理解が不足しているため、ユーザの声を生成しても根拠の薄い反応になりやすい状態です。",
       caveat,
-      nextAction: "追加学習またはメカニクス知識確認で、基本ループ・報酬・制約を補ってください。",
+      nextAction: "参考情報の取得またはメカニクス知識確認で、基本ループ・報酬・制約を補ってください。",
     };
   }
   if (voiceCount >= 6) {
@@ -753,7 +753,7 @@ function assessVoiceSimulationReadiness(draft: PaperDraft, info: PaperReviewInfo
       confidence: "medium",
       summary: "少数のユーザの声とメカニクス文脈を種に、LLMで仮想ユーザ反応を試作できます。",
       caveat,
-      nextAction: "不足しているユーザ層を指定して生成し、可能なら追加学習で検証してください。",
+      nextAction: "不足しているユーザ層を指定して生成し、可能なら参考情報の取得で検証してください。",
     };
   }
   return {
@@ -761,24 +761,12 @@ function assessVoiceSimulationReadiness(draft: PaperDraft, info: PaperReviewInfo
     confidence: "low",
     summary: "実ユーザの声は不足していますが、メカニクス文脈をもとに粗い仮想ユーザ反応は生成できます。",
     caveat,
-    nextAction: "議論開始前に、生成結果を仮説として扱うか、追加学習で実ユーザの声を補ってください。",
+    nextAction: "議論開始前に、生成結果を仮説として扱うか、参考情報の取得で実ユーザの声を補ってください。",
   };
 }
 
-function promoteDebatabilityWithVoiceSimulation(info: PaperReviewInfo): void {
-  const d = info.debatability;
-  const sim = info.voiceSimulation;
-  if (!d || d.degraded || d.debatable || d.recommendation?.flow !== "learning") return;
-  if (!sim?.possible || sim.confidence !== "high") return;
-  info.debatability = {
-    ...d,
-    debatable: true,
-    recommendation: null,
-    message:
-      `${d.message} / ユーザの声はLLMで不足セグメントを高信頼に仮説補填できるため、` +
-      "仮想ユーザ補填前提で議論適性あり扱いにします。",
-  };
-}
+// 合成した声による開始許可への昇格はしない。外部の声自体が任意の参考値。
+function promoteDebatabilityWithVoiceSimulation(_info: PaperReviewInfo): void {}
 
 export const flowRoutes = new Hono();
 
@@ -1285,7 +1273,7 @@ flowRoutes.post("/api/flow/:session/paper/edit", (c) =>
   c.json(
     {
       ok: false,
-      error: "全体調整は廃止しました。議論可能か確認する、メカニクス知識を確認、追加学習を使ってください。",
+      error: "全体調整は廃止しました。議論可能か確認する、メカニクス知識を確認、参考情報の取得を使ってください。",
     },
     410
   )

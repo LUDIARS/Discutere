@@ -67,8 +67,8 @@ console.log("ok debatability 証拠バランス (機械計算)");
   assert.equal(r.degraded, false);
   assert.equal(r.issues.length, 1);
   assert.equal(r.armableBothCount, 1);
-  assert.equal(r.debatable, false, "armable=both 1 < 2 → 議論不適");
-  assert.equal(r.recommendation?.flow, "sparring", "争点 0〜1 (材料あり) → 壁打ち");
+  assert.equal(r.debatable, true, "論点があれば参考根拠の件数に依存せず議論できる");
+  assert.equal(r.recommendation, null);
 }
 console.log("ok debatability 争点 1 → 壁打ち再提案");
 
@@ -90,9 +90,9 @@ console.log("ok debatability 争点 1 → 壁打ち再提案");
     minArmableIssues: 2,
     toVector: stubVector,
   });
-  assert.equal(r.debatable, false);
-  assert.equal(r.recommendation?.flow, "learning", "極性偏り → 学習提案");
-  assert.ok(r.recommendation?.reason.includes("否定・批判側"), "足りない側 (否定側) を提示");
+  assert.equal(r.debatable, true);
+  assert.equal(r.recommendation, null, "声の偏りで学習状態へ移さない");
+  assert.equal(r.evidence.polaritySkew, 0.8, "偏りは参考情報として残す");
 }
 console.log("ok debatability 材料不足 → 学習再提案");
 

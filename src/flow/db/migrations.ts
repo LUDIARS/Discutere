@@ -526,6 +526,14 @@ const MIGRATIONS: Array<{ id: string; sql: string[] }> = [
   },
 ];
 
+MIGRATIONS.push({
+  id: "flow_0029_optional_voices_rediscussion",
+  sql: [
+    `CREATE TABLE IF NOT EXISTS discord_flow_run (thread_id TEXT PRIMARY KEY, session_id TEXT NOT NULL, previous_session_id TEXT NOT NULL)`,
+    `CREATE TABLE IF NOT EXISTS flow_voice_preparation (session_id TEXT PRIMARY KEY, payload TEXT NOT NULL, updated_at INTEGER NOT NULL)`,
+  ],
+});
+
 function isIgnorableMigrationError(stmt: string, error: unknown): boolean {
   if (!/^\s*ALTER\s+TABLE\s+/i.test(stmt)) return false;
   const message = error instanceof Error ? error.message : String(error);

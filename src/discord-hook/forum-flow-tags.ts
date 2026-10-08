@@ -29,7 +29,7 @@ import {
 import { PROJECT_PREMISES } from "../flow/project-premise.js";
 
 /** 議論タイプ (必須・1 つ選択) のフォーラムタグ名。順序は select UI の表示順。 */
-export const FLOW_KIND_TAG_NAMES = ["議論", "改善", "学習", "壁打ち"] as const;
+export const FLOW_KIND_TAG_NAMES = ["議論", "改善", "壁打ち"] as const;
 
 /** 機密度+観点 (任意・複数可) のフォーラムタグ名。FlowTag と一致。 */
 export const FLOW_ASPECT_TAG_NAMES = ["機密", "内部", "運用", "開発"] as const;
@@ -47,7 +47,6 @@ export const FLOW_PICK_PREFIX = "flow-pick";
 const FLOW_KIND_CHOICES: Array<{ value: string; label: string; description: string }> = [
   { value: "議論", label: PROJECT_PREMISES.discussion.label, description: PROJECT_PREMISES.discussion.description },
   { value: "改善", label: PROJECT_PREMISES.improvement.label, description: PROJECT_PREMISES.improvement.description },
-  { value: "学習", label: "学習", description: "外部の声を収集して KG に取り込む" },
   { value: "壁打ち", label: "壁打ち", description: "あなたの発言に AI が応答し続ける" },
 ];
 
@@ -245,7 +244,7 @@ export async function ensureDiscussionForum(
       name: forumName,
       type: ChannelType.GuildForum,
       availableTags: tags,
-      topic: "議論したいテーマを投稿してください。議論タイプ (議論/改善/学習/壁打ち) のタグを 1 つ付けます。",
+      topic: "議論したいテーマを投稿してください。議論タイプ (企画/議論・改善/議論・壁打ち) のタグを 1 つ付けます。",
       reason: "Discutere 議論フォーラム (新フロー入口)",
     })) as ForumChannel;
     console.log(`  forum-tags: 議論フォーラム #${forumName} を作成 (タグ ${tags.length} 件)`);

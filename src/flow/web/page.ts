@@ -244,7 +244,6 @@ export const FLOW_HTML = `<!doctype html>
       <select id="flow" required>
         <option value="discussion" selected>企画/議論 — プロジェクトなし</option>
         <option value="improvement">改善/議論 — プロジェクトあり</option>
-        <option value="learning">学習 (収集)</option>
         <option value="sparring">壁打ち</option>
       </select>
     </fieldset>
@@ -266,7 +265,7 @@ export const FLOW_HTML = `<!doctype html>
       <span class="field-note">議論/改善では指定ペルソナをキャストに含め、壁打ちでは相手にします。</span>
     </fieldset>
     <fieldset class="tags">
-      <legend>学習データ自動取得 (議論/改善のみ・学習データ不足時だけ実行)</legend>
+      <legend>参考情報の取得先（任意・外部の声なしでも議論できます）</legend>
       <label>ソース
         <select id="learningSource" style="width:auto">
           <option value="">既定 (config)</option>
@@ -333,11 +332,11 @@ export const FLOW_HTML = `<!doctype html>
     <div id="fixSuggestions" class="debat"></div>
     <div id="mechanicsKnowledge" class="understanding"></div>
     <div id="reviewLearning" class="learn-panel">
-      <strong>追加学習</strong>
-      <div class="muted">学習不足が指摘されています。追加学習は学習ページで実行します。</div>
+      <strong>参考情報の取得</strong>
+      <div class="muted">参考情報の不足が指摘されています。参考情報の取得は参考情報ページで実行します。</div>
       <div class="learn-actions">
-        <a id="rvLearningLink" class="learn-link" href="/learning" target="_blank" rel="noreferrer">追加学習ページを開く</a>
-        <span id="rvLearningStatus" class="muted learn-status">学習後、この画面で再度「議論可能か確認する」を実行してください。</span>
+        <a id="rvLearningLink" class="learn-link" href="/learning" target="_blank" rel="noreferrer">参考情報の取得ページを開く</a>
+        <span id="rvLearningStatus" class="muted learn-status">情報取得後、この画面で再度「議論可能か確認する」を実行してください。</span>
       </div>
     </div>
     <div id="fixedPaper" class="paper-form">
@@ -543,7 +542,7 @@ $("start").addEventListener("submit", async (e) => {
   $("start").style.display = "none";
   if (kind === "learning") {
     $("live").style.display = "grid"; $("paperPanel").style.display = "none"; $("backBar").style.display = "block";
-    $("log").innerHTML = '<div class="u">学習収集 完了: 意見 ' + (res.result?.opinionsRecorded ?? 0) + ' 件 / メカニクス ' + (res.result?.mechanicsRecorded ?? 0) + ' 件 / 自動収集 ' + (res.result?.crawledImported ?? 0) + ' 件</div>';
+    $("log").innerHTML = '<div class="u">参考情報取得 完了: 意見 ' + (res.result?.opinionsRecorded ?? 0) + ' 件 / メカニクス ' + (res.result?.mechanicsRecorded ?? 0) + ' 件 / 自動収集 ' + (res.result?.crawledImported ?? 0) + ' 件</div>';
     $("go").disabled = false;
     return;
   }
@@ -628,7 +627,7 @@ function renderDebatability(info) {
   let html = "<strong>議論適性ゲート: " + (d.debatable ? "議論に向いています" : "議論不適 (再提案あり)") + "</strong>" +
     "<div>" + escapeHtml(d.message || "") + "</div>";
   if (!d.debatable && d.recommendation) {
-    const label = d.recommendation.flow === "sparring" ? "壁打ち" : "学習";
+    const label = d.recommendation.flow === "sparring" ? "壁打ち" : "参考情報の確認";
     html += '<div class="rec">💡 <strong>提案: 「' + label + '」フロー</strong>' +
       escapeHtml(d.recommendation.reason || "") +
       '<div class="muted">このまま下の「議論開始」で強行することもできます (人間が最終決定)。</div></div>';

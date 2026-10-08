@@ -140,6 +140,21 @@ function jsonResponse(body: unknown, status = 200): Response {
   assert.equal(released.gameSlug, steamGameSlug(7));
   assert.deepEqual(embedded.pop(), ["ext:steam:r1"], "取り込んだ声をベクトル化する");
 
+  let sourceChecks = 0;
+  const local = await collectGameVoices(game, {
+    ...base, existingCount: () => 3,
+    resolveSteam: async () => { sourceChecks++; return null; },
+  });
+  assert.equal(local.channel, "di");
+  assert.equal(sourceChecks, 0, "Di データがあれば取得先を呼ばない");
+  const youtube = await collectGameVoices(game, {
+    ...base,
+    resolveSteam: async () => ({ appId: 7, name: "新作", released: true }),
+    fetchSteam: async () => [],
+    fetchYoutube: async (_game, slug) => [{ source: "youtube", nativeId: "y1", gameSlug: slug, threadKey: "video", content: "操作が楽しい", postedAt: 1, authorId: "anonymous" }],
+  });
+  assert.equal(youtube.channel, "youtube", "Steam が 0 件なら YouTube を使う");
+
   const unreleased = await collectGameVoices(game, {
     ...base,
     resolveSteam: async () => ({ appId: 7, name: "新作", released: false }),
