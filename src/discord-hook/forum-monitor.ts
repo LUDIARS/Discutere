@@ -2,7 +2,7 @@
  * フォーラム議論の入口 + 収束クローズ (フォーラム集約)。
  *
  * Di の議論を Discord **フォーラムチャンネル** に集約する。フォーラムを「議論カテゴリ」
- * として使い、guild 内の全フォーラムを監視する:
+ * として使う。現在の受信許可は gateway の管理forum ID境界が担当する:
  *   - フォーラムの新規ポスト (ThreadCreate, 親=GuildForum) の **最初の投稿 (starter)** で
  *     議論をトリガーする (command-router.routeForumPost 経由 → auto-discussion)。
  *   - ポスト内の後続投稿 (MessageCreate, starter 以外) は進行中議論への参加者発言になる。

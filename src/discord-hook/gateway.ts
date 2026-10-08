@@ -1,3 +1,4 @@
+// @spec Di管理フォーラムの受信境界
 /**
  * Discord Gateway (WebSocket) transport — WS 型再設計.
  *
@@ -22,6 +23,10 @@ import {
   Partials,
   type Interaction,
   type Message,
+  type MessageReaction,
+  type PartialMessageReaction,
+  type User,
+  type PartialUser,
 } from "discord.js";
 
 import { normalizeDiscordInboundMessage } from "./normalize.js";
@@ -42,8 +47,10 @@ import type { CrawlDeps } from "./crawl-channel.js";
 import {
   finalizeForumPost,
   isForumStarterMessage,
-  isForumThreadChannel,
+  parseDiscordScene,
 } from "./forum-monitor.js";
+import { bindManagedForumEvents } from "./forum-event-gate.js";
+import { isManagedForumLocation } from "./managed-forum-scope.js";
 import { ensureManagedChannels } from "./managed-channels.js";
 import { handleDirectiveMessage } from "./directive-handler.js";
 import { stripBotMention } from "./facilitator-directives.js";
@@ -107,7 +114,7 @@ export interface DiscordGatewayDeps extends CommandRouterDeps {
   /** クロール取り込みの依存 (createCore / workspaceId / youtubeApiKey)。 未設定ならクロール skip。 */
   crawlDeps?: CrawlDeps;
   /**
-   * フォーラム集約設定。enabled なら guild 内の全 Forum チャンネルを監視し、
+   * フォーラム集約設定。enabled なら解決済みの Di 管理フォーラムだけを監視し、
    * 起動時に データ学習依頼 / まとめ投稿 チャンネルを自動作成する。
    */
   forum?: {
@@ -161,7 +168,7 @@ export interface DiscordGatewayHandle {
   reactToMessage(channelId: string, messageId: string, emoji: string): Promise<void>;
   /**
    * 未検知 (👀 が付いていない) 投稿を種まきする再スイープ (FEATURE ⑤b)。
-   * 監視対象チャンネル + 有効ならフォーラムのアクティブスレッドの直近メッセージを走査し、
+   * 解決済み管理フォーラムのアクティブスレッドの直近メッセージを走査し、
    * MessageCreate と同じ経路でルーティング、議論が立ったら 👀 を付ける。
    */
   sweepUnseeded(opts?: { limit?: number }): Promise<{ scanned: number; seeded: number }>;
@@ -211,6 +218,13 @@ export async function startDiscordGateway(
   // crawl 対象は config 由来 + 起動時に自動作成する「データ学習依頼」チャンネルを足す (mutable)。
   const crawlChannelIds = new Set((deps.crawlChannelIds ?? []).filter(Boolean));
   const forumEnabled = deps.forum?.enabled ?? false;
+  // Empty until ClientReady resolves each configured guild's managed forum.
+  const managedForumIds = new Map<string, string>();
+  const fetchForumChannel = (channelId: string): Promise<unknown> => client.channels.fetch(channelId);
+  async function isManagedScene(scene: string | null): Promise<boolean> {
+    const parsed = parseDiscordScene(scene);
+    return !!parsed && await isManagedForumLocation(parsed, managedForumIds, fetchForumChannel);
+  }
   // 新フローエンジンでフォーラム議論を回すか (flowLive が無ければ forum 起動 skip)。
   const flowLiveEnabled = forumEnabled && !!deps.flowLive;
   // 議論タイプタグ未指定の投稿に出した select の待ち (threadId → 起動情報)。
@@ -246,7 +260,7 @@ export async function startDiscordGateway(
   // 収束時にフォーラムスレッドを締める (lock+archive + まとめ転記)。
   const flowHooks: FlowLiveHooks = {
     onConcluded: async ({ scene, title, summary }) => {
-      if (!forumEnabled) return;
+      if (!await isManagedScene(scene)) return;
       await finalizeForumPost(client, {
         scene,
         summary,
@@ -258,6 +272,7 @@ export async function startDiscordGateway(
     // 議論適性ゲート (09) のフロー再提案: 既存の議論タイプ選択メニューを再提示する。
     // 選び直せば flow-pick 経路で新タイプ起動 (レビュー待ちは cancel)、無視して「開始」なら強行。
     onReproposeFlowType: async ({ guildId, threadId, theme, tags }) => {
+      if (!await isManagedScene(`discord:${guildId}/${threadId}`)) return;
       pendingFlowPicks.set(threadId, { guildId, theme, tags });
       await postFlowPickMenu(threadId);
     },
@@ -299,20 +314,25 @@ export async function startDiscordGateway(
           category: deps.forum.managedCategoryName,
         });
         for (const id of dataLearningChannelIds) crawlChannelIds.add(id);
-        console.log(`  discord-forum: monitoring all guild forums; managed channels ensured`);
+        console.log(`  discord-forum: managed output channels ensured`);
       } catch (err) {
         console.warn(`  discord-forum: managed channel 作成失敗: ${(err as Error).message}`);
       }
     }
 
     // 議論フォーラムを ensure し、定義済みフロータグ (議論/改善/学習/壁打ち + 機密/内部/運用/開発)
-    // を用意する。新フローエンジン有効時のみ。
-    if (flowLiveEnabled && guildIds.length > 0) {
-      const forumName = deps.forum?.discussionForumName || "議論";
+    // を用意する。LLM未設定でも slash の受信境界に同じ対象IDを使う。
+    if (forumEnabled && guildIds.length > 0) {
+      const forumName = deps.forum?.discussionForumName?.trim();
       for (const guildId of guildIds) {
-        await ensureDiscussionForum(client, guildId, forumName).catch((err) =>
-          console.warn(`  forum-tags: ensure 失敗 (guild=${guildId}): ${(err as Error).message}`)
-        );
+        if (!forumName) {
+          console.warn(`  discord-forum: managed forum name missing; guild=${guildId} denied`);
+          continue;
+        }
+        const forum = await ensureDiscussionForum(client, guildId, forumName).catch(() => null);
+        if (forum?.guildId === guildId && forum.type === ChannelType.GuildForum) {
+          managedForumIds.set(guildId, forum.id);
+        } else console.warn(`  discord-forum: managed forum unresolved; guild=${guildId} denied`);
       }
     }
 
@@ -323,16 +343,6 @@ export async function startDiscordGateway(
       );
     }
   });
-
-  // フォーラム新規ポスト (親=GuildForum) の starter で新フロー (議論/改善/学習/壁打ち) を起こす。
-  if (flowLiveEnabled) {
-    client.on(Events.ThreadCreate, (thread: AnyThreadChannel, newlyCreated: boolean) => {
-      if (!newlyCreated) return;
-      void onForumThreadCreate(thread).catch((err) =>
-        console.warn(`  discord-forum: thread-create 失敗: ${(err as Error).message}`)
-      );
-    });
-  }
 
   /** スレッドの適用タグ id を親フォーラムの availableTags でタグ名に解決する。 */
   function resolveAppliedTagNames(thread: AnyThreadChannel, parentForum: unknown): string[] {
@@ -360,7 +370,7 @@ export async function startDiscordGateway(
 
   /**
    * フォーラム starter からテーマ + 適用タグ名 + guildId を解決する。
-   * 親が GuildForum でない / starter が bot / guild 不明なら null。
+   * 管理forum ID境界の外 / starter が bot / guild 不明なら null。
    */
   async function resolveForumStarter(
     thread: AnyThreadChannel
@@ -371,6 +381,7 @@ export async function startDiscordGateway(
     starterContent: string;
     specAttachmentUrls: string[];
   } | null> {
+    if (!await isManagedForumLocation({ guildId: thread.guildId, channelId: thread.id, channel: thread }, managedForumIds, fetchForumChannel)) return null;
     let parentForum: unknown = thread.parent;
     let parentType: ChannelType | undefined = thread.parent?.type;
     if (parentType === undefined && thread.parentId) {
@@ -408,6 +419,7 @@ export async function startDiscordGateway(
   async function postFlowPickMenu(threadId: string): Promise<void> {
     try {
       const channel = await client.channels.fetch(threadId);
+      if (!await isManagedForumLocation({ guildId: pendingFlowPicks.get(threadId)?.guildId, channelId: threadId, channel }, managedForumIds, fetchForumChannel)) return;
       if (!channel || !channel.isTextBased() || !("send" in channel)) return;
       await (channel as { send: (o: unknown) => Promise<unknown> }).send({
         content:
@@ -423,6 +435,7 @@ export async function startDiscordGateway(
   async function postFlowSettingsMenu(threadId: string): Promise<void> {
     try {
       const channel = await client.channels.fetch(threadId);
+      if (!await isManagedForumLocation({ guildId: pendingFlowSettings.get(threadId)?.guildId, channelId: threadId, channel }, managedForumIds, fetchForumChannel)) return;
       if (!channel || !channel.isTextBased() || !("send" in channel)) return;
       await (channel as { send: (o: unknown) => Promise<unknown> }).send({
         content: "⚙️ 進行量を選んで議論を開始してください (ラウンド数 × ターン数)。「数値を指定」で任意の値も設定できます。",
@@ -547,7 +560,7 @@ export async function startDiscordGateway(
     await postFlowPickMenu(thread.id);
   }
 
-  client.on(Events.MessageCreate, (msg: Message) => {
+  const handleMessageCreate = (msg: Message): void => {
     if (msg.author?.bot) return;
     // Discord のリプライは宛先に関係なく対象外。通常投稿の回答だけを受け付ける。
     if (msg.reference) return;
@@ -571,7 +584,6 @@ export async function startDiscordGateway(
     if (
       forumEnabled &&
       deps.flowLive &&
-      isForumThreadChannel(msg.channel) &&
       !isForumStarterMessage(msg) &&
       hasPaperReview(msg.channelId)
     ) {
@@ -580,18 +592,17 @@ export async function startDiscordGateway(
     }
 
     if (!maybeHandleDirective(msg)) routeDiscussionMessage(msg);
-  });
+  };
 
   /**
    * bot (@Discutere) へのメンションを「進行役への調整指示」として取り込む。
-   * 監視対象 (フォーラムスレッド or 議論チャンネル / その子スレッド) でのみ受ける。
+   * 共通gateで許可されたDi管理フォーラムスレッドでのみ受ける。
    * @returns true なら調整指示として処理済 (通常ルーティングを行わない)。
    */
   function maybeHandleDirective(msg: Message): boolean {
     const botId = client.user?.id;
     // 監視対象 + bot へのメンションがある時だけ調整指示とみなす。
     if (!botId || !msg.mentions.users.has(botId)) return false;
-    if (!isMonitoredDiscussionLocation(msg)) return false;
 
     const text = stripBotMention(msg.content, botId);
     try {
@@ -609,20 +620,13 @@ export async function startDiscordGateway(
     return true;
   }
 
-  /** メッセージが議論監視対象 (フォーラムスレッド / 議論チャンネル / その子スレッド) か。 */
-  function isMonitoredDiscussionLocation(msg: Message): boolean {
-    if (forumEnabled && isForumThreadChannel(msg.channel)) return true;
-    if (deps.discussionChannelIds.includes(msg.channelId)) return true;
-    const parentId = msg.channel?.isThread?.() ? msg.channel.parentId ?? undefined : undefined;
-    return !!parentId && deps.discussionChannelIds.includes(parentId);
-  }
-
-  /** 通常の議論ルーティング (フォーラム / クロール / 平文取り込み)。 */
+  /** 共通gate後の管理フォーラム内ルーティング。 */
   function routeDiscussionMessage(msg: Message): void {
     // フォーラムスレッド内の投稿: starter は ThreadCreate が処理済。後続投稿は
     // (1) ペーパーレビュー中なら調整/承認、(2) 壁打ちなら相手発話、として取り込む
     // (議論/改善/学習はレビュー無し時は完走型で返信不要)。
-    if (forumEnabled && isForumThreadChannel(msg.channel)) {
+    // Only the guarded MessageCreate listener calls this route.
+    if (forumEnabled) {
       if (!isForumStarterMessage(msg) && deps.flowLive) {
         const flowLive = deps.flowLive;
         void (async () => {
@@ -692,7 +696,7 @@ export async function startDiscordGateway(
   }
 
   // 議論意見へのリアクション → スコアリング (deps.onReaction が処理)。
-  client.on(Events.MessageReactionAdd, (reaction, user) => {
+  const handleReactionAdd = (reaction: MessageReaction | PartialMessageReaction, user: User | PartialUser): void => {
     try {
       if (user?.bot) return;
       const emoji = reaction.emoji?.name ?? reaction.emoji?.toString() ?? "";
@@ -712,9 +716,9 @@ export async function startDiscordGateway(
     } catch (err) {
       console.warn(`  discord-gateway: reaction handle failed: ${(err as Error).message}`);
     }
-  });
+  };
 
-  client.on(Events.InteractionCreate, async (interaction: Interaction) => {
+  const handleInteractionCreate = async (interaction: Interaction): Promise<void> => {
     // ボタン: 進行量「数値を指定」(flow-custom:<threadId>) → モーダル表示 (item1) / 続行・停止ボタン。
     if (interaction.isButton()) {
       const customThreadId = parseFlowCustomBtnCustomId(interaction.customId);
@@ -939,6 +943,13 @@ export async function startDiscordGateway(
           .catch(() => {});
       }
     }
+  };
+
+  bindManagedForumEvents(client, managedForumIds, fetchForumChannel, {
+    messageCreate: handleMessageCreate,
+    reactionAdd: handleReactionAdd,
+    interactionCreate: handleInteractionCreate,
+    threadCreate: flowLiveEnabled ? (thread) => onForumThreadCreate(thread) : undefined,
   });
 
   client.on(Events.Error, (e) => console.warn(`  discord-gateway error: ${e.message}`));
@@ -947,6 +958,7 @@ export async function startDiscordGateway(
 
   return {
     async stop() {
+      managedForumIds.clear();
       for (const m of monitors) m.stop();
       try {
         await client.destroy();
@@ -954,8 +966,8 @@ export async function startDiscordGateway(
         /* ignore */
       }
     },
-    finalizeForumPost(args) {
-      if (!forumEnabled) return Promise.resolve({ closed: false, reason: "forum disabled" });
+    async finalizeForumPost(args) {
+      if (!await isManagedScene(args.scene)) return { closed: false, reason: "outside managed forum" };
       return finalizeForumPost(client, {
         scene: args.scene,
         summary: args.summary,
@@ -966,7 +978,9 @@ export async function startDiscordGateway(
     },
     async reactToMessage(channelId, messageId, emoji) {
       try {
-        const channel = await client.channels.fetch(channelId);
+        if (!managedForumIds.size) return;
+        const channel = client.channels.cache.get(channelId) ?? await client.channels.fetch(channelId);
+        if (!await isManagedForumLocation({ guildId: channel && "guildId" in channel ? channel.guildId : null, channelId, channel }, managedForumIds, fetchForumChannel)) return;
         if (!channel || !("messages" in channel)) return;
         const message = await (channel as import("discord.js").TextBasedChannel).messages.fetch(
           messageId
@@ -994,6 +1008,7 @@ export async function startDiscordGateway(
           return;
         }
         if (!channel || !("messages" in channel)) return;
+        if (!await isManagedForumLocation({ guildId: "guildId" in channel ? channel.guildId : null, channelId, channel }, managedForumIds, fetchForumChannel)) return;
         let messages;
         try {
           messages = await (channel as import("discord.js").TextBasedChannel).messages.fetch({
@@ -1004,6 +1019,7 @@ export async function startDiscordGateway(
         }
         for (const msg of messages.values()) {
           try {
+            if (!await isManagedForumLocation({ guildId: msg.guildId, channelId: msg.channelId, channel: msg.channel }, managedForumIds, fetchForumChannel)) continue;
             if (msg.author?.bot) continue;
             // 過去投稿の再走査でも、ライブ受信と同様にリプライは取り込まない。
             if (msg.reference) continue;
@@ -1040,19 +1056,14 @@ export async function startDiscordGateway(
         }
       };
 
-      // 監視対象の平文議論チャンネル。
-      for (const channelId of deps.discussionChannelIds ?? []) {
-        await sweepChannel(channelId);
-      }
-
       // フォーラム有効時は guild 内のアクティブスレッドも走査 (親=スレッド id を渡す)。
       if (forumEnabled) {
-        for (const guildId of guildIds) {
+        for (const guildId of managedForumIds.keys()) {
           try {
             const guild = await client.guilds.fetch(guildId);
             const active = await guild.channels.fetchActiveThreads();
             for (const thread of active.threads.values()) {
-              if (isForumThreadChannel(thread)) {
+              if (await isManagedForumLocation({ guildId: thread.guildId, channelId: thread.id, channel: thread }, managedForumIds, fetchForumChannel)) {
                 await sweepChannel(thread.id, thread.parentId ?? undefined);
               }
             }

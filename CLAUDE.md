@@ -41,8 +41,8 @@ env)。`discutere.config.example.json` 参照。詳細は `docs/ws-gateway-confi
   command を登録する (`command-defs.ts` が single source of truth)。`guildIds` 指定で即時反映、
   未指定で global。手動は `npm run discord:register`。**handler だけ実装して登録を忘れると
   クライアントに slash が出ない**ので、command-defs と routeSlashCommand の name は必ず一致させる。
-- **自然なテキスト取り込み**: 許可チャンネル (`discord.discussionChannelIds`) では slash なしで
-  全平文を utterance に取り込む。👀 リアクションは**取り込み全件ではなく「議論の種(開始エントリ)に
+- **自然なテキスト取り込み**: 解決済みのDi管理フォーラム内の通常投稿を既存flowへ取り込む。
+  👀 リアクションは**取り込み全件ではなく「議論の種(開始エントリ)に
   なった投稿」=auto-discussion が designGap を新規に立てた時だけ**付ける (リアクション=議論が立った
   合図 / persona-engine の返信と対応)。スレッドは親が許可なら継承。
 - **複数サーバ対応**: `discord.guildIds[]` (旧単数 `guildId` は後方互換で統合)。
@@ -57,8 +57,8 @@ env)。`discutere.config.example.json` 参照。詳細は `docs/ws-gateway-confi
   月次自動 (`backup.enabled` + `intervalDays`) + 手動 (`npm run backup` / `/discutere-backup`)。
 - **進行役への調整指示 (2026-06-09, `docs/facilitator-directives.md`)**: Discord で bot (@Discutere)
   へメンションして「もっと簡単な言葉で」「もっと否定的に」のように **進行の調整**を出せる。
-  persona への通常のリプライは参加発言のまま (調整は bot 明示メンションのみ)。
-  監視対象 (フォーラムスレッド / `discussionChannelIds`) で検知し、
+  Discordのreply投稿そのものは宛先によらず無視する (調整は通常投稿の bot 明示メンションのみ)。
+  監視対象のDi管理フォーラムスレッドで検知し、
   通常の utterance 取り込みには回さず scene→進行中議論 (open な design gap) に紐付けて
   サイドカー表 `facilitator_directives` に保存 → 了解を一言リプライ。 以後 **facilitator**
   (`gapTopic` 経由で expand/converge/止揚) と **persona** (`prompt-builder` の議題ブロック直後)
@@ -116,7 +116,8 @@ env)。`discutere.config.example.json` 参照。詳細は `docs/ws-gateway-confi
 ## フォーラム集約 (2026-06-06, `discord.forum`)
 
 議論を Discord **フォーラムチャンネル** に集約する (`docs/forum-aggregation.md`)。フォーラムを
-「議論カテゴリ」として使い、guild 内の **全 Forum チャンネル** を監視する。
+「議論カテゴリ」として使い、guildごとに解決した **Di管理フォーラムだけ** を監視する。
+受信の正本は `spec/feature/discord-own-forum-only.md`。名前/typeだけでは許可せずguild/親forum IDを照合する。
 
 **Discord の議論エンジンは新フロー (`src/flow/`, T1-T7) に全面集約済み (2026-06-13)**。フォーラム
 スレッドは旧 auto-discussion ではなく `dispatchFlow` (議論/改善/学習/壁打ち) で起動する。
@@ -138,11 +139,12 @@ bot 名義で締める (収束時 `finalizeForumPost` で lock+archive+まとめ
 - **クローズ**: 結論到達 (or 壁打ち終了) で `finalizeForumPost` がスレッドを **lock + archive** し、
   まとめを「まとめ投稿」へ転記する。
 - **自動作成チャンネル** (ClientReady, guild ごと、Manage Channels 権限が必要):
-  - **データ学習依頼** — 貼られた URL を crawl に回す入口 (id は runtime の crawl 集合へ追加)。
+  - **データ学習依頼** — 作成機構は保持するが、管理フォーラム外の投稿には反応しない。
   - **まとめ投稿** — 収束まとめの集約先。
 - 新フロー実行依存 (`flowLive`: llm/openCore/sentimentClients) が無い (LLM backend 無し) 時は
-  フォーラム起動を skip する。`discussionChannelIds` (平文議論) は旧 auto-discussion のまま後方互換で残す
-  (議論の正路はフォーラム)。無効化は `discord.forum.enabled=false` (env `DISCUTERE_DISCORD_FORUM_ENABLED`)。
+  フロー起動を skip するが、対象forum IDは解決してone-shot/slashにも同じ境界を使う。
+  `discussionChannelIds` は管理フォーラム外の受信許可には使わない。
+  無効化は `discord.forum.enabled=false` (env `DISCUTERE_DISCORD_FORUM_ENABLED`) で、受信はfailclosed。
 
 ## 学習ビュー × 新フロー (結論統合 / md エクスポート / 議論前自動クロール)
 

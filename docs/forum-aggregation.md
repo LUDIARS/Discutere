@@ -6,12 +6,11 @@
 
 1. Di の Discord 議論を **すべてフォーラム** に集約する。フォーラムを「議論カテゴリ」
    として使う (例: 「ゲーム議論」フォーラム)。
-2. **guild 内の Forum チャンネルすべて** を監視対象にする (個別設定不要)。
+2. **Diが管理するフォーラムだけ**を監視する。現在のID境界は `spec/feature/discord-own-forum-only.md` が正本。
 3. フォーラムの各ポストの **「最初の投稿」(starter message)** に対して議論をトリガーする。
 4. 議論が **収束したらそのポストをクローズ** (archive + lock) する。
 5. それ以外に、起動時に次のチャンネルを **自動作成** して各々処理する:
-   - **データ学習依頼** チャンネル — 貼られた URL を外部データクロールに回す
-     (既存 `crawlChannelIds` 機構を auto-create で起動)。
+   - **データ学習依頼** チャンネル — 作成機構は保持するが、現在は管理フォーラム外の投稿に反応しない。
    - **まとめ投稿** チャンネル — 収束した議論の結論 (まとめ) を集約投稿する。
 
 「議論の基礎学習用チャンネル」は要件から除外 (ユーザ判断)。
@@ -104,6 +103,7 @@
 "discord": {
   "forum": {
     "enabled": true,                  // フォーラム監視の on/off (既定 true)
+    "discussionForumName": "議論",   // この名前から解決したguildごとのforum IDだけを許可
     "summaryChannelName": "まとめ投稿",
     "dataLearningChannelName": "データ学習依頼",
     "managedCategoryName": "システム"
@@ -111,13 +111,13 @@
 }
 ```
 
-env: `DISCUTERE_DISCORD_FORUM_ENABLED` 等。既定で有効 (guild に Forum を作れば即監視)。
+env: `DISCUTERE_DISCORD_FORUM_ENABLED` / `DISCUTERE_DISCORD_FORUM_NAME` 等。
+ClientReadyで解決する前や取得失敗時は許可しない。forum.enabled=falseでは受信イベントを処理しない。
 
 ## 既存 `discussionChannelIds` の扱い
 
-破壊しない。フォーラムが議論の正路となるが、平文議論チャンネル機構は後方互換で残す
-(既定で空 = 無効)。「集約」はフォーラムを正面に据えることで達成し、設定済みチャンネルは
-そのまま使える。
+設定値は互換のため残すが、Gateway受信では管理フォーラム外の許可に使わない。
+メンション・クロール・ゲーム感想もこの境界を迂回しない。
 
 ## 変更ファイル
 

@@ -12,4 +12,6 @@ import "./facilitator-directives.test.js";
 import "./paper-review-ack.test.js";
 import "./mechanics-check.test.js";
 import "./level-check.test.js";
+import "./managed-forum-scope.test.js";
+import "./forum-event-gate.test.js";
 console.log("discord-hook tests: all passed");

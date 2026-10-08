@@ -5,7 +5,7 @@
   "templateRules": [],
   "membership": [
     {
-      "pathPattern": "(^|/)tests/(?:.*/)?[^/]+$"
+      "pathPattern": "(^|/)tests/(?!discord-hook/(?:managed-forum-scope|forum-event-gate)\\.test\\.ts$)(?:.*/)?[^/]+$"
     },
     {
       "pathPattern": "(^|/)scripts/(?:.*/)?[^/]+$"

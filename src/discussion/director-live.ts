@@ -26,6 +26,7 @@ import type { PartyConfig } from "./composition.js";
 const CUSTOM_PREFIX = "debate";
 
 interface PendingContinue {
+  channelId: string;
   resolve: (cont: boolean) => void;
   timer: ReturnType<typeof setTimeout>;
 }
@@ -99,7 +100,7 @@ export function createDebateRunner(opts: {
         pending.delete(token);
         resolve(false); // 無応答は停止
       }, opts.discussion.continueTimeoutMs);
-      pending.set(token, { resolve, timer });
+      pending.set(token, { channelId, resolve, timer });
     });
   }
 
@@ -132,6 +133,7 @@ export function createDebateRunner(opts: {
     }
   }
 
+  // @spec Di管理フォーラムの受信境界
   async function handleButton(interaction: ButtonInteraction): Promise<boolean> {
     const id = interaction.customId;
     if (!id.startsWith(`${CUSTOM_PREFIX}:`)) return false;
@@ -141,6 +143,8 @@ export function createDebateRunner(opts: {
       await interaction.reply({ content: "この問いかけは期限切れです。", ephemeral: true }).catch(() => {});
       return true;
     }
+    // A copied continuation token must not control another thread's discussion.
+    if (p.channelId !== interaction.channelId) return true;
     clearTimeout(p.timer);
     pending.delete(token);
     const cont = kind === "cont";

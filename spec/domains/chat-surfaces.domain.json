@@ -8,7 +8,7 @@
       "pathPattern": "(^|/)src/discord-hook/(?:.*/)?[^/]+$"
     },
     {
-      "pathPattern": "(^|/)tests/discord-hook/(mechanics-check|level-check)\\.test\\.ts$"
+      "pathPattern": "(^|/)tests/discord-hook/(mechanics-check|level-check|managed-forum-scope|forum-event-gate)\\.test\\.ts$"
     },
     {
       "pathPattern": "(^|/)src/slack/(?:.*/)?[^/]+$"
@@ -26,5 +26,5 @@
       "pathPattern": "(^|/)electron/(?:.*/)?[^/]+$"
     }
   ],
-  "specRefs": ["DI-MCC-05", "DI-LC-02", "DI-LC-04", "単発の企画メカニクス整合性診断", "単発のレベル整合性診断"]
+  "specRefs": ["DI-MCC-05", "DI-LC-02", "DI-LC-04", "単発の企画メカニクス整合性診断", "単発のレベル整合性診断", "Di管理フォーラムの受信境界"]
 }

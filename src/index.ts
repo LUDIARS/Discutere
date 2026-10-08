@@ -742,7 +742,7 @@ const discordGatewayLifecycle = startDiscordGateway({
   discussionChannelIds: config.discord.discussionChannelIds,
   // データクロール用チャンネル: 貼られた URL から外部議論データを取り込む。
   crawlChannelIds: config.discord.crawlChannelIds,
-  // フォーラム集約: guild 内の全 Forum 監視 + データ学習依頼/まとめ投稿 を自動作成。
+  // フォーラム集約: guildごとに解決したDi管理forum IDだけを監視し、運用出力チャンネルを自動作成。
   forum: config.discord.forum,
   mechanicsCheck: flowEngineLlm ? { llm: flowEngineLlm } : undefined,
   levelCheck: flowEngineLlm ? { llm: flowEngineLlm } : undefined,
