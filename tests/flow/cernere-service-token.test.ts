@@ -198,7 +198,7 @@ issueClock += 2 * 1000;
 assert.deepEqual(await provider(), { ok: true, token: "svc-token-2" }, "refreshed before exp");
 assert.deepEqual(issueRequests[0], {
   url: "https://cernere.test/api/auth/service-token",
-  body: { client_id: "client-1", client_secret: "secret-1", target_project_key: "volputas" },
+  body: { client_id: "client-1", client_secret: "secret-1", target_project_key: "voluptas" },
 });
 
 async function failureFor(
@@ -206,7 +206,7 @@ async function failureFor(
   respond: () => Promise<Response>
 ) {
   return createServiceTokenProvider({
-    targetProjectKey: "volputas",
+    targetProjectKey: "voluptas",
     config: () => config,
     fetchImpl: respond as unknown as typeof fetch,
   })();

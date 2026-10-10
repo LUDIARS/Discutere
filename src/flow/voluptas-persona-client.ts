@@ -5,7 +5,9 @@ import { parsePersonaDocument } from "./persona-import-document.js";
 const MAX_PAGES = 100;
 const LOOPBACK_HOSTS = new Set(["localhost", "127.0.0.1", "[::1]"]);
 /** 認証集約 P4: Voluptas persona export を呼ぶ service token の宛先 (scope は persona-export:read)。 */
-export const VOLUPTAS_TARGET_PROJECT_KEY = "volputas";
+// Cernere の managed project key (Cernere migration 063 で volputas から改名)。
+// 受け取る token の aud / sub に入る storage_slug は volputas のまま。
+export const VOLUPTAS_TARGET_PROJECT_KEY = "voluptas";
 
 /**
  * Cernere service token を優先し、 発行に失敗した時だけ固定トークンへ落とす (P4 移行期間)。

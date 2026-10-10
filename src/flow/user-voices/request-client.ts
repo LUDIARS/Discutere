@@ -43,7 +43,7 @@ export function createVoiceRequestClient(baseUrl: () => string, token: ServiceTo
 
 export const configuredVoiceRequest = createVoiceRequestClient(
   () => getConfig().flow.userVoices.voluptasBaseUrl,
-  createServiceTokenProvider({ targetProjectKey: "volputas", config: serviceTokenClientConfigFromEnv,
+  createServiceTokenProvider({ targetProjectKey: "voluptas", config: serviceTokenClientConfigFromEnv,
     fetchImpl: (input, init) => fetch(input, { ...init, signal: AbortSignal.timeout(10000) }),
   }),
 );
