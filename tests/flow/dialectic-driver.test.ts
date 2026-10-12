@@ -108,8 +108,6 @@ function makeRouterLlm(overrides: Partial<Record<string, (p: string) => string>>
         }),
     },
     { name: "rule-check", match: (p) => p.includes("前提ルールを守っているかを判定"), respond: () => "ok" },
-    // 合意判定。既定は「結論が異なる」→ 止揚へ進む。
-    { name: "agreement", match: (p) => p.includes("合意しているか) を判定"), respond: () => "different" },
     { name: "tension-classify", match: (p) => p.includes("この対立の「型」を 1 つだけ選んで"), respond: () => "values" },
     { name: "fact-resolve", match: (p) => p.includes("証拠はどちらの主張を支持しますか"), respond: () => "A" },
     {
@@ -252,6 +250,11 @@ const db = () => new Database(DB_PATH);
   assert.ok(acts.includes("rebut"), "act=rebut が永続される");
   assert.ok(acts.includes("concede"), "act=concede が永続される");
   assert.ok(acts.includes("synthesize"), "act=synthesize が永続される");
+  assert.ok(
+    utterances.some((u) => u.act === "synthesize" && u.text.startsWith("止揚: ")),
+    "批准済み止揚は「止揚」として流す"
+  );
+  assert.ok(!(llm.stats as Record<string, number>).agreement, "合意判定は呼ばない (結論は 止揚 / 論破 / 結論なし)");
   const rebutRow = utterances.find((u) => u.act === "rebut");
   assert.ok(rebutRow.target_id, "rebut の target_id が永続される");
 
@@ -301,7 +304,6 @@ const db = () => new Database(DB_PATH);
     "elevation-gate",
     "ratify",
     "rule-check",
-    "agreement",
     "facilitator",
     "vote",
     "summary",
@@ -422,6 +424,11 @@ const db = () => new Database(DB_PATH);
   assert.equal(synthesis.revision, 2, "修正ループはコードが最大 2 回でカット");
   const conclusion = d.prepare("SELECT * FROM flow_conclusion WHERE session_id = ?").get("dlx-reject") as any;
   assert.equal(JSON.parse(conclusion.aufhebung_json).length, 0, "reject された候補は止揚ストックに乗らない");
+  const rejectRows = d.prepare("SELECT text FROM flow_utterance WHERE session_id = ? AND act = 'synthesize'").all("dlx-reject") as any[];
+  assert.ok(
+    rejectRows.length > 0 && rejectRows.every((u) => u.text.startsWith("結論なし: 止揚案が両陣営に批准されず")),
+    "批准不成立は「結論なし」で理由を添えて流す"
+  );
   d.close();
 
   assert.equal(llm.stats.synthesize, 3, "生成は初回 + 修正 2 回 = 3 回");
@@ -473,6 +480,13 @@ const db = () => new Database(DB_PATH);
     0,
     "折衷は止揚ストック (収束シグナル) に数えない"
   );
+  const compromiseRows = d
+    .prepare("SELECT text FROM flow_utterance WHERE session_id = ? AND act = 'synthesize'")
+    .all("dlx-compromise") as any[];
+  assert.ok(
+    compromiseRows.length > 0 && compromiseRows.every((u) => u.text.startsWith("結論なし: 折衷案は批准されたが止揚ではない")),
+    "折衷は「結論なし」で理由を添えて流す"
+  );
   d.close();
 
   assert.equal(llm.stats["elevation-gate"] ?? 0, 0, "elevates 空はコードのみで折衷判定 (LLM 不要)");
@@ -515,33 +529,6 @@ const db = () => new Database(DB_PATH);
   console.log("  [ok] dispatch: flow.engine=dialectic で dialectic 経路に分岐");
 }
 
-// ── シナリオ: ゴール 2 合意 — 止揚を生成せず agreed で決着 ──
-
-{
-  const llm = makeRouterLlm({ agreement: () => "same" });
-  const result = await runDialecticFlow("合意に至るテーマ", [], {
-    llm,
-    rng: makeRng(11),
-    gamesDir: path.join(TMP_DIR, "no-games-dir"),
-    sessionId: "dlx-agreed",
-    log: () => {},
-    warn: () => {},
-  });
-  assert.equal(llm.stats.synthesize ?? 0, 0, "合意したら止揚を生成しない");
-  const d = db();
-  const issue = d
-    .prepare("SELECT * FROM flow_issue WHERE session_id = ? AND status = 'concluded' ORDER BY ordinal")
-    .get("dlx-agreed") as any;
-  const tension = d.prepare("SELECT * FROM flow_tension WHERE issue_id = ?").get(issue.id) as any;
-  assert.equal(tension.status, "agreed", "合意 → agreed");
-  assert.ok(tension.resolution_note.startsWith("合意した"), "判定文が残る");
-  const utterances = d.prepare("SELECT * FROM flow_utterance WHERE session_id = ?").all("dlx-agreed") as any[];
-  assert.ok(utterances.some((u) => u.text.startsWith("合意: ")), "進行役が合意を流す");
-  d.close();
-  assert.ok(result.concluded, "合意でも結論に到達する");
-  console.log("  [ok] dialectic driver: ゴール 2 合意 → agreed");
-}
-
 // ── シナリオ: ゴール 1 論破 — 反論を受けた側が譲歩を重ねて根拠がすべて崩れる → 論破で決着 ──
 
 {
@@ -568,7 +555,7 @@ const db = () => new Database(DB_PATH);
   assert.equal(
     (d.prepare("SELECT COUNT(*) AS n FROM flow_tension WHERE issue_id = ?").get(issue.id) as any).n,
     0,
-    "論破は Tension を立てない (型分類・合意判定・止揚に進まない)"
+    "論破は Tension を立てない (型分類・止揚に進まない)"
   );
   const utterances = d.prepare("SELECT * FROM flow_utterance WHERE session_id = ? AND round = 1").all("dlx-refuted") as any[];
   assert.ok(utterances.some((u) => u.text.startsWith("論破: ")), "進行役が論破を流す");

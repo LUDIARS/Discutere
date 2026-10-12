@@ -60,6 +60,7 @@ await import("./argument-graph.test.js");
 await import("./turn-prompt.test.js");
 await import("./rule-check.test.js");
 await import("./goal.test.js");
+await import("./outcome.test.js");
 await import("./dialectic-scheduler.test.js");
 await import("./dialectic-exchange.test.js");
 await import("./dialectic-driver.test.js");

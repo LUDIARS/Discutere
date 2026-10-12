@@ -2,7 +2,7 @@
  * dialectic の結論 (respec 06 §2「結論」, dialectic.md §6)。
  *
  * converge 入力を「直近 20 発話」でなく論証状態から組み立てる:
- *   - issue ごとの決着表 (Position 対 → 批准済み Synthesis / 折衷 / 合意不能 / 事実解消)
+ *   - issue ごとの決着表 (止揚 / 論破 / 結論なし の 3 区分 + 結論なしの理由 — §4.5)
  *   - 未解決の事実問題 (unresolved_fact の resolution_note) — **結論本文に必ず明記** (誠実性)
  *   - レンズ投票の集中度
  *
@@ -17,6 +17,7 @@ import type { FlowUtteranceRecord } from "../director.js";
 import type { VoteResult } from "../vote.js";
 import { generateConclusion, type ConclusionResult } from "../conclusion.js";
 import type { IssueRecord, PositionRecord, SynthesisRecord, TensionRecord } from "./store.js";
+import { issueOutcome, noConclusionReason, OUTCOME_LABEL, renderOutcomeLine } from "./outcome.js";
 
 /** issue 1 件の決着スナップショット (driver が組み立てる)。 */
 export interface IssueSettlement {
@@ -29,31 +30,16 @@ export interface IssueSettlement {
   refutation: string | null;
 }
 
-/** tension の決着 1 行を人間可読にする。 */
+/** tension の決着 1 行を人間可読にする (止揚 / 結論なし + 理由)。 */
 function settleTensionLine(
   t: TensionRecord,
   syntheses: readonly SynthesisRecord[]
 ): string {
   const s = syntheses.find((x) => x.tensionId === t.id);
-  switch (t.status) {
-    case "agreed":
-      return `合意: ${t.resolutionNote ?? "(記録なし)"}`;
-    case "aligned":
-    case "partially_aligned":
-      return "すり合わせ (旧方式・詳細は記録なし)";
-    case "synthesized":
-      return `止揚 (批准済み): ${s?.text ?? "(本文なし)"}${s?.elevates ? ` — 新しい枠: ${s.elevates}` : ""}`;
-    case "compromised":
-      return `ゴール未到達 — 折衷 (批准済み・止揚ではない): ${s?.text ?? "(本文なし)"}`;
-    case "agreed_disagree":
-      return `ゴール未到達 — 合意不能 (両論併記): 批准が成立せず対立が残った${s ? ` — 最終候補: ${s.text}` : ""}`;
-    case "resolved":
-      return `事実解消: ${t.resolutionNote ?? "(記録なし)"}`;
-    case "unresolved_fact":
-      return `未解決の事実問題: ${t.resolutionNote ?? "(記録なし)"}`;
-    case "open":
-      return "未決着 (議論打ち切り)";
+  if (t.status === "synthesized") {
+    return renderOutcomeLine("aufheben", `${s?.text ?? "(本文なし)"}${s?.elevates ? ` — 新しい枠: ${s.elevates}` : ""}`);
   }
+  return renderOutcomeLine("none", noConclusionReason(t, s) ?? "(記録なし)");
 }
 
 /**
@@ -68,12 +54,12 @@ export function settlementToRoundSummary(
   const positionLines = s.positions
     .map((p) => `${personaNames.get(p.personaId) ?? p.personaId} (${p.stance}): ${p.claim}`)
     .join(" / ");
-  const tensionLines =
-    s.tensions.length > 0
+  const outcome = issueOutcome(s);
+  const tensionLines = s.refutation
+    ? renderOutcomeLine("refuted", s.refutation)
+    : s.tensions.length > 0
       ? s.tensions.map((t) => settleTensionLine(t, s.syntheses)).join(" / ")
-      : s.refutation
-        ? `論破: ${s.refutation}`
-        : "対立なし (論点未成立)";
+      : renderOutcomeLine("none", "対立が成立しなかった");
   const share = winnerShare === null ? "" : ` / 投票集中度 ${winnerShare.toFixed(2)}`;
   const aufhebung = s.tensions
     .filter((t) => t.status === "synthesized")
@@ -81,7 +67,7 @@ export function settlementToRoundSummary(
     .filter((t): t is string => !!t);
   return {
     round: s.issue.ordinal,
-    summary: `論点「${s.issue.title}」 — ${positionLines} ⇒ ${tensionLines}${share}`,
+    summary: `論点「${s.issue.title}」【${OUTCOME_LABEL[outcome]}】 — ${positionLines} ⇒ ${tensionLines}${share}`,
     // 止揚だけを aufhebung に数える (折衷は summary に「折衷」として残る。dialectic.md §4)。
     aufhebung,
   };

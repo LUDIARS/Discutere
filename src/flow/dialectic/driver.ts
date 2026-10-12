@@ -5,7 +5,7 @@
  *   [1] 定立 (issue × pro/con debater の Position 生成。論拠 1〜3 件を陣営交互に 1 件ずつ投稿)
  *   [2] 論拠の応酬 (相手の論拠に「反論 = 論拠 1 件」か「認める」で答える。落ち着いたらまとめ — §2.6)
  *   [3] 矛盾特定 (型分類。facts → RAG 解消 / 失敗は unresolved_fact)
- *   [4] 止揚 (型別テンプレ生成 → 折衷ゲート → 敵対的批准 → 修正ループ ≤2)
+ *   [4] 結論 (止揚 / 論破 / 結論なし の 3 区分 — §4.5。止揚は型別テンプレ生成 → 折衷ゲート → 敵対的批准 → 修正ループ ≤2)
  *   [5] 計測型収束 (2/3 シグナル + aufhebungTarget 上限キャップ)
  *
  * 状態遷移・スケジューリング・収束判定はすべて決定的なコード。LLM は生成と敵対的批准のみ。
@@ -55,7 +55,8 @@ import { GroundExchange } from "./exchange.js";
 import { runGroundExchange } from "./exchange-runner.js";
 import { classifyTension, resolveFactTension } from "./tension.js";
 import { runSynthesisLoop } from "./synthesis.js";
-import { agreementNote, detectRefutation, judgeAgreement } from "./goal.js";
+import { detectRefutation } from "./goal.js";
+import { noConclusionReason, renderOutcomeLine } from "./outcome.js";
 import { assessConvergence } from "./convergence.js";
 import { concludeDialectic, settlementToRoundSummary, type IssueSettlement } from "./conclusion.js";
 
@@ -378,13 +379,14 @@ export async function runDialecticFlow(
     const [positionA, positionB] = positions;
     const tensions: TensionRecord[] = [];
     const syntheses: SynthesisRecord[] = [];
-    // ── [4] ゴール 1: 論破 を先に判定 (一方の根拠がすべて崩れた = 意見が出なくなった。コードのみ。
-    //    dialectic.md §4.5)。譲歩で崩れても、反論に応答できずに崩れても論破として決着する。
+    // ── [4] 結論は 止揚 / 論破 / 結論なし のいずれか (dialectic.md §4.5)。
+    //    論破を先に判定 (一方の根拠がすべて崩れた = 意見が出なくなった。コードのみ)。
+    //    譲歩で崩れても、反論に応答できずに崩れても論破として決着する。
     const refutation = detectRefutation(positionA, positionB);
 
     if (refutation.note) {
       log(`論点 ${round}: 論破で決着`);
-      await commit(makeRecord({ persona: facilitator, round, turn: ++turn, text: `論破: ${refutation.note}` }));
+      await commit(makeRecord({ persona: facilitator, round, turn: ++turn, text: renderOutcomeLine("refuted", refutation.note) }));
     } else {
       const classifyLlm = withCostLog(llm, { flow, sessionId, round, location: "tension-classify" });
       const type = await classifyTension({ issue, positionA, positionB, llm: classifyLlm, model: judgeModel, warn });
@@ -400,7 +402,7 @@ export async function runDialecticFlow(
       log(`論点 ${round} の対立型: ${type}`);
 
       if (type === "facts") {
-        // 事実対立は弁証法のスコープ外: RAG 照会 → 判定。解消不能は結論に明記。
+        // 事実対立は弁証法のスコープ外: RAG 照会 → 判定。照会の結果にかかわらず論点の結論は「結論なし」。
         const factLlm = withCostLog(llm, { flow, sessionId, round, location: "fact-resolve" });
         const resolution = await resolveFactTension({
           theme,
@@ -417,28 +419,12 @@ export async function runDialecticFlow(
         updateTensionStatus(tension.id, resolution.status, resolution.note);
         const factText =
           resolution.status === "resolved"
-            ? `事実確認の結果です: ${resolution.note}`
-            : `この論点の事実対立は照会でも解消できませんでした。未解決の事実問題として結論に明記します。`;
-        await commit(makeRecord({ persona: facilitator, round, turn: ++turn, text: factText }));
-      } else if (
-        await judgeAgreement({
-          issue,
-          positionA,
-          positionB,
-          llm: withCostLog(llm, { flow, sessionId, round, location: "agreement" }),
-          model: judgeModel,
-          warn,
-        })
-      ) {
-        // ── [4] ゴール 2: 合意 (結論の同一性) ──
-        const note = agreementNote(positionA, positionB);
-        tension.status = "agreed";
-        tension.resolutionNote = note;
-        updateTensionStatus(tension.id, "agreed", note);
-        await commit(makeRecord({ persona: facilitator, round, turn: ++turn, text: `合意: ${note}` }));
+            ? `事実の対立は照会で確かめました (${resolution.note})。止揚にも論破にも至っていません。`
+            : `事実の対立は照会でも解消できませんでした。未解決の事実問題として結論に明記します。`;
+        await commit(makeRecord({ persona: facilitator, round, turn: ++turn, text: renderOutcomeLine("none", factText) }));
       } else {
-        // ── [4] ゴール 3: 止揚 (生成 → 折衷ゲート → 敵対的批准 → 修正ループ ≤2)。
-        //    批准されなければ (折衷・合意不能) ゴール未到達として記録する。
+        // ── 止揚 (生成 → 折衷ゲート → 敵対的批准 → 修正ループ ≤2)。
+        //    批准されなければ (折衷・批准不成立) 結論なしとして理由を残す。
         const outcome = await runSynthesisLoop({
           issueTitle: issue.title,
           tension,
@@ -457,17 +443,15 @@ export async function runDialecticFlow(
         syntheses.push(outcome.record);
         tension.status = outcome.tensionStatus;
         updateTensionStatus(tension.id, outcome.tensionStatus);
-        const label =
+        const outcomeText =
           outcome.tensionStatus === "synthesized"
-            ? "止揚 (批准済み)"
-            : outcome.tensionStatus === "compromised"
-              ? "折衷 (批准済み・止揚ではない)"
-              : "合意不能 (両論併記)";
+            ? renderOutcomeLine("aufheben", outcome.record.text)
+            : renderOutcomeLine("none", noConclusionReason(tension, outcome.record) ?? outcome.record.text);
         const synthRecord = makeRecord({
           persona: facilitator,
           round,
           turn: ++turn,
-          text: `${label}: ${outcome.record.text}`,
+          text: outcomeText,
           act: "synthesize",
         });
         await commit(synthRecord);
