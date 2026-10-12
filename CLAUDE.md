@@ -321,6 +321,12 @@ bot 名義で締める (収束時 `finalizeForumPost` で lock+archive+まとめ
   ペーパー・情報ゲート・議論のすべてに渡す (スレッドごとの `userVoiceLookups`)。設定 `flow.userVoices`、
   Voluptas の接続先は `DISCUTERE_VOLUPTAS_BASE_URL` > config > Excubitor が配る `VOLUPTAS_URL` (旧綴り `VOLPUTAS_URL` も読む) の順 (どれも無ければ Voluptas からは集めない)。
 
+- **ペーパーの使い回し (2026-10-13, `spec/feature/flow/paper-reuse.md`)**: 既存ペーパーを議論番号で指定すると
+  (Discord はスレッド名/starter の「ペーパー#12」、Web は開始フォームの「使い回すペーパー番号」)、メカニクス・ゲーム内容・
+  保存した声を新しいペーパーへ引き継ぎ、声は集め直さない (ユーザーの声の収集・情報ゲートを省く)。声は草案作成時と
+  議論開始時に `discussion_paper_voice` へ最大 200 件保存し (`src/flow/paper-voices.ts`)、Discord の再起動後のやり直しも
+  保存した声で議論する。本体 `src/flow/paper-reuse.ts`。
+
 ## 個人データ
 
 匿名 workspace (`DISCATIER_WORKSPACE` 既定 `knowledge`)。攻略 KG / 議論ノードに編集者名・アカウント名を保存しない (`spec/feature/crawler/DESIGN.md` 準拠)。

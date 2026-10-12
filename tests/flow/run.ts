@@ -64,5 +64,6 @@ await import("./outcome.test.js");
 await import("./dialectic-scheduler.test.js");
 await import("./dialectic-exchange.test.js");
 await import("./dialectic-driver.test.js");
+await import("./paper-reuse.test.js");
 
 console.log("flow tests: all passed");

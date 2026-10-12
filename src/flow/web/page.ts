@@ -254,6 +254,11 @@ export const FLOW_HTML = `<!doctype html>
       <label><input type="checkbox" name="tag" value="開発" /> 開発</label>
     </fieldset>
     <fieldset class="tags">
+      <legend>ペーパーの使い回し (任意)</legend>
+      <label>使い回すペーパー番号 <input id="reusePaperNo" type="number" min="1" placeholder="例: 12" style="width:6rem" /></label>
+      <span class="muted">指定した議論のメカニクス・ゲーム内容・集めた声を引き継ぎ、声は集め直しません</span>
+    </fieldset>
+    <fieldset class="tags">
       <legend>進行量 (議論/改善のみ・空欄で既定)</legend>
       <label>ラウンド数 <input id="rounds" type="number" min="1" max="10" placeholder="既定" style="width:5rem" /></label>
       <label>ターン数/ラウンド <input id="turnsPerRound" type="number" min="1" max="20" placeholder="既定" style="width:5rem" /></label>
@@ -530,10 +535,11 @@ $("start").addEventListener("submit", async (e) => {
   const githubRef = $("githubRef").value.trim() || undefined;
   const anatomiaProject = $("anatomiaProject").value.trim() || undefined;
   const anatomiaRepo = $("anatomiaRepo").value.trim() || undefined;
+  const reusePaperNo = $("reusePaperNo").value.trim() === "" ? undefined : Number($("reusePaperNo").value);
   $("go").disabled = true;
   const res = await fetch("/api/flow/start", {
     method: "POST", headers: { "content-type": "application/json" },
-    body: JSON.stringify({ theme, gameTitle, discussionTheme, discussionContent, mechanicsContext, themeSupplement, flow, tags, rounds, turnsPerRound, personaIds, opponent: personaIds, learningSource, learningQuery, learningAppId, learningSubreddit, learningUrls, learningBalanced, specText, specUrl, githubRepoUrl, githubPath, githubRef, anatomiaProject, anatomiaRepo }),
+    body: JSON.stringify({ theme, gameTitle, discussionTheme, discussionContent, mechanicsContext, themeSupplement, flow, tags, rounds, turnsPerRound, personaIds, opponent: personaIds, learningSource, learningQuery, learningAppId, learningSubreddit, learningUrls, learningBalanced, specText, specUrl, githubRepoUrl, githubPath, githubRef, anatomiaProject, anatomiaRepo, reusePaperNo }),
   }).then(r => r.json()).catch(() => ({ ok: false, error: "通信失敗" }));
   if (!res.ok) { alert(res.error || "開始に失敗"); $("go").disabled = false; return; }
   sessionId = res.sessionId; kind = res.kind;

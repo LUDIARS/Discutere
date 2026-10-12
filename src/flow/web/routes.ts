@@ -76,6 +76,8 @@ import { getConfig } from "../../config.js";
 import { getAnatomiaMechanics, resolveAnatomiaSource } from "../anatomia/index.js";
 import type { MechanicSummary } from "../investigate.js";
 import { FLOW_HTML } from "./page.js";
+import { PAPER_VOICE_LIMIT, savePaperVoices, sessionVoiceLookup, storedVoiceLookup, type VoiceLookup } from "../paper-voices.js";
+import { describeReuse, loadReusablePaper, mergeReusedContext, parseReusePaperNo } from "../paper-reuse.js";
 
 let deps: FlowWebDeps | null = null;
 
@@ -141,6 +143,18 @@ interface WebPaperReview {
   timer?: ReturnType<typeof setTimeout>;
 }
 const paperReviews = new Map<string, WebPaperReview>();
+/** ペーパーを使い回したセッションの声の検索 (sessionId → 保存した声)。承認で議論に渡して外す。 */
+const sessionVoiceLookups = new Map<string, VoiceLookup>();
+
+/** セッションの声をペーパーに保存する (使い回し・下書き再開用)。失敗は議論を止めない。 */
+function saveSessionVoices(sessionId: string, theme: string, lookup: VoiceLookup | undefined): void {
+  if (!lookup) return;
+  try {
+    savePaperVoices(sessionId, lookup([theme], PAPER_VOICE_LIMIT));
+  } catch (e) {
+    console.warn(`[flow-web/paper-voices ${sessionId}] 声の保存失敗 (議論は続行): ${(e as Error).message}`);
+  }
+}
 
 /** 確定ペーパーで議論を起動する (承認エンドポイント / 自動開始タイマー 共通)。 */
 function startApprovedFlow(
@@ -151,9 +165,13 @@ function startApprovedFlow(
 ): void {
   if (entry.timer) clearTimeout(entry.timer);
   paperReviews.delete(sessionId);
+  // 使い回した声 > 下書き再開で保存済みの声 > 外部の声検索。議論に使う声を保存し直す。
+  const voiceLookup = sessionVoiceLookups.get(sessionId) ?? sessionVoiceLookup(sessionId, webDeps.listExternalVoices);
+  sessionVoiceLookups.delete(sessionId);
+  saveSessionVoices(sessionId, finalPaper.theme, voiceLookup);
   const dispatchDeps: DispatchDeps = {
     llm: webDeps.llm,
-    listExternalVoices: webDeps.listExternalVoices,
+    listExternalVoices: voiceLookup,
     sentimentClients: webDeps.sentimentClients,
     gamesDir: webDeps.gamesDir,
     workspaceId: webDeps.workspaceId,
@@ -801,6 +819,7 @@ flowRoutes.post("/api/flow/start", async (c) => {
     githubRef?: unknown;
     anatomiaProject?: unknown;
     anatomiaRepo?: unknown;
+    reusePaperNo?: unknown;
   };
   const legacyTheme = typeof body.theme === "string" ? body.theme.trim() : "";
   const additionalSpecText = await resolveAdditionalSpecText(body, (m) => console.warn(m));
@@ -935,12 +954,23 @@ flowRoutes.post("/api/flow/start", async (c) => {
   // 学習データが不足していれば、議論を始める前に指定ソースでクロール → 取込する (事前学習の UI 化)。
   const sessionId = randomUUID();
   const autoCrawlSpec = buildAutoCrawlSpec(body);
+  // ペーパーの使い回し (paper-reuse.md): 欄の番号 > 本文中の「ペーパー#N」。
+  const reuseNo =
+    readOptionalInt(body.reusePaperNo, 1, Number.MAX_SAFE_INTEGER) ??
+    parseReusePaperNo([legacyTheme, seed?.discussionContent ?? "", seed?.mechanicsContext ?? ""].join("\n"));
+  const reused = reuseNo ? loadReusablePaper(reuseNo) : null;
+  if (reuseNo) console.log(`[flow-web ${sessionId}] ${describeReuse(reuseNo, reused)}`);
+  if (reused?.voices.length) sessionVoiceLookups.set(sessionId, storedVoiceLookup(reused.voices));
+  const voiceLookup = sessionVoiceLookups.get(sessionId) ?? webDeps.listExternalVoices;
 
   // ペーパー編集ゲート (Web 正規フロー): 情報整備後に草案を作り、ブラウザの編集/承認を待つ。
   if (webPaperGateEnabled()) {
     paperReviews.set(sessionId, { flow: kind, rounds, turnsPerRound, personaIds, ready: false });
     void (async () => {
-      await prepareInformationBeforeFlow(kind, theme, tags, sessionId, autoCrawlSpec, webDeps);
+      // 声を使い回すときは集め直さない (情報ゲート・自動クロールを省く)。
+      if (!reused?.voices.length) {
+        await prepareInformationBeforeFlow(kind, theme, tags, sessionId, autoCrawlSpec, webDeps);
+      }
       const richness = getConfig().flow.paperRichness;
       // Anatomia 事前情報: 対象が指定され config 有効なら、ソース解析由来のメカニクスを先頭に差す。
       const extraMechanics = await resolveAnatomiaExtraMechanics(
@@ -950,16 +980,17 @@ flowRoutes.post("/api/flow/start", async (c) => {
         webDeps.llm,
         (m) => console.warn(`[flow-web/anatomia ${sessionId}] ${m}`)
       );
+      const reusedContext = mergeReusedContext(reused, seed?.mechanicsContext);
       const { draft, info } = await buildPaperDraft(theme, tags, {
         flow: kind,
         gamesDir: webDeps.gamesDir,
-        listExternalVoices: webDeps.listExternalVoices,
+        listExternalVoices: voiceLookup,
         llm: richness.enrichMechanics ? webDeps.llm : undefined,
         understandingLlm: webDeps.llm,
         mechanicsTarget: richness.mechanicsTarget,
         enrichModel: richness.enrichModel || undefined,
-        extraMechanics,
-        seed,
+        extraMechanics: reused?.mechanics.length ? [...reused.mechanics, ...(extraMechanics ?? [])] : extraMechanics,
+        seed: reusedContext ? { ...(seed ?? {}), mechanicsContext: reusedContext } : seed,
         // 議論適性ゲート (09): 情報ゲートの後段・人間レビューの前 (無効時は undefined = 現行挙動)。
         debatability: resolveDebatabilityGate({ kind, sessionId, llm: webDeps.llm }),
         warn: (m) => console.warn(`[flow-web/paper ${sessionId}] ${m}`),
@@ -985,6 +1016,7 @@ flowRoutes.post("/api/flow/start", async (c) => {
           kind
         );
         savePaperReviewInfo(sessionId, info);
+        saveSessionVoices(sessionId, theme, voiceLookup);
         scheduleWebAutoApprove(sessionId, webDeps); // 無操作タイムアウト (timeoutMs>0 時のみ)
       }
     })().catch((e) => {

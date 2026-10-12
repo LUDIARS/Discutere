@@ -534,6 +534,23 @@ MIGRATIONS.push({
   ],
 });
 
+MIGRATIONS.push({
+  // ペーパーの使い回し (spec/feature/flow/paper-reuse.md): 草案・議論開始時に集めた声をセッションごとに保存する。
+  // 本文・出所・元 URL だけを持つ (個人アンカーは持たない)。
+  id: "flow_0030_paper_voices",
+  sql: [
+    `CREATE TABLE IF NOT EXISTS discussion_paper_voice (
+      session_id TEXT NOT NULL,
+      ordinal INTEGER NOT NULL,
+      content TEXT NOT NULL,
+      source TEXT NOT NULL,
+      source_url TEXT,
+      created_at INTEGER NOT NULL,
+      PRIMARY KEY (session_id, ordinal)
+    )`,
+  ],
+});
+
 function isIgnorableMigrationError(stmt: string, error: unknown): boolean {
   if (!/^\s*ALTER\s+TABLE\s+/i.test(stmt)) return false;
   const message = error instanceof Error ? error.message : String(error);

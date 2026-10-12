@@ -83,6 +83,8 @@ import {
 import { describeVoiceReport } from "./user-voices/collect.js";
 import { PROJECT_PREMISES } from "./project-premise.js";
 import { parseSimilarGames, prepareUserVoices } from "./user-voices/runtime.js";
+import { loadPaperVoices, PAPER_VOICE_LIMIT, savePaperVoices, storedVoiceLookup } from "./paper-voices.js";
+import { describeReuse, loadReusablePaper, mergeReusedContext, parseReusePaperNo, type ReusablePaper } from "./paper-reuse.js";
 import {
   _resetReviewSessions,
   bufferReply,
@@ -537,7 +539,14 @@ export async function startForumFlow(
     // ユーザーの声: 議題のゲーム (+ starter の類似ゲーム指定) がリリース済みなら Steam レビュー、
     // 無ければ Voluptas の遊んだ感想を取り込み・ベクトル化する。情報ゲートより先に集める。
     input = { ...input, similarGames: input.similarGames ?? parseSimilarGames(input.specText ?? input.theme) };
-    await collectUserVoicesForThread(input, deps);
+    // ペーパーの使い回し (「ペーパー#12」): メカニクス・ゲーム内容・保存した声を引き継ぐ。
+    // 声を引き継げたら集め直さない (paper-reuse.md)。
+    const reused = await resolveReusedPaper(input, deps);
+    if (reused?.voices.length) {
+      userVoiceLookups.set(input.threadId, storedVoiceLookup(reused.voices));
+    } else {
+      await collectUserVoicesForThread(input, deps);
+    }
     // 外部の声は参考値。件数・情報密度を満たすまで反復する独立した学習状態を置かない。
     // starter / 議題中の Notion リンクはペーパーの「ゲーム内容」材料として展開する。
     const notionMd = await resolveStarterNotion(input);
@@ -547,13 +556,13 @@ export async function startForumFlow(
 
     // ペーパーレビューゲート (有効時): 草案 + 集めた情報を出し、調整/承認をスレッド返信で待つ。
     if (reviewEnabled || !(voiceLookupFor(input.threadId, deps)?.([input.theme], 1).length)) {
-      await startPaperReview(input, deps, hooks, notionMd);
+      await startPaperReview(input, deps, hooks, notionMd, reused);
       return;
     }
 
-    // 通常: そのまま完走させて結論を投稿 (Notion 資料があればそれを載せた草案で確定させる)。
-    if (notionMd) {
-      const { draft } = await buildForumPaperDraft(input, deps, notionMd);
+    // 通常: そのまま完走させて結論を投稿 (Notion 資料・使い回すペーパーがあればそれを載せた草案で確定させる)。
+    if (notionMd || reused) {
+      const { draft } = await buildForumPaperDraft(input, deps, notionMd, reused);
       await runDiscussionDispatch(input, deps, hooks, {
         mechanics: draft.mechanics,
         supplement: draft.supplement,
@@ -578,13 +587,15 @@ async function startPaperReview(
   input: StartForumFlowInput,
   deps: FlowDiscordDeps,
   hooks?: FlowLiveHooks,
-  notionMd?: string
+  notionMd?: string,
+  reused?: ReusablePaper | null
 ): Promise<void> {
-  const { draft, info } = await buildForumPaperDraft(input, deps, notionMd);
+  const { draft, info } = await buildForumPaperDraft(input, deps, notionMd, reused);
   paperReviewByThread.set(input.threadId, { input, draft, info, hooks });
   // ドラフトを discussion_paper(status='draft') に永続 → 議論一覧に「下書き」として出す/再開できる
   // (session_id=threadId。承認時に同 session 行を 'started' へ upsert する)。
   persistDiscordDraft(input, draft);
+  saveThreadVoices(input, deps);
   appendRevision({ sessionId: forumSessionId(input.threadId), bodyMd: draft.bodyMd, changeSummary: "初期草案", origin: "initial" });
   await postThreadNotice(deps, input.threadId, renderPaperReview(draft, info));
   const voiceState = await prepareVoiceChoice({ sessionId: forumSessionId(input.threadId), theme: input.theme, referenceCount: info.voiceCount, priorKnowledge: draft.mechanics.some(m => m.source !== "llm") || !!draft.mechanicsContext?.trim(), request: deps.voiceRequest ?? configuredVoiceRequest });
@@ -621,9 +632,18 @@ async function startPaperReview(
   });
 }
 
-/** フォーラム議論のペーパー草案を作る。Notion 資料があれば「ゲーム内容」(mechanicsContext) に載せる。 */
-function buildForumPaperDraft(input: StartForumFlowInput, deps: FlowDiscordDeps, notionMd?: string) {
+/**
+ * フォーラム議論のペーパー草案を作る。Notion 資料と使い回すペーパーのゲーム内容があれば
+ * 「ゲーム内容」(mechanicsContext) に載せ、使い回すペーパーのメカニクスを先頭に差す。
+ */
+function buildForumPaperDraft(
+  input: StartForumFlowInput,
+  deps: FlowDiscordDeps,
+  notionMd?: string,
+  reused?: ReusablePaper | null
+) {
   const richness = getConfig().flow.paperRichness;
+  const mechanicsContext = mergeReusedContext(reused ?? null, notionMd);
   return buildPaperDraft(input.theme, input.tags, {
     flow: input.flow,
     gamesDir: deps.gamesDir,
@@ -631,7 +651,8 @@ function buildForumPaperDraft(input: StartForumFlowInput, deps: FlowDiscordDeps,
     llm: richness.enrichMechanics ? deps.llm : undefined,
     mechanicsTarget: richness.mechanicsTarget,
     enrichModel: richness.enrichModel || undefined,
-    seed: notionMd ? { mechanicsContext: notionMd } : undefined,
+    seed: mechanicsContext ? { mechanicsContext } : undefined,
+    ...(reused?.mechanics.length ? { extraMechanics: reused.mechanics } : {}),
     // 議論適性ゲート (09): 情報ゲートの後段・人間レビューの前 (無効時は undefined = 現行挙動)。
     debatability: resolveDebatabilityGate({ kind: input.flow, sessionId: forumSessionId(input.threadId), llm: deps.llm }),
     warn: (m) => console.warn(`  [paper-review ${input.threadId}] ${m}`),
@@ -693,6 +714,25 @@ function resolveStarterNotion(input: StartForumFlowInput): Promise<string> {
   return expandNotionLinks([input.theme, input.specText ?? ""].join("\n"), {
     warn: (m) => console.warn(`  [notion ${input.threadId}] ${m}`),
   });
+}
+
+/** starter / 議題の「ペーパー#N」を解決し、スレッドに一言知らせる (指定が無ければ null)。 */
+async function resolveReusedPaper(input: StartForumFlowInput, deps: FlowDiscordDeps): Promise<ReusablePaper | null> {
+  const no = parseReusePaperNo([input.theme, input.specText ?? ""].join("\n"));
+  if (!no) return null;
+  const reused = loadReusablePaper(no);
+  await postThreadNotice(deps, input.threadId, describeReuse(no, reused));
+  return reused;
+}
+
+/** スレッドの声 (今の検索で引ける声) をペーパーに保存する (使い回し・再起動後のやり直し用)。失敗は議論を止めない。 */
+function saveThreadVoices(input: StartForumFlowInput, deps: FlowDiscordDeps): void {
+  try {
+    const lookup = voiceLookupFor(input.threadId, deps);
+    if (lookup) savePaperVoices(forumSessionId(input.threadId), lookup([input.theme], PAPER_VOICE_LIMIT));
+  } catch (e) {
+    console.warn(`  [paper-voices ${input.threadId}] 声の保存失敗 (議論は続行): ${(e as Error).message}`);
+  }
 }
 
 /** Discord レビュー草案を discussion_paper(status='draft') に永続/同期する (session_id=threadId)。 */
@@ -799,6 +839,13 @@ async function runDiscussionDispatchInner(
   paperOverride?: PaperOverride
 ): Promise<void> {
   const scene = `discord:${input.guildId}/${input.threadId}`;
+  // 再起動でメモリ上の声の検索を失ったスレッド (やり直し等) は、保存した声で議論する。
+  if (!userVoiceLookups.has(input.threadId)) {
+    const stored = loadPaperVoices(forumSessionId(input.threadId));
+    if (stored.length > 0) userVoiceLookups.set(input.threadId, storedVoiceLookup(stored));
+  }
+  // 議論に使う声を保存し直す (レビュー中の取り込みで増えた声も含める)。
+  saveThreadVoices(input, deps);
   const dispatchDeps = buildDispatchDeps(deps, input.threadId);
   const result = await dispatchFlow(
     {
