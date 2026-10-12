@@ -2,8 +2,8 @@
  * dialectic 位相ドライバ (respec 05/06, dialectic.md §3) — 論証状態機械の進行台本。
  *
  *   [0] 論点分解 (paperOverride.issues があれば再分解しない)
- *   [1] 定立 (issue × pro/con debater の Position 生成)
- *   [2] 反定立 (スケジューラ指名 + acts 付き発話 → 論証グラフ更新)
+ *   [1] 定立 (issue × pro/con debater の Position 生成。論拠 1〜3 件を陣営交互に 1 件ずつ投稿)
+ *   [2] 論拠の応酬 (相手の論拠に「反論 = 論拠 1 件」か「認める」で答える。落ち着いたらまとめ — §2.6)
  *   [3] 矛盾特定 (型分類。facts → RAG 解消 / 失敗は unresolved_fact)
  *   [4] 止揚 (型別テンプレ生成 → 折衷ゲート → 敵対的批准 → 修正ループ ≤2)
  *   [5] 計測型収束 (2/3 シグナル + aufhebungTarget 上限キャップ)
@@ -41,25 +41,20 @@ import {
   insertPosition,
   insertTension,
   updateIssueStatus,
-  updatePositionGrounds,
   updateTensionStatus,
   type IssueRecord,
   type PositionRecord,
   type SynthesisRecord,
   type TensionRecord,
 } from "./store.js";
-import { generatePosition } from "./position.js";
+import { generatePosition, type GeneratedPosition } from "./position.js";
 import { renderIssueVoices } from "./issue-voices.js";
-import { buildDialecticTurnPrompt, parseTurnResponse, type UtteranceDigest } from "./turn-prompt.js";
-import {
-  renderFacilitatorLine,
-  renderNomination,
-  scheduleNextTurn,
-  type PositionAnchor,
-} from "./scheduler.js";
+import type { UtteranceDigest } from "./turn-prompt.js";
+import { renderFacilitatorLine } from "./scheduler.js";
+import { GroundExchange } from "./exchange.js";
+import { runGroundExchange } from "./exchange-runner.js";
 import { classifyTension, resolveFactTension } from "./tension.js";
 import { runSynthesisLoop } from "./synthesis.js";
-import { gateRebut, renderFoulNotice, type RuleFoul } from "./rule-check.js";
 import { agreementNote, detectRefutation, judgeAgreement } from "./goal.js";
 import { assessConvergence } from "./convergence.js";
 import { concludeDialectic, settlementToRoundSummary, type IssueSettlement } from "./conclusion.js";
@@ -98,12 +93,6 @@ export function ensureDebaters(
     else con = promoted;
   }
   return { pro: pro!, con: con!, cast: working };
-}
-
-/** rebut 発話 → 攻撃対象根拠 の対応 (ground 状態の write-through 同期に使う)。 */
-interface RebutGroundLink {
-  position: PositionRecord;
-  groundId: string;
 }
 
 /**
@@ -186,7 +175,6 @@ export async function runDialecticFlow(
   const voteResults: VoteResult[] = [];
   const settlements: IssueSettlement[] = [];
   const ratifiedAufheben: string[] = [];
-  const rebutGroundLinks = new Map<string, RebutGroundLink>();
   let globalTurn = 0;
 
   /** 発話の永続 + 通知 + インデックス更新 (persistUtterance → onUtterance の順序維持)。 */
@@ -224,24 +212,6 @@ export async function runDialecticFlow(
     ...(args.act ? { act: args.act } : {}),
     ...(args.targetId ? { targetId: args.targetId } : {}),
   });
-
-  /** graph の rebut 辺状態を Position の根拠状態へ write-through 同期する。 */
-  const syncGroundStates = (): void => {
-    const touched = new Set<PositionRecord>();
-    for (const [rebutId, link] of rebutGroundLinks) {
-      const edge = graph.rebuttalById(rebutId);
-      if (!edge) continue;
-      const ground = link.position.grounds.find((g) => g.id === link.groundId);
-      if (!ground) continue;
-      const next =
-        edge.state === "defended" ? "defended" : edge.state === "conceded" ? "conceded" : "challenged";
-      if (ground.state !== next) {
-        ground.state = next;
-        touched.add(link.position);
-      }
-    }
-    for (const p of touched) updatePositionGrounds(p.id, p.grounds);
-  };
 
   const facilitatorLlm = withCostLog(llm, { flow, sessionId, role: "facilitator", persona: facilitator.name, location: "facilitator" });
 
@@ -301,10 +271,11 @@ export async function runDialecticFlow(
     const voicesBlock = renderIssueVoices(issueVoices);
     log(`論点 ${round}: プレイヤーの声 ${issueVoices.length} 件を議論者に渡す`);
 
-    // ── [1] 定立 ──────────────────────────────────────────────────────────
+    // ── [1] 定立 (主張 → 論拠 1〜3 件を陣営交互に 1 件ずつ投げ合う) ────────────
     const positions: PositionRecord[] = [];
-    const anchors: PositionAnchor[] = [];
-    const positionByUtterance = new Map<string, PositionRecord>();
+    const positionBySide = new Map<"pro" | "con", PositionRecord>();
+    const openings: Array<{ persona: FlowPersona; stance: "pro" | "con"; position: PositionRecord; gp: GeneratedPosition; claimId: string }> = [];
+    const exchange = new GroundExchange({ maxDepth: Math.max(1, cfg.flow.dialectic.argumentDepth) });
     let turn = 0;
     for (const persona of [pro, con]) {
       turn += 1;
@@ -339,130 +310,69 @@ export async function runDialecticFlow(
         values: gp.values,
       });
       positions.push(position);
+      positionBySide.set(stance, position);
       const record = makeRecord({ persona, round, turn, text: gp.text, act: "claim" });
       await commit(record);
       graph.apply({ id: record.id, personaId: persona.id, act: "claim", targetId: null, turn: ++globalTurn });
-      anchors.push({ personaId: persona.id, stance, utteranceId: record.id });
-      positionByUtterance.set(record.id, position);
+      openings.push({ persona, stance, position, gp, claimId: record.id });
     }
-
-    // ── [2] 反定立 (スケジューラ指名 + acts 付き発話 → グラフ更新) ─────────
-    const rebutTurns = Math.max(0, cfg.flow.dialectic.rebutTurns);
-    for (let t = 0; t < rebutTurns; t++) {
-      const decision = scheduleNextTurn({ graph, speakers, positionAnchors: anchors, speakCounts });
-      if (!decision) break;
-      const persona = cast.find((p) => p.id === decision.personaId);
-      if (!persona) break;
-      turn += 1;
-
-      // 応答権指名はファシリテーターが露出文で指名する (レンダリングのみ LLM)。
-      if (decision.kind === "respond") {
-        const nomination = await renderNomination({
-          decision,
-          personaName: persona.name,
-          target: decision.targetUtteranceId ? utteranceIndex.get(decision.targetUtteranceId) : undefined,
-          llm: facilitatorLlm,
-          model: facilitator.model,
-          warn,
-        });
-        await commit(makeRecord({ persona: facilitator, round, turn, text: nomination }));
-      }
-
-      const turnLlm = withCostLog(llm, {
-        flow,
-        sessionId,
-        round,
-        turn,
-        role: persona.role,
-        persona: persona.name,
-        location: "utterance",
-      });
-      const prompt = buildDialecticTurnPrompt({
-        persona,
-        stance: personaStance(persona),
-        issue,
-        positions,
-        unresolvedRebuttals: graph.unresolvedRebuttals(),
-        utterances: utteranceIndex,
-        personaNames,
-        allowedActs: decision.allowedActs,
-        targetUtteranceId: decision.targetUtteranceId ?? undefined,
-        voicesBlock,
-      });
-      const result = await turnLlm.invoke({ system: paperSystem, prompt, model: persona.model });
-
-      if (!result.ok) {
-        warn(`論点 ${round} ターン ${turn} (${persona.name}) LLM エラー: ${result.error}`);
-        await commit(
-          makeRecord({ persona, round, turn, text: `[エラー: ${result.error}]`, isError: true })
-        );
-        continue;
-      }
-
-      const parsed = parseTurnResponse(result.text, {
-        allowedActs: decision.allowedActs,
-        validTargets: new Set(utteranceIndex.keys()),
-        defaultTargetId: decision.targetUtteranceId,
-        warn,
-      });
-      if (!parsed.text) {
-        log(`論点 ${round} ターン ${turn} (${persona.name}): 空応答 (スキップ)`);
-        continue;
-      }
-      // 前提ルールのゲート (dialectic.md §2.5): Position への反論は突く要素と根拠を示し、
-      // 限定の内側で突いていなければ根拠を challenged にせず question に格下げする。
-      let act = parsed.act;
-      let challengedGroundId: string | null = null;
-      let foul: RuleFoul | null = null;
-      const targetPosition =
-        parsed.act === "rebut" && parsed.targetId ? positionByUtterance.get(parsed.targetId) : undefined;
-      if (targetPosition) {
-        const gate = await gateRebut({
-          issue,
-          position: targetPosition,
-          attack: parsed.attack,
-          groundId: parsed.groundId,
-          data: parsed.data,
-          warrant: parsed.warrant,
-          rebutText: parsed.text,
-          judge: cfg.flow.dialectic.ruleCheck,
-          llm: withCostLog(llm, { flow, sessionId, round, turn, location: "rule-check" }),
-          model: judgeModel,
-          warn,
-        });
-        if (gate.accepted) {
-          challengedGroundId = gate.ground?.id ?? null;
-        } else {
-          foul = gate.foul;
-          act = "question";
-          warn(`論点 ${round} ターン ${turn} (${persona.name}): 前提ルール違反 (${foul}) — question に格下げ`);
+    const groundRounds = Math.max(...openings.map((o) => o.position.grounds.length));
+    for (let i = 0; i < groundRounds; i++) {
+      for (const o of openings) {
+        const ground = o.position.grounds[i];
+        if (!ground) continue;
+        const say = o.gp.groundTexts[i] ?? ground.text;
+        // degrade で主張と同文になった論拠は再投稿せず、主張の発話を論拠の投稿として扱う。
+        let utteranceId = o.claimId;
+        if (say !== o.gp.text) {
+          turn += 1;
+          const record = makeRecord({ persona: o.persona, round, turn, text: say, act: "claim", targetId: o.claimId });
+          await commit(record);
+          graph.apply({ id: record.id, personaId: o.persona.id, act: "claim", targetId: o.claimId, turn: ++globalTurn });
+          utteranceId = record.id;
         }
+        exchange.addOpening({
+          utteranceId,
+          side: o.stance,
+          personaId: o.persona.id,
+          groundId: ground.id,
+          data: ground.text,
+          ...(ground.warrant ? { warrant: ground.warrant } : {}),
+          ...(ground.kind ? { kind: ground.kind } : {}),
+          text: say,
+        });
       }
-
-      const record = makeRecord({
-        persona,
-        round,
-        turn,
-        text: parsed.text,
-        act,
-        targetId: parsed.targetId ?? undefined,
-      });
-      await commit(record);
-      graph.apply({
-        id: record.id,
-        personaId: persona.id,
-        act,
-        targetId: parsed.targetId,
-        turn: ++globalTurn,
-      });
-      if (targetPosition && challengedGroundId) {
-        rebutGroundLinks.set(record.id, { position: targetPosition, groundId: challengedGroundId });
-      }
-      if (foul) {
-        await commit(makeRecord({ persona: facilitator, round, turn: ++turn, text: renderFoulNotice(persona.name, foul) }));
-      }
-      syncGroundStates();
     }
+
+    // ── [2] 論拠の応酬 (相手の論拠に「反論 = 論拠 1 件」か「認める」で答える → 落ち着いたらまとめ) ──
+    turn = await runGroundExchange({
+      issue,
+      round,
+      turn,
+      exchange,
+      positionBySide,
+      speakers,
+      debaters: { pro, con },
+      facilitator,
+      personaNames,
+      utteranceIndex,
+      speakCounts,
+      paperSystem,
+      voicesBlock,
+      turnCap: Math.max(0, cfg.flow.dialectic.exchangeTurns),
+      ruleCheck: cfg.flow.dialectic.ruleCheck,
+      judgeModel,
+      turnLlm: (persona, t) =>
+        withCostLog(llm, { flow, sessionId, round, turn: t, role: persona.role, persona: persona.name, location: "utterance" }),
+      ruleCheckLlm: (t) => withCostLog(llm, { flow, sessionId, round, turn: t, location: "rule-check" }),
+      facilitatorLlm,
+      makeRecord,
+      commit,
+      applyGraph: (record, act, targetId) =>
+        graph.apply({ id: record.id, personaId: record.personaId, act, targetId, turn: ++globalTurn }),
+      log,
+      warn,
+    });
 
     // ── [3] 矛盾の特定 (型分類 + 事実解消) ─────────────────────────────────
     const [positionA, positionB] = positions;

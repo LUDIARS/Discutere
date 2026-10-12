@@ -80,8 +80,12 @@ export interface DiscutereConfig {
      * dialectic エンジン設定 (engine="dialectic" のときのみ参照)。
      */
     dialectic: {
-      /** issue あたりの反定立 ([2]) ターン上限。既定 4。 */
+      /** 旧 [2] 反定立 (指名制) のターン上限。論拠の応酬 (§2.6) 導入後は未使用 (設定互換のため残す)。既定 4。 */
       rebutTurns: number;
+      /** 論拠の応酬 [2] (dialectic.md §2.6) の issue あたり応答ターン上限。超えた応答待ちは決着つかずで打ち切る。既定 16。 */
+      exchangeTurns: number;
+      /** 論拠の応酬の反論の深さ上限 (定立の論拠 = 0)。この深さの反論には答えさせない。既定 4。 */
+      argumentDepth: number;
       /** 新規 claim 枯渇判定の窓 K (直近 K ターン新 claim なしで収束シグナル (c))。既定 6。 */
       staleTurns: number;
       /**
@@ -827,6 +831,16 @@ export function loadConfig(): DiscutereConfig {
         rebutTurns: pickNum(
           process.env.DISCUTERE_FLOW_DIALECTIC_REBUT_TURNS,
           file.flow?.dialectic?.rebutTurns,
+          4
+        ),
+        exchangeTurns: pickNum(
+          process.env.DISCUTERE_FLOW_DIALECTIC_EXCHANGE_TURNS,
+          file.flow?.dialectic?.exchangeTurns,
+          16
+        ),
+        argumentDepth: pickNum(
+          process.env.DISCUTERE_FLOW_DIALECTIC_ARGUMENT_DEPTH,
+          file.flow?.dialectic?.argumentDepth,
           4
         ),
         staleTurns: pickNum(

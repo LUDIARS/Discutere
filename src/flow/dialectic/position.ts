@@ -2,7 +2,8 @@
  * 定立 [1] — issue ごとに debater (pro/con 各代表) の Position を生成する (respec 06 §2)。
  *
  * 生成はメインモデル・温度高め (dialectic.md §5)。01 の coreClaims を種にする。
- * 構造化 JSON (claim + grounds 2〜4 + values) + 露出用口語文を同時に返させる。
+ * 構造化 JSON (claim + grounds 1〜3 + values) + 露出用口語文を同時に返させる。
+ * 論拠は 1 件ずつ投稿するため (論拠の応酬 dialectic.md §2.6)、各 ground に露出用の口語文 (say) も持たせる。
  * パース失敗は degrade: 応答全文を claim = 露出文とする単一根拠の Position で受理 + warn
  * (発話を捨てない)。LLM 呼び出しのコストログは呼び出し側 (driver) が withCostLog で行う。
  */
@@ -21,6 +22,8 @@ export interface GeneratedPosition {
   values: string[];
   /** 露出用の口語文 (Discord/Web に流す)。 */
   text: string;
+  /** grounds と同じ順の論拠ごとの露出文 (無ければデータ + 論拠から組み立てる)。 */
+  groundTexts: string[];
   /** JSON が取れず degrade したか。 */
   degraded: boolean;
 }
@@ -67,12 +70,15 @@ export function buildPositionPrompt(args: {
     `次の JSON 1 個だけを返してください (前後に説明やコードフェンスを付けない):\n` +
     `{"claim": "<主張 1 文>", "qualifier": "<主張の限定: どのプレイヤー層・どの条件の話か>", ` +
     `"grounds": [{"kind": "<deduction|induction|abduction>", "data": "<データ: 事実・事例・仕様>", ` +
-    `"warrant": "<論拠: データから主張が言える理由>"}], ` +
-    `"values": ["<価値前提 (例: 収益 > 体験)>"], "text": "<Discord に流す口語 1〜3 文>"}\n` +
-    `grounds は 2〜4 個。data と warrant は混ぜずに分ける。` +
+    `"warrant": "<論拠: データから主張が言える理由>", "say": "<この論拠を Discord に流す口語 1〜2 文>"}], ` +
+    `"values": ["<価値前提 (例: 収益 > 体験)>"], "text": "<主張を Discord に流す口語 1〜2 文 (論拠は say で別に流す)>"}\n` +
+    `grounds は 1〜3 個 (強い論拠だけに絞る)。data と warrant は混ぜずに分ける。` +
     `text は実在の人間の雑談のような自然な口語で書く。`
   );
 }
+
+/** 定立の論拠の上限 (dialectic.md §2.6: 1〜3 個)。 */
+export const GROUNDS_MAX = 3;
 
 /** 根拠 id の採番 (stance 接頭辞で issue 内一意・決定的)。 */
 export function groundId(stance: "pro" | "con", index: number): string {
@@ -87,7 +93,7 @@ function coerceStringArray(v: unknown, max: number): string[] {
     .slice(0, max);
 }
 
-type ParsedGround = Pick<Ground, "text"> & Partial<Pick<Ground, "kind" | "warrant">>;
+type ParsedGround = Pick<Ground, "text"> & Partial<Pick<Ground, "kind" | "warrant">> & { say?: string };
 
 /**
  * grounds を正規化する。トゥールミン形式 ({kind, data, warrant}) と旧形式 (文字列) の両方を受ける
@@ -109,7 +115,8 @@ function coerceGrounds(v: unknown, max: number): ParsedGround[] {
     if (!data) continue;
     const kind = coerceInferenceKind(o.kind);
     const warrant = typeof o.warrant === "string" && o.warrant.trim() ? o.warrant.trim() : undefined;
-    out.push({ text: data, ...(kind ? { kind } : {}), ...(warrant ? { warrant } : {}) });
+    const say = typeof o.say === "string" && o.say.trim() ? o.say.trim() : undefined;
+    out.push({ text: data, ...(kind ? { kind } : {}), ...(warrant ? { warrant } : {}), ...(say ? { say } : {}) });
   }
   return out;
 }
@@ -138,6 +145,7 @@ export async function generatePosition(args: GeneratePositionArgs): Promise<Gene
       grounds: [{ id: groundId(stance, 0), text: claim, state: "unchallenged" }],
       values: persona.valueAxis ? [persona.valueAxis] : [],
       text: claim,
+      groundTexts: [claim],
       degraded: true,
     };
   }
@@ -152,12 +160,13 @@ export async function generatePosition(args: GeneratePositionArgs): Promise<Gene
       grounds: [{ id: groundId(stance, 0), text: text.slice(0, 200) || issue.title, state: "unchallenged" }],
       values: [],
       text: text || issue.title,
+      groundTexts: [text.slice(0, 200) || issue.title],
       degraded: true,
     };
   }
 
   const claim = obj.claim.trim();
-  const parsedGrounds = coerceGrounds(obj.grounds, 4);
+  const parsedGrounds = coerceGrounds(obj.grounds, GROUNDS_MAX);
   const grounds: Ground[] = (parsedGrounds.length > 0 ? parsedGrounds : [{ text: claim }]).map((g, i) => ({
     id: groundId(stance, i),
     text: g.text,
@@ -174,6 +183,9 @@ export async function generatePosition(args: GeneratePositionArgs): Promise<Gene
     grounds,
     values: coerceStringArray(obj.values, 4),
     text,
+    groundTexts: (parsedGrounds.length > 0 ? parsedGrounds : [{ text: claim }]).map((g: ParsedGround) =>
+      g.say ?? (g.warrant ? `${g.text}。${g.warrant}` : g.text)
+    ),
     degraded: false,
   };
 }

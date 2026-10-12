@@ -91,11 +91,17 @@ export class ArgumentGraph {
         if (!u.targetId) return; // 対象なし rebut は論証上の効果なし (発話は残る)
         this.touch(u.targetId);
         const target = this.claims.get(u.targetId);
+        // 反論への再反論 (論拠の応酬 dialectic.md §2.6): 被反論者が論拠で応答した = 元の反論は応答済み。
+        // 新しい反論の応答義務は元の反論者が負う。
+        const targetEdge = target ? undefined : this.rebuttals.get(u.targetId);
+        if (targetEdge && targetEdge.state === "challenged" && u.personaId !== targetEdge.byPersonaId) {
+          targetEdge.state = "defended";
+        }
         this.rebuttals.set(u.id, {
           rebutId: u.id,
           targetId: u.targetId,
           byPersonaId: u.personaId,
-          targetPersonaId: target?.personaId ?? null,
+          targetPersonaId: target?.personaId ?? targetEdge?.byPersonaId ?? null,
           state: "challenged",
         });
         return;

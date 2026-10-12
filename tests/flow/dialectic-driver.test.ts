@@ -48,17 +48,6 @@ function extractOwnGroundIds(prompt: string): string[] {
   return m ? m[1].split(",").map((s) => s.trim()).filter(Boolean) : [];
 }
 
-/** 反論先 (相手陣営) の未攻撃の根拠 id を 1 つ選ぶ (無ければ相手の先頭根拠)。 */
-function pickOpponentGroundId(prompt: string): string | null {
-  const own = prompt.match(/\(あなた\) \((pro|con)\)/);
-  const opp = own ? (own[1] === "pro" ? "con" : "pro") : null;
-  if (!opp) return null;
-  const fresh = prompt.match(new RegExp(`\\[(${opp}-G\\d+)\\] \\(unchallenged`));
-  if (fresh) return fresh[1];
-  const any = prompt.match(new RegExp(`\\[(${opp}-G\\d+)\\]`));
-  return any ? any[1] : null;
-}
-
 function makeRouterLlm(overrides: Partial<Record<string, (p: string) => string>> = {}) {
   const stats: Record<string, number> = {};
   const prompts: Record<string, string[]> = {};
@@ -86,20 +75,33 @@ function makeRouterLlm(overrides: Partial<Record<string, (p: string) => string>>
       match: (p) => p.includes("あなたは議論の進行役です。次の進行内容"),
       respond: () => "では続けましょう。",
     },
+    // 論拠の応酬 (§2.6): 定立の論拠には反論 → 被反論者は論拠 1 件で再反論 → 反論者は再反論を認める。
+    {
+      name: "turn-concede",
+      match: (p) => p.includes("rebut | concede") && p.includes("最後の反論に答えて") && p.includes("- 反論 2 "),
+      respond: () => JSON.stringify({ act: "concede", text: "そこは認めるよ。" }),
+    },
     {
       name: "turn-respond",
-      match: (p) => p.includes("あなたの発言は次の JSON 1 個だけで返す") && p.includes("許可: support | concede | rebut | question"),
-      respond: () => JSON.stringify({ act: "support", target: null, text: "いや、その反論にはこう返せる。" }),
+      match: (p) => p.includes("rebut | concede") && p.includes("最後の反論に答えて"),
+      respond: () =>
+        JSON.stringify({
+          act: "rebut",
+          attack: "data",
+          kind: "induction",
+          data: "その事例は天井の仕様が違うゲームだった",
+          warrant: "仕様が違う事例からは継続率の話は言えない",
+          text: "いや、その反論にはこう返せる。",
+        }),
     },
     {
       name: "turn-attack",
-      match: (p) => p.includes("あなたの発言は次の JSON 1 個だけで返す"),
-      respond: (p) =>
+      match: (p) => p.includes("rebut | concede") && p.includes("最後の論拠に答えて"),
+      respond: () =>
         JSON.stringify({
           act: "rebut",
-          target: null,
           attack: "warrant",
-          groundId: pickOpponentGroundId(p),
+          kind: "induction",
           data: "似た緩和をしたゲームでは継続率が変わらなかった",
           warrant: "主因が天井でないなら緩和しても継続しない",
           text: "その根拠は怪しいと思う。",
@@ -248,10 +250,31 @@ const db = () => new Database(DB_PATH);
   const acts = utterances.map((u) => u.act).filter(Boolean);
   assert.ok(acts.includes("claim"), "act=claim が永続される");
   assert.ok(acts.includes("rebut"), "act=rebut が永続される");
-  assert.ok(acts.includes("support"), "act=support が永続される");
+  assert.ok(acts.includes("concede"), "act=concede が永続される");
   assert.ok(acts.includes("synthesize"), "act=synthesize が永続される");
   const rebutRow = utterances.find((u) => u.act === "rebut");
   assert.ok(rebutRow.target_id, "rebut の target_id が永続される");
+
+  // 論拠の応酬 (§2.6): 主張 1 + 論拠 2 を陣営ごとに投稿 → 各論拠に反論 → 再反論 → 認める → 進行役がまとめに入る。
+  const round1 = utterances.filter((u) => u.round === 1);
+  const claimRows = round1.filter((u) => u.act === "claim");
+  assert.equal(claimRows.length, 6, "主張 2 + 論拠 4 が 1 件ずつ投稿される");
+  assert.equal(claimRows.filter((u) => u.target_id).length, 4, "論拠の投稿は自分の主張に紐づく");
+  const ids = new Map(round1.map((u) => [u.id, u]));
+  const rebuts = round1.filter((u) => u.act === "rebut");
+  assert.equal(rebuts.length, 8, "論拠 4 件それぞれに反論 1 + 再反論 1");
+  assert.equal(
+    rebuts.filter((u) => ids.get(u.target_id)?.act === "rebut").length,
+    4,
+    "再反論は反論を対象にする (反論も論拠 1 件として答えられる)"
+  );
+  assert.equal(round1.filter((u) => u.act === "concede").length, 4, "再反論を認めて応酬が落ち着く");
+  assert.equal(llm.stats["turn-attack"], 4, "定立の論拠 4 件すべてに相手陣営が答える");
+  assert.ok(
+    round1.some((u) => u.role === "facilitator" && u.text === "では続けましょう。") &&
+      (llm.prompts.facilitator ?? []).some((p) => p.includes("論拠のやり取りが落ち着きました")),
+    "論拠が落ち着いたら進行役がまとめに入る"
+  );
   const facilitatorRows = utterances.filter((u) => u.role === "facilitator" && !u.act);
   assert.ok(facilitatorRows.length > 0, "ファシリテーター進行文は act なし");
 
@@ -522,10 +545,8 @@ const db = () => new Database(DB_PATH);
 // ── シナリオ: ゴール 1 論破 — 反論を受けた側が譲歩を重ねて根拠がすべて崩れる → 論破で決着 ──
 
 {
-  process.env.DISCUTERE_FLOW_DIALECTIC_REBUT_TURNS = "12";
-  _resetConfig();
   const llm = makeRouterLlm({
-    "turn-respond": () => JSON.stringify({ act: "concede", target: null, text: "そこは認めるよ。" }),
+    "turn-respond": () => JSON.stringify({ act: "concede", text: "そこは認めるよ。" }),
   });
   await runDialecticFlow("論破されるテーマ", [], {
     llm,
@@ -535,9 +556,6 @@ const db = () => new Database(DB_PATH);
     log: () => {},
     warn: () => {},
   });
-  delete process.env.DISCUTERE_FLOW_DIALECTIC_REBUT_TURNS;
-  _resetConfig();
-
   const d = db();
   const issue = d
     .prepare("SELECT * FROM flow_issue WHERE session_id = ? AND status = 'concluded' ORDER BY ordinal")
