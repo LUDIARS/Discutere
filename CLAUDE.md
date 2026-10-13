@@ -330,6 +330,11 @@ bot 名義で締める (収束時 `finalizeForumPost` で lock+archive+まとめ
   議論開始時に `discussion_paper_voice` へ最大 200 件保存し (`src/flow/paper-voices.ts`)、Discord の再起動後のやり直しも
   保存した声で議論する。本体 `src/flow/paper-reuse.ts`。
 
+- **Voluptas からの感想の自動提供 (2026-10-13, `spec/feature/flow/voluptas-impression-push.md`)**: Voluptas が匿名の感想を
+  Cernere service token (scope `persona-bridge:write`) で `POST /api/persona-bridge/impressions` へ自動で送り、Discutere は
+  匿名性 (6 項目以外を含む感想は拒否) と形を検査して KG (source=glab) に取り込む。Discutere は Cernere の credential を持たず
+  公開鍵で検証するだけ。Voluptas に取りに行けないときは届いていた感想で声を集めたことにする。認証は `persona-bridge/bridge-auth.ts` で共通化。
+
 ## 個人データ
 
 匿名 workspace (`DISCATIER_WORKSPACE` 既定 `knowledge`)。攻略 KG / 議論ノードに編集者名・アカウント名を保存しない (`spec/feature/crawler/DESIGN.md` 準拠)。

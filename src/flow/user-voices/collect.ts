@@ -51,6 +51,11 @@ export interface CollectUserVoicesDeps {
   fetchSteam: (app: SteamApp, gameSlug: string) => Promise<ExternalUtterance[]>;
   /** Voluptas 未設定なら undefined (Steam に無いゲームは声を集めない)。 */
   fetchGlab?: (game: GameRef, gameSlug: string) => Promise<ExternalUtterance[]>;
+  /**
+   * Voluptas が自動で届けて KG に保存済みの感想の件数 (gameSlug 単位)。
+   * Voluptas に取りに行けない / 0 件のときも、届いていた声で議論する (voluptas-impression-push.md)。
+   */
+  storedGlabCount?: (gameSlug: string) => number;
   importItems: (core: Core, items: ExternalUtterance[], workspaceId: string) => number;
   /** 埋め込み未設定なら undefined (ベクトル化しない)。@returns 書き込んだ件数。 */
   embed?: (core: Core, utteranceIds: string[]) => Promise<number>;
@@ -127,17 +132,24 @@ export async function collectGameVoices(game: GameRef, deps: CollectUserVoicesDe
     } catch (e) { deps.warn?.(`YouTube 取得に失敗 (${game.title}): ${(e as Error).message}`); }
   }
   const unreleased = app && !app.released ? { unreleased: true, appId: app.appId, appName: app.name } : {};
-  if (!deps.fetchGlab) return { ...base, ...unreleased, channel: "none", gameSlug: null };
   const gameSlug = glabGameSlug(game.title);
+  // Voluptas が自動で届けた感想 (KG 保存済み)。取りに行けないときの拠り所。
+  const stored = (): GameVoiceReport | null => {
+    const n = deps.storedGlabCount?.(gameSlug) ?? 0;
+    if (n <= 0) return null;
+    deps.log?.(`Voluptas「${game.title}」: 届いていた感想 ${n} 件を使う`);
+    return { ...base, ...unreleased, channel: "glab", gameSlug, collected: n, imported: 0, embedded: 0 };
+  };
+  if (!deps.fetchGlab) return stored() ?? { ...base, ...unreleased, channel: "none", gameSlug: null };
   try {
     const items = await deps.fetchGlab(game, gameSlug);
-    if (items.length === 0) return { ...base, ...unreleased, channel: "none", gameSlug: null };
+    if (items.length === 0) return stored() ?? { ...base, ...unreleased, channel: "none", gameSlug: null };
     const { imported, embedded } = await importAndEmbed(items, deps);
     deps.log?.(`Voluptas「${game.title}」: 感想 ${items.length} 件取得 → 取込 ${imported} / ベクトル化 ${embedded}`);
     return { ...base, ...unreleased, channel: "glab", gameSlug, collected: items.length, imported, embedded };
   } catch (e) {
     deps.warn?.(`Voluptas の感想取得に失敗 (${game.title}): ${(e as Error).message}`);
-    return { ...base, ...unreleased, channel: "none", gameSlug: null, voluptasDown: e instanceof VoluptasUnavailable };
+    return stored() ?? { ...base, ...unreleased, channel: "none", gameSlug: null, voluptasDown: e instanceof VoluptasUnavailable };
   }
 }
 

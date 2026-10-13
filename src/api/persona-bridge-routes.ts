@@ -1,4 +1,3 @@
-import { timingSafeEqual } from "node:crypto";
 import { Hono } from "hono";
 
 import { getConfig } from "../config.js";
@@ -8,8 +7,7 @@ import {
   createCernerePublicKeyLoader,
   type PublicKeyLoader,
 } from "../cernere-service-token/cernere-public-keys.js";
-import { isPasetoV4Public } from "../cernere-service-token/paseto-v4-public.js";
-import { verifyServiceToken } from "../cernere-service-token/service-token-verify.js";
+import { authorizeBridgeRequest, PERSONA_BRIDGE_SERVICE_SCOPE } from "../persona-bridge/bridge-auth.js";
 import {
   PersonaBridgeAssertionConfigurationError,
   PersonaBridgeAssertionVerificationError,
@@ -28,33 +26,16 @@ import {
   type UtteranceCursor,
 } from "../persona-bridge/utterance-export.js";
 
-// @implements SPEC-PERSONA-BRIDGE-UTTERANCE-EXPORT
-/**
- * 本人の生発話を返す経路なので、推測可能な短い token を「設定済み」と見なさない。
- * 32 文字未満は未設定と同じ扱い (503) にして default-deny を保つ。
- */
-const MIN_TOKEN_LENGTH = 32;
 const MAX_LIMIT = 1_000;
 export const PERSONA_BRIDGE_ASSERTION_HEADER = "x-discutere-persona-assertion";
-/** 認証集約 P4: Cernere service token でこの endpoint を呼ぶのに要る scope。 */
-export const PERSONA_BRIDGE_SERVICE_SCOPE = "persona-bridge:write";
+/** 認証集約 P4: Cernere service token でこの endpoint を呼ぶのに要る scope (bridge-auth.ts が正本)。 */
+export { PERSONA_BRIDGE_SERVICE_SCOPE };
 
 type UtteranceReader = (input: {
   authorId: string;
   after: UtteranceCursor;
   limit: number;
 }) => ExportableUtteranceRecord[];
-
-function secureMatch(actual: string, expected: string): boolean {
-  const left = Buffer.from(actual);
-  const right = Buffer.from(expected);
-  return left.length === right.length && timingSafeEqual(left, right);
-}
-
-function bearerToken(header: string | undefined): string {
-  const match = /^Bearer ([^\s]+)$/.exec(header ?? "");
-  return match?.[1] ?? "";
-}
 
 function parseSince(value: string | undefined): number {
   if (!value) return 0;
@@ -129,41 +110,16 @@ export function createPersonaBridgeRoutes({
   const routes = new Hono();
   routes.get("/persona-bridge/utterances", async (context) => {
     context.header("cache-control", "private, no-store");
-    const presented = bearerToken(context.req.header("authorization"));
-    // 認証集約 P4: Cernere service token と従来の固定トークンの両受理。
-    // PASETO v4.public の Bearer は service token として検証し、 それ以外は従来照合へ進む。
-    // P5 で固定トークン経路 (else 節) を撤去する。
-    if (isPasetoV4Public(presented)) {
-      const verdict = await verifyServiceToken({
-        token: presented,
-        audience: serviceAudience(),
-        requiredScope: PERSONA_BRIDGE_SERVICE_SCOPE,
-        loadKeys: loadServiceTokenKeys,
-        nowMs: now(),
-      });
-      if (!verdict.ok) {
-        if (verdict.status === 503) {
-          console.warn(`[persona-bridge] service token verification unavailable (reason=${verdict.reason})`);
-          return context.json({
-            ok: false,
-            error: "persona bridge service token verification is not configured",
-          }, 503);
-        }
-        if (verdict.status === 403) return context.json({ ok: false, error: "forbidden" }, 403);
-        return context.json({ ok: false, error: "unauthorized" }, 401);
-      }
-    } else {
-      const expected = token();
-      if (expected.length < MIN_TOKEN_LENGTH) {
-        return context.json({
-          ok: false,
-          error: `persona bridge is not configured (DISCUTERE_PERSONA_BRIDGE_TOKEN must be at least ${MIN_TOKEN_LENGTH} characters)`,
-        }, 503);
-      }
-      if (!secureMatch(presented, expected)) {
-        return context.json({ ok: false, error: "unauthorized" }, 401);
-      }
-    }
+    // 認証集約 P4: Cernere service token と従来の固定トークンの両受理 (bridge-auth.ts)。
+    // 本人の生発話を返す経路なので、固定トークンは 32 文字未満を未設定 (503) と扱い default-deny を保つ。
+    const auth = await authorizeBridgeRequest(context.req.header("authorization"), {
+      token,
+      serviceAudience,
+      loadServiceTokenKeys,
+      now,
+      label: "persona-bridge",
+    });
+    if (!auth.ok) return context.json({ ok: false, error: auth.error }, auth.status);
     const publicKey = assertionPublicKey();
     if (!publicKey.trim()) {
       return context.json({

@@ -89,6 +89,14 @@ export function defaultCollectDeps(core: Core, workspaceId: string, log: (m: str
           })
       : undefined,
     importItems: defaultImport,
+    storedGlabCount: (gameSlug) => {
+      const attribution = openAttributionStore();
+      try {
+        return attribution.listBySource("glab", gameSlug, 2000).length;
+      } finally {
+        attribution.close();
+      }
+    },
     embed: embedder
       ? (c, ids) => embedVoicesByIds(c, embedder, ids, { workspaceId, batchSize: cfg.embedding.batchSize })
       : undefined,

@@ -35,6 +35,7 @@ import { workerPoolControlRoutes, setWorkerPoolControl } from "./api/worker-pool
 import { tuningRoutes, setRuntimeSettings } from "./api/tuning-routes.js";
 import { personaRoutes } from "./api/persona-routes.js";
 import { personaBridgeRoutes } from "./api/persona-bridge-routes.js";
+import { impressionBridgeRoutes } from "./api/impression-bridge-routes.js";
 import { topPageRoutes } from "./api/top-page-routes.js";
 import { webChatRoutes, setWebChatDeps } from "./api/web-chat-routes.js";
 import { externalDiscussionRoutes } from "./api/external-discussion-routes.js";
@@ -154,6 +155,8 @@ app.route("/api", workerPoolControlRoutes);
 app.route("/api", tuningRoutes);
 app.route("/api", personaRoutes);
 app.route("/api", personaBridgeRoutes);
+// Voluptas が自動で届ける匿名の感想 (spec/feature/flow/voluptas-impression-push.md)。
+app.route("/api", impressionBridgeRoutes);
 
 // ─── 成長型ブラックボックス (情報密度判定のルール卒業) レビュー & 管理 ──
 app.route("/api", blackboxRoutes);
