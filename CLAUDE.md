@@ -31,6 +31,9 @@ Discutere は **半ローカルツール(Discord ギルド内限定の議論 Cha
 非秘密の運用環境変数は `excubitor.catalog.yaml` の `env` に置く。
 アプリから Infisical や `.env` を読まず、キー更新 API も持たない。
 Vault 変更は Ex からの次回起動時に反映する。
+**Cernere 無しで単独起動する** (2026-10-13): catalog に `cernere_launch_credentials` / Cernere の
+`requires_secret` を持たない (Cernere 停止中に Ex の起動自体が失敗していたため)。Cernere service token は
+発行されず、Voluptas の感想取得は固定トークンへ落ち、感想集めの依頼は認証エラーとして案内される。
 
 env 散在は `src/config.ts` の単一 typed config に集約 (優先順 default < `discutere.config.json` <
 env)。`discutere.config.example.json` 参照。詳細は `docs/ws-gateway-config-recovery.md`。

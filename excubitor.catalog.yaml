@@ -29,14 +29,12 @@ services:
       DISCUTERE_VOLUPTAS_BASE_URL: http://127.0.0.1:8892
       # 認証集約 P4: persona bridge が受ける Cernere service token の aud (= Discutere の storage_slug)。
       CERNERE_PROJECT_STORAGE_SLUG: "discutere"
-    # 認証集約 P4: service token の検証 (公開鍵取得) と発行 (persona import の送り側) に使う。
-    # この同居配置では上の loopback env を優先する。未設定でも起動は止めず、
-    # service token だけが 503 になる (固定トークン経路は従来どおり)。
-    requires_secret:
-      - service: cernere
-        keys: [EXCUBITOR_CERNERE_CLIENT_ID, EXCUBITOR_CERNERE_CLIENT_SECRET]
-    cernere_launch_credentials:
-      target_project: discutere
+    # Discutere は Cernere 無しで単独起動する (neco 2026-10-13「Di は独立して動かせるようにして」、CLAUDE.md 認証モデル)。
+    # 起動時の Cernere launch credential 発行 (cernere_launch_credentials + issuer secret) は持たない。
+    # Cernere が止まっていると Excubitor の起動自体が失敗していたため。
+    # その結果 CERNERE_PROJECT_CLIENT_ID/SECRET は注入されず、Cernere service token の発行は
+    # credentials_missing になる: Voluptas の感想取得は固定トークン (DISCUTERE_VOLUPTAS_EXPORT_TOKEN) へ落ち、
+    # Voluptas への感想集めの依頼 (impression-requests) は認証エラーとして案内される。議論は止めない。
     health:
       type: http
       url: http://localhost:3110/health
