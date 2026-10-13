@@ -304,6 +304,8 @@ bot 名義で締める (収束時 `finalizeForumPost` で lock+archive+まとめ
   集めた感想を根拠に LLM で追加抽出して `mechanicsTarget` 件まで増やす (name で重複除去 + クランプ)。
   配線: paper-review 経路 (`buildPaperDraft`) と非レビューの `runFlow` 投資ゲート後の両方。**材料 (感想)
   が無ければ増補しない**・LLM 失敗時は既存件数で degrade (議論を止めない)。LLM コスト=議論ごとに 1 回増。
+  **議論 (flow=discussion) のペーパーは増補も外部収集もしない**が、ゲーム名 (`seed.gameTitle`、無ければ議題) に
+  一致する data/games のメカニクスだけは載せる (`loadThemeMechanics`、2026-10-13、`spec/feature/flow/discussion.md` §2-0)。
 
 - **ペーパー作成時の Notion リンク読込 (Canalis クロール, 2026-10-05)**: 素の fetch では Notion の
   本文が取れず、渡した Notion リンクがペーパーに反映されていなかった。`src/flow/notion-link.ts` の

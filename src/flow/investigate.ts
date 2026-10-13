@@ -107,9 +107,11 @@ function mechanicMatchesTheme(mechanics: Array<Record<string, unknown>>, theme: 
 }
 
 /**
- * `data/games/` ディレクトリから、テーマに明確に紐づくゲームのメカニクスだけをロードする。
+ * `data/games/` ディレクトリから、テーマに明確に紐づくゲームのメカニクスだけをロードする
+ * (最大 10 件、source は frontmatter 優先・無ければ curated)。外部取得はしない。
+ * 議論フローのペーパー作成はゲーム名を theme に渡してこれだけを使う。
  */
-function loadMechanics(gamesDir: string, theme: string): MechanicSummary[] {
+export function loadThemeMechanics(gamesDir: string, theme: string): MechanicSummary[] {
   if (!fs.existsSync(gamesDir)) return [];
 
   const files = fs
@@ -184,7 +186,7 @@ export async function investigateTheme(args: InvestigateArgs): Promise<Investiga
     getSentimentCount,
   } = args;
 
-  const mechanics = loadMechanics(gamesDir, theme);
+  const mechanics = loadThemeMechanics(gamesDir, theme);
 
   const sentimentCount = getSentimentCount
     ? getSentimentCount(theme)

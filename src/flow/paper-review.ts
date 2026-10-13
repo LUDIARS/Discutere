@@ -26,6 +26,7 @@ import { paperSupplement } from "./tags.js";
 import {
   asMechanicSource,
   investigateTheme,
+  loadThemeMechanics,
   type MechanicSummary,
   type YoutubeSearchFn,
 } from "./investigate.js";
@@ -284,14 +285,18 @@ export async function buildPaperDraft(
   deps: BuildPaperDraftDeps
 ): Promise<{ draft: PaperDraft; info: PaperReviewInfo }> {
   const seed = normalizeSeed(theme, deps.seed);
-  const investigation = deps.flow === "discussion" ? { mechanics: [] } : await investigateTheme({
-    theme,
-    tags,
-    gamesDir: deps.gamesDir,
-    youtubeSearch: deps.youtubeSearch,
-    youtubeMaxComments: deps.youtubeMaxComments,
-    warn: deps.warn,
-  });
+  // 議論 (企画) は Di 内の data/games だけを読む: ゲーム名 (無ければ議題) に一致するゲームの
+  // メカニクスを載せ、YouTube 等の外部収集はしない。一致しなければ空 (企画段階の新作)。
+  const investigation = deps.flow === "discussion"
+    ? { mechanics: loadThemeMechanics(deps.gamesDir ?? "./data/games", seed?.gameTitle || theme) }
+    : await investigateTheme({
+      theme,
+      tags,
+      gamesDir: deps.gamesDir,
+      youtubeSearch: deps.youtubeSearch,
+      youtubeMaxComments: deps.youtubeMaxComments,
+      warn: deps.warn,
+    });
 
   const voices = deps.listExternalVoices ? deps.listExternalVoices([theme], COUNT_LIMIT) : [];
 
@@ -299,6 +304,7 @@ export async function buildPaperDraft(
   const base = mergeMechanics(deps.extraMechanics ?? [], investigation.mechanics);
 
   // メカニクスを LLM で目標件数まで増補 (感想を根拠に。llm 未指定なら base の件数のまま)。
+  // 議論は仮説メカニクスを混ぜないため増補しない。
   let mechanics = base;
   if (deps.llm && deps.flow !== "discussion") {
     mechanics = await enrichMechanics({

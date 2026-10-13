@@ -38,6 +38,24 @@
       "module": "contracts/voluptas-bearer.contract.ts",
       "mode": "observe",
       "sample": 1
+    },
+    {
+      "id": "C-5",
+      "criterion": "C-5 loadThemeMechanics(gamesDir, theme): テーマ (ゲーム名) に一致する data/games のメカニクスだけを source=curated で最大 10 件返し、一致しなければ空を返す",
+      "symbol": "loadThemeMechanics",
+      "file": "src/flow/investigate.ts",
+      "module": "contracts/theme-mechanics.contract.ts",
+      "mode": "observe",
+      "sample": 1
+    },
+    {
+      "id": "C-6",
+      "criterion": "C-6 buildPaperDraft(theme, tags, deps): flow=discussion でもゲーム名 (seed.gameTitle、無ければ theme) に一致する data/games のメカニクスをペーパーに載せ、LLM 増補 (source=llm) は混ぜない",
+      "symbol": "buildPaperDraft",
+      "file": "src/flow/paper-review.ts",
+      "module": "contracts/discussion-paper-mechanics.contract.ts",
+      "mode": "observe",
+      "sample": 1
     }
   ]
 }
