@@ -48,6 +48,7 @@ import {
   type TensionRecord,
 } from "./store.js";
 import { generatePosition, type GeneratedPosition } from "./position.js";
+import { isReversed, judgePositionStance, stanceFeedback } from "./position-stance.js";
 import { renderIssueVoices } from "./issue-voices.js";
 import type { UtteranceDigest } from "./turn-prompt.js";
 import { renderFacilitatorLine } from "./scheduler.js";
@@ -290,7 +291,7 @@ export async function runDialecticFlow(
         persona: persona.name,
         location: "position",
       });
-      const gp = await generatePosition({
+      const positionArgs = {
         theme,
         issue,
         persona,
@@ -300,7 +301,17 @@ export async function runDialecticFlow(
         llm: positionLlm,
         model: persona.model,
         warn,
-      });
+      } as const;
+      let gp = await generatePosition(positionArgs);
+      // 定立が陣営と逆向き (賛成なのに否定 / 反対なのに肯定) なら 1 回だけ作り直す (neco レビュー 2026-10-13)。
+      if (cfg.flow.dialectic.ruleCheck && !gp.degraded) {
+        const stanceLlm = withCostLog(llm, { flow, sessionId, round, turn, location: "position-stance" });
+        const answer = await judgePositionStance({ issue, claim: gp.claim, qualifier: gp.qualifier, llm: stanceLlm, model: judgeModel, warn });
+        if (isReversed(stance, answer)) {
+          warn(`論点 ${round} (${persona.name}/${stance}): 定立が立場と逆向き (${answer}) — 作り直す`);
+          gp = await generatePosition({ ...positionArgs, feedback: stanceFeedback(stance, gp.claim) });
+        }
+      }
       const position = insertPosition({
         issueId: issue.id,
         personaId: persona.id,
@@ -327,9 +338,10 @@ export async function runDialecticFlow(
         let utteranceId = o.claimId;
         if (say !== o.gp.text) {
           turn += 1;
-          const record = makeRecord({ persona: o.persona, round, turn, text: say, act: "claim", targetId: o.claimId });
+          // 論拠は自分の主張の下に並べるだけで、誰かへの応答ではない (宛先を付けない)。
+          const record = makeRecord({ persona: o.persona, round, turn, text: say, act: "claim" });
           await commit(record);
-          graph.apply({ id: record.id, personaId: o.persona.id, act: "claim", targetId: o.claimId, turn: ++globalTurn });
+          graph.apply({ id: record.id, personaId: o.persona.id, act: "claim", targetId: null, turn: ++globalTurn });
           utteranceId = record.id;
         }
         exchange.addOpening({
@@ -387,6 +399,10 @@ export async function runDialecticFlow(
     if (refutation.note) {
       log(`論点 ${round}: 論破で決着`);
       await commit(makeRecord({ persona: facilitator, round, turn: ++turn, text: renderOutcomeLine("refuted", refutation.note) }));
+    } else if (refutation.undecided) {
+      // 双方の論拠がすべて崩れた = どちらの主張も今ある材料では支えられない。勝敗は付けず結論なし。
+      log(`論点 ${round}: 双方の論拠が崩れて結論なし`);
+      await commit(makeRecord({ persona: facilitator, round, turn: ++turn, text: renderOutcomeLine("none", refutation.undecided) }));
     } else {
       const classifyLlm = withCostLog(llm, { flow, sessionId, round, location: "tension-classify" });
       const type = await classifyTension({ issue, positionA, positionB, llm: classifyLlm, model: judgeModel, warn });
@@ -469,7 +485,14 @@ export async function runDialecticFlow(
 
     updateIssueStatus(issue.id, "concluded");
     issue.status = "concluded";
-    const settlement: IssueSettlement = { issue, positions, tensions, syntheses, refutation: refutation.note };
+    const settlement: IssueSettlement = {
+      issue,
+      positions,
+      tensions,
+      syntheses,
+      refutation: refutation.note,
+      undecided: refutation.undecided,
+    };
     settlements.push(settlement);
 
     // ── issue 決着ごとのレンズ投票 (03 流用。winnerShare が収束シグナル (b)) ──
@@ -524,8 +547,13 @@ export async function runDialecticFlow(
     });
     log(`収束判定: ${verdict.note}`);
     if (verdict.converged && settlements.length < issues.length) {
-      log(`計測型収束シグナル ${verdict.met}/3${verdict.capReached ? " (上限キャップ)" : ""} — 残り論点を打ち切り`);
-      convergedEarly = true;
+      if (issueSource === "paper-gate") {
+        // 人が指定・承認した論点は「それぞれ議論する」指示なので、収束シグナルが立っても打ち切らない。
+        log(`計測型収束シグナル ${verdict.met}/3 — 人が指定した論点のため打ち切らずに続ける`);
+      } else {
+        log(`計測型収束シグナル ${verdict.met}/3${verdict.capReached ? " (上限キャップ)" : ""} — 残り論点を打ち切り`);
+        convergedEarly = true;
+      }
     }
   }
 

@@ -5,7 +5,8 @@
  *   1. checkRebutAnchor (コードのみ・決定的): 反論自身のデータと論拠を持ち、突く要素
  *      (データ / 論拠 / 限定) を宣言し、データ・論拠なら攻撃対象の根拠 id を指していなければならない。
  *   2. judgeRuleViolation (判定 LLM・小モデル): 宣言した要素を本当に突いているか、
- *      前提の外から主張を曲げていないか (範囲外・すり替え・中身に触れない却下・論点ずらし) を単一ラベルで判定。
+ *      前提の外から主張を曲げていないか (範囲外・すり替え・中身に触れない却下・論点ずらし)、
+ *      自分の陣営の主張と逆のことを言っていないか (立場の取り違え) を単一ラベルで判定。
  *      生成と判定は混ぜない (dialectic.md §5-1)。LLM 障害・ラベル不明は ok に倒す (議論を止めない、warn 明示)。
  *
  * 違反した反論は発話としては残すが、根拠を challenged にしない (driver が question に格下げする)。
@@ -26,7 +27,8 @@ export type RuleFoul =
   | "out_of_scope"
   | "straw_man"
   | "dismissal"
-  | "topic_shift";
+  | "topic_shift"
+  | "self_contradiction";
 
 type CodeFoul = "incomplete" | "unanchored";
 
@@ -35,6 +37,7 @@ const LLM_FOULS: readonly Exclude<RuleFoul, CodeFoul>[] = [
   "straw_man",
   "dismissal",
   "topic_shift",
+  "self_contradiction",
 ];
 
 export const RULE_FOUL_LABEL: Record<RuleFoul, string> = {
@@ -44,6 +47,7 @@ export const RULE_FOUL_LABEL: Record<RuleFoul, string> = {
   straw_man: "相手が言っていない主張に置き換えている",
   dismissal: "根拠の中身に触れずに退けている",
   topic_shift: "論点をずらしている",
+  self_contradiction: "自分の陣営の主張と逆のこと (相手陣営の主張を支える内容) を述べている",
 };
 
 export type AnchorResult =
@@ -92,6 +96,8 @@ function renderTarget(position: PositionRecord, ground: Ground | null): string {
 export interface RuleJudgeInput {
   issue: IssueRecord;
   position: PositionRecord;
+  /** 反論した側の陣営の主張 (立場の取り違えの判定に使う)。無ければ判定しない。 */
+  ownPosition?: PositionRecord | null;
   ground: Ground | null;
   attack: AttackPoint;
   rebutText: string;
@@ -104,6 +110,10 @@ export function buildRuleJudgePrompt(args: RuleJudgeInput): string {
   return (
     `# 論点\n${args.issue.title}\n\n` +
     `# 反論された側\n${renderTarget(args.position, args.ground)}\n\n` +
+    (args.ownPosition
+      ? `# 反論した側の陣営の主張 (反論はこの主張を守る/支える向きでなければならない)\n` +
+        `主張: ${args.ownPosition.claim}\n限定: ${args.ownPosition.qualifier ?? "(明示なし)"}\n\n`
+      : "") +
     `# 反論 (「${ATTACK_POINT_LABEL[args.attack]}」を突くと宣言)\n${args.rebutText}\n` +
     `  反論のデータ: ${args.rebutData}\n` +
     `  反論の論拠: ${args.rebutWarrant}\n\n` +
@@ -113,6 +123,9 @@ export function buildRuleJudgePrompt(args: RuleJudgeInput): string {
     `- straw_man: 相手が言っていない主張に置き換えて否定している\n` +
     `- dismissal: 根拠の中身に触れず「感想にすぎない」「データが無い」だけで退けている (何が足りないかを具体的に示していない)\n` +
     `- topic_shift: この論点と別の論点に話をずらしている\n` +
+    (args.ownPosition
+      ? `- self_contradiction: 反論の内容が、反論した側の陣営の主張と逆向きになっている (相手陣営の主張を支えてしまっている)\n`
+      : "") +
     `判断に迷う場合は ok を返す。`
   );
 }
@@ -167,6 +180,7 @@ export async function gateRebut(
   args: RebutClaim & {
     issue: IssueRecord;
     position: PositionRecord;
+    ownPosition?: PositionRecord | null;
     rebutText: string;
     judge: boolean;
     llm: LLMClient;
@@ -183,6 +197,7 @@ export async function gateRebut(
   const verdict = await judgeRuleViolation({
     issue: args.issue,
     position: args.position,
+    ownPosition: args.ownPosition,
     ground: anchor.ground,
     attack: args.attack,
     rebutText: args.rebutText,
@@ -193,6 +208,48 @@ export async function gateRebut(
     warn: args.warn,
   });
   return verdict === "ok" ? { accepted: true, ground: anchor.ground } : { accepted: false, foul: verdict };
+}
+
+/** 「認める」の検証プロンプト (テスト用に export)。 */
+export function buildConcessionPrompt(targetText: string, replyText: string): string {
+  return (
+    `# 相手の発言\n${targetText}\n\n# 返答\n${replyText}\n\n` +
+    `返答は相手の発言を認めているか、それとも反論・追撃しているかを判定し、ラベルを 1 つだけ返してください (説明不要):\n` +
+    `- concede: 相手の言い分を認めている (部分的に認めて条件を付けるのも含む)\n` +
+    `- rebut: 相手の言い分を否定・反論・追撃している\n` +
+    `判断に迷う場合は concede を返す。`
+  );
+}
+
+/**
+ * 「認める」と申告した返答が本当に認めているかを判定する (neco レビュー 2026-10-13: 追撃が「認める」に
+ * 分類されて失点に数えられた)。障害・ラベル不明は申告どおり concede に倒す (warn 明示)。
+ */
+export async function judgeConcession(args: {
+  targetText: string;
+  replyText: string;
+  llm: LLMClient;
+  model?: string;
+  warn?: (msg: string) => void;
+}): Promise<"concede" | "rebut"> {
+  const { llm, model, warn = () => {} } = args;
+  const result = await llm.invoke({
+    prompt: buildConcessionPrompt(args.targetText, args.replyText),
+    ...(model ? { model } : {}),
+    maxTokens: 50,
+  });
+  if (!result.ok) {
+    warn(`認めるの判定 LLM エラー: ${result.error} — 申告どおり concede として続行 (degrade)`);
+    return "concede";
+  }
+  const lower = result.text.toLowerCase();
+  const r = lower.indexOf("rebut");
+  const c = lower.indexOf("concede");
+  if (r < 0 && c < 0) {
+    warn(`認めるの判定ラベル不明: "${result.text.slice(0, 60)}" — 申告どおり concede として続行 (degrade)`);
+    return "concede";
+  }
+  return r >= 0 && (c < 0 || r < c) ? "rebut" : "concede";
 }
 
 /** 違反時に進行役が流す一言 (露出用)。 */

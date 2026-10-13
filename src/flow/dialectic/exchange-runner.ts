@@ -16,7 +16,7 @@ import type { FlowUtteranceRecord } from "../director.js";
 import { personaStance, type FlowPersona } from "../personas.js";
 import { GroundExchange, opposingSide, type ArgumentNode, type Side } from "./exchange.js";
 import { buildExchangePrompt, parseExchangeResponse } from "./exchange-prompt.js";
-import { gateRebut, renderFoulNotice } from "./rule-check.js";
+import { gateRebut, judgeConcession, renderFoulNotice } from "./rule-check.js";
 import { renderFacilitatorLine, renderNomination } from "./scheduler.js";
 import { updatePositionGrounds, type IssueRecord, type PositionRecord } from "./store.js";
 import type { UtteranceDigest } from "./turn-prompt.js";
@@ -160,6 +160,26 @@ export async function runGroundExchange(args: GroundExchangeArgs): Promise<numbe
       continue;
     }
 
+    // 「認める」の申告が中身と合っているかを確かめる (追撃を「認める」に数えない)。
+    // 中身が反論なら、論拠 (データ・論拠) を伴わない問いとして扱い相手の論拠は成り立ったままにする。
+    if (parsed.act === "concede" && args.ruleCheck) {
+      const verdict = await judgeConcession({
+        targetText: node.text,
+        replyText: parsed.text,
+        llm: args.ruleCheckLlm(turn),
+        model: args.judgeModel,
+        warn,
+      });
+      if (verdict === "rebut") {
+        warn(`論点 ${round} ターン ${turn} (${persona.name}): 「認める」の申告だが中身は反論 — question として扱う`);
+        const record = args.makeRecord({ persona, round, turn, text: parsed.text, act: "question", targetId: node.utteranceId });
+        await args.commit(record);
+        args.applyGraph(record, "question", node.utteranceId);
+        exchange.fail(node.id);
+        continue;
+      }
+    }
+
     if (parsed.act === "concede") {
       const record = args.makeRecord({ persona, round, turn, text: parsed.text, act: "concede", targetId: node.utteranceId });
       await args.commit(record);
@@ -175,6 +195,8 @@ export async function runGroundExchange(args: GroundExchangeArgs): Promise<numbe
         ? await gateRebut({
             issue,
             position: target.position,
+            // 立場の取り違え (自分の陣営と逆向きの反論) を判定するため、応答者の陣営の主張を渡す。
+            ownPosition: args.positionBySide.get(side) ?? null,
             attack: parsed.attack,
             groundId: target.groundId,
             data: parsed.data,

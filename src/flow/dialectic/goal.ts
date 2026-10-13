@@ -19,10 +19,12 @@ export function standingGroundIds(p: PositionRecord): string[] {
 }
 
 export interface RefutationResult {
-  /** 論破された Position (根拠がすべて崩れた側)。両方なら 2 件。 */
+  /** 根拠がすべて崩れた Position。両方なら 2 件。 */
   refuted: PositionRecord[];
-  /** 結論・露出用の判定文。論破が無ければ null。 */
+  /** 論破の判定文 (一方だけ崩れた)。論破でなければ null。 */
   note: string | null;
+  /** 双方の根拠がすべて崩れた (勝敗を付けず結論なし) ときの理由文。それ以外は null。 */
+  undecided: string | null;
 }
 
 function scope(p: PositionRecord): string {
@@ -32,14 +34,22 @@ function scope(p: PositionRecord): string {
 /** 論破の判定 (決定的)。 */
 export function detectRefutation(a: PositionRecord, b: PositionRecord): RefutationResult {
   const refuted = [a, b].filter((p) => standingGroundIds(p).length === 0);
-  if (refuted.length === 0) return { refuted, note: null };
+  if (refuted.length === 0) return { refuted, note: null, undecided: null };
   if (refuted.length === 2) {
-    return { refuted, note: `双方の根拠がすべて崩れた: 「${a.claim}」「${b.claim}」はどちらも成り立たない` };
+    // どちらも支えられない = 今ある材料では決着できない。勝敗は付けない (neco レビュー 2026-10-13)。
+    return {
+      refuted,
+      note: null,
+      undecided:
+        `双方の論拠がすべて崩れたため勝敗は付けない。「${a.claim}」「${b.claim}」のどちらも、` +
+        `今ある材料では支えられない (決着には追加の材料が要る)`,
+    };
   }
   const loser = refuted[0];
   const winner = loser === a ? b : a;
   return {
     refuted,
+    undecided: null,
     note:
       `「${loser.claim}」${scope(loser)}は根拠がすべて崩れて論破された。` +
       `「${winner.claim}」${scope(winner)}が根拠 ${standingGroundIds(winner).join(", ")} で残る`,

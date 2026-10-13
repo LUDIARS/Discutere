@@ -55,6 +55,18 @@ export function buildExchangePrompt(args: ExchangePromptArgs): string {
     .join("\n\n");
   const chain = path.map((n) => renderNode(n, personaNames, persona.id)).join("\n");
   const targetName = target ? (personaNames.get(target.personaId) ?? target.personaId) : "相手";
+  const own = positions.find((p) => p.stance === stance);
+  const sideJa = stance === "pro" ? "賛成" : stance === "con" ? "反対" : "";
+  // 発言のたびに自分の立場を明示する (neco 2026-10-13「発言する際は自分の立場を忘れないように」)。
+  const standLines = own
+    ? [
+        `# あなたの立場 (忘れないこと)`,
+        `あなたは【${sideJa}】陣営。あなたの陣営の主張: ${own.claim}` + (own.qualifier ? ` (限定: ${own.qualifier})` : ""),
+        `答えは必ずこの主張を守る向き (相手の論拠を崩す / 自分の陣営の論拠を守る) にする。`,
+        `相手陣営の主張を支える内容を、反論として言わない。相手の言い分が正しいと思うなら反論せず concede で認める。`,
+        "",
+      ]
+    : [];
 
   return [
     `あなたは議論ペルソナ「${persona.name}」。`,
@@ -74,6 +86,7 @@ export function buildExchangePrompt(args: ExchangePromptArgs): string {
     `# この論拠の応酬 (上から順に。最後が応答対象)`,
     chain,
     "",
+    ...standLines,
     `# 指示`,
     `${targetName}さんの最後の${target && target.depth > 0 ? "反論" : "論拠"}に答えてください。答え方は次のどちらか 1 つ:`,
     `- rebut: 反論する。反論も論拠 1 つだけで立てる (データ 1 つ + 論拠 1 つ)`,
@@ -85,6 +98,8 @@ export function buildExchangePrompt(args: ExchangePromptArgs): string {
       `"warrant": "<rebut のとき必須: 反論の論拠 (そのデータで相手のどこが崩れるか) 1 つ>", ` +
       `"text": "<Discord に流す口語 1〜3 文>"}`,
     `反論は相手の主張の限定の内側で突く。論拠を 2 つ以上並べない。`,
+    `根拠にする声は、プレイヤーの声の中から複数を照らし合わせて選ぶ。続けている人の声だけで全体を語らず、` +
+      `やめた人・不満のある人の声があればそれも検討する。声が足りなければ、何の材料が足りないかを言う。`,
     `text は実在の人間の雑談のような自然な口語で書く (ラベル・箇条書き禁止)。`,
   ].join("\n");
 }

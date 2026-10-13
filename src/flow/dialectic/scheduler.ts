@@ -177,6 +177,37 @@ export async function renderFacilitatorLine(args: RenderFacilitatorLineArgs): Pr
   return text || content;
 }
 
+/** 引用の上限文字数 (これを超えたら文の区切りで切る)。 */
+export const QUOTE_MAX = 160;
+
+/**
+ * 発言を引用用に切り出す (元の文のまま。言い換えない)。
+ * 上限内ならそのまま、超えたら上限内で最後の文の区切り (。！？) まで、区切りが無ければ上限で切って「…」。
+ */
+export function quoteExcerpt(text: string, max = QUOTE_MAX): string {
+  const t = text.replace(/\s+/g, " ").trim();
+  if (t.length <= max) return t;
+  const head = t.slice(0, max);
+  const cut = Math.max(head.lastIndexOf("。"), head.lastIndexOf("！"), head.lastIndexOf("？"), head.lastIndexOf("!"), head.lastIndexOf("?"));
+  return cut >= max / 3 ? head.slice(0, cut + 1) : `${head}…`;
+}
+
+/** 指名の枠の文 (引用は含めない。LLM に引用を言い換えさせないため)。 */
+export function nominationFrameText(decision: ScheduleDecision, personaName: string, target?: UtteranceDigest): string {
+  switch (decision.kind) {
+    case "respond":
+      return target
+        ? `${target.personaName}さんの次の指摘に、まだ応答がありません。${personaName}さん、どう応えますか?`
+        : `${personaName}さん、先ほどの反論にどう応えますか?`;
+    case "attack":
+      return target
+        ? `${personaName}さん、${target.personaName}さんの次の主張について、反対の立場から意見をどうぞ。`
+        : `${personaName}さん、反対の立場から意見をどうぞ。`;
+    case "free":
+      return `${personaName}さん、この論点について意見をどうぞ。`;
+  }
+}
+
 export interface RenderNominationArgs {
   decision: ScheduleDecision;
   personaName: string;
@@ -188,9 +219,11 @@ export interface RenderNominationArgs {
 }
 
 /**
- * 指名を自然な進行文にレンダリングする。LLM 失敗は決定的 fallback 文へ degrade。
+ * 指名を進行文にする。LLM は枠の文だけを言い換え、引用は元の発言をそのまま付ける
+ * (LLM に引用を渡すと否定が肯定に変わる等の改変が起きたため。neco レビュー 2026-10-13)。
  */
 export async function renderNomination(args: RenderNominationArgs): Promise<string> {
   const { decision, personaName, target, ...rest } = args;
-  return renderFacilitatorLine({ ...rest, content: nominationFallbackText(decision, personaName, target) });
+  const line = await renderFacilitatorLine({ ...rest, content: nominationFrameText(decision, personaName, target) });
+  return target ? `${line}\n> ${quoteExcerpt(target.text)}` : line;
 }

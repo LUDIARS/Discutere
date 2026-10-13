@@ -108,6 +108,14 @@ function makeRouterLlm(overrides: Partial<Record<string, (p: string) => string>>
         }),
     },
     { name: "rule-check", match: (p) => p.includes("前提ルールを守っているかを判定"), respond: () => "ok" },
+    // 定立の向き: 賛成の主張は yes、反対の主張は no (正しい向き)。
+    {
+      name: "position-stance",
+      match: (p) => p.includes("「はい」と答えているか「いいえ」と答えているか"),
+      respond: (p) => (p.includes("賛成の主張") ? "yes" : "no"),
+    },
+    // 「認める」の検証: 既定は申告どおり concede。
+    { name: "concession", match: (p) => p.includes("返答は相手の発言を認めているか"), respond: () => "concede" },
     { name: "tension-classify", match: (p) => p.includes("この対立の「型」を 1 つだけ選んで"), respond: () => "values" },
     { name: "fact-resolve", match: (p) => p.includes("証拠はどちらの主張を支持しますか"), respond: () => "A" },
     {
@@ -262,7 +270,7 @@ const db = () => new Database(DB_PATH);
   const round1 = utterances.filter((u) => u.round === 1);
   const claimRows = round1.filter((u) => u.act === "claim");
   assert.equal(claimRows.length, 6, "主張 2 + 論拠 4 が 1 件ずつ投稿される");
-  assert.equal(claimRows.filter((u) => u.target_id).length, 4, "論拠の投稿は自分の主張に紐づく");
+  assert.equal(claimRows.filter((u) => u.target_id).length, 0, "論拠の投稿は誰かへの応答ではない (宛先を付けない)");
   const ids = new Map(round1.map((u) => [u.id, u]));
   const rebuts = round1.filter((u) => u.act === "rebut");
   assert.equal(rebuts.length, 8, "論拠 4 件それぞれに反論 1 + 再反論 1");
@@ -529,11 +537,22 @@ const db = () => new Database(DB_PATH);
   console.log("  [ok] dispatch: flow.engine=dialectic で dialectic 経路に分岐");
 }
 
-// ── シナリオ: ゴール 1 論破 — 反論を受けた側が譲歩を重ねて根拠がすべて崩れる → 論破で決着 ──
+// ── シナリオ: ゴール 1 論破 — 賛成側だけが反論を認め続けて根拠がすべて崩れる → 論破で決着 ──
 
 {
   const llm = makeRouterLlm({
-    "turn-respond": () => JSON.stringify({ act: "concede", text: "そこは認めるよ。" }),
+    // 反論への応答: 賛成側は認める / 反対側は再反論して守る。
+    "turn-respond": (p) =>
+      p.includes("あなたは【賛成】陣営")
+        ? JSON.stringify({ act: "concede", text: "そこは認めるよ。" })
+        : JSON.stringify({
+            act: "rebut",
+            attack: "data",
+            kind: "induction",
+            data: "その事例は仕様が違うゲームだった",
+            warrant: "仕様が違う事例からは言えない",
+            text: "いや、その反論にはこう返せる。",
+          }),
   });
   await runDialecticFlow("論破されるテーマ", [], {
     llm,
@@ -561,6 +580,85 @@ const db = () => new Database(DB_PATH);
   assert.ok(utterances.some((u) => u.text.startsWith("論破: ")), "進行役が論破を流す");
   d.close();
   console.log("  [ok] dialectic driver: ゴール 1 論破 → Tension を立てず論破で決着");
+}
+
+// ── シナリオ: 双方の根拠がすべて崩れる → 論破ではなく結論なし (勝敗を付けない) ──
+
+{
+  const llm = makeRouterLlm({
+    "turn-respond": () => JSON.stringify({ act: "concede", text: "そこは認めるよ。" }),
+  });
+  await runDialecticFlow("双方崩れるテーマ", [], {
+    llm,
+    rng: makeRng(6),
+    gamesDir: path.join(TMP_DIR, "no-games-dir"),
+    sessionId: "dlx-both-fallen",
+    log: () => {},
+    warn: () => {},
+  });
+  const d = db();
+  const utterances = d.prepare("SELECT * FROM flow_utterance WHERE session_id = ? AND round = 1").all("dlx-both-fallen") as any[];
+  assert.ok(!utterances.some((u) => u.text.startsWith("論破: ")), "双方崩れたら論破にしない");
+  assert.ok(
+    utterances.some((u) => u.text.startsWith("結論なし: 双方の論拠がすべて崩れたため勝敗は付けない")),
+    "進行役が結論なし (材料不足) を流す"
+  );
+  d.close();
+  console.log("  [ok] dialectic driver: 双方崩壊 → 結論なし");
+}
+
+// ── シナリオ: 人が指定した論点は収束シグナルが立っても打ち切らない ──
+
+{
+  const llm = makeRouterLlm();
+  const result = await runDialecticFlow("人が論点を決めたテーマ", [], {
+    llm,
+    rng: makeRng(1234),
+    gamesDir: path.join(TMP_DIR, "no-games-dir"),
+    sessionId: "dlx-human-issues",
+    paperOverride: { mechanics: [], supplement: "", issues: ["論点A は十分か", "論点B は正しいか", "論点C は正解か"] },
+    log: () => {},
+    warn: () => {},
+  });
+  assert.equal(result.rounds, 3, "3 論点すべてを議論する (自動の早期収束で打ち切らない)");
+  const d = db();
+  const issues = d.prepare("SELECT status, source FROM flow_issue WHERE session_id = ?").all("dlx-human-issues") as any[];
+  assert.ok(issues.length === 3 && issues.every((i) => i.status === "concluded" && i.source === "paper-gate"));
+  d.close();
+  console.log("  [ok] dialectic driver: 人が指定した論点は打ち切らない");
+}
+
+// ── シナリオ: 立場と逆向きの定立は 1 回だけ作り直す / 「認める」の中身が反論なら認めたことにしない ──
+
+{
+  let stanceCalls = 0;
+  const llm = makeRouterLlm({
+    // 1 回目の反対側だけ「肯定 (yes)」と判定して作り直させる。
+    "position-stance": (p) => {
+      stanceCalls += 1;
+      if (p.includes("反対の主張") && stanceCalls <= 2) return "yes";
+      return p.includes("賛成の主張") ? "yes" : "no";
+    },
+    concession: () => "rebut",
+  });
+  await runDialecticFlow("立場のテーマ", [], {
+    llm,
+    rng: makeRng(7),
+    gamesDir: path.join(TMP_DIR, "no-games-dir"),
+    sessionId: "dlx-stance",
+    log: () => {},
+    warn: () => {},
+  });
+  const positionPrompts = llm.prompts.position ?? [];
+  assert.ok(positionPrompts.some((p) => p.includes("は【反対】の立場と逆向きでした")), "逆向きの定立は指摘付きで作り直す");
+  assert.ok(positionPrompts.every((p) => p.includes("賛成 = 論点 (問い) に「はい」と答える立場")), "定立に向きの定義を載せる");
+  const turnPrompts = [...(llm.prompts["turn-attack"] ?? []), ...(llm.prompts["turn-respond"] ?? [])];
+  assert.ok(turnPrompts.every((p) => p.includes("# あなたの立場 (忘れないこと)")), "応答のたびに自分の立場を示す");
+  const d = db();
+  const concedes = d.prepare("SELECT COUNT(*) AS n FROM flow_utterance WHERE session_id = ? AND act = 'concede'").get("dlx-stance") as any;
+  assert.equal(concedes.n, 0, "中身が反論の「認める」は concede に数えない");
+  d.close();
+  console.log("  [ok] dialectic driver: 定立の向きの作り直し / 認めるの検証");
 }
 
 // ── シナリオ: 前提ルール違反 — 突く要素なし / 判定 LLM が範囲外 → question に格下げ ──

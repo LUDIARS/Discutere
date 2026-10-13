@@ -28,6 +28,8 @@ export interface IssueSettlement {
   syntheses: SynthesisRecord[];
   /** 論破で決着した場合の判定文 (Tension を立てない)。論破でなければ null。 */
   refutation: string | null;
+  /** 双方の論拠がすべて崩れて結論なしにした理由 (Tension を立てない)。無ければ null。 */
+  undecided?: string | null;
 }
 
 /** tension の決着 1 行を人間可読にする (止揚 / 結論なし + 理由)。 */
@@ -57,7 +59,9 @@ export function settlementToRoundSummary(
   const outcome = issueOutcome(s);
   const tensionLines = s.refutation
     ? renderOutcomeLine("refuted", s.refutation)
-    : s.tensions.length > 0
+    : s.undecided
+      ? renderOutcomeLine("none", s.undecided)
+      : s.tensions.length > 0
       ? s.tensions.map((t) => settleTensionLine(t, s.syntheses)).join(" / ")
       : renderOutcomeLine("none", "対立が成立しなかった");
   const share = winnerShare === null ? "" : ` / 投票集中度 ${winnerShare.toFixed(2)}`;

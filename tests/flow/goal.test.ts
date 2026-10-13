@@ -1,6 +1,7 @@
 /**
  * 論破の判定 (dialectic.md §4.5) テスト。
- * - 論破: 根拠がすべて崩れた (challenged / conceded) 側を検出、片側・双方・無し
+ * - 論破: 根拠がすべて崩れた (challenged / conceded) 側を検出、片側・無し
+ * - 双方崩れたら論破ではなく結論なし (undecided) — 勝敗を付けない
  */
 
 import assert from "node:assert/strict";
@@ -38,7 +39,8 @@ const issue = { id: "i1", sessionId: "s1", title: "天井を下げるか", ordin
 
   const both = detectRefutation(position("d", "pro", ["challenged"]), position("e", "con", ["conceded"]));
   assert.equal(both.refuted.length, 2, "双方崩れれば 2 件");
-  assert.ok(both.note!.includes("双方"));
+  assert.equal(both.note, null, "双方崩れたら論破にしない");
+  assert.ok(both.undecided!.includes("勝敗は付けない"));
   console.log("  [ok] detectRefutation: 片側・双方・無し");
 }
 

@@ -37,6 +37,8 @@ export interface GeneratePositionArgs {
   paperSystem: string;
   /** 論点ごとのプレイヤーの声ブロック (renderIssueVoices)。無ければ空。 */
   voicesBlock?: string;
+  /** 作り直しのときの指摘 (立場と逆向きだった等)。無ければ空。 */
+  feedback?: string;
   /** withCostLog 済み LLM (location="position")。 */
   llm: LLMClient;
   model?: string;
@@ -50,6 +52,8 @@ export function buildPositionPrompt(args: {
   issue: IssueRecord;
   /** 論点ごとのプレイヤーの声ブロック (renderIssueVoices)。無ければ空。 */
   voicesBlock?: string;
+  /** 作り直しのときの指摘。無ければ空。 */
+  feedback?: string;
 }): string {
   const { persona, stance, issue } = args;
   const voices = args.voicesBlock ? `${args.voicesBlock}\n\n` : "";
@@ -67,6 +71,10 @@ export function buildPositionPrompt(args: {
     voices +
     `${PREMISE_RULES_TEXT}\n\n` +
     `この論点についてあなたは【${stanceJa}】の立場 (${stance}) で定立 (Position) を張ります。\n` +
+    `賛成 = 論点 (問い) に「はい」と答える立場、反対 = 「いいえ」と答える立場。` +
+    `論点が問いの形でなければ「${issue.title} は成り立つか / 十分か」と読み替える。` +
+    `主張は必ず【${stanceJa}】の向きにし、相手陣営より強い肯定・否定にすり替えない。\n` +
+    (args.feedback ? `${args.feedback}\n` : "") +
     `次の JSON 1 個だけを返してください (前後に説明やコードフェンスを付けない):\n` +
     `{"claim": "<主張 1 文>", "qualifier": "<主張の限定: どのプレイヤー層・どの条件の話か>", ` +
     `"grounds": [{"kind": "<deduction|induction|abduction>", "data": "<データ: 事実・事例・仕様>", ` +
@@ -130,7 +138,7 @@ export async function generatePosition(args: GeneratePositionArgs): Promise<Gene
 
   const result = await llm.invoke({
     system: args.paperSystem,
-    prompt: buildPositionPrompt({ persona, stance, issue, voicesBlock: args.voicesBlock }),
+    prompt: buildPositionPrompt({ persona, stance, issue, voicesBlock: args.voicesBlock, feedback: args.feedback }),
     ...(model ? { model } : {}),
   });
 
