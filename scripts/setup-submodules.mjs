@@ -6,6 +6,7 @@ import { execFileSync, spawn } from "node:child_process";
 import fs from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
+import { linkFileDependencies } from "./link-file-deps.mjs";
 
 const repoRoot = path.resolve(fileURLToPath(new URL(".", import.meta.url)), "..");
 
@@ -131,5 +132,9 @@ await Promise.all([
   })(),
 ]);
 if (setupFailure) throw setupFailure;
+
+// 依存表へ後から足した file: パッケージ (build 不要の @ludiars/one-shot 等) を、
+// ルートの npm install を待たずに解決できるようにする。
+linkFileDependencies(repoRoot);
 
 console.log("\nsubmodule のセットアップが完了しました。続けて `npm install` を実行してください。");

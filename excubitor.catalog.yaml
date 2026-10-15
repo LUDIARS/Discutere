@@ -15,9 +15,11 @@ services:
     repo: LUDIARS/Discutere
     runtime: node
     cwd: ${ARS_ROOT}/Discutere
-    command: npm run dev:server
+    command: node --run dev:server
     allow_hot_reload: true
-    # BACKEND_PORT=3110 は env: で spawn env に注入され、 npm → node が継承する
+    # npm run だと Windows の job-breakaway 起動で npm.cmd の親がすぐ終わり、Excubitor が
+    # 起動直後の終了 (crashed) と誤判定する。node --run で node を直接起動する (Cernere 等と同じ)。
+    # BACKEND_PORT=3110 は env: で spawn env に注入され、 node が継承する
     # (Nuntius(3100) との port 競合回避)。
     autostart: false
     env:

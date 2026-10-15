@@ -80,7 +80,8 @@
     "app:dev": "npm run build && electron .",
     "app:dist:dir": "npm run build && npm run app:rebuild && electron-builder --dir",
     "app:dist:win": "npm run build && npm run app:rebuild && electron-builder --win --publish never",
-    "test:vault-env": "tsx --test tests/secrets/*.test.ts"
+    "test:vault-env": "tsx --test tests/secrets/*.test.ts",
+    "test:setup-links": "tsx --test tests/setup/*.test.ts"
   },
   "dependencies": {
     "@ludiars/one-shot": "file:lib/lapilli/packages/one-shot",
