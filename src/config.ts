@@ -25,6 +25,7 @@ export interface WorkerPoolWorker {
 }
 
 export interface DiscutereConfig {
+  glabConclusions?: { token: string };
   externalDiscussion?: { sharedSecret: string };
   nodeEnv: string;
   server: {
@@ -819,6 +820,7 @@ export function loadConfig(): DiscutereConfig {
   return Object.freeze({
     nodeEnv: pick(process.env.NODE_ENV, undefined, "development"),
     externalDiscussion: { sharedSecret: process.env.DISCUTERE_EXTERNAL_DISCUSSION_SECRET ?? "" },
+    glabConclusions: { token: process.env.DISCUTERE_GLAB_CONCLUSIONS_TOKEN ?? "" },
     server: {
       port: pickNum(process.env.BACKEND_PORT, file.server?.port, 3110),
       host: pick(process.env.BACKEND_HOST, file.server?.host, "127.0.0.1"),

@@ -79,6 +79,7 @@ import { getYoutubeApiKey } from "./secrets/youtube-env.js";
 import { createEconomyGraphRoutes } from "./api/economy-graph-routes.js";
 import { analyzeEconomy, toSlug } from "./ludus/economy-analyzer.js";
 import { glabReviewTrendRoutes } from "./api/glab-review-trend-routes.js";
+import { conclusionPublicationRoutes } from "./api/conclusion-publication-routes.js";
 
 // Initialize DB (triggers schema creation)
 import "./db/connection.js";
@@ -126,6 +127,7 @@ app.use("/api/*", userContext());
 
 // GLAB には Di が取得済みの Steam レビューをゲーム別に集約した結果だけを渡す。
 app.route("/api", glabReviewTrendRoutes);
+app.route("/api", conclusionPublicationRoutes);
 
 // ─── Admin (PR-B: 人閁EↁEAI 介�E経路) ────────────────────────
 app.route("/api", adminRoutes);

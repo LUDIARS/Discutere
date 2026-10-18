@@ -486,6 +486,7 @@ function renderConclusions(snap) {
           '<button class="detail-btn" data-gap="' + esc(c.gapId) + '" style="margin-top:8px;">論述データを見る</button> ' +
           '<a class="md-btn" href="/learning/conclusion/export?gap=' + encodeURIComponent(c.gapId) + '" download>md エクスポート</a> ' +
           '<button class="md-btn fm-btn" data-gap="' + esc(c.gapId) + '">Fundamentum へ export</button>' +
+          ' <a href="/api/admin/conclusion-publication/editor?id=' + encodeURIComponent(c.gapId) + '">公開設定（本社の端末）</a>' +
           '<div class="detail-slot"></div>' +
         '</article>').join("")
     : '<div class="muted">まだ収束した議論はありません</div>';

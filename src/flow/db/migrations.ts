@@ -551,6 +551,17 @@ MIGRATIONS.push({
   ],
 });
 
+MIGRATIONS.push({
+  id: "2026-10-18-conclusion-publication",
+  sql: [`CREATE TABLE IF NOT EXISTS conclusion_publication (
+    conclusion_id TEXT PRIMARY KEY,
+    publishable INTEGER NOT NULL DEFAULT 0 CHECK(publishable IN (0,1)),
+    scope TEXT NOT NULL DEFAULT 'private' CHECK(scope IN ('private','public','glab')),
+    content_hash TEXT NOT NULL,
+    updated_at INTEGER NOT NULL
+  )`],
+});
+
 function isIgnorableMigrationError(stmt: string, error: unknown): boolean {
   if (!/^\s*ALTER\s+TABLE\s+/i.test(stmt)) return false;
   const message = error instanceof Error ? error.message : String(error);

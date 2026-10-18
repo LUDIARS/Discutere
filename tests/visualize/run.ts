@@ -11,5 +11,6 @@ import "./learning-layers.test.js";
 import "./data-sources.test.js";
 import "./flow-conclusions.test.js";
 import "./conclusion-markdown.test.js";
+import "./conclusion-publication.test.js";
 
 console.log("visualize tests: all passed");
