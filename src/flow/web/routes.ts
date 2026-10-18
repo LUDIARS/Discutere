@@ -18,6 +18,7 @@ import type { LLMClient } from "../../persona-engine/llm/client.js";
 import type { CascadeClients } from "../../crawler/sentiment/cascade.js";
 import type { createCore } from "../../core/index.js";
 import type { ContextVoice, FlowSessionScope, FlowSessionState } from "../discussion-paper.js";
+import { getForesightStatus, isForesightActive } from "../foresight/state.js";
 import {
   getPaperBodyBySession,
   persistDraftPaper,
@@ -1569,7 +1570,10 @@ flowRoutes.get("/api/flow/:session/status", (c) => {
     .get(sessionId) as { summary: string; concluded: number } | undefined;
 
   const session = sparringSessions.get(sessionId);
-  const done = finished.has(sessionId) || (session?.isEnded ?? false) || !!conclusionRow;
+  // 結論の行は未来予測より前に書かれるので、未来予測が待機中 / 実行中の間は完了にしない。
+  const foresight = getForesightStatus(sessionId);
+  const done =
+    (finished.has(sessionId) || (session?.isEnded ?? false) || !!conclusionRow) && !isForesightActive(sessionId);
 
   return c.json({
     ok: true,
@@ -1600,6 +1604,8 @@ flowRoutes.get("/api/flow/:session/status", (c) => {
     concluded: conclusionRow?.concluded === 1,
     // ライブのディスカッションペーパー本文 (議論進行で更新されていく)。
     paperMd: getPaperBodyBySession(sessionId),
+    // 未来予測アドバイザリーの状態 (タグなし / 再起動後は null)。
+    foresight,
     done,
   });
 });

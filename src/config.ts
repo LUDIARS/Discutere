@@ -265,6 +265,8 @@ export interface DiscutereConfig {
       turns: number;
       /** 使うモデル ("" なら LLM の既定モデル)。 */
       model: string;
+      /** 予測 (未解決の前提の整理 + シナリオ) だけに使うモデル ("" なら model)。議論役と書き手を分ける。 */
+      forecastModel: string;
     };
     /**
      * Anatomia 連携 (議論前のゲーム情報供給)。Anatomia がソースコード解析から抽出した
@@ -1041,6 +1043,11 @@ export function loadConfig(): DiscutereConfig {
           Math.min(20, Math.floor(pickNum(process.env.DISCUTERE_FLOW_FORESIGHT_TURNS, file.flow?.foresight?.turns, 6)))
         ),
         model: pick(process.env.DISCUTERE_FLOW_FORESIGHT_MODEL, file.flow?.foresight?.model, ""),
+        forecastModel: pick(
+          process.env.DISCUTERE_FLOW_FORESIGHT_FORECAST_MODEL,
+          file.flow?.foresight?.forecastModel,
+          ""
+        ),
       },
       anatomia: {
         enabled: pickBool(process.env.DISCUTERE_ANATOMIA_ENABLED, file.flow?.anatomia?.enabled, false),

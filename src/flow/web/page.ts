@@ -1224,7 +1224,21 @@ async function poll() {
     $("conclusion").style.display = "block";
     $("conclusionBody").textContent = res.conclusion;
   }
-  if (res.done) { clearInterval(timer); $("go").disabled = false; $("paperLive").textContent = "確定"; }
+  // 未来予測アドバイザリー (結論の後に続く参考) の進み具合。結論が出ても、これが終わるまでは完了にしない。
+  const fs = res.foresight;
+  if (fs && (fs.state === "pending" || fs.state === "running") && res.conclusion) {
+    $("paperLive").textContent = "結論あり / 未来予測アドバイザリーを生成中…";
+  }
+  if (res.done) {
+    clearInterval(timer);
+    $("go").disabled = false;
+    $("paperLive").textContent = "確定" + (fs ? " / 未来予測: " + foresightLabel(fs) : "");
+  }
+}
+function foresightLabel(fs) {
+  const labels = { done: "完了", skipped: "省略", degraded: "一部失敗", failed: "失敗" };
+  const label = labels[fs.state] || fs.state;
+  return fs.detail ? label + " (" + fs.detail + ")" : label;
 }
 
 // 軽量 markdown レンダラ (見出し/箇条書き/太字/段落のみ・XSS 安全に escape 後変換)。

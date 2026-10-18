@@ -19,7 +19,7 @@ import type { CascadeClients } from "../crawler/sentiment/cascade.js";
 import type { FlowTag } from "./tags.js";
 import type { ContextVoice } from "./discussion-paper.js";
 import type { YoutubeSearchFn } from "./investigate.js";
-import { continueWithForesight } from "./foresight/after-flow.js";
+import { runWithForesight } from "./foresight/after-flow.js";
 import { runDiscussionFlow, runFlow, type FlowDirectorResult, type FlowUtteranceRecord, type VoteEvent, type PaperOverride } from "./director.js";
 import { runImprovementFlow } from "./improvement.js";
 import { runDialecticDiscussionFlow, runDialecticImprovementFlow } from "./dialectic/driver.js";
@@ -175,14 +175,14 @@ export async function dispatchFlow(input: DispatchInput, deps: DispatchDeps): Pr
       const run =
         deps.drivers?.discussion ??
         (engine === "dialectic" ? runDialecticDiscussionFlow : runDiscussionFlow);
-      const result = await continueWithForesight(theme, tags, kind, await run(theme, tags, flowDeps), deps);
+      const result = await runWithForesight(theme, tags, kind, () => run(theme, tags, flowDeps), deps);
       return { kind, flow: kind, result };
     }
     case "improvement": {
       const run =
         deps.drivers?.improvement ??
         (engine === "dialectic" ? runDialecticImprovementFlow : runImprovementFlow);
-      const result = await continueWithForesight(theme, tags, kind, await run(theme, tags, flowDeps), deps);
+      const result = await runWithForesight(theme, tags, kind, () => run(theme, tags, flowDeps), deps);
       return { kind, flow: kind, result };
     }
     case "learning": {

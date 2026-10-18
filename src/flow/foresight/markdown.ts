@@ -6,8 +6,11 @@
  */
 
 const HEAD_FORESIGHT = "# 未来予測アドバイザリー (参考)";
-/** 取り除く対象の見出し (現行 + 2026-10-18 初版の見出し)。 */
-const STRIP_HEADS = [HEAD_FORESIGHT, "# 未来予測"];
+/**
+ * 取り除く対象の見出し行 (現行 + 2026-10-18 初版の「# 未来予測」)。行頭から行末までの一致で見るので、
+ * 本文の先頭にある見出しや、末尾に改行が無い見出しも外せる。
+ */
+const STRIP_HEAD_RE = /^# 未来予測(?: ?アドバイザリー \(参考\))?[ \t]*$/m;
 
 export interface ForesightSection {
   proposal: string;
@@ -16,8 +19,8 @@ export interface ForesightSection {
 
 /** body_md から未来予測の節以降を取り除く。 */
 export function stripForesight(bodyMd: string): string {
-  const indexes = STRIP_HEADS.map((h) => bodyMd.indexOf(`\n${h}\n`)).filter((i) => i >= 0);
-  const base = indexes.length > 0 ? bodyMd.slice(0, Math.min(...indexes)) : bodyMd;
+  const match = STRIP_HEAD_RE.exec(bodyMd);
+  const base = match ? bodyMd.slice(0, match.index) : bodyMd;
   return base.replace(/\s+$/g, "");
 }
 
@@ -27,7 +30,7 @@ export function appendForesightMarkdown(bodyMd: string, section: ForesightSectio
     HEAD_FORESIGHT,
     "結論とは別の参考です。結論は上の「# 結論」を正とします。",
     `## 破壊的な一手の提案\n${section.proposal.trim() || "(提案なし)"}`,
-    `## 3 / 5 / 10 年後の予測\n${section.forecast.trim() || "(予測なし)"}`,
+    `## 未解決の前提と 3 / 5 / 10 年時点のシナリオ\n${section.forecast.trim() || "(予測なし)"}`,
   ].join("\n\n");
   const base = stripForesight(bodyMd);
   return base ? `${base}\n\n${foresight}` : foresight;
