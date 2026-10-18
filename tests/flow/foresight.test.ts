@@ -411,6 +411,27 @@ function phaseArgs(
     assert.ok(prompts.some((p) => p.includes("声その1")), "外部の声を未来予測に渡す");
   }
 
+  // 内部/機密は本議論にも未来予測にも蓄積済みの外部の声を渡さない
+  for (const deny of ["内部", "機密"]) {
+    const before = prompts.length;
+    let driverVoices: unknown = "unset";
+    const gated = await dispatchFlow(
+      { theme: "t", tags: ["未来予測", deny], flow: "議論" },
+      {
+        ...deps,
+        drivers: {
+          discussion: async (_theme, _tags, flowDeps) => {
+            driverVoices = flowDeps?.listExternalVoices;
+            return { ...fakeResult, utterances: [...fakeResult.utterances] };
+          },
+        },
+      }
+    );
+    assert.equal(driverVoices, undefined, `${deny}: 本議論に外部の声の検索を渡さない`);
+    if (gated.kind === "discussion") assert.ok(gated.result.foresight, `${deny}: 未来予測は走る`);
+    assert.ok(!prompts.slice(before).some((p) => p.includes("声その1")), `${deny}: 未来予測にも外部の声を渡さない`);
+  }
+
   // 未収束なら行わない
   notified.length = 0;
   const unconcluded = await dispatchFlow(

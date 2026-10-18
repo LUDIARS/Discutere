@@ -28,6 +28,14 @@ export function canCollectExternal(tags: readonly FlowTag[]): boolean {
 }
 
 /**
+ * 外部の声の検索を、タグが許す場合だけ渡す。
+ * `機密` / `内部` では新規収集だけでなく KG に蓄積済みの外部の声も参照させない (undefined を返す)。
+ */
+export function gateExternalVoices<T>(tags: readonly FlowTag[], lookup: T | undefined): T | undefined {
+  return canCollectExternal(tags) ? lookup : undefined;
+}
+
+/**
  * タグに応じたディスカッションペーパーへの観点補足テキストを返す。
  * 複数タグがある場合は全て連結する。
  */

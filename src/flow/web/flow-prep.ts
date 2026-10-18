@@ -14,7 +14,7 @@ import type { CascadeClients } from "../../crawler/sentiment/cascade.js";
 import type { createCore } from "../../core/index.js";
 import type { ContextVoice } from "../discussion-paper.js";
 import type { FlowKind } from "../dispatch.js";
-import type { FlowTag } from "../tags.js";
+import { canCollectExternal, type FlowTag } from "../tags.js";
 import {
   ensureLearningData,
   isAutoCrawlSource,
@@ -166,6 +166,11 @@ export async function prepareInformationBeforeFlow(
   spec: AutoCrawlSpec | null,
   d: FlowWebDeps
 ): Promise<void> {
+  // 機密/内部は外部収集をしない (情報ゲートの不足観点クロールも旧 autoCrawl も省く)。
+  if (!canCollectExternal(tags)) {
+    console.log(`[flow-gate] 機密/内部タグのため外部の声の収集を省略`);
+    return;
+  }
   // 情報ゲート優先 (LLM 評価 + 不足観点クロール)。
   try {
     const youtubeApiKey = await resolveYoutubeApiKey(d);

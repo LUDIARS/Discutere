@@ -20,7 +20,7 @@ import type { LLMClient } from "../persona-engine/llm/client.js";
 import type { CascadeClients } from "../crawler/sentiment/cascade.js";
 import type { createCore } from "../core/index.js";
 import type { ContextVoice } from "./discussion-paper.js";
-import type { FlowTag } from "./tags.js";
+import { canCollectExternal, gateExternalVoices, type FlowTag } from "./tags.js";
 import type { FlowUtteranceRecord, VoteEvent, PaperOverride } from "./director.js";
 import type { FlowRole, FlowStance } from "./personas.js";
 import { composeDisplayName } from "./persona-display.js";
@@ -183,6 +183,8 @@ function voiceLookupFor(
  * スレッドの声の検索を均等混合に差し替える。結果はスレッドに一言で知らせる。失敗は議論を止めない。
  */
 async function collectUserVoicesForThread(input: StartForumFlowInput, deps: FlowDiscordDeps): Promise<void> {
+  // 機密/内部は Steam / Voluptas の声も集めない。
+  if (!canCollectExternal(input.tags)) return;
   try {
     const prepared = await prepareUserVoices({
       theme: input.theme,
@@ -351,6 +353,11 @@ async function prepareInformationBeforeForumFlow(
   input: StartForumFlowInput,
   deps: FlowDiscordDeps
 ): Promise<void> {
+  // 機密/内部は外部収集をしない (情報ゲートの不足観点クロールも旧 autoCrawl も省く)。
+  if (!canCollectExternal(input.tags)) {
+    console.log(`  [forum-gate ${input.threadId}] 機密/内部タグのため外部の声の収集を省略`);
+    return;
+  }
   // 情報ゲート優先 (LLM 評価 + 不足観点クロール)。Discord は scene=threadId をコストログキーにする。
   try {
     const youtubeApiKey = await resolveYoutubeApiKey(deps);
@@ -665,7 +672,8 @@ function buildForumPaperDraft(
  */
 function buildIntentDeps(input: StartForumFlowInput, deps: FlowDiscordDeps): PaperIntentDeps {
   const warn = (m: string) => console.warn(`  [paper-intent ${input.threadId}] ${m}`);
-  const openCore = deps.openCore;
+  // 機密/内部ではペーパー調整からも外部の声をクロール・参照しない。
+  const openCore = canCollectExternal(input.tags) ? deps.openCore : undefined;
   const crawl = openCore
     ? async (query: string): Promise<{ imported: number }> => {
         const cfg = getConfig().flow.autoCrawl;
@@ -702,7 +710,7 @@ function buildIntentDeps(input: StartForumFlowInput, deps: FlowDiscordDeps): Pap
     theme: input.theme,
     tags: input.tags,
     gamesDir: deps.gamesDir,
-    listExternalVoices: voiceLookupFor(input.threadId, deps),
+    listExternalVoices: gateExternalVoices(input.tags, voiceLookupFor(input.threadId, deps)),
     llm: deps.llm,
     crawl,
     warn,

@@ -54,7 +54,7 @@ import Database from "better-sqlite3";
 // ── tags ─────────────────────────────────────────────────────────
 
 {
-  const { canCollectExternal, paperSupplement } = await import("../../src/flow/tags.js");
+  const { canCollectExternal, gateExternalVoices, paperSupplement } = await import("../../src/flow/tags.js");
 
   assert.equal(canCollectExternal([]), true, "empty tags → collect allowed");
   assert.equal(canCollectExternal(["開発"]), true, "開発 → collect allowed");
@@ -64,6 +64,13 @@ import Database from "better-sqlite3";
   assert.equal(canCollectExternal(["開発", "機密"]), false, "開発+機密 → collect denied");
   assert.equal(canCollectExternal(["開発", "内部"]), false, "開発+内部 → collect denied");
   console.log("  [ok] canCollectExternal");
+
+  const lookup = () => [];
+  assert.equal(gateExternalVoices(["開発"], lookup), lookup, "開発 → lookup passes through");
+  assert.equal(gateExternalVoices(["内部"], lookup), undefined, "内部 → stored voices hidden");
+  assert.equal(gateExternalVoices(["機密"], lookup), undefined, "機密 → stored voices hidden");
+  assert.equal(gateExternalVoices([], undefined), undefined, "no lookup stays undefined");
+  console.log("  [ok] gateExternalVoices");
 
   assert.equal(paperSupplement([]), "", "no tags → no supplement");
   assert.match(paperSupplement(["開発"]), /開発者観点/, "開発 → dev supplement");

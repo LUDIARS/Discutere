@@ -16,7 +16,7 @@
 import type { createCore } from "../core/index.js";
 import type { LLMClient } from "../persona-engine/llm/client.js";
 import type { CascadeClients } from "../crawler/sentiment/cascade.js";
-import type { FlowTag } from "./tags.js";
+import { gateExternalVoices, type FlowTag } from "./tags.js";
 import type { ContextVoice } from "./discussion-paper.js";
 import type { YoutubeSearchFn } from "./investigate.js";
 import { runWithForesight } from "./foresight/after-flow.js";
@@ -147,9 +147,11 @@ export async function dispatchFlow(input: DispatchInput, deps: DispatchDeps): Pr
   if (!kind) throw new FlowTypeRequiredError(input.flow);
 
   const { theme, tags } = input;
+  // 機密/内部では蓄積済みの外部の声も使わない (本議論・壁打ち・未来予測の全経路)。
+  const listExternalVoices = gateExternalVoices(tags, deps.listExternalVoices);
   const flowDeps = {
     llm: deps.llm,
-    listExternalVoices: deps.listExternalVoices,
+    listExternalVoices,
     youtubeSearch: deps.youtubeSearch,
     onUtterance: deps.onUtterance,
     onVote: deps.onVote,
@@ -175,14 +177,14 @@ export async function dispatchFlow(input: DispatchInput, deps: DispatchDeps): Pr
       const run =
         deps.drivers?.discussion ??
         (engine === "dialectic" ? runDialecticDiscussionFlow : runDiscussionFlow);
-      const result = await runWithForesight(theme, tags, kind, () => run(theme, tags, flowDeps), deps);
+      const result = await runWithForesight(theme, tags, kind, () => run(theme, tags, flowDeps), { ...deps, listExternalVoices });
       return { kind, flow: kind, result };
     }
     case "improvement": {
       const run =
         deps.drivers?.improvement ??
         (engine === "dialectic" ? runDialecticImprovementFlow : runImprovementFlow);
-      const result = await runWithForesight(theme, tags, kind, () => run(theme, tags, flowDeps), deps);
+      const result = await runWithForesight(theme, tags, kind, () => run(theme, tags, flowDeps), { ...deps, listExternalVoices });
       return { kind, flow: kind, result };
     }
     case "learning": {
@@ -205,7 +207,7 @@ export async function dispatchFlow(input: DispatchInput, deps: DispatchDeps): Pr
     case "sparring": {
       const session = new SparringSession(theme, tags, {
         llm: deps.llm,
-        listExternalVoices: deps.listExternalVoices,
+        listExternalVoices,
         youtubeSearch: deps.youtubeSearch,
         responsesPerTurn: deps.responsesPerTurn,
         onUtterance: deps.onUtterance,

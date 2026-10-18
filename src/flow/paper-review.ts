@@ -22,7 +22,7 @@
 
 import type { LLMClient } from "../persona-engine/llm/client.js";
 import type { FlowTag } from "./tags.js";
-import { paperSupplement } from "./tags.js";
+import { gateExternalVoices, paperSupplement } from "./tags.js";
 import {
   asMechanicSource,
   investigateTheme,
@@ -298,7 +298,9 @@ export async function buildPaperDraft(
       warn: deps.warn,
     });
 
-  const voices = deps.listExternalVoices ? deps.listExternalVoices([theme], COUNT_LIMIT) : [];
+  // 機密/内部では蓄積済みの外部の声もペーパーに載せない。
+  const listVoices = gateExternalVoices(tags, deps.listExternalVoices);
+  const voices = listVoices ? listVoices([theme], COUNT_LIMIT) : [];
 
   // 事前情報 (Anatomia 由来など) を先頭に置き、investigate 結果と名前で重複排除する。
   const base = mergeMechanics(deps.extraMechanics ?? [], investigation.mechanics);

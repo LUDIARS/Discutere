@@ -134,7 +134,8 @@ bot 名義で締める (収束時 `finalizeForumPost` で lock+archive+まとめ
   で解決して `dispatchFlow` の FlowKind にする。**タグが無い投稿には議論タイプ選択メニュー
   (StringSelectMenu `flow-pick:<threadId>`) をスレッドに出す**。選択でフローを起動する。
 - **観点タグ (任意・複数)**: `機密`/`内部`/`運用`/`開発`/`未来予測` (= `FlowTag`)。外部収集可否・ペーパー補足を決める
-  (`未来予測` は結論後の未来予測アドバイザリーを付ける)。
+  (`未来予測` は結論後の未来予測アドバイザリーを付ける)。`機密`/`内部` は新規収集だけでなく KG に蓄積済みの外部の声も
+  全経路で参照しない (`tags.gateExternalVoices`、2026-10-19、`spec/feature/flow/OVERVIEW.md` §3)。
 - **定義済みフォーラムタグの自動用意**: ClientReady で議論フォーラム (`discord.forum.discussionForumName`,
   既定「議論」) を ensure し、上記 8 タグ (議論タイプ 4 + 観点 4) を `availableTags` に補充する
   (無ければフォーラム自体を作成、`forum-flow-tags.ensureDiscussionForum`)。Manage Channels 権限が要る。

@@ -37,7 +37,7 @@ type Core = ReturnType<typeof createCore>;
 import { getFlowDb } from "../db/connection.js";
 import { dispatchFlow, parseFlowKind, type DispatchDeps, type FlowKind } from "../dispatch.js";
 import type { SparringSession } from "../sparring.js";
-import type { FlowTag } from "../tags.js";
+import { canCollectExternal, gateExternalVoices, type FlowTag } from "../tags.js";
 import { composeDisplayName } from "../persona-display.js";
 import type { FlowRole, FlowStance } from "../personas.js";
 import type { AutoCrawlSpec } from "../learning-autocrawl.js";
@@ -167,7 +167,11 @@ function startApprovedFlow(
   if (entry.timer) clearTimeout(entry.timer);
   paperReviews.delete(sessionId);
   // 使い回した声 > 下書き再開で保存済みの声 > 外部の声検索。議論に使う声を保存し直す。
-  const voiceLookup = sessionVoiceLookups.get(sessionId) ?? sessionVoiceLookup(sessionId, webDeps.listExternalVoices);
+  // 機密/内部では外部の声を保存も参照もしない。
+  const voiceLookup = gateExternalVoices(
+    finalPaper.tags,
+    sessionVoiceLookups.get(sessionId) ?? sessionVoiceLookup(sessionId, webDeps.listExternalVoices)
+  );
   sessionVoiceLookups.delete(sessionId);
   saveSessionVoices(sessionId, finalPaper.theme, voiceLookup);
   const dispatchDeps: DispatchDeps = {
@@ -1208,9 +1212,8 @@ flowRoutes.post("/api/flow/:session/paper/debatability/check", async (c) => {
   const gate = manualDebatabilityGate(entry.flow, sessionId, webDeps.llm);
   if (!gate) return c.json({ ok: false, error: "このフローでは議論可能性チェックを実行できません" }, 400);
 
-  const voices = webDeps.listExternalVoices
-    ? webDeps.listExternalVoices([entry.draft.theme], DEBATABILITY_VOICE_LIMIT)
-    : [];
+  const listVoices = gateExternalVoices(entry.draft.tags, webDeps.listExternalVoices);
+  const voices = listVoices ? listVoices([entry.draft.theme], DEBATABILITY_VOICE_LIMIT) : [];
   const result = await assessDebatability({
     theme: entry.draft.theme,
     paperMd: [projectPremise(entry.flow), entry.draft.bodyMd].filter(Boolean).join("\n\n"),
@@ -1359,6 +1362,9 @@ flowRoutes.post("/api/flow/:session/paper/crawl", async (c) => {
   const entry = paperReviews.get(sessionId);
   if (!entry || !entry.ready || !entry.draft) return c.json({ ok: false, error: "編集準備中です" }, 409);
   if (!webDeps.listExternalVoices) return c.json({ ok: false, error: "外部の声の参照が無効です" }, 400);
+  if (!canCollectExternal(entry.draft.tags)) {
+    return c.json({ ok: false, error: "機密/内部タグの議論では外部の声を参照しません" }, 400);
+  }
   const body = (await c.req.json().catch(() => ({}))) as { blockId?: unknown; query?: unknown; insert?: unknown };
   const blockId = typeof body.blockId === "string" ? body.blockId : "";
   const query = typeof body.query === "string" && body.query.trim() ? body.query.trim() : "";
