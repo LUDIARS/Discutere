@@ -175,14 +175,14 @@ export async function dispatchFlow(input: DispatchInput, deps: DispatchDeps): Pr
       const run =
         deps.drivers?.discussion ??
         (engine === "dialectic" ? runDialecticDiscussionFlow : runDiscussionFlow);
-      const result = await continueWithForesight(theme, kind, await run(theme, tags, flowDeps), deps);
+      const result = await continueWithForesight(theme, tags, kind, await run(theme, tags, flowDeps), deps);
       return { kind, flow: kind, result };
     }
     case "improvement": {
       const run =
         deps.drivers?.improvement ??
         (engine === "dialectic" ? runDialecticImprovementFlow : runImprovementFlow);
-      const result = await continueWithForesight(theme, kind, await run(theme, tags, flowDeps), deps);
+      const result = await continueWithForesight(theme, tags, kind, await run(theme, tags, flowDeps), deps);
       return { kind, flow: kind, result };
     }
     case "learning": {

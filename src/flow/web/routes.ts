@@ -234,7 +234,7 @@ function scheduleWebAutoApprove(sessionId: string, webDeps: FlowWebDeps): void {
   entry.timer.unref?.();
 }
 
-const VALID_REVIEW_TAGS = new Set<FlowTag>(["機密", "内部", "運用", "開発"]);
+const VALID_REVIEW_TAGS = new Set<FlowTag>(["機密", "内部", "運用", "開発", "未来予測"]);
 
 function stringField(body: Record<string, unknown>, key: string): string {
   const v = body[key];

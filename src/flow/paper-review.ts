@@ -45,7 +45,7 @@ import { getBlockText } from "./paper-blocks.js";
 import { assessDebatability, annotatedIssues, type DebatabilityResult } from "./debatability.js";
 
 /** 有効な観点タグ (編集で受理する集合)。 */
-export const VALID_FLOW_TAGS: readonly FlowTag[] = ["機密", "内部", "運用", "開発"];
+export const VALID_FLOW_TAGS: readonly FlowTag[] = ["機密", "内部", "運用", "開発", "未来予測"];
 
 /** 情報サマリのサンプル件数 / 件数カウントの上限。 */
 const SAMPLE_LIMIT = 9;

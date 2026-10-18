@@ -18,6 +18,10 @@ export interface ForesightLine {
   text: string;
 }
 
+/** 未来予測は結論を変えない参考 (アドバイザリー) であることを全 prompt に入れる。 */
+const ADVISORY_LINE =
+  "これは本議論の結論とは別の参考 (アドバイザリー)。本議論の結論を覆したり書き換えたりしない。";
+
 const THEORY_LINE =
   "道具にする理論: Christensen の破壊的イノベーション (ローエンド型 / 新市場型、性能の過剰供給、既存企業のジレンマ、価値網)、プロダクトライフサイクル (導入 / 成長 / 成熟 / 衰退)、Rogers の普及理論 (イノベーター〜ラガード、キャズム)。";
 
@@ -41,6 +45,7 @@ export function buildProposalPrompt(theme: string, conclusion: string): { system
   const system = [
     "あなたはイノベーション理論に通じた戦略アナリストで、議論の進行役。",
     THEORY_LINE,
+    ADVISORY_LINE,
     "議題の対象について、現行のプロダクトライフサイクルを破壊可能な一手を 1 つ提案する。",
     "次の見出しで、日本語で簡潔に書く (全体で 900 字以内):",
     "【現行のライフサイクル】いまどの段階にあり、既存の主流が何を過剰に供給しているか",
@@ -71,6 +76,7 @@ export function buildCampTurnPrompt(args: {
   const system = [
     `あなたは議論の参加者「${args.personaName}」。`,
     THEORY_LINE,
+    ADVISORY_LINE,
     campStanceLine(args.camp),
     "論じる対象は 2 つ: (1) 提案された破壊的な一手そのもの、(2) 実行したときに起きることとリスク。",
     "実在の人間がチャットで話すように、自然な口語で 2〜3 文だけ書く。ラベルや箇条書きは使わない。",
@@ -99,6 +105,7 @@ export function buildForecastPrompt(args: {
   const system = [
     "あなたはイノベーション理論に通じた戦略アナリストで、議論の進行役。",
     "提案された破壊的な一手と、改革派・保守派の議論を踏まえ、その結果訪れる未来を予測する。",
+    ADVISORY_LINE,
     "次の見出しで、日本語で書く (全体で 1500 字以内):",
     "【議論の決着】改革派と保守派で、どの論点が残り、どちらの前提がより妥当だったか",
     "【3年後】起きていること (足場の市場・普及段階)",

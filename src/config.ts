@@ -253,11 +253,12 @@ export interface DiscutereConfig {
       model: string;
     };
     /**
-     * 未来予測フェーズ (spec/feature/flow/foresight.md)。議論/改善の結論の後に、イノベーション理論で
-     * 破壊的な一手を提案 → 改革派/保守派が議論 → 3/5/10 年後を予測 (+ビジネス分析) する。
-     * 既定 true。LLM コスト増 = 提案 1 + 議論 turns + 予測 1 回/議論。
+     * 未来予測アドバイザリー (spec/feature/flow/foresight.md)。観点タグ「未来予測」を付けた議論/改善だけで、
+     * 結論の後にイノベーション理論で破壊的な一手を提案 → 改革派/保守派が議論 → 3/5/10 年後を予測
+     * (+ビジネス分析) する。結論は変えない参考。LLM コスト増 = 提案 1 + 議論 turns + 予測 1 回/議論。
      */
     foresight: {
+      /** 機能ごとの有効化 (既定 true)。false ならタグがあっても走らない。 */
       enabled: boolean;
       /** 改革派 / 保守派の発言回数 (既定 6、1..20)。 */
       turns: number;

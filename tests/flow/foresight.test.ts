@@ -96,6 +96,9 @@ const mainUtterances: FlowUtteranceRecord[] = [
   assert.ok(conservative.prompt.includes("A [改革派]: やるべき"), "相手陣営の発言を渡す");
 
   const forecast = buildForecastPrompt({ theme: "t", conclusion: "c", proposal: "P", lines: [] });
+  for (const p of [proposal, reform, conservative, forecast]) {
+    assert.ok(p.system.includes("結論を覆したり書き換えたりしない"), "どの prompt もアドバイザリー扱い");
+  }
   for (const head of ["【3年後】", "【5年後】", "【10年後】", "利益率の高さ", "確度", "ノウハウの強度 (真似されにくさ)", "対象外"]) {
     assert.ok(forecast.system.includes(head), `予測 prompt に ${head}`);
   }
@@ -111,6 +114,9 @@ const mainUtterances: FlowUtteranceRecord[] = [
   assert.ok(twice.includes("P2") && !twice.includes("P1"), "新しい内容に置き換わる");
   assert.equal(stripForesight(twice), "# 議題\nX\n\n# 結論\nY", "節を外すと元に戻る");
   assert.ok(appendForesightMarkdown("", { proposal: "P", forecast: "" }).startsWith("# 未来予測"), "空本文でも付く");
+  assert.ok(once.includes("# 未来予測アドバイザリー (参考)") && once.includes("結論とは別の参考"), "参考扱いを明記");
+  const legacy = "# 結論\nY\n\n# 未来予測\n\n## 破壊的な一手の提案\n旧";
+  assert.equal(stripForesight(legacy), "# 結論\nY", "初版の見出しの節も外す");
 
   const long = ["a".repeat(1000), "b".repeat(1000), "c".repeat(4000)].join("\n");
   const chunks = splitForPost(long);
@@ -231,7 +237,13 @@ function makeLlm(opts: { failProposal?: boolean; failCampOnce?: boolean } = {}) 
     drivers: { discussion: async () => ({ ...fakeResult, utterances: [...fakeResult.utterances] }) },
   };
 
-  const on = await dispatchFlow({ theme: "t", tags: [], flow: "議論" }, deps);
+  const untagged = await dispatchFlow({ theme: "t", tags: ["開発"], flow: "議論" }, deps);
+  if (untagged.kind === "discussion") {
+    assert.equal(untagged.result.foresight, undefined, "未来予測タグが無ければ付けない (オプショナル)");
+    assert.equal(notified.length, 0, "タグが無ければ発話しない");
+  }
+
+  const on = await dispatchFlow({ theme: "t", tags: ["未来予測"], flow: "議論" }, deps);
   assert.equal(on.kind, "discussion");
   if (on.kind === "discussion") {
     assert.ok(on.result.foresight?.forecast.includes("【3年後】"), "結果に予測が付く");
@@ -243,9 +255,9 @@ function makeLlm(opts: { failProposal?: boolean; failCampOnce?: boolean } = {}) 
   process.env.DISCUTERE_FLOW_FORESIGHT_ENABLED = "false";
   _resetConfig();
   notified.length = 0;
-  const off = await dispatchFlow({ theme: "t", tags: [], flow: "議論" }, deps);
+  const off = await dispatchFlow({ theme: "t", tags: ["未来予測"], flow: "議論" }, deps);
   if (off.kind === "discussion") {
-    assert.equal(off.result.foresight, undefined, "無効なら付けない");
+    assert.equal(off.result.foresight, undefined, "機能が無効ならタグがあっても付けない");
     assert.equal(notified.length, 0, "無効なら発話しない");
   }
   delete process.env.DISCUTERE_FLOW_FORESIGHT_ENABLED;

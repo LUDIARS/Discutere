@@ -21,7 +21,7 @@ export interface ForumTagMapping {
   flowTagNames?: string[];
 }
 
-const DEFAULT_FLOW_TAG_NAMES: FlowTag[] = ["機密", "内部", "運用", "開発"];
+const DEFAULT_FLOW_TAG_NAMES: FlowTag[] = ["機密", "内部", "運用", "開発", "未来予測"];
 
 export interface ParsedForumEntry {
   /** 解決した議論タイプ。タグから判定できなければ null (= 受理しない)。 */

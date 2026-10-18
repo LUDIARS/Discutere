@@ -133,7 +133,8 @@ bot 名義で締める (収束時 `finalizeForumPost` で lock+archive+まとめ
 - **議論タイプ (必須) は適用タグから取得**: `議論`/`改善`/`学習`/`壁打ち` のいずれかを `parseFlowKind`
   で解決して `dispatchFlow` の FlowKind にする。**タグが無い投稿には議論タイプ選択メニュー
   (StringSelectMenu `flow-pick:<threadId>`) をスレッドに出す**。選択でフローを起動する。
-- **観点タグ (任意・複数)**: `機密`/`内部`/`運用`/`開発` (= `FlowTag`)。外部収集可否・ペーパー補足を決める。
+- **観点タグ (任意・複数)**: `機密`/`内部`/`運用`/`開発`/`未来予測` (= `FlowTag`)。外部収集可否・ペーパー補足を決める
+  (`未来予測` は結論後の未来予測アドバイザリーを付ける)。
 - **定義済みフォーラムタグの自動用意**: ClientReady で議論フォーラム (`discord.forum.discussionForumName`,
   既定「議論」) を ensure し、上記 8 タグ (議論タイプ 4 + 観点 4) を `availableTags` に補充する
   (無ければフォーラム自体を作成、`forum-flow-tags.ensureDiscussionForum`)。Manage Channels 権限が要る。
@@ -326,12 +327,14 @@ bot 名義で締める (収束時 `finalizeForumPost` で lock+archive+まとめ
   ペーパー・情報ゲート・議論のすべてに渡す (スレッドごとの `userVoiceLookups`)。設定 `flow.userVoices`、
   Voluptas の接続先は `DISCUTERE_VOLUPTAS_BASE_URL` > config > Excubitor が配る `VOLUPTAS_URL` (旧綴り `VOLPUTAS_URL` も読む) の順 (どれも無ければ Voluptas からは集めない)。
 
-- **未来予測フェーズ (2026-10-18, `spec/feature/flow/foresight.md`)**: 議論/改善の結論の後に、イノベーション理論
+- **未来予測アドバイザリー (2026-10-18, `spec/feature/flow/foresight.md`)**: **観点タグ「未来予測」を付けた議論だけ**で
+  走る結論を変えない参考 (オプショナル)。議論/改善の結論の後に、イノベーション理論
   (破壊的イノベーション / プロダクトライフサイクル / 普及理論) で現行ライフサイクルを破壊可能な一手 + 起きること +
   リスクを提案し、本議論の話者を改革派 (賛同=賛成派) / 保守派 (否定=反対派) に分けて議論させ、最後に 3/5/10 年後を
   予測する (ビジネススキームなら利益率の高さ・確度・ノウハウの強度も)。`dispatchFlow` の後段
   (`src/flow/foresight/after-flow.ts`) なので rounds / dialectic どちらのエンジンにも付く。発話は `flow_utterance`、
-  提案と予測はペーパー末尾の「# 未来予測」節。設定 `flow.foresight` (既定 ON、turns 6)。
+  提案と予測はペーパー末尾の「# 未来予測アドバイザリー (参考)」節。設定 `flow.foresight` (`enabled` は機能ごとの
+  停止スイッチ・既定 true、turns 6)。Discord の「✅ 結論」通知は最後 (未来予測の後) のまま。
 
 - **ペーパーの使い回し (2026-10-13, `spec/feature/flow/paper-reuse.md`)**: 既存ペーパーを議論番号で指定すると
   (Discord はスレッド名/starter の「ペーパー#12」、Web は開始フォームの「使い回すペーパー番号」)、メカニクス・ゲーム内容・

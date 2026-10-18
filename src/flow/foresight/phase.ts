@@ -1,7 +1,6 @@
 /**
- * 未来予測フェーズ (spec/feature/flow/foresight.md) の進行。
- *
- * 本議論 (議論 / 改善、rounds / dialectic どちらのエンジンでも) の結論の後に、
+ * 未来予測アドバイザリー (spec/feature/flow/foresight.md) の進行。
+ * 結論を変えない参考として、本議論 (議論 / 改善、rounds / dialectic どちらのエンジンでも) の結論の後に、
  *   [F1] 進行役が破壊可能な一手 + 起きること + リスクを提案
  *   [F2] 改革派 (賛同) と 保守派 (否定) が交互に論じる
  *   [F3] 進行役が 3 / 5 / 10 年後を予測し、ビジネススキームなら利益率・確度・ノウハウ強度を分析
@@ -147,7 +146,7 @@ export async function runForesightPhase(args: ForesightPhaseArgs): Promise<Fores
     return { proposal: "", forecast: "", utterances: records };
   }
   const proposal = proposalRes.text;
-  await post(cast.facilitator, "neutral", `🔮 未来予測: 破壊的な一手の提案\n${proposal}`, false);
+  await post(cast.facilitator, "neutral", `🔮 未来予測アドバイザリー (参考): 破壊的な一手の提案\n${proposal}`, false);
 
   // ── [F2] 改革派 / 保守派の議論 ──
   const lines: ForesightLine[] = [];
@@ -176,7 +175,7 @@ export async function runForesightPhase(args: ForesightPhaseArgs): Promise<Fores
   let forecast = "";
   if (forecastRes.ok && forecastRes.text) {
     forecast = forecastRes.text;
-    await post(cast.facilitator, "neutral", `🔭 未来予測: 3 / 5 / 10 年後\n${forecast}`, false);
+    await post(cast.facilitator, "neutral", `🔭 未来予測アドバイザリー (参考): 3 / 5 / 10 年後\n${forecast}`, false);
   } else {
     const reason = forecastRes.ok ? "空応答" : forecastRes.error;
     warn(`未来予測: 予測の生成に失敗 (${reason})`);

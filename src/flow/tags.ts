@@ -6,7 +6,15 @@
  * Discord フォーラムタグとは別軸。
  */
 
-export type FlowTag = "機密" | "内部" | "運用" | "開発" | (string & {});
+export type FlowTag = "機密" | "内部" | "運用" | "開発" | "未来予測" | (string & {});
+
+/** 未来予測アドバイザリー (spec/feature/flow/foresight.md) を求める観点タグ。付けた議論だけで走る。 */
+export const FORESIGHT_TAG = "未来予測";
+
+/** 未来予測アドバイザリーを求める議論か。 */
+export function wantsForesight(tags: readonly FlowTag[]): boolean {
+  return tags.includes(FORESIGHT_TAG);
+}
 
 /** 収集禁止タグ群 */
 const COLLECTION_DENY = new Set<string>(["機密", "内部"]);

@@ -90,7 +90,7 @@
       "enabled": false,
       "model": ""
     },
-    "$comment_foresight": "foresight: 議論/改善の結論の後に未来予測フェーズを続ける (spec/feature/flow/foresight.md)。イノベーション理論で破壊的な一手を提案 → 改革派/保守派が turns 回議論 → 3/5/10 年後を予測 (ビジネススキームなら利益率/確度/ノウハウ強度)。enabled=true(既定)。model は空=既定。LLM コストが議論ごとに turns+2 回増える。",
+    "$comment_foresight": "foresight: 観点タグ「未来予測」を付けた議論/改善だけで、結論の後に未来予測アドバイザリー (結論を変えない参考) を続ける (spec/feature/flow/foresight.md)。イノベーション理論で破壊的な一手を提案 → 改革派/保守派が turns 回議論 → 3/5/10 年後を予測 (ビジネススキームなら利益率/確度/ノウハウ強度)。enabled=false でタグがあっても走らない (既定 true)。model は空=既定。LLM コストはタグ付きの議論ごとに turns+2 回増える。",
     "foresight": {
       "enabled": true,
       "turns": 6,
