@@ -326,6 +326,13 @@ bot 名義で締める (収束時 `finalizeForumPost` で lock+archive+まとめ
   ペーパー・情報ゲート・議論のすべてに渡す (スレッドごとの `userVoiceLookups`)。設定 `flow.userVoices`、
   Voluptas の接続先は `DISCUTERE_VOLUPTAS_BASE_URL` > config > Excubitor が配る `VOLUPTAS_URL` (旧綴り `VOLPUTAS_URL` も読む) の順 (どれも無ければ Voluptas からは集めない)。
 
+- **未来予測フェーズ (2026-10-18, `spec/feature/flow/foresight.md`)**: 議論/改善の結論の後に、イノベーション理論
+  (破壊的イノベーション / プロダクトライフサイクル / 普及理論) で現行ライフサイクルを破壊可能な一手 + 起きること +
+  リスクを提案し、本議論の話者を改革派 (賛同=賛成派) / 保守派 (否定=反対派) に分けて議論させ、最後に 3/5/10 年後を
+  予測する (ビジネススキームなら利益率の高さ・確度・ノウハウの強度も)。`dispatchFlow` の後段
+  (`src/flow/foresight/after-flow.ts`) なので rounds / dialectic どちらのエンジンにも付く。発話は `flow_utterance`、
+  提案と予測はペーパー末尾の「# 未来予測」節。設定 `flow.foresight` (既定 ON、turns 6)。
+
 - **ペーパーの使い回し (2026-10-13, `spec/feature/flow/paper-reuse.md`)**: 既存ペーパーを議論番号で指定すると
   (Discord はスレッド名/starter の「ペーパー#12」、Web は開始フォームの「使い回すペーパー番号」)、メカニクス・ゲーム内容・
   保存した声を新しいペーパーへ引き継ぎ、声は集め直さない (ユーザーの声の収集・情報ゲートを省く)。声は草案作成時と

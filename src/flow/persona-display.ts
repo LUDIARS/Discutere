@@ -26,6 +26,10 @@ export function stanceLabel(stance: FlowStance): string {
       return "意見屋";
     case "neutral":
       return "進行役";
+    case "reform":
+      return "改革派";
+    case "conservative":
+      return "保守派";
   }
 }
 

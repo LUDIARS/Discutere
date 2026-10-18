@@ -135,6 +135,8 @@ export interface FlowDirectorResult {
   rounds: number;
   conclusion: string;
   concluded: boolean;
+  /** 未来予測フェーズの提案と予測 (foresight/after-flow が付ける。行わなかった時は無し)。 */
+  foresight?: { proposal: string; forecast: string };
 }
 
 /**

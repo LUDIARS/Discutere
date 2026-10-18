@@ -253,6 +253,18 @@ export interface DiscutereConfig {
       model: string;
     };
     /**
+     * 未来予測フェーズ (spec/feature/flow/foresight.md)。議論/改善の結論の後に、イノベーション理論で
+     * 破壊的な一手を提案 → 改革派/保守派が議論 → 3/5/10 年後を予測 (+ビジネス分析) する。
+     * 既定 true。LLM コスト増 = 提案 1 + 議論 turns + 予測 1 回/議論。
+     */
+    foresight: {
+      enabled: boolean;
+      /** 改革派 / 保守派の発言回数 (既定 6、1..20)。 */
+      turns: number;
+      /** 使うモデル ("" なら LLM の既定モデル)。 */
+      model: string;
+    };
+    /**
      * Anatomia 連携 (議論前のゲーム情報供給)。Anatomia がソースコード解析から抽出した
      * 対象リポのドメイン構造を、ディスカッションペーパーの「事前情報」(メカニクス) として
      * 取り込む。既定 false (opt-in)。Web `/flow` の Anatomia 欄で議論ごとに対象を指定する。
@@ -1018,6 +1030,14 @@ export function loadConfig(): DiscutereConfig {
           false
         ),
         model: pick(process.env.DISCUTERE_FLOW_PAPER_REFINE_MODEL, file.flow?.paperRefine?.model, ""),
+      },
+      foresight: {
+        enabled: pickBool(process.env.DISCUTERE_FLOW_FORESIGHT_ENABLED, file.flow?.foresight?.enabled, true),
+        turns: Math.max(
+          1,
+          Math.min(20, Math.floor(pickNum(process.env.DISCUTERE_FLOW_FORESIGHT_TURNS, file.flow?.foresight?.turns, 6)))
+        ),
+        model: pick(process.env.DISCUTERE_FLOW_FORESIGHT_MODEL, file.flow?.foresight?.model, ""),
       },
       anatomia: {
         enabled: pickBool(process.env.DISCUTERE_ANATOMIA_ENABLED, file.flow?.anatomia?.enabled, false),

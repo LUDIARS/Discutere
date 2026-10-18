@@ -185,6 +185,10 @@ export function stanceLine(stance: FlowStance): string {
       return "この議論でのあなたの立場は【反対寄り】。健全な反論・反例・見落とされた弱点を投げる。";
     case "opinion":
       return "あなたは意見役。ユーザの声を踏まえつつ自分の角度で意見を述べる。";
+    case "reform":
+      return "この議論でのあなたの立場は【改革派 (賛同)】。破壊的な一手を支持し、実行で良く変わることを擁護する。";
+    case "conservative":
+      return "この議論でのあなたの立場は【保守派 (否定)】。現行路線を守る理由と、破壊的な一手が失敗する筋書きを示す。";
   }
 }
 

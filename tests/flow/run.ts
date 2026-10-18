@@ -58,6 +58,7 @@ await import("./anatomia-refine.test.js");
 await import("./anatomia-client.test.js");
 await import("./argument-graph.test.js");
 await import("./turn-prompt.test.js");
+await import("./foresight.test.js");
 await import("./rule-check.test.js");
 await import("./goal.test.js");
 await import("./outcome.test.js");

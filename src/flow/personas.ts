@@ -11,7 +11,8 @@
 import { randomUUID } from "node:crypto";
 
 export type FlowRole = "facilitator" | "debater" | "opinion";
-export type FlowStance = "pro" | "con" | "neutral" | "opinion";
+/** reform / conservative は未来予測フェーズ (foresight/) の陣営。キャストの固定立場には使わない。 */
+export type FlowStance = "pro" | "con" | "neutral" | "opinion" | "reform" | "conservative";
 export type Rng = () => number;
 
 /**
