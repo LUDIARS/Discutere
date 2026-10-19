@@ -18,12 +18,14 @@
       "argumentDepth": 4,
       "rebutTurns": 4,
       "staleTurns": 6,
-      "judgeModel": "claude-fable-5-1",
+      "judgeModel": "claude-sonnet-5-5",
+      "finalJudgeModel": "claude-fable-5-1",
+      "$comment_finalJudgeModel": "結論候補の評価・批准 (elevation-gate / ratify) は finalJudgeModel。通常の前提ルール・立場・型分類・事実照会は judgeModel。finalJudgeModel の省略・空文字は judgeModel と同じ。env DISCUTERE_FLOW_DIALECTIC_FINAL_JUDGE_MODEL。",
       "ruleCheck": true
     },
     "$comment_roster": "roster: モデル編成 (spec/feature/flow/model-roster.md)。値は model spec `<model>@<effort>`。facilitator=進行役 (止揚の生成にも使う)、discussants=議論者へ順に割り当て (人数 = 要素数、personaCount より優先)。gpt-* は Codex CLI (codex exec)、claude-* は Claude 経路。env DISCUTERE_FLOW_ROSTER_FACILITATOR / _DISCUSSANTS (カンマ区切り)。",
     "roster": {
-      "facilitator": "claude-fable-5-1",
+      "facilitator": "claude-opus-5-5",
       "discussants": [
         "claude-opus-5@xhigh",
         "claude-opus-5@medium",

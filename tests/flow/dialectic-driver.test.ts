@@ -24,6 +24,7 @@ process.env.DISCUTERE_FLOW_VOTER_COUNT = "3";
 process.env.DISCUTERE_FLOW_ROSTER_FACILITATOR = "gpt-facilitator@high";
 process.env.DISCUTERE_FLOW_ROSTER_DISCUSSANTS = "claude-pro@high,gpt-con@medium,claude-opinion@low";
 process.env.DISCUTERE_FLOW_DIALECTIC_JUDGE_MODEL = "claude-judge@low";
+process.env.DISCUTERE_FLOW_DIALECTIC_FINAL_JUDGE_MODEL = "claude-final-judge@high";
 
 const { _resetFlowDb } = await import("../../src/flow/db/connection.js");
 const { _resetConfig } = await import("../../src/config.js");
@@ -203,11 +204,16 @@ const db = () => new Database(DB_PATH);
     "論点分解・進行文・止揚生成は roster.facilitator を使う"
   );
   assert.ok(
-    ["tension-classify", "elevation-gate", "ratify"].every((route) =>
+    ["tension-classify"].every((route) =>
       (llm.models[route] ?? []).every((model) => model === "claude-judge@low")
     ),
-    "分類・折衷ゲート・批准は judgeModel を使う"
+    "分類は通常の judgeModel を使う"
   );
+  for (const route of ["elevation-gate", "ratify"]) {
+    assert.ok((llm.models[route]?.length ?? 0) > 0, `${route} が実行される`);
+    assert.ok(llm.models[route].every((model) => model === "claude-final-judge@high"),
+      `${route} は finalJudgeModel を使う`);
+  }
   assert.equal(result.sessionId, "dlx-basic");
   assert.ok(result.concluded, "結論が concluded=true");
   assert.ok(result.conclusion.startsWith("【収束】"), "結論が【収束】形式");

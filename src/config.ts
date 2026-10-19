@@ -90,11 +90,14 @@ export interface DiscutereConfig {
       /** 新規 claim 枯渇判定の窓 K (直近 K ターン新 claim なしで収束シグナル (c))。既定 6。 */
       staleTurns: number;
       /**
-       * 判定・批准 (tension-classify / fact-resolve / elevation-gate / ratify) に使う小モデル。
+       * 通常判定 (前提ルール / 立場 / tension-classify / fact-resolve) に使う小モデル。
+       * finalJudgeModel 未設定時は結論候補の評価・批准にも使う。
        * 進行文と生成 (position/utterance/synthesize) は各担当ペルソナのモデル。
        * 既定 claude-haiku-4-5-20251001。
        */
       judgeModel: string;
+      /** 結論候補の評価・批准専用。空なら judgeModel を使い既存設定と互換にする。 */
+      finalJudgeModel?: string;
       /**
        * 前提ルール判定 (dialectic.md §2.5)。true なら Position への反論ごとに judgeModel で
        * 範囲外・すり替え・中身に触れない却下・論点ずらしを判定し、違反は question に格下げする。
@@ -874,6 +877,11 @@ export function loadConfig(): DiscutereConfig {
           process.env.DISCUTERE_FLOW_DIALECTIC_RULE_CHECK,
           file.flow?.dialectic?.ruleCheck,
           true
+        ),
+        finalJudgeModel: pick(
+          process.env.DISCUTERE_FLOW_DIALECTIC_FINAL_JUDGE_MODEL,
+          file.flow?.dialectic?.finalJudgeModel,
+          ""
         ),
       },
       personaSetupModel: pick(

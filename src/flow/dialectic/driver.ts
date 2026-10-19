@@ -122,6 +122,7 @@ export async function runDialecticFlow(
   const sessionId = options.sessionId ?? randomUUID();
   const isLocal = cfg.llm.backend === "local";
   const judgeModel = cfg.flow.dialectic.judgeModel || undefined;
+  const finalJudgeModel = cfg.flow.dialectic.finalJudgeModel || judgeModel;
   const voiceCache = createVoiceCache(listExternalVoices);
 
   // ── ペーパー初期化 (既存 setupFlowPaper 流用: investigate 省略/増補/persistPaper 込み) ──
@@ -451,9 +452,9 @@ export async function runDialecticFlow(
           genLlm: withCostLog(llm, { flow, sessionId, round, location: "synthesize" }),
           gateLlm: withCostLog(llm, { flow, sessionId, round, location: "elevation-gate" }),
           ratifyLlm: withCostLog(llm, { flow, sessionId, round, location: "ratify" }),
-          // 止揚の生成は進行役のモデル (編成表 facilitator)。判定/批准は judgeModel。
+          // 生成は進行役。結論候補の評価・批准は頻繁な通常判定と分離する。
           mainModel: facilitator.model,
-          judgeModel,
+          judgeModel: finalJudgeModel,
           warn,
         });
         syntheses.push(outcome.record);
