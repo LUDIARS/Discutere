@@ -253,6 +253,7 @@ export const FLOW_HTML = `<!doctype html>
       <label><input type="checkbox" name="tag" value="運用" /> 運用</label>
       <label><input type="checkbox" name="tag" value="開発" /> 開発</label>
       <label title="結論とは別に、破壊的な一手・改革派/保守派の議論・3/5/10 年後の予測を参考として付けます"><input type="checkbox" name="tag" value="未来予測" /> 未来予測 (アドバイザリー)</label>
+      <label title="議題に「代理: 論者#xxxxxx, 論者#yyyyyy」を書くと、公開レビューから作った AI の代理 2 人で議論します"><input type="checkbox" name="tag" value="代理" /> 代理議論</label>
     </fieldset>
     <fieldset class="tags">
       <legend>ペーパーの使い回し (任意)</legend>
@@ -371,6 +372,7 @@ export const FLOW_HTML = `<!doctype html>
         <label><input data-review-tag type="checkbox" value="運用" /> 運用</label>
         <label><input data-review-tag type="checkbox" value="開発" /> 開発</label>
         <label title="結論とは別に、破壊的な一手・改革派/保守派の議論・3/5/10 年後の予測を参考として付けます"><input data-review-tag type="checkbox" value="未来予測" /> 未来予測 (アドバイザリー)</label>
+        <label title="議題に「代理: 論者#xxxxxx, 論者#yyyyyy」を書くと、公開レビューから作った AI の代理 2 人で議論します"><input data-review-tag type="checkbox" value="代理" /> 代理議論</label>
       </div>
       <div class="settings-row">
         <label>ラウンド数 <input id="rvRounds" type="number" min="1" max="10" placeholder="既定" /></label>

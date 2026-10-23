@@ -272,6 +272,22 @@ export interface DiscutereConfig {
       forecastModel: string;
     };
     /**
+     * 代理議論 (spec/feature/flow/proxy-debate.md)。観点タグ「代理」と議題の「代理: 論者#a, 論者#b」で、
+     * 取り込み済みの人物パック (公開レビュー由来) の 2 人を AI の代理として dialectic エンジンで議論させる。既定 false。
+     */
+    proxy: {
+      /** 有効化。既定 false (タグがあっても代理議論は始めない)。 */
+      enabled: boolean;
+      /** 1 人分の束の予算 (トークン概算)。既定 3500。maxBudgetTokens を超えない。 */
+      budgetTokens: number;
+      /** 束の予算の上限 (統合レビュー U4: 1 話者 × 1 ジャンル 1 万トークン)。既定 10000。 */
+      maxBudgetTokens: number;
+      /** 論点ごとの立場判定のモデル ("" なら flow.dialectic.judgeModel)。 */
+      stanceModel: string;
+      /** 本人らしさの評価 (npm run eval:proxy) に合格した人物だけを代理に出すか。既定 true。 */
+      requireEvalPassed: boolean;
+    };
+    /**
      * Anatomia 連携 (議論前のゲーム情報供給)。Anatomia がソースコード解析から抽出した
      * 対象リポのドメイン構造を、ディスカッションペーパーの「事前情報」(メカニクス) として
      * 取り込む。既定 false (opt-in)。Web `/flow` の Anatomia 欄で議論ごとに対象を指定する。
@@ -1057,6 +1073,26 @@ export function loadConfig(): DiscutereConfig {
           ""
         ),
       },
+      proxy: (() => {
+        const maxBudgetTokens = Math.max(
+          500,
+          Math.min(10000, Math.floor(pickNum(process.env.DISCUTERE_FLOW_PROXY_MAX_BUDGET_TOKENS, file.flow?.proxy?.maxBudgetTokens, 10000)))
+        );
+        return {
+          enabled: pickBool(process.env.DISCUTERE_FLOW_PROXY_ENABLED, file.flow?.proxy?.enabled, false),
+          budgetTokens: Math.max(
+            500,
+            Math.min(maxBudgetTokens, Math.floor(pickNum(process.env.DISCUTERE_FLOW_PROXY_BUDGET_TOKENS, file.flow?.proxy?.budgetTokens, 3500)))
+          ),
+          maxBudgetTokens,
+          stanceModel: pick(process.env.DISCUTERE_FLOW_PROXY_STANCE_MODEL, file.flow?.proxy?.stanceModel, ""),
+          requireEvalPassed: pickBool(
+            process.env.DISCUTERE_FLOW_PROXY_REQUIRE_EVAL_PASSED,
+            file.flow?.proxy?.requireEvalPassed,
+            true
+          ),
+        };
+      })(),
       anatomia: {
         enabled: pickBool(process.env.DISCUTERE_ANATOMIA_ENABLED, file.flow?.anatomia?.enabled, false),
         binPath: pick(process.env.DISCUTERE_ANATOMIA_BIN, file.flow?.anatomia?.binPath, ""),

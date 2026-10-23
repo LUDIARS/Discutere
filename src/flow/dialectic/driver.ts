@@ -27,7 +27,7 @@ import {
 } from "../director.js";
 import { personaStance, rosterPersonaCount, type FlowPersona, type Rng } from "../personas.js";
 import { buildFlowCast } from "../persona-cast.js";
-import { setupSessionPersonas } from "../persona-setup.js";
+import { persistSessionPersonas, setupSessionPersonas } from "../persona-setup.js";
 import { setupFlowPaper } from "../flow-setup.js";
 import { createVoiceCache } from "../voice-cache.js";
 import { updatePaperBody, type RoundSummary } from "../discussion-paper.js";
@@ -60,6 +60,9 @@ import { detectRefutation } from "./goal.js";
 import { noConclusionReason, renderOutcomeLine } from "./outcome.js";
 import { assessConvergence } from "./convergence.js";
 import { concludeDialectic, settlementToRoundSummary, type IssueSettlement } from "./conclusion.js";
+import { assignIssueSides, judgeProxyStance, type ProxyStance } from "../proxy/stance.js";
+import { attributePositionGrounds } from "../proxy/position-attribution.js";
+import type { ClaimKind } from "../proxy/attribution.js";
 
 function defaultRng(): number {
   return Math.random();
@@ -143,28 +146,40 @@ export async function runDialecticFlow(
   const paperSystem = paper.bodyMd ?? "";
 
   // ── キャスト (stance セッション固定 + 価値軸/核主張 + flow_session_persona 永続) ──
+  // 代理モード: 進行役 1 人 + 代理 2 人。代理には価値軸/核主張を生成しない (本人の発言に無い主張を作らない)。
+  const proxyParticipants = options.proxyParticipants ?? [];
+  const proxyMode = proxyParticipants.length > 0;
+  if (proxyMode && proxyParticipants.length !== 2) {
+    throw new Error(`代理議論の参加者は 2 人です (指定 ${proxyParticipants.length} 人)`);
+  }
   const defaultModel = cfg.llm.model ?? "claude-haiku-4-5-20251001";
   const seedCast = buildFlowCast({
-    count: rosterPersonaCount(cfg.flow.personaCount, cfg.flow.roster),
+    count: proxyMode ? 1 : rosterPersonaCount(cfg.flow.personaCount, cfg.flow.roster),
     defaultModel,
     isLocal,
     rng: rng as Rng,
-    personaIds: options.personaIds,
+    personaIds: proxyMode ? undefined : options.personaIds,
     roster: cfg.flow.roster,
     warn,
   });
-  const enriched = await setupSessionPersonas({
+  const setup = await setupSessionPersonas({
     theme,
     sessionId,
-    personas: seedCast,
+    personas: proxyMode ? [seedCast[0]] : seedCast,
     llm,
     flow,
     model: cfg.flow.personaSetupModel || undefined,
     warn,
   });
-  const { pro, con, cast } = ensureDebaters(enriched, warn);
+  if (proxyMode) persistSessionPersonas(sessionId, proxyParticipants);
+  const enriched = proxyMode ? [setup[0], ...proxyParticipants] : setup;
+  const initial = proxyMode
+    ? { pro: enriched[1], con: enriched[2], cast: enriched }
+    : ensureDebaters(enriched, warn);
+  let { pro, con } = initial;
+  const cast = initial.cast;
   const facilitator = cast.find((p) => p.role === "facilitator") ?? cast[0];
-  const speakers = cast.filter((p) => p.role !== "facilitator");
+  let speakers = cast.filter((p) => p.role !== "facilitator");
   const personaNames = new Map(cast.map((p) => [p.id, p.name]));
   log(
     `ペルソナ ${cast.length} 人: ${cast.map((p) => `${p.name}(${p.role}/${p.stance})`).join(", ")} / engine=dialectic`
@@ -199,6 +214,8 @@ export async function runDialecticFlow(
     act?: string;
     targetId?: string;
     isError?: boolean;
+    claimKind?: ClaimKind;
+    evidenceIds?: string[];
   }): FlowUtteranceRecord => ({
     id: randomUUID(),
     sessionId,
@@ -214,6 +231,8 @@ export async function runDialecticFlow(
     possessionName: args.persona.possession?.label,
     ...(args.act ? { act: args.act } : {}),
     ...(args.targetId ? { targetId: args.targetId } : {}),
+    ...(args.claimKind ? { claimKind: args.claimKind } : {}),
+    ...(args.evidenceIds && args.evidenceIds.length > 0 ? { evidenceIds: args.evidenceIds } : {}),
   });
 
   const facilitatorLlm = withCostLog(llm, { flow, sessionId, role: "facilitator", persona: facilitator.name, location: "facilitator" });
@@ -253,12 +272,59 @@ export async function runDialecticFlow(
     insertIssue({ sessionId, title, ordinal: i + 1, source: issueSource, status: "open" })
   );
 
+  // 代理モード: 最初に「論者は AI の代理で、本人の発言・同意ではない」と伝える (どの論点から始まっても必ず出す)。
+  if (proxyMode) {
+    const notice =
+      `この議論の論者 (${proxyParticipants.map((p) => p.name).join("・")}) は、公開レビューの発言から作った AI の代理です。` +
+      "本人の発言・同意ではありません。本人の発言に基づく発言には [E番号]、推測には（推測）を付けます。";
+    await commit(makeRecord({ persona: facilitator, round: 1, turn: 0, text: notice }));
+  }
+
   // ── issue ループ ([1]〜[5] は issue ごとに独立に回る) ─────────────────────
   let convergedEarly = false;
   for (const issue of issues) {
     if (convergedEarly) break; // 収束後の issue は open のまま結論に「未討議」で残る
     const round = issue.ordinal;
     log(`論点 ${round}/${issues.length}: ${issue.title}`);
+
+    // 代理モード: 論点ごとに本人のデータから賛否を決める。対立しなければ反対役を作らずに結論なし。
+    if (proxyMode) {
+      const proxies = [enriched[1], enriched[2]];
+      const stanceLlm = withCostLog(llm, { flow, sessionId, round, location: "proxy-stance" });
+      const stances: ProxyStance[] = [];
+      for (const p of proxies) {
+        stances.push(
+          await judgeProxyStance({
+            issueTitle: issue.title,
+            bundleText: p.proxy?.bundleText ?? "",
+            llm: stanceLlm,
+            model: cfg.flow.proxy.stanceModel || judgeModel,
+            warn,
+          })
+        );
+      }
+      const sides = assignIssueSides(stances, proxies.map((p) => p.name));
+      log(`論点 ${round}: 代理の立場 ${proxies.map((p, i) => `${p.name}=${stances[i]}`).join(", ")}`);
+      if (!sides.opposed) {
+        const text = renderOutcomeLine("none", sides.reason);
+        await commit(makeRecord({ persona: facilitator, round, turn: 0, text }));
+        updateIssueStatus(issue.id, "concluded");
+        issue.status = "concluded";
+        const settlement: IssueSettlement = { issue, positions: [], tensions: [], syntheses: [], refutation: null, undecided: sides.reason };
+        settlements.push(settlement);
+        voteResults.push({ kind: "votes", tally: {}, winner: null, winnerShare: null });
+        paper.rounds.push(settlementToRoundSummary(settlement, personaNames, null));
+        try {
+          updatePaperBody(paperId, renderProgressMarkdown(paper.bodyMd ?? "", paper.rounds));
+        } catch (e) {
+          warn(`ペーパー更新失敗 (議論は続行): ${(e as Error).message}`);
+        }
+        continue;
+      }
+      pro = { ...proxies[sides.pro], stance: "pro" };
+      con = { ...proxies[sides.con], stance: "con" };
+      speakers = [pro, con];
+    }
 
     // ファシリテーター開幕 (露出文のレンダリングのみ LLM)。
     const openingText = await renderFacilitatorLine({
@@ -313,6 +379,8 @@ export async function runDialecticFlow(
           gp = await generatePosition({ ...positionArgs, feedback: stanceFeedback(stance, gp.claim) });
         }
       }
+      // 代理: 本人の発言と申告した論拠を検査し、通らなければ推測に落とす (定立は捨てない)。
+      gp = attributePositionGrounds(gp, persona, warn);
       const position = insertPosition({
         issueId: issue.id,
         personaId: persona.id,
@@ -340,7 +408,14 @@ export async function runDialecticFlow(
         if (say !== o.gp.text) {
           turn += 1;
           // 論拠は自分の主張の下に並べるだけで、誰かへの応答ではない (宛先を付けない)。
-          const record = makeRecord({ persona: o.persona, round, turn, text: say, act: "claim" });
+          const record = makeRecord({
+            persona: o.persona,
+            round,
+            turn,
+            text: say,
+            act: "claim",
+            ...(ground.claimKind ? { claimKind: ground.claimKind, evidenceIds: ground.evidenceIds ?? [] } : {}),
+          });
           await commit(record);
           graph.apply({ id: record.id, personaId: o.persona.id, act: "claim", targetId: null, turn: ++globalTurn });
           utteranceId = record.id;

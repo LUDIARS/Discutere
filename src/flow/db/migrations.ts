@@ -562,6 +562,34 @@ MIGRATIONS.push({
   )`],
 });
 
+// 代理議論 (spec/feature/flow/proxy-debate.md): 人物パック (1 話者 × 1 ジャンル) と、
+// 代理の発話の帰属区分 (引用 / 根拠付き言い換え / 推測 / 不明) と根拠 id。
+// 既存の flow_persona とは分ける (通常議論の憑依候補に代理用の人物像を混ぜない)。
+MIGRATIONS.push({
+  id: "2026-10-23-proxy-profile",
+  sql: [
+    `CREATE TABLE IF NOT EXISTS flow_proxy_profile (
+      speaker_key TEXT NOT NULL,
+      genre TEXT NOT NULL,
+      label TEXT NOT NULL,
+      profile_version TEXT NOT NULL,
+      content_hash TEXT NOT NULL,
+      pack_json TEXT NOT NULL,
+      confidence TEXT NOT NULL,
+      expires_at INTEGER NOT NULL,
+      revoked INTEGER NOT NULL DEFAULT 0 CHECK(revoked IN (0,1)),
+      eval_status TEXT NOT NULL DEFAULT 'unevaluated' CHECK(eval_status IN ('unevaluated','passed','failed')),
+      eval_json TEXT,
+      imported_at INTEGER NOT NULL,
+      updated_at INTEGER NOT NULL,
+      PRIMARY KEY (speaker_key, genre)
+    )`,
+    `CREATE INDEX IF NOT EXISTS idx_flow_proxy_profile_label ON flow_proxy_profile(label, genre)`,
+    `ALTER TABLE flow_utterance ADD COLUMN claim_kind TEXT`,
+    `ALTER TABLE flow_utterance ADD COLUMN evidence_ids_json TEXT`,
+  ],
+});
+
 function isIgnorableMigrationError(stmt: string, error: unknown): boolean {
   if (!/^\s*ALTER\s+TABLE\s+/i.test(stmt)) return false;
   const message = error instanceof Error ? error.message : String(error);

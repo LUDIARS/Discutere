@@ -59,6 +59,10 @@ export interface FlowUtteranceRecord {
   act?: string;
   /** 応答先 utterance id (act とセット。claim/question は undefined 可)。 */
   targetId?: string;
+  /** 代理議論のみ: 本人の発言との関係 (proxy/attribution.ts で検査済み)。 */
+  claimKind?: string;
+  /** 代理議論のみ: 根拠にした本人の発言 id。 */
+  evidenceIds?: string[];
 }
 
 /**
@@ -116,6 +120,11 @@ export interface FlowDirectorDeps {
    * theme / tags は通常の引数で渡す (= 人間が直した値をそのまま渡す)。
    */
   paperOverride?: PaperOverride;
+  /**
+   * 代理議論 (spec/feature/flow/proxy-debate.md) の参加者 2 人 (proxy/cast.ts が作る)。
+   * 指定すると dialectic エンジンが代理モードで回る (立場は論点ごとに本人のデータから決める)。
+   */
+  proxyParticipants?: FlowPersona[];
 }
 
 /** 都度指定ラウンド/ターン数の暴走ガード上限 (コスト保護)。 */
@@ -205,8 +214,9 @@ export function persistUtterance(u: FlowUtteranceRecord): void {
   const db = getFlowDb();
   db.prepare(
     `INSERT INTO flow_utterance
-       (id, session_id, paper_id, round, turn, persona_id, persona_name, role, stance, text, is_error, possession_name, act, target_id, created_at)
-     VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`
+       (id, session_id, paper_id, round, turn, persona_id, persona_name, role, stance, text, is_error, possession_name, act, target_id,
+        claim_kind, evidence_ids_json, created_at)
+     VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`
   ).run(
     u.id,
     u.sessionId,
@@ -223,6 +233,9 @@ export function persistUtterance(u: FlowUtteranceRecord): void {
     // 会話行為 (respec 05)。rounds エンジンは undefined → NULL (acts は dialectic 専用)。
     u.act ?? null,
     u.targetId ?? null,
+    // 代理議論のみ (それ以外は NULL)。
+    u.claimKind ?? null,
+    u.evidenceIds && u.evidenceIds.length > 0 ? JSON.stringify(u.evidenceIds) : null,
     Date.now()
   );
 }

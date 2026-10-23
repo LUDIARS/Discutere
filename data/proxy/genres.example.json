@@ -1,0 +1,13 @@
+{
+  "specVersion": 1,
+  "games": {
+    "steam-app-1145360": ["action", "roguelike"],
+    "steam-app-646570": ["roguelike", "deckbuilder"],
+    "steam-app-413150": ["simulation", "farming"]
+  },
+  "titles": {
+    "steam-app-1145360": "Hades",
+    "steam-app-646570": "Slay the Spire",
+    "steam-app-413150": "Stardew Valley"
+  }
+}

@@ -43,6 +43,25 @@ export interface FlowPersona {
   coreClaims?: string[];
   /** 憑依しているデータ由来ペルソナ (B)。無ければ通常の生成ペルソナ。 */
   possession?: PersonaPossession;
+  /**
+   * 代理議論 (spec/feature/flow/proxy-debate.md) で演じている人物の束。
+   * あると定立・応酬の prompt に束を載せ、論拠ごとに本人の発言との関係 (claimKind) と根拠 id を申告させる。
+   */
+  proxy?: ProxyPersonaContext;
+}
+
+/** 代理議論の参加者が持つ人物の束 (proxy/bundle.ts が作る)。 */
+export interface ProxyPersonaContext {
+  /** 露出名 (論者#xxxxxx)。 */
+  label: string;
+  speakerKey: string;
+  genre: string;
+  /** prompt に載せる束の本文。 */
+  bundleText: string;
+  /** 束に載った根拠 id (代理が引いてよい id)。 */
+  evidenceIds: string[];
+  /** 根拠 id → 原文 (引用の検査に使う)。 */
+  evidenceTexts: Record<string, string>;
 }
 
 // ── 人格プール (composition.ts と同じプールを流用) ──────────────────────────

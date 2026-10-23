@@ -68,5 +68,6 @@ await import("./dialectic-review-fixes.test.js");
 await import("./dialectic-driver.test.js");
 await import("./impression-bridge.test.js");
 await import("./paper-reuse.test.js");
+await import("./proxy-debate.test.js");
 
 console.log("flow tests: all passed");

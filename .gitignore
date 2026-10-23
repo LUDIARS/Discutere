@@ -11,6 +11,10 @@ data/*
 !data/eval/
 data/eval/*
 !data/eval/retrieval-golden.example.json
+# 代理議論のジャンル辞書: 雛形のみ追跡 (実辞書と形成したパックはローカル)。
+!data/proxy/
+data/proxy/*
+!data/proxy/genres.example.json
 .env
 .env.secrets
 .env.youtube.key

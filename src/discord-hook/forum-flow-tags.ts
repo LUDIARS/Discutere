@@ -32,7 +32,7 @@ import { PROJECT_PREMISES } from "../flow/project-premise.js";
 export const FLOW_KIND_TAG_NAMES = ["議論", "改善"] as const;
 
 /** 機密度+観点 (任意・複数可) のフォーラムタグ名。FlowTag と一致。 */
-export const FLOW_ASPECT_TAG_NAMES = ["機密", "内部", "運用", "開発", "未来予測"] as const;
+export const FLOW_ASPECT_TAG_NAMES = ["機密", "内部", "運用", "開発", "未来予測", "代理"] as const;
 
 /** Di が議論フォーラムに用意する全タグ名。 */
 export const ALL_FLOW_TAG_NAMES: readonly string[] = [

@@ -28,7 +28,11 @@ export type RuleFoul =
   | "straw_man"
   | "dismissal"
   | "topic_shift"
-  | "self_contradiction";
+  | "self_contradiction"
+  /** 代理議論のみ: 本人の発言と申告したのに、束に無い id を引いた / id が無い (proxy/attribution.ts)。 */
+  | "unsupported_attribution"
+  /** 代理議論のみ: 引用と申告した部分が本人の発言の原文に無い。 */
+  | "quote_mismatch";
 
 type CodeFoul = "incomplete" | "unanchored";
 
@@ -48,6 +52,8 @@ export const RULE_FOUL_LABEL: Record<RuleFoul, string> = {
   dismissal: "根拠の中身に触れずに退けている",
   topic_shift: "論点をずらしている",
   self_contradiction: "自分の陣営の主張と逆のこと (相手陣営の主張を支える内容) を述べている",
+  unsupported_attribution: "本人の発言だと言っているのに、根拠にした本人の発言が示されていない",
+  quote_mismatch: "本人の発言の引用だと言っているのに、その言葉が本人の発言に無い",
 };
 
 export type AnchorResult =
@@ -254,6 +260,12 @@ export async function judgeConcession(args: {
 
 /** 違反時に進行役が流す一言 (露出用)。 */
 export function renderFoulNotice(personaName: string, foul: RuleFoul): string {
+  if (foul === "unsupported_attribution" || foul === "quote_mismatch") {
+    return (
+      `${personaName}さんの今の反論は「${RULE_FOUL_LABEL[foul]}」ので、本人の考えとしては数えずに問いとして扱いますね。` +
+      `本人の発言 [E番号] に支えられることだけを本人の考えとして言い、それ以外は推測として言ってください。`
+    );
+  }
   return (
     `${personaName}さんの今の反論は「${RULE_FOUL_LABEL[foul]}」ので、根拠への反論としては数えずに問いとして扱いますね。` +
     `反論のデータと論拠を示し、相手の主張の範囲の中でデータ・論拠・限定のどれが違うのかを突いてもらえると議論が進みます。`

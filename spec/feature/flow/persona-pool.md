@@ -12,6 +12,10 @@ Discutere は匿名 workspace として、外部で形成された人物像を�
 - Voluptas: 認証、アンケート、プレイログ、ペルソナ生成、個人データの管理。
 - Discutere: 匿名ペルソナの取込、公開レビュー話者の仮名化、20D affect 近傍選択、議論への憑依。
 - Lapilli: 両サービスで共有する固定 20D sentiment-core。
+- Histrio: 公開発言由来の人物像 (代理議論の人物パック) の形成と正本 (`spec/feature/flow/proxy-debate.md` §6、2026-10-23)。
+  Di は契約 (`spec/interface/proxy-persona-pack.md`) で受け取って代理議論に使うだけ。Histrio に形成層ができるまでの
+  `npm run proxy:form` は仮置きのスクリプトで、常駐機能にしない。代理用の人物像は `flow_proxy_profile` に分け、
+  この匿名ペルソナプール (憑依候補) には混ぜない。
 
 Discutere に質問票生成、回答保存、回答からのペルソナ生成、ランダム合成、自己プロフィール作成を置かない。
 議論を成立させるための使い捨てキャスト生成 (`src/flow/personas.ts`) は別責務なので維持する。

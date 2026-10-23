@@ -351,6 +351,17 @@ bot 名義で締める (収束時 `finalizeForumPost` で lock+archive+まとめ
   匿名性 (6 項目以外を含む感想は拒否) と形を検査して KG (source=glab) に取り込む。Discutere は Cernere の credential を持たず
   公開鍵で検証するだけ。Voluptas に取りに行けないときは届いていた感想で声を集めたことにする。認証は `persona-bridge/bridge-auth.ts` で共通化。
 
+- **代理議論 (代理戦争AI, 2026-10-23, `spec/feature/flow/proxy-debate.md`)**: 観点タグ「代理」+ 議題の
+  `代理: 論者#a, 論者#b` で、取り込み済みの人物パック (公開レビュー由来、1 話者 × 1 ジャンル、契約
+  `spec/interface/proxy-persona-pack.md`) の 2 人を **AI の代理** として dialectic で議論させる (既定
+  `flow.proxy.enabled=false`)。立場は論点ごとに本人のデータから判定し、対立しない論点は反対役を作らず結論なし。
+  論拠ごとに `claimKind` (引用 / 言い換え / 推測 / 不明) と根拠 `[E番号]` を申告させ、束に無い根拠・原文に無い引用は
+  推測に落とす (定立) / 問いに格下げ (反論)。`flow_utterance.claim_kind` / `evidence_ids_json` に残し、露出に
+  `[E1]` / `（推測）` を付ける。人物像の形成と正本は Histrio (Histrio 実装までは `npm run proxy:form` が仮置き、
+  LLM 不使用・HMAC 仮名 `DISCUTERE_PROXY_SPEAKER_HMAC_KEY`)。取込 `npm run proxy:import`、本人らしさの評価
+  `npm run eval:proxy -- --genre <id> --write` (推薦予測が多数派 +0.15 以上で合格。既定では合格者だけ代理に出る)。
+  `機密`/`内部` タグでは使えない。出典 URL は Di に渡さない。
+
 ## 個人データ
 
 匿名 workspace (`DISCATIER_WORKSPACE` 既定 `knowledge`)。攻略 KG / 議論ノードに編集者名・アカウント名を保存しない (`spec/feature/crawler/DESIGN.md` 準拠)。

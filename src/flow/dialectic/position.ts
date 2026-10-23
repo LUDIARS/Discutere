@@ -13,6 +13,8 @@ import type { FlowPersona } from "../personas.js";
 import { extractJsonObject } from "../effect-predict.js";
 import type { Ground, IssueRecord } from "./store.js";
 import { coerceInferenceKind, PREMISE_RULES_TEXT } from "./premise-rules.js";
+import { coerceClaimKind, coerceEvidenceIds, type ClaimKind } from "../proxy/attribution.js";
+import { proxyGroundFields, proxyPromptLines } from "../proxy/prompt.js";
 
 export interface GeneratedPosition {
   claim: string;
@@ -67,6 +69,7 @@ export function buildPositionPrompt(args: {
     `特徴: ${persona.traits.join(" / ")} / 話し方: ${persona.speechStyle}\n` +
     (persona.valueAxis ? `あなたが重視する価値: ${persona.valueAxis}\n` : "") +
     seed +
+    (persona.proxy ? `\n${proxyPromptLines(persona).join("\n")}` : "") +
     `\n# 論点 ${issue.ordinal}\n${issue.title}\n\n` +
     voices +
     `${PREMISE_RULES_TEXT}\n\n` +
@@ -78,7 +81,7 @@ export function buildPositionPrompt(args: {
     `次の JSON 1 個だけを返してください (前後に説明やコードフェンスを付けない):\n` +
     `{"claim": "<主張 1 文>", "qualifier": "<主張の限定: どのプレイヤー層・どの条件の話か>", ` +
     `"grounds": [{"kind": "<deduction|induction|abduction>", "data": "<データ: 事実・事例・仕様>", ` +
-    `"warrant": "<論拠: データから主張が言える理由>", "say": "<この論拠を Discord に流す口語 1〜2 文>"}], ` +
+    `"warrant": "<論拠: データから主張が言える理由>", "say": "<この論拠を Discord に流す口語 1〜2 文>"${proxyGroundFields(persona)}}], ` +
     `"values": ["<価値前提 (例: 収益 > 体験)>"], "text": "<主張を Discord に流す口語 1〜2 文 (論拠は say で別に流す)>"}\n` +
     `grounds は 1〜3 個 (強い論拠だけに絞る)。data と warrant は混ぜずに分ける。` +
     `text は実在の人間の雑談のような自然な口語で書く。`
@@ -101,7 +104,8 @@ function coerceStringArray(v: unknown, max: number): string[] {
     .slice(0, max);
 }
 
-type ParsedGround = Pick<Ground, "text"> & Partial<Pick<Ground, "kind" | "warrant">> & { say?: string };
+type ParsedGround = Pick<Ground, "text"> &
+  Partial<Pick<Ground, "kind" | "warrant">> & { say?: string; claimKind?: ClaimKind; evidenceIds?: string[] };
 
 /**
  * grounds を正規化する。トゥールミン形式 ({kind, data, warrant}) と旧形式 (文字列) の両方を受ける
@@ -124,7 +128,17 @@ function coerceGrounds(v: unknown, max: number): ParsedGround[] {
     const kind = coerceInferenceKind(o.kind);
     const warrant = typeof o.warrant === "string" && o.warrant.trim() ? o.warrant.trim() : undefined;
     const say = typeof o.say === "string" && o.say.trim() ? o.say.trim() : undefined;
-    out.push({ text: data, ...(kind ? { kind } : {}), ...(warrant ? { warrant } : {}), ...(say ? { say } : {}) });
+    // 代理議論の申告 (無ければ未設定。検査は driver が proxy/attribution.ts で行う)。
+    const claimKind = coerceClaimKind(o.claimKind);
+    const evidenceIds = coerceEvidenceIds(o.evidenceIds);
+    out.push({
+      text: data,
+      ...(kind ? { kind } : {}),
+      ...(warrant ? { warrant } : {}),
+      ...(say ? { say } : {}),
+      ...(claimKind ? { claimKind } : {}),
+      ...(evidenceIds.length > 0 ? { evidenceIds } : {}),
+    });
   }
   return out;
 }
@@ -181,6 +195,8 @@ export async function generatePosition(args: GeneratePositionArgs): Promise<Gene
     state: "unchallenged",
     ...(g.kind ? { kind: g.kind } : {}),
     ...(g.warrant ? { warrant: g.warrant } : {}),
+    ...(g.claimKind ? { claimKind: g.claimKind } : {}),
+    ...(g.evidenceIds ? { evidenceIds: g.evidenceIds } : {}),
   }));
   const qualifier = typeof obj.qualifier === "string" && obj.qualifier.trim() ? obj.qualifier.trim() : null;
   const text = typeof obj.text === "string" && obj.text.trim() ? obj.text.trim() : claim;

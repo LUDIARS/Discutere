@@ -8,6 +8,7 @@
 import { randomUUID } from "node:crypto";
 import { getFlowDb } from "../db/connection.js";
 import type { InferenceKind } from "./premise-rules.js";
+import type { ClaimKind } from "../proxy/attribution.js";
 
 // ── ドメイン型 ────────────────────────────────────────────────────────────────
 
@@ -23,6 +24,10 @@ export interface Ground {
   kind?: InferenceKind;
   /** 論拠 (データから主張への橋渡し)。トゥールミンの warrant。旧行・degrade 時は未設定。 */
   warrant?: string;
+  /** 代理議論のみ: 本人の発言との関係 (proxy/attribution.ts で検査済みの値)。 */
+  claimKind?: ClaimKind;
+  /** 代理議論のみ: 根拠にした本人の発言 id。 */
+  evidenceIds?: string[];
 }
 
 export interface IssueRecord {

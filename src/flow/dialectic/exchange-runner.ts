@@ -19,6 +19,7 @@ import { buildExchangePrompt, parseExchangeResponse } from "./exchange-prompt.js
 import { gateRebut, judgeConcession, renderFoulNotice } from "./rule-check.js";
 import { renderFacilitatorLine, renderNomination } from "./scheduler.js";
 import { updatePositionGrounds, type IssueRecord, type PositionRecord } from "./store.js";
+import { attributionSuffix, checkAttribution, type ClaimKind } from "../proxy/attribution.js";
 import type { UtteranceDigest } from "./turn-prompt.js";
 
 export interface RecordArgs {
@@ -29,6 +30,9 @@ export interface RecordArgs {
   act?: DialogueAct;
   targetId?: string;
   isError?: boolean;
+  /** 代理議論のみ: 検査済みの帰属区分と根拠 id。 */
+  claimKind?: ClaimKind;
+  evidenceIds?: string[];
 }
 
 export interface GroundExchangeArgs {
@@ -188,6 +192,28 @@ export async function runGroundExchange(args: GroundExchangeArgs): Promise<numbe
       continue;
     }
 
+    // 代理議論: 本人の発言と申告した反論は、束の根拠 id と原文で裏付けられていなければ論拠にしない。
+    const attribution =
+      persona.proxy && parsed.act === "rebut"
+        ? checkAttribution({
+            claimKind: parsed.claimKind,
+            evidenceIds: parsed.evidenceIds,
+            data: parsed.data ?? "",
+            scope: persona.proxy,
+          })
+        : null;
+    if (attribution && !attribution.ok) {
+      warn(`論点 ${round} ターン ${turn} (${persona.name}): 帰属の検査に通らない (${attribution.foul}) — question に格下げ`);
+      const record = args.makeRecord({ persona, round, turn, text: parsed.text, act: "question", targetId: node.utteranceId });
+      await args.commit(record);
+      args.applyGraph(record, "question", node.utteranceId);
+      exchange.fail(node.id);
+      await args.commit(
+        args.makeRecord({ persona: args.facilitator, round, turn: ++turn, text: renderFoulNotice(persona.name, attribution.foul) })
+      );
+      continue;
+    }
+
     // 前提ルールのゲート (dialectic.md §2.5): 反論は論拠 1 件 (データ + 論拠) で、突く要素を宣言する。
     const target = gateTarget(node, args.positionBySide);
     const gate =
@@ -210,7 +236,23 @@ export async function runGroundExchange(args: GroundExchangeArgs): Promise<numbe
         : null;
 
     if (gate?.accepted && parsed.data) {
-      const record = args.makeRecord({ persona, round, turn, text: parsed.text, act: "rebut", targetId: node.utteranceId });
+      // 代理の反論は露出文に帰属の印 ([E2] / （推測）) を付け、区分と根拠 id を発話に残す。
+      const proxyMark = attribution?.ok
+        ? {
+            text: `${parsed.text}${attributionSuffix(attribution.claimKind, attribution.evidenceIds)}`,
+            claimKind: attribution.claimKind,
+            evidenceIds: attribution.evidenceIds,
+          }
+        : null;
+      const record = args.makeRecord({
+        persona,
+        round,
+        turn,
+        text: proxyMark?.text ?? parsed.text,
+        act: "rebut",
+        targetId: node.utteranceId,
+        ...(proxyMark ? { claimKind: proxyMark.claimKind, evidenceIds: proxyMark.evidenceIds } : {}),
+      });
       await args.commit(record);
       args.applyGraph(record, "rebut", node.utteranceId);
       exchange.rebut(node.id, {

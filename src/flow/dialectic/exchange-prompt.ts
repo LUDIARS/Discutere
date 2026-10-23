@@ -14,6 +14,8 @@ import { stanceLine } from "../discussion-paper.js";
 import type { ArgumentNode } from "./exchange.js";
 import type { IssueRecord, PositionRecord } from "./store.js";
 import { renderPositionDigest } from "./turn-prompt.js";
+import { coerceClaimKind, coerceEvidenceIds, type ClaimKind } from "../proxy/attribution.js";
+import { proxyGroundFields, proxyPromptLines } from "../proxy/prompt.js";
 import {
   coerceAttackPoint,
   coerceInferenceKind,
@@ -74,6 +76,7 @@ export function buildExchangePrompt(args: ExchangePromptArgs): string {
     ...(persona.valueAxis ? [`あなたが重視する価値: ${persona.valueAxis}`] : []),
     stanceLine(stance),
     "",
+    ...proxyPromptLines(persona),
     PREMISE_RULES_TEXT,
     "",
     `# 論点 ${issue.ordinal}`,
@@ -96,7 +99,7 @@ export function buildExchangePrompt(args: ExchangePromptArgs): string {
       `"kind": "<rebut のとき: deduction | induction | abduction>", ` +
       `"data": "<rebut のとき必須: 反論のデータ (事実・事例・仕様) 1 つ>", ` +
       `"warrant": "<rebut のとき必須: 反論の論拠 (そのデータで相手のどこが崩れるか) 1 つ>", ` +
-      `"text": "<Discord に流す口語 1〜3 文>"}`,
+      `"text": "<Discord に流す口語 1〜3 文>"${proxyGroundFields(persona)}}`,
     `反論は相手の主張の限定の内側で突く。論拠を 2 つ以上並べない。`,
     `根拠にする声は、プレイヤーの声の中から複数を照らし合わせて選ぶ。続けている人の声だけで全体を語らず、` +
       `やめた人・不満のある人の声があればそれも検討する。声が足りなければ、何の材料が足りないかを言う。`,
@@ -112,6 +115,10 @@ export interface ParsedExchangeTurn {
   warrant: string | null;
   text: string;
   degraded: boolean;
+  /** 代理議論のみ: 本人の発言との関係の申告 (未申告は null)。 */
+  claimKind: ClaimKind | null;
+  /** 代理議論のみ: 根拠にした本人の発言 id。 */
+  evidenceIds: string[];
 }
 
 function str(v: unknown): string | null {
@@ -124,7 +131,7 @@ export function parseExchangeResponse(raw: string, warn: (msg: string) => void =
   const text = obj ? str(obj.text) : null;
   if (!obj || !text) {
     warn(`応酬の応答 JSON パース失敗 — question として受理 (degrade): ${raw.trim().slice(0, 60)}`);
-    return { act: "question", attack: null, kind: null, data: null, warrant: null, text: raw.trim(), degraded: true };
+    return { act: "question", attack: null, kind: null, data: null, warrant: null, text: raw.trim(), degraded: true, claimKind: null, evidenceIds: [] };
   }
   const rawAct = str(obj.act)?.toLowerCase();
   const act = rawAct === "concede" ? "concede" : "rebut";
@@ -137,5 +144,7 @@ export function parseExchangeResponse(raw: string, warn: (msg: string) => void =
     warrant: str(obj.warrant),
     text,
     degraded: false,
+    claimKind: coerceClaimKind(obj.claimKind),
+    evidenceIds: coerceEvidenceIds(obj.evidenceIds),
   };
 }

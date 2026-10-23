@@ -23,6 +23,7 @@ import { runWithForesight } from "./foresight/after-flow.js";
 import { runDiscussionFlow, runFlow, type FlowDirectorResult, type FlowUtteranceRecord, type VoteEvent, type PaperOverride } from "./director.js";
 import { runImprovementFlow } from "./improvement.js";
 import { runDialecticDiscussionFlow, runDialecticImprovementFlow } from "./dialectic/driver.js";
+import { resolveProxyRun } from "./proxy/resolve.js";
 import { getConfig } from "../config.js";
 import { runLearningFlow, type LearningCrawlSpec, type LearningFlowResult, type LearningOpinion } from "./learning.js";
 import { SparringSession } from "./sparring.js";
@@ -171,6 +172,22 @@ export async function dispatchFlow(input: DispatchInput, deps: DispatchDeps): Pr
   // 論証状態機械 (runDialecticFlow) に分岐する。既定 "rounds" は従来経路のまま完全無改変。
   // テスト用 drivers 差し替えは engine 設定より優先する (注入の意図を尊重)。
   const engine = getConfig().flow.engine;
+
+  // 代理議論 (観点タグ「代理」): 参加者を解決できたら engine 設定に依らず dialectic の代理モードで回す。
+  // 起動できない理由は ProxyRequestError として呼び出し側へ返す (黙って通常議論にしない)。
+  const proxyRun = kind === "discussion" || kind === "improvement" ? resolveProxyRun(theme, tags) : null;
+  if (proxyRun && (kind === "discussion" || kind === "improvement")) {
+    const proxyDeps = { ...flowDeps, proxyParticipants: proxyRun.participants };
+    const run =
+      kind === "discussion"
+        ? (deps.drivers?.discussion ?? runDialecticDiscussionFlow)
+        : (deps.drivers?.improvement ?? runDialecticImprovementFlow);
+    const result = await runWithForesight(proxyRun.theme, tags, kind, () => run(proxyRun.theme, tags, proxyDeps), {
+      ...deps,
+      listExternalVoices,
+    });
+    return { kind, flow: kind, result };
+  }
 
   switch (kind) {
     case "discussion": {
