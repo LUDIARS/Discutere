@@ -287,15 +287,17 @@ function makePack(keySuffix: string, overrides: Record<string, unknown> = {}): R
   assert.equal(score.accuracy, 0.75);
   assert.equal(score.abstained, 1);
   assert.equal(score.majorityAccuracy, 0.5);
-  const pass = judgeProxyEval({ recommendation: score, discrimination: 0.8, groundedRate: 0.9, misattributionRate: 0 });
-  assert.equal(pass.status, "passed");
-  const allPos = scoreRecommendations([true, true, true], ["yes", "yes", "yes"], { positive: 9, negative: 1 });
-  assert.equal(judgeProxyEval({ recommendation: allPos, discrimination: null, groundedRate: null, misattributionRate: null }).status, "unevaluated", "3 本未満は判定しない");
   const allPos4 = scoreRecommendations([true, true, true, true], ["yes", "yes", "yes", "yes"], { positive: 9, negative: 1 });
-  const v = judgeProxyEval({ recommendation: allPos4, discrimination: null, groundedRate: null, misattributionRate: null });
-  assert.equal(v.status, "failed", "多数派と同じ当たり方では合格しない");
-  const misattr = judgeProxyEval({ recommendation: score, discrimination: null, groundedRate: 0.9, misattributionRate: 0.2 });
+  assert.equal(allPos4.lift, 0, "多数派と同じ当たり方は差 0");
+  const disc = (correct: number, total: number) => ({ total, correct, accuracy: total > 0 ? correct / total : null });
+  const pass = judgeProxyEval({ discrimination: disc(10, 12), recommendation: allPos4, groundedRate: 0.9, misattributionRate: 0 });
+  assert.equal(pass.status, "passed", "推薦予測は参考値で合否に使わない");
+  assert.equal(judgeProxyEval({ discrimination: disc(7, 7), recommendation: null, groundedRate: null, misattributionRate: null }).status, "unevaluated", "伏せた発言 8 件未満は判定しない");
+  const chance = judgeProxyEval({ discrimination: disc(6, 12), recommendation: null, groundedRate: null, misattributionRate: null });
+  assert.equal(chance.status, "failed", "偶然程度の判別では合格しない");
+  const misattr = judgeProxyEval({ discrimination: disc(10, 12), recommendation: null, groundedRate: 0.9, misattributionRate: 0.2 });
   assert.equal(misattr.status, "failed");
+  assert.ok(estimateTokens("a".repeat(100)) < estimateTokens("あ".repeat(100)) / 3, "英字は日本語より軽く見積もる");
   console.log("ok proxy eval verdict");
 }
 

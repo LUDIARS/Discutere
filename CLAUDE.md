@@ -359,7 +359,8 @@ bot 名義で締める (収束時 `finalizeForumPost` で lock+archive+まとめ
   推測に落とす (定立) / 問いに格下げ (反論)。`flow_utterance.claim_kind` / `evidence_ids_json` に残し、露出に
   `[E1]` / `（推測）` を付ける。人物像の形成と正本は Histrio (Histrio 実装までは `npm run proxy:form` が仮置き、
   LLM 不使用・HMAC 仮名 `DISCUTERE_PROXY_SPEAKER_HMAC_KEY`)。取込 `npm run proxy:import`、本人らしさの評価
-  `npm run eval:proxy -- --genre <id> --write` (推薦予測が多数派 +0.15 以上で合格。既定では合格者だけ代理に出る)。
+  `npm run eval:proxy -- --genre <id> --write` (伏せた発言を 2 人のどちらのものか当てる判別が 0.75 以上で合格。推薦予測は
+`--recommend` の参考値で合否に使わない。既定では合格者だけ代理に出る)。
   `機密`/`内部` タグでは使えない。出典 URL は Di に渡さない。
 
 ## 個人データ

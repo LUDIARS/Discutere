@@ -1,9 +1,9 @@
 /**
  * 代理 1 人ぶんの本人らしさの評価を回す (S4)。LLM は注入 (テストはモック)。
  *
- *   - M1 推薦予測: パックの heldOut (伏せたゲーム + 本人の推薦可否) を束だけで当てさせる
- *   - M3 判別: 伏せた発言 (評価専用ファイル) を、本人と相手の束のどちらか当てさせる。
+ *   - M3 判別 (必須): 伏せた発言 (評価専用ファイル) を、本人と相手の束のどちらか当てさせる。
  *     本人を 1 番 / 2 番のどちらに置くかは発言ごとに交互 (位置の偏りを打ち消す)
+ *   - M1 推薦予測 (参考、recommend=true のとき): パックの heldOut を束だけで当てさせる
  *   - M5/M6: 代理議論の発話 (flow_utterance の claim_kind / evidence_ids_json) から
  * 判定は judgeProxyEval。結果の書き戻しは呼び出し側 (scripts/eval-proxy.ts --write)。
  */
@@ -33,10 +33,14 @@ export interface ProxyEvalReport {
 
 export interface EvaluateProxyArgs {
   row: ProxyProfileRow;
-  /** 判別テストの相手 (同じジャンルの別の人物)。無ければ M3 は測らない。 */
+  /** 判別テストの相手 (同じジャンルの束にできる別の人物)。無ければ M3 は測らない。 */
   partner?: ProxyProfileRow;
   /** この人物の伏せた発言 (評価専用)。無ければ M3 は測らない。 */
   heldOutTexts?: readonly string[];
+  /** M3 に使う伏せた発言の上限 (LLM 呼び出し数を抑える)。既定 12。 */
+  maxTexts?: number;
+  /** 推薦予測 (M1、参考値) も測るか。既定 false。 */
+  recommend?: boolean;
   /** 代理議論のセッション id (M5/M6)。無ければ測らない。 */
   sessionIds?: readonly string[];
   budgetTokens: number;
@@ -45,9 +49,15 @@ export interface EvaluateProxyArgs {
   thresholds?: ProxyEvalThresholds;
 }
 
-function bundleOf(row: ProxyProfileRow, budgetTokens: number): string {
-  // 評価は confidence=low でも測れるよう、束にできなければ根拠を含まない最小形で問う (合否は M1 の件数で決まる)。
-  return renderProxyBundle(row.pack, { budgetTokens, label: row.label })?.text ?? `# 人物: ${row.label}\n(材料なし)`;
+/** 代理議論に出すのと同じ束。束にできない人物 (confidence=low 等) は代理に出ないので評価しない。 */
+function bundleOf(row: ProxyProfileRow, budgetTokens: number): string | null {
+  return renderProxyBundle(row.pack, { budgetTokens, label: row.label })?.text ?? null;
+}
+
+/** 等間隔に最大 max 件を選ぶ (先頭のゲームに偏らせない)。 */
+export function sampleEvenly<T>(items: readonly T[], max: number): T[] {
+  if (items.length <= max) return [...items];
+  return Array.from({ length: max }, (_, i) => items[Math.floor((i * items.length) / max)]);
 }
 
 interface UtteranceRow {
@@ -71,25 +81,37 @@ function proxyUtterances(personaId: string, sessionIds: readonly string[]): Utte
 export async function evaluateProxy(args: EvaluateProxyArgs): Promise<ProxyEvalReport> {
   const { row, llm, model } = args;
   const bundle = bundleOf(row, args.budgetTokens);
-
-  // M1
-  const labels = row.pack.heldOut.map((h) => h.recommended);
-  const answers: RecommendAnswer[] = [];
-  for (const h of row.pack.heldOut) answers.push(await askRecommend(llm, bundle, h.game, model));
-  const recommendation = scoreRecommendations(labels, answers, row.pack.sufficiency);
+  if (bundle === null) {
+    return {
+      label: row.label,
+      genre: row.genre,
+      metrics: { discrimination: { total: 0, correct: 0, accuracy: null }, recommendation: null, groundedRate: null, misattributionRate: null },
+      verdict: { status: "unevaluated", reasons: ["材料が少なく束にできない (代理に出ない)"] },
+    };
+  }
 
   // M3
-  let discrimination: number | null = null;
-  const texts = args.heldOutTexts ?? [];
-  if (args.partner && texts.length > 0) {
-    const other = bundleOf(args.partner, args.budgetTokens);
-    let correct = 0;
+  const texts = sampleEvenly(args.heldOutTexts ?? [], args.maxTexts ?? 12);
+  const other = args.partner ? bundleOf(args.partner, args.budgetTokens) : null;
+  let correct = 0;
+  let total = 0;
+  if (other !== null) {
     for (let i = 0; i < texts.length; i++) {
       const selfFirst = i % 2 === 0;
       const answer = await askDiscriminate(llm, selfFirst ? [bundle, other] : [other, bundle], texts[i], model);
       if (answer === (selfFirst ? 1 : 2)) correct++;
+      total++;
     }
-    discrimination = rate(correct, texts.length);
+  }
+  const discrimination = { total, correct, accuracy: rate(correct, total) };
+
+  // M1 (参考)
+  let recommendation: ReturnType<typeof scoreRecommendations> | null = null;
+  if (args.recommend) {
+    const heldOut = sampleEvenly(row.pack.heldOut, args.maxTexts ?? 12);
+    const answers: RecommendAnswer[] = [];
+    for (const h of heldOut) answers.push(await askRecommend(llm, bundle, h.game, model));
+    recommendation = scoreRecommendations(heldOut.map((h) => h.recommended), answers, row.pack.sufficiency);
   }
 
   // M5 / M6
@@ -103,8 +125,8 @@ export async function evaluateProxy(args: EvaluateProxyArgs): Promise<ProxyEvalR
     if (!(await askSupported(llm, evidence, u.text, model))) unsupported++;
   }
   const metrics: ProxyEvalMetrics = {
-    recommendation,
     discrimination,
+    recommendation,
     groundedRate: rate(grounded.length, utterances.length),
     misattributionRate: rate(unsupported, grounded.length),
   };

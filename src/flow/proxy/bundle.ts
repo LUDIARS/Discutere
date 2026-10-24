@@ -13,8 +13,14 @@
 import type { PackEvidence, PersonaPack, StanceCard } from "./contract.js";
 
 /** 日本語混じりの文のトークン概算 (1 文字 ≈ 1.3 トークン。予算は安全側に倒す)。 */
+/**
+ * 概算トークン数。英数字・記号 (ASCII) は 1 文字 ≈ 0.3 トークン、日本語など非 ASCII は 1 文字 ≈ 1.3 トークン。
+ * 全文字を 1.3 で数えると英語レビューを約 4 倍に見積もり、予算 3500 でも根拠が 12 件中 4 件ほどしか載らなかった。
+ */
 export function estimateTokens(text: string): number {
-  return Math.ceil(text.length * 1.3);
+  let ascii = 0;
+  for (let i = 0; i < text.length; i++) if (text.charCodeAt(i) < 0x80) ascii++;
+  return Math.ceil(ascii * 0.3 + (text.length - ascii) * 1.3);
 }
 
 const DIM_LABELS: Record<string, string> = {
