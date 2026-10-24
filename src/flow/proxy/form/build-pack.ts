@@ -15,6 +15,7 @@ import { ASP_KEYS, buildVector, extractTextFeatures, subtract, type TextFeatures
 import {
   MAX_EVIDENCE,
   MAX_EVIDENCE_CHARS,
+  MAX_LIKED_GAMES,
   PROXY_CONTRACT_VERSION,
   type Confidence,
   type PackEvidence,
@@ -282,9 +283,23 @@ export function buildPersonaPack(args: BuildPackArgs): BuiltPack | null {
     stanceCards: ruleStanceCards(evidence),
     evidence,
     styleNotes: styleNotes(formation.map((r) => r.text)),
-    likedGames: [...new Set(formation.filter((r) => r.recommended).map((r) => r.gameTitle))].sort(),
+    likedGames: likedGames(formation),
     heldOut,
     revoked: false,
   };
   return { pack, heldOutTexts };
+}
+
+/** 推薦したゲーム名。契約の上限を超える人は、長く書いたゲームから MAX_LIKED_GAMES 本だけ残す。 */
+function likedGames(formation: readonly { recommended: boolean; gameTitle: string; text: string }[]): string[] {
+  const longest = new Map<string, number>();
+  for (const r of formation) {
+    if (!r.recommended) continue;
+    longest.set(r.gameTitle, Math.max(longest.get(r.gameTitle) ?? 0, r.text.length));
+  }
+  return [...longest]
+    .sort((a, b) => b[1] - a[1] || a[0].localeCompare(b[0]))
+    .slice(0, MAX_LIKED_GAMES)
+    .map(([title]) => title)
+    .sort();
 }

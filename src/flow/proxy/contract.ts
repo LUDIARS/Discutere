@@ -28,6 +28,7 @@ const MAX_CLAIM_CHARS = 200;
 const MAX_STYLE_NOTES = 4;
 const MAX_STYLE_NOTE_CHARS = 80;
 const MAX_HELD_OUT = 64;
+export const MAX_LIKED_GAMES = 32;
 
 /** 個人を特定しうる / U3 で渡さないと決めたフィールド名。どの階層に現れても拒否する。 */
 const FORBIDDEN_KEYS = new Set([
@@ -383,7 +384,7 @@ export function parsePersonaPack(raw: unknown): PackValidation {
     stanceCards: parseStanceCards(raw.stanceCards, errors, known),
     evidence,
     styleNotes: strList(raw.styleNotes, "styleNotes", errors, MAX_STYLE_NOTES, MAX_STYLE_NOTE_CHARS),
-    likedGames: strList(raw.likedGames, "likedGames", errors, 32, 200),
+    likedGames: strList(raw.likedGames, "likedGames", errors, MAX_LIKED_GAMES, 200),
     heldOut: parseHeldOut(raw.heldOut, errors),
     revoked: raw.revoked === true,
   };
