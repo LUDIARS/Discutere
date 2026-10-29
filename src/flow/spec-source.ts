@@ -22,9 +22,16 @@ import type fsType from "node:fs";
 import { createRequire } from "node:module";
 import nodePath from "node:path";
 import zlib from "node:zlib";
+import { contract } from './contracts/runtime.js'; /* augur-inject:import:485ce2d9 */
+import augurContract_87417249 from './contracts/spec-zip-entry.contract.js'; /* augur-inject:contract-predicate:8c506876 */
 
 /** 1 仕様書あたりの最大バイト数 (既定 1MB)。 */
 export const DEFAULT_MAX_SPEC_BYTES = 5_000_000;
+
+// Office XML can be much larger than its ZIP, but must not allocate unbounded memory.
+// 64 MiB per part and 128 MiB overall leave room for large sheets/slides/shared strings.
+const MAX_ZIP_ENTRY_BYTES = 64 * 1024 * 1024;
+const MAX_ZIP_TOTAL_BYTES = 128 * 1024 * 1024;
 
 export const SUPPORTED_SPEC_EXTENSIONS = [
   ".doc",
@@ -181,6 +188,19 @@ function findZipEocd(bytes: Uint8Array): number {
   return -1;
 }
 
+export function inflateZipEntry(data: Buffer, compression: number, maxBytes: number, label: string): Buffer {
+  try {
+    // zlib requires a positive limit; an exhausted budget still permits empty entries.
+    const raw = compression === 0 ? data : zlib.inflateRawSync(data, { maxOutputLength: Math.max(1, maxBytes) });
+    if (raw.length > maxBytes) throw new Error("ZIP expanded size limit exceeded");
+    return raw;
+  } catch (error) {
+    throw new Error(`${label}: ZIP extraction failed (expanded size limit ${maxBytes} bytes): ${error instanceof Error ? error.message : String(error)}`);
+  }
+}
+// @ts-expect-error augur-inject
+inflateZipEntry = contract(inflateZipEntry, { ...augurContract_87417249, contractId: 'C-1', mode: 'observe', sample: 1, where: 'src/flow/spec-source.ts:189', rule: 'contract-wrap', id: '87417249' }); /* augur-inject:contract-wrap:87417249 */
+
 function readZipTextEntries(bytes: Uint8Array, label: string): Map<string, string> {
   const eocd = findZipEocd(bytes);
   if (eocd < 0) throw new Error(`${label}: ZIP central directory was not found`);
@@ -188,6 +208,7 @@ function readZipTextEntries(bytes: Uint8Array, label: string): Map<string, strin
   const cdOffset = readU32(bytes, eocd + 16);
   const out = new Map<string, string>();
   let off = cdOffset;
+  let totalBytes = 0;
   const decoder = new TextDecoder("utf-8", { fatal: false });
   for (let i = 0; i < entries; i++) {
     if (readU32(bytes, off) !== 0x02014b50) throw new Error(`${label}: invalid ZIP central directory`);
@@ -204,11 +225,12 @@ function readZipTextEntries(bytes: Uint8Array, label: string): Map<string, strin
     const localNameLen = readU16(bytes, localOffset + 26);
     const localExtraLen = readU16(bytes, localOffset + 28);
     const dataStart = localOffset + 30 + localNameLen + localExtraLen;
+    if (compression !== 0 && compression !== 8) continue;
     const data = Buffer.from(bytes.subarray(dataStart, dataStart + compressedSize));
-    let raw: Buffer;
-    if (compression === 0) raw = data;
-    else if (compression === 8) raw = zlib.inflateRawSync(data);
-    else continue;
+    const maxBytes = Math.min(MAX_ZIP_ENTRY_BYTES, MAX_ZIP_TOTAL_BYTES - totalBytes);
+    const raw = inflateZipEntry(data, compression, maxBytes, label);
+    // Count every expanded entry, including duplicate names and non-body parts.
+    totalBytes += raw.length;
     out.set(name, raw.toString("utf8"));
   }
   return out;
