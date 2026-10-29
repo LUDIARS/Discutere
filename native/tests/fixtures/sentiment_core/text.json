@@ -1,0 +1,4055 @@
+{
+  "spec": [
+    "emo.valence",
+    "emo.arousal",
+    "emo.joy",
+    "emo.trust",
+    "emo.fear",
+    "emo.surprise",
+    "emo.sadness",
+    "emo.disgust",
+    "emo.anger",
+    "emo.anticipation",
+    "asp.fun",
+    "asp.difficulty",
+    "asp.content",
+    "asp.price_value",
+    "asp.performance",
+    "asp.story",
+    "asp.graphics",
+    "asp.replayability",
+    "meta.positive_ratio",
+    "meta.volume_log"
+  ],
+  "cases": [
+    {
+      "text": "最高に面白い!",
+      "vector": [
+        0.9167,
+        0.75,
+        1,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        1,
+        0.5,
+        0.5,
+        0.5,
+        0.5,
+        0.5,
+        0.5,
+        0.5,
+        1,
+        0.0753
+      ],
+      "score": {
+        "valence": 0.8333333333333334,
+        "valenceLabel": "positive",
+        "emotions": [
+          "joy"
+        ],
+        "aspects": {
+          "fun": 1,
+          "difficulty": 0,
+          "content": 0,
+          "price_value": 0,
+          "performance": 0,
+          "story": 0,
+          "graphics": 0,
+          "replayability": 0
+        },
+        "aspectsHit": [
+          "fun"
+        ],
+        "arousal": 0.75
+      },
+      "features": {
+        "valence": 0.8333333333333334,
+        "emotions": {
+          "joy": 1,
+          "trust": 0,
+          "fear": 0,
+          "surprise": 0,
+          "sadness": 0,
+          "disgust": 0,
+          "anger": 0,
+          "anticipation": 0
+        },
+        "aspectMentions": {
+          "fun": 1,
+          "difficulty": 0,
+          "content": 0,
+          "price_value": 0,
+          "performance": 0,
+          "story": 0,
+          "graphics": 0,
+          "replayability": 0
+        },
+        "arousal": 0.75
+      }
+    },
+    {
+      "text": "つまらないしバグだらけ",
+      "vector": [
+        0.1,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0.5,
+        0.5,
+        0.5,
+        0.5,
+        0,
+        0.5,
+        0.5,
+        0.5,
+        0,
+        0.0753
+      ],
+      "score": {
+        "valence": -0.8,
+        "valenceLabel": "negative",
+        "emotions": [],
+        "aspects": {
+          "fun": 0,
+          "difficulty": 0,
+          "content": 0,
+          "price_value": 0,
+          "performance": 1,
+          "story": 0,
+          "graphics": 0,
+          "replayability": 0
+        },
+        "aspectsHit": [
+          "performance"
+        ],
+        "arousal": 0
+      },
+      "features": {
+        "valence": -0.8,
+        "emotions": {
+          "joy": 0,
+          "trust": 0,
+          "fear": 0,
+          "surprise": 0,
+          "sadness": 0,
+          "disgust": 0,
+          "anger": 0,
+          "anticipation": 0
+        },
+        "aspectMentions": {
+          "fun": 0,
+          "difficulty": 0,
+          "content": 0,
+          "price_value": 0,
+          "performance": 1,
+          "story": 0,
+          "graphics": 0,
+          "replayability": 0
+        },
+        "arousal": 0
+      }
+    },
+    {
+      "text": "神ゲー 888888",
+      "vector": [
+        0.9333,
+        0.5,
+        1,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0.5,
+        0.5,
+        0.5,
+        0.5,
+        0.5,
+        0.5,
+        0.5,
+        0.5,
+        1,
+        0.0753
+      ],
+      "score": {
+        "valence": 0.8666666666666667,
+        "valenceLabel": "positive",
+        "emotions": [
+          "joy"
+        ],
+        "aspects": {
+          "fun": 0,
+          "difficulty": 0,
+          "content": 0,
+          "price_value": 0,
+          "performance": 0,
+          "story": 0,
+          "graphics": 0,
+          "replayability": 0
+        },
+        "aspectsHit": [],
+        "arousal": 0.5
+      },
+      "features": {
+        "valence": 0.8666666666666667,
+        "emotions": {
+          "joy": 1,
+          "trust": 0,
+          "fear": 0,
+          "surprise": 0,
+          "sadness": 0,
+          "disgust": 0,
+          "anger": 0,
+          "anticipation": 0
+        },
+        "aspectMentions": {
+          "fun": 0,
+          "difficulty": 0,
+          "content": 0,
+          "price_value": 0,
+          "performance": 0,
+          "story": 0,
+          "graphics": 0,
+          "replayability": 0
+        },
+        "arousal": 0.5
+      }
+    },
+    {
+      "text": "草",
+      "vector": [
+        0.5,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0.5,
+        0.5,
+        0.5,
+        0.5,
+        0.5,
+        0.5,
+        0.5,
+        0.5,
+        0,
+        0.0753
+      ],
+      "score": {
+        "valence": 0,
+        "valenceLabel": "neutral",
+        "emotions": [],
+        "aspects": {
+          "fun": 0,
+          "difficulty": 0,
+          "content": 0,
+          "price_value": 0,
+          "performance": 0,
+          "story": 0,
+          "graphics": 0,
+          "replayability": 0
+        },
+        "aspectsHit": [],
+        "arousal": 0
+      },
+      "features": {
+        "valence": 0,
+        "emotions": {
+          "joy": 0,
+          "trust": 0,
+          "fear": 0,
+          "surprise": 0,
+          "sadness": 0,
+          "disgust": 0,
+          "anger": 0,
+          "anticipation": 0
+        },
+        "aspectMentions": {
+          "fun": 0,
+          "difficulty": 0,
+          "content": 0,
+          "price_value": 0,
+          "performance": 0,
+          "story": 0,
+          "graphics": 0,
+          "replayability": 0
+        },
+        "arousal": 0
+      }
+    },
+    {
+      "text": "!?",
+      "vector": [
+        0.5,
+        0.5,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0.5,
+        0.5,
+        0.5,
+        0.5,
+        0.5,
+        0.5,
+        0.5,
+        0.5,
+        0,
+        0.0753
+      ],
+      "score": {
+        "valence": 0,
+        "valenceLabel": "neutral",
+        "emotions": [],
+        "aspects": {
+          "fun": 0,
+          "difficulty": 0,
+          "content": 0,
+          "price_value": 0,
+          "performance": 0,
+          "story": 0,
+          "graphics": 0,
+          "replayability": 0
+        },
+        "aspectsHit": [],
+        "arousal": 0.5
+      },
+      "features": {
+        "valence": 0,
+        "emotions": {
+          "joy": 0,
+          "trust": 0,
+          "fear": 0,
+          "surprise": 0,
+          "sadness": 0,
+          "disgust": 0,
+          "anger": 0,
+          "anticipation": 0
+        },
+        "aspectMentions": {
+          "fun": 0,
+          "difficulty": 0,
+          "content": 0,
+          "price_value": 0,
+          "performance": 0,
+          "story": 0,
+          "graphics": 0,
+          "replayability": 0
+        },
+        "arousal": 0.5
+      }
+    },
+    {
+      "text": "awesome combat but terrible performance",
+      "vector": [
+        0.525,
+        0,
+        1,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0.5,
+        0.5,
+        0.5,
+        0.5,
+        0.5,
+        0.5,
+        0.5,
+        0.5,
+        0,
+        0.0753
+      ],
+      "score": {
+        "valence": 0.04999999999999999,
+        "valenceLabel": "neutral",
+        "emotions": [
+          "joy"
+        ],
+        "aspects": {
+          "fun": 0,
+          "difficulty": 0,
+          "content": 0,
+          "price_value": 0,
+          "performance": 1,
+          "story": 0,
+          "graphics": 0,
+          "replayability": 0
+        },
+        "aspectsHit": [
+          "performance"
+        ],
+        "arousal": 0
+      },
+      "features": {
+        "valence": 0.04999999999999999,
+        "emotions": {
+          "joy": 1,
+          "trust": 0,
+          "fear": 0,
+          "surprise": 0,
+          "sadness": 0,
+          "disgust": 0,
+          "anger": 0,
+          "anticipation": 0
+        },
+        "aspectMentions": {
+          "fun": 0,
+          "difficulty": 0,
+          "content": 0,
+          "price_value": 0,
+          "performance": 1,
+          "story": 0,
+          "graphics": 0,
+          "replayability": 0
+        },
+        "arousal": 0
+      }
+    },
+    {
+      "text": "I love the story and beautiful graphics",
+      "vector": [
+        0.9,
+        0,
+        1,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0.5,
+        0.5,
+        0.5,
+        0.5,
+        0.5,
+        1,
+        1,
+        0.5,
+        1,
+        0.0753
+      ],
+      "score": {
+        "valence": 0.8,
+        "valenceLabel": "positive",
+        "emotions": [
+          "joy"
+        ],
+        "aspects": {
+          "fun": 0,
+          "difficulty": 0,
+          "content": 0,
+          "price_value": 0,
+          "performance": 0,
+          "story": 1,
+          "graphics": 2,
+          "replayability": 0
+        },
+        "aspectsHit": [
+          "story",
+          "graphics"
+        ],
+        "arousal": 0
+      },
+      "features": {
+        "valence": 0.8,
+        "emotions": {
+          "joy": 1,
+          "trust": 0,
+          "fear": 0,
+          "surprise": 0,
+          "sadness": 0,
+          "disgust": 0,
+          "anger": 0,
+          "anticipation": 0
+        },
+        "aspectMentions": {
+          "fun": 0,
+          "difficulty": 0,
+          "content": 0,
+          "price_value": 0,
+          "performance": 0,
+          "story": 1,
+          "graphics": 2,
+          "replayability": 0
+        },
+        "arousal": 0
+      }
+    },
+    {
+      "text": "boring repetitive grind",
+      "vector": [
+        0.175,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0.5,
+        0.5,
+        0.5,
+        0.5,
+        0.5,
+        0.5,
+        0.5,
+        0.5,
+        0,
+        0.0753
+      ],
+      "score": {
+        "valence": -0.65,
+        "valenceLabel": "negative",
+        "emotions": [],
+        "aspects": {
+          "fun": 0,
+          "difficulty": 0,
+          "content": 0,
+          "price_value": 0,
+          "performance": 0,
+          "story": 0,
+          "graphics": 0,
+          "replayability": 0
+        },
+        "aspectsHit": [],
+        "arousal": 0
+      },
+      "features": {
+        "valence": -0.65,
+        "emotions": {
+          "joy": 0,
+          "trust": 0,
+          "fear": 0,
+          "surprise": 0,
+          "sadness": 0,
+          "disgust": 0,
+          "anger": 0,
+          "anticipation": 0
+        },
+        "aspectMentions": {
+          "fun": 0,
+          "difficulty": 0,
+          "content": 0,
+          "price_value": 0,
+          "performance": 0,
+          "story": 0,
+          "graphics": 0,
+          "replayability": 0
+        },
+        "arousal": 0
+      }
+    },
+    {
+      "text": "good value, smooth and polished",
+      "vector": [
+        0.7833,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0.5,
+        0.5,
+        0.5,
+        1,
+        0.5,
+        0.5,
+        0.5,
+        0.5,
+        1,
+        0.0753
+      ],
+      "score": {
+        "valence": 0.5666666666666668,
+        "valenceLabel": "positive",
+        "emotions": [],
+        "aspects": {
+          "fun": 0,
+          "difficulty": 0,
+          "content": 0,
+          "price_value": 1,
+          "performance": 0,
+          "story": 0,
+          "graphics": 0,
+          "replayability": 0
+        },
+        "aspectsHit": [
+          "price_value"
+        ],
+        "arousal": 0
+      },
+      "features": {
+        "valence": 0.5666666666666668,
+        "emotions": {
+          "joy": 0,
+          "trust": 0,
+          "fear": 0,
+          "surprise": 0,
+          "sadness": 0,
+          "disgust": 0,
+          "anger": 0,
+          "anticipation": 0
+        },
+        "aspectMentions": {
+          "fun": 0,
+          "difficulty": 0,
+          "content": 0,
+          "price_value": 1,
+          "performance": 0,
+          "story": 0,
+          "graphics": 0,
+          "replayability": 0
+        },
+        "arousal": 0
+      }
+    },
+    {
+      "text": "worst crash ever!",
+      "vector": [
+        0.075,
+        0.75,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0.5,
+        0.5,
+        0.5,
+        0.5,
+        0,
+        0.5,
+        0.5,
+        0.5,
+        0,
+        0.0753
+      ],
+      "score": {
+        "valence": -0.85,
+        "valenceLabel": "negative",
+        "emotions": [],
+        "aspects": {
+          "fun": 0,
+          "difficulty": 0,
+          "content": 0,
+          "price_value": 0,
+          "performance": 1,
+          "story": 0,
+          "graphics": 0,
+          "replayability": 0
+        },
+        "aspectsHit": [
+          "performance"
+        ],
+        "arousal": 0.75
+      },
+      "features": {
+        "valence": -0.85,
+        "emotions": {
+          "joy": 0,
+          "trust": 0,
+          "fear": 0,
+          "surprise": 0,
+          "sadness": 0,
+          "disgust": 0,
+          "anger": 0,
+          "anticipation": 0
+        },
+        "aspectMentions": {
+          "fun": 0,
+          "difficulty": 0,
+          "content": 0,
+          "price_value": 0,
+          "performance": 1,
+          "story": 0,
+          "graphics": 0,
+          "replayability": 0
+        },
+        "arousal": 0.75
+      }
+    },
+    {
+      "text": "難しいけど達成感があって楽しい",
+      "vector": [
+        0.875,
+        0,
+        1,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        1,
+        1,
+        0.5,
+        0.5,
+        0.5,
+        0.5,
+        0.5,
+        0.5,
+        1,
+        0.0753
+      ],
+      "score": {
+        "valence": 0.75,
+        "valenceLabel": "positive",
+        "emotions": [
+          "joy"
+        ],
+        "aspects": {
+          "fun": 1,
+          "difficulty": 1,
+          "content": 0,
+          "price_value": 0,
+          "performance": 0,
+          "story": 0,
+          "graphics": 0,
+          "replayability": 0
+        },
+        "aspectsHit": [
+          "fun",
+          "difficulty"
+        ],
+        "arousal": 0
+      },
+      "features": {
+        "valence": 0.75,
+        "emotions": {
+          "joy": 1,
+          "trust": 0,
+          "fear": 0,
+          "surprise": 0,
+          "sadness": 0,
+          "disgust": 0,
+          "anger": 0,
+          "anticipation": 0
+        },
+        "aspectMentions": {
+          "fun": 1,
+          "difficulty": 1,
+          "content": 0,
+          "price_value": 0,
+          "performance": 0,
+          "story": 0,
+          "graphics": 0,
+          "replayability": 0
+        },
+        "arousal": 0
+      }
+    },
+    {
+      "text": "理不尽でストレスがすごい",
+      "vector": [
+        0.2,
+        0.25,
+        0,
+        0,
+        0,
+        1,
+        0,
+        0,
+        1,
+        0,
+        0.5,
+        0,
+        0.5,
+        0.5,
+        0.5,
+        0.5,
+        0.5,
+        0.5,
+        0,
+        0.0753
+      ],
+      "score": {
+        "valence": -0.6,
+        "valenceLabel": "negative",
+        "emotions": [
+          "surprise",
+          "anger"
+        ],
+        "aspects": {
+          "fun": 0,
+          "difficulty": 1,
+          "content": 0,
+          "price_value": 0,
+          "performance": 0,
+          "story": 0,
+          "graphics": 0,
+          "replayability": 0
+        },
+        "aspectsHit": [
+          "difficulty"
+        ],
+        "arousal": 0.25
+      },
+      "features": {
+        "valence": -0.6,
+        "emotions": {
+          "joy": 0,
+          "trust": 0,
+          "fear": 0,
+          "surprise": 1,
+          "sadness": 0,
+          "disgust": 0,
+          "anger": 1,
+          "anticipation": 0
+        },
+        "aspectMentions": {
+          "fun": 0,
+          "difficulty": 1,
+          "content": 0,
+          "price_value": 0,
+          "performance": 0,
+          "story": 0,
+          "graphics": 0,
+          "replayability": 0
+        },
+        "arousal": 0.25
+      }
+    },
+    {
+      "text": "物語と世界観が好き",
+      "vector": [
+        0.65,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0.5,
+        0.5,
+        0.5,
+        0.5,
+        0.5,
+        1,
+        0.5,
+        0.5,
+        1,
+        0.0753
+      ],
+      "score": {
+        "valence": 0.3,
+        "valenceLabel": "positive",
+        "emotions": [],
+        "aspects": {
+          "fun": 0,
+          "difficulty": 0,
+          "content": 0,
+          "price_value": 0,
+          "performance": 0,
+          "story": 2,
+          "graphics": 0,
+          "replayability": 0
+        },
+        "aspectsHit": [
+          "story"
+        ],
+        "arousal": 0
+      },
+      "features": {
+        "valence": 0.3,
+        "emotions": {
+          "joy": 0,
+          "trust": 0,
+          "fear": 0,
+          "surprise": 0,
+          "sadness": 0,
+          "disgust": 0,
+          "anger": 0,
+          "anticipation": 0
+        },
+        "aspectMentions": {
+          "fun": 0,
+          "difficulty": 0,
+          "content": 0,
+          "price_value": 0,
+          "performance": 0,
+          "story": 2,
+          "graphics": 0,
+          "replayability": 0
+        },
+        "arousal": 0
+      }
+    },
+    {
+      "text": "グラフィックは綺麗、でも重い",
+      "vector": [
+        0.375,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0.5,
+        0.5,
+        0.5,
+        0.5,
+        0,
+        0.5,
+        0,
+        0.5,
+        0,
+        0.0753
+      ],
+      "score": {
+        "valence": -0.25,
+        "valenceLabel": "negative",
+        "emotions": [],
+        "aspects": {
+          "fun": 0,
+          "difficulty": 0,
+          "content": 0,
+          "price_value": 0,
+          "performance": 1,
+          "story": 0,
+          "graphics": 2,
+          "replayability": 0
+        },
+        "aspectsHit": [
+          "performance",
+          "graphics"
+        ],
+        "arousal": 0
+      },
+      "features": {
+        "valence": -0.25,
+        "emotions": {
+          "joy": 0,
+          "trust": 0,
+          "fear": 0,
+          "surprise": 0,
+          "sadness": 0,
+          "disgust": 0,
+          "anger": 0,
+          "anticipation": 0
+        },
+        "aspectMentions": {
+          "fun": 0,
+          "difficulty": 0,
+          "content": 0,
+          "price_value": 0,
+          "performance": 1,
+          "story": 0,
+          "graphics": 2,
+          "replayability": 0
+        },
+        "arousal": 0
+      }
+    },
+    {
+      "text": "課金ゲーでがっかり",
+      "vector": [
+        0.15,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0.5,
+        0.5,
+        0.5,
+        0,
+        0.5,
+        0.5,
+        0.5,
+        0.5,
+        0,
+        0.0753
+      ],
+      "score": {
+        "valence": -0.7,
+        "valenceLabel": "negative",
+        "emotions": [],
+        "aspects": {
+          "fun": 0,
+          "difficulty": 0,
+          "content": 0,
+          "price_value": 1,
+          "performance": 0,
+          "story": 0,
+          "graphics": 0,
+          "replayability": 0
+        },
+        "aspectsHit": [
+          "price_value"
+        ],
+        "arousal": 0
+      },
+      "features": {
+        "valence": -0.7,
+        "emotions": {
+          "joy": 0,
+          "trust": 0,
+          "fear": 0,
+          "surprise": 0,
+          "sadness": 0,
+          "disgust": 0,
+          "anger": 0,
+          "anticipation": 0
+        },
+        "aspectMentions": {
+          "fun": 0,
+          "difficulty": 0,
+          "content": 0,
+          "price_value": 1,
+          "performance": 0,
+          "story": 0,
+          "graphics": 0,
+          "replayability": 0
+        },
+        "arousal": 0
+      }
+    },
+    {
+      "text": "周回が中毒になる",
+      "vector": [
+        0.65,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        1,
+        0.5,
+        0.5,
+        0.5,
+        0.5,
+        0.5,
+        0.5,
+        1,
+        1,
+        0.0753
+      ],
+      "score": {
+        "valence": 0.3,
+        "valenceLabel": "positive",
+        "emotions": [],
+        "aspects": {
+          "fun": 1,
+          "difficulty": 0,
+          "content": 0,
+          "price_value": 0,
+          "performance": 0,
+          "story": 0,
+          "graphics": 0,
+          "replayability": 1
+        },
+        "aspectsHit": [
+          "fun",
+          "replayability"
+        ],
+        "arousal": 0
+      },
+      "features": {
+        "valence": 0.3,
+        "emotions": {
+          "joy": 0,
+          "trust": 0,
+          "fear": 0,
+          "surprise": 0,
+          "sadness": 0,
+          "disgust": 0,
+          "anger": 0,
+          "anticipation": 0
+        },
+        "aspectMentions": {
+          "fun": 1,
+          "difficulty": 0,
+          "content": 0,
+          "price_value": 0,
+          "performance": 0,
+          "story": 0,
+          "graphics": 0,
+          "replayability": 1
+        },
+        "arousal": 0
+      }
+    },
+    {
+      "text": "怖い! でも面白い",
+      "vector": [
+        0.9,
+        0.5,
+        1,
+        0,
+        1,
+        0,
+        0,
+        0,
+        0,
+        0,
+        1,
+        0.5,
+        0.5,
+        0.5,
+        0.5,
+        0.5,
+        0.5,
+        0.5,
+        1,
+        0.0753
+      ],
+      "score": {
+        "valence": 0.8,
+        "valenceLabel": "positive",
+        "emotions": [
+          "joy",
+          "fear"
+        ],
+        "aspects": {
+          "fun": 1,
+          "difficulty": 0,
+          "content": 0,
+          "price_value": 0,
+          "performance": 0,
+          "story": 0,
+          "graphics": 0,
+          "replayability": 0
+        },
+        "aspectsHit": [
+          "fun"
+        ],
+        "arousal": 0.5
+      },
+      "features": {
+        "valence": 0.8,
+        "emotions": {
+          "joy": 1,
+          "trust": 0,
+          "fear": 1,
+          "surprise": 0,
+          "sadness": 0,
+          "disgust": 0,
+          "anger": 0,
+          "anticipation": 0
+        },
+        "aspectMentions": {
+          "fun": 1,
+          "difficulty": 0,
+          "content": 0,
+          "price_value": 0,
+          "performance": 0,
+          "story": 0,
+          "graphics": 0,
+          "replayability": 0
+        },
+        "arousal": 0.5
+      }
+    },
+    {
+      "text": "まさかの展開ですごい",
+      "vector": [
+        0.5,
+        0.25,
+        0,
+        0,
+        0,
+        1,
+        0,
+        0,
+        0,
+        0,
+        0.5,
+        0.5,
+        0.5,
+        0.5,
+        0.5,
+        0.5,
+        0.5,
+        0.5,
+        0,
+        0.0753
+      ],
+      "score": {
+        "valence": 0,
+        "valenceLabel": "neutral",
+        "emotions": [
+          "surprise"
+        ],
+        "aspects": {
+          "fun": 0,
+          "difficulty": 0,
+          "content": 0,
+          "price_value": 0,
+          "performance": 0,
+          "story": 0,
+          "graphics": 0,
+          "replayability": 0
+        },
+        "aspectsHit": [],
+        "arousal": 0.25
+      },
+      "features": {
+        "valence": 0,
+        "emotions": {
+          "joy": 0,
+          "trust": 0,
+          "fear": 0,
+          "surprise": 1,
+          "sadness": 0,
+          "disgust": 0,
+          "anger": 0,
+          "anticipation": 0
+        },
+        "aspectMentions": {
+          "fun": 0,
+          "difficulty": 0,
+          "content": 0,
+          "price_value": 0,
+          "performance": 0,
+          "story": 0,
+          "graphics": 0,
+          "replayability": 0
+        },
+        "arousal": 0.25
+      }
+    },
+    {
+      "text": "泣いた。切ない物語",
+      "vector": [
+        0.5,
+        0,
+        0,
+        0,
+        0,
+        0,
+        1,
+        0,
+        0,
+        0,
+        0.5,
+        0.5,
+        0.5,
+        0.5,
+        0.5,
+        0.5,
+        0.5,
+        0.5,
+        0,
+        0.0753
+      ],
+      "score": {
+        "valence": 0,
+        "valenceLabel": "neutral",
+        "emotions": [
+          "sadness"
+        ],
+        "aspects": {
+          "fun": 0,
+          "difficulty": 0,
+          "content": 0,
+          "price_value": 0,
+          "performance": 0,
+          "story": 1,
+          "graphics": 0,
+          "replayability": 0
+        },
+        "aspectsHit": [
+          "story"
+        ],
+        "arousal": 0
+      },
+      "features": {
+        "valence": 0,
+        "emotions": {
+          "joy": 0,
+          "trust": 0,
+          "fear": 0,
+          "surprise": 0,
+          "sadness": 1,
+          "disgust": 0,
+          "anger": 0,
+          "anticipation": 0
+        },
+        "aspectMentions": {
+          "fun": 0,
+          "difficulty": 0,
+          "content": 0,
+          "price_value": 0,
+          "performance": 0,
+          "story": 1,
+          "graphics": 0,
+          "replayability": 0
+        },
+        "arousal": 0
+      }
+    },
+    {
+      "text": "操作が快適でおすすめ",
+      "vector": [
+        0.825,
+        0,
+        0,
+        1,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0.5,
+        0.5,
+        0.5,
+        0.5,
+        0.5,
+        0.5,
+        0.5,
+        0.5,
+        1,
+        0.0753
+      ],
+      "score": {
+        "valence": 0.6499999999999999,
+        "valenceLabel": "positive",
+        "emotions": [
+          "trust"
+        ],
+        "aspects": {
+          "fun": 0,
+          "difficulty": 0,
+          "content": 0,
+          "price_value": 0,
+          "performance": 0,
+          "story": 0,
+          "graphics": 0,
+          "replayability": 0
+        },
+        "aspectsHit": [],
+        "arousal": 0
+      },
+      "features": {
+        "valence": 0.6499999999999999,
+        "emotions": {
+          "joy": 0,
+          "trust": 1,
+          "fear": 0,
+          "surprise": 0,
+          "sadness": 0,
+          "disgust": 0,
+          "anger": 0,
+          "anticipation": 0
+        },
+        "aspectMentions": {
+          "fun": 0,
+          "difficulty": 0,
+          "content": 0,
+          "price_value": 0,
+          "performance": 0,
+          "story": 0,
+          "graphics": 0,
+          "replayability": 0
+        },
+        "arousal": 0
+      }
+    },
+    {
+      "text": "対戦の難易度がちょうど良い",
+      "vector": [
+        0.65,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0.5,
+        1,
+        0.5,
+        0.5,
+        0.5,
+        0.5,
+        0.5,
+        0.5,
+        1,
+        0.0753
+      ],
+      "score": {
+        "valence": 0.3,
+        "valenceLabel": "positive",
+        "emotions": [],
+        "aspects": {
+          "fun": 0,
+          "difficulty": 1,
+          "content": 0,
+          "price_value": 0,
+          "performance": 0,
+          "story": 0,
+          "graphics": 0,
+          "replayability": 0
+        },
+        "aspectsHit": [
+          "difficulty"
+        ],
+        "arousal": 0
+      },
+      "features": {
+        "valence": 0.3,
+        "emotions": {
+          "joy": 0,
+          "trust": 0,
+          "fear": 0,
+          "surprise": 0,
+          "sadness": 0,
+          "disgust": 0,
+          "anger": 0,
+          "anticipation": 0
+        },
+        "aspectMentions": {
+          "fun": 0,
+          "difficulty": 1,
+          "content": 0,
+          "price_value": 0,
+          "performance": 0,
+          "story": 0,
+          "graphics": 0,
+          "replayability": 0
+        },
+        "arousal": 0
+      }
+    },
+    {
+      "text": "コンテンツ量が少ない",
+      "vector": [
+        0.5,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0.5,
+        0.5,
+        0.5,
+        0.5,
+        0.5,
+        0.5,
+        0.5,
+        0.5,
+        0,
+        0.0753
+      ],
+      "score": {
+        "valence": 0,
+        "valenceLabel": "neutral",
+        "emotions": [],
+        "aspects": {
+          "fun": 0,
+          "difficulty": 0,
+          "content": 2,
+          "price_value": 0,
+          "performance": 0,
+          "story": 0,
+          "graphics": 0,
+          "replayability": 0
+        },
+        "aspectsHit": [
+          "content"
+        ],
+        "arousal": 0
+      },
+      "features": {
+        "valence": 0,
+        "emotions": {
+          "joy": 0,
+          "trust": 0,
+          "fear": 0,
+          "surprise": 0,
+          "sadness": 0,
+          "disgust": 0,
+          "anger": 0,
+          "anticipation": 0
+        },
+        "aspectMentions": {
+          "fun": 0,
+          "difficulty": 0,
+          "content": 2,
+          "price_value": 0,
+          "performance": 0,
+          "story": 0,
+          "graphics": 0,
+          "replayability": 0
+        },
+        "arousal": 0
+      }
+    },
+    {
+      "text": "値段は高いがworth it",
+      "vector": [
+        0.65,
+        0,
+        0,
+        1,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0.5,
+        0.5,
+        0.5,
+        1,
+        0.5,
+        0.5,
+        0.5,
+        0.5,
+        1,
+        0.0753
+      ],
+      "score": {
+        "valence": 0.3,
+        "valenceLabel": "positive",
+        "emotions": [
+          "trust"
+        ],
+        "aspects": {
+          "fun": 0,
+          "difficulty": 0,
+          "content": 0,
+          "price_value": 3,
+          "performance": 0,
+          "story": 0,
+          "graphics": 0,
+          "replayability": 0
+        },
+        "aspectsHit": [
+          "price_value"
+        ],
+        "arousal": 0
+      },
+      "features": {
+        "valence": 0.3,
+        "emotions": {
+          "joy": 0,
+          "trust": 1,
+          "fear": 0,
+          "surprise": 0,
+          "sadness": 0,
+          "disgust": 0,
+          "anger": 0,
+          "anticipation": 0
+        },
+        "aspectMentions": {
+          "fun": 0,
+          "difficulty": 0,
+          "content": 0,
+          "price_value": 3,
+          "performance": 0,
+          "story": 0,
+          "graphics": 0,
+          "replayability": 0
+        },
+        "arousal": 0
+      }
+    },
+    {
+      "text": "fps lag and stutter",
+      "vector": [
+        0.225,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0.5,
+        0.5,
+        0.5,
+        0.5,
+        0,
+        0.5,
+        0.5,
+        0.5,
+        0,
+        0.0753
+      ],
+      "score": {
+        "valence": -0.55,
+        "valenceLabel": "negative",
+        "emotions": [],
+        "aspects": {
+          "fun": 0,
+          "difficulty": 0,
+          "content": 0,
+          "price_value": 0,
+          "performance": 3,
+          "story": 0,
+          "graphics": 0,
+          "replayability": 0
+        },
+        "aspectsHit": [
+          "performance"
+        ],
+        "arousal": 0
+      },
+      "features": {
+        "valence": -0.55,
+        "emotions": {
+          "joy": 0,
+          "trust": 0,
+          "fear": 0,
+          "surprise": 0,
+          "sadness": 0,
+          "disgust": 0,
+          "anger": 0,
+          "anticipation": 0
+        },
+        "aspectMentions": {
+          "fun": 0,
+          "difficulty": 0,
+          "content": 0,
+          "price_value": 0,
+          "performance": 3,
+          "story": 0,
+          "graphics": 0,
+          "replayability": 0
+        },
+        "arousal": 0
+      }
+    },
+    {
+      "text": "キャラとシナリオが最高",
+      "vector": [
+        0.725,
+        0.25,
+        1,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0.5,
+        0.5,
+        0.5,
+        0.5,
+        0.5,
+        1,
+        0.5,
+        0.5,
+        1,
+        0.0753
+      ],
+      "score": {
+        "valence": 0.45,
+        "valenceLabel": "positive",
+        "emotions": [
+          "joy"
+        ],
+        "aspects": {
+          "fun": 0,
+          "difficulty": 0,
+          "content": 0,
+          "price_value": 0,
+          "performance": 0,
+          "story": 2,
+          "graphics": 0,
+          "replayability": 0
+        },
+        "aspectsHit": [
+          "story"
+        ],
+        "arousal": 0.25
+      },
+      "features": {
+        "valence": 0.45,
+        "emotions": {
+          "joy": 1,
+          "trust": 0,
+          "fear": 0,
+          "surprise": 0,
+          "sadness": 0,
+          "disgust": 0,
+          "anger": 0,
+          "anticipation": 0
+        },
+        "aspectMentions": {
+          "fun": 0,
+          "difficulty": 0,
+          "content": 0,
+          "price_value": 0,
+          "performance": 0,
+          "story": 2,
+          "graphics": 0,
+          "replayability": 0
+        },
+        "arousal": 0.25
+      }
+    },
+    {
+      "text": "作画が美麗",
+      "vector": [
+        0.5,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0.5,
+        0.5,
+        0.5,
+        0.5,
+        0.5,
+        0.5,
+        0.5,
+        0.5,
+        0,
+        0.0753
+      ],
+      "score": {
+        "valence": 0,
+        "valenceLabel": "neutral",
+        "emotions": [],
+        "aspects": {
+          "fun": 0,
+          "difficulty": 0,
+          "content": 0,
+          "price_value": 0,
+          "performance": 0,
+          "story": 0,
+          "graphics": 2,
+          "replayability": 0
+        },
+        "aspectsHit": [
+          "graphics"
+        ],
+        "arousal": 0
+      },
+      "features": {
+        "valence": 0,
+        "emotions": {
+          "joy": 0,
+          "trust": 0,
+          "fear": 0,
+          "surprise": 0,
+          "sadness": 0,
+          "disgust": 0,
+          "anger": 0,
+          "anticipation": 0
+        },
+        "aspectMentions": {
+          "fun": 0,
+          "difficulty": 0,
+          "content": 0,
+          "price_value": 0,
+          "performance": 0,
+          "story": 0,
+          "graphics": 2,
+          "replayability": 0
+        },
+        "arousal": 0
+      }
+    },
+    {
+      "text": "リプレイ性が高く何度も遊べる",
+      "vector": [
+        0.5,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0.5,
+        0.5,
+        0.5,
+        0.5,
+        0.5,
+        0.5,
+        0.5,
+        0.5,
+        0,
+        0.0753
+      ],
+      "score": {
+        "valence": 0,
+        "valenceLabel": "neutral",
+        "emotions": [],
+        "aspects": {
+          "fun": 0,
+          "difficulty": 0,
+          "content": 0,
+          "price_value": 0,
+          "performance": 0,
+          "story": 0,
+          "graphics": 0,
+          "replayability": 2
+        },
+        "aspectsHit": [
+          "replayability"
+        ],
+        "arousal": 0
+      },
+      "features": {
+        "valence": 0,
+        "emotions": {
+          "joy": 0,
+          "trust": 0,
+          "fear": 0,
+          "surprise": 0,
+          "sadness": 0,
+          "disgust": 0,
+          "anger": 0,
+          "anticipation": 0
+        },
+        "aspectMentions": {
+          "fun": 0,
+          "difficulty": 0,
+          "content": 0,
+          "price_value": 0,
+          "performance": 0,
+          "story": 0,
+          "graphics": 0,
+          "replayability": 2
+        },
+        "arousal": 0
+      }
+    },
+    {
+      "text": "refund requested",
+      "vector": [
+        0.525,
+        0,
+        1,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        1,
+        0.5,
+        0.5,
+        0.5,
+        0.5,
+        0.5,
+        0.5,
+        0.5,
+        1,
+        0.0753
+      ],
+      "score": {
+        "valence": 0.050000000000000044,
+        "valenceLabel": "positive",
+        "emotions": [
+          "joy"
+        ],
+        "aspects": {
+          "fun": 1,
+          "difficulty": 0,
+          "content": 0,
+          "price_value": 0,
+          "performance": 0,
+          "story": 0,
+          "graphics": 0,
+          "replayability": 0
+        },
+        "aspectsHit": [
+          "fun"
+        ],
+        "arousal": 0
+      },
+      "features": {
+        "valence": 0.050000000000000044,
+        "emotions": {
+          "joy": 1,
+          "trust": 0,
+          "fear": 0,
+          "surprise": 0,
+          "sadness": 0,
+          "disgust": 0,
+          "anger": 0,
+          "anticipation": 0
+        },
+        "aspectMentions": {
+          "fun": 1,
+          "difficulty": 0,
+          "content": 0,
+          "price_value": 0,
+          "performance": 0,
+          "story": 0,
+          "graphics": 0,
+          "replayability": 0
+        },
+        "arousal": 0
+      }
+    },
+    {
+      "text": "not bad",
+      "vector": [
+        0.325,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0.5,
+        0.5,
+        0.5,
+        0.5,
+        0.5,
+        0.5,
+        0.5,
+        0.5,
+        0,
+        0.0753
+      ],
+      "score": {
+        "valence": -0.35,
+        "valenceLabel": "negative",
+        "emotions": [],
+        "aspects": {
+          "fun": 0,
+          "difficulty": 0,
+          "content": 0,
+          "price_value": 0,
+          "performance": 0,
+          "story": 0,
+          "graphics": 0,
+          "replayability": 0
+        },
+        "aspectsHit": [],
+        "arousal": 0
+      },
+      "features": {
+        "valence": -0.35,
+        "emotions": {
+          "joy": 0,
+          "trust": 0,
+          "fear": 0,
+          "surprise": 0,
+          "sadness": 0,
+          "disgust": 0,
+          "anger": 0,
+          "anticipation": 0
+        },
+        "aspectMentions": {
+          "fun": 0,
+          "difficulty": 0,
+          "content": 0,
+          "price_value": 0,
+          "performance": 0,
+          "story": 0,
+          "graphics": 0,
+          "replayability": 0
+        },
+        "arousal": 0
+      }
+    },
+    {
+      "text": "普通",
+      "vector": [
+        0.5,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0.5,
+        0.5,
+        0.5,
+        0.5,
+        0.5,
+        0.5,
+        0.5,
+        0.5,
+        0,
+        0.0753
+      ],
+      "score": {
+        "valence": 0,
+        "valenceLabel": "neutral",
+        "emotions": [],
+        "aspects": {
+          "fun": 0,
+          "difficulty": 0,
+          "content": 0,
+          "price_value": 0,
+          "performance": 0,
+          "story": 0,
+          "graphics": 0,
+          "replayability": 0
+        },
+        "aspectsHit": [],
+        "arousal": 0
+      },
+      "features": {
+        "valence": 0,
+        "emotions": {
+          "joy": 0,
+          "trust": 0,
+          "fear": 0,
+          "surprise": 0,
+          "sadness": 0,
+          "disgust": 0,
+          "anger": 0,
+          "anticipation": 0
+        },
+        "aspectMentions": {
+          "fun": 0,
+          "difficulty": 0,
+          "content": 0,
+          "price_value": 0,
+          "performance": 0,
+          "story": 0,
+          "graphics": 0,
+          "replayability": 0
+        },
+        "arousal": 0
+      }
+    },
+    {
+      "text": "",
+      "vector": [
+        0.5,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0.5,
+        0.5,
+        0.5,
+        0.5,
+        0.5,
+        0.5,
+        0.5,
+        0.5,
+        0,
+        0.0753
+      ],
+      "score": {
+        "valence": 0,
+        "valenceLabel": "neutral",
+        "emotions": [],
+        "aspects": {
+          "fun": 0,
+          "difficulty": 0,
+          "content": 0,
+          "price_value": 0,
+          "performance": 0,
+          "story": 0,
+          "graphics": 0,
+          "replayability": 0
+        },
+        "aspectsHit": [],
+        "arousal": 0
+      },
+      "features": {
+        "valence": 0,
+        "emotions": {
+          "joy": 0,
+          "trust": 0,
+          "fear": 0,
+          "surprise": 0,
+          "sadness": 0,
+          "disgust": 0,
+          "anger": 0,
+          "anticipation": 0
+        },
+        "aspectMentions": {
+          "fun": 0,
+          "difficulty": 0,
+          "content": 0,
+          "price_value": 0,
+          "performance": 0,
+          "story": 0,
+          "graphics": 0,
+          "replayability": 0
+        },
+        "arousal": 0
+      }
+    },
+    {
+      "text": "!!!",
+      "vector": [
+        0.5,
+        1,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0.5,
+        0.5,
+        0.5,
+        0.5,
+        0.5,
+        0.5,
+        0.5,
+        0.5,
+        0,
+        0.0753
+      ],
+      "score": {
+        "valence": 0,
+        "valenceLabel": "neutral",
+        "emotions": [],
+        "aspects": {
+          "fun": 0,
+          "difficulty": 0,
+          "content": 0,
+          "price_value": 0,
+          "performance": 0,
+          "story": 0,
+          "graphics": 0,
+          "replayability": 0
+        },
+        "aspectsHit": [],
+        "arousal": 1
+      },
+      "features": {
+        "valence": 0,
+        "emotions": {
+          "joy": 0,
+          "trust": 0,
+          "fear": 0,
+          "surprise": 0,
+          "sadness": 0,
+          "disgust": 0,
+          "anger": 0,
+          "anticipation": 0
+        },
+        "aspectMentions": {
+          "fun": 0,
+          "difficulty": 0,
+          "content": 0,
+          "price_value": 0,
+          "performance": 0,
+          "story": 0,
+          "graphics": 0,
+          "replayability": 0
+        },
+        "arousal": 1
+      }
+    },
+    {
+      "text": "神",
+      "vector": [
+        0.65,
+        0.25,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0.5,
+        0.5,
+        0.5,
+        0.5,
+        0.5,
+        0.5,
+        0.5,
+        0.5,
+        1,
+        0.0753
+      ],
+      "score": {
+        "valence": 0.3,
+        "valenceLabel": "positive",
+        "emotions": [],
+        "aspects": {
+          "fun": 0,
+          "difficulty": 0,
+          "content": 0,
+          "price_value": 0,
+          "performance": 0,
+          "story": 0,
+          "graphics": 0,
+          "replayability": 0
+        },
+        "aspectsHit": [],
+        "arousal": 0.25
+      },
+      "features": {
+        "valence": 0.3,
+        "emotions": {
+          "joy": 0,
+          "trust": 0,
+          "fear": 0,
+          "surprise": 0,
+          "sadness": 0,
+          "disgust": 0,
+          "anger": 0,
+          "anticipation": 0
+        },
+        "aspectMentions": {
+          "fun": 0,
+          "difficulty": 0,
+          "content": 0,
+          "price_value": 0,
+          "performance": 0,
+          "story": 0,
+          "graphics": 0,
+          "replayability": 0
+        },
+        "arousal": 0.25
+      }
+    },
+    {
+      "text": "クソ",
+      "vector": [
+        0.325,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        1,
+        0,
+        0.5,
+        0.5,
+        0.5,
+        0.5,
+        0.5,
+        0.5,
+        0.5,
+        0.5,
+        0,
+        0.0753
+      ],
+      "score": {
+        "valence": -0.35,
+        "valenceLabel": "negative",
+        "emotions": [
+          "anger"
+        ],
+        "aspects": {
+          "fun": 0,
+          "difficulty": 0,
+          "content": 0,
+          "price_value": 0,
+          "performance": 0,
+          "story": 0,
+          "graphics": 0,
+          "replayability": 0
+        },
+        "aspectsHit": [],
+        "arousal": 0
+      },
+      "features": {
+        "valence": -0.35,
+        "emotions": {
+          "joy": 0,
+          "trust": 0,
+          "fear": 0,
+          "surprise": 0,
+          "sadness": 0,
+          "disgust": 0,
+          "anger": 1,
+          "anticipation": 0
+        },
+        "aspectMentions": {
+          "fun": 0,
+          "difficulty": 0,
+          "content": 0,
+          "price_value": 0,
+          "performance": 0,
+          "story": 0,
+          "graphics": 0,
+          "replayability": 0
+        },
+        "arousal": 0
+      }
+    },
+    {
+      "text": "期待している 次回アプデ待ち",
+      "vector": [
+        0.5,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        1,
+        0.5,
+        0.5,
+        0.5,
+        0.5,
+        0.5,
+        0.5,
+        0.5,
+        0.5,
+        0,
+        0.0753
+      ],
+      "score": {
+        "valence": 0,
+        "valenceLabel": "neutral",
+        "emotions": [
+          "anticipation"
+        ],
+        "aspects": {
+          "fun": 0,
+          "difficulty": 0,
+          "content": 0,
+          "price_value": 0,
+          "performance": 0,
+          "story": 0,
+          "graphics": 0,
+          "replayability": 0
+        },
+        "aspectsHit": [],
+        "arousal": 0
+      },
+      "features": {
+        "valence": 0,
+        "emotions": {
+          "joy": 0,
+          "trust": 0,
+          "fear": 0,
+          "surprise": 0,
+          "sadness": 0,
+          "disgust": 0,
+          "anger": 0,
+          "anticipation": 1
+        },
+        "aspectMentions": {
+          "fun": 0,
+          "difficulty": 0,
+          "content": 0,
+          "price_value": 0,
+          "performance": 0,
+          "story": 0,
+          "graphics": 0,
+          "replayability": 0
+        },
+        "arousal": 0
+      }
+    },
+    {
+      "text": "安心して遊べる安定した良作",
+      "vector": [
+        0.7,
+        0,
+        0,
+        1,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0.5,
+        0.5,
+        0.5,
+        0.5,
+        0.5,
+        0.5,
+        0.5,
+        0.5,
+        1,
+        0.0753
+      ],
+      "score": {
+        "valence": 0.4,
+        "valenceLabel": "positive",
+        "emotions": [
+          "trust"
+        ],
+        "aspects": {
+          "fun": 0,
+          "difficulty": 0,
+          "content": 0,
+          "price_value": 0,
+          "performance": 0,
+          "story": 0,
+          "graphics": 0,
+          "replayability": 0
+        },
+        "aspectsHit": [],
+        "arousal": 0
+      },
+      "features": {
+        "valence": 0.4,
+        "emotions": {
+          "joy": 0,
+          "trust": 1,
+          "fear": 0,
+          "surprise": 0,
+          "sadness": 0,
+          "disgust": 0,
+          "anger": 0,
+          "anticipation": 0
+        },
+        "aspectMentions": {
+          "fun": 0,
+          "difficulty": 0,
+          "content": 0,
+          "price_value": 0,
+          "performance": 0,
+          "story": 0,
+          "graphics": 0,
+          "replayability": 0
+        },
+        "arousal": 0
+      }
+    },
+    {
+      "text": "ホラーでビビった",
+      "vector": [
+        0.5,
+        0,
+        0,
+        0,
+        1,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0.5,
+        0.5,
+        0.5,
+        0.5,
+        0.5,
+        0.5,
+        0.5,
+        0.5,
+        0,
+        0.0753
+      ],
+      "score": {
+        "valence": 0,
+        "valenceLabel": "neutral",
+        "emotions": [
+          "fear"
+        ],
+        "aspects": {
+          "fun": 0,
+          "difficulty": 0,
+          "content": 0,
+          "price_value": 0,
+          "performance": 0,
+          "story": 0,
+          "graphics": 0,
+          "replayability": 0
+        },
+        "aspectsHit": [],
+        "arousal": 0
+      },
+      "features": {
+        "valence": 0,
+        "emotions": {
+          "joy": 0,
+          "trust": 0,
+          "fear": 1,
+          "surprise": 0,
+          "sadness": 0,
+          "disgust": 0,
+          "anger": 0,
+          "anticipation": 0
+        },
+        "aspectMentions": {
+          "fun": 0,
+          "difficulty": 0,
+          "content": 0,
+          "price_value": 0,
+          "performance": 0,
+          "story": 0,
+          "graphics": 0,
+          "replayability": 0
+        },
+        "arousal": 0
+      }
+    },
+    {
+      "text": "ムカつくほど理不尽",
+      "vector": [
+        0.35,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        1,
+        0,
+        0.5,
+        0,
+        0.5,
+        0.5,
+        0.5,
+        0.5,
+        0.5,
+        0.5,
+        0,
+        0.0753
+      ],
+      "score": {
+        "valence": -0.3,
+        "valenceLabel": "negative",
+        "emotions": [
+          "anger"
+        ],
+        "aspects": {
+          "fun": 0,
+          "difficulty": 1,
+          "content": 0,
+          "price_value": 0,
+          "performance": 0,
+          "story": 0,
+          "graphics": 0,
+          "replayability": 0
+        },
+        "aspectsHit": [
+          "difficulty"
+        ],
+        "arousal": 0
+      },
+      "features": {
+        "valence": -0.3,
+        "emotions": {
+          "joy": 0,
+          "trust": 0,
+          "fear": 0,
+          "surprise": 0,
+          "sadness": 0,
+          "disgust": 0,
+          "anger": 1,
+          "anticipation": 0
+        },
+        "aspectMentions": {
+          "fun": 0,
+          "difficulty": 1,
+          "content": 0,
+          "price_value": 0,
+          "performance": 0,
+          "story": 0,
+          "graphics": 0,
+          "replayability": 0
+        },
+        "arousal": 0
+      }
+    },
+    {
+      "text": "発見が楽しい exploration",
+      "vector": [
+        0.875,
+        0,
+        1,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        1,
+        0.5,
+        0.5,
+        0.5,
+        0.5,
+        0.5,
+        0.5,
+        0.5,
+        1,
+        0.0753
+      ],
+      "score": {
+        "valence": 0.75,
+        "valenceLabel": "positive",
+        "emotions": [
+          "joy"
+        ],
+        "aspects": {
+          "fun": 1,
+          "difficulty": 0,
+          "content": 0,
+          "price_value": 0,
+          "performance": 0,
+          "story": 0,
+          "graphics": 0,
+          "replayability": 0
+        },
+        "aspectsHit": [
+          "fun"
+        ],
+        "arousal": 0
+      },
+      "features": {
+        "valence": 0.75,
+        "emotions": {
+          "joy": 1,
+          "trust": 0,
+          "fear": 0,
+          "surprise": 0,
+          "sadness": 0,
+          "disgust": 0,
+          "anger": 0,
+          "anticipation": 0
+        },
+        "aspectMentions": {
+          "fun": 1,
+          "difficulty": 0,
+          "content": 0,
+          "price_value": 0,
+          "performance": 0,
+          "story": 0,
+          "graphics": 0,
+          "replayability": 0
+        },
+        "arousal": 0
+      }
+    },
+    {
+      "text": "story good, gameplay bad",
+      "vector": [
+        0.475,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0.5,
+        0.5,
+        0.5,
+        0.5,
+        0.5,
+        0.5,
+        0.5,
+        0.5,
+        0,
+        0.0753
+      ],
+      "score": {
+        "valence": -0.04999999999999999,
+        "valenceLabel": "neutral",
+        "emotions": [],
+        "aspects": {
+          "fun": 0,
+          "difficulty": 0,
+          "content": 0,
+          "price_value": 0,
+          "performance": 0,
+          "story": 1,
+          "graphics": 0,
+          "replayability": 0
+        },
+        "aspectsHit": [
+          "story"
+        ],
+        "arousal": 0
+      },
+      "features": {
+        "valence": -0.04999999999999999,
+        "emotions": {
+          "joy": 0,
+          "trust": 0,
+          "fear": 0,
+          "surprise": 0,
+          "sadness": 0,
+          "disgust": 0,
+          "anger": 0,
+          "anticipation": 0
+        },
+        "aspectMentions": {
+          "fun": 0,
+          "difficulty": 0,
+          "content": 0,
+          "price_value": 0,
+          "performance": 0,
+          "story": 1,
+          "graphics": 0,
+          "replayability": 0
+        },
+        "arousal": 0
+      }
+    },
+    {
+      "text": "beautiful but overpriced",
+      "vector": [
+        0.5,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0.5,
+        0.5,
+        0.5,
+        0.5,
+        0.5,
+        0.5,
+        0.5,
+        0.5,
+        0,
+        0.0753
+      ],
+      "score": {
+        "valence": 0,
+        "valenceLabel": "neutral",
+        "emotions": [],
+        "aspects": {
+          "fun": 0,
+          "difficulty": 0,
+          "content": 0,
+          "price_value": 1,
+          "performance": 0,
+          "story": 0,
+          "graphics": 1,
+          "replayability": 0
+        },
+        "aspectsHit": [
+          "price_value",
+          "graphics"
+        ],
+        "arousal": 0
+      },
+      "features": {
+        "valence": 0,
+        "emotions": {
+          "joy": 0,
+          "trust": 0,
+          "fear": 0,
+          "surprise": 0,
+          "sadness": 0,
+          "disgust": 0,
+          "anger": 0,
+          "anticipation": 0
+        },
+        "aspectMentions": {
+          "fun": 0,
+          "difficulty": 0,
+          "content": 0,
+          "price_value": 1,
+          "performance": 0,
+          "story": 0,
+          "graphics": 1,
+          "replayability": 0
+        },
+        "arousal": 0
+      }
+    },
+    {
+      "text": "easy and relaxing",
+      "vector": [
+        0.5,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0.5,
+        0.5,
+        0.5,
+        0.5,
+        0.5,
+        0.5,
+        0.5,
+        0.5,
+        0,
+        0.0753
+      ],
+      "score": {
+        "valence": 0,
+        "valenceLabel": "neutral",
+        "emotions": [],
+        "aspects": {
+          "fun": 0,
+          "difficulty": 1,
+          "content": 0,
+          "price_value": 0,
+          "performance": 0,
+          "story": 0,
+          "graphics": 0,
+          "replayability": 0
+        },
+        "aspectsHit": [
+          "difficulty"
+        ],
+        "arousal": 0
+      },
+      "features": {
+        "valence": 0,
+        "emotions": {
+          "joy": 0,
+          "trust": 0,
+          "fear": 0,
+          "surprise": 0,
+          "sadness": 0,
+          "disgust": 0,
+          "anger": 0,
+          "anticipation": 0
+        },
+        "aspectMentions": {
+          "fun": 0,
+          "difficulty": 1,
+          "content": 0,
+          "price_value": 0,
+          "performance": 0,
+          "story": 0,
+          "graphics": 0,
+          "replayability": 0
+        },
+        "arousal": 0
+      }
+    },
+    {
+      "text": "challenging boss was amazing!!",
+      "vector": [
+        0.75,
+        1,
+        1,
+        0,
+        0,
+        1,
+        0,
+        0,
+        0,
+        0,
+        0.5,
+        1,
+        0.5,
+        0.5,
+        0.5,
+        0.5,
+        0.5,
+        0.5,
+        1,
+        0.0753
+      ],
+      "score": {
+        "valence": 0.5,
+        "valenceLabel": "positive",
+        "emotions": [
+          "joy",
+          "surprise"
+        ],
+        "aspects": {
+          "fun": 0,
+          "difficulty": 1,
+          "content": 0,
+          "price_value": 0,
+          "performance": 0,
+          "story": 0,
+          "graphics": 0,
+          "replayability": 0
+        },
+        "aspectsHit": [
+          "difficulty"
+        ],
+        "arousal": 1
+      },
+      "features": {
+        "valence": 0.5,
+        "emotions": {
+          "joy": 1,
+          "trust": 0,
+          "fear": 0,
+          "surprise": 1,
+          "sadness": 0,
+          "disgust": 0,
+          "anger": 0,
+          "anticipation": 0
+        },
+        "aspectMentions": {
+          "fun": 0,
+          "difficulty": 1,
+          "content": 0,
+          "price_value": 0,
+          "performance": 0,
+          "story": 0,
+          "graphics": 0,
+          "replayability": 0
+        },
+        "arousal": 1
+      }
+    },
+    {
+      "text": "ガチャで最高のキャラが出た!",
+      "vector": [
+        0.725,
+        0.75,
+        1,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0.5,
+        0.5,
+        0.5,
+        0.5,
+        0.5,
+        1,
+        0.5,
+        0.5,
+        1,
+        0.0753
+      ],
+      "score": {
+        "valence": 0.45,
+        "valenceLabel": "positive",
+        "emotions": [
+          "joy"
+        ],
+        "aspects": {
+          "fun": 0,
+          "difficulty": 0,
+          "content": 0,
+          "price_value": 0,
+          "performance": 0,
+          "story": 1,
+          "graphics": 0,
+          "replayability": 0
+        },
+        "aspectsHit": [
+          "story"
+        ],
+        "arousal": 0.75
+      },
+      "features": {
+        "valence": 0.45,
+        "emotions": {
+          "joy": 1,
+          "trust": 0,
+          "fear": 0,
+          "surprise": 0,
+          "sadness": 0,
+          "disgust": 0,
+          "anger": 0,
+          "anticipation": 0
+        },
+        "aspectMentions": {
+          "fun": 0,
+          "difficulty": 0,
+          "content": 0,
+          "price_value": 0,
+          "performance": 0,
+          "story": 1,
+          "graphics": 0,
+          "replayability": 0
+        },
+        "arousal": 0.75
+      }
+    },
+    {
+      "text": "ガチャ課金は詐欺",
+      "vector": [
+        0.25,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0.5,
+        0.5,
+        0.5,
+        0,
+        0.5,
+        0.5,
+        0.5,
+        0.5,
+        0,
+        0.0753
+      ],
+      "score": {
+        "valence": -0.5,
+        "valenceLabel": "negative",
+        "emotions": [],
+        "aspects": {
+          "fun": 0,
+          "difficulty": 0,
+          "content": 0,
+          "price_value": 1,
+          "performance": 0,
+          "story": 0,
+          "graphics": 0,
+          "replayability": 0
+        },
+        "aspectsHit": [
+          "price_value"
+        ],
+        "arousal": 0
+      },
+      "features": {
+        "valence": -0.5,
+        "emotions": {
+          "joy": 0,
+          "trust": 0,
+          "fear": 0,
+          "surprise": 0,
+          "sadness": 0,
+          "disgust": 0,
+          "anger": 0,
+          "anticipation": 0
+        },
+        "aspectMentions": {
+          "fun": 0,
+          "difficulty": 0,
+          "content": 0,
+          "price_value": 1,
+          "performance": 0,
+          "story": 0,
+          "graphics": 0,
+          "replayability": 0
+        },
+        "arousal": 0
+      }
+    },
+    {
+      "text": "やり込みボリュームがある",
+      "vector": [
+        0.5,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0.5,
+        0.5,
+        0.5,
+        0.5,
+        0.5,
+        0.5,
+        0.5,
+        0.5,
+        0,
+        0.0753
+      ],
+      "score": {
+        "valence": 0,
+        "valenceLabel": "neutral",
+        "emotions": [],
+        "aspects": {
+          "fun": 0,
+          "difficulty": 0,
+          "content": 3,
+          "price_value": 0,
+          "performance": 0,
+          "story": 0,
+          "graphics": 0,
+          "replayability": 1
+        },
+        "aspectsHit": [
+          "content",
+          "replayability"
+        ],
+        "arousal": 0
+      },
+      "features": {
+        "valence": 0,
+        "emotions": {
+          "joy": 0,
+          "trust": 0,
+          "fear": 0,
+          "surprise": 0,
+          "sadness": 0,
+          "disgust": 0,
+          "anger": 0,
+          "anticipation": 0
+        },
+        "aspectMentions": {
+          "fun": 0,
+          "difficulty": 0,
+          "content": 3,
+          "price_value": 0,
+          "performance": 0,
+          "story": 0,
+          "graphics": 0,
+          "replayability": 1
+        },
+        "arousal": 0
+      }
+    },
+    {
+      "text": "最適化不足で落ちる",
+      "vector": [
+        0.5,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0.5,
+        0.5,
+        0.5,
+        0.5,
+        0.5,
+        0.5,
+        0.5,
+        0.5,
+        0,
+        0.0753
+      ],
+      "score": {
+        "valence": 0,
+        "valenceLabel": "neutral",
+        "emotions": [],
+        "aspects": {
+          "fun": 0,
+          "difficulty": 0,
+          "content": 0,
+          "price_value": 0,
+          "performance": 2,
+          "story": 0,
+          "graphics": 0,
+          "replayability": 0
+        },
+        "aspectsHit": [
+          "performance"
+        ],
+        "arousal": 0
+      },
+      "features": {
+        "valence": 0,
+        "emotions": {
+          "joy": 0,
+          "trust": 0,
+          "fear": 0,
+          "surprise": 0,
+          "sadness": 0,
+          "disgust": 0,
+          "anger": 0,
+          "anticipation": 0
+        },
+        "aspectMentions": {
+          "fun": 0,
+          "difficulty": 0,
+          "content": 0,
+          "price_value": 0,
+          "performance": 2,
+          "story": 0,
+          "graphics": 0,
+          "replayability": 0
+        },
+        "arousal": 0
+      }
+    },
+    {
+      "text": "協力プレイが楽しい",
+      "vector": [
+        0.875,
+        0,
+        1,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        1,
+        0.5,
+        0.5,
+        0.5,
+        0.5,
+        0.5,
+        0.5,
+        0.5,
+        1,
+        0.0753
+      ],
+      "score": {
+        "valence": 0.75,
+        "valenceLabel": "positive",
+        "emotions": [
+          "joy"
+        ],
+        "aspects": {
+          "fun": 1,
+          "difficulty": 0,
+          "content": 0,
+          "price_value": 0,
+          "performance": 0,
+          "story": 0,
+          "graphics": 0,
+          "replayability": 0
+        },
+        "aspectsHit": [
+          "fun"
+        ],
+        "arousal": 0
+      },
+      "features": {
+        "valence": 0.75,
+        "emotions": {
+          "joy": 1,
+          "trust": 0,
+          "fear": 0,
+          "surprise": 0,
+          "sadness": 0,
+          "disgust": 0,
+          "anger": 0,
+          "anticipation": 0
+        },
+        "aspectMentions": {
+          "fun": 1,
+          "difficulty": 0,
+          "content": 0,
+          "price_value": 0,
+          "performance": 0,
+          "story": 0,
+          "graphics": 0,
+          "replayability": 0
+        },
+        "arousal": 0
+      }
+    },
+    {
+      "text": "期待外れで微妙",
+      "vector": [
+        0.4,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        1,
+        0.5,
+        0.5,
+        0.5,
+        0.5,
+        0.5,
+        0.5,
+        0.5,
+        0.5,
+        0,
+        0.0753
+      ],
+      "score": {
+        "valence": -0.2,
+        "valenceLabel": "negative",
+        "emotions": [
+          "anticipation"
+        ],
+        "aspects": {
+          "fun": 0,
+          "difficulty": 0,
+          "content": 0,
+          "price_value": 0,
+          "performance": 0,
+          "story": 0,
+          "graphics": 0,
+          "replayability": 0
+        },
+        "aspectsHit": [],
+        "arousal": 0
+      },
+      "features": {
+        "valence": -0.2,
+        "emotions": {
+          "joy": 0,
+          "trust": 0,
+          "fear": 0,
+          "surprise": 0,
+          "sadness": 0,
+          "disgust": 0,
+          "anger": 0,
+          "anticipation": 1
+        },
+        "aspectMentions": {
+          "fun": 0,
+          "difficulty": 0,
+          "content": 0,
+          "price_value": 0,
+          "performance": 0,
+          "story": 0,
+          "graphics": 0,
+          "replayability": 0
+        },
+        "arousal": 0
+      }
+    },
+    {
+      "text": "masterpiece 名作",
+      "vector": [
+        0.975,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0.5,
+        0.5,
+        0.5,
+        0.5,
+        0.5,
+        0.5,
+        0.5,
+        0.5,
+        1,
+        0.0753
+      ],
+      "score": {
+        "valence": 0.95,
+        "valenceLabel": "positive",
+        "emotions": [],
+        "aspects": {
+          "fun": 0,
+          "difficulty": 0,
+          "content": 0,
+          "price_value": 0,
+          "performance": 0,
+          "story": 0,
+          "graphics": 0,
+          "replayability": 0
+        },
+        "aspectsHit": [],
+        "arousal": 0
+      },
+      "features": {
+        "valence": 0.95,
+        "emotions": {
+          "joy": 0,
+          "trust": 0,
+          "fear": 0,
+          "surprise": 0,
+          "sadness": 0,
+          "disgust": 0,
+          "anger": 0,
+          "anticipation": 0
+        },
+        "aspectMentions": {
+          "fun": 0,
+          "difficulty": 0,
+          "content": 0,
+          "price_value": 0,
+          "performance": 0,
+          "story": 0,
+          "graphics": 0,
+          "replayability": 0
+        },
+        "arousal": 0
+      }
+    },
+    {
+      "text": "AWESOME Combat!!",
+      "vector": [
+        0.75,
+        1,
+        1,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0.5,
+        0.5,
+        0.5,
+        0.5,
+        0.5,
+        0.5,
+        0.5,
+        0.5,
+        1,
+        0.0753
+      ],
+      "score": {
+        "valence": 0.5,
+        "valenceLabel": "positive",
+        "emotions": [
+          "joy"
+        ],
+        "aspects": {
+          "fun": 0,
+          "difficulty": 0,
+          "content": 0,
+          "price_value": 0,
+          "performance": 0,
+          "story": 0,
+          "graphics": 0,
+          "replayability": 0
+        },
+        "aspectsHit": [],
+        "arousal": 1
+      },
+      "features": {
+        "valence": 0.5,
+        "emotions": {
+          "joy": 1,
+          "trust": 0,
+          "fear": 0,
+          "surprise": 0,
+          "sadness": 0,
+          "disgust": 0,
+          "anger": 0,
+          "anticipation": 0
+        },
+        "aspectMentions": {
+          "fun": 0,
+          "difficulty": 0,
+          "content": 0,
+          "price_value": 0,
+          "performance": 0,
+          "story": 0,
+          "graphics": 0,
+          "replayability": 0
+        },
+        "arousal": 1
+      }
+    },
+    {
+      "text": "ÉPIC fail",
+      "vector": [
+        0.5,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0.5,
+        0.5,
+        0.5,
+        0.5,
+        0.5,
+        0.5,
+        0.5,
+        0.5,
+        0,
+        0.0753
+      ],
+      "score": {
+        "valence": 0,
+        "valenceLabel": "neutral",
+        "emotions": [],
+        "aspects": {
+          "fun": 0,
+          "difficulty": 0,
+          "content": 0,
+          "price_value": 0,
+          "performance": 0,
+          "story": 0,
+          "graphics": 0,
+          "replayability": 0
+        },
+        "aspectsHit": [],
+        "arousal": 0
+      },
+      "features": {
+        "valence": 0,
+        "emotions": {
+          "joy": 0,
+          "trust": 0,
+          "fear": 0,
+          "surprise": 0,
+          "sadness": 0,
+          "disgust": 0,
+          "anger": 0,
+          "anticipation": 0
+        },
+        "aspectMentions": {
+          "fun": 0,
+          "difficulty": 0,
+          "content": 0,
+          "price_value": 0,
+          "performance": 0,
+          "story": 0,
+          "graphics": 0,
+          "replayability": 0
+        },
+        "arousal": 0
+      }
+    },
+    {
+      "text": "ＧＯＯＤ ｇａｍｅ",
+      "vector": [
+        0.5,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0.5,
+        0.5,
+        0.5,
+        0.5,
+        0.5,
+        0.5,
+        0.5,
+        0.5,
+        0,
+        0.0753
+      ],
+      "score": {
+        "valence": 0,
+        "valenceLabel": "neutral",
+        "emotions": [],
+        "aspects": {
+          "fun": 0,
+          "difficulty": 0,
+          "content": 0,
+          "price_value": 0,
+          "performance": 0,
+          "story": 0,
+          "graphics": 0,
+          "replayability": 0
+        },
+        "aspectsHit": [],
+        "arousal": 0
+      },
+      "features": {
+        "valence": 0,
+        "emotions": {
+          "joy": 0,
+          "trust": 0,
+          "fear": 0,
+          "surprise": 0,
+          "sadness": 0,
+          "disgust": 0,
+          "anger": 0,
+          "anticipation": 0
+        },
+        "aspectMentions": {
+          "fun": 0,
+          "difficulty": 0,
+          "content": 0,
+          "price_value": 0,
+          "performance": 0,
+          "story": 0,
+          "graphics": 0,
+          "replayability": 0
+        },
+        "arousal": 0
+      }
+    },
+    {
+      "text": "great great great",
+      "vector": [
+        0.7,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0.5,
+        0.5,
+        0.5,
+        0.5,
+        0.5,
+        0.5,
+        0.5,
+        0.5,
+        1,
+        0.0753
+      ],
+      "score": {
+        "valence": 0.4,
+        "valenceLabel": "positive",
+        "emotions": [],
+        "aspects": {
+          "fun": 0,
+          "difficulty": 0,
+          "content": 0,
+          "price_value": 0,
+          "performance": 0,
+          "story": 0,
+          "graphics": 0,
+          "replayability": 0
+        },
+        "aspectsHit": [],
+        "arousal": 0
+      },
+      "features": {
+        "valence": 0.4,
+        "emotions": {
+          "joy": 0,
+          "trust": 0,
+          "fear": 0,
+          "surprise": 0,
+          "sadness": 0,
+          "disgust": 0,
+          "anger": 0,
+          "anticipation": 0
+        },
+        "aspectMentions": {
+          "fun": 0,
+          "difficulty": 0,
+          "content": 0,
+          "price_value": 0,
+          "performance": 0,
+          "story": 0,
+          "graphics": 0,
+          "replayability": 0
+        },
+        "arousal": 0
+      }
+    },
+    {
+      "text": "not good, not bad, boring and fun",
+      "vector": [
+        0.4875,
+        0,
+        1,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0.5,
+        0.5,
+        0.5,
+        0.5,
+        0.5,
+        0.5,
+        0.5,
+        0.5,
+        0,
+        0.0753
+      ],
+      "score": {
+        "valence": -0.025000000000000022,
+        "valenceLabel": "neutral",
+        "emotions": [
+          "joy"
+        ],
+        "aspects": {
+          "fun": 1,
+          "difficulty": 0,
+          "content": 0,
+          "price_value": 0,
+          "performance": 0,
+          "story": 0,
+          "graphics": 0,
+          "replayability": 0
+        },
+        "aspectsHit": [
+          "fun"
+        ],
+        "arousal": 0
+      },
+      "features": {
+        "valence": -0.025000000000000022,
+        "emotions": {
+          "joy": 1,
+          "trust": 0,
+          "fear": 0,
+          "surprise": 0,
+          "sadness": 0,
+          "disgust": 0,
+          "anger": 0,
+          "anticipation": 0
+        },
+        "aspectMentions": {
+          "fun": 1,
+          "difficulty": 0,
+          "content": 0,
+          "price_value": 0,
+          "performance": 0,
+          "story": 0,
+          "graphics": 0,
+          "replayability": 0
+        },
+        "arousal": 0
+      }
+    },
+    {
+      "text": "神ゲー!!!!!!!!",
+      "vector": [
+        0.9333,
+        1,
+        1,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0.5,
+        0.5,
+        0.5,
+        0.5,
+        0.5,
+        0.5,
+        0.5,
+        0.5,
+        1,
+        0.0753
+      ],
+      "score": {
+        "valence": 0.8666666666666667,
+        "valenceLabel": "positive",
+        "emotions": [
+          "joy"
+        ],
+        "aspects": {
+          "fun": 0,
+          "difficulty": 0,
+          "content": 0,
+          "price_value": 0,
+          "performance": 0,
+          "story": 0,
+          "graphics": 0,
+          "replayability": 0
+        },
+        "aspectsHit": [],
+        "arousal": 1
+      },
+      "features": {
+        "valence": 0.8666666666666667,
+        "emotions": {
+          "joy": 1,
+          "trust": 0,
+          "fear": 0,
+          "surprise": 0,
+          "sadness": 0,
+          "disgust": 0,
+          "anger": 0,
+          "anticipation": 0
+        },
+        "aspectMentions": {
+          "fun": 0,
+          "difficulty": 0,
+          "content": 0,
+          "price_value": 0,
+          "performance": 0,
+          "story": 0,
+          "graphics": 0,
+          "replayability": 0
+        },
+        "arousal": 1
+      }
+    },
+    {
+      "text": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa love",
+      "vector": [
+        0.725,
+        0,
+        1,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0.5,
+        0.5,
+        0.5,
+        0.5,
+        0.5,
+        0.5,
+        0.5,
+        0.5,
+        1,
+        0.0753
+      ],
+      "score": {
+        "valence": 0.45,
+        "valenceLabel": "positive",
+        "emotions": [
+          "joy"
+        ],
+        "aspects": {
+          "fun": 0,
+          "difficulty": 0,
+          "content": 0,
+          "price_value": 0,
+          "performance": 0,
+          "story": 0,
+          "graphics": 0,
+          "replayability": 0
+        },
+        "aspectsHit": [],
+        "arousal": 0
+      },
+      "features": {
+        "valence": 0.45,
+        "emotions": {
+          "joy": 1,
+          "trust": 0,
+          "fear": 0,
+          "surprise": 0,
+          "sadness": 0,
+          "disgust": 0,
+          "anger": 0,
+          "anticipation": 0
+        },
+        "aspectMentions": {
+          "fun": 0,
+          "difficulty": 0,
+          "content": 0,
+          "price_value": 0,
+          "performance": 0,
+          "story": 0,
+          "graphics": 0,
+          "replayability": 0
+        },
+        "arousal": 0
+      }
+    },
+    {
+      "text": "😀 最高",
+      "vector": [
+        0.725,
+        0.25,
+        1,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0.5,
+        0.5,
+        0.5,
+        0.5,
+        0.5,
+        0.5,
+        0.5,
+        0.5,
+        1,
+        0.0753
+      ],
+      "score": {
+        "valence": 0.45,
+        "valenceLabel": "positive",
+        "emotions": [
+          "joy"
+        ],
+        "aspects": {
+          "fun": 0,
+          "difficulty": 0,
+          "content": 0,
+          "price_value": 0,
+          "performance": 0,
+          "story": 0,
+          "graphics": 0,
+          "replayability": 0
+        },
+        "aspectsHit": [],
+        "arousal": 0.25
+      },
+      "features": {
+        "valence": 0.45,
+        "emotions": {
+          "joy": 1,
+          "trust": 0,
+          "fear": 0,
+          "surprise": 0,
+          "sadness": 0,
+          "disgust": 0,
+          "anger": 0,
+          "anticipation": 0
+        },
+        "aspectMentions": {
+          "fun": 0,
+          "difficulty": 0,
+          "content": 0,
+          "price_value": 0,
+          "performance": 0,
+          "story": 0,
+          "graphics": 0,
+          "replayability": 0
+        },
+        "arousal": 0.25
+      }
+    },
+    {
+      "text": "mixed: love hate love",
+      "vector": [
+        0.5,
+        0,
+        1,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0.5,
+        0.5,
+        0.5,
+        0.5,
+        0.5,
+        0.5,
+        0.5,
+        0.5,
+        0,
+        0.0753
+      ],
+      "score": {
+        "valence": 0,
+        "valenceLabel": "neutral",
+        "emotions": [
+          "joy"
+        ],
+        "aspects": {
+          "fun": 0,
+          "difficulty": 0,
+          "content": 0,
+          "price_value": 0,
+          "performance": 0,
+          "story": 0,
+          "graphics": 0,
+          "replayability": 0
+        },
+        "aspectsHit": [],
+        "arousal": 0
+      },
+      "features": {
+        "valence": 0,
+        "emotions": {
+          "joy": 1,
+          "trust": 0,
+          "fear": 0,
+          "surprise": 0,
+          "sadness": 0,
+          "disgust": 0,
+          "anger": 0,
+          "anticipation": 0
+        },
+        "aspectMentions": {
+          "fun": 0,
+          "difficulty": 0,
+          "content": 0,
+          "price_value": 0,
+          "performance": 0,
+          "story": 0,
+          "graphics": 0,
+          "replayability": 0
+        },
+        "arousal": 0
+      }
+    }
+  ]
+}
