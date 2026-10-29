@@ -9,6 +9,7 @@
 import assert from "node:assert/strict";
 import path from "node:path";
 import fs from "node:fs";
+import { Script } from "node:vm";
 
 import { parseFlowKind, dispatchFlow, FlowTypeRequiredError } from "../../src/flow/dispatch.js";
 import { parseForumEntry, handleForumFlowPost } from "../../src/flow/entry-discord.js";
@@ -197,7 +198,8 @@ import { parseForumEntry, handleForumFlowPost } from "../../src/flow/entry-disco
   assert.ok(!pageHtml.includes('id="rvEditBtn"'), "旧 全体調整 ボタンは表示しない");
   const pageScript = /<script>([\s\S]*?)<\/script>/.exec(pageHtml)?.[1];
   assert.ok(pageScript, "UI に script がある");
-  assert.doesNotThrow(() => new Function(pageScript), "UI script が構文エラーなく parse できる");
+  // Compile as a function body (same grammar as before) without ever running page code.
+  assert.doesNotThrow(() => new Script(`(function () {\n${pageScript}\n})`), "UI script が構文エラーなく parse できる");
 
   const syntheticVoices = normalizeSyntheticLearningOpinions(
     [
