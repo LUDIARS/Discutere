@@ -1,0 +1,1959 @@
+[
+  {
+    "content": "",
+    "data": {
+      "title": "Hello"
+    },
+    "output": "---\ntitle: Hello\n---\n\n",
+    "yaml": "title: Hello\n"
+  },
+  {
+    "content": "body",
+    "data": {
+      "id": "my-game",
+      "title": "Quoted: title",
+      "genre": "action",
+      "count": 3,
+      "ratio": 0.5,
+      "flag": true,
+      "nothing": null
+    },
+    "output": "---\nid: my-game\ntitle: 'Quoted: title'\ngenre: action\ncount: 3\nratio: 0.5\nflag: true\nnothing: null\n---\nbody\n",
+    "yaml": "id: my-game\ntitle: 'Quoted: title'\ngenre: action\ncount: 3\nratio: 0.5\nflag: true\nnothing: null\n"
+  },
+  {
+    "content": "body\n",
+    "data": {
+      "mechanics": [
+        {
+          "name": "ガチャ",
+          "description": "確率で入手",
+          "intended_aspects": [
+            "luck",
+            "collect"
+          ]
+        },
+        {
+          "name": "協力",
+          "source": "data"
+        }
+      ]
+    },
+    "output": "---\nmechanics:\n  - name: ガチャ\n    description: 確率で入手\n    intended_aspects:\n      - luck\n      - collect\n  - name: 協力\n    source: data\n---\nbody\n",
+    "yaml": "mechanics:\n  - name: ガチャ\n    description: 確率で入手\n    intended_aspects:\n      - luck\n      - collect\n  - name: 協力\n    source: data\n"
+  },
+  {
+    "content": "\n# 見出し\n\n本文\n",
+    "data": {
+      "list": [
+        "a",
+        "b",
+        "c d"
+      ],
+      "nested": {
+        "deep": {
+          "k": "v"
+        }
+      }
+    },
+    "output": "---\nlist:\n  - a\n  - b\n  - c d\nnested:\n  deep:\n    k: v\n---\n\n# 見出し\n\n本文\n",
+    "yaml": "list:\n  - a\n  - b\n  - c d\nnested:\n  deep:\n    k: v\n"
+  },
+  {
+    "content": "no newline",
+    "data": {
+      "emptyArr": [],
+      "emptyObj": {},
+      "nestedEmpty": {
+        "a": [],
+        "b": {}
+      },
+      "arrOfEmpty": [
+        [],
+        {}
+      ]
+    },
+    "output": "---\nemptyArr: []\nemptyObj: {}\nnestedEmpty:\n  a: []\n  b: {}\narrOfEmpty:\n  - []\n  - {}\n---\nno newline\n",
+    "yaml": "emptyArr: []\nemptyObj: {}\nnestedEmpty:\n  a: []\n  b: {}\narrOfEmpty:\n  - []\n  - {}\n"
+  },
+  {
+    "content": "\n\n",
+    "data": {
+      "seq_of_seq": [
+        [
+          "a",
+          "b"
+        ],
+        [
+          "c"
+        ],
+        [
+          [
+            1,
+            2
+          ],
+          []
+        ]
+      ]
+    },
+    "output": "---\nseq_of_seq:\n  - - a\n    - b\n  - - c\n  - - - 1\n      - 2\n    - []\n---\n\n\n",
+    "yaml": "seq_of_seq:\n  - - a\n    - b\n  - - c\n  - - - 1\n      - 2\n    - []\n"
+  },
+  {
+    "content": "---\nexisting: yes\nkeep: 1\n---\nrest of body\n",
+    "data": {
+      "objs": [
+        {
+          "a": {
+            "b": [
+              1,
+              {
+                "c": "multi\nline"
+              }
+            ]
+          }
+        },
+        {
+          "list": [
+            "x\ny",
+            "これは長い説明文です。これは長い説明文です。これは長い説明文です。これは長い説明文です。これは長い説明文です。これは長い説明文です。これは長い説明文です。これは長い説明文です。これは長い説明文です。これは長い説明文です。これは長い説明文です。これは長い説明文です。"
+          ]
+        }
+      ]
+    },
+    "output": "---\nexisting: 'yes'\nkeep: 1\nobjs:\n  - a:\n      b:\n        - 1\n        - c: |-\n            multi\n            line\n  - list:\n      - |-\n        x\n        y\n      - >-\n        これは長い説明文です。これは長い説明文です。これは長い説明文です。これは長い説明文です。これは長い説明文です。これは長い説明文です。これは長い説明文です。これは長い説明文です。これは長い説明文です。これは長い説明文です。これは長い説明文です。これは長い説明文です。\n---\nrest of body\n",
+    "yaml": "objs:\n  - a:\n      b:\n        - 1\n        - c: |-\n            multi\n            line\n  - list:\n      - |-\n        x\n        y\n      - >-\n        これは長い説明文です。これは長い説明文です。これは長い説明文です。これは長い説明文です。これは長い説明文です。これは長い説明文です。これは長い説明文です。これは長い説明文です。これは長い説明文です。これは長い説明文です。これは長い説明文です。これは長い説明文です。\n"
+  },
+  {
+    "content": "﻿bom body",
+    "data": {
+      "lit": "line1\nline2",
+      "fold": "これは長い説明文です。これは長い説明文です。これは長い説明文です。これは長い説明文です。これは長い説明文です。これは長い説明文です。これは長い説明文です。これは長い説明文です。これは長い説明文です。これは長い説明文です。これは長い説明文です。これは長い説明文です。",
+      "keep": "x\n\n",
+      "keepOnly": "\n",
+      "lead": "  sp\nx"
+    },
+    "output": "---\nlit: |-\n  line1\n  line2\nfold: >-\n  これは長い説明文です。これは長い説明文です。これは長い説明文です。これは長い説明文です。これは長い説明文です。これは長い説明文です。これは長い説明文です。これは長い説明文です。これは長い説明文です。これは長い説明文です。これは長い説明文です。これは長い説明文です。\nkeep: |+\n  x\n\nkeepOnly: |+\n\nlead: |2-\n    sp\n  x\n---\nbom body\n",
+    "yaml": "lit: |-\n  line1\n  line2\nfold: >-\n  これは長い説明文です。これは長い説明文です。これは長い説明文です。これは長い説明文です。これは長い説明文です。これは長い説明文です。これは長い説明文です。これは長い説明文です。これは長い説明文です。これは長い説明文です。これは長い説明文です。これは長い説明文です。\nkeep: |+\n  x\n\nkeepOnly: |+\n\nlead: |2-\n    sp\n  x\n"
+  },
+  {
+    "content": "",
+    "data": {
+      "deep": {
+        "l1": {
+          "l2": {
+            "l3": {
+              "l4": {
+                "l5": {
+                  "text": "これは長い説明文です。これは長い説明文です。これは長い説明文です。これは長い説明文です。これは長い説明文です。これは長い説明文です。これは長い説明文です。これは長い説明文です。これは長い説明文です。これは長い説明文です。これは長い説明文です。これは長い説明文です。",
+                  "en": "word0 word1 word2 word3 word4 word5 word6 word7 word8 word9 word10 word11 word12 word13 word14 word15 word16 word17 word18 word19 word20 word21 word22 word23 word24 word25 word26 word27 word28 word29"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "output": "---\ndeep:\n  l1:\n    l2:\n      l3:\n        l4:\n          l5:\n            text: >-\n              これは長い説明文です。これは長い説明文です。これは長い説明文です。これは長い説明文です。これは長い説明文です。これは長い説明文です。これは長い説明文です。これは長い説明文です。これは長い説明文です。これは長い説明文です。これは長い説明文です。これは長い説明文です。\n            en: >-\n              word0 word1 word2 word3 word4 word5 word6 word7 word8 word9 word10\n              word11 word12 word13 word14 word15 word16 word17 word18 word19\n              word20 word21 word22 word23 word24 word25 word26 word27 word28\n              word29\n---\n\n",
+    "yaml": "deep:\n  l1:\n    l2:\n      l3:\n        l4:\n          l5:\n            text: >-\n              これは長い説明文です。これは長い説明文です。これは長い説明文です。これは長い説明文です。これは長い説明文です。これは長い説明文です。これは長い説明文です。これは長い説明文です。これは長い説明文です。これは長い説明文です。これは長い説明文です。これは長い説明文です。\n            en: >-\n              word0 word1 word2 word3 word4 word5 word6 word7 word8 word9 word10\n              word11 word12 word13 word14 word15 word16 word17 word18 word19\n              word20 word21 word22 word23 word24 word25 word26 word27 word28\n              word29\n"
+  },
+  {
+    "content": "body",
+    "data": {
+      "arr": [
+        "これは長い説明文です。これは長い説明文です。これは長い説明文です。これは長い説明文です。これは長い説明文です。これは長い説明文です。これは長い説明文です。これは長い説明文です。これは長い説明文です。これは長い説明文です。これは長い説明文です。これは長い説明文です。",
+        "word0 word1 word2 word3 word4 word5 word6 word7 word8 word9 word10 word11 word12 word13 word14 word15 word16 word17 word18 word19 word20 word21 word22 word23 word24 word25 word26 word27 word28 word29",
+        "word0 word1 word2 word3 word4 word5 word6 word7 word8 word9 word10 word11 word12 word13 word14 word15 word16 word17 word18 word19 word20 word21 word22 word23 word24 word25 word26 word27 word28 word29\nword0 word1 word2 word3 word4 word5 word6 word7 word8 word9 word10 word11 word12 word13 word14 word15 word16 word17 word18 word19 word20 word21 word22 word23 word24 word25 word26 word27 word28 word29"
+      ]
+    },
+    "output": "---\narr:\n  - >-\n    これは長い説明文です。これは長い説明文です。これは長い説明文です。これは長い説明文です。これは長い説明文です。これは長い説明文です。これは長い説明文です。これは長い説明文です。これは長い説明文です。これは長い説明文です。これは長い説明文です。これは長い説明文です。\n  - >-\n    word0 word1 word2 word3 word4 word5 word6 word7 word8 word9 word10 word11\n    word12 word13 word14 word15 word16 word17 word18 word19 word20 word21 word22\n    word23 word24 word25 word26 word27 word28 word29\n  - >-\n    word0 word1 word2 word3 word4 word5 word6 word7 word8 word9 word10 word11\n    word12 word13 word14 word15 word16 word17 word18 word19 word20 word21 word22\n    word23 word24 word25 word26 word27 word28 word29\n\n    word0 word1 word2 word3 word4 word5 word6 word7 word8 word9 word10 word11\n    word12 word13 word14 word15 word16 word17 word18 word19 word20 word21 word22\n    word23 word24 word25 word26 word27 word28 word29\n---\nbody\n",
+    "yaml": "arr:\n  - >-\n    これは長い説明文です。これは長い説明文です。これは長い説明文です。これは長い説明文です。これは長い説明文です。これは長い説明文です。これは長い説明文です。これは長い説明文です。これは長い説明文です。これは長い説明文です。これは長い説明文です。これは長い説明文です。\n  - >-\n    word0 word1 word2 word3 word4 word5 word6 word7 word8 word9 word10 word11\n    word12 word13 word14 word15 word16 word17 word18 word19 word20 word21 word22\n    word23 word24 word25 word26 word27 word28 word29\n  - >-\n    word0 word1 word2 word3 word4 word5 word6 word7 word8 word9 word10 word11\n    word12 word13 word14 word15 word16 word17 word18 word19 word20 word21 word22\n    word23 word24 word25 word26 word27 word28 word29\n\n    word0 word1 word2 word3 word4 word5 word6 word7 word8 word9 word10 word11\n    word12 word13 word14 word15 word16 word17 word18 word19 word20 word21 word22\n    word23 word24 word25 word26 word27 word28 word29\n"
+  },
+  {
+    "content": "body\n",
+    "data": {
+      "123": "num key",
+      "key: colon": 1,
+      "": "empty key",
+      "true": "bool key",
+      "a\nb": "nl key",
+      "-k": 1,
+      "#k": 2,
+      "日本語キー": "値",
+      "it's": "x",
+      " sp": "y"
+    },
+    "output": "---\n'123': num key\n'key: colon': 1\n'': empty key\n'true': bool key\n\"a\\nb\": nl key\n'-k': 1\n'#k': 2\n日本語キー: 値\nit's: x\n' sp': 'y'\n---\nbody\n",
+    "yaml": "'123': num key\n'key: colon': 1\n'': empty key\n'true': bool key\n\"a\\nb\": nl key\n'-k': 1\n'#k': 2\n日本語キー: 値\nit's: x\n' sp': 'y'\n"
+  },
+  {
+    "content": "\n# 見出し\n\n本文\n",
+    "data": {
+      "kkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkk": "long key",
+      "キキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキ": {
+        "nested": 1
+      }
+    },
+    "output": "---\n? kkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkk\n: long key\nキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキ:\n  nested: 1\n---\n\n# 見出し\n\n本文\n",
+    "yaml": "? kkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkk\n: long key\nキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキキ:\n  nested: 1\n"
+  },
+  {
+    "content": "no newline",
+    "data": {
+      "1": 3,
+      "2": 2,
+      "10": 5,
+      "4294967294": 9,
+      "b": 1,
+      "a": 4,
+      "01": 6,
+      "-1": 7,
+      "4294967295": 8
+    },
+    "output": "---\n'1': 3\n'2': 2\n'10': 5\n'4294967294': 9\nb: 1\na: 4\n'01': 6\n'-1': 7\n'4294967295': 8\n---\nno newline\n",
+    "yaml": "'1': 3\n'2': 2\n'10': 5\n'4294967294': 9\nb: 1\na: 4\n'01': 6\n'-1': 7\n'4294967295': 8\n"
+  },
+  {
+    "content": "\n\n",
+    "data": {
+      "mixed": [
+        1,
+        "two",
+        null,
+        true,
+        3.25,
+        {
+          "k": null
+        },
+        [
+          "n"
+        ]
+      ]
+    },
+    "output": "---\nmixed:\n  - 1\n  - two\n  - null\n  - true\n  - 3.25\n  - k: null\n  - - 'n'\n---\n\n\n",
+    "yaml": "mixed:\n  - 1\n  - two\n  - null\n  - true\n  - 3.25\n  - k: null\n  - - 'n'\n"
+  },
+  {
+    "content": "---\nexisting: yes\nkeep: 1\n---\nrest of body\n",
+    "data": {
+      "conclusion": "結論: これは「議論」の#まとめ。\n- 箇条書き\n- 二つ目\n",
+      "tags": [
+        "機密",
+        "内部",
+        "未来予測"
+      ],
+      "createdAt": "2026-10-29T12:00:00.000Z"
+    },
+    "output": "---\nexisting: 'yes'\nkeep: 1\nconclusion: |\n  結論: これは「議論」の#まとめ。\n  - 箇条書き\n  - 二つ目\ntags:\n  - 機密\n  - 内部\n  - 未来予測\ncreatedAt: '2026-10-29T12:00:00.000Z'\n---\nrest of body\n",
+    "yaml": "conclusion: |\n  結論: これは「議論」の#まとめ。\n  - 箇条書き\n  - 二つ目\ntags:\n  - 機密\n  - 内部\n  - 未来予測\ncreatedAt: '2026-10-29T12:00:00.000Z'\n"
+  },
+  {
+    "content": "﻿bom body",
+    "data": {
+      "v0": "plain"
+    },
+    "output": "---\nv0: plain\n---\nbom body\n",
+    "yaml": "v0: plain\n"
+  },
+  {
+    "content": "",
+    "data": {
+      "v1": "日本語の値"
+    },
+    "output": "---\nv1: 日本語の値\n---\n\n",
+    "yaml": "v1: 日本語の値\n"
+  },
+  {
+    "content": "body",
+    "data": {
+      "v2": ""
+    },
+    "output": "---\nv2: ''\n---\nbody\n",
+    "yaml": "v2: ''\n"
+  },
+  {
+    "content": "body\n",
+    "data": {
+      "v3": " "
+    },
+    "output": "---\nv3: ' '\n---\nbody\n",
+    "yaml": "v3: ' '\n"
+  },
+  {
+    "content": "\n# 見出し\n\n本文\n",
+    "data": {
+      "v4": "  lead"
+    },
+    "output": "---\nv4: '  lead'\n---\n\n# 見出し\n\n本文\n",
+    "yaml": "v4: '  lead'\n"
+  },
+  {
+    "content": "no newline",
+    "data": {
+      "v5": "trail "
+    },
+    "output": "---\nv5: 'trail '\n---\nno newline\n",
+    "yaml": "v5: 'trail '\n"
+  },
+  {
+    "content": "\n\n",
+    "data": {
+      "v6": "a:b"
+    },
+    "output": "---\nv6: 'a:b'\n---\n\n\n",
+    "yaml": "v6: 'a:b'\n"
+  },
+  {
+    "content": "---\nexisting: yes\nkeep: 1\n---\nrest of body\n",
+    "data": {
+      "v7": "a: b"
+    },
+    "output": "---\nexisting: 'yes'\nkeep: 1\nv7: 'a: b'\n---\nrest of body\n",
+    "yaml": "v7: 'a: b'\n"
+  },
+  {
+    "content": "﻿bom body",
+    "data": {
+      "v8": "key:"
+    },
+    "output": "---\nv8: 'key:'\n---\nbom body\n",
+    "yaml": "v8: 'key:'\n"
+  },
+  {
+    "content": "",
+    "data": {
+      "v9": "a #b"
+    },
+    "output": "---\nv9: 'a #b'\n---\n\n",
+    "yaml": "v9: 'a #b'\n"
+  },
+  {
+    "content": "body",
+    "data": {
+      "v10": "a#b"
+    },
+    "output": "---\nv10: a#b\n---\nbody\n",
+    "yaml": "v10: a#b\n"
+  },
+  {
+    "content": "body\n",
+    "data": {
+      "v11": "#tag"
+    },
+    "output": "---\nv11: '#tag'\n---\nbody\n",
+    "yaml": "v11: '#tag'\n"
+  },
+  {
+    "content": "\n# 見出し\n\n本文\n",
+    "data": {
+      "v12": "- item"
+    },
+    "output": "---\nv12: '- item'\n---\n\n# 見出し\n\n本文\n",
+    "yaml": "v12: '- item'\n"
+  },
+  {
+    "content": "no newline",
+    "data": {
+      "v13": "-x"
+    },
+    "output": "---\nv13: '-x'\n---\nno newline\n",
+    "yaml": "v13: '-x'\n"
+  },
+  {
+    "content": "\n\n",
+    "data": {
+      "v14": "?q"
+    },
+    "output": "---\nv14: '?q'\n---\n\n\n",
+    "yaml": "v14: '?q'\n"
+  },
+  {
+    "content": "---\nexisting: yes\nkeep: 1\n---\nrest of body\n",
+    "data": {
+      "v15": ":c"
+    },
+    "output": "---\nexisting: 'yes'\nkeep: 1\nv15: ':c'\n---\nrest of body\n",
+    "yaml": "v15: ':c'\n"
+  },
+  {
+    "content": "﻿bom body",
+    "data": {
+      "v16": ",c"
+    },
+    "output": "---\nv16: ',c'\n---\nbom body\n",
+    "yaml": "v16: ',c'\n"
+  },
+  {
+    "content": "",
+    "data": {
+      "v17": "[x]"
+    },
+    "output": "---\nv17: '[x]'\n---\n\n",
+    "yaml": "v17: '[x]'\n"
+  },
+  {
+    "content": "body",
+    "data": {
+      "v18": "]x"
+    },
+    "output": "---\nv18: ']x'\n---\nbody\n",
+    "yaml": "v18: ']x'\n"
+  },
+  {
+    "content": "body\n",
+    "data": {
+      "v19": "{y}"
+    },
+    "output": "---\nv19: '{y}'\n---\nbody\n",
+    "yaml": "v19: '{y}'\n"
+  },
+  {
+    "content": "\n# 見出し\n\n本文\n",
+    "data": {
+      "v20": "}y"
+    },
+    "output": "---\nv20: '}y'\n---\n\n# 見出し\n\n本文\n",
+    "yaml": "v20: '}y'\n"
+  },
+  {
+    "content": "no newline",
+    "data": {
+      "v21": "&a"
+    },
+    "output": "---\nv21: '&a'\n---\nno newline\n",
+    "yaml": "v21: '&a'\n"
+  },
+  {
+    "content": "\n\n",
+    "data": {
+      "v22": "*a"
+    },
+    "output": "---\nv22: '*a'\n---\n\n\n",
+    "yaml": "v22: '*a'\n"
+  },
+  {
+    "content": "---\nexisting: yes\nkeep: 1\n---\nrest of body\n",
+    "data": {
+      "v23": "!a"
+    },
+    "output": "---\nexisting: 'yes'\nkeep: 1\nv23: '!a'\n---\nrest of body\n",
+    "yaml": "v23: '!a'\n"
+  },
+  {
+    "content": "﻿bom body",
+    "data": {
+      "v24": "|a"
+    },
+    "output": "---\nv24: '|a'\n---\nbom body\n",
+    "yaml": "v24: '|a'\n"
+  },
+  {
+    "content": "",
+    "data": {
+      "v25": ">a"
+    },
+    "output": "---\nv25: '>a'\n---\n\n",
+    "yaml": "v25: '>a'\n"
+  },
+  {
+    "content": "body",
+    "data": {
+      "v26": "'q'"
+    },
+    "output": "---\nv26: '''q'''\n---\nbody\n",
+    "yaml": "v26: '''q'''\n"
+  },
+  {
+    "content": "body\n",
+    "data": {
+      "v27": "\"dq\""
+    },
+    "output": "---\nv27: '\"dq\"'\n---\nbody\n",
+    "yaml": "v27: '\"dq\"'\n"
+  },
+  {
+    "content": "\n# 見出し\n\n本文\n",
+    "data": {
+      "v28": "%p"
+    },
+    "output": "---\nv28: '%p'\n---\n\n# 見出し\n\n本文\n",
+    "yaml": "v28: '%p'\n"
+  },
+  {
+    "content": "no newline",
+    "data": {
+      "v29": "@at"
+    },
+    "output": "---\nv29: '@at'\n---\nno newline\n",
+    "yaml": "v29: '@at'\n"
+  },
+  {
+    "content": "\n\n",
+    "data": {
+      "v30": "`bt`"
+    },
+    "output": "---\nv30: '`bt`'\n---\n\n\n",
+    "yaml": "v30: '`bt`'\n"
+  },
+  {
+    "content": "---\nexisting: yes\nkeep: 1\n---\nrest of body\n",
+    "data": {
+      "v31": "it's"
+    },
+    "output": "---\nexisting: 'yes'\nkeep: 1\nv31: it's\n---\nrest of body\n",
+    "yaml": "v31: it's\n"
+  },
+  {
+    "content": "﻿bom body",
+    "data": {
+      "v32": "say \"hi\""
+    },
+    "output": "---\nv32: say \"hi\"\n---\nbom body\n",
+    "yaml": "v32: say \"hi\"\n"
+  },
+  {
+    "content": "",
+    "data": {
+      "v33": "back\\slash"
+    },
+    "output": "---\nv33: back\\slash\n---\n\n",
+    "yaml": "v33: back\\slash\n"
+  },
+  {
+    "content": "body",
+    "data": {
+      "v34": "tab\there"
+    },
+    "output": "---\nv34: \"tab\\there\"\n---\nbody\n",
+    "yaml": "v34: \"tab\\there\"\n"
+  },
+  {
+    "content": "body\n",
+    "data": {
+      "v35": "cr\rhere"
+    },
+    "output": "---\nv35: \"cr\\rhere\"\n---\nbody\n",
+    "yaml": "v35: \"cr\\rhere\"\n"
+  },
+  {
+    "content": "\n# 見出し\n\n本文\n",
+    "data": {
+      "v36": "nul\u0000x"
+    },
+    "output": "---\nv36: \"nul\\0x\"\n---\n\n# 見出し\n\n本文\n",
+    "yaml": "v36: \"nul\\0x\"\n"
+  },
+  {
+    "content": "no newline",
+    "data": {
+      "v37": "bell\u0007"
+    },
+    "output": "---\nv37: \"bell\\a\"\n---\nno newline\n",
+    "yaml": "v37: \"bell\\a\"\n"
+  },
+  {
+    "content": "\n\n",
+    "data": {
+      "v38": "esc\u001b"
+    },
+    "output": "---\nv38: \"esc\\e\"\n---\n\n\n",
+    "yaml": "v38: \"esc\\e\"\n"
+  },
+  {
+    "content": "---\nexisting: yes\nkeep: 1\n---\nrest of body\n",
+    "data": {
+      "v39": "nbsp x"
+    },
+    "output": "---\nexisting: 'yes'\nkeep: 1\nv39: \"nbsp\\_x\"\n---\nrest of body\n",
+    "yaml": "v39: \"nbsp\\_x\"\n"
+  },
+  {
+    "content": "﻿bom body",
+    "data": {
+      "v40": "nelx"
+    },
+    "output": "---\nv40: \"nel\\Nx\"\n---\nbom body\n",
+    "yaml": "v40: \"nel\\Nx\"\n"
+  },
+  {
+    "content": "",
+    "data": {
+      "v41": "ls x"
+    },
+    "output": "---\nv41: \"ls\\Lx\"\n---\n\n",
+    "yaml": "v41: \"ls\\Lx\"\n"
+  },
+  {
+    "content": "body",
+    "data": {
+      "v42": "ps x"
+    },
+    "output": "---\nv42: \"ps\\Px\"\n---\nbody\n",
+    "yaml": "v42: \"ps\\Px\"\n"
+  },
+  {
+    "content": "body\n",
+    "data": {
+      "v43": "bom﻿x"
+    },
+    "output": "---\nv43: \"bom\\uFEFFx\"\n---\nbody\n",
+    "yaml": "v43: \"bom\\uFEFFx\"\n"
+  },
+  {
+    "content": "\n# 見出し\n\n本文\n",
+    "data": {
+      "v44": "emoji😀"
+    },
+    "output": "---\nv44: \"emoji\\U0001F600\"\n---\n\n# 見出し\n\n本文\n",
+    "yaml": "v44: \"emoji\\U0001F600\"\n"
+  },
+  {
+    "content": "no newline",
+    "data": {
+      "v45": "😀"
+    },
+    "output": "---\nv45: \"\\U0001F600\"\n---\nno newline\n",
+    "yaml": "v45: \"\\U0001F600\"\n"
+  },
+  {
+    "content": "\n\n",
+    "data": {
+      "v46": "ctrl\u0001x"
+    },
+    "output": "---\nv46: \"ctrl\\x01x\"\n---\n\n\n",
+    "yaml": "v46: \"ctrl\\x01x\"\n"
+  },
+  {
+    "content": "---\nexisting: yes\nkeep: 1\n---\nrest of body\n",
+    "data": {
+      "v47": "delx"
+    },
+    "output": "---\nexisting: 'yes'\nkeep: 1\nv47: \"del\\x7Fx\"\n---\nrest of body\n",
+    "yaml": "v47: \"del\\x7Fx\"\n"
+  },
+  {
+    "content": "﻿bom body",
+    "data": {
+      "v48": "c1x"
+    },
+    "output": "---\nv48: \"c1\\x90x\"\n---\nbom body\n",
+    "yaml": "v48: \"c1\\x90x\"\n"
+  },
+  {
+    "content": "",
+    "data": {
+      "v49": "123"
+    },
+    "output": "---\nv49: '123'\n---\n\n",
+    "yaml": "v49: '123'\n"
+  },
+  {
+    "content": "body",
+    "data": {
+      "v50": "-12"
+    },
+    "output": "---\nv50: '-12'\n---\nbody\n",
+    "yaml": "v50: '-12'\n"
+  },
+  {
+    "content": "body\n",
+    "data": {
+      "v51": "+3"
+    },
+    "output": "---\nv51: '+3'\n---\nbody\n",
+    "yaml": "v51: '+3'\n"
+  },
+  {
+    "content": "\n# 見出し\n\n本文\n",
+    "data": {
+      "v52": "0"
+    },
+    "output": "---\nv52: '0'\n---\n\n# 見出し\n\n本文\n",
+    "yaml": "v52: '0'\n"
+  },
+  {
+    "content": "no newline",
+    "data": {
+      "v53": "0x1F"
+    },
+    "output": "---\nv53: '0x1F'\n---\nno newline\n",
+    "yaml": "v53: '0x1F'\n"
+  },
+  {
+    "content": "\n\n",
+    "data": {
+      "v54": "0b101"
+    },
+    "output": "---\nv54: '0b101'\n---\n\n\n",
+    "yaml": "v54: '0b101'\n"
+  },
+  {
+    "content": "---\nexisting: yes\nkeep: 1\n---\nrest of body\n",
+    "data": {
+      "v55": "017"
+    },
+    "output": "---\nexisting: 'yes'\nkeep: 1\nv55: '017'\n---\nrest of body\n",
+    "yaml": "v55: '017'\n"
+  },
+  {
+    "content": "﻿bom body",
+    "data": {
+      "v56": "08"
+    },
+    "output": "---\nv56: 08\n---\nbom body\n",
+    "yaml": "v56: 08\n"
+  },
+  {
+    "content": "",
+    "data": {
+      "v57": "0o17"
+    },
+    "output": "---\nv57: 0o17\n---\n\n",
+    "yaml": "v57: 0o17\n"
+  },
+  {
+    "content": "body",
+    "data": {
+      "v58": "1_000"
+    },
+    "output": "---\nv58: '1_000'\n---\nbody\n",
+    "yaml": "v58: '1_000'\n"
+  },
+  {
+    "content": "body\n",
+    "data": {
+      "v59": "_1"
+    },
+    "output": "---\nv59: _1\n---\nbody\n",
+    "yaml": "v59: _1\n"
+  },
+  {
+    "content": "\n# 見出し\n\n本文\n",
+    "data": {
+      "v60": "1_"
+    },
+    "output": "---\nv60: 1_\n---\n\n# 見出し\n\n本文\n",
+    "yaml": "v60: 1_\n"
+  },
+  {
+    "content": "no newline",
+    "data": {
+      "v61": "1:20"
+    },
+    "output": "---\nv61: '1:20'\n---\nno newline\n",
+    "yaml": "v61: '1:20'\n"
+  },
+  {
+    "content": "\n\n",
+    "data": {
+      "v62": "1:2:3"
+    },
+    "output": "---\nv62: '1:2:3'\n---\n\n\n",
+    "yaml": "v62: '1:2:3'\n"
+  },
+  {
+    "content": "---\nexisting: yes\nkeep: 1\n---\nrest of body\n",
+    "data": {
+      "v63": "1:"
+    },
+    "output": "---\nexisting: 'yes'\nkeep: 1\nv63: '1:'\n---\nrest of body\n",
+    "yaml": "v63: '1:'\n"
+  },
+  {
+    "content": "﻿bom body",
+    "data": {
+      "v64": "1.5"
+    },
+    "output": "---\nv64: '1.5'\n---\nbom body\n",
+    "yaml": "v64: '1.5'\n"
+  },
+  {
+    "content": "",
+    "data": {
+      "v65": ".5"
+    },
+    "output": "---\nv65: '.5'\n---\n\n",
+    "yaml": "v65: '.5'\n"
+  },
+  {
+    "content": "body",
+    "data": {
+      "v66": "1."
+    },
+    "output": "---\nv66: '1.'\n---\nbody\n",
+    "yaml": "v66: '1.'\n"
+  },
+  {
+    "content": "body\n",
+    "data": {
+      "v67": "1e3"
+    },
+    "output": "---\nv67: '1e3'\n---\nbody\n",
+    "yaml": "v67: '1e3'\n"
+  },
+  {
+    "content": "\n# 見出し\n\n本文\n",
+    "data": {
+      "v68": "1.e3"
+    },
+    "output": "---\nv68: '1.e3'\n---\n\n# 見出し\n\n本文\n",
+    "yaml": "v68: '1.e3'\n"
+  },
+  {
+    "content": "no newline",
+    "data": {
+      "v69": "-1.5e-3"
+    },
+    "output": "---\nv69: '-1.5e-3'\n---\nno newline\n",
+    "yaml": "v69: '-1.5e-3'\n"
+  },
+  {
+    "content": "\n\n",
+    "data": {
+      "v70": "1E+5"
+    },
+    "output": "---\nv70: '1E+5'\n---\n\n\n",
+    "yaml": "v70: '1E+5'\n"
+  },
+  {
+    "content": "---\nexisting: yes\nkeep: 1\n---\nrest of body\n",
+    "data": {
+      "v71": ".inf"
+    },
+    "output": "---\nexisting: 'yes'\nkeep: 1\nv71: '.inf'\n---\nrest of body\n",
+    "yaml": "v71: '.inf'\n"
+  },
+  {
+    "content": "﻿bom body",
+    "data": {
+      "v72": "-.Inf"
+    },
+    "output": "---\nv72: '-.Inf'\n---\nbom body\n",
+    "yaml": "v72: '-.Inf'\n"
+  },
+  {
+    "content": "",
+    "data": {
+      "v73": "+.INF"
+    },
+    "output": "---\nv73: '+.INF'\n---\n\n",
+    "yaml": "v73: '+.INF'\n"
+  },
+  {
+    "content": "body",
+    "data": {
+      "v74": ".nan"
+    },
+    "output": "---\nv74: '.nan'\n---\nbody\n",
+    "yaml": "v74: '.nan'\n"
+  },
+  {
+    "content": "body\n",
+    "data": {
+      "v75": ".NaN"
+    },
+    "output": "---\nv75: '.NaN'\n---\nbody\n",
+    "yaml": "v75: '.NaN'\n"
+  },
+  {
+    "content": "\n# 見出し\n\n本文\n",
+    "data": {
+      "v76": "NaN"
+    },
+    "output": "---\nv76: NaN\n---\n\n# 見出し\n\n本文\n",
+    "yaml": "v76: NaN\n"
+  },
+  {
+    "content": "no newline",
+    "data": {
+      "v77": "Infinity"
+    },
+    "output": "---\nv77: Infinity\n---\nno newline\n",
+    "yaml": "v77: Infinity\n"
+  },
+  {
+    "content": "\n\n",
+    "data": {
+      "v78": "1:20.5"
+    },
+    "output": "---\nv78: '1:20.5'\n---\n\n\n",
+    "yaml": "v78: '1:20.5'\n"
+  },
+  {
+    "content": "---\nexisting: yes\nkeep: 1\n---\nrest of body\n",
+    "data": {
+      "v79": "2026-10-29"
+    },
+    "output": "---\nexisting: 'yes'\nkeep: 1\nv79: '2026-10-29'\n---\nrest of body\n",
+    "yaml": "v79: '2026-10-29'\n"
+  },
+  {
+    "content": "﻿bom body",
+    "data": {
+      "v80": "2026-1-2"
+    },
+    "output": "---\nv80: 2026-1-2\n---\nbom body\n",
+    "yaml": "v80: 2026-1-2\n"
+  },
+  {
+    "content": "",
+    "data": {
+      "v81": "2026-10-29T12:00:00Z"
+    },
+    "output": "---\nv81: '2026-10-29T12:00:00Z'\n---\n\n",
+    "yaml": "v81: '2026-10-29T12:00:00Z'\n"
+  },
+  {
+    "content": "body",
+    "data": {
+      "v82": "2026-10-29 12:00:00"
+    },
+    "output": "---\nv82: '2026-10-29 12:00:00'\n---\nbody\n",
+    "yaml": "v82: '2026-10-29 12:00:00'\n"
+  },
+  {
+    "content": "body\n",
+    "data": {
+      "v83": "2026-10-29t1:02:03.123+09:00"
+    },
+    "output": "---\nv83: '2026-10-29t1:02:03.123+09:00'\n---\nbody\n",
+    "yaml": "v83: '2026-10-29t1:02:03.123+09:00'\n"
+  },
+  {
+    "content": "\n# 見出し\n\n本文\n",
+    "data": {
+      "v84": "2026-10-29T12:00:00 Z"
+    },
+    "output": "---\nv84: '2026-10-29T12:00:00 Z'\n---\n\n# 見出し\n\n本文\n",
+    "yaml": "v84: '2026-10-29T12:00:00 Z'\n"
+  },
+  {
+    "content": "no newline",
+    "data": {
+      "v85": "2026-10-29T12:00:00 "
+    },
+    "output": "---\nv85: '2026-10-29T12:00:00 '\n---\nno newline\n",
+    "yaml": "v85: '2026-10-29T12:00:00 '\n"
+  },
+  {
+    "content": "\n\n",
+    "data": {
+      "v86": "true"
+    },
+    "output": "---\nv86: 'true'\n---\n\n\n",
+    "yaml": "v86: 'true'\n"
+  },
+  {
+    "content": "---\nexisting: yes\nkeep: 1\n---\nrest of body\n",
+    "data": {
+      "v87": "True"
+    },
+    "output": "---\nexisting: 'yes'\nkeep: 1\nv87: 'True'\n---\nrest of body\n",
+    "yaml": "v87: 'True'\n"
+  },
+  {
+    "content": "﻿bom body",
+    "data": {
+      "v88": "TRUE"
+    },
+    "output": "---\nv88: 'TRUE'\n---\nbom body\n",
+    "yaml": "v88: 'TRUE'\n"
+  },
+  {
+    "content": "",
+    "data": {
+      "v89": "tRue"
+    },
+    "output": "---\nv89: tRue\n---\n\n",
+    "yaml": "v89: tRue\n"
+  },
+  {
+    "content": "body",
+    "data": {
+      "v90": "false"
+    },
+    "output": "---\nv90: 'false'\n---\nbody\n",
+    "yaml": "v90: 'false'\n"
+  },
+  {
+    "content": "body\n",
+    "data": {
+      "v91": "False"
+    },
+    "output": "---\nv91: 'False'\n---\nbody\n",
+    "yaml": "v91: 'False'\n"
+  },
+  {
+    "content": "\n# 見出し\n\n本文\n",
+    "data": {
+      "v92": "null"
+    },
+    "output": "---\nv92: 'null'\n---\n\n# 見出し\n\n本文\n",
+    "yaml": "v92: 'null'\n"
+  },
+  {
+    "content": "no newline",
+    "data": {
+      "v93": "Null"
+    },
+    "output": "---\nv93: 'Null'\n---\nno newline\n",
+    "yaml": "v93: 'Null'\n"
+  },
+  {
+    "content": "\n\n",
+    "data": {
+      "v94": "NULL"
+    },
+    "output": "---\nv94: 'NULL'\n---\n\n\n",
+    "yaml": "v94: 'NULL'\n"
+  },
+  {
+    "content": "---\nexisting: yes\nkeep: 1\n---\nrest of body\n",
+    "data": {
+      "v95": "~"
+    },
+    "output": "---\nexisting: 'yes'\nkeep: 1\nv95: '~'\n---\nrest of body\n",
+    "yaml": "v95: '~'\n"
+  },
+  {
+    "content": "﻿bom body",
+    "data": {
+      "v96": "nULL"
+    },
+    "output": "---\nv96: nULL\n---\nbom body\n",
+    "yaml": "v96: nULL\n"
+  },
+  {
+    "content": "",
+    "data": {
+      "v97": "yes"
+    },
+    "output": "---\nv97: 'yes'\n---\n\n",
+    "yaml": "v97: 'yes'\n"
+  },
+  {
+    "content": "body",
+    "data": {
+      "v98": "Yes"
+    },
+    "output": "---\nv98: 'Yes'\n---\nbody\n",
+    "yaml": "v98: 'Yes'\n"
+  },
+  {
+    "content": "body\n",
+    "data": {
+      "v99": "YES"
+    },
+    "output": "---\nv99: 'YES'\n---\nbody\n",
+    "yaml": "v99: 'YES'\n"
+  },
+  {
+    "content": "\n# 見出し\n\n本文\n",
+    "data": {
+      "v100": "no"
+    },
+    "output": "---\nv100: 'no'\n---\n\n# 見出し\n\n本文\n",
+    "yaml": "v100: 'no'\n"
+  },
+  {
+    "content": "no newline",
+    "data": {
+      "v101": "No"
+    },
+    "output": "---\nv101: 'No'\n---\nno newline\n",
+    "yaml": "v101: 'No'\n"
+  },
+  {
+    "content": "\n\n",
+    "data": {
+      "v102": "on"
+    },
+    "output": "---\nv102: 'on'\n---\n\n\n",
+    "yaml": "v102: 'on'\n"
+  },
+  {
+    "content": "---\nexisting: yes\nkeep: 1\n---\nrest of body\n",
+    "data": {
+      "v103": "On"
+    },
+    "output": "---\nexisting: 'yes'\nkeep: 1\nv103: 'On'\n---\nrest of body\n",
+    "yaml": "v103: 'On'\n"
+  },
+  {
+    "content": "﻿bom body",
+    "data": {
+      "v104": "off"
+    },
+    "output": "---\nv104: 'off'\n---\nbom body\n",
+    "yaml": "v104: 'off'\n"
+  },
+  {
+    "content": "",
+    "data": {
+      "v105": "OFF"
+    },
+    "output": "---\nv105: 'OFF'\n---\n\n",
+    "yaml": "v105: 'OFF'\n"
+  },
+  {
+    "content": "body",
+    "data": {
+      "v106": "y"
+    },
+    "output": "---\nv106: 'y'\n---\nbody\n",
+    "yaml": "v106: 'y'\n"
+  },
+  {
+    "content": "body\n",
+    "data": {
+      "v107": "Y"
+    },
+    "output": "---\nv107: 'Y'\n---\nbody\n",
+    "yaml": "v107: 'Y'\n"
+  },
+  {
+    "content": "\n# 見出し\n\n本文\n",
+    "data": {
+      "v108": "n"
+    },
+    "output": "---\nv108: 'n'\n---\n\n# 見出し\n\n本文\n",
+    "yaml": "v108: 'n'\n"
+  },
+  {
+    "content": "no newline",
+    "data": {
+      "v109": "N"
+    },
+    "output": "---\nv109: 'N'\n---\nno newline\n",
+    "yaml": "v109: 'N'\n"
+  },
+  {
+    "content": "\n\n",
+    "data": {
+      "v110": "<<"
+    },
+    "output": "---\nv110: '<<'\n---\n\n\n",
+    "yaml": "v110: '<<'\n"
+  },
+  {
+    "content": "---\nexisting: yes\nkeep: 1\n---\nrest of body\n",
+    "data": {
+      "v111": "<"
+    },
+    "output": "---\nexisting: 'yes'\nkeep: 1\nv111: <\n---\nrest of body\n",
+    "yaml": "v111: <\n"
+  },
+  {
+    "content": "﻿bom body",
+    "data": {
+      "v112": "a\nb"
+    },
+    "output": "---\nv112: |-\n  a\n  b\n---\nbom body\n",
+    "yaml": "v112: |-\n  a\n  b\n"
+  },
+  {
+    "content": "",
+    "data": {
+      "v113": "a\nb\n"
+    },
+    "output": "---\nv113: |\n  a\n  b\n---\n\n",
+    "yaml": "v113: |\n  a\n  b\n"
+  },
+  {
+    "content": "body",
+    "data": {
+      "v114": "a\nb\n\n"
+    },
+    "output": "---\nv114: |+\n  a\n  b\n---\nbody\n",
+    "yaml": "v114: |+\n  a\n  b\n\n"
+  },
+  {
+    "content": "body\n",
+    "data": {
+      "v115": "\n"
+    },
+    "output": "---\nv115: |+\n---\nbody\n",
+    "yaml": "v115: |+\n\n"
+  },
+  {
+    "content": "\n# 見出し\n\n本文\n",
+    "data": {
+      "v116": "\n\n"
+    },
+    "output": "---\nv116: |+\n---\n\n# 見出し\n\n本文\n",
+    "yaml": "v116: |+\n\n\n"
+  },
+  {
+    "content": "no newline",
+    "data": {
+      "v117": "\nlead"
+    },
+    "output": "---\nv117: |-\n\n  lead\n---\nno newline\n",
+    "yaml": "v117: |-\n\n  lead\n"
+  },
+  {
+    "content": "\n\n",
+    "data": {
+      "v118": "  indented\nnext"
+    },
+    "output": "---\nv118: |2-\n    indented\n  next\n---\n\n\n",
+    "yaml": "v118: |2-\n    indented\n  next\n"
+  },
+  {
+    "content": "---\nexisting: yes\nkeep: 1\n---\nrest of body\n",
+    "data": {
+      "v119": "line\n  more\nback"
+    },
+    "output": "---\nexisting: 'yes'\nkeep: 1\nv119: |-\n  line\n    more\n  back\n---\nrest of body\n",
+    "yaml": "v119: |-\n  line\n    more\n  back\n"
+  },
+  {
+    "content": "﻿bom body",
+    "data": {
+      "v120": "x\n\n\ny"
+    },
+    "output": "---\nv120: |-\n  x\n\n\n  y\n---\nbom body\n",
+    "yaml": "v120: |-\n  x\n\n\n  y\n"
+  },
+  {
+    "content": "",
+    "data": {
+      "v121": "trailing spaces  \nnext"
+    },
+    "output": "---\nv121: |-\n  trailing spaces  \n  next\n---\n\n",
+    "yaml": "v121: |-\n  trailing spaces  \n  next\n"
+  },
+  {
+    "content": "body",
+    "data": {
+      "v122": "これは長い説明文です。これは長い説明文です。これは長い説明文です。これは長い説明文です。これは長い説明文です。これは長い説明文です。これは長い説明文です。これは長い説明文です。これは長い説明文です。これは長い説明文です。これは長い説明文です。これは長い説明文です。"
+    },
+    "output": "---\nv122: >-\n  これは長い説明文です。これは長い説明文です。これは長い説明文です。これは長い説明文です。これは長い説明文です。これは長い説明文です。これは長い説明文です。これは長い説明文です。これは長い説明文です。これは長い説明文です。これは長い説明文です。これは長い説明文です。\n---\nbody\n",
+    "yaml": "v122: >-\n  これは長い説明文です。これは長い説明文です。これは長い説明文です。これは長い説明文です。これは長い説明文です。これは長い説明文です。これは長い説明文です。これは長い説明文です。これは長い説明文です。これは長い説明文です。これは長い説明文です。これは長い説明文です。\n"
+  },
+  {
+    "content": "body\n",
+    "data": {
+      "v123": "word0 word1 word2 word3 word4 word5 word6 word7 word8 word9 word10 word11 word12 word13 word14 word15 word16 word17 word18 word19 word20 word21 word22 word23 word24 word25 word26 word27 word28 word29"
+    },
+    "output": "---\nv123: >-\n  word0 word1 word2 word3 word4 word5 word6 word7 word8 word9 word10 word11\n  word12 word13 word14 word15 word16 word17 word18 word19 word20 word21 word22\n  word23 word24 word25 word26 word27 word28 word29\n---\nbody\n",
+    "yaml": "v123: >-\n  word0 word1 word2 word3 word4 word5 word6 word7 word8 word9 word10 word11\n  word12 word13 word14 word15 word16 word17 word18 word19 word20 word21 word22\n  word23 word24 word25 word26 word27 word28 word29\n"
+  },
+  {
+    "content": "\n# 見出し\n\n本文\n",
+    "data": {
+      "v124": "alpha  beta   gamma alpha  beta   gamma alpha  beta   gamma alpha  beta   gamma alpha  beta   gamma alpha  beta   gamma alpha  beta   gamma alpha  beta   gamma "
+    },
+    "output": "---\nv124: >-\n  alpha  beta   gamma alpha  beta   gamma alpha  beta   gamma alpha  beta  \n  gamma alpha  beta   gamma alpha  beta   gamma alpha  beta   gamma alpha \n  beta   gamma\n---\n\n# 見出し\n\n本文\n",
+    "yaml": "v124: >-\n  alpha  beta   gamma alpha  beta   gamma alpha  beta   gamma alpha  beta  \n  gamma alpha  beta   gamma alpha  beta   gamma alpha  beta   gamma alpha \n  beta   gamma \n"
+  },
+  {
+    "content": "no newline",
+    "data": {
+      "v125": "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"
+    },
+    "output": "---\nv125: >-\n  xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx\n---\nno newline\n",
+    "yaml": "v125: >-\n  xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx\n"
+  },
+  {
+    "content": "\n\n",
+    "data": {
+      "v126": "word0 word1 word2 word3 word4 word5 word6 word7 word8 word9 word10 word11 word12 word13 word14 word15 word16 word17 word18 word19 word20 word21 word22 word23 word24 word25 word26 word27 word28 word29\nword0 word1 word2 word3 word4 word5 word6 word7 word8 word9 word10 word11 word12 word13 word14 word15 word16 word17 word18 word19 word20 word21 word22 word23 word24 word25 word26 word27 word28 word29"
+    },
+    "output": "---\nv126: >-\n  word0 word1 word2 word3 word4 word5 word6 word7 word8 word9 word10 word11\n  word12 word13 word14 word15 word16 word17 word18 word19 word20 word21 word22\n  word23 word24 word25 word26 word27 word28 word29\n\n  word0 word1 word2 word3 word4 word5 word6 word7 word8 word9 word10 word11\n  word12 word13 word14 word15 word16 word17 word18 word19 word20 word21 word22\n  word23 word24 word25 word26 word27 word28 word29\n---\n\n\n",
+    "yaml": "v126: >-\n  word0 word1 word2 word3 word4 word5 word6 word7 word8 word9 word10 word11\n  word12 word13 word14 word15 word16 word17 word18 word19 word20 word21 word22\n  word23 word24 word25 word26 word27 word28 word29\n\n  word0 word1 word2 word3 word4 word5 word6 word7 word8 word9 word10 word11\n  word12 word13 word14 word15 word16 word17 word18 word19 word20 word21 word22\n  word23 word24 word25 word26 word27 word28 word29\n"
+  },
+  {
+    "content": "---\nexisting: yes\nkeep: 1\n---\nrest of body\n",
+    "data": {
+      "v127": "word0 word1 word2 word3 word4 word5 word6 word7 word8 word9 word10 word11 word12 word13 word14 word15 word16 word17 word18 word19 word20 word21 word22 word23 word24 word25 word26 word27 word28 word29\n\nword0 word1 word2 word3 word4 word5 word6 word7 word8 word9 word10 word11 word12 word13 word14 word15 word16 word17 word18 word19 word20 word21 word22 word23 word24 word25 word26 word27 word28 word29\n"
+    },
+    "output": "---\nexisting: 'yes'\nkeep: 1\nv127: >\n  word0 word1 word2 word3 word4 word5 word6 word7 word8 word9 word10 word11\n  word12 word13 word14 word15 word16 word17 word18 word19 word20 word21 word22\n  word23 word24 word25 word26 word27 word28 word29\n\n\n  word0 word1 word2 word3 word4 word5 word6 word7 word8 word9 word10 word11\n  word12 word13 word14 word15 word16 word17 word18 word19 word20 word21 word22\n  word23 word24 word25 word26 word27 word28 word29\n---\nrest of body\n",
+    "yaml": "v127: >\n  word0 word1 word2 word3 word4 word5 word6 word7 word8 word9 word10 word11\n  word12 word13 word14 word15 word16 word17 word18 word19 word20 word21 word22\n  word23 word24 word25 word26 word27 word28 word29\n\n\n  word0 word1 word2 word3 word4 word5 word6 word7 word8 word9 word10 word11\n  word12 word13 word14 word15 word16 word17 word18 word19 word20 word21 word22\n  word23 word24 word25 word26 word27 word28 word29\n"
+  },
+  {
+    "content": "﻿bom body",
+    "data": {
+      "v128": "  word0 word1 word2 word3 word4 word5 word6 word7 word8 word9 word10 word11 word12 word13 word14 word15 word16 word17 word18 word19 word20 word21 word22 word23 word24 word25 word26 word27 word28 word29"
+    },
+    "output": "---\nv128: '  word0 word1 word2 word3 word4 word5 word6 word7 word8 word9 word10 word11 word12 word13 word14 word15 word16 word17 word18 word19 word20 word21 word22 word23 word24 word25 word26 word27 word28 word29'\n---\nbom body\n",
+    "yaml": "v128: '  word0 word1 word2 word3 word4 word5 word6 word7 word8 word9 word10 word11 word12 word13 word14 word15 word16 word17 word18 word19 word20 word21 word22 word23 word24 word25 word26 word27 word28 word29'\n"
+  },
+  {
+    "content": "",
+    "data": {
+      "v129": "word0 word1 word2 word3 word4 word5 word6 word7 word8 word9 word10 word11 word12 word13 word14 word15 word16 word17 word18 word19 word20 word21 word22 word23 word24 word25 word26 word27 word28 word29\n  indented word0 word1 word2 word3 word4 word5 word6 word7 word8 word9 word10 word11 word12 word13 word14 word15 word16 word17 word18 word19 word20 word21 word22 word23 word24 word25 word26 word27 word28 word29\nword0 word1 word2 word3 word4 word5 word6 word7 word8 word9 word10 word11 word12 word13 word14 word15 word16 word17 word18 word19 word20 word21 word22 word23 word24 word25 word26 word27 word28 word29"
+    },
+    "output": "---\nv129: >-\n  word0 word1 word2 word3 word4 word5 word6 word7 word8 word9 word10 word11\n  word12 word13 word14 word15 word16 word17 word18 word19 word20 word21 word22\n  word23 word24 word25 word26 word27 word28 word29\n    indented word0 word1 word2 word3 word4 word5 word6 word7 word8 word9 word10 word11 word12 word13 word14 word15 word16 word17 word18 word19 word20 word21 word22 word23 word24 word25 word26 word27 word28 word29\n  word0 word1 word2 word3 word4 word5 word6 word7 word8 word9 word10 word11\n  word12 word13 word14 word15 word16 word17 word18 word19 word20 word21 word22\n  word23 word24 word25 word26 word27 word28 word29\n---\n\n",
+    "yaml": "v129: >-\n  word0 word1 word2 word3 word4 word5 word6 word7 word8 word9 word10 word11\n  word12 word13 word14 word15 word16 word17 word18 word19 word20 word21 word22\n  word23 word24 word25 word26 word27 word28 word29\n    indented word0 word1 word2 word3 word4 word5 word6 word7 word8 word9 word10 word11 word12 word13 word14 word15 word16 word17 word18 word19 word20 word21 word22 word23 word24 word25 word26 word27 word28 word29\n  word0 word1 word2 word3 word4 word5 word6 word7 word8 word9 word10 word11\n  word12 word13 word14 word15 word16 word17 word18 word19 word20 word21 word22\n  word23 word24 word25 word26 word27 word28 word29\n"
+  },
+  {
+    "content": "body",
+    "data": {
+      "v130": "\nword0 word1 word2 word3 word4 word5 word6 word7 word8 word9 word10 word11 word12 word13 word14 word15 word16 word17 word18 word19 word20 word21 word22 word23 word24 word25 word26 word27 word28 word29"
+    },
+    "output": "---\nv130: >-\n\n  word0 word1 word2 word3 word4 word5 word6 word7 word8 word9 word10 word11\n  word12 word13 word14 word15 word16 word17 word18 word19 word20 word21 word22\n  word23 word24 word25 word26 word27 word28 word29\n---\nbody\n",
+    "yaml": "v130: >-\n\n  word0 word1 word2 word3 word4 word5 word6 word7 word8 word9 word10 word11\n  word12 word13 word14 word15 word16 word17 word18 word19 word20 word21 word22\n  word23 word24 word25 word26 word27 word28 word29\n"
+  },
+  {
+    "content": "body\n",
+    "data": {
+      "v131": "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx tail"
+    },
+    "output": "---\nv131: >-\n  xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx\n  tail\n---\nbody\n",
+    "yaml": "v131: >-\n  xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx\n  tail\n"
+  },
+  {
+    "content": "\n# 見出し\n\n本文\n",
+    "data": {
+      "v132": "a xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"
+    },
+    "output": "---\nv132: >-\n  a\n  xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx\n---\n\n# 見出し\n\n本文\n",
+    "yaml": "v132: >-\n  a\n  xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx\n"
+  },
+  {
+    "content": "no newline",
+    "data": {
+      "v133": "http://example.com/a#b?c=d"
+    },
+    "output": "---\nv133: 'http://example.com/a#b?c=d'\n---\nno newline\n",
+    "yaml": "v133: 'http://example.com/a#b?c=d'\n"
+  },
+  {
+    "content": "\n\n",
+    "data": {
+      "v134": "C:\\path"
+    },
+    "output": "---\nv134: 'C:\\path'\n---\n\n\n",
+    "yaml": "v134: 'C:\\path'\n"
+  },
+  {
+    "content": "---\nexisting: yes\nkeep: 1\n---\nrest of body\n",
+    "data": {
+      "v135": "100%"
+    },
+    "output": "---\nexisting: 'yes'\nkeep: 1\nv135: 100%\n---\nrest of body\n",
+    "yaml": "v135: 100%\n"
+  },
+  {
+    "content": "﻿bom body",
+    "data": {
+      "v136": "a, b"
+    },
+    "output": "---\nv136: 'a, b'\n---\nbom body\n",
+    "yaml": "v136: 'a, b'\n"
+  },
+  {
+    "content": "",
+    "data": {
+      "v137": "x - y"
+    },
+    "output": "---\nv137: x - y\n---\n\n",
+    "yaml": "v137: x - y\n"
+  },
+  {
+    "content": "body",
+    "data": {
+      "v138": "x ? y"
+    },
+    "output": "---\nv138: x ? y\n---\nbody\n",
+    "yaml": "v138: x ? y\n"
+  },
+  {
+    "content": "body\n",
+    "data": {
+      "v139": "{a: 1}"
+    },
+    "output": "---\nv139: '{a: 1}'\n---\nbody\n",
+    "yaml": "v139: '{a: 1}'\n"
+  },
+  {
+    "content": "\n# 見出し\n\n本文\n",
+    "data": {
+      "v140": "="
+    },
+    "output": "---\nv140: '='\n---\n\n# 見出し\n\n本文\n",
+    "yaml": "v140: '='\n"
+  },
+  {
+    "content": "no newline",
+    "data": {
+      "v141": "a = b"
+    },
+    "output": "---\nv141: a = b\n---\nno newline\n",
+    "yaml": "v141: a = b\n"
+  },
+  {
+    "content": "\n\n",
+    "data": {
+      "v142": 1
+    },
+    "output": "---\nv142: 1\n---\n\n\n",
+    "yaml": "v142: 1\n"
+  },
+  {
+    "content": "---\nexisting: yes\nkeep: 1\n---\nrest of body\n",
+    "data": {
+      "v143": -1
+    },
+    "output": "---\nexisting: 'yes'\nkeep: 1\nv143: -1\n---\nrest of body\n",
+    "yaml": "v143: -1\n"
+  },
+  {
+    "content": "﻿bom body",
+    "data": {
+      "v144": 0
+    },
+    "output": "---\nv144: 0\n---\nbom body\n",
+    "yaml": "v144: 0\n"
+  },
+  {
+    "content": "",
+    "data": {
+      "v145": 3.5
+    },
+    "output": "---\nv145: 3.5\n---\n\n",
+    "yaml": "v145: 3.5\n"
+  },
+  {
+    "content": "body",
+    "data": {
+      "v146": -0.25
+    },
+    "output": "---\nv146: -0.25\n---\nbody\n",
+    "yaml": "v146: -0.25\n"
+  },
+  {
+    "content": "body\n",
+    "data": {
+      "v147": 1e+21
+    },
+    "output": "---\nv147: 1e+21\n---\nbody\n",
+    "yaml": "v147: 1e+21\n"
+  },
+  {
+    "content": "\n# 見出し\n\n本文\n",
+    "data": {
+      "v148": 1e-7
+    },
+    "output": "---\nv148: 1.e-7\n---\n\n# 見出し\n\n本文\n",
+    "yaml": "v148: 1.e-7\n"
+  },
+  {
+    "content": "no newline",
+    "data": {
+      "v149": 5e-324
+    },
+    "output": "---\nv149: 5.e-324\n---\nno newline\n",
+    "yaml": "v149: 5.e-324\n"
+  },
+  {
+    "content": "\n\n",
+    "data": {
+      "v150": 123456789012
+    },
+    "output": "---\nv150: 123456789012\n---\n\n\n",
+    "yaml": "v150: 123456789012\n"
+  },
+  {
+    "content": "---\nexisting: yes\nkeep: 1\n---\nrest of body\n",
+    "data": {
+      "v151": 9007199254740991
+    },
+    "output": "---\nexisting: 'yes'\nkeep: 1\nv151: 9007199254740991\n---\nrest of body\n",
+    "yaml": "v151: 9007199254740991\n"
+  },
+  {
+    "content": "﻿bom body",
+    "data": {
+      "v152": 0.1
+    },
+    "output": "---\nv152: 0.1\n---\nbom body\n",
+    "yaml": "v152: 0.1\n"
+  },
+  {
+    "content": "",
+    "data": {
+      "v153": 100
+    },
+    "output": "---\nv153: 100\n---\n\n",
+    "yaml": "v153: 100\n"
+  },
+  {
+    "content": "body",
+    "data": {
+      "v154": true
+    },
+    "output": "---\nv154: true\n---\nbody\n",
+    "yaml": "v154: true\n"
+  },
+  {
+    "content": "body\n",
+    "data": {
+      "v155": false
+    },
+    "output": "---\nv155: false\n---\nbody\n",
+    "yaml": "v155: false\n"
+  },
+  {
+    "content": "\n# 見出し\n\n本文\n",
+    "data": {
+      "v156": null
+    },
+    "output": "---\nv156: null\n---\n\n# 見出し\n\n本文\n",
+    "yaml": "v156: null\n"
+  },
+  {
+    "content": "no newline",
+    "data": {
+      "allScalars": [
+        "plain",
+        "日本語の値",
+        "",
+        " ",
+        "  lead",
+        "trail ",
+        "a:b",
+        "a: b",
+        "key:",
+        "a #b",
+        "a#b",
+        "#tag",
+        "- item",
+        "-x",
+        "?q",
+        ":c",
+        ",c",
+        "[x]",
+        "]x",
+        "{y}",
+        "}y",
+        "&a",
+        "*a",
+        "!a",
+        "|a",
+        ">a",
+        "'q'",
+        "\"dq\"",
+        "%p",
+        "@at",
+        "`bt`",
+        "it's",
+        "say \"hi\"",
+        "back\\slash",
+        "tab\there",
+        "cr\rhere",
+        "nul\u0000x",
+        "bell\u0007",
+        "esc\u001b",
+        "nbsp x",
+        "nelx",
+        "ls x",
+        "ps x",
+        "bom﻿x",
+        "emoji😀",
+        "😀",
+        "ctrl\u0001x",
+        "delx",
+        "c1x",
+        "123",
+        "-12",
+        "+3",
+        "0",
+        "0x1F",
+        "0b101",
+        "017",
+        "08",
+        "0o17",
+        "1_000",
+        "_1",
+        "1_",
+        "1:20",
+        "1:2:3",
+        "1:",
+        "1.5",
+        ".5",
+        "1.",
+        "1e3",
+        "1.e3",
+        "-1.5e-3",
+        "1E+5",
+        ".inf",
+        "-.Inf",
+        "+.INF",
+        ".nan",
+        ".NaN",
+        "NaN",
+        "Infinity",
+        "1:20.5",
+        "2026-10-29",
+        "2026-1-2",
+        "2026-10-29T12:00:00Z",
+        "2026-10-29 12:00:00",
+        "2026-10-29t1:02:03.123+09:00",
+        "2026-10-29T12:00:00 Z",
+        "2026-10-29T12:00:00 ",
+        "true",
+        "True",
+        "TRUE",
+        "tRue",
+        "false",
+        "False",
+        "null",
+        "Null",
+        "NULL",
+        "~",
+        "nULL",
+        "yes",
+        "Yes",
+        "YES",
+        "no",
+        "No",
+        "on",
+        "On",
+        "off",
+        "OFF",
+        "y",
+        "Y",
+        "n",
+        "N",
+        "<<",
+        "<",
+        "a\nb",
+        "a\nb\n",
+        "a\nb\n\n",
+        "\n",
+        "\n\n",
+        "\nlead",
+        "  indented\nnext",
+        "line\n  more\nback",
+        "x\n\n\ny",
+        "trailing spaces  \nnext",
+        "これは長い説明文です。これは長い説明文です。これは長い説明文です。これは長い説明文です。これは長い説明文です。これは長い説明文です。これは長い説明文です。これは長い説明文です。これは長い説明文です。これは長い説明文です。これは長い説明文です。これは長い説明文です。",
+        "word0 word1 word2 word3 word4 word5 word6 word7 word8 word9 word10 word11 word12 word13 word14 word15 word16 word17 word18 word19 word20 word21 word22 word23 word24 word25 word26 word27 word28 word29",
+        "alpha  beta   gamma alpha  beta   gamma alpha  beta   gamma alpha  beta   gamma alpha  beta   gamma alpha  beta   gamma alpha  beta   gamma alpha  beta   gamma ",
+        "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx",
+        "word0 word1 word2 word3 word4 word5 word6 word7 word8 word9 word10 word11 word12 word13 word14 word15 word16 word17 word18 word19 word20 word21 word22 word23 word24 word25 word26 word27 word28 word29\nword0 word1 word2 word3 word4 word5 word6 word7 word8 word9 word10 word11 word12 word13 word14 word15 word16 word17 word18 word19 word20 word21 word22 word23 word24 word25 word26 word27 word28 word29",
+        "word0 word1 word2 word3 word4 word5 word6 word7 word8 word9 word10 word11 word12 word13 word14 word15 word16 word17 word18 word19 word20 word21 word22 word23 word24 word25 word26 word27 word28 word29\n\nword0 word1 word2 word3 word4 word5 word6 word7 word8 word9 word10 word11 word12 word13 word14 word15 word16 word17 word18 word19 word20 word21 word22 word23 word24 word25 word26 word27 word28 word29\n",
+        "  word0 word1 word2 word3 word4 word5 word6 word7 word8 word9 word10 word11 word12 word13 word14 word15 word16 word17 word18 word19 word20 word21 word22 word23 word24 word25 word26 word27 word28 word29",
+        "word0 word1 word2 word3 word4 word5 word6 word7 word8 word9 word10 word11 word12 word13 word14 word15 word16 word17 word18 word19 word20 word21 word22 word23 word24 word25 word26 word27 word28 word29\n  indented word0 word1 word2 word3 word4 word5 word6 word7 word8 word9 word10 word11 word12 word13 word14 word15 word16 word17 word18 word19 word20 word21 word22 word23 word24 word25 word26 word27 word28 word29\nword0 word1 word2 word3 word4 word5 word6 word7 word8 word9 word10 word11 word12 word13 word14 word15 word16 word17 word18 word19 word20 word21 word22 word23 word24 word25 word26 word27 word28 word29",
+        "\nword0 word1 word2 word3 word4 word5 word6 word7 word8 word9 word10 word11 word12 word13 word14 word15 word16 word17 word18 word19 word20 word21 word22 word23 word24 word25 word26 word27 word28 word29",
+        "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx tail",
+        "a xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx",
+        "http://example.com/a#b?c=d",
+        "C:\\path",
+        "100%",
+        "a, b",
+        "x - y",
+        "x ? y",
+        "{a: 1}",
+        "=",
+        "a = b",
+        1,
+        -1,
+        0,
+        3.5,
+        -0.25,
+        1e+21,
+        1e-7,
+        5e-324,
+        123456789012,
+        9007199254740991,
+        0.1,
+        100,
+        true,
+        false,
+        null
+      ]
+    },
+    "output": "---\nallScalars:\n  - plain\n  - 日本語の値\n  - ''\n  - ' '\n  - '  lead'\n  - 'trail '\n  - 'a:b'\n  - 'a: b'\n  - 'key:'\n  - 'a #b'\n  - a#b\n  - '#tag'\n  - '- item'\n  - '-x'\n  - '?q'\n  - ':c'\n  - ',c'\n  - '[x]'\n  - ']x'\n  - '{y}'\n  - '}y'\n  - '&a'\n  - '*a'\n  - '!a'\n  - '|a'\n  - '>a'\n  - '''q'''\n  - '\"dq\"'\n  - '%p'\n  - '@at'\n  - '`bt`'\n  - it's\n  - say \"hi\"\n  - back\\slash\n  - \"tab\\there\"\n  - \"cr\\rhere\"\n  - \"nul\\0x\"\n  - \"bell\\a\"\n  - \"esc\\e\"\n  - \"nbsp\\_x\"\n  - \"nel\\Nx\"\n  - \"ls\\Lx\"\n  - \"ps\\Px\"\n  - \"bom\\uFEFFx\"\n  - \"emoji\\U0001F600\"\n  - \"\\U0001F600\"\n  - \"ctrl\\x01x\"\n  - \"del\\x7Fx\"\n  - \"c1\\x90x\"\n  - '123'\n  - '-12'\n  - '+3'\n  - '0'\n  - '0x1F'\n  - '0b101'\n  - '017'\n  - 08\n  - 0o17\n  - '1_000'\n  - _1\n  - 1_\n  - '1:20'\n  - '1:2:3'\n  - '1:'\n  - '1.5'\n  - '.5'\n  - '1.'\n  - '1e3'\n  - '1.e3'\n  - '-1.5e-3'\n  - '1E+5'\n  - '.inf'\n  - '-.Inf'\n  - '+.INF'\n  - '.nan'\n  - '.NaN'\n  - NaN\n  - Infinity\n  - '1:20.5'\n  - '2026-10-29'\n  - 2026-1-2\n  - '2026-10-29T12:00:00Z'\n  - '2026-10-29 12:00:00'\n  - '2026-10-29t1:02:03.123+09:00'\n  - '2026-10-29T12:00:00 Z'\n  - '2026-10-29T12:00:00 '\n  - 'true'\n  - 'True'\n  - 'TRUE'\n  - tRue\n  - 'false'\n  - 'False'\n  - 'null'\n  - 'Null'\n  - 'NULL'\n  - '~'\n  - nULL\n  - 'yes'\n  - 'Yes'\n  - 'YES'\n  - 'no'\n  - 'No'\n  - 'on'\n  - 'On'\n  - 'off'\n  - 'OFF'\n  - 'y'\n  - 'Y'\n  - 'n'\n  - 'N'\n  - '<<'\n  - <\n  - |-\n    a\n    b\n  - |\n    a\n    b\n  - |+\n    a\n    b\n\n  - |+\n\n  - |+\n\n\n  - |-\n\n    lead\n  - |2-\n      indented\n    next\n  - |-\n    line\n      more\n    back\n  - |-\n    x\n\n\n    y\n  - |-\n    trailing spaces  \n    next\n  - >-\n    これは長い説明文です。これは長い説明文です。これは長い説明文です。これは長い説明文です。これは長い説明文です。これは長い説明文です。これは長い説明文です。これは長い説明文です。これは長い説明文です。これは長い説明文です。これは長い説明文です。これは長い説明文です。\n  - >-\n    word0 word1 word2 word3 word4 word5 word6 word7 word8 word9 word10 word11\n    word12 word13 word14 word15 word16 word17 word18 word19 word20 word21 word22\n    word23 word24 word25 word26 word27 word28 word29\n  - >-\n    alpha  beta   gamma alpha  beta   gamma alpha  beta   gamma alpha  beta  \n    gamma alpha  beta   gamma alpha  beta   gamma alpha  beta   gamma alpha \n    beta   gamma \n  - >-\n    xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx\n  - >-\n    word0 word1 word2 word3 word4 word5 word6 word7 word8 word9 word10 word11\n    word12 word13 word14 word15 word16 word17 word18 word19 word20 word21 word22\n    word23 word24 word25 word26 word27 word28 word29\n\n    word0 word1 word2 word3 word4 word5 word6 word7 word8 word9 word10 word11\n    word12 word13 word14 word15 word16 word17 word18 word19 word20 word21 word22\n    word23 word24 word25 word26 word27 word28 word29\n  - >\n    word0 word1 word2 word3 word4 word5 word6 word7 word8 word9 word10 word11\n    word12 word13 word14 word15 word16 word17 word18 word19 word20 word21 word22\n    word23 word24 word25 word26 word27 word28 word29\n\n\n    word0 word1 word2 word3 word4 word5 word6 word7 word8 word9 word10 word11\n    word12 word13 word14 word15 word16 word17 word18 word19 word20 word21 word22\n    word23 word24 word25 word26 word27 word28 word29\n  - '  word0 word1 word2 word3 word4 word5 word6 word7 word8 word9 word10 word11 word12 word13 word14 word15 word16 word17 word18 word19 word20 word21 word22 word23 word24 word25 word26 word27 word28 word29'\n  - >-\n    word0 word1 word2 word3 word4 word5 word6 word7 word8 word9 word10 word11\n    word12 word13 word14 word15 word16 word17 word18 word19 word20 word21 word22\n    word23 word24 word25 word26 word27 word28 word29\n      indented word0 word1 word2 word3 word4 word5 word6 word7 word8 word9 word10 word11 word12 word13 word14 word15 word16 word17 word18 word19 word20 word21 word22 word23 word24 word25 word26 word27 word28 word29\n    word0 word1 word2 word3 word4 word5 word6 word7 word8 word9 word10 word11\n    word12 word13 word14 word15 word16 word17 word18 word19 word20 word21 word22\n    word23 word24 word25 word26 word27 word28 word29\n  - >-\n\n    word0 word1 word2 word3 word4 word5 word6 word7 word8 word9 word10 word11\n    word12 word13 word14 word15 word16 word17 word18 word19 word20 word21 word22\n    word23 word24 word25 word26 word27 word28 word29\n  - >-\n    xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx\n    tail\n  - >-\n    a\n    xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx\n  - 'http://example.com/a#b?c=d'\n  - 'C:\\path'\n  - 100%\n  - 'a, b'\n  - x - y\n  - x ? y\n  - '{a: 1}'\n  - '='\n  - a = b\n  - 1\n  - -1\n  - 0\n  - 3.5\n  - -0.25\n  - 1e+21\n  - 1.e-7\n  - 5.e-324\n  - 123456789012\n  - 9007199254740991\n  - 0.1\n  - 100\n  - true\n  - false\n  - null\n---\nno newline\n",
+    "yaml": "allScalars:\n  - plain\n  - 日本語の値\n  - ''\n  - ' '\n  - '  lead'\n  - 'trail '\n  - 'a:b'\n  - 'a: b'\n  - 'key:'\n  - 'a #b'\n  - a#b\n  - '#tag'\n  - '- item'\n  - '-x'\n  - '?q'\n  - ':c'\n  - ',c'\n  - '[x]'\n  - ']x'\n  - '{y}'\n  - '}y'\n  - '&a'\n  - '*a'\n  - '!a'\n  - '|a'\n  - '>a'\n  - '''q'''\n  - '\"dq\"'\n  - '%p'\n  - '@at'\n  - '`bt`'\n  - it's\n  - say \"hi\"\n  - back\\slash\n  - \"tab\\there\"\n  - \"cr\\rhere\"\n  - \"nul\\0x\"\n  - \"bell\\a\"\n  - \"esc\\e\"\n  - \"nbsp\\_x\"\n  - \"nel\\Nx\"\n  - \"ls\\Lx\"\n  - \"ps\\Px\"\n  - \"bom\\uFEFFx\"\n  - \"emoji\\U0001F600\"\n  - \"\\U0001F600\"\n  - \"ctrl\\x01x\"\n  - \"del\\x7Fx\"\n  - \"c1\\x90x\"\n  - '123'\n  - '-12'\n  - '+3'\n  - '0'\n  - '0x1F'\n  - '0b101'\n  - '017'\n  - 08\n  - 0o17\n  - '1_000'\n  - _1\n  - 1_\n  - '1:20'\n  - '1:2:3'\n  - '1:'\n  - '1.5'\n  - '.5'\n  - '1.'\n  - '1e3'\n  - '1.e3'\n  - '-1.5e-3'\n  - '1E+5'\n  - '.inf'\n  - '-.Inf'\n  - '+.INF'\n  - '.nan'\n  - '.NaN'\n  - NaN\n  - Infinity\n  - '1:20.5'\n  - '2026-10-29'\n  - 2026-1-2\n  - '2026-10-29T12:00:00Z'\n  - '2026-10-29 12:00:00'\n  - '2026-10-29t1:02:03.123+09:00'\n  - '2026-10-29T12:00:00 Z'\n  - '2026-10-29T12:00:00 '\n  - 'true'\n  - 'True'\n  - 'TRUE'\n  - tRue\n  - 'false'\n  - 'False'\n  - 'null'\n  - 'Null'\n  - 'NULL'\n  - '~'\n  - nULL\n  - 'yes'\n  - 'Yes'\n  - 'YES'\n  - 'no'\n  - 'No'\n  - 'on'\n  - 'On'\n  - 'off'\n  - 'OFF'\n  - 'y'\n  - 'Y'\n  - 'n'\n  - 'N'\n  - '<<'\n  - <\n  - |-\n    a\n    b\n  - |\n    a\n    b\n  - |+\n    a\n    b\n\n  - |+\n\n  - |+\n\n\n  - |-\n\n    lead\n  - |2-\n      indented\n    next\n  - |-\n    line\n      more\n    back\n  - |-\n    x\n\n\n    y\n  - |-\n    trailing spaces  \n    next\n  - >-\n    これは長い説明文です。これは長い説明文です。これは長い説明文です。これは長い説明文です。これは長い説明文です。これは長い説明文です。これは長い説明文です。これは長い説明文です。これは長い説明文です。これは長い説明文です。これは長い説明文です。これは長い説明文です。\n  - >-\n    word0 word1 word2 word3 word4 word5 word6 word7 word8 word9 word10 word11\n    word12 word13 word14 word15 word16 word17 word18 word19 word20 word21 word22\n    word23 word24 word25 word26 word27 word28 word29\n  - >-\n    alpha  beta   gamma alpha  beta   gamma alpha  beta   gamma alpha  beta  \n    gamma alpha  beta   gamma alpha  beta   gamma alpha  beta   gamma alpha \n    beta   gamma \n  - >-\n    xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx\n  - >-\n    word0 word1 word2 word3 word4 word5 word6 word7 word8 word9 word10 word11\n    word12 word13 word14 word15 word16 word17 word18 word19 word20 word21 word22\n    word23 word24 word25 word26 word27 word28 word29\n\n    word0 word1 word2 word3 word4 word5 word6 word7 word8 word9 word10 word11\n    word12 word13 word14 word15 word16 word17 word18 word19 word20 word21 word22\n    word23 word24 word25 word26 word27 word28 word29\n  - >\n    word0 word1 word2 word3 word4 word5 word6 word7 word8 word9 word10 word11\n    word12 word13 word14 word15 word16 word17 word18 word19 word20 word21 word22\n    word23 word24 word25 word26 word27 word28 word29\n\n\n    word0 word1 word2 word3 word4 word5 word6 word7 word8 word9 word10 word11\n    word12 word13 word14 word15 word16 word17 word18 word19 word20 word21 word22\n    word23 word24 word25 word26 word27 word28 word29\n  - '  word0 word1 word2 word3 word4 word5 word6 word7 word8 word9 word10 word11 word12 word13 word14 word15 word16 word17 word18 word19 word20 word21 word22 word23 word24 word25 word26 word27 word28 word29'\n  - >-\n    word0 word1 word2 word3 word4 word5 word6 word7 word8 word9 word10 word11\n    word12 word13 word14 word15 word16 word17 word18 word19 word20 word21 word22\n    word23 word24 word25 word26 word27 word28 word29\n      indented word0 word1 word2 word3 word4 word5 word6 word7 word8 word9 word10 word11 word12 word13 word14 word15 word16 word17 word18 word19 word20 word21 word22 word23 word24 word25 word26 word27 word28 word29\n    word0 word1 word2 word3 word4 word5 word6 word7 word8 word9 word10 word11\n    word12 word13 word14 word15 word16 word17 word18 word19 word20 word21 word22\n    word23 word24 word25 word26 word27 word28 word29\n  - >-\n\n    word0 word1 word2 word3 word4 word5 word6 word7 word8 word9 word10 word11\n    word12 word13 word14 word15 word16 word17 word18 word19 word20 word21 word22\n    word23 word24 word25 word26 word27 word28 word29\n  - >-\n    xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx\n    tail\n  - >-\n    a\n    xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx\n  - 'http://example.com/a#b?c=d'\n  - 'C:\\path'\n  - 100%\n  - 'a, b'\n  - x - y\n  - x ? y\n  - '{a: 1}'\n  - '='\n  - a = b\n  - 1\n  - -1\n  - 0\n  - 3.5\n  - -0.25\n  - 1e+21\n  - 1.e-7\n  - 5.e-324\n  - 123456789012\n  - 9007199254740991\n  - 0.1\n  - 100\n  - true\n  - false\n  - null\n"
+  },
+  {
+    "content": "\n\n",
+    "data": {
+      "inSeq": [
+        "plain",
+        "日本語の値",
+        "",
+        " ",
+        "  lead",
+        "trail ",
+        "a:b",
+        "a: b",
+        "key:",
+        "a #b",
+        "a#b",
+        "#tag",
+        "- item",
+        "-x",
+        "?q",
+        ":c",
+        ",c",
+        "[x]",
+        "]x",
+        "{y}",
+        "}y",
+        "&a",
+        "*a",
+        "!a",
+        "|a",
+        ">a",
+        "'q'",
+        "\"dq\"",
+        "%p",
+        "@at",
+        "`bt`",
+        "it's",
+        "say \"hi\"",
+        "back\\slash",
+        "tab\there",
+        "cr\rhere",
+        "nul\u0000x",
+        "bell\u0007",
+        "esc\u001b",
+        "nbsp x",
+        "nelx",
+        "ls x",
+        "ps x",
+        "bom﻿x",
+        "emoji😀",
+        "😀",
+        "ctrl\u0001x",
+        "delx",
+        "c1x",
+        "123",
+        "-12",
+        "+3",
+        "0",
+        "0x1F",
+        "0b101",
+        "017",
+        "08",
+        "0o17",
+        "1_000",
+        "_1",
+        "1_",
+        "1:20",
+        "1:2:3",
+        "1:",
+        "1.5",
+        ".5",
+        "1.",
+        "1e3",
+        "1.e3",
+        "-1.5e-3",
+        "1E+5",
+        ".inf",
+        "-.Inf",
+        "+.INF",
+        ".nan",
+        ".NaN",
+        "NaN",
+        "Infinity",
+        "1:20.5",
+        "2026-10-29",
+        "2026-1-2",
+        "2026-10-29T12:00:00Z",
+        "2026-10-29 12:00:00",
+        "2026-10-29t1:02:03.123+09:00",
+        "2026-10-29T12:00:00 Z",
+        "2026-10-29T12:00:00 ",
+        "true",
+        "True",
+        "TRUE",
+        "tRue",
+        "false",
+        "False",
+        "null",
+        "Null",
+        "NULL",
+        "~",
+        "nULL",
+        "yes",
+        "Yes",
+        "YES",
+        "no",
+        "No",
+        "on",
+        "On",
+        "off",
+        "OFF",
+        "y",
+        "Y",
+        "n",
+        "N",
+        "<<",
+        "<",
+        "a\nb",
+        "a\nb\n",
+        "a\nb\n\n",
+        "\n",
+        "\n\n",
+        "\nlead",
+        "  indented\nnext",
+        "line\n  more\nback",
+        "x\n\n\ny",
+        "trailing spaces  \nnext",
+        "これは長い説明文です。これは長い説明文です。これは長い説明文です。これは長い説明文です。これは長い説明文です。これは長い説明文です。これは長い説明文です。これは長い説明文です。これは長い説明文です。これは長い説明文です。これは長い説明文です。これは長い説明文です。",
+        "word0 word1 word2 word3 word4 word5 word6 word7 word8 word9 word10 word11 word12 word13 word14 word15 word16 word17 word18 word19 word20 word21 word22 word23 word24 word25 word26 word27 word28 word29",
+        "alpha  beta   gamma alpha  beta   gamma alpha  beta   gamma alpha  beta   gamma alpha  beta   gamma alpha  beta   gamma alpha  beta   gamma alpha  beta   gamma ",
+        "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx",
+        "word0 word1 word2 word3 word4 word5 word6 word7 word8 word9 word10 word11 word12 word13 word14 word15 word16 word17 word18 word19 word20 word21 word22 word23 word24 word25 word26 word27 word28 word29\nword0 word1 word2 word3 word4 word5 word6 word7 word8 word9 word10 word11 word12 word13 word14 word15 word16 word17 word18 word19 word20 word21 word22 word23 word24 word25 word26 word27 word28 word29",
+        "word0 word1 word2 word3 word4 word5 word6 word7 word8 word9 word10 word11 word12 word13 word14 word15 word16 word17 word18 word19 word20 word21 word22 word23 word24 word25 word26 word27 word28 word29\n\nword0 word1 word2 word3 word4 word5 word6 word7 word8 word9 word10 word11 word12 word13 word14 word15 word16 word17 word18 word19 word20 word21 word22 word23 word24 word25 word26 word27 word28 word29\n",
+        "  word0 word1 word2 word3 word4 word5 word6 word7 word8 word9 word10 word11 word12 word13 word14 word15 word16 word17 word18 word19 word20 word21 word22 word23 word24 word25 word26 word27 word28 word29",
+        "word0 word1 word2 word3 word4 word5 word6 word7 word8 word9 word10 word11 word12 word13 word14 word15 word16 word17 word18 word19 word20 word21 word22 word23 word24 word25 word26 word27 word28 word29\n  indented word0 word1 word2 word3 word4 word5 word6 word7 word8 word9 word10 word11 word12 word13 word14 word15 word16 word17 word18 word19 word20 word21 word22 word23 word24 word25 word26 word27 word28 word29\nword0 word1 word2 word3 word4 word5 word6 word7 word8 word9 word10 word11 word12 word13 word14 word15 word16 word17 word18 word19 word20 word21 word22 word23 word24 word25 word26 word27 word28 word29",
+        "\nword0 word1 word2 word3 word4 word5 word6 word7 word8 word9 word10 word11 word12 word13 word14 word15 word16 word17 word18 word19 word20 word21 word22 word23 word24 word25 word26 word27 word28 word29",
+        "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx tail",
+        "a xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx",
+        "http://example.com/a#b?c=d",
+        "C:\\path",
+        "100%",
+        "a, b",
+        "x - y",
+        "x ? y",
+        "{a: 1}",
+        "=",
+        "a = b"
+      ]
+    },
+    "output": "---\ninSeq:\n  - plain\n  - 日本語の値\n  - ''\n  - ' '\n  - '  lead'\n  - 'trail '\n  - 'a:b'\n  - 'a: b'\n  - 'key:'\n  - 'a #b'\n  - a#b\n  - '#tag'\n  - '- item'\n  - '-x'\n  - '?q'\n  - ':c'\n  - ',c'\n  - '[x]'\n  - ']x'\n  - '{y}'\n  - '}y'\n  - '&a'\n  - '*a'\n  - '!a'\n  - '|a'\n  - '>a'\n  - '''q'''\n  - '\"dq\"'\n  - '%p'\n  - '@at'\n  - '`bt`'\n  - it's\n  - say \"hi\"\n  - back\\slash\n  - \"tab\\there\"\n  - \"cr\\rhere\"\n  - \"nul\\0x\"\n  - \"bell\\a\"\n  - \"esc\\e\"\n  - \"nbsp\\_x\"\n  - \"nel\\Nx\"\n  - \"ls\\Lx\"\n  - \"ps\\Px\"\n  - \"bom\\uFEFFx\"\n  - \"emoji\\U0001F600\"\n  - \"\\U0001F600\"\n  - \"ctrl\\x01x\"\n  - \"del\\x7Fx\"\n  - \"c1\\x90x\"\n  - '123'\n  - '-12'\n  - '+3'\n  - '0'\n  - '0x1F'\n  - '0b101'\n  - '017'\n  - 08\n  - 0o17\n  - '1_000'\n  - _1\n  - 1_\n  - '1:20'\n  - '1:2:3'\n  - '1:'\n  - '1.5'\n  - '.5'\n  - '1.'\n  - '1e3'\n  - '1.e3'\n  - '-1.5e-3'\n  - '1E+5'\n  - '.inf'\n  - '-.Inf'\n  - '+.INF'\n  - '.nan'\n  - '.NaN'\n  - NaN\n  - Infinity\n  - '1:20.5'\n  - '2026-10-29'\n  - 2026-1-2\n  - '2026-10-29T12:00:00Z'\n  - '2026-10-29 12:00:00'\n  - '2026-10-29t1:02:03.123+09:00'\n  - '2026-10-29T12:00:00 Z'\n  - '2026-10-29T12:00:00 '\n  - 'true'\n  - 'True'\n  - 'TRUE'\n  - tRue\n  - 'false'\n  - 'False'\n  - 'null'\n  - 'Null'\n  - 'NULL'\n  - '~'\n  - nULL\n  - 'yes'\n  - 'Yes'\n  - 'YES'\n  - 'no'\n  - 'No'\n  - 'on'\n  - 'On'\n  - 'off'\n  - 'OFF'\n  - 'y'\n  - 'Y'\n  - 'n'\n  - 'N'\n  - '<<'\n  - <\n  - |-\n    a\n    b\n  - |\n    a\n    b\n  - |+\n    a\n    b\n\n  - |+\n\n  - |+\n\n\n  - |-\n\n    lead\n  - |2-\n      indented\n    next\n  - |-\n    line\n      more\n    back\n  - |-\n    x\n\n\n    y\n  - |-\n    trailing spaces  \n    next\n  - >-\n    これは長い説明文です。これは長い説明文です。これは長い説明文です。これは長い説明文です。これは長い説明文です。これは長い説明文です。これは長い説明文です。これは長い説明文です。これは長い説明文です。これは長い説明文です。これは長い説明文です。これは長い説明文です。\n  - >-\n    word0 word1 word2 word3 word4 word5 word6 word7 word8 word9 word10 word11\n    word12 word13 word14 word15 word16 word17 word18 word19 word20 word21 word22\n    word23 word24 word25 word26 word27 word28 word29\n  - >-\n    alpha  beta   gamma alpha  beta   gamma alpha  beta   gamma alpha  beta  \n    gamma alpha  beta   gamma alpha  beta   gamma alpha  beta   gamma alpha \n    beta   gamma \n  - >-\n    xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx\n  - >-\n    word0 word1 word2 word3 word4 word5 word6 word7 word8 word9 word10 word11\n    word12 word13 word14 word15 word16 word17 word18 word19 word20 word21 word22\n    word23 word24 word25 word26 word27 word28 word29\n\n    word0 word1 word2 word3 word4 word5 word6 word7 word8 word9 word10 word11\n    word12 word13 word14 word15 word16 word17 word18 word19 word20 word21 word22\n    word23 word24 word25 word26 word27 word28 word29\n  - >\n    word0 word1 word2 word3 word4 word5 word6 word7 word8 word9 word10 word11\n    word12 word13 word14 word15 word16 word17 word18 word19 word20 word21 word22\n    word23 word24 word25 word26 word27 word28 word29\n\n\n    word0 word1 word2 word3 word4 word5 word6 word7 word8 word9 word10 word11\n    word12 word13 word14 word15 word16 word17 word18 word19 word20 word21 word22\n    word23 word24 word25 word26 word27 word28 word29\n  - '  word0 word1 word2 word3 word4 word5 word6 word7 word8 word9 word10 word11 word12 word13 word14 word15 word16 word17 word18 word19 word20 word21 word22 word23 word24 word25 word26 word27 word28 word29'\n  - >-\n    word0 word1 word2 word3 word4 word5 word6 word7 word8 word9 word10 word11\n    word12 word13 word14 word15 word16 word17 word18 word19 word20 word21 word22\n    word23 word24 word25 word26 word27 word28 word29\n      indented word0 word1 word2 word3 word4 word5 word6 word7 word8 word9 word10 word11 word12 word13 word14 word15 word16 word17 word18 word19 word20 word21 word22 word23 word24 word25 word26 word27 word28 word29\n    word0 word1 word2 word3 word4 word5 word6 word7 word8 word9 word10 word11\n    word12 word13 word14 word15 word16 word17 word18 word19 word20 word21 word22\n    word23 word24 word25 word26 word27 word28 word29\n  - >-\n\n    word0 word1 word2 word3 word4 word5 word6 word7 word8 word9 word10 word11\n    word12 word13 word14 word15 word16 word17 word18 word19 word20 word21 word22\n    word23 word24 word25 word26 word27 word28 word29\n  - >-\n    xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx\n    tail\n  - >-\n    a\n    xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx\n  - 'http://example.com/a#b?c=d'\n  - 'C:\\path'\n  - 100%\n  - 'a, b'\n  - x - y\n  - x ? y\n  - '{a: 1}'\n  - '='\n  - a = b\n---\n\n\n",
+    "yaml": "inSeq:\n  - plain\n  - 日本語の値\n  - ''\n  - ' '\n  - '  lead'\n  - 'trail '\n  - 'a:b'\n  - 'a: b'\n  - 'key:'\n  - 'a #b'\n  - a#b\n  - '#tag'\n  - '- item'\n  - '-x'\n  - '?q'\n  - ':c'\n  - ',c'\n  - '[x]'\n  - ']x'\n  - '{y}'\n  - '}y'\n  - '&a'\n  - '*a'\n  - '!a'\n  - '|a'\n  - '>a'\n  - '''q'''\n  - '\"dq\"'\n  - '%p'\n  - '@at'\n  - '`bt`'\n  - it's\n  - say \"hi\"\n  - back\\slash\n  - \"tab\\there\"\n  - \"cr\\rhere\"\n  - \"nul\\0x\"\n  - \"bell\\a\"\n  - \"esc\\e\"\n  - \"nbsp\\_x\"\n  - \"nel\\Nx\"\n  - \"ls\\Lx\"\n  - \"ps\\Px\"\n  - \"bom\\uFEFFx\"\n  - \"emoji\\U0001F600\"\n  - \"\\U0001F600\"\n  - \"ctrl\\x01x\"\n  - \"del\\x7Fx\"\n  - \"c1\\x90x\"\n  - '123'\n  - '-12'\n  - '+3'\n  - '0'\n  - '0x1F'\n  - '0b101'\n  - '017'\n  - 08\n  - 0o17\n  - '1_000'\n  - _1\n  - 1_\n  - '1:20'\n  - '1:2:3'\n  - '1:'\n  - '1.5'\n  - '.5'\n  - '1.'\n  - '1e3'\n  - '1.e3'\n  - '-1.5e-3'\n  - '1E+5'\n  - '.inf'\n  - '-.Inf'\n  - '+.INF'\n  - '.nan'\n  - '.NaN'\n  - NaN\n  - Infinity\n  - '1:20.5'\n  - '2026-10-29'\n  - 2026-1-2\n  - '2026-10-29T12:00:00Z'\n  - '2026-10-29 12:00:00'\n  - '2026-10-29t1:02:03.123+09:00'\n  - '2026-10-29T12:00:00 Z'\n  - '2026-10-29T12:00:00 '\n  - 'true'\n  - 'True'\n  - 'TRUE'\n  - tRue\n  - 'false'\n  - 'False'\n  - 'null'\n  - 'Null'\n  - 'NULL'\n  - '~'\n  - nULL\n  - 'yes'\n  - 'Yes'\n  - 'YES'\n  - 'no'\n  - 'No'\n  - 'on'\n  - 'On'\n  - 'off'\n  - 'OFF'\n  - 'y'\n  - 'Y'\n  - 'n'\n  - 'N'\n  - '<<'\n  - <\n  - |-\n    a\n    b\n  - |\n    a\n    b\n  - |+\n    a\n    b\n\n  - |+\n\n  - |+\n\n\n  - |-\n\n    lead\n  - |2-\n      indented\n    next\n  - |-\n    line\n      more\n    back\n  - |-\n    x\n\n\n    y\n  - |-\n    trailing spaces  \n    next\n  - >-\n    これは長い説明文です。これは長い説明文です。これは長い説明文です。これは長い説明文です。これは長い説明文です。これは長い説明文です。これは長い説明文です。これは長い説明文です。これは長い説明文です。これは長い説明文です。これは長い説明文です。これは長い説明文です。\n  - >-\n    word0 word1 word2 word3 word4 word5 word6 word7 word8 word9 word10 word11\n    word12 word13 word14 word15 word16 word17 word18 word19 word20 word21 word22\n    word23 word24 word25 word26 word27 word28 word29\n  - >-\n    alpha  beta   gamma alpha  beta   gamma alpha  beta   gamma alpha  beta  \n    gamma alpha  beta   gamma alpha  beta   gamma alpha  beta   gamma alpha \n    beta   gamma \n  - >-\n    xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx\n  - >-\n    word0 word1 word2 word3 word4 word5 word6 word7 word8 word9 word10 word11\n    word12 word13 word14 word15 word16 word17 word18 word19 word20 word21 word22\n    word23 word24 word25 word26 word27 word28 word29\n\n    word0 word1 word2 word3 word4 word5 word6 word7 word8 word9 word10 word11\n    word12 word13 word14 word15 word16 word17 word18 word19 word20 word21 word22\n    word23 word24 word25 word26 word27 word28 word29\n  - >\n    word0 word1 word2 word3 word4 word5 word6 word7 word8 word9 word10 word11\n    word12 word13 word14 word15 word16 word17 word18 word19 word20 word21 word22\n    word23 word24 word25 word26 word27 word28 word29\n\n\n    word0 word1 word2 word3 word4 word5 word6 word7 word8 word9 word10 word11\n    word12 word13 word14 word15 word16 word17 word18 word19 word20 word21 word22\n    word23 word24 word25 word26 word27 word28 word29\n  - '  word0 word1 word2 word3 word4 word5 word6 word7 word8 word9 word10 word11 word12 word13 word14 word15 word16 word17 word18 word19 word20 word21 word22 word23 word24 word25 word26 word27 word28 word29'\n  - >-\n    word0 word1 word2 word3 word4 word5 word6 word7 word8 word9 word10 word11\n    word12 word13 word14 word15 word16 word17 word18 word19 word20 word21 word22\n    word23 word24 word25 word26 word27 word28 word29\n      indented word0 word1 word2 word3 word4 word5 word6 word7 word8 word9 word10 word11 word12 word13 word14 word15 word16 word17 word18 word19 word20 word21 word22 word23 word24 word25 word26 word27 word28 word29\n    word0 word1 word2 word3 word4 word5 word6 word7 word8 word9 word10 word11\n    word12 word13 word14 word15 word16 word17 word18 word19 word20 word21 word22\n    word23 word24 word25 word26 word27 word28 word29\n  - >-\n\n    word0 word1 word2 word3 word4 word5 word6 word7 word8 word9 word10 word11\n    word12 word13 word14 word15 word16 word17 word18 word19 word20 word21 word22\n    word23 word24 word25 word26 word27 word28 word29\n  - >-\n    xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx\n    tail\n  - >-\n    a\n    xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx\n  - 'http://example.com/a#b?c=d'\n  - 'C:\\path'\n  - 100%\n  - 'a, b'\n  - x - y\n  - x ? y\n  - '{a: 1}'\n  - '='\n  - a = b\n"
+  },
+  {
+    "content": "",
+    "data": {},
+    "output": "\n",
+    "yaml": "{}\n"
+  },
+  {
+    "content": "body",
+    "data": {},
+    "output": "body\n",
+    "yaml": "{}\n"
+  },
+  {
+    "content": "body\n",
+    "data": {},
+    "output": "body\n",
+    "yaml": "{}\n"
+  },
+  {
+    "content": "\n# 見出し\n\n本文\n",
+    "data": {},
+    "output": "\n# 見出し\n\n本文\n",
+    "yaml": "{}\n"
+  },
+  {
+    "content": "no newline",
+    "data": {},
+    "output": "no newline\n",
+    "yaml": "{}\n"
+  },
+  {
+    "content": "\n\n",
+    "data": {},
+    "output": "\n\n",
+    "yaml": "{}\n"
+  },
+  {
+    "content": "---\nexisting: yes\nkeep: 1\n---\nrest of body\n",
+    "data": {},
+    "output": "---\nexisting: 'yes'\nkeep: 1\n---\nrest of body\n",
+    "yaml": "{}\n"
+  },
+  {
+    "content": "﻿bom body",
+    "data": {},
+    "output": "bom body\n",
+    "yaml": "{}\n"
+  },
+  {
+    "content": "",
+    "data": {
+      "title": "t",
+      "extra": [
+        1
+      ]
+    },
+    "output": "---\ntitle: t\nextra:\n  - 1\n---\n\n",
+    "yaml": "title: t\nextra:\n  - 1\n"
+  },
+  {
+    "content": "body",
+    "data": {
+      "title": "t",
+      "extra": [
+        1
+      ]
+    },
+    "output": "---\ntitle: t\nextra:\n  - 1\n---\nbody\n",
+    "yaml": "title: t\nextra:\n  - 1\n"
+  },
+  {
+    "content": "body\n",
+    "data": {
+      "title": "t",
+      "extra": [
+        1
+      ]
+    },
+    "output": "---\ntitle: t\nextra:\n  - 1\n---\nbody\n",
+    "yaml": "title: t\nextra:\n  - 1\n"
+  },
+  {
+    "content": "\n# 見出し\n\n本文\n",
+    "data": {
+      "title": "t",
+      "extra": [
+        1
+      ]
+    },
+    "output": "---\ntitle: t\nextra:\n  - 1\n---\n\n# 見出し\n\n本文\n",
+    "yaml": "title: t\nextra:\n  - 1\n"
+  },
+  {
+    "content": "no newline",
+    "data": {
+      "title": "t",
+      "extra": [
+        1
+      ]
+    },
+    "output": "---\ntitle: t\nextra:\n  - 1\n---\nno newline\n",
+    "yaml": "title: t\nextra:\n  - 1\n"
+  },
+  {
+    "content": "\n\n",
+    "data": {
+      "title": "t",
+      "extra": [
+        1
+      ]
+    },
+    "output": "---\ntitle: t\nextra:\n  - 1\n---\n\n\n",
+    "yaml": "title: t\nextra:\n  - 1\n"
+  },
+  {
+    "content": "---\nexisting: yes\nkeep: 1\n---\nrest of body\n",
+    "data": {
+      "title": "t",
+      "extra": [
+        1
+      ]
+    },
+    "output": "---\nexisting: 'yes'\nkeep: 1\ntitle: t\nextra:\n  - 1\n---\nrest of body\n",
+    "yaml": "title: t\nextra:\n  - 1\n"
+  },
+  {
+    "content": "﻿bom body",
+    "data": {
+      "title": "t",
+      "extra": [
+        1
+      ]
+    },
+    "output": "---\ntitle: t\nextra:\n  - 1\n---\nbom body\n",
+    "yaml": "title: t\nextra:\n  - 1\n"
+  }
+]
