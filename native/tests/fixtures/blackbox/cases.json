@@ -1,0 +1,619 @@
+{
+  "canonical": [
+    {
+      "value": null,
+      "json": "null"
+    },
+    {
+      "value": 1,
+      "json": "1"
+    },
+    {
+      "value": 1.5,
+      "json": "1.5"
+    },
+    {
+      "value": -0.1,
+      "json": "-0.1"
+    },
+    {
+      "value": 1e+21,
+      "json": "1e+21"
+    },
+    {
+      "value": "s",
+      "json": "\"s\""
+    },
+    {
+      "value": true,
+      "json": "true"
+    },
+    {
+      "value": [
+        3,
+        1,
+        2
+      ],
+      "json": "[3,1,2]"
+    },
+    {
+      "value": {
+        "b": 1,
+        "a": {
+          "d": [
+            1,
+            {
+              "z": 1,
+              "y": 2
+            }
+          ],
+          "c": null
+        }
+      },
+      "json": "{\"a\":{\"c\":null,\"d\":[1,{\"y\":2,\"z\":1}]},\"b\":1}"
+    },
+    {
+      "value": {
+        "2": "y",
+        "10": "x",
+        "4294967294": 5,
+        "b": 1,
+        "a": 2,
+        "01": 3,
+        "4294967295": 4
+      },
+      "json": "{\"2\":\"y\",\"10\":\"x\",\"4294967294\":5,\"01\":3,\"4294967295\":4,\"a\":2,\"b\":1}"
+    },
+    {
+      "value": {
+        "é": 1,
+        "z": 2,
+        "😀": 3,
+        "￿": 4,
+        "A": 5
+      },
+      "json": "{\"A\":5,\"z\":2,\"é\":1,\"😀\":3,\"￿\":4}"
+    }
+  ],
+  "validation": [
+    {
+      "input": {
+        "op": "cmp",
+        "feature": "x",
+        "cmp": ">=",
+        "value": 1
+      },
+      "ok": true,
+      "cond": {
+        "op": "cmp",
+        "feature": "x",
+        "cmp": ">=",
+        "value": 1
+      },
+      "text": "x >= 1"
+    },
+    {
+      "input": {
+        "value": 2,
+        "cmp": "==",
+        "op": "cmp",
+        "feature": "dow"
+      },
+      "ok": true,
+      "cond": {
+        "op": "cmp",
+        "feature": "dow",
+        "cmp": "==",
+        "value": 2
+      },
+      "text": "dow == 2"
+    },
+    {
+      "input": {
+        "op": "in",
+        "feature": "kind",
+        "values": [
+          "a",
+          2,
+          "c"
+        ]
+      },
+      "ok": true,
+      "cond": {
+        "op": "in",
+        "feature": "kind",
+        "values": [
+          "a",
+          2,
+          "c"
+        ]
+      },
+      "text": "kind ∈ {a, 2, c}"
+    },
+    {
+      "input": {
+        "op": "and",
+        "clauses": [
+          {
+            "op": "cmp",
+            "feature": "x",
+            "cmp": ">",
+            "value": 0.5
+          },
+          {
+            "op": "not",
+            "clause": {
+              "op": "cmp",
+              "feature": "f",
+              "cmp": "==",
+              "value": true
+            }
+          }
+        ]
+      },
+      "ok": true,
+      "cond": {
+        "op": "and",
+        "clauses": [
+          {
+            "op": "cmp",
+            "feature": "x",
+            "cmp": ">",
+            "value": 0.5
+          },
+          {
+            "op": "not",
+            "clause": {
+              "op": "cmp",
+              "feature": "f",
+              "cmp": "==",
+              "value": true
+            }
+          }
+        ]
+      },
+      "text": "x > 0.5 かつ NOT(f == true)"
+    },
+    {
+      "input": {
+        "op": "or",
+        "clauses": [
+          {
+            "op": "cmp",
+            "feature": "s",
+            "cmp": "!=",
+            "value": "q"
+          },
+          {
+            "op": "in",
+            "feature": "n",
+            "values": [
+              1,
+              2
+            ]
+          }
+        ]
+      },
+      "ok": true,
+      "cond": {
+        "op": "or",
+        "clauses": [
+          {
+            "op": "cmp",
+            "feature": "s",
+            "cmp": "!=",
+            "value": "q"
+          },
+          {
+            "op": "in",
+            "feature": "n",
+            "values": [
+              1,
+              2
+            ]
+          }
+        ]
+      },
+      "text": "(s != q または n ∈ {1, 2})"
+    },
+    {
+      "input": {
+        "op": "xor"
+      },
+      "ok": false,
+      "error": "unknown condition op: xor"
+    },
+    {
+      "input": {
+        "op": 5
+      },
+      "ok": false,
+      "error": "unknown condition op: 5"
+    },
+    {
+      "input": [],
+      "ok": false,
+      "error": "unknown condition op: undefined"
+    },
+    {
+      "input": "str",
+      "ok": false,
+      "error": "condition must be an object"
+    },
+    {
+      "input": null,
+      "ok": false,
+      "error": "condition must be an object"
+    },
+    {
+      "input": {
+        "op": "and",
+        "clauses": []
+      },
+      "ok": false,
+      "error": "and needs non-empty clauses"
+    },
+    {
+      "input": {
+        "op": "in",
+        "feature": "k",
+        "values": []
+      },
+      "ok": false,
+      "error": "in.values must be non-empty array"
+    },
+    {
+      "input": {
+        "op": "in",
+        "feature": "k",
+        "values": [
+          true
+        ]
+      },
+      "ok": false,
+      "error": "in.values must be string|number"
+    },
+    {
+      "input": {
+        "op": "cmp",
+        "feature": 1,
+        "cmp": ">",
+        "value": 1
+      },
+      "ok": false,
+      "error": "cmp.feature must be string"
+    },
+    {
+      "input": {
+        "op": "cmp",
+        "feature": "x",
+        "cmp": "=>",
+        "value": 1
+      },
+      "ok": false,
+      "error": "cmp.cmp must be one of >,>=,<,<=,==,!="
+    },
+    {
+      "input": {
+        "op": "cmp",
+        "feature": "x",
+        "cmp": ">",
+        "value": null
+      },
+      "ok": false,
+      "error": "cmp.value must be number|string|boolean"
+    },
+    {
+      "input": {
+        "op": "not"
+      },
+      "ok": false,
+      "error": "condition must be an object"
+    },
+    {
+      "input": {
+        "op": "not",
+        "clause": {
+          "op": "not",
+          "clause": {
+            "op": "not",
+            "clause": {
+              "op": "not",
+              "clause": {
+                "op": "not",
+                "clause": {
+                  "op": "not",
+                  "clause": {
+                    "op": "not",
+                    "clause": {
+                      "op": "not",
+                      "clause": {
+                        "op": "not",
+                        "clause": {
+                          "op": "cmp",
+                          "feature": "x",
+                          "cmp": ">",
+                          "value": 1
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "ok": false,
+      "error": "condition nested too deep (max 8)"
+    },
+    {
+      "input": {
+        "op": "not",
+        "clause": {
+          "op": "not",
+          "clause": {
+            "op": "not",
+            "clause": {
+              "op": "not",
+              "clause": {
+                "op": "not",
+                "clause": {
+                  "op": "not",
+                  "clause": {
+                    "op": "not",
+                    "clause": {
+                      "op": "not",
+                      "clause": {
+                        "op": "cmp",
+                        "feature": "x",
+                        "cmp": ">",
+                        "value": 1
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "ok": true,
+      "cond": {
+        "op": "not",
+        "clause": {
+          "op": "not",
+          "clause": {
+            "op": "not",
+            "clause": {
+              "op": "not",
+              "clause": {
+                "op": "not",
+                "clause": {
+                  "op": "not",
+                  "clause": {
+                    "op": "not",
+                    "clause": {
+                      "op": "not",
+                      "clause": {
+                        "op": "cmp",
+                        "feature": "x",
+                        "cmp": ">",
+                        "value": 1
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "text": "NOT(NOT(NOT(NOT(NOT(NOT(NOT(NOT(x > 1))))))))"
+    }
+  ],
+  "features": [
+    {
+      "x": 1,
+      "kind": "a",
+      "f": false,
+      "s": "p",
+      "n": 2,
+      "dow": 2
+    },
+    {
+      "x": 0.2,
+      "kind": 2,
+      "f": true,
+      "s": "q",
+      "n": 3,
+      "dow": "2"
+    },
+    {
+      "x": "1",
+      "kind": "c"
+    },
+    {}
+  ],
+  "evals": [
+    {
+      "cond": {
+        "op": "cmp",
+        "feature": "x",
+        "cmp": ">=",
+        "value": 1
+      },
+      "results": [
+        true,
+        false,
+        false,
+        false
+      ]
+    },
+    {
+      "cond": {
+        "op": "cmp",
+        "feature": "dow",
+        "cmp": "==",
+        "value": 2
+      },
+      "results": [
+        true,
+        false,
+        false,
+        false
+      ]
+    },
+    {
+      "cond": {
+        "op": "in",
+        "feature": "kind",
+        "values": [
+          "a",
+          2,
+          "c"
+        ]
+      },
+      "results": [
+        true,
+        true,
+        true,
+        false
+      ]
+    },
+    {
+      "cond": {
+        "op": "and",
+        "clauses": [
+          {
+            "op": "cmp",
+            "feature": "x",
+            "cmp": ">",
+            "value": 0.5
+          },
+          {
+            "op": "not",
+            "clause": {
+              "op": "cmp",
+              "feature": "f",
+              "cmp": "==",
+              "value": true
+            }
+          }
+        ]
+      },
+      "results": [
+        true,
+        false,
+        false,
+        false
+      ]
+    },
+    {
+      "cond": {
+        "op": "or",
+        "clauses": [
+          {
+            "op": "cmp",
+            "feature": "s",
+            "cmp": "!=",
+            "value": "q"
+          },
+          {
+            "op": "in",
+            "feature": "n",
+            "values": [
+              1,
+              2
+            ]
+          }
+        ]
+      },
+      "results": [
+        true,
+        false,
+        false,
+        false
+      ]
+    },
+    {
+      "cond": {
+        "op": "not",
+        "clause": {
+          "op": "not",
+          "clause": {
+            "op": "not",
+            "clause": {
+              "op": "not",
+              "clause": {
+                "op": "not",
+                "clause": {
+                  "op": "not",
+                  "clause": {
+                    "op": "not",
+                    "clause": {
+                      "op": "not",
+                      "clause": {
+                        "op": "cmp",
+                        "feature": "x",
+                        "cmp": ">",
+                        "value": 1
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "results": [
+        false,
+        false,
+        false,
+        false
+      ]
+    }
+  ],
+  "fingerprints": [
+    {
+      "when": {
+        "op": "cmp",
+        "feature": "x",
+        "cmp": ">=",
+        "value": 1
+      },
+      "output": {
+        "rain": true
+      },
+      "fingerprint": "{\"output\":{\"rain\":true},\"when\":{\"cmp\":\">=\",\"feature\":\"x\",\"op\":\"cmp\",\"value\":1}}"
+    },
+    {
+      "when": {
+        "value": 2,
+        "cmp": "==",
+        "op": "cmp",
+        "feature": "dow"
+      },
+      "output": {
+        "names": [
+          "x"
+        ]
+      },
+      "fingerprint": "{\"output\":{\"names\":[\"x\"]},\"when\":{\"cmp\":\"==\",\"feature\":\"dow\",\"op\":\"cmp\",\"value\":2}}"
+    },
+    {
+      "when": {
+        "op": "in",
+        "feature": "kind",
+        "values": [
+          "a",
+          2,
+          "c"
+        ]
+      },
+      "output": null,
+      "fingerprint": "{\"output\":null,\"when\":{\"feature\":\"kind\",\"op\":\"in\",\"values\":[\"a\",2,\"c\"]}}"
+    }
+  ]
+}

@@ -1,0 +1,238 @@
+{
+  "tokens": [
+    {
+      "text": "",
+      "tokens": 0
+    },
+    {
+      "text": "a",
+      "tokens": 1
+    },
+    {
+      "text": "abcd",
+      "tokens": 1
+    },
+    {
+      "text": "abcde",
+      "tokens": 2
+    },
+    {
+      "text": "日本語のテキスト",
+      "tokens": 6
+    },
+    {
+      "text": "english text here",
+      "tokens": 5
+    },
+    {
+      "text": "混在 mixed テキスト 123 ！？",
+      "tokens": 9
+    },
+    {
+      "text": "ｶﾀｶﾅ半角とＡＢＣ全角",
+      "tokens": 8
+    },
+    {
+      "text": "絵文字😀と𠮷野家",
+      "tokens": 5
+    },
+    {
+      "text": "぀ヿ㐀䶿一鿿豈﫿＀￯〿￰",
+      "tokens": 8
+    },
+    {
+      "text": "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx",
+      "tokens": 251
+    }
+  ],
+  "ordering": [
+    {
+      "segments": [
+        {
+          "stability": "volatile",
+          "role": "user",
+          "text": "history tail"
+        },
+        {
+          "stability": "fixed",
+          "role": "system",
+          "text": "persona"
+        },
+        {
+          "stability": "semi",
+          "role": "user",
+          "text": "attached doc"
+        }
+      ],
+      "result": {
+        "messages": [
+          {
+            "role": "system",
+            "content": "persona"
+          },
+          {
+            "role": "user",
+            "content": "attached doc"
+          },
+          {
+            "role": "user",
+            "content": "history tail"
+          }
+        ],
+        "cacheBreakpoint": 2
+      }
+    },
+    {
+      "segments": [
+        {
+          "stability": "fixed",
+          "role": "system",
+          "text": "rule A"
+        },
+        {
+          "stability": "fixed",
+          "role": "system",
+          "text": "rule B"
+        },
+        {
+          "stability": "semi",
+          "role": "system",
+          "text": "rag"
+        },
+        {
+          "stability": "volatile",
+          "role": "user",
+          "text": "now"
+        },
+        {
+          "stability": "volatile",
+          "role": "user",
+          "text": "again"
+        },
+        {
+          "stability": "fixed",
+          "role": "assistant",
+          "text": "ack"
+        }
+      ],
+      "result": {
+        "messages": [
+          {
+            "role": "system",
+            "content": "rule A\n\nrule B"
+          },
+          {
+            "role": "assistant",
+            "content": "ack"
+          },
+          {
+            "role": "system",
+            "content": "rag"
+          },
+          {
+            "role": "user",
+            "content": "now\n\nagain"
+          }
+        ],
+        "cacheBreakpoint": 3
+      }
+    },
+    {
+      "segments": [
+        {
+          "stability": "fixed",
+          "role": "system",
+          "text": "  \n\t "
+        },
+        {
+          "stability": "volatile",
+          "role": "user",
+          "text": "hi"
+        }
+      ],
+      "result": {
+        "messages": [
+          {
+            "role": "user",
+            "content": "hi"
+          }
+        ],
+        "cacheBreakpoint": 0
+      }
+    },
+    {
+      "segments": [],
+      "result": {
+        "messages": [],
+        "cacheBreakpoint": 0
+      }
+    }
+  ],
+  "tiers": [
+    {
+      "input": {
+        "kind": "utterance"
+      },
+      "tier": "cheap"
+    },
+    {
+      "input": {
+        "kind": "converge"
+      },
+      "tier": "strong"
+    },
+    {
+      "input": {
+        "kind": "utterance",
+        "forceTier": "strong"
+      },
+      "tier": "strong"
+    },
+    {
+      "input": {
+        "kind": "utterance",
+        "inputTokens": 8000
+      },
+      "tier": "cheap"
+    },
+    {
+      "input": {
+        "kind": "utterance",
+        "inputTokens": 8001
+      },
+      "tier": "strong"
+    },
+    {
+      "input": {
+        "kind": "review"
+      },
+      "rules": {
+        "strongKinds": [
+          "review"
+        ]
+      },
+      "tier": "strong"
+    },
+    {
+      "input": {
+        "kind": "converge"
+      },
+      "rules": {
+        "strongKinds": [
+          "review"
+        ]
+      },
+      "tier": "cheap"
+    },
+    {
+      "input": {
+        "kind": "utterance",
+        "inputTokens": 3000
+      },
+      "rules": {
+        "strongAboveTokens": 2000
+      },
+      "tier": "strong"
+    }
+  ]
+}
