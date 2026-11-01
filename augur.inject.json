@@ -1,5 +1,5 @@
 {
   "service": "discutere",
-  "include": ["src/flow/spec-source.ts"],
+  "include": ["src/flow/spec-source.ts", "src/flow/strip-html.ts"],
   "rules": { "contract-wrap": true }
 }

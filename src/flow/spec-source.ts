@@ -22,6 +22,8 @@ import type fsType from "node:fs";
 import { createRequire } from "node:module";
 import nodePath from "node:path";
 import zlib from "node:zlib";
+import { stripHtml } from "./strip-html.js";
+import { decodeXmlEntities } from "./xml-entities.js";
 import { contract } from './contracts/runtime.js'; /* augur-inject:import:485ce2d9 */
 import augurContract_87417249 from './contracts/spec-zip-entry.contract.js'; /* augur-inject:contract-predicate:8c506876 */
 
@@ -236,21 +238,6 @@ function readZipTextEntries(bytes: Uint8Array, label: string): Map<string, strin
   return out;
 }
 
-function decodeXmlEntities(s: string): string {
-  return s.replace(/&(#x[0-9a-f]+|#\d+|amp|lt|gt|quot|apos|nbsp);/gi, (_m, ent: string) => {
-    const e = ent.toLowerCase();
-    if (e === "amp") return "&";
-    if (e === "lt") return "<";
-    if (e === "gt") return ">";
-    if (e === "quot") return '"';
-    if (e === "apos") return "'";
-    if (e === "nbsp") return " ";
-    if (e.startsWith("#x")) return String.fromCodePoint(Number.parseInt(e.slice(2), 16));
-    if (e.startsWith("#")) return String.fromCodePoint(Number.parseInt(e.slice(1), 10));
-    return "";
-  });
-}
-
 function xmlToPlainText(xml: string): string {
   return decodeXmlEntities(xml.replace(/<[^>]+>/g, " "))
     .replace(/\s+/g, " ")
@@ -277,17 +264,6 @@ function extractXlsx(bytes: Uint8Array, label: string): string {
     .filter(Boolean);
   if (parts.length === 0) throw new Error(`${label}: XLSX text was not found`);
   return parts.join("\n\n");
-}
-
-function stripHtml(html: string): string {
-  return decodeXmlEntities(
-    html
-      .replace(/<script\b[^>]*>[\s\S]*?<\/script>/gi, " ")
-      .replace(/<style\b[^>]*>[\s\S]*?<\/style>/gi, " ")
-      .replace(/<[^>]+>/g, " ")
-  )
-    .replace(/\s+/g, " ")
-    .trim();
 }
 
 function extractLegacyDoc(bytes: Uint8Array, label: string): string {

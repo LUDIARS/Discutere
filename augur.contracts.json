@@ -11,6 +11,15 @@
                           "criterion":  "C-1 inflateZipEntry(data, compression, maxBytes, label): 展開結果は64 MiBと合計残容量の両方を超えず、失敗はlabel付きで通知する",
                           "mode":  "observe",
                           "file":  "src/flow/spec-source.ts"
+                      },
+                      {
+                          "id": "C-2",
+                          "module": "src/flow/contracts/strip-html.contract.ts",
+                          "sample": 1,
+                          "symbol": "stripHtml",
+                          "criterion": "C-2 stripHtml(html): 整形式HTMLの本文と空白正規化を維持し、256KiB以上の未閉鎖タグを1秒未満で処理する",
+                          "mode": "observe",
+                          "file": "src/flow/strip-html.ts"
                       }
                   ],
     "runtimeFile":  "src/flow/contracts/runtime.ts"
