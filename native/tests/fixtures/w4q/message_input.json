@@ -1,0 +1,140 @@
+{
+  "results": [
+    {
+      "rawContent": "/define parry",
+      "hasUtterance": false,
+      "commandResult": {
+        "ok": true,
+        "message": "defined mechanic 2ab98723-8456-447b-9704-b5c59ddbb43c"
+      }
+    },
+    {
+      "rawContent": "/intends confidence",
+      "hasUtterance": false,
+      "commandResult": {
+        "ok": true,
+        "message": "mechanic intent updated"
+      }
+    },
+    {
+      "rawContent": "/refine timing window",
+      "hasUtterance": false,
+      "commandResult": {
+        "ok": true,
+        "message": "mechanic refined"
+      }
+    },
+    {
+      "rawContent": "/history parry",
+      "hasUtterance": false,
+      "commandResult": {
+        "ok": true,
+        "message": "history count=1"
+      }
+    },
+    {
+      "rawContent": "/unknown a b",
+      "hasUtterance": false,
+      "commandResult": {
+        "ok": false,
+        "error": "unknown command: unknown"
+      }
+    },
+    {
+      "rawContent": "/me",
+      "hasUtterance": false,
+      "commandResult": {
+        "ok": false,
+        "error": "usage: /me role <...>"
+      }
+    },
+    {
+      "rawContent": "/me role designer",
+      "hasUtterance": false,
+      "commandResult": {
+        "ok": false,
+        "error": "usage: /me role <theorist|player|developer>"
+      }
+    },
+    {
+      "rawContent": "/cluster",
+      "hasUtterance": false,
+      "commandResult": {
+        "ok": true,
+        "message": "no clusters"
+      }
+    },
+    {
+      "rawContent": "/hotspot",
+      "hasUtterance": false,
+      "commandResult": {
+        "ok": true,
+        "message": "1. parry score=0.00 (u:0 g:0 s:0)"
+      }
+    },
+    {
+      "rawContent": "/stale",
+      "hasUtterance": false,
+      "commandResult": {
+        "ok": true,
+        "message": "no stale hypotheses"
+      }
+    },
+    {
+      "rawContent": "/scene cave",
+      "hasUtterance": false,
+      "commandResult": {
+        "ok": true,
+        "message": "scene set"
+      }
+    },
+    {
+      "rawContent": "/done",
+      "hasUtterance": false,
+      "commandResult": {
+        "ok": true,
+        "message": "session ended"
+      }
+    },
+    {
+      "rawContent": "/submit",
+      "hasUtterance": false,
+      "commandResult": {
+        "ok": false,
+        "error": "no hypothesis"
+      }
+    },
+    {
+      "rawContent": "/",
+      "hasUtterance": true,
+      "commandResult": null
+    },
+    {
+      "rawContent": "ふつうの発言",
+      "hasUtterance": true,
+      "commandResult": null
+    },
+    {
+      "rawContent": "> @uid:u-prev\n返信です",
+      "hasUtterance": true,
+      "commandResult": null
+    }
+  ],
+  "utterances": [
+    {
+      "speaker_id": "p1",
+      "raw_content": "/",
+      "responds_to": null
+    },
+    {
+      "speaker_id": "p1",
+      "raw_content": "ふつうの発言",
+      "responds_to": null
+    },
+    {
+      "speaker_id": "p1",
+      "raw_content": "> @uid:u-prev\n返信です",
+      "responds_to": "u-prev"
+    }
+  ]
+}
