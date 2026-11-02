@@ -1,0 +1,350 @@
+{
+  "extractUrls": [
+    {
+      "text": "見て https://a.test/x これと http://b.test/y。",
+      "out": [
+        "https://a.test/x",
+        "http://b.test/y"
+      ]
+    },
+    {
+      "text": "URL なし",
+      "out": []
+    },
+    {
+      "text": "HTTPS://Upper.test/Path), (http://p.test/q)",
+      "out": [
+        "HTTPS://Upper.test/Path",
+        "http://p.test/q"
+      ]
+    },
+    {
+      "text": "「https://jp.test/あ」と【https://k.test/z】",
+      "out": [
+        "https://jp.test/あ",
+        "https://k.test/z"
+      ]
+    },
+    {
+      "text": "<https://angle.test/a> 'https://q.test/b' \"https://d.test/c\"",
+      "out": [
+        "https://angle.test/a",
+        "https://q.test/b",
+        "https://d.test/c"
+      ]
+    },
+    {
+      "text": "https:// http://x",
+      "out": [
+        "http://x"
+      ]
+    },
+    {
+      "text": "末尾https://dot.test/a.,。、",
+      "out": [
+        "https://dot.test/a"
+      ]
+    },
+    {
+      "text": "https://a.test/x　全角空白",
+      "out": [
+        "https://a.test/x"
+      ]
+    },
+    {
+      "text": "httpx://no.test https://ok.test/😀",
+      "out": [
+        "https://ok.test/😀"
+      ]
+    }
+  ],
+  "parseCrawlMessage": [
+    {
+      "text": "[sotc] https://a.test/x",
+      "out": {
+        "gameSlug": "sotc",
+        "urls": [
+          "https://a.test/x"
+        ]
+      }
+    },
+    {
+      "text": "sotc: https://a.test/x https://a.test/y",
+      "out": {
+        "gameSlug": "sotc",
+        "urls": [
+          "https://a.test/x",
+          "https://a.test/y"
+        ]
+      }
+    },
+    {
+      "text": "https://a.test/x",
+      "out": {
+        "urls": [
+          "https://a.test/x"
+        ]
+      }
+    },
+    {
+      "text": "[SoTc-2]   https://a.test/x",
+      "out": {
+        "gameSlug": "sotc-2",
+        "urls": [
+          "https://a.test/x"
+        ]
+      }
+    },
+    {
+      "text": "[aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa] https://a.test/x",
+      "out": {
+        "gameSlug": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+        "urls": [
+          "https://a.test/x"
+        ]
+      }
+    },
+    {
+      "text": "[aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa] https://a.test/x",
+      "out": {
+        "urls": [
+          "https://a.test/x"
+        ]
+      }
+    },
+    {
+      "text": "slug:https://a.test/x",
+      "out": {
+        "urls": [
+          "https://a.test/x"
+        ]
+      }
+    },
+    {
+      "text": "slug: not-a-url https://a.test/x",
+      "out": {
+        "urls": [
+          "https://a.test/x"
+        ]
+      }
+    },
+    {
+      "text": "  [-bad] https://a.test/x  ",
+      "out": {
+        "urls": [
+          "https://a.test/x"
+        ]
+      }
+    },
+    {
+      "text": "Game: HTTP://a.test/x",
+      "out": {
+        "gameSlug": "game",
+        "urls": [
+          "HTTP://a.test/x"
+        ]
+      }
+    }
+  ],
+  "classify": [
+    {
+      "url": "https://store.steampowered.com/app/1794680/Vampire_Survivors/",
+      "target": {
+        "kind": "steam",
+        "url": "https://store.steampowered.com/app/1794680/Vampire_Survivors/",
+        "appId": 1794680
+      },
+      "slug": "steam-1794680"
+    },
+    {
+      "url": "https://steamcommunity.com/app/42",
+      "target": {
+        "kind": "steam",
+        "url": "https://steamcommunity.com/app/42",
+        "appId": 42
+      },
+      "slug": "steam-42"
+    },
+    {
+      "url": "https://store.steampowered.com/agecheck/app/10/",
+      "target": {
+        "kind": "steam",
+        "url": "https://store.steampowered.com/agecheck/app/10/",
+        "appId": 10
+      },
+      "slug": "steam-10"
+    },
+    {
+      "url": "https://store.steampowered.com/search/?app/1",
+      "target": {
+        "kind": "website",
+        "url": "https://store.steampowered.com/search/?app/1"
+      },
+      "slug": "store-steampowered-com"
+    },
+    {
+      "url": "https://www.youtube.com/watch?v=dQw4w9WgXcQ",
+      "target": {
+        "kind": "youtube",
+        "url": "https://www.youtube.com/watch?v=dQw4w9WgXcQ",
+        "videoId": "dQw4w9WgXcQ"
+      },
+      "slug": "yt-dQw4w9WgXcQ"
+    },
+    {
+      "url": "https://www.youtube.com/watch?v=",
+      "target": {
+        "kind": "website",
+        "url": "https://www.youtube.com/watch?v="
+      },
+      "slug": "youtube-com"
+    },
+    {
+      "url": "https://youtu.be/abc123XYZ_-",
+      "target": {
+        "kind": "youtube",
+        "url": "https://youtu.be/abc123XYZ_-",
+        "videoId": "abc123XYZ_-"
+      },
+      "slug": "yt-abc123XYZ_-"
+    },
+    {
+      "url": "https://youtu.be/",
+      "target": {
+        "kind": "website",
+        "url": "https://youtu.be/"
+      },
+      "slug": "youtu-be"
+    },
+    {
+      "url": "https://m.youtube.com/shorts/abcdef",
+      "target": {
+        "kind": "youtube",
+        "url": "https://m.youtube.com/shorts/abcdef",
+        "videoId": "abcdef"
+      },
+      "slug": "yt-abcdef"
+    },
+    {
+      "url": "https://youtube.com/live/abcde",
+      "target": {
+        "kind": "website",
+        "url": "https://youtube.com/live/abcde"
+      },
+      "slug": "youtube-com"
+    },
+    {
+      "url": "https://www.youtube.com/embed/abcdefg?x=1",
+      "target": {
+        "kind": "youtube",
+        "url": "https://www.youtube.com/embed/abcdefg?x=1",
+        "videoId": "abcdefg"
+      },
+      "slug": "yt-abcdefg"
+    },
+    {
+      "url": "https://www.youtube.com/results?search_query=x",
+      "target": {
+        "kind": "website",
+        "url": "https://www.youtube.com/results?search_query=x"
+      },
+      "slug": "youtube-com"
+    },
+    {
+      "url": "https://www.reddit.com/r/gaming/comments/abc123/some_title/",
+      "target": {
+        "kind": "reddit",
+        "url": "https://www.reddit.com/r/gaming/comments/abc123/some_title/",
+        "submissionId": "abc123",
+        "permalink": "/r/gaming/comments/abc123/some_title/"
+      },
+      "slug": "reddit-abc123"
+    },
+    {
+      "url": "https://old.reddit.com/comments/XyZ9",
+      "target": {
+        "kind": "reddit",
+        "url": "https://old.reddit.com/comments/XyZ9",
+        "submissionId": "XyZ9",
+        "permalink": "/comments/XyZ9"
+      },
+      "slug": "reddit-XyZ9"
+    },
+    {
+      "url": "https://np.reddit.com/r/x/",
+      "target": {
+        "kind": "website",
+        "url": "https://np.reddit.com/r/x/"
+      },
+      "slug": "np-reddit-com"
+    },
+    {
+      "url": "https://famitsu.com/news/x.html",
+      "target": {
+        "kind": "website",
+        "url": "https://famitsu.com/news/x.html"
+      },
+      "slug": "famitsu-com"
+    },
+    {
+      "url": "https://www.example.com/p",
+      "target": {
+        "kind": "website",
+        "url": "https://www.example.com/p"
+      },
+      "slug": "example-com"
+    },
+    {
+      "url": "http://Sub.Example.CO.jp:8080/a",
+      "target": {
+        "kind": "website",
+        "url": "http://Sub.Example.CO.jp:8080/a"
+      },
+      "slug": "sub-example-co-jp"
+    },
+    {
+      "url": "not a url",
+      "target": {
+        "kind": "website",
+        "url": "not a url"
+      },
+      "slug": "web"
+    }
+  ],
+  "summaries": [
+    {
+      "results": [
+        {
+          "url": "https://a.test",
+          "kind": "website",
+          "gameSlug": "g",
+          "fetched": 1,
+          "imported": 1,
+          "skipped": 0
+        },
+        {
+          "url": "https://b.test",
+          "kind": "steam",
+          "gameSlug": "steam-1",
+          "fetched": 0,
+          "imported": 0,
+          "skipped": 0,
+          "error": "boom"
+        },
+        {
+          "url": "https://c.test",
+          "kind": "youtube",
+          "gameSlug": "yt-x",
+          "fetched": 3,
+          "imported": 0,
+          "skipped": 3
+        }
+      ],
+      "text": "📥 **データ追加** (計 1 件)\n✅ [website] g ← 1件取込 (skip 0) / https://a.test\n⚠️ [steam] https://b.test\n   └ 失敗: boom\n➖ [youtube] yt-x ← 0件取込 (skip 3) / https://c.test"
+    },
+    {
+      "results": [],
+      "text": "📥 **データ追加** (計 0 件)\n"
+    }
+  ]
+}
