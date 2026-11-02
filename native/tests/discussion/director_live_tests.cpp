@@ -28,6 +28,12 @@ struct FakeDiscord {
     std::vector<std::pair<std::string, Json>> messages;
     std::vector<std::pair<std::string, Json>> callbacks;
     std::function<void(const std::string& channel, const Json& body)> on_message;
+    // 切り離したコールバックのスレッド数。テストの終わりで 0 になるまで待つ
+    // (待たないと、テストのローカル変数 (runner 等) が消えた後に呼ばれて落ちることがあった)。
+    std::atomic<int> inflight{0};
+    void drain() {
+        for (int i = 0; i < 1000 && inflight.load() > 0; ++i) std::this_thread::sleep_for(10ms);
+    }
 
     FakeDiscord() {
         auto& r = *fake.router;
@@ -61,7 +67,14 @@ struct FakeDiscord {
                 messages.emplace_back(q.param("id"), body);
                 cb = on_message;
             }
-            if (cb) std::thread([cb, ch = q.param("id"), body] { std::this_thread::sleep_for(30ms); cb(ch, body); }).detach();
+            if (cb) {
+                ++inflight;
+                std::thread([this, cb, ch = q.param("id"), body] {
+                    std::this_thread::sleep_for(30ms);
+                    cb(ch, body);
+                    --inflight;
+                }).detach();
+            }
             return http::Response::json(Json{{"id", "m1"}, {"channel_id", q.param("id")}});
         });
         r.post("/interactions/:id/:token/callback", [this](http::Request& q) {
@@ -116,6 +129,11 @@ TEST_CASE("director-live: スレッドで議論 → 続ける → 別チャン�
     clear_webhook_cache();
     auto runner = create_debate_runner(options(d.api()));
     std::atomic<int> asked{0};
+    // runner / asked より後に作るので先に壊れ、その時点で残りのコールバックを待つ (CHECK が投げても待つ)。
+    struct Drain {
+        FakeDiscord& d;
+        ~Drain() { d.drain(); }
+    } drain{d};
     d.on_message = [&](const std::string& ch, const Json& body) {
         const int n = ++asked;
         const auto cont = token_of(body, 0);
