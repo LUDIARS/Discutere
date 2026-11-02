@@ -1,0 +1,29 @@
+[
+  {
+    "terms": [
+      " Foo ",
+      "bar",
+      "foo",
+      "",
+      "Ｂａｒ",
+      "あいう",
+      "Zeta",
+      "alpha",
+      "𠮷",
+      "ｱ"
+    ],
+    "out": "alpha bar foo zeta あいう 𠮷 ｂａｒ ｱ"
+  },
+  {
+    "terms": [
+      "b",
+      "a",
+      "B"
+    ],
+    "out": "a b"
+  },
+  {
+    "terms": [],
+    "out": ""
+  }
+]

@@ -1,0 +1,218 @@
+{
+  "md": "---\nid: fic-game\ntitle: Fictional Game\nmechanics:\n  - name: 収集要素の長い名前がここにあって二十二文字を超えるもの\n    intended_valence: positive\n    intended_aspects: [reward, progression]\n  - name: 協力\n    intended_valence: positive\n    intended_aspects: [social]\n  - name: 難所\n    intended_valence: negative\n    intended_aspects: [difficulty]\n  - name: 未定義\n---\n",
+  "sessions": [
+    {
+      "id": "s1",
+      "title": "steam:fic-game"
+    },
+    {
+      "id": "s2",
+      "title": "youtube:fic-game"
+    },
+    {
+      "id": "s3",
+      "title": ":fic-game"
+    },
+    {
+      "id": "s4",
+      "title": "steam:other"
+    }
+  ],
+  "utterances": [
+    {
+      "id": "u0",
+      "session_id": "s1",
+      "raw_content": "最高に楽しい、報酬が嬉しい",
+      "posted_at": 1767571200000
+    },
+    {
+      "id": "u1",
+      "session_id": "s2",
+      "raw_content": "つまらない、ひどいバランス",
+      "posted_at": 1770336000000
+    },
+    {
+      "id": "u2",
+      "session_id": "s3",
+      "raw_content": "難しいけど達成感がある",
+      "posted_at": 1772841600000
+    },
+    {
+      "id": "u3",
+      "session_id": "s4",
+      "raw_content": "友達と協力できて楽しい",
+      "posted_at": 1767830400000
+    },
+    {
+      "id": "u4",
+      "session_id": "s1",
+      "raw_content": "普通",
+      "posted_at": 0
+    },
+    {
+      "id": "u5",
+      "session_id": "s2",
+      "raw_content": "ガチャ課金がひどい",
+      "posted_at": 1773100800000
+    },
+    {
+      "id": "u6",
+      "session_id": "s3",
+      "raw_content": "グラフィックが綺麗で感動",
+      "posted_at": 1768089600000
+    },
+    {
+      "id": "u7",
+      "session_id": "s4",
+      "raw_content": "ストーリーが退屈",
+      "posted_at": 1770854400000
+    },
+    {
+      "id": "u8",
+      "session_id": "s1",
+      "raw_content": "操作が難しすぎてイライラ",
+      "posted_at": 1773360000000
+    },
+    {
+      "id": "u9",
+      "session_id": "s2",
+      "raw_content": "レベル上げが楽しい",
+      "posted_at": 1768348800000
+    }
+  ],
+  "report": {
+    "game": "fic-game",
+    "slug": "fic-game",
+    "total": 8,
+    "breakdown": {
+      "match": 0,
+      "offIntentPositive": 3,
+      "unintendedNegative": 2,
+      "blindSpot": 0,
+      "neutral": 3
+    },
+    "matchRate": 0,
+    "gapRate": 1,
+    "neutralRate": 0.375,
+    "negativeRate": 0.4,
+    "bySource": [
+      {
+        "key": "steam",
+        "n": 3,
+        "gapRate": 1,
+        "negativeRate": 0
+      },
+      {
+        "key": "youtube",
+        "n": 3,
+        "gapRate": 1,
+        "negativeRate": 0.667
+      },
+      {
+        "key": "unknown",
+        "n": 2,
+        "gapRate": 1,
+        "negativeRate": 0
+      }
+    ],
+    "byPeriod": [
+      {
+        "key": "2026-01",
+        "n": 3,
+        "gapRate": 1,
+        "negativeRate": 0
+      },
+      {
+        "key": "2026-02",
+        "n": 1,
+        "gapRate": 1,
+        "negativeRate": 1
+      },
+      {
+        "key": "2026-03",
+        "n": 3,
+        "gapRate": 1,
+        "negativeRate": 1
+      },
+      {
+        "key": "unknown",
+        "n": 1,
+        "gapRate": 0,
+        "negativeRate": 0
+      }
+    ],
+    "byAspect": [
+      {
+        "aspect": "price_value",
+        "intended": false,
+        "mentions": 1,
+        "negativeRate": 1
+      },
+      {
+        "aspect": "fun",
+        "intended": false,
+        "mentions": 2,
+        "negativeRate": 0
+      },
+      {
+        "aspect": "difficulty",
+        "intended": true,
+        "mentions": 2,
+        "negativeRate": 0
+      },
+      {
+        "aspect": "graphics",
+        "intended": false,
+        "mentions": 1,
+        "negativeRate": 0
+      }
+    ],
+    "byMechanic": [
+      {
+        "name": "難所",
+        "intendedValence": "negative",
+        "intendedAspects": [
+          "difficulty"
+        ],
+        "attributed": 2,
+        "gapRate": 1,
+        "negativeRate": 0
+      },
+      {
+        "name": "収集要素の長い名前がここにあって二十二文字を超えるもの",
+        "intendedValence": "positive",
+        "intendedAspects": [
+          "reward",
+          "progression"
+        ],
+        "attributed": 0,
+        "gapRate": 0,
+        "negativeRate": 0
+      },
+      {
+        "name": "協力",
+        "intendedValence": "positive",
+        "intendedAspects": [
+          "social"
+        ],
+        "attributed": 0,
+        "gapRate": 0,
+        "negativeRate": 0
+      },
+      {
+        "name": "未定義",
+        "intendedValence": "positive",
+        "intendedAspects": [],
+        "attributed": 0,
+        "gapRate": 0,
+        "negativeRate": 0
+      }
+    ]
+  },
+  "text": "=== Gap率レポート: fic-game (総発話 8) ===\n感情シグナル率(カバレッジ) 62.5%  ※残りは中立/無シグナル\n[シグナル中] 一致率 0.0% / Gap率 100.0% / 意図外負(運営と違う) 40.0%\n内訳: 一致 0 / 別正 3 / 意図外負 2 / 未語彙化 0 / 中立 3\n\n[ソース別] gap / neg\n  steam      n=    3  gap 100.0% / neg 0.0%\n  youtube    n=    3  gap 100.0% / neg 66.7%\n  unknown    n=    2  gap 100.0% / neg 0.0%\n\n[施策/月次] gap / neg\n  2026-01    n=    3  gap 100.0% / neg 0.0%\n  2026-02    n=    1  gap 100.0% / neg 100.0%\n  2026-03    n=    3  gap 100.0% / neg 100.0%\n  unknown    n=    1  gap 0.0% / neg 0.0%\n\n[感情次元] 言及あたり負率 = 運営と違う度 (★=運営想定aspect)\n    price_value   言及     1  neg 100.0%\n    fun           言及     2  neg 0.0%\n  ★ difficulty    言及     2  neg 0.0%\n    graphics      言及     1  neg 0.0%\n\n[mechanic別] 想定 vs 観測の不一致率\n  難所                     想定negative 帰属    2  gap 100.0% / neg 0.0%\n  収集要素の長い名前がここにあって二十二文字を 想定positive 帰属    0  gap 0.0% / neg 0.0%\n  協力                     想定positive 帰属    0  gap 0.0% / neg 0.0%\n  未定義                    想定positive 帰属    0  gap 0.0% / neg 0.0%",
+  "missing": {
+    "ok": false,
+    "code": null,
+    "error": "GameKG md が見つかりません: /tmp/w2j-golden-cQVXwQ/games/nope.md (運営の想定感情を定義してください)"
+  }
+}

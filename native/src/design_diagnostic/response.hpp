@@ -12,7 +12,7 @@ namespace di::design_diagnostic {
 
 /** 応答 JSON の要素数・深さの上限 (大きさは responseBytes)。 */
 inline constexpr std::size_t kResponseMaxElements = 100'000;
-inline constexpr std::size_t kResponseMaxDepth = 32;
+inline constexpr std::size_t kResponseMaxDepth = 64;
 
 DiagnosticResult parse_diagnostic_response(const std::string& text, const DocumentMap& docs, const std::vector<std::string>& kinds);
 
