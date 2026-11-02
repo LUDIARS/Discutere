@@ -1,0 +1,113 @@
+[
+  {
+    "v": 3,
+    "num": 3,
+    "str": "3",
+    "isInt": true
+  },
+  {
+    "v": 2.5,
+    "num": 2.5,
+    "str": "2.5",
+    "isInt": false
+  },
+  {
+    "v": -1,
+    "num": -1,
+    "str": "-1",
+    "isInt": true
+  },
+  {
+    "v": "4",
+    "num": 4,
+    "str": "4",
+    "isInt": true
+  },
+  {
+    "v": " 5 ",
+    "num": 5,
+    "str": " 5 ",
+    "isInt": true
+  },
+  {
+    "v": "",
+    "num": 0,
+    "str": "",
+    "isInt": true
+  },
+  {
+    "v": "x",
+    "num": "NaN",
+    "str": "x",
+    "isInt": false
+  },
+  {
+    "v": "0x10",
+    "num": 16,
+    "str": "0x10",
+    "isInt": true
+  },
+  {
+    "v": "1e1",
+    "num": 10,
+    "str": "1e1",
+    "isInt": true
+  },
+  {
+    "v": null,
+    "num": 0,
+    "str": "null",
+    "isInt": true
+  },
+  {
+    "v": true,
+    "num": 1,
+    "str": "true",
+    "isInt": true
+  },
+  {
+    "v": false,
+    "num": 0,
+    "str": "false",
+    "isInt": true
+  },
+  {
+    "v": [],
+    "num": 0,
+    "str": "",
+    "isInt": true
+  },
+  {
+    "v": [
+      7
+    ],
+    "num": 7,
+    "str": "7",
+    "isInt": true
+  },
+  {
+    "v": [
+      1,
+      2
+    ],
+    "num": "NaN",
+    "str": "1,2",
+    "isInt": false
+  },
+  {
+    "v": {},
+    "num": "NaN",
+    "str": "[object Object]",
+    "isInt": false
+  },
+  {
+    "v": [
+      "a",
+      null,
+      3
+    ],
+    "num": "NaN",
+    "str": "a,,3",
+    "isInt": false
+  }
+]
