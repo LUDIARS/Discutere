@@ -1,0 +1,562 @@
+{
+  "workspaceId": "knowledge",
+  "tables": {
+    "people": [],
+    "games": [
+      {
+        "id": "g1",
+        "workspace_id": "knowledge",
+        "title": "Test Game",
+        "genre": "RPG",
+        "created_at": 1700000001000,
+        "updated_at": 1700000001500,
+        "shared": 0
+      }
+    ],
+    "mechanics": [
+      {
+        "id": "m1",
+        "workspace_id": "knowledge",
+        "game_id": "g1",
+        "name": "Cast Spell",
+        "description": "魔法を撃つ\n二行目: コロン",
+        "created_at": 1700000002000,
+        "updated_at": 1700000002500,
+        "intends": "リソース管理の戦術判断 # 注意",
+        "intended_affect": "tension",
+        "shared": 0
+      },
+      {
+        "id": "m2",
+        "workspace_id": "knowledge",
+        "game_id": null,
+        "name": "- dash",
+        "description": null,
+        "created_at": 1700000003000,
+        "updated_at": 1700000003500,
+        "intends": null,
+        "intended_affect": null,
+        "shared": 0
+      }
+    ],
+    "aesthetics": [
+      {
+        "id": "a1",
+        "workspace_id": "knowledge",
+        "game_id": "g1",
+        "name": "中世ファンタジー",
+        "description": "石造城",
+        "created_at": 1700000004000,
+        "updated_at": 1700000004500,
+        "shared": 0
+      },
+      {
+        "id": "a2",
+        "workspace_id": "knowledge",
+        "game_id": null,
+        "name": "'quoted' name",
+        "description": null,
+        "created_at": 1700000005000,
+        "updated_at": 1700000005500,
+        "shared": 0
+      }
+    ],
+    "affects": [],
+    "sessions": [
+      {
+        "id": "s1",
+        "workspace_id": "knowledge",
+        "title": "design discussion",
+        "started_at": 1700000000000,
+        "ended_at": 1700000099000,
+        "created_at": 1700000009000,
+        "updated_at": 1700000009500,
+        "mode": "emotion",
+        "scene": "discord:g/c"
+      },
+      {
+        "id": "s2",
+        "workspace_id": "knowledge",
+        "title": "minimal",
+        "started_at": 1700000000001,
+        "ended_at": null,
+        "created_at": 1700000010000,
+        "updated_at": 1700000010500,
+        "mode": null,
+        "scene": null
+      },
+      {
+        "id": "s3",
+        "workspace_id": "knowledge",
+        "title": "scene only",
+        "started_at": 1700000000002,
+        "ended_at": null,
+        "created_at": 1700000011000,
+        "updated_at": 1700000011500,
+        "mode": null,
+        "scene": "web:room"
+      }
+    ],
+    "utterances": [
+      {
+        "id": "u1",
+        "workspace_id": "knowledge",
+        "session_id": "s1",
+        "speaker_id": "alice",
+        "raw_content": "MP の意味がわからない\n2行目: colon\n",
+        "normalized_content": "MPの意味が不明",
+        "posted_at": 1700000000010,
+        "created_at": 1700000012000,
+        "updated_at": 1700000012500,
+        "responds_to": null
+      },
+      {
+        "id": "u2",
+        "workspace_id": "knowledge",
+        "session_id": "s1",
+        "speaker_id": null,
+        "raw_content": "同じ",
+        "normalized_content": "同じ",
+        "posted_at": 1700000000020,
+        "created_at": 1700000013000,
+        "updated_at": 1700000013500,
+        "responds_to": "u1"
+      },
+      {
+        "id": "u3",
+        "workspace_id": "knowledge",
+        "session_id": "s2",
+        "speaker_id": "bob",
+        "raw_content": "",
+        "normalized_content": null,
+        "posted_at": 1700000000030,
+        "created_at": 1700000014000,
+        "updated_at": 1700000014500,
+        "responds_to": null
+      }
+    ],
+    "design_gaps": [
+      {
+        "id": "gap1",
+        "workspace_id": "knowledge",
+        "game_id": "g1",
+        "title": "魔法の学習曲線",
+        "description": "新規プレイヤーが MP 概念で躓く",
+        "status": "open",
+        "created_at": 1700000006000,
+        "updated_at": 1700000006500,
+        "gap_in": "m1",
+        "expected_affect": "mastery",
+        "observed_affect": "confusion",
+        "evidence_json": null
+      },
+      {
+        "id": "gap2",
+        "workspace_id": "knowledge",
+        "game_id": null,
+        "title": "only observed",
+        "description": null,
+        "status": null,
+        "created_at": 1700000007000,
+        "updated_at": 1700000007500,
+        "gap_in": null,
+        "expected_affect": null,
+        "observed_affect": "boredom",
+        "evidence_json": null
+      },
+      {
+        "id": "gap3",
+        "workspace_id": "knowledge",
+        "game_id": null,
+        "title": "title: \"quoted\" # hash",
+        "description": "line1\nline2",
+        "status": null,
+        "created_at": 1700000008000,
+        "updated_at": 1700000008500,
+        "gap_in": null,
+        "expected_affect": null,
+        "observed_affect": null,
+        "evidence_json": null
+      }
+    ],
+    "hypotheses": [
+      {
+        "id": "h1",
+        "workspace_id": "knowledge",
+        "design_gap_id": "gap1",
+        "statement": "リソース管理の戦術判断",
+        "status": "validated",
+        "integrated": 1,
+        "created_at": 1700000015000,
+        "updated_at": 1700000015500,
+        "validated_by_emotion": 1,
+        "refs_json": "[\"u1\"]",
+        "stale_flagged": 1
+      },
+      {
+        "id": "h2",
+        "workspace_id": "knowledge",
+        "design_gap_id": null,
+        "statement": "- これは 32 文字を超える長い仮説の文で、先頭がハイフンになっている: yes",
+        "status": null,
+        "integrated": 0,
+        "created_at": 1700000016000,
+        "updated_at": 1700000016500,
+        "validated_by_emotion": 0,
+        "refs_json": "not json",
+        "stale_flagged": 0
+      },
+      {
+        "id": "h3",
+        "workspace_id": "knowledge",
+        "design_gap_id": "gap1",
+        "statement": "short",
+        "status": "proposed",
+        "integrated": 0,
+        "created_at": 1700000017000,
+        "updated_at": 1700000017500,
+        "validated_by_emotion": 0,
+        "refs_json": "[\"u2\",5,\"u1\"]",
+        "stale_flagged": 0
+      }
+    ],
+    "hypothesis_validations": [],
+    "embeddings": []
+  },
+  "cases": [
+    {
+      "type": "hyp",
+      "id": "h1",
+      "result": {
+        "ok": true,
+        "value": {
+          "type": "hyp",
+          "id": "h1",
+          "markdown": "---\nid: h1\ntype: hypothesis\nworkspace_id: knowledge\nstatus: validated\nstatement: リソース管理の戦術判断\nintegrated: true\nstale_flagged: true\ncreated_at: '2023-11-14T22:13:35.000Z'\nupdated_at: '2023-11-14T22:13:35.500Z'\naddresses: '[[gap:gap1]]'\nproposes:\n  - '[[mch:m1]]'\nrefs:\n  - '[[utt:u1]]'\nvalidated_by:\n  - emotion\n---\n\n# 仮説: リソース管理の戦術判断\n\n## ステータス\n**validated** (validated_by: emotion) / integrated / stale\n\n## 根拠 (utterances)\n- [[utt:u1]]\n\n## 取り組む gap\n[[gap:gap1]]\n\n## 派生 mechanic\n- [[mch:m1]]\n",
+          "outgoing": [
+            {
+              "type": "utt",
+              "id": "u1"
+            },
+            {
+              "type": "mch",
+              "id": "m1"
+            },
+            {
+              "type": "gap",
+              "id": "gap1"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "type": "hyp",
+      "id": "h2",
+      "result": {
+        "ok": true,
+        "value": {
+          "type": "hyp",
+          "id": "h2",
+          "markdown": "---\nid: h2\ntype: hypothesis\nworkspace_id: knowledge\nstatus: proposed\nstatement: '- これは 32 文字を超える長い仮説の文で、先頭がハイフンになっている: yes'\nintegrated: false\nstale_flagged: false\ncreated_at: '2023-11-14T22:13:36.000Z'\nupdated_at: '2023-11-14T22:13:36.500Z'\n---\n\n# 仮説: - これは 32 文字を超える長い仮説の文で、先頭がハイフンになっている: yes\n\n## ステータス\n**proposed**\n",
+          "outgoing": []
+        }
+      }
+    },
+    {
+      "type": "hyp",
+      "id": "h3",
+      "result": {
+        "ok": true,
+        "value": {
+          "type": "hyp",
+          "id": "h3",
+          "markdown": "---\nid: h3\ntype: hypothesis\nworkspace_id: knowledge\nstatus: proposed\nstatement: short\nintegrated: false\nstale_flagged: false\ncreated_at: '2023-11-14T22:13:37.000Z'\nupdated_at: '2023-11-14T22:13:37.500Z'\naddresses: '[[gap:gap1]]'\nrefs:\n  - '[[utt:u2]]'\n  - '[[utt:u1]]'\n---\n\n# 仮説: short\n\n## ステータス\n**proposed**\n\n## 根拠 (utterances)\n- [[utt:u2]]\n- [[utt:u1]]\n\n## 取り組む gap\n[[gap:gap1]]\n",
+          "outgoing": [
+            {
+              "type": "utt",
+              "id": "u2"
+            },
+            {
+              "type": "utt",
+              "id": "u1"
+            },
+            {
+              "type": "gap",
+              "id": "gap1"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "type": "gap",
+      "id": "gap1",
+      "result": {
+        "ok": true,
+        "value": {
+          "type": "gap",
+          "id": "gap1",
+          "markdown": "---\nid: gap1\ntype: gap\nworkspace_id: knowledge\ntitle: 魔法の学習曲線\nstatus: open\ncreated_at: '2023-11-14T22:13:26.000Z'\nupdated_at: '2023-11-14T22:13:26.500Z'\ngap_in: m1\nexpected_affect: mastery\nobserved_affect: confusion\ngame: '[[game:g1]]'\nhypotheses:\n  - '[[hyp:h3]]'\n  - '[[hyp:h1]]'\n---\n\n# Design Gap: 魔法の学習曲線\n\n新規プレイヤーが MP 概念で躓く\n\n## 期待 vs 観測\n- 期待: **mastery** (in m1)\n- 観測: **confusion**\n\n## 提案された hypotheses\n- [[hyp:h3]]\n- [[hyp:h1]]\n",
+          "outgoing": [
+            {
+              "type": "hyp",
+              "id": "h3"
+            },
+            {
+              "type": "hyp",
+              "id": "h1"
+            },
+            {
+              "type": "game",
+              "id": "g1"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "type": "gap",
+      "id": "gap2",
+      "result": {
+        "ok": true,
+        "value": {
+          "type": "gap",
+          "id": "gap2",
+          "markdown": "---\nid: gap2\ntype: gap\nworkspace_id: knowledge\ntitle: only observed\nstatus: open\ncreated_at: '2023-11-14T22:13:27.000Z'\nupdated_at: '2023-11-14T22:13:27.500Z'\nobserved_affect: boredom\n---\n\n# Design Gap: only observed\n\n## 期待 vs 観測\n- 期待: **?**\n- 観測: **boredom**\n",
+          "outgoing": []
+        }
+      }
+    },
+    {
+      "type": "gap",
+      "id": "gap3",
+      "result": {
+        "ok": true,
+        "value": {
+          "type": "gap",
+          "id": "gap3",
+          "markdown": "---\nid: gap3\ntype: gap\nworkspace_id: knowledge\ntitle: 'title: \"quoted\" # hash'\nstatus: open\ncreated_at: '2023-11-14T22:13:28.000Z'\nupdated_at: '2023-11-14T22:13:28.500Z'\n---\n\n# Design Gap: title: \"quoted\" # hash\n\nline1\nline2\n",
+          "outgoing": []
+        }
+      }
+    },
+    {
+      "type": "mch",
+      "id": "m1",
+      "result": {
+        "ok": true,
+        "value": {
+          "type": "mch",
+          "id": "m1",
+          "markdown": "---\nid: m1\ntype: mechanic\nworkspace_id: knowledge\nname: Cast Spell\ncreated_at: '2023-11-14T22:13:22.000Z'\nupdated_at: '2023-11-14T22:13:22.500Z'\ndescription: |-\n  魔法を撃つ\n  二行目: コロン\nintends: 'リソース管理の戦術判断 # 注意'\nintended_affect: tension\ngame: '[[game:g1]]'\n---\n\n# Mechanic: Cast Spell\n\n魔法を撃つ\n二行目: コロン\n\n## 設計意図\nリソース管理の戦術判断 # 注意\n\n## 狙う affect\n**tension**\n\n## ゲーム\n[[game:g1]]\n",
+          "outgoing": [
+            {
+              "type": "game",
+              "id": "g1"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "type": "mch",
+      "id": "m2",
+      "result": {
+        "ok": true,
+        "value": {
+          "type": "mch",
+          "id": "m2",
+          "markdown": "---\nid: m2\ntype: mechanic\nworkspace_id: knowledge\nname: '- dash'\ncreated_at: '2023-11-14T22:13:23.000Z'\nupdated_at: '2023-11-14T22:13:23.500Z'\n---\n\n# Mechanic: - dash\n",
+          "outgoing": []
+        }
+      }
+    },
+    {
+      "type": "aes",
+      "id": "a1",
+      "result": {
+        "ok": true,
+        "value": {
+          "type": "aes",
+          "id": "a1",
+          "markdown": "---\nid: a1\ntype: aesthetic\nworkspace_id: knowledge\nname: 中世ファンタジー\ncreated_at: '2023-11-14T22:13:24.000Z'\nupdated_at: '2023-11-14T22:13:24.500Z'\ndescription: 石造城\ngame: '[[game:g1]]'\n---\n\n# Aesthetic: 中世ファンタジー\n\n石造城\n\n## ゲーム\n[[game:g1]]\n",
+          "outgoing": [
+            {
+              "type": "game",
+              "id": "g1"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "type": "aes",
+      "id": "a2",
+      "result": {
+        "ok": true,
+        "value": {
+          "type": "aes",
+          "id": "a2",
+          "markdown": "---\nid: a2\ntype: aesthetic\nworkspace_id: knowledge\nname: '''quoted'' name'\ncreated_at: '2023-11-14T22:13:25.000Z'\nupdated_at: '2023-11-14T22:13:25.500Z'\n---\n\n# Aesthetic: 'quoted' name\n",
+          "outgoing": []
+        }
+      }
+    },
+    {
+      "type": "utt",
+      "id": "u1",
+      "result": {
+        "ok": true,
+        "value": {
+          "type": "utt",
+          "id": "u1",
+          "markdown": "---\nid: u1\ntype: utterance\nworkspace_id: knowledge\nsession: '[[ses:s1]]'\nspeaker: alice\nposted_at: '2023-11-14T22:13:20.010Z'\ncreated_at: '2023-11-14T22:13:32.000Z'\nreferenced_by:\n  - '[[hyp:h3]]'\n  - '[[hyp:h1]]'\n---\n\n# Utterance\n\n> MP の意味がわからない\n> 2行目: colon\n> \n\n## 正規化\nMPの意味が不明\n\n## 参照している hypothesis\n- [[hyp:h3]]\n- [[hyp:h1]]\n",
+          "outgoing": [
+            {
+              "type": "ses",
+              "id": "s1"
+            },
+            {
+              "type": "hyp",
+              "id": "h3"
+            },
+            {
+              "type": "hyp",
+              "id": "h1"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "type": "utt",
+      "id": "u2",
+      "result": {
+        "ok": true,
+        "value": {
+          "type": "utt",
+          "id": "u2",
+          "markdown": "---\nid: u2\ntype: utterance\nworkspace_id: knowledge\nsession: '[[ses:s1]]'\nspeaker: null\nposted_at: '2023-11-14T22:13:20.020Z'\ncreated_at: '2023-11-14T22:13:33.000Z'\nresponds_to: '[[utt:u1]]'\nreferenced_by:\n  - '[[hyp:h3]]'\n---\n\n# Utterance\n\n> 同じ\n\n## 参照している hypothesis\n- [[hyp:h3]]\n",
+          "outgoing": [
+            {
+              "type": "ses",
+              "id": "s1"
+            },
+            {
+              "type": "hyp",
+              "id": "h3"
+            },
+            {
+              "type": "utt",
+              "id": "u1"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "type": "utt",
+      "id": "u3",
+      "result": {
+        "ok": true,
+        "value": {
+          "type": "utt",
+          "id": "u3",
+          "markdown": "---\nid: u3\ntype: utterance\nworkspace_id: knowledge\nsession: '[[ses:s2]]'\nspeaker: bob\nposted_at: '2023-11-14T22:13:20.030Z'\ncreated_at: '2023-11-14T22:13:34.000Z'\n---\n\n# Utterance\n\n> \n",
+          "outgoing": [
+            {
+              "type": "ses",
+              "id": "s2"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "type": "ses",
+      "id": "s1",
+      "result": {
+        "ok": true,
+        "value": {
+          "type": "ses",
+          "id": "s1",
+          "markdown": "---\nid: s1\ntype: session\nworkspace_id: knowledge\ntitle: design discussion\nstarted_at: '2023-11-14T22:13:20.000Z'\ncreated_at: '2023-11-14T22:13:29.000Z'\nupdated_at: '2023-11-14T22:13:29.500Z'\nended_at: '2023-11-14T22:14:59.000Z'\nmode: emotion\nscene: 'discord:g/c'\nutterances:\n  - '[[utt:u1]]'\n  - '[[utt:u2]]'\n---\n\n# Session: design discussion\n\n- mode: emotion\n- scene: discord:g/c\n\n## Utterances (2 件)\n- [[utt:u1]]\n- [[utt:u2]]\n",
+          "outgoing": [
+            {
+              "type": "utt",
+              "id": "u1"
+            },
+            {
+              "type": "utt",
+              "id": "u2"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "type": "ses",
+      "id": "s2",
+      "result": {
+        "ok": true,
+        "value": {
+          "type": "ses",
+          "id": "s2",
+          "markdown": "---\nid: s2\ntype: session\nworkspace_id: knowledge\ntitle: minimal\nstarted_at: '2023-11-14T22:13:20.001Z'\ncreated_at: '2023-11-14T22:13:30.000Z'\nupdated_at: '2023-11-14T22:13:30.500Z'\nutterances:\n  - '[[utt:u3]]'\n---\n\n# Session: minimal\n\n## Utterances (1 件)\n- [[utt:u3]]\n",
+          "outgoing": [
+            {
+              "type": "utt",
+              "id": "u3"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "type": "ses",
+      "id": "s3",
+      "result": {
+        "ok": true,
+        "value": {
+          "type": "ses",
+          "id": "s3",
+          "markdown": "---\nid: s3\ntype: session\nworkspace_id: knowledge\ntitle: scene only\nstarted_at: '2023-11-14T22:13:20.002Z'\ncreated_at: '2023-11-14T22:13:31.000Z'\nupdated_at: '2023-11-14T22:13:31.500Z'\nscene: 'web:room'\n---\n\n# Session: scene only\n\n- mode: ?\n- scene: web:room\n",
+          "outgoing": []
+        }
+      }
+    },
+    {
+      "type": "hyp",
+      "id": "missing-id",
+      "result": {
+        "ok": false,
+        "error": "hypothesis not found: missing-id"
+      }
+    },
+    {
+      "type": "aff",
+      "id": "x",
+      "result": {
+        "ok": false,
+        "error": "exporter not implemented for type: aff"
+      }
+    },
+    {
+      "type": "game",
+      "id": "g1",
+      "result": {
+        "ok": false,
+        "error": "exporter not implemented for type: game"
+      }
+    },
+    {
+      "type": "persona",
+      "id": "p",
+      "result": {
+        "ok": false,
+        "error": "exporter not implemented for type: persona"
+      }
+    }
+  ]
+}
