@@ -96,3 +96,10 @@ ctest の名前は `<ディレクトリ>.<名前>` (tests/CMakeLists.txt の規�
   `start_kg_sync_scheduler` は index の移植担当が `"/api"` に mount / 起動時に呼ぶ。persona-routes は TS と同じく
   役割検査が無い (loopback に閉じる前提) ので、mount 側の loopback ガードを外さないこと。
 - `visualize::locale_compare` (w1-F の ICU 近似) を glab の並びにも使った。汎用の照合なので `base/strings` に移すと良い。
+
+## 6. ビルドとテストの結果 (このブランチ)
+
+- ctest 全体: 111 本中 110 本が通過、`discussion.director_live` (w2-I の担当分、この担当は触っていない) が `ctest -j2` の 1 回だけ
+  SegFault。単独で 18 回走らせて 0 回失敗なので、並列負荷下で出る不安定な失敗と見ている (w2-I の担当で要確認)。
+- ビルド途中で作業環境のディスクが満杯になった (他の担当のビルドディレクトリで約 30GB)。自分のビルドディレクトリは
+  `-DCMAKE_CXX_FLAGS_DEBUG=-O0` (デバッグ情報なし) で作り直した (CMake ファイルは変えていない)。
