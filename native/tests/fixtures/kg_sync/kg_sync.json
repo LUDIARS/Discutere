@@ -1,0 +1,178 @@
+{
+  "exports": [
+    {
+      "opts": {},
+      "ndjson": "{\"type\":\"manifest\",\"schemaVersion\":1,\"since\":0,\"watermark\":1000000000000000,\"count\":6,\"tables\":[\"games\",\"mechanics\",\"aesthetics\",\"affects\"]}\n{\"type\":\"row\",\"table\":\"games\",\"data\":{\"id\":\"g1\",\"workspace_id\":\"knowledge\",\"title\":\"Vampire \\\"Survivors\\\"\\n改行\",\"genre\":null,\"created_at\":1000,\"updated_at\":1000,\"shared\":1}}\n{\"type\":\"row\",\"table\":\"games\",\"data\":{\"id\":\"g2\",\"workspace_id\":\"knowledge\",\"title\":\"Hades\",\"genre\":\"rogue\",\"created_at\":2000,\"updated_at\":2500,\"shared\":1}}\n{\"type\":\"row\",\"table\":\"games\",\"data\":{\"id\":\"g3\",\"workspace_id\":\"other\",\"title\":\"Other\",\"genre\":null,\"created_at\":3000,\"updated_at\":3000,\"shared\":1}}\n{\"type\":\"row\",\"table\":\"mechanics\",\"data\":{\"id\":\"m1\",\"workspace_id\":\"knowledge\",\"game_id\":\"g1\",\"name\":\"経験値磁石\",\"description\":\"<desc>\",\"created_at\":1500,\"updated_at\":1500,\"intends\":\"x\",\"intended_affect\":null,\"shared\":1}}\n{\"type\":\"row\",\"table\":\"aesthetics\",\"data\":{\"id\":\"ae1\",\"workspace_id\":\"knowledge\",\"game_id\":null,\"name\":\"美\",\"description\":null,\"created_at\":1,\"updated_at\":1000000000000000,\"shared\":1}}\n{\"type\":\"row\",\"table\":\"affects\",\"data\":{\"id\":\"af1\",\"workspace_id\":\"knowledge\",\"session_id\":null,\"subject_id\":null,\"mood\":\"joy\",\"score\":0.30000000000000004,\"created_at\":10,\"updated_at\":3500,\"vocabulary_status\":null,\"valence\":\"pos\",\"shared\":1}}\n",
+      "watermark": 1000000000000000,
+      "count": 6
+    },
+    {
+      "opts": {
+        "since": 1500
+      },
+      "ndjson": "{\"type\":\"manifest\",\"schemaVersion\":1,\"since\":1500,\"watermark\":1000000000000000,\"count\":4,\"tables\":[\"games\",\"mechanics\",\"aesthetics\",\"affects\"]}\n{\"type\":\"row\",\"table\":\"games\",\"data\":{\"id\":\"g2\",\"workspace_id\":\"knowledge\",\"title\":\"Hades\",\"genre\":\"rogue\",\"created_at\":2000,\"updated_at\":2500,\"shared\":1}}\n{\"type\":\"row\",\"table\":\"games\",\"data\":{\"id\":\"g3\",\"workspace_id\":\"other\",\"title\":\"Other\",\"genre\":null,\"created_at\":3000,\"updated_at\":3000,\"shared\":1}}\n{\"type\":\"row\",\"table\":\"aesthetics\",\"data\":{\"id\":\"ae1\",\"workspace_id\":\"knowledge\",\"game_id\":null,\"name\":\"美\",\"description\":null,\"created_at\":1,\"updated_at\":1000000000000000,\"shared\":1}}\n{\"type\":\"row\",\"table\":\"affects\",\"data\":{\"id\":\"af1\",\"workspace_id\":\"knowledge\",\"session_id\":null,\"subject_id\":null,\"mood\":\"joy\",\"score\":0.30000000000000004,\"created_at\":10,\"updated_at\":3500,\"vocabulary_status\":null,\"valence\":\"pos\",\"shared\":1}}\n",
+      "watermark": 1000000000000000,
+      "count": 4
+    },
+    {
+      "opts": {
+        "since": 0,
+        "workspaceId": "knowledge"
+      },
+      "ndjson": "{\"type\":\"manifest\",\"schemaVersion\":1,\"since\":0,\"watermark\":1000000000000000,\"count\":5,\"tables\":[\"games\",\"mechanics\",\"aesthetics\",\"affects\"]}\n{\"type\":\"row\",\"table\":\"games\",\"data\":{\"id\":\"g1\",\"workspace_id\":\"knowledge\",\"title\":\"Vampire \\\"Survivors\\\"\\n改行\",\"genre\":null,\"created_at\":1000,\"updated_at\":1000,\"shared\":1}}\n{\"type\":\"row\",\"table\":\"games\",\"data\":{\"id\":\"g2\",\"workspace_id\":\"knowledge\",\"title\":\"Hades\",\"genre\":\"rogue\",\"created_at\":2000,\"updated_at\":2500,\"shared\":1}}\n{\"type\":\"row\",\"table\":\"mechanics\",\"data\":{\"id\":\"m1\",\"workspace_id\":\"knowledge\",\"game_id\":\"g1\",\"name\":\"経験値磁石\",\"description\":\"<desc>\",\"created_at\":1500,\"updated_at\":1500,\"intends\":\"x\",\"intended_affect\":null,\"shared\":1}}\n{\"type\":\"row\",\"table\":\"aesthetics\",\"data\":{\"id\":\"ae1\",\"workspace_id\":\"knowledge\",\"game_id\":null,\"name\":\"美\",\"description\":null,\"created_at\":1,\"updated_at\":1000000000000000,\"shared\":1}}\n{\"type\":\"row\",\"table\":\"affects\",\"data\":{\"id\":\"af1\",\"workspace_id\":\"knowledge\",\"session_id\":null,\"subject_id\":null,\"mood\":\"joy\",\"score\":0.30000000000000004,\"created_at\":10,\"updated_at\":3500,\"vocabulary_status\":null,\"valence\":\"pos\",\"shared\":1}}\n",
+      "watermark": 1000000000000000,
+      "count": 5
+    },
+    {
+      "opts": {
+        "since": 100000000000000000
+      },
+      "ndjson": "{\"type\":\"manifest\",\"schemaVersion\":1,\"since\":100000000000000000,\"watermark\":100000000000000000,\"count\":0,\"tables\":[\"games\",\"mechanics\",\"aesthetics\",\"affects\"]}\n",
+      "watermark": 100000000000000000,
+      "count": 0
+    }
+  ],
+  "imports": [
+    {
+      "ndjson": "{\"type\":\"manifest\",\"schemaVersion\":1,\"since\":0,\"watermark\":1000000000000000,\"count\":6,\"tables\":[\"games\",\"mechanics\",\"aesthetics\",\"affects\"]}\n{\"type\":\"row\",\"table\":\"games\",\"data\":{\"id\":\"g1\",\"workspace_id\":\"knowledge\",\"title\":\"Vampire \\\"Survivors\\\"\\n改行\",\"genre\":null,\"created_at\":1000,\"updated_at\":1000,\"shared\":1}}\n{\"type\":\"row\",\"table\":\"games\",\"data\":{\"id\":\"g2\",\"workspace_id\":\"knowledge\",\"title\":\"Hades\",\"genre\":\"rogue\",\"created_at\":2000,\"updated_at\":2500,\"shared\":1}}\n{\"type\":\"row\",\"table\":\"games\",\"data\":{\"id\":\"g3\",\"workspace_id\":\"other\",\"title\":\"Other\",\"genre\":null,\"created_at\":3000,\"updated_at\":3000,\"shared\":1}}\n{\"type\":\"row\",\"table\":\"mechanics\",\"data\":{\"id\":\"m1\",\"workspace_id\":\"knowledge\",\"game_id\":\"g1\",\"name\":\"経験値磁石\",\"description\":\"<desc>\",\"created_at\":1500,\"updated_at\":1500,\"intends\":\"x\",\"intended_affect\":null,\"shared\":1}}\n{\"type\":\"row\",\"table\":\"aesthetics\",\"data\":{\"id\":\"ae1\",\"workspace_id\":\"knowledge\",\"game_id\":null,\"name\":\"美\",\"description\":null,\"created_at\":1,\"updated_at\":1000000000000000,\"shared\":1}}\n{\"type\":\"row\",\"table\":\"affects\",\"data\":{\"id\":\"af1\",\"workspace_id\":\"knowledge\",\"session_id\":null,\"subject_id\":null,\"mood\":\"joy\",\"score\":0.30000000000000004,\"created_at\":10,\"updated_at\":3500,\"vocabulary_status\":null,\"valence\":\"pos\",\"shared\":1}}\n",
+      "result": {
+        "applied": 6,
+        "skipped": 0,
+        "ignored": 0,
+        "watermark": 1000000000000000
+      }
+    },
+    {
+      "ndjson": "{\"type\":\"row\",\"table\":\"games\",\"data\":{\"id\":\"g2\",\"workspace_id\":\"knowledge\",\"title\":\"old\",\"created_at\":1,\"updated_at\":1,\"shared\":1}}",
+      "result": {
+        "applied": 0,
+        "skipped": 1,
+        "ignored": 0,
+        "watermark": 0
+      }
+    },
+    {
+      "ndjson": "{\"type\":\"row\",\"table\":\"games\",\"data\":{\"id\":\"g2\",\"workspace_id\":\"knowledge\",\"title\":\"newer\",\"created_at\":1,\"updated_at\":9000,\"shared\":true,\"extra_col\":\"x\"}}",
+      "result": {
+        "applied": 1,
+        "skipped": 0,
+        "ignored": 0,
+        "watermark": 9000
+      }
+    },
+    {
+      "ndjson": "{\"type\":\"row\",\"table\":\"sessions\",\"data\":{\"id\":\"s\",\"workspace_id\":\"w\",\"title\":\"x\",\"started_at\":1,\"created_at\":1,\"updated_at\":1}}",
+      "result": {
+        "applied": 0,
+        "skipped": 0,
+        "ignored": 1,
+        "watermark": 0
+      }
+    },
+    {
+      "ndjson": "not json\n{\"type\":\"manifest\"}\n\n  \r\n{\"table\":\"games\"}\n{\"table\":\"games\",\"data\":{\"id\":\"\"}}\n{\"table\":\"games\",\"data\":{\"id\":5}}\n[1,2]\nnull\n{\"table\":\"games\",\"data\":{\"id\":\"g9\",\"workspace_id\":\"k\",\"title\":\"t\",\"created_at\":1,\"updated_at\":\"77\",\"shared\":1}}",
+      "error": true
+    },
+    {
+      "ndjson": "{\"type\":\"row\",\"table\":\"mechanics\",\"data\":{\"id\":\"m2\",\"workspace_id\":\"k\",\"name\":\"n\",\"created_at\":1,\"updated_at\":5,\"shared\":1}}",
+      "result": {
+        "applied": 1,
+        "skipped": 0,
+        "ignored": 0,
+        "watermark": 5
+      }
+    },
+    {
+      "ndjson": "{\"table\":\"games\",\"data\":{\"id\":\"g10\",\"workspace_id\":\"k\",\"title\":\"t\",\"created_at\":1,\"updated_at\":2,\"shared\":1}}\nnull",
+      "error": true
+    },
+    {
+      "ndjson": "{\"type\":\"row\",\"table\":\"games\",\"data\":{\"id\":\"g11\",\"workspace_id\":\"k\",\"title\":{\"nested\":1},\"created_at\":1,\"updated_at\":2,\"shared\":1}}",
+      "error": true
+    }
+  ],
+  "follower": {
+    "games": [
+      {
+        "id": "g1",
+        "workspace_id": "knowledge",
+        "title": "Vampire \"Survivors\"\n改行",
+        "genre": null,
+        "created_at": 1000,
+        "updated_at": 1000,
+        "shared": 1
+      },
+      {
+        "id": "g2",
+        "workspace_id": "knowledge",
+        "title": "newer",
+        "genre": "rogue",
+        "created_at": 1,
+        "updated_at": 9000,
+        "shared": 1
+      },
+      {
+        "id": "g3",
+        "workspace_id": "other",
+        "title": "Other",
+        "genre": null,
+        "created_at": 3000,
+        "updated_at": 3000,
+        "shared": 1
+      }
+    ],
+    "mechanics": [
+      {
+        "id": "m1",
+        "workspace_id": "knowledge",
+        "game_id": "g1",
+        "name": "経験値磁石",
+        "description": "<desc>",
+        "created_at": 1500,
+        "updated_at": 1500,
+        "intends": "x",
+        "intended_affect": null,
+        "shared": 1
+      },
+      {
+        "id": "m2",
+        "workspace_id": "k",
+        "game_id": null,
+        "name": "n",
+        "description": null,
+        "created_at": 1,
+        "updated_at": 5,
+        "intends": null,
+        "intended_affect": null,
+        "shared": 1
+      }
+    ],
+    "aesthetics": [
+      {
+        "id": "ae1",
+        "workspace_id": "knowledge",
+        "game_id": null,
+        "name": "美",
+        "description": null,
+        "created_at": 1,
+        "updated_at": 1000000000000000,
+        "shared": 1
+      }
+    ],
+    "affects": [
+      {
+        "id": "af1",
+        "workspace_id": "knowledge",
+        "session_id": null,
+        "subject_id": null,
+        "mood": "joy",
+        "score": 0.30000000000000004,
+        "created_at": 10,
+        "updated_at": 3500,
+        "vocabulary_status": null,
+        "valence": "pos",
+        "shared": 1
+      }
+    ]
+  }
+}

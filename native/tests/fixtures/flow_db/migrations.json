@@ -1,0 +1,694 @@
+{
+  "migrations": [
+    {
+      "id": "flow_0001_initial",
+      "sql": [
+        "CREATE TABLE IF NOT EXISTS discussion_paper (\n        id TEXT PRIMARY KEY,\n        flow TEXT NOT NULL,\n        session_id TEXT NOT NULL,\n        theme TEXT NOT NULL,\n        tags_json TEXT NOT NULL DEFAULT '[]',\n        mechanics_json TEXT NOT NULL DEFAULT '[]',\n        supplement TEXT NOT NULL DEFAULT '',\n        created_at INTEGER NOT NULL,\n        updated_at INTEGER NOT NULL\n      )",
+        "CREATE TABLE IF NOT EXISTS discussion_paper_round (\n        id INTEGER PRIMARY KEY AUTOINCREMENT,\n        paper_id TEXT NOT NULL,\n        round INTEGER NOT NULL,\n        summary TEXT NOT NULL DEFAULT '',\n        aufhebung_json TEXT NOT NULL DEFAULT '[]',\n        created_at INTEGER NOT NULL\n      )",
+        "CREATE TABLE IF NOT EXISTS vote (\n        id INTEGER PRIMARY KEY AUTOINCREMENT,\n        session_id TEXT NOT NULL,\n        round INTEGER NOT NULL,\n        voter_index INTEGER NOT NULL,\n        chosen_utterance_id TEXT,\n        created_at INTEGER NOT NULL\n      )",
+        "CREATE TABLE IF NOT EXISTS llm_call_log (\n        id INTEGER PRIMARY KEY AUTOINCREMENT,\n        flow TEXT NOT NULL,\n        session_id TEXT NOT NULL,\n        round INTEGER,\n        turn INTEGER,\n        role TEXT,\n        persona TEXT,\n        location TEXT NOT NULL,\n        model TEXT,\n        backend TEXT,\n        latency_ms INTEGER,\n        input_tokens INTEGER,\n        output_tokens INTEGER,\n        prompt TEXT,\n        response TEXT,\n        created_at INTEGER NOT NULL\n      )",
+        "CREATE INDEX IF NOT EXISTS idx_discussion_paper_session ON discussion_paper(session_id)",
+        "CREATE INDEX IF NOT EXISTS idx_discussion_paper_flow ON discussion_paper(flow)",
+        "CREATE INDEX IF NOT EXISTS idx_paper_round_paper ON discussion_paper_round(paper_id)",
+        "CREATE INDEX IF NOT EXISTS idx_vote_session ON vote(session_id, round)",
+        "CREATE INDEX IF NOT EXISTS idx_llm_call_log_session ON llm_call_log(session_id)",
+        "CREATE INDEX IF NOT EXISTS idx_llm_call_log_flow ON llm_call_log(flow, created_at)"
+      ]
+    },
+    {
+      "id": "flow_0002_utterance",
+      "sql": [
+        "CREATE TABLE IF NOT EXISTS flow_utterance (\n        id TEXT PRIMARY KEY,\n        session_id TEXT NOT NULL,\n        paper_id TEXT NOT NULL,\n        round INTEGER NOT NULL,\n        turn INTEGER NOT NULL,\n        persona_id TEXT NOT NULL,\n        persona_name TEXT NOT NULL,\n        role TEXT NOT NULL,\n        stance TEXT NOT NULL DEFAULT 'neutral',\n        text TEXT NOT NULL,\n        is_error INTEGER NOT NULL DEFAULT 0,\n        created_at INTEGER NOT NULL\n      )",
+        "CREATE INDEX IF NOT EXISTS idx_flow_utterance_session ON flow_utterance(session_id, round)",
+        "CREATE INDEX IF NOT EXISTS idx_flow_utterance_paper ON flow_utterance(paper_id)"
+      ]
+    },
+    {
+      "id": "flow_0003_conclusion",
+      "sql": [
+        "CREATE TABLE IF NOT EXISTS flow_conclusion (\n        id INTEGER PRIMARY KEY AUTOINCREMENT,\n        session_id TEXT NOT NULL,\n        paper_id TEXT NOT NULL,\n        summary TEXT NOT NULL DEFAULT '',\n        aufhebung_json TEXT NOT NULL DEFAULT '[]',\n        top_utterance_ids_json TEXT NOT NULL DEFAULT '[]',\n        concluded INTEGER NOT NULL DEFAULT 0,\n        created_at INTEGER NOT NULL\n      )",
+        "CREATE UNIQUE INDEX IF NOT EXISTS idx_flow_conclusion_session ON flow_conclusion(session_id)"
+      ]
+    },
+    {
+      "id": "flow_0004_improvement_score",
+      "sql": [
+        "CREATE TABLE IF NOT EXISTS improvement_score (\n        id INTEGER PRIMARY KEY AUTOINCREMENT,\n        session_id TEXT NOT NULL,\n        round INTEGER NOT NULL,\n        utterance_id TEXT NOT NULL,\n        score REAL NOT NULL,\n        is_winner INTEGER NOT NULL DEFAULT 0,\n        created_at INTEGER NOT NULL\n      )",
+        "CREATE INDEX IF NOT EXISTS idx_improvement_score_session ON improvement_score(session_id, round)"
+      ]
+    },
+    {
+      "id": "flow_0005_persona_pool",
+      "sql": [
+        "CREATE TABLE IF NOT EXISTS flow_persona (\n        id TEXT PRIMARY KEY,\n        name TEXT NOT NULL,\n        role TEXT NOT NULL DEFAULT 'opinion',\n        speech_style TEXT NOT NULL DEFAULT '',\n        traits_json TEXT NOT NULL DEFAULT '[]',\n        affect_vector_json TEXT NOT NULL DEFAULT '[]',\n        origin TEXT NOT NULL DEFAULT 'seed',\n        parent_ids_json TEXT NOT NULL DEFAULT '[]',\n        learning_source TEXT,\n        label TEXT,\n        model TEXT,\n        archived INTEGER NOT NULL DEFAULT 0,\n        created_at INTEGER NOT NULL\n      )",
+        "CREATE INDEX IF NOT EXISTS idx_flow_persona_origin ON flow_persona(origin, archived)",
+        "CREATE INDEX IF NOT EXISTS idx_flow_persona_source ON flow_persona(learning_source)"
+      ]
+    },
+    {
+      "id": "flow_0006_persona_adopt",
+      "sql": [
+        "ALTER TABLE flow_persona ADD COLUMN source_speaker_id TEXT",
+        "ALTER TABLE flow_persona ADD COLUMN typicality REAL",
+        "CREATE INDEX IF NOT EXISTS idx_flow_persona_speaker ON flow_persona(source_speaker_id)"
+      ]
+    },
+    {
+      "id": "flow_0007_persona_population",
+      "sql": [
+        "ALTER TABLE flow_persona ADD COLUMN population_verdict TEXT",
+        "ALTER TABLE flow_persona ADD COLUMN population_ratio REAL",
+        "ALTER TABLE flow_persona ADD COLUMN population_estimated_at INTEGER"
+      ]
+    },
+    {
+      "id": "flow_0008_persona_affect_features",
+      "sql": [
+        "ALTER TABLE flow_persona ADD COLUMN polarity_bias REAL",
+        "ALTER TABLE flow_persona ADD COLUMN affect_dispersion REAL"
+      ]
+    },
+    {
+      "id": "flow_0009_utterance_possession",
+      "sql": [
+        "ALTER TABLE flow_utterance ADD COLUMN possession_name TEXT"
+      ]
+    },
+    {
+      "id": "flow_0010_llm_cost",
+      "sql": [
+        "ALTER TABLE llm_call_log ADD COLUMN cache_read_input_tokens INTEGER",
+        "ALTER TABLE llm_call_log ADD COLUMN cache_creation_input_tokens INTEGER",
+        "ALTER TABLE llm_call_log ADD COLUMN cost_usd REAL"
+      ]
+    },
+    {
+      "id": "flow_0011_conclusion_cache",
+      "sql": [
+        "CREATE TABLE IF NOT EXISTS conclusion_cache (\n        gap_id TEXT PRIMARY KEY,\n        kind TEXT NOT NULL,\n        session_id TEXT NOT NULL,\n        title TEXT NOT NULL DEFAULT '',\n        conclusion TEXT,\n        utterance_count INTEGER NOT NULL DEFAULT 0,\n        aufhebung_count INTEGER NOT NULL DEFAULT 0,\n        discussion_volume INTEGER NOT NULL DEFAULT 0,\n        material_count INTEGER NOT NULL DEFAULT -1,\n        updated_at INTEGER NOT NULL,\n        cached_at INTEGER NOT NULL\n      )",
+        "CREATE INDEX IF NOT EXISTS idx_conclusion_cache_updated ON conclusion_cache(updated_at DESC)"
+      ]
+    },
+    {
+      "id": "flow_0012_paper_body_md",
+      "sql": [
+        "ALTER TABLE discussion_paper ADD COLUMN body_md TEXT",
+        "CREATE TABLE IF NOT EXISTS discussion_paper_revision (\n        id INTEGER PRIMARY KEY AUTOINCREMENT,\n        session_id TEXT NOT NULL,\n        rev INTEGER NOT NULL,\n        body_md TEXT NOT NULL,\n        change_summary TEXT NOT NULL DEFAULT '',\n        origin TEXT NOT NULL DEFAULT 'manual',\n        created_at INTEGER NOT NULL\n      )",
+        "CREATE INDEX IF NOT EXISTS idx_paper_revision_session ON discussion_paper_revision(session_id, rev)"
+      ]
+    },
+    {
+      "id": "flow_0013_paper_status",
+      "sql": [
+        "ALTER TABLE discussion_paper ADD COLUMN status TEXT NOT NULL DEFAULT 'started'"
+      ]
+    },
+    {
+      "id": "flow_0014_discussion_title_cache",
+      "sql": [
+        "CREATE TABLE IF NOT EXISTS discussion_title_cache (\n        session_id TEXT PRIMARY KEY,\n        title TEXT NOT NULL,\n        source TEXT NOT NULL DEFAULT 'paper',\n        updated_at INTEGER NOT NULL\n      )",
+        "CREATE INDEX IF NOT EXISTS idx_discussion_title_cache_updated ON discussion_title_cache(updated_at DESC)",
+        "INSERT OR IGNORE INTO discussion_title_cache (session_id, title, source, updated_at)\n       SELECT session_id, theme, 'paper', updated_at FROM discussion_paper",
+        "INSERT OR REPLACE INTO discussion_title_cache (session_id, title, source, updated_at)\n       SELECT dp.session_id,\n              COALESCE(\n                NULLIF(\n                  TRIM(REPLACE(\n                    CASE\n                      WHEN INSTR(fc.summary, char(10)) > 0 THEN SUBSTR(fc.summary, 1, INSTR(fc.summary, char(10)) - 1)\n                      ELSE fc.summary\n                    END,\n                    '【収束】',\n                    ''\n                  )),\n                  ''\n                ),\n                dp.theme\n              ),\n              'conclusion',\n              COALESCE(fc.created_at, dp.updated_at)\n         FROM discussion_paper dp\n         JOIN flow_conclusion fc ON fc.session_id = dp.session_id\n        WHERE COALESCE(fc.concluded, 0) = 1\n          AND COALESCE(TRIM(fc.summary), '') != ''"
+      ]
+    },
+    {
+      "id": "flow_0015_discussion_title_cache_meta",
+      "sql": [
+        "ALTER TABLE discussion_title_cache ADD COLUMN discussion_type TEXT NOT NULL DEFAULT 'discussion'",
+        "ALTER TABLE discussion_title_cache ADD COLUMN origin_ui TEXT NOT NULL DEFAULT 'ai'",
+        "UPDATE discussion_title_cache\n          SET discussion_type = COALESCE((SELECT dp.flow FROM discussion_paper dp WHERE dp.session_id = discussion_title_cache.session_id), discussion_type)",
+        "UPDATE discussion_title_cache\n          SET origin_ui = CASE\n            WHEN discussion_type = 'sparring' THEN 'chat'\n            ELSE 'ai'\n          END",
+        "CREATE INDEX IF NOT EXISTS idx_discussion_title_cache_origin ON discussion_title_cache(origin_ui, discussion_type, updated_at DESC)"
+      ]
+    },
+    {
+      "id": "flow_0016_improvement_score_method",
+      "sql": [
+        "ALTER TABLE improvement_score ADD COLUMN method TEXT NOT NULL DEFAULT 'lexicon'",
+        "ALTER TABLE improvement_score ADD COLUMN detail_json TEXT"
+      ]
+    },
+    {
+      "id": "flow_0017_paper_debatability",
+      "sql": [
+        "ALTER TABLE discussion_paper ADD COLUMN debatability_json TEXT"
+      ]
+    },
+    {
+      "id": "flow_0018_session_persona",
+      "sql": [
+        "CREATE TABLE IF NOT EXISTS flow_session_persona (\n        id TEXT PRIMARY KEY,\n        session_id TEXT NOT NULL,\n        name TEXT NOT NULL,\n        role TEXT NOT NULL,\n        stance TEXT NOT NULL,\n        value_axis TEXT,\n        core_claims_json TEXT,\n        possession_name TEXT,\n        created_at INTEGER NOT NULL\n      )",
+        "CREATE INDEX IF NOT EXISTS idx_fsp_session ON flow_session_persona(session_id)"
+      ]
+    },
+    {
+      "id": "flow_0019_utterance_act",
+      "sql": [
+        "ALTER TABLE flow_utterance ADD COLUMN act TEXT",
+        "ALTER TABLE flow_utterance ADD COLUMN target_id TEXT"
+      ]
+    },
+    {
+      "id": "flow_0020_dialectic_core",
+      "sql": [
+        "CREATE TABLE IF NOT EXISTS flow_issue (\n        id TEXT PRIMARY KEY,\n        session_id TEXT NOT NULL,\n        title TEXT NOT NULL,\n        ordinal INTEGER NOT NULL,\n        source TEXT NOT NULL DEFAULT 'llm',\n        status TEXT NOT NULL DEFAULT 'open',\n        created_at INTEGER NOT NULL\n      )",
+        "CREATE TABLE IF NOT EXISTS flow_position (\n        id TEXT PRIMARY KEY,\n        issue_id TEXT NOT NULL,\n        persona_id TEXT NOT NULL,\n        stance TEXT NOT NULL,\n        claim TEXT NOT NULL,\n        grounds_json TEXT NOT NULL,\n        values_json TEXT NOT NULL,\n        created_at INTEGER NOT NULL\n      )",
+        "CREATE TABLE IF NOT EXISTS flow_tension (\n        id TEXT PRIMARY KEY,\n        issue_id TEXT NOT NULL,\n        position_a TEXT NOT NULL,\n        position_b TEXT NOT NULL,\n        type TEXT NOT NULL,\n        status TEXT NOT NULL DEFAULT 'open',\n        resolution_note TEXT,\n        created_at INTEGER NOT NULL\n      )",
+        "CREATE TABLE IF NOT EXISTS flow_synthesis (\n        id TEXT PRIMARY KEY,\n        tension_id TEXT NOT NULL,\n        preserves_json TEXT NOT NULL,\n        negates_json TEXT NOT NULL,\n        elevates TEXT,\n        kind TEXT NOT NULL,\n        text TEXT NOT NULL,\n        ratification_json TEXT NOT NULL,\n        status TEXT NOT NULL,\n        revision INTEGER NOT NULL DEFAULT 0,\n        created_at INTEGER NOT NULL\n      )",
+        "CREATE INDEX IF NOT EXISTS idx_flow_issue_session ON flow_issue(session_id, ordinal)",
+        "CREATE INDEX IF NOT EXISTS idx_flow_position_issue ON flow_position(issue_id)",
+        "CREATE INDEX IF NOT EXISTS idx_flow_tension_issue ON flow_tension(issue_id)",
+        "CREATE INDEX IF NOT EXISTS idx_flow_synthesis_tension ON flow_synthesis(tension_id)"
+      ]
+    },
+    {
+      "id": "flow_0021_paper_review_info",
+      "sql": [
+        "ALTER TABLE discussion_paper ADD COLUMN review_info_json TEXT"
+      ]
+    },
+    {
+      "id": "flow_0022_discussion_no",
+      "sql": [
+        "ALTER TABLE discussion_paper ADD COLUMN discussion_no INTEGER",
+        "UPDATE discussion_paper\n          SET discussion_no = (\n            SELECT COUNT(*)\n              FROM discussion_paper older\n             WHERE older.created_at < discussion_paper.created_at\n                OR (older.created_at = discussion_paper.created_at AND older.id <= discussion_paper.id)\n          )\n        WHERE discussion_no IS NULL",
+        "CREATE UNIQUE INDEX IF NOT EXISTS idx_discussion_paper_no ON discussion_paper(discussion_no) WHERE discussion_no IS NOT NULL"
+      ]
+    },
+    {
+      "id": "flow_0023_external_persona_identity",
+      "sql": [
+        "ALTER TABLE flow_persona ADD COLUMN user_id TEXT",
+        "CREATE UNIQUE INDEX IF NOT EXISTS idx_flow_persona_user_id\n         ON flow_persona(user_id) WHERE user_id IS NOT NULL",
+        "UPDATE flow_persona SET archived = 1 WHERE origin IN ('generated', 'synthesized')",
+        "DROP TABLE IF EXISTS flow_user_affect"
+      ]
+    },
+    {
+      "id": "flow_0024_persona_import_v2",
+      "sql": [
+        "ALTER TABLE flow_persona ADD COLUMN preference_axes_json TEXT NOT NULL DEFAULT '{}'",
+        "ALTER TABLE flow_persona ADD COLUMN attributes_json TEXT NOT NULL DEFAULT '{}'",
+        "ALTER TABLE flow_persona ADD COLUMN aversions_json TEXT NOT NULL DEFAULT '[]'",
+        "ALTER TABLE flow_persona ADD COLUMN mechanic_reactions_json TEXT NOT NULL DEFAULT '[]'",
+        "ALTER TABLE flow_persona ADD COLUMN export_spec_version INTEGER"
+      ]
+    },
+    {
+      "id": "flow_0025_persona_bridge_assertion_nonce",
+      "sql": [
+        "CREATE TABLE IF NOT EXISTS persona_bridge_assertion_nonce (\n        jti TEXT PRIMARY KEY,\n        expires_at INTEGER NOT NULL\n      )",
+        "CREATE INDEX IF NOT EXISTS idx_persona_bridge_assertion_expiry\n         ON persona_bridge_assertion_nonce(expires_at)"
+      ]
+    },
+    {
+      "id": "flow_0026_persona_history_evidence",
+      "sql": [
+        "CREATE TABLE IF NOT EXISTS flow_persona_history\n        (user_id TEXT PRIMARY KEY, expires_at INTEGER NOT NULL, payload TEXT NOT NULL)",
+        "CREATE INDEX IF NOT EXISTS idx_flow_persona_history_expiry ON flow_persona_history(expires_at)"
+      ]
+    },
+    {
+      "id": "flow_0027_position_qualifier",
+      "sql": [
+        "ALTER TABLE flow_position ADD COLUMN qualifier TEXT"
+      ]
+    },
+    {
+      "id": "flow_0028_alignment",
+      "sql": [
+        "CREATE TABLE IF NOT EXISTS flow_alignment (\n        id TEXT PRIMARY KEY,\n        tension_id TEXT NOT NULL,\n        experience TEXT NOT NULL,\n        measure TEXT NOT NULL,\n        reference_cases TEXT NOT NULL,\n        agreed_json TEXT NOT NULL,\n        open_json TEXT NOT NULL,\n        text TEXT NOT NULL,\n        created_at INTEGER NOT NULL\n      )",
+        "CREATE INDEX IF NOT EXISTS idx_flow_alignment_tension ON flow_alignment(tension_id)"
+      ]
+    },
+    {
+      "id": "flow_0029_optional_voices_rediscussion",
+      "sql": [
+        "CREATE TABLE IF NOT EXISTS discord_flow_run (thread_id TEXT PRIMARY KEY, session_id TEXT NOT NULL, previous_session_id TEXT NOT NULL)",
+        "CREATE TABLE IF NOT EXISTS flow_voice_preparation (session_id TEXT PRIMARY KEY, payload TEXT NOT NULL, updated_at INTEGER NOT NULL)"
+      ]
+    },
+    {
+      "id": "flow_0030_paper_voices",
+      "sql": [
+        "CREATE TABLE IF NOT EXISTS discussion_paper_voice (\n      session_id TEXT NOT NULL,\n      ordinal INTEGER NOT NULL,\n      content TEXT NOT NULL,\n      source TEXT NOT NULL,\n      source_url TEXT,\n      created_at INTEGER NOT NULL,\n      PRIMARY KEY (session_id, ordinal)\n    )"
+      ]
+    },
+    {
+      "id": "2026-10-18-conclusion-publication",
+      "sql": [
+        "CREATE TABLE IF NOT EXISTS conclusion_publication (\n    conclusion_id TEXT PRIMARY KEY,\n    publishable INTEGER NOT NULL DEFAULT 0 CHECK(publishable IN (0,1)),\n    scope TEXT NOT NULL DEFAULT 'private' CHECK(scope IN ('private','public','glab')),\n    content_hash TEXT NOT NULL,\n    updated_at INTEGER NOT NULL\n  )"
+      ]
+    },
+    {
+      "id": "2026-10-23-proxy-profile",
+      "sql": [
+        "CREATE TABLE IF NOT EXISTS flow_proxy_profile (\n      speaker_key TEXT NOT NULL,\n      genre TEXT NOT NULL,\n      label TEXT NOT NULL,\n      profile_version TEXT NOT NULL,\n      content_hash TEXT NOT NULL,\n      pack_json TEXT NOT NULL,\n      confidence TEXT NOT NULL,\n      expires_at INTEGER NOT NULL,\n      revoked INTEGER NOT NULL DEFAULT 0 CHECK(revoked IN (0,1)),\n      eval_status TEXT NOT NULL DEFAULT 'unevaluated' CHECK(eval_status IN ('unevaluated','passed','failed')),\n      eval_json TEXT,\n      imported_at INTEGER NOT NULL,\n      updated_at INTEGER NOT NULL,\n      PRIMARY KEY (speaker_key, genre)\n    )",
+        "CREATE INDEX IF NOT EXISTS idx_flow_proxy_profile_label ON flow_proxy_profile(label, genre)",
+        "ALTER TABLE flow_utterance ADD COLUMN claim_kind TEXT",
+        "ALTER TABLE flow_utterance ADD COLUMN evidence_ids_json TEXT"
+      ]
+    }
+  ],
+  "sqlite_master": [
+    {
+      "type": "index",
+      "name": "idx_conclusion_cache_updated",
+      "tbl_name": "conclusion_cache",
+      "sql": "CREATE INDEX idx_conclusion_cache_updated ON conclusion_cache(updated_at DESC)"
+    },
+    {
+      "type": "index",
+      "name": "idx_discussion_paper_flow",
+      "tbl_name": "discussion_paper",
+      "sql": "CREATE INDEX idx_discussion_paper_flow ON discussion_paper(flow)"
+    },
+    {
+      "type": "index",
+      "name": "idx_discussion_paper_no",
+      "tbl_name": "discussion_paper",
+      "sql": "CREATE UNIQUE INDEX idx_discussion_paper_no ON discussion_paper(discussion_no) WHERE discussion_no IS NOT NULL"
+    },
+    {
+      "type": "index",
+      "name": "idx_discussion_paper_session",
+      "tbl_name": "discussion_paper",
+      "sql": "CREATE INDEX idx_discussion_paper_session ON discussion_paper(session_id)"
+    },
+    {
+      "type": "index",
+      "name": "idx_discussion_title_cache_origin",
+      "tbl_name": "discussion_title_cache",
+      "sql": "CREATE INDEX idx_discussion_title_cache_origin ON discussion_title_cache(origin_ui, discussion_type, updated_at DESC)"
+    },
+    {
+      "type": "index",
+      "name": "idx_discussion_title_cache_updated",
+      "tbl_name": "discussion_title_cache",
+      "sql": "CREATE INDEX idx_discussion_title_cache_updated ON discussion_title_cache(updated_at DESC)"
+    },
+    {
+      "type": "index",
+      "name": "idx_flow_alignment_tension",
+      "tbl_name": "flow_alignment",
+      "sql": "CREATE INDEX idx_flow_alignment_tension ON flow_alignment(tension_id)"
+    },
+    {
+      "type": "index",
+      "name": "idx_flow_conclusion_session",
+      "tbl_name": "flow_conclusion",
+      "sql": "CREATE UNIQUE INDEX idx_flow_conclusion_session ON flow_conclusion(session_id)"
+    },
+    {
+      "type": "index",
+      "name": "idx_flow_issue_session",
+      "tbl_name": "flow_issue",
+      "sql": "CREATE INDEX idx_flow_issue_session ON flow_issue(session_id, ordinal)"
+    },
+    {
+      "type": "index",
+      "name": "idx_flow_persona_history_expiry",
+      "tbl_name": "flow_persona_history",
+      "sql": "CREATE INDEX idx_flow_persona_history_expiry ON flow_persona_history(expires_at)"
+    },
+    {
+      "type": "index",
+      "name": "idx_flow_persona_origin",
+      "tbl_name": "flow_persona",
+      "sql": "CREATE INDEX idx_flow_persona_origin ON flow_persona(origin, archived)"
+    },
+    {
+      "type": "index",
+      "name": "idx_flow_persona_source",
+      "tbl_name": "flow_persona",
+      "sql": "CREATE INDEX idx_flow_persona_source ON flow_persona(learning_source)"
+    },
+    {
+      "type": "index",
+      "name": "idx_flow_persona_speaker",
+      "tbl_name": "flow_persona",
+      "sql": "CREATE INDEX idx_flow_persona_speaker ON flow_persona(source_speaker_id)"
+    },
+    {
+      "type": "index",
+      "name": "idx_flow_persona_user_id",
+      "tbl_name": "flow_persona",
+      "sql": "CREATE UNIQUE INDEX idx_flow_persona_user_id\n         ON flow_persona(user_id) WHERE user_id IS NOT NULL"
+    },
+    {
+      "type": "index",
+      "name": "idx_flow_position_issue",
+      "tbl_name": "flow_position",
+      "sql": "CREATE INDEX idx_flow_position_issue ON flow_position(issue_id)"
+    },
+    {
+      "type": "index",
+      "name": "idx_flow_proxy_profile_label",
+      "tbl_name": "flow_proxy_profile",
+      "sql": "CREATE INDEX idx_flow_proxy_profile_label ON flow_proxy_profile(label, genre)"
+    },
+    {
+      "type": "index",
+      "name": "idx_flow_synthesis_tension",
+      "tbl_name": "flow_synthesis",
+      "sql": "CREATE INDEX idx_flow_synthesis_tension ON flow_synthesis(tension_id)"
+    },
+    {
+      "type": "index",
+      "name": "idx_flow_tension_issue",
+      "tbl_name": "flow_tension",
+      "sql": "CREATE INDEX idx_flow_tension_issue ON flow_tension(issue_id)"
+    },
+    {
+      "type": "index",
+      "name": "idx_flow_utterance_paper",
+      "tbl_name": "flow_utterance",
+      "sql": "CREATE INDEX idx_flow_utterance_paper ON flow_utterance(paper_id)"
+    },
+    {
+      "type": "index",
+      "name": "idx_flow_utterance_session",
+      "tbl_name": "flow_utterance",
+      "sql": "CREATE INDEX idx_flow_utterance_session ON flow_utterance(session_id, round)"
+    },
+    {
+      "type": "index",
+      "name": "idx_fsp_session",
+      "tbl_name": "flow_session_persona",
+      "sql": "CREATE INDEX idx_fsp_session ON flow_session_persona(session_id)"
+    },
+    {
+      "type": "index",
+      "name": "idx_improvement_score_session",
+      "tbl_name": "improvement_score",
+      "sql": "CREATE INDEX idx_improvement_score_session ON improvement_score(session_id, round)"
+    },
+    {
+      "type": "index",
+      "name": "idx_llm_call_log_flow",
+      "tbl_name": "llm_call_log",
+      "sql": "CREATE INDEX idx_llm_call_log_flow ON llm_call_log(flow, created_at)"
+    },
+    {
+      "type": "index",
+      "name": "idx_llm_call_log_session",
+      "tbl_name": "llm_call_log",
+      "sql": "CREATE INDEX idx_llm_call_log_session ON llm_call_log(session_id)"
+    },
+    {
+      "type": "index",
+      "name": "idx_paper_revision_session",
+      "tbl_name": "discussion_paper_revision",
+      "sql": "CREATE INDEX idx_paper_revision_session ON discussion_paper_revision(session_id, rev)"
+    },
+    {
+      "type": "index",
+      "name": "idx_paper_round_paper",
+      "tbl_name": "discussion_paper_round",
+      "sql": "CREATE INDEX idx_paper_round_paper ON discussion_paper_round(paper_id)"
+    },
+    {
+      "type": "index",
+      "name": "idx_persona_bridge_assertion_expiry",
+      "tbl_name": "persona_bridge_assertion_nonce",
+      "sql": "CREATE INDEX idx_persona_bridge_assertion_expiry\n         ON persona_bridge_assertion_nonce(expires_at)"
+    },
+    {
+      "type": "index",
+      "name": "idx_vote_session",
+      "tbl_name": "vote",
+      "sql": "CREATE INDEX idx_vote_session ON vote(session_id, round)"
+    },
+    {
+      "type": "index",
+      "name": "sqlite_autoindex__flow_migrations_1",
+      "tbl_name": "_flow_migrations",
+      "sql": null
+    },
+    {
+      "type": "index",
+      "name": "sqlite_autoindex_conclusion_cache_1",
+      "tbl_name": "conclusion_cache",
+      "sql": null
+    },
+    {
+      "type": "index",
+      "name": "sqlite_autoindex_conclusion_publication_1",
+      "tbl_name": "conclusion_publication",
+      "sql": null
+    },
+    {
+      "type": "index",
+      "name": "sqlite_autoindex_discord_flow_run_1",
+      "tbl_name": "discord_flow_run",
+      "sql": null
+    },
+    {
+      "type": "index",
+      "name": "sqlite_autoindex_discussion_paper_1",
+      "tbl_name": "discussion_paper",
+      "sql": null
+    },
+    {
+      "type": "index",
+      "name": "sqlite_autoindex_discussion_paper_voice_1",
+      "tbl_name": "discussion_paper_voice",
+      "sql": null
+    },
+    {
+      "type": "index",
+      "name": "sqlite_autoindex_discussion_title_cache_1",
+      "tbl_name": "discussion_title_cache",
+      "sql": null
+    },
+    {
+      "type": "index",
+      "name": "sqlite_autoindex_flow_alignment_1",
+      "tbl_name": "flow_alignment",
+      "sql": null
+    },
+    {
+      "type": "index",
+      "name": "sqlite_autoindex_flow_issue_1",
+      "tbl_name": "flow_issue",
+      "sql": null
+    },
+    {
+      "type": "index",
+      "name": "sqlite_autoindex_flow_persona_1",
+      "tbl_name": "flow_persona",
+      "sql": null
+    },
+    {
+      "type": "index",
+      "name": "sqlite_autoindex_flow_persona_history_1",
+      "tbl_name": "flow_persona_history",
+      "sql": null
+    },
+    {
+      "type": "index",
+      "name": "sqlite_autoindex_flow_position_1",
+      "tbl_name": "flow_position",
+      "sql": null
+    },
+    {
+      "type": "index",
+      "name": "sqlite_autoindex_flow_proxy_profile_1",
+      "tbl_name": "flow_proxy_profile",
+      "sql": null
+    },
+    {
+      "type": "index",
+      "name": "sqlite_autoindex_flow_session_persona_1",
+      "tbl_name": "flow_session_persona",
+      "sql": null
+    },
+    {
+      "type": "index",
+      "name": "sqlite_autoindex_flow_synthesis_1",
+      "tbl_name": "flow_synthesis",
+      "sql": null
+    },
+    {
+      "type": "index",
+      "name": "sqlite_autoindex_flow_tension_1",
+      "tbl_name": "flow_tension",
+      "sql": null
+    },
+    {
+      "type": "index",
+      "name": "sqlite_autoindex_flow_utterance_1",
+      "tbl_name": "flow_utterance",
+      "sql": null
+    },
+    {
+      "type": "index",
+      "name": "sqlite_autoindex_flow_voice_preparation_1",
+      "tbl_name": "flow_voice_preparation",
+      "sql": null
+    },
+    {
+      "type": "index",
+      "name": "sqlite_autoindex_persona_bridge_assertion_nonce_1",
+      "tbl_name": "persona_bridge_assertion_nonce",
+      "sql": null
+    },
+    {
+      "type": "table",
+      "name": "_flow_migrations",
+      "tbl_name": "_flow_migrations",
+      "sql": "CREATE TABLE _flow_migrations (id TEXT PRIMARY KEY, applied_at INTEGER NOT NULL)"
+    },
+    {
+      "type": "table",
+      "name": "conclusion_cache",
+      "tbl_name": "conclusion_cache",
+      "sql": "CREATE TABLE conclusion_cache (\n        gap_id TEXT PRIMARY KEY,\n        kind TEXT NOT NULL,\n        session_id TEXT NOT NULL,\n        title TEXT NOT NULL DEFAULT '',\n        conclusion TEXT,\n        utterance_count INTEGER NOT NULL DEFAULT 0,\n        aufhebung_count INTEGER NOT NULL DEFAULT 0,\n        discussion_volume INTEGER NOT NULL DEFAULT 0,\n        material_count INTEGER NOT NULL DEFAULT -1,\n        updated_at INTEGER NOT NULL,\n        cached_at INTEGER NOT NULL\n      )"
+    },
+    {
+      "type": "table",
+      "name": "conclusion_publication",
+      "tbl_name": "conclusion_publication",
+      "sql": "CREATE TABLE conclusion_publication (\n    conclusion_id TEXT PRIMARY KEY,\n    publishable INTEGER NOT NULL DEFAULT 0 CHECK(publishable IN (0,1)),\n    scope TEXT NOT NULL DEFAULT 'private' CHECK(scope IN ('private','public','glab')),\n    content_hash TEXT NOT NULL,\n    updated_at INTEGER NOT NULL\n  )"
+    },
+    {
+      "type": "table",
+      "name": "discord_flow_run",
+      "tbl_name": "discord_flow_run",
+      "sql": "CREATE TABLE discord_flow_run (thread_id TEXT PRIMARY KEY, session_id TEXT NOT NULL, previous_session_id TEXT NOT NULL)"
+    },
+    {
+      "type": "table",
+      "name": "discussion_paper",
+      "tbl_name": "discussion_paper",
+      "sql": "CREATE TABLE discussion_paper (\n        id TEXT PRIMARY KEY,\n        flow TEXT NOT NULL,\n        session_id TEXT NOT NULL,\n        theme TEXT NOT NULL,\n        tags_json TEXT NOT NULL DEFAULT '[]',\n        mechanics_json TEXT NOT NULL DEFAULT '[]',\n        supplement TEXT NOT NULL DEFAULT '',\n        created_at INTEGER NOT NULL,\n        updated_at INTEGER NOT NULL\n      , body_md TEXT, status TEXT NOT NULL DEFAULT 'started', debatability_json TEXT, review_info_json TEXT, discussion_no INTEGER)"
+    },
+    {
+      "type": "table",
+      "name": "discussion_paper_revision",
+      "tbl_name": "discussion_paper_revision",
+      "sql": "CREATE TABLE discussion_paper_revision (\n        id INTEGER PRIMARY KEY AUTOINCREMENT,\n        session_id TEXT NOT NULL,\n        rev INTEGER NOT NULL,\n        body_md TEXT NOT NULL,\n        change_summary TEXT NOT NULL DEFAULT '',\n        origin TEXT NOT NULL DEFAULT 'manual',\n        created_at INTEGER NOT NULL\n      )"
+    },
+    {
+      "type": "table",
+      "name": "discussion_paper_round",
+      "tbl_name": "discussion_paper_round",
+      "sql": "CREATE TABLE discussion_paper_round (\n        id INTEGER PRIMARY KEY AUTOINCREMENT,\n        paper_id TEXT NOT NULL,\n        round INTEGER NOT NULL,\n        summary TEXT NOT NULL DEFAULT '',\n        aufhebung_json TEXT NOT NULL DEFAULT '[]',\n        created_at INTEGER NOT NULL\n      )"
+    },
+    {
+      "type": "table",
+      "name": "discussion_paper_voice",
+      "tbl_name": "discussion_paper_voice",
+      "sql": "CREATE TABLE discussion_paper_voice (\n      session_id TEXT NOT NULL,\n      ordinal INTEGER NOT NULL,\n      content TEXT NOT NULL,\n      source TEXT NOT NULL,\n      source_url TEXT,\n      created_at INTEGER NOT NULL,\n      PRIMARY KEY (session_id, ordinal)\n    )"
+    },
+    {
+      "type": "table",
+      "name": "discussion_title_cache",
+      "tbl_name": "discussion_title_cache",
+      "sql": "CREATE TABLE discussion_title_cache (\n        session_id TEXT PRIMARY KEY,\n        title TEXT NOT NULL,\n        source TEXT NOT NULL DEFAULT 'paper',\n        updated_at INTEGER NOT NULL\n      , discussion_type TEXT NOT NULL DEFAULT 'discussion', origin_ui TEXT NOT NULL DEFAULT 'ai')"
+    },
+    {
+      "type": "table",
+      "name": "flow_alignment",
+      "tbl_name": "flow_alignment",
+      "sql": "CREATE TABLE flow_alignment (\n        id TEXT PRIMARY KEY,\n        tension_id TEXT NOT NULL,\n        experience TEXT NOT NULL,\n        measure TEXT NOT NULL,\n        reference_cases TEXT NOT NULL,\n        agreed_json TEXT NOT NULL,\n        open_json TEXT NOT NULL,\n        text TEXT NOT NULL,\n        created_at INTEGER NOT NULL\n      )"
+    },
+    {
+      "type": "table",
+      "name": "flow_conclusion",
+      "tbl_name": "flow_conclusion",
+      "sql": "CREATE TABLE flow_conclusion (\n        id INTEGER PRIMARY KEY AUTOINCREMENT,\n        session_id TEXT NOT NULL,\n        paper_id TEXT NOT NULL,\n        summary TEXT NOT NULL DEFAULT '',\n        aufhebung_json TEXT NOT NULL DEFAULT '[]',\n        top_utterance_ids_json TEXT NOT NULL DEFAULT '[]',\n        concluded INTEGER NOT NULL DEFAULT 0,\n        created_at INTEGER NOT NULL\n      )"
+    },
+    {
+      "type": "table",
+      "name": "flow_issue",
+      "tbl_name": "flow_issue",
+      "sql": "CREATE TABLE flow_issue (\n        id TEXT PRIMARY KEY,\n        session_id TEXT NOT NULL,\n        title TEXT NOT NULL,\n        ordinal INTEGER NOT NULL,\n        source TEXT NOT NULL DEFAULT 'llm',\n        status TEXT NOT NULL DEFAULT 'open',\n        created_at INTEGER NOT NULL\n      )"
+    },
+    {
+      "type": "table",
+      "name": "flow_persona",
+      "tbl_name": "flow_persona",
+      "sql": "CREATE TABLE flow_persona (\n        id TEXT PRIMARY KEY,\n        name TEXT NOT NULL,\n        role TEXT NOT NULL DEFAULT 'opinion',\n        speech_style TEXT NOT NULL DEFAULT '',\n        traits_json TEXT NOT NULL DEFAULT '[]',\n        affect_vector_json TEXT NOT NULL DEFAULT '[]',\n        origin TEXT NOT NULL DEFAULT 'seed',\n        parent_ids_json TEXT NOT NULL DEFAULT '[]',\n        learning_source TEXT,\n        label TEXT,\n        model TEXT,\n        archived INTEGER NOT NULL DEFAULT 0,\n        created_at INTEGER NOT NULL\n      , source_speaker_id TEXT, typicality REAL, population_verdict TEXT, population_ratio REAL, population_estimated_at INTEGER, polarity_bias REAL, affect_dispersion REAL, user_id TEXT, preference_axes_json TEXT NOT NULL DEFAULT '{}', attributes_json TEXT NOT NULL DEFAULT '{}', aversions_json TEXT NOT NULL DEFAULT '[]', mechanic_reactions_json TEXT NOT NULL DEFAULT '[]', export_spec_version INTEGER)"
+    },
+    {
+      "type": "table",
+      "name": "flow_persona_history",
+      "tbl_name": "flow_persona_history",
+      "sql": "CREATE TABLE flow_persona_history\n        (user_id TEXT PRIMARY KEY, expires_at INTEGER NOT NULL, payload TEXT NOT NULL)"
+    },
+    {
+      "type": "table",
+      "name": "flow_position",
+      "tbl_name": "flow_position",
+      "sql": "CREATE TABLE flow_position (\n        id TEXT PRIMARY KEY,\n        issue_id TEXT NOT NULL,\n        persona_id TEXT NOT NULL,\n        stance TEXT NOT NULL,\n        claim TEXT NOT NULL,\n        grounds_json TEXT NOT NULL,\n        values_json TEXT NOT NULL,\n        created_at INTEGER NOT NULL\n      , qualifier TEXT)"
+    },
+    {
+      "type": "table",
+      "name": "flow_proxy_profile",
+      "tbl_name": "flow_proxy_profile",
+      "sql": "CREATE TABLE flow_proxy_profile (\n      speaker_key TEXT NOT NULL,\n      genre TEXT NOT NULL,\n      label TEXT NOT NULL,\n      profile_version TEXT NOT NULL,\n      content_hash TEXT NOT NULL,\n      pack_json TEXT NOT NULL,\n      confidence TEXT NOT NULL,\n      expires_at INTEGER NOT NULL,\n      revoked INTEGER NOT NULL DEFAULT 0 CHECK(revoked IN (0,1)),\n      eval_status TEXT NOT NULL DEFAULT 'unevaluated' CHECK(eval_status IN ('unevaluated','passed','failed')),\n      eval_json TEXT,\n      imported_at INTEGER NOT NULL,\n      updated_at INTEGER NOT NULL,\n      PRIMARY KEY (speaker_key, genre)\n    )"
+    },
+    {
+      "type": "table",
+      "name": "flow_session_persona",
+      "tbl_name": "flow_session_persona",
+      "sql": "CREATE TABLE flow_session_persona (\n        id TEXT PRIMARY KEY,\n        session_id TEXT NOT NULL,\n        name TEXT NOT NULL,\n        role TEXT NOT NULL,\n        stance TEXT NOT NULL,\n        value_axis TEXT,\n        core_claims_json TEXT,\n        possession_name TEXT,\n        created_at INTEGER NOT NULL\n      )"
+    },
+    {
+      "type": "table",
+      "name": "flow_synthesis",
+      "tbl_name": "flow_synthesis",
+      "sql": "CREATE TABLE flow_synthesis (\n        id TEXT PRIMARY KEY,\n        tension_id TEXT NOT NULL,\n        preserves_json TEXT NOT NULL,\n        negates_json TEXT NOT NULL,\n        elevates TEXT,\n        kind TEXT NOT NULL,\n        text TEXT NOT NULL,\n        ratification_json TEXT NOT NULL,\n        status TEXT NOT NULL,\n        revision INTEGER NOT NULL DEFAULT 0,\n        created_at INTEGER NOT NULL\n      )"
+    },
+    {
+      "type": "table",
+      "name": "flow_tension",
+      "tbl_name": "flow_tension",
+      "sql": "CREATE TABLE flow_tension (\n        id TEXT PRIMARY KEY,\n        issue_id TEXT NOT NULL,\n        position_a TEXT NOT NULL,\n        position_b TEXT NOT NULL,\n        type TEXT NOT NULL,\n        status TEXT NOT NULL DEFAULT 'open',\n        resolution_note TEXT,\n        created_at INTEGER NOT NULL\n      )"
+    },
+    {
+      "type": "table",
+      "name": "flow_utterance",
+      "tbl_name": "flow_utterance",
+      "sql": "CREATE TABLE flow_utterance (\n        id TEXT PRIMARY KEY,\n        session_id TEXT NOT NULL,\n        paper_id TEXT NOT NULL,\n        round INTEGER NOT NULL,\n        turn INTEGER NOT NULL,\n        persona_id TEXT NOT NULL,\n        persona_name TEXT NOT NULL,\n        role TEXT NOT NULL,\n        stance TEXT NOT NULL DEFAULT 'neutral',\n        text TEXT NOT NULL,\n        is_error INTEGER NOT NULL DEFAULT 0,\n        created_at INTEGER NOT NULL\n      , possession_name TEXT, act TEXT, target_id TEXT, claim_kind TEXT, evidence_ids_json TEXT)"
+    },
+    {
+      "type": "table",
+      "name": "flow_voice_preparation",
+      "tbl_name": "flow_voice_preparation",
+      "sql": "CREATE TABLE flow_voice_preparation (session_id TEXT PRIMARY KEY, payload TEXT NOT NULL, updated_at INTEGER NOT NULL)"
+    },
+    {
+      "type": "table",
+      "name": "improvement_score",
+      "tbl_name": "improvement_score",
+      "sql": "CREATE TABLE improvement_score (\n        id INTEGER PRIMARY KEY AUTOINCREMENT,\n        session_id TEXT NOT NULL,\n        round INTEGER NOT NULL,\n        utterance_id TEXT NOT NULL,\n        score REAL NOT NULL,\n        is_winner INTEGER NOT NULL DEFAULT 0,\n        created_at INTEGER NOT NULL\n      , method TEXT NOT NULL DEFAULT 'lexicon', detail_json TEXT)"
+    },
+    {
+      "type": "table",
+      "name": "llm_call_log",
+      "tbl_name": "llm_call_log",
+      "sql": "CREATE TABLE llm_call_log (\n        id INTEGER PRIMARY KEY AUTOINCREMENT,\n        flow TEXT NOT NULL,\n        session_id TEXT NOT NULL,\n        round INTEGER,\n        turn INTEGER,\n        role TEXT,\n        persona TEXT,\n        location TEXT NOT NULL,\n        model TEXT,\n        backend TEXT,\n        latency_ms INTEGER,\n        input_tokens INTEGER,\n        output_tokens INTEGER,\n        prompt TEXT,\n        response TEXT,\n        created_at INTEGER NOT NULL\n      , cache_read_input_tokens INTEGER, cache_creation_input_tokens INTEGER, cost_usd REAL)"
+    },
+    {
+      "type": "table",
+      "name": "persona_bridge_assertion_nonce",
+      "tbl_name": "persona_bridge_assertion_nonce",
+      "sql": "CREATE TABLE persona_bridge_assertion_nonce (\n        jti TEXT PRIMARY KEY,\n        expires_at INTEGER NOT NULL\n      )"
+    },
+    {
+      "type": "table",
+      "name": "sqlite_sequence",
+      "tbl_name": "sqlite_sequence",
+      "sql": "CREATE TABLE sqlite_sequence(name,seq)"
+    },
+    {
+      "type": "table",
+      "name": "vote",
+      "tbl_name": "vote",
+      "sql": "CREATE TABLE vote (\n        id INTEGER PRIMARY KEY AUTOINCREMENT,\n        session_id TEXT NOT NULL,\n        round INTEGER NOT NULL,\n        voter_index INTEGER NOT NULL,\n        chosen_utterance_id TEXT,\n        created_at INTEGER NOT NULL\n      )"
+    }
+  ]
+}
