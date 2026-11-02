@@ -1,0 +1,4377 @@
+{
+  "gameMd": "---\nid: monster-strike\ntitle: モンスターストライク\nmechanics:\n  - name: ギミック\n    description: クエストごとに妨害が置かれる\n  - name: アビリティ\n    description: ギミックに対応して編成を決める\n---\n\n本文\n",
+  "merge": {
+    "primary": [
+      {
+        "name": "裁判",
+        "description": "Anatomia 由来"
+      },
+      {
+        "name": " ",
+        "description": "空"
+      }
+    ],
+    "secondary": [
+      {
+        "name": " 裁判 ",
+        "description": "落ちる"
+      },
+      {
+        "name": "経済",
+        "description": "x"
+      },
+      {
+        "name": "ＡＢＣ",
+        "description": "全角"
+      },
+      {
+        "name": "ａｂｃ",
+        "description": "全角小"
+      }
+    ],
+    "out": [
+      {
+        "name": "裁判",
+        "description": "Anatomia 由来"
+      },
+      {
+        "name": "経済",
+        "description": "x"
+      },
+      {
+        "name": "ＡＢＣ",
+        "description": "全角"
+      }
+    ]
+  },
+  "understanding": [
+    {
+      "fields": {
+        "gameTitle": "",
+        "discussionTheme": "T",
+        "discussionContent": "",
+        "mechanicsContext": "",
+        "themeSupplement": ""
+      },
+      "mechanics": [],
+      "voices": [],
+      "flow": "improvement",
+      "responses": null,
+      "result": {
+        "ok": false,
+        "rationale": "議論の前提となるゲーム内容が不足しているため、補足があると論点が安定します。",
+        "missingQuestions": [
+          "ゲームタイトル、またはプロジェクトの主目的を補足してください。",
+          "議論で判断したい論点、前提、迷っている案を補足してください。",
+          "基本ループ、主要システム、操作、報酬、制約などゲーム内容が分かる説明を補足してください。"
+        ]
+      },
+      "calls": [],
+      "warns": []
+    },
+    {
+      "fields": {
+        "gameTitle": "",
+        "discussionTheme": "T",
+        "discussionContent": "",
+        "mechanicsContext": "",
+        "themeSupplement": ""
+      },
+      "mechanics": [
+        {
+          "name": "A",
+          "description": "a",
+          "source": "curated"
+        }
+      ],
+      "voices": [],
+      "flow": "discussion",
+      "responses": null,
+      "result": {
+        "ok": true,
+        "rationale": "入力内容と収集済み情報から、議論に必要な基本的なゲーム内容を把握できます。",
+        "missingQuestions": []
+      },
+      "calls": [],
+      "warns": []
+    },
+    {
+      "fields": {
+        "gameTitle": "",
+        "discussionTheme": "T",
+        "discussionContent": "",
+        "mechanicsContext": "",
+        "themeSupplement": ""
+      },
+      "mechanics": [],
+      "voices": [
+        {
+          "content": "声0 長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長",
+          "source": "niconico"
+        },
+        {
+          "content": "声1 長長長",
+          "source": "youtube"
+        },
+        {
+          "content": "声2 長長長",
+          "source": "niconico"
+        },
+        {
+          "content": "声3 長長長",
+          "source": "youtube"
+        },
+        {
+          "content": "声4 長長長",
+          "source": "niconico"
+        },
+        {
+          "content": "声5 長長長",
+          "source": "youtube"
+        },
+        {
+          "content": "声6 長長長",
+          "source": "niconico"
+        }
+      ],
+      "responses": null,
+      "result": {
+        "ok": false,
+        "rationale": "議論の前提となるゲーム内容が不足しているため、補足があると論点が安定します。",
+        "missingQuestions": [
+          "ゲームタイトル、またはプロジェクトの主目的を補足してください。",
+          "議論で判断したい論点、前提、迷っている案を補足してください。",
+          "基本ループ、主要システム、操作、報酬、制約などゲーム内容が分かる説明を補足してください。"
+        ]
+      },
+      "calls": [],
+      "warns": []
+    },
+    {
+      "fields": {
+        "gameTitle": "G",
+        "discussionTheme": "T",
+        "discussionContent": "C",
+        "mechanicsContext": "M",
+        "themeSupplement": "S"
+      },
+      "mechanics": [
+        {
+          "name": "A",
+          "description": "a",
+          "source": "curated"
+        }
+      ],
+      "voices": [
+        {
+          "content": "声0 長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長",
+          "source": "niconico"
+        },
+        {
+          "content": "声1 長長長",
+          "source": "youtube"
+        },
+        {
+          "content": "声2 長長長",
+          "source": "niconico"
+        },
+        {
+          "content": "声3 長長長",
+          "source": "youtube"
+        },
+        {
+          "content": "声4 長長長",
+          "source": "niconico"
+        },
+        {
+          "content": "声5 長長長",
+          "source": "youtube"
+        },
+        {
+          "content": "声6 長長長",
+          "source": "niconico"
+        }
+      ],
+      "flow": "improvement",
+      "model": "m1",
+      "responses": [
+        {
+          "ok": true,
+          "text": "前置き {\"ok\":false,\"rationale\":\"  足りない \",\"missingQuestions\":[\" q1 \",\"\",3,\"q2\"]} 後置き"
+        }
+      ],
+      "result": {
+        "ok": false,
+        "rationale": "足りない",
+        "missingQuestions": [
+          "q1",
+          "q2"
+        ]
+      },
+      "calls": [
+        {
+          "system": "# 議論の前提\n改善/議論: 対象の既存プロジェクトがある前提で議論する。対象・現状・課題・制約を確認し、現状に対する変更案と効果を比較する。不明な現状は推測で埋めず、必要な情報を質問する。\nあなたはゲーム議論を始める前の確認担当です。入力されたディスカッションペーパーを読み、AIが対象プロジェクトの現状を理解して議論できるか判定します。情報が足りない場合は、ユーザに補足してほしい質問を返します。JSON のみで {\"ok\":boolean,\"rationale\":string,\"missingQuestions\":string[]} を返してください。",
+          "prompt": "{\n  \"fields\": {\n    \"gameTitle\": \"G\",\n    \"discussionTheme\": \"T\",\n    \"discussionContent\": \"C\",\n    \"mechanicsContext\": \"M\",\n    \"themeSupplement\": \"S\"\n  },\n  \"extractedMechanics\": [\n    {\n      \"name\": \"A\",\n      \"description\": \"a\",\n      \"source\": \"curated\"\n    }\n  ],\n  \"externalVoiceCount\": 7,\n  \"externalVoiceSamples\": [\n    \"声0 長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長\",\n    \"声1 長長長\",\n    \"声2 長長長\",\n    \"声3 長長長\",\n    \"声4 長長長\"\n  ]\n}",
+          "model": "m1",
+          "maxTokens": null
+        }
+      ],
+      "warns": []
+    },
+    {
+      "fields": {
+        "gameTitle": "G",
+        "discussionTheme": "T",
+        "discussionContent": "C",
+        "mechanicsContext": "M",
+        "themeSupplement": "S"
+      },
+      "mechanics": [
+        {
+          "name": "A",
+          "description": "a",
+          "source": "curated"
+        }
+      ],
+      "voices": [
+        {
+          "content": "声0 長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長",
+          "source": "niconico"
+        },
+        {
+          "content": "声1 長長長",
+          "source": "youtube"
+        },
+        {
+          "content": "声2 長長長",
+          "source": "niconico"
+        },
+        {
+          "content": "声3 長長長",
+          "source": "youtube"
+        },
+        {
+          "content": "声4 長長長",
+          "source": "niconico"
+        },
+        {
+          "content": "声5 長長長",
+          "source": "youtube"
+        },
+        {
+          "content": "声6 長長長",
+          "source": "niconico"
+        }
+      ],
+      "flow": "discussion",
+      "responses": [
+        {
+          "ok": true,
+          "text": "{\"missingQuestions\":[]}"
+        }
+      ],
+      "result": {
+        "ok": true,
+        "rationale": "入力内容と収集済み情報から、議論に必要な基本的なゲーム内容を把握できます。",
+        "missingQuestions": []
+      },
+      "calls": [
+        {
+          "system": "# 議論の前提\n企画/議論: 既存プロジェクトがない企画段階として議論する。目的・アイデア・比較案から検討し、未定の仕様や現状を既存の事実として作らない。既存作品や外部の声は参考事例として区別する。プロジェクト名や既存実装の提出を開始条件にしない。\nあなたはゲーム議論を始める前の確認担当です。入力されたディスカッションペーパーを読み、目的やアイデアから企画を議論できるか判定します。未定のプロジェクト名・既存実装・ゲームメカニクスは不足扱いにしません。情報が足りない場合は、ユーザに補足してほしい質問を返します。JSON のみで {\"ok\":boolean,\"rationale\":string,\"missingQuestions\":string[]} を返してください。",
+          "prompt": "{\n  \"fields\": {\n    \"gameTitle\": \"G\",\n    \"discussionTheme\": \"T\",\n    \"discussionContent\": \"C\",\n    \"mechanicsContext\": \"M\",\n    \"themeSupplement\": \"S\"\n  },\n  \"extractedMechanics\": [\n    {\n      \"name\": \"A\",\n      \"description\": \"a\",\n      \"source\": \"curated\"\n    }\n  ],\n  \"externalVoiceCount\": 7,\n  \"externalVoiceSamples\": [\n    \"声0 長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長\",\n    \"声1 長長長\",\n    \"声2 長長長\",\n    \"声3 長長長\",\n    \"声4 長長長\"\n  ]\n}",
+          "model": null,
+          "maxTokens": null
+        }
+      ],
+      "warns": []
+    },
+    {
+      "fields": {
+        "gameTitle": "G",
+        "discussionTheme": "T",
+        "discussionContent": "C",
+        "mechanicsContext": "M",
+        "themeSupplement": "S"
+      },
+      "mechanics": [],
+      "voices": [],
+      "flow": "improvement",
+      "responses": [
+        {
+          "ok": true,
+          "text": "{\"ok\":\"yes\",\"missingQuestions\":[\"x\"]}"
+        }
+      ],
+      "result": {
+        "ok": false,
+        "rationale": "入力内容と収集済み情報から、議論に必要な基本的なゲーム内容を把握できます。",
+        "missingQuestions": [
+          "x"
+        ]
+      },
+      "calls": [
+        {
+          "system": "# 議論の前提\n改善/議論: 対象の既存プロジェクトがある前提で議論する。対象・現状・課題・制約を確認し、現状に対する変更案と効果を比較する。不明な現状は推測で埋めず、必要な情報を質問する。\nあなたはゲーム議論を始める前の確認担当です。入力されたディスカッションペーパーを読み、AIが対象プロジェクトの現状を理解して議論できるか判定します。情報が足りない場合は、ユーザに補足してほしい質問を返します。JSON のみで {\"ok\":boolean,\"rationale\":string,\"missingQuestions\":string[]} を返してください。",
+          "prompt": "{\n  \"fields\": {\n    \"gameTitle\": \"G\",\n    \"discussionTheme\": \"T\",\n    \"discussionContent\": \"C\",\n    \"mechanicsContext\": \"M\",\n    \"themeSupplement\": \"S\"\n  },\n  \"extractedMechanics\": [],\n  \"externalVoiceCount\": 0,\n  \"externalVoiceSamples\": []\n}",
+          "model": null,
+          "maxTokens": null
+        }
+      ],
+      "warns": []
+    },
+    {
+      "fields": {
+        "gameTitle": "",
+        "discussionTheme": "T",
+        "discussionContent": "",
+        "mechanicsContext": "",
+        "themeSupplement": ""
+      },
+      "mechanics": [],
+      "voices": [],
+      "flow": "improvement",
+      "responses": [
+        {
+          "ok": false,
+          "error": "down"
+        }
+      ],
+      "result": {
+        "ok": false,
+        "rationale": "議論の前提となるゲーム内容が不足しているため、補足があると論点が安定します。",
+        "missingQuestions": [
+          "ゲームタイトル、またはプロジェクトの主目的を補足してください。",
+          "議論で判断したい論点、前提、迷っている案を補足してください。",
+          "基本ループ、主要システム、操作、報酬、制約などゲーム内容が分かる説明を補足してください。"
+        ]
+      },
+      "calls": [
+        {
+          "system": "# 議論の前提\n改善/議論: 対象の既存プロジェクトがある前提で議論する。対象・現状・課題・制約を確認し、現状に対する変更案と効果を比較する。不明な現状は推測で埋めず、必要な情報を質問する。\nあなたはゲーム議論を始める前の確認担当です。入力されたディスカッションペーパーを読み、AIが対象プロジェクトの現状を理解して議論できるか判定します。情報が足りない場合は、ユーザに補足してほしい質問を返します。JSON のみで {\"ok\":boolean,\"rationale\":string,\"missingQuestions\":string[]} を返してください。",
+          "prompt": "{\n  \"fields\": {\n    \"gameTitle\": \"\",\n    \"discussionTheme\": \"T\",\n    \"discussionContent\": \"\",\n    \"mechanicsContext\": \"\",\n    \"themeSupplement\": \"\"\n  },\n  \"extractedMechanics\": [],\n  \"externalVoiceCount\": 0,\n  \"externalVoiceSamples\": []\n}",
+          "model": null,
+          "maxTokens": null
+        }
+      ],
+      "warns": [
+        "paper-understanding LLM エラー: down"
+      ]
+    },
+    {
+      "fields": {
+        "gameTitle": "",
+        "discussionTheme": "T",
+        "discussionContent": "",
+        "mechanicsContext": "",
+        "themeSupplement": ""
+      },
+      "mechanics": [],
+      "voices": [],
+      "flow": "improvement",
+      "responses": [
+        {
+          "ok": true,
+          "text": "JSON ではない"
+        }
+      ],
+      "result": {
+        "ok": false,
+        "rationale": "議論の前提となるゲーム内容が不足しているため、補足があると論点が安定します。",
+        "missingQuestions": [
+          "ゲームタイトル、またはプロジェクトの主目的を補足してください。",
+          "議論で判断したい論点、前提、迷っている案を補足してください。",
+          "基本ループ、主要システム、操作、報酬、制約などゲーム内容が分かる説明を補足してください。"
+        ]
+      },
+      "calls": [
+        {
+          "system": "# 議論の前提\n改善/議論: 対象の既存プロジェクトがある前提で議論する。対象・現状・課題・制約を確認し、現状に対する変更案と効果を比較する。不明な現状は推測で埋めず、必要な情報を質問する。\nあなたはゲーム議論を始める前の確認担当です。入力されたディスカッションペーパーを読み、AIが対象プロジェクトの現状を理解して議論できるか判定します。情報が足りない場合は、ユーザに補足してほしい質問を返します。JSON のみで {\"ok\":boolean,\"rationale\":string,\"missingQuestions\":string[]} を返してください。",
+          "prompt": "{\n  \"fields\": {\n    \"gameTitle\": \"\",\n    \"discussionTheme\": \"T\",\n    \"discussionContent\": \"\",\n    \"mechanicsContext\": \"\",\n    \"themeSupplement\": \"\"\n  },\n  \"extractedMechanics\": [],\n  \"externalVoiceCount\": 0,\n  \"externalVoiceSamples\": []\n}",
+          "model": null,
+          "maxTokens": null
+        }
+      ],
+      "warns": []
+    },
+    {
+      "fields": {
+        "gameTitle": "",
+        "discussionTheme": "T",
+        "discussionContent": "",
+        "mechanicsContext": "",
+        "themeSupplement": ""
+      },
+      "mechanics": [],
+      "voices": [],
+      "flow": "improvement",
+      "responses": [
+        {
+          "throws": "timeout"
+        }
+      ],
+      "result": {
+        "ok": false,
+        "rationale": "議論の前提となるゲーム内容が不足しているため、補足があると論点が安定します。",
+        "missingQuestions": [
+          "ゲームタイトル、またはプロジェクトの主目的を補足してください。",
+          "議論で判断したい論点、前提、迷っている案を補足してください。",
+          "基本ループ、主要システム、操作、報酬、制約などゲーム内容が分かる説明を補足してください。"
+        ]
+      },
+      "calls": [
+        {
+          "system": "# 議論の前提\n改善/議論: 対象の既存プロジェクトがある前提で議論する。対象・現状・課題・制約を確認し、現状に対する変更案と効果を比較する。不明な現状は推測で埋めず、必要な情報を質問する。\nあなたはゲーム議論を始める前の確認担当です。入力されたディスカッションペーパーを読み、AIが対象プロジェクトの現状を理解して議論できるか判定します。情報が足りない場合は、ユーザに補足してほしい質問を返します。JSON のみで {\"ok\":boolean,\"rationale\":string,\"missingQuestions\":string[]} を返してください。",
+          "prompt": "{\n  \"fields\": {\n    \"gameTitle\": \"\",\n    \"discussionTheme\": \"T\",\n    \"discussionContent\": \"\",\n    \"mechanicsContext\": \"\",\n    \"themeSupplement\": \"\"\n  },\n  \"extractedMechanics\": [],\n  \"externalVoiceCount\": 0,\n  \"externalVoiceSamples\": []\n}",
+          "model": null,
+          "maxTokens": null
+        }
+      ],
+      "warns": [
+        "paper-understanding LLM 例外: timeout"
+      ]
+    },
+    {
+      "fields": {
+        "gameTitle": "G",
+        "discussionTheme": "T",
+        "discussionContent": "C",
+        "mechanicsContext": "M",
+        "themeSupplement": "S"
+      },
+      "mechanics": [],
+      "voices": [],
+      "flow": "learning",
+      "responses": [
+        {
+          "ok": true,
+          "text": "{\"ok\":true,\"rationale\":\"\"}"
+        }
+      ],
+      "result": {
+        "ok": true,
+        "rationale": "入力内容と収集済み情報から、議論に必要な基本的なゲーム内容を把握できます。",
+        "missingQuestions": []
+      },
+      "calls": [
+        {
+          "system": "\nあなたはゲーム議論を始める前の確認担当です。入力されたディスカッションペーパーを読み、AIが対象プロジェクトの現状を理解して議論できるか判定します。情報が足りない場合は、ユーザに補足してほしい質問を返します。JSON のみで {\"ok\":boolean,\"rationale\":string,\"missingQuestions\":string[]} を返してください。",
+          "prompt": "{\n  \"fields\": {\n    \"gameTitle\": \"G\",\n    \"discussionTheme\": \"T\",\n    \"discussionContent\": \"C\",\n    \"mechanicsContext\": \"M\",\n    \"themeSupplement\": \"S\"\n  },\n  \"extractedMechanics\": [],\n  \"externalVoiceCount\": 0,\n  \"externalVoiceSamples\": []\n}",
+          "model": null,
+          "maxTokens": null
+        }
+      ],
+      "warns": []
+    }
+  ],
+  "build": [
+    {
+      "name": "plain",
+      "theme": "ローグライト",
+      "tags": [
+        "開発"
+      ],
+      "voices": [
+        {
+          "content": "ああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああ",
+          "source": "niconico"
+        },
+        {
+          "content": "感想 1",
+          "source": "youtube"
+        },
+        {
+          "content": "感想 2",
+          "source": "youtube"
+        },
+        {
+          "content": "感想 3",
+          "source": "youtube"
+        },
+        {
+          "content": "感想 4",
+          "source": "youtube"
+        },
+        {
+          "content": "感想 5",
+          "source": "youtube"
+        },
+        {
+          "content": "感想 6",
+          "source": "youtube"
+        },
+        {
+          "content": "感想 7",
+          "source": "youtube"
+        },
+        {
+          "content": "感想 8",
+          "source": "youtube"
+        },
+        {
+          "content": "感想 9",
+          "source": "youtube"
+        },
+        {
+          "content": "感想 10",
+          "source": "youtube"
+        },
+        {
+          "content": "感想 11",
+          "source": "youtube"
+        }
+      ],
+      "useGames": false,
+      "draft": {
+        "theme": "ローグライト",
+        "tags": [
+          "開発"
+        ],
+        "supplement": "【開発者観点】設計意図・実装コスト・技術的トレードオフを踏まえて議論してください。",
+        "mechanics": [],
+        "bodyMd": "# 議題\nローグライト\n\n# 観点補足\n【開発者観点】設計意図・実装コスト・技術的トレードオフを踏まえて議論してください。\n\n# ゲームのメカニクス\n(メカニクスデータなし)"
+      },
+      "info": {
+        "voiceCount": 12,
+        "countCapped": false,
+        "samples": [
+          {
+            "content": "ああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああ…",
+            "source": "niconico"
+          },
+          {
+            "content": "感想 1",
+            "source": "youtube"
+          },
+          {
+            "content": "感想 2",
+            "source": "youtube"
+          },
+          {
+            "content": "感想 3",
+            "source": "youtube"
+          },
+          {
+            "content": "感想 4",
+            "source": "youtube"
+          },
+          {
+            "content": "感想 5",
+            "source": "youtube"
+          },
+          {
+            "content": "感想 6",
+            "source": "youtube"
+          },
+          {
+            "content": "感想 7",
+            "source": "youtube"
+          },
+          {
+            "content": "感想 8",
+            "source": "youtube"
+          }
+        ]
+      },
+      "llmCalls": [],
+      "understandingCalls": [],
+      "gateCalls": [],
+      "listCalls": [
+        {
+          "terms": [
+            "ローグライト"
+          ],
+          "limit": 50
+        }
+      ]
+    },
+    {
+      "name": "capped",
+      "theme": "ローグライト",
+      "tags": [],
+      "voices": [
+        {
+          "content": "ああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああ",
+          "source": "niconico"
+        },
+        {
+          "content": "感想 1",
+          "source": "youtube"
+        },
+        {
+          "content": "感想 2",
+          "source": "youtube"
+        },
+        {
+          "content": "感想 3",
+          "source": "youtube"
+        },
+        {
+          "content": "感想 4",
+          "source": "youtube"
+        },
+        {
+          "content": "感想 5",
+          "source": "youtube"
+        },
+        {
+          "content": "感想 6",
+          "source": "youtube"
+        },
+        {
+          "content": "感想 7",
+          "source": "youtube"
+        },
+        {
+          "content": "感想 8",
+          "source": "youtube"
+        },
+        {
+          "content": "感想 9",
+          "source": "youtube"
+        },
+        {
+          "content": "感想 10",
+          "source": "youtube"
+        },
+        {
+          "content": "感想 11",
+          "source": "youtube"
+        },
+        {
+          "content": "感想 12",
+          "source": "youtube"
+        },
+        {
+          "content": "感想 13",
+          "source": "youtube"
+        },
+        {
+          "content": "感想 14",
+          "source": "youtube"
+        },
+        {
+          "content": "感想 15",
+          "source": "youtube"
+        },
+        {
+          "content": "感想 16",
+          "source": "youtube"
+        },
+        {
+          "content": "感想 17",
+          "source": "youtube"
+        },
+        {
+          "content": "感想 18",
+          "source": "youtube"
+        },
+        {
+          "content": "感想 19",
+          "source": "youtube"
+        },
+        {
+          "content": "感想 20",
+          "source": "youtube"
+        },
+        {
+          "content": "感想 21",
+          "source": "youtube"
+        },
+        {
+          "content": "感想 22",
+          "source": "youtube"
+        },
+        {
+          "content": "感想 23",
+          "source": "youtube"
+        },
+        {
+          "content": "感想 24",
+          "source": "youtube"
+        },
+        {
+          "content": "感想 25",
+          "source": "youtube"
+        },
+        {
+          "content": "感想 26",
+          "source": "youtube"
+        },
+        {
+          "content": "感想 27",
+          "source": "youtube"
+        },
+        {
+          "content": "感想 28",
+          "source": "youtube"
+        },
+        {
+          "content": "感想 29",
+          "source": "youtube"
+        },
+        {
+          "content": "感想 30",
+          "source": "youtube"
+        },
+        {
+          "content": "感想 31",
+          "source": "youtube"
+        },
+        {
+          "content": "感想 32",
+          "source": "youtube"
+        },
+        {
+          "content": "感想 33",
+          "source": "youtube"
+        },
+        {
+          "content": "感想 34",
+          "source": "youtube"
+        },
+        {
+          "content": "感想 35",
+          "source": "youtube"
+        },
+        {
+          "content": "感想 36",
+          "source": "youtube"
+        },
+        {
+          "content": "感想 37",
+          "source": "youtube"
+        },
+        {
+          "content": "感想 38",
+          "source": "youtube"
+        },
+        {
+          "content": "感想 39",
+          "source": "youtube"
+        },
+        {
+          "content": "感想 40",
+          "source": "youtube"
+        },
+        {
+          "content": "感想 41",
+          "source": "youtube"
+        },
+        {
+          "content": "感想 42",
+          "source": "youtube"
+        },
+        {
+          "content": "感想 43",
+          "source": "youtube"
+        },
+        {
+          "content": "感想 44",
+          "source": "youtube"
+        },
+        {
+          "content": "感想 45",
+          "source": "youtube"
+        },
+        {
+          "content": "感想 46",
+          "source": "youtube"
+        },
+        {
+          "content": "感想 47",
+          "source": "youtube"
+        },
+        {
+          "content": "感想 48",
+          "source": "youtube"
+        },
+        {
+          "content": "感想 49",
+          "source": "youtube"
+        },
+        {
+          "content": "感想 50",
+          "source": "youtube"
+        },
+        {
+          "content": "感想 51",
+          "source": "youtube"
+        }
+      ],
+      "useGames": false,
+      "draft": {
+        "theme": "ローグライト",
+        "tags": [],
+        "supplement": "",
+        "mechanics": [],
+        "bodyMd": "# 議題\nローグライト\n\n# ゲームのメカニクス\n(メカニクスデータなし)"
+      },
+      "info": {
+        "voiceCount": 52,
+        "countCapped": true,
+        "samples": [
+          {
+            "content": "ああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああ…",
+            "source": "niconico"
+          },
+          {
+            "content": "感想 1",
+            "source": "youtube"
+          },
+          {
+            "content": "感想 2",
+            "source": "youtube"
+          },
+          {
+            "content": "感想 3",
+            "source": "youtube"
+          },
+          {
+            "content": "感想 4",
+            "source": "youtube"
+          },
+          {
+            "content": "感想 5",
+            "source": "youtube"
+          },
+          {
+            "content": "感想 6",
+            "source": "youtube"
+          },
+          {
+            "content": "感想 7",
+            "source": "youtube"
+          },
+          {
+            "content": "感想 8",
+            "source": "youtube"
+          }
+        ]
+      },
+      "llmCalls": [],
+      "understandingCalls": [],
+      "gateCalls": [],
+      "listCalls": [
+        {
+          "terms": [
+            "ローグライト"
+          ],
+          "limit": 50
+        }
+      ]
+    },
+    {
+      "name": "confidential",
+      "theme": "モンスターストライク",
+      "tags": [
+        "機密"
+      ],
+      "voices": [
+        {
+          "content": "ああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああ",
+          "source": "niconico"
+        },
+        {
+          "content": "感想 1",
+          "source": "youtube"
+        },
+        {
+          "content": "感想 2",
+          "source": "youtube"
+        },
+        {
+          "content": "感想 3",
+          "source": "youtube"
+        },
+        {
+          "content": "感想 4",
+          "source": "youtube"
+        },
+        {
+          "content": "感想 5",
+          "source": "youtube"
+        },
+        {
+          "content": "感想 6",
+          "source": "youtube"
+        },
+        {
+          "content": "感想 7",
+          "source": "youtube"
+        },
+        {
+          "content": "感想 8",
+          "source": "youtube"
+        },
+        {
+          "content": "感想 9",
+          "source": "youtube"
+        },
+        {
+          "content": "感想 10",
+          "source": "youtube"
+        },
+        {
+          "content": "感想 11",
+          "source": "youtube"
+        },
+        {
+          "content": "感想 12",
+          "source": "youtube"
+        },
+        {
+          "content": "感想 13",
+          "source": "youtube"
+        },
+        {
+          "content": "感想 14",
+          "source": "youtube"
+        },
+        {
+          "content": "感想 15",
+          "source": "youtube"
+        },
+        {
+          "content": "感想 16",
+          "source": "youtube"
+        },
+        {
+          "content": "感想 17",
+          "source": "youtube"
+        },
+        {
+          "content": "感想 18",
+          "source": "youtube"
+        },
+        {
+          "content": "感想 19",
+          "source": "youtube"
+        },
+        {
+          "content": "感想 20",
+          "source": "youtube"
+        },
+        {
+          "content": "感想 21",
+          "source": "youtube"
+        },
+        {
+          "content": "感想 22",
+          "source": "youtube"
+        },
+        {
+          "content": "感想 23",
+          "source": "youtube"
+        },
+        {
+          "content": "感想 24",
+          "source": "youtube"
+        },
+        {
+          "content": "感想 25",
+          "source": "youtube"
+        },
+        {
+          "content": "感想 26",
+          "source": "youtube"
+        },
+        {
+          "content": "感想 27",
+          "source": "youtube"
+        },
+        {
+          "content": "感想 28",
+          "source": "youtube"
+        },
+        {
+          "content": "感想 29",
+          "source": "youtube"
+        },
+        {
+          "content": "感想 30",
+          "source": "youtube"
+        },
+        {
+          "content": "感想 31",
+          "source": "youtube"
+        },
+        {
+          "content": "感想 32",
+          "source": "youtube"
+        },
+        {
+          "content": "感想 33",
+          "source": "youtube"
+        },
+        {
+          "content": "感想 34",
+          "source": "youtube"
+        },
+        {
+          "content": "感想 35",
+          "source": "youtube"
+        },
+        {
+          "content": "感想 36",
+          "source": "youtube"
+        },
+        {
+          "content": "感想 37",
+          "source": "youtube"
+        },
+        {
+          "content": "感想 38",
+          "source": "youtube"
+        },
+        {
+          "content": "感想 39",
+          "source": "youtube"
+        },
+        {
+          "content": "感想 40",
+          "source": "youtube"
+        },
+        {
+          "content": "感想 41",
+          "source": "youtube"
+        },
+        {
+          "content": "感想 42",
+          "source": "youtube"
+        },
+        {
+          "content": "感想 43",
+          "source": "youtube"
+        },
+        {
+          "content": "感想 44",
+          "source": "youtube"
+        },
+        {
+          "content": "感想 45",
+          "source": "youtube"
+        },
+        {
+          "content": "感想 46",
+          "source": "youtube"
+        },
+        {
+          "content": "感想 47",
+          "source": "youtube"
+        },
+        {
+          "content": "感想 48",
+          "source": "youtube"
+        },
+        {
+          "content": "感想 49",
+          "source": "youtube"
+        },
+        {
+          "content": "感想 50",
+          "source": "youtube"
+        },
+        {
+          "content": "感想 51",
+          "source": "youtube"
+        }
+      ],
+      "useGames": true,
+      "draft": {
+        "theme": "モンスターストライク",
+        "tags": [
+          "機密"
+        ],
+        "supplement": "【機密】実ユーザデータが使用できないため、メカニクス評価から合成した想定意見データを参考にしています。",
+        "mechanics": [
+          {
+            "name": "ギミック",
+            "description": "クエストごとに妨害が置かれる",
+            "source": "curated"
+          },
+          {
+            "name": "アビリティ",
+            "description": "ギミックに対応して編成を決める",
+            "source": "curated"
+          }
+        ],
+        "bodyMd": "# 議題\nモンスターストライク\n\n# 観点補足\n【機密】実ユーザデータが使用できないため、メカニクス評価から合成した想定意見データを参考にしています。\n\n# ゲームのメカニクス\n- **ギミック**: クエストごとに妨害が置かれる （出所: curated）\n- **アビリティ**: ギミックに対応して編成を決める （出所: curated）"
+      },
+      "info": {
+        "voiceCount": 0,
+        "countCapped": false,
+        "samples": []
+      },
+      "llmCalls": [],
+      "understandingCalls": [],
+      "gateCalls": [],
+      "listCalls": []
+    },
+    {
+      "name": "discussion-seed",
+      "theme": "長寿の理由",
+      "tags": [],
+      "flow": "discussion",
+      "useGames": true,
+      "seed": {
+        "gameTitle": " モンスターストライク ",
+        "discussionTheme": "  ",
+        "discussionContent": " 内容 ",
+        "mechanicsContext": "",
+        "themeSupplement": " 補足 "
+      },
+      "llm": [
+        {
+          "ok": true,
+          "text": "{\"mechanics\":[{\"name\":\"LLM増補\",\"description\":\"仮説\"}]}"
+        }
+      ],
+      "understandingLlm": [
+        {
+          "ok": true,
+          "text": "{\"ok\":true,\"rationale\":\"分かる\",\"missingQuestions\":[]}"
+        }
+      ],
+      "extra": [
+        {
+          "name": "ギミック",
+          "description": "使い回し由来",
+          "source": "curated"
+        }
+      ],
+      "draft": {
+        "theme": "長寿の理由",
+        "tags": [],
+        "supplement": "補足",
+        "mechanics": [
+          {
+            "name": "ギミック",
+            "description": "使い回し由来",
+            "source": "curated"
+          },
+          {
+            "name": "アビリティ",
+            "description": "ギミックに対応して編成を決める",
+            "source": "curated"
+          }
+        ],
+        "gameTitle": "モンスターストライク",
+        "discussionTheme": "長寿の理由",
+        "discussionContent": "内容",
+        "mechanicsContext": "",
+        "themeSupplement": "補足",
+        "bodyMd": "# ゲームタイトル（または主目的）\nモンスターストライク\n\n# 議論したいテーマ\n長寿の理由\n\n# 議論内容\n内容\n\n# システム/メカニクスの説明\n## 抽出されたメカニクス\n- **ギミック**: 使い回し由来 （出所: curated）\n- **アビリティ**: ギミックに対応して編成を決める （出所: curated）\n\n# テーマについての補足情報\n補足"
+      },
+      "info": {
+        "voiceCount": 0,
+        "countCapped": false,
+        "samples": [],
+        "understanding": {
+          "ok": true,
+          "rationale": "分かる",
+          "missingQuestions": []
+        }
+      },
+      "llmCalls": [],
+      "understandingCalls": [
+        {
+          "system": "# 議論の前提\n企画/議論: 既存プロジェクトがない企画段階として議論する。目的・アイデア・比較案から検討し、未定の仕様や現状を既存の事実として作らない。既存作品や外部の声は参考事例として区別する。プロジェクト名や既存実装の提出を開始条件にしない。\nあなたはゲーム議論を始める前の確認担当です。入力されたディスカッションペーパーを読み、目的やアイデアから企画を議論できるか判定します。未定のプロジェクト名・既存実装・ゲームメカニクスは不足扱いにしません。情報が足りない場合は、ユーザに補足してほしい質問を返します。JSON のみで {\"ok\":boolean,\"rationale\":string,\"missingQuestions\":string[]} を返してください。",
+          "prompt": "{\n  \"fields\": {\n    \"gameTitle\": \"モンスターストライク\",\n    \"discussionTheme\": \"長寿の理由\",\n    \"discussionContent\": \"内容\",\n    \"mechanicsContext\": \"\",\n    \"themeSupplement\": \"補足\"\n  },\n  \"extractedMechanics\": [\n    {\n      \"name\": \"ギミック\",\n      \"description\": \"使い回し由来\",\n      \"source\": \"curated\"\n    },\n    {\n      \"name\": \"アビリティ\",\n      \"description\": \"ギミックに対応して編成を決める\",\n      \"source\": \"curated\"\n    }\n  ],\n  \"externalVoiceCount\": 0,\n  \"externalVoiceSamples\": []\n}",
+          "model": null,
+          "maxTokens": null
+        }
+      ],
+      "gateCalls": [],
+      "listCalls": []
+    },
+    {
+      "name": "discussion-no-seed",
+      "theme": "モンスターストライク",
+      "tags": [],
+      "flow": "discussion",
+      "useGames": true,
+      "draft": {
+        "theme": "モンスターストライク",
+        "tags": [],
+        "supplement": "",
+        "mechanics": [
+          {
+            "name": "ギミック",
+            "description": "クエストごとに妨害が置かれる",
+            "source": "curated"
+          },
+          {
+            "name": "アビリティ",
+            "description": "ギミックに対応して編成を決める",
+            "source": "curated"
+          }
+        ],
+        "bodyMd": "# 議題\nモンスターストライク\n\n# ゲームのメカニクス\n- **ギミック**: クエストごとに妨害が置かれる （出所: curated）\n- **アビリティ**: ギミックに対応して編成を決める （出所: curated）"
+      },
+      "info": {
+        "voiceCount": 0,
+        "countCapped": false,
+        "samples": []
+      },
+      "llmCalls": [],
+      "understandingCalls": [],
+      "gateCalls": [],
+      "listCalls": []
+    },
+    {
+      "name": "enrich",
+      "theme": "モンスターストライク",
+      "tags": [
+        "運用"
+      ],
+      "flow": "improvement",
+      "useGames": true,
+      "voices": [
+        {
+          "content": "ああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああ",
+          "source": "niconico"
+        },
+        {
+          "content": "感想 1",
+          "source": "youtube"
+        },
+        {
+          "content": "感想 2",
+          "source": "youtube"
+        },
+        {
+          "content": "感想 3",
+          "source": "youtube"
+        }
+      ],
+      "llm": [
+        {
+          "ok": true,
+          "text": "[{\"name\":\"周回\",\"description\":\"同じクエストを回す\",\"intended_affect\":\"達成\"},{\"name\":\"ギミック\",\"description\":\"重複\"}]"
+        }
+      ],
+      "mechanicsTarget": 4,
+      "enrichModel": "small",
+      "draft": {
+        "theme": "モンスターストライク",
+        "tags": [
+          "運用"
+        ],
+        "supplement": "【運用者観点】継続率・収益・サーバ負荷・運用コストを踏まえて議論してください。",
+        "mechanics": [
+          {
+            "name": "ギミック",
+            "description": "クエストごとに妨害が置かれる",
+            "source": "curated"
+          },
+          {
+            "name": "アビリティ",
+            "description": "ギミックに対応して編成を決める",
+            "source": "curated"
+          },
+          {
+            "name": "周回",
+            "description": "同じクエストを回す",
+            "intended_affect": "達成",
+            "source": "llm"
+          }
+        ],
+        "bodyMd": "# 議題\nモンスターストライク\n\n# 観点補足\n【運用者観点】継続率・収益・サーバ負荷・運用コストを踏まえて議論してください。\n\n# ゲームのメカニクス\n- **ギミック**: クエストごとに妨害が置かれる （出所: curated）\n- **アビリティ**: ギミックに対応して編成を決める （出所: curated）\n\n# 仮説メカニクス (LLM抽出・未検証)\n- **周回**: 同じクエストを回す → 期待感情: 達成"
+      },
+      "info": {
+        "voiceCount": 4,
+        "countCapped": false,
+        "samples": [
+          {
+            "content": "ああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああ…",
+            "source": "niconico"
+          },
+          {
+            "content": "感想 1",
+            "source": "youtube"
+          },
+          {
+            "content": "感想 2",
+            "source": "youtube"
+          },
+          {
+            "content": "感想 3",
+            "source": "youtube"
+          }
+        ]
+      },
+      "llmCalls": [
+        {
+          "system": "あなたはゲームデザイン分析者です。 議題のゲームについて、 プレイヤーの感想から **遊びのメカニクス** (プレイヤーの行動とその設計意図) を洗い出します。 既出と重複しない具体的なメカニクスを、 感想に根ざして抽出してください。 返答は JSON 配列のみ。",
+          "prompt": "# 議題\nモンスターストライク\n\n# 既出メカニクス (重複させない)\n- ギミック: クエストごとに妨害が置かれる\n- アビリティ: ギミックに対応して編成を決める\n\n# プレイヤーの感想 (抽出の根拠)\n1. ああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああ\n2. 感想 1\n3. 感想 2\n4. 感想 3\n\n上記の感想から読み取れる **追加の** 遊びのメカニクスを最大 2 件、 次の JSON 配列だけで返してください (前後に説明やコードフェンスを付けない):\n[{\"name\":\"メカニクス名\",\"description\":\"プレイヤーの行動と設計意図 (1〜2文)\",\"intended_affect\":\"狙う感情 (任意)\"}]",
+          "model": "small",
+          "maxTokens": 2000
+        }
+      ],
+      "understandingCalls": [],
+      "gateCalls": [],
+      "listCalls": [
+        {
+          "terms": [
+            "モンスターストライク"
+          ],
+          "limit": 50
+        }
+      ]
+    },
+    {
+      "name": "seed-understanding-fallback",
+      "theme": "改善したい",
+      "tags": [],
+      "flow": "improvement",
+      "useGames": false,
+      "seed": {
+        "gameTitle": "",
+        "discussionTheme": "改善テーマ",
+        "discussionContent": "",
+        "mechanicsContext": "",
+        "themeSupplement": ""
+      },
+      "llm": [
+        {
+          "ok": true,
+          "text": "[]"
+        },
+        {
+          "ok": true,
+          "text": "{\"ok\":false,\"rationale\":\"\",\"missingQuestions\":[\"基本ループは?\"]}"
+        }
+      ],
+      "voices": [
+        {
+          "content": "ああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああ",
+          "source": "niconico"
+        },
+        {
+          "content": "感想 1",
+          "source": "youtube"
+        }
+      ],
+      "enrichModel": "",
+      "draft": {
+        "theme": "改善テーマ",
+        "tags": [],
+        "supplement": "",
+        "mechanics": [],
+        "gameTitle": "",
+        "discussionTheme": "改善テーマ",
+        "discussionContent": "",
+        "mechanicsContext": "",
+        "themeSupplement": "",
+        "bodyMd": "# ゲームタイトル（または主目的）\n\n\n# 議論したいテーマ\n改善テーマ\n\n# 議論内容\n\n\n# システム/メカニクスの説明\n(メカニクスデータなし)\n\n# テーマについての補足情報\n"
+      },
+      "info": {
+        "voiceCount": 2,
+        "countCapped": false,
+        "samples": [
+          {
+            "content": "ああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああ…",
+            "source": "niconico"
+          },
+          {
+            "content": "感想 1",
+            "source": "youtube"
+          }
+        ],
+        "understanding": {
+          "ok": false,
+          "rationale": "議論の前提となるゲーム内容が不足しているため、補足があると論点が安定します。",
+          "missingQuestions": [
+            "基本ループは?"
+          ]
+        }
+      },
+      "llmCalls": [
+        {
+          "system": "あなたはゲームデザイン分析者です。 議題のゲームについて、 プレイヤーの感想から **遊びのメカニクス** (プレイヤーの行動とその設計意図) を洗い出します。 既出と重複しない具体的なメカニクスを、 感想に根ざして抽出してください。 返答は JSON 配列のみ。",
+          "prompt": "# 議題\n改善したい\n\n# 既出メカニクス (重複させない)\n(なし)\n\n# プレイヤーの感想 (抽出の根拠)\n1. ああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああ\n2. 感想 1\n\n上記の感想から読み取れる **追加の** 遊びのメカニクスを最大 30 件、 次の JSON 配列だけで返してください (前後に説明やコードフェンスを付けない):\n[{\"name\":\"メカニクス名\",\"description\":\"プレイヤーの行動と設計意図 (1〜2文)\",\"intended_affect\":\"狙う感情 (任意)\"}]",
+          "model": null,
+          "maxTokens": 8000
+        },
+        {
+          "system": "# 議論の前提\n改善/議論: 対象の既存プロジェクトがある前提で議論する。対象・現状・課題・制約を確認し、現状に対する変更案と効果を比較する。不明な現状は推測で埋めず、必要な情報を質問する。\nあなたはゲーム議論を始める前の確認担当です。入力されたディスカッションペーパーを読み、AIが対象プロジェクトの現状を理解して議論できるか判定します。情報が足りない場合は、ユーザに補足してほしい質問を返します。JSON のみで {\"ok\":boolean,\"rationale\":string,\"missingQuestions\":string[]} を返してください。",
+          "prompt": "{\n  \"fields\": {\n    \"gameTitle\": \"\",\n    \"discussionTheme\": \"改善テーマ\",\n    \"discussionContent\": \"\",\n    \"mechanicsContext\": \"\",\n    \"themeSupplement\": \"\"\n  },\n  \"extractedMechanics\": [],\n  \"externalVoiceCount\": 2,\n  \"externalVoiceSamples\": [\n    \"ああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああ\",\n    \"感想 1\"\n  ]\n}",
+          "model": null,
+          "maxTokens": null
+        }
+      ],
+      "understandingCalls": [],
+      "gateCalls": [],
+      "listCalls": [
+        {
+          "terms": [
+            "改善したい"
+          ],
+          "limit": 50
+        }
+      ]
+    },
+    {
+      "name": "gate",
+      "theme": "架空のテーマXYZ",
+      "tags": [],
+      "useGames": false,
+      "voices": [
+        {
+          "content": "好き 1",
+          "source": "a"
+        },
+        {
+          "content": "嫌い 1",
+          "source": "b"
+        },
+        {
+          "content": "好き 2",
+          "source": "a"
+        }
+      ],
+      "gate": {
+        "responses": [
+          {
+            "ok": true,
+            "text": "[\"ガチャ緩和は収益を毀損するか\",\"天井はライト層の課金動機を下げるか\"]"
+          },
+          {
+            "ok": true,
+            "text": "[{\"index\":1,\"armable\":\"both\"},{\"index\":2,\"armable\":\"pro_only\"}]"
+          }
+        ],
+        "min": 2
+      },
+      "draft": {
+        "theme": "架空のテーマXYZ",
+        "tags": [],
+        "supplement": "",
+        "mechanics": [],
+        "issues": [
+          "ガチャ緩和は収益を毀損するか (両論: ○)",
+          "天井はライト層の課金動機を下げるか (両論: ×)"
+        ],
+        "bodyMd": "# 議題\n架空のテーマXYZ\n\n# 論点\n1. ガチャ緩和は収益を毀損するか (両論: ○)\n2. 天井はライト層の課金動機を下げるか (両論: ×)\n\n# ゲームのメカニクス\n(メカニクスデータなし)"
+      },
+      "info": {
+        "voiceCount": 3,
+        "countCapped": false,
+        "samples": [
+          {
+            "content": "好き 1",
+            "source": "a"
+          },
+          {
+            "content": "嫌い 1",
+            "source": "b"
+          },
+          {
+            "content": "好き 2",
+            "source": "a"
+          }
+        ],
+        "debatability": {
+          "issues": [
+            "ガチャ緩和は収益を毀損するか",
+            "天井はライト層の課金動機を下げるか"
+          ],
+          "armability": [
+            {
+              "issue": "ガチャ緩和は収益を毀損するか",
+              "armable": "both"
+            },
+            {
+              "issue": "天井はライト層の課金動機を下げるか",
+              "armable": "neither"
+            }
+          ],
+          "armableBothCount": 1,
+          "minArmableIssues": 2,
+          "evidence": {
+            "voiceCount": 3,
+            "positive": 2,
+            "negative": 0,
+            "neutral": 1,
+            "polaritySkew": 1,
+            "dominantSource": {
+              "name": "a",
+              "share": 0.6667
+            }
+          },
+          "debatable": true,
+          "degraded": false,
+          "recommendation": null,
+          "message": "議論可能（外部の声は任意の参考値） (両論の参考根拠がある争点 1/2 件 / 極性偏り 1.00)"
+        }
+      },
+      "llmCalls": [],
+      "understandingCalls": [],
+      "gateCalls": [
+        {
+          "system": "あなたは議論設計者です。 与えられた議題とディスカッションペーパーから、「賛成側と反対側が本気で対立できる論点 (争点)」だけを分解します。 単なる確認事項や、誰も反対しない自明な項目は含めません。 返答は JSON 配列のみ。",
+          "prompt": "# 議題\n架空のテーマXYZ\n\n# ディスカッションペーパー\n# 議題\n架空のテーマXYZ\n\n# ゲームのメカニクス\n(メカニクスデータなし)\n\n賛否が本気で割れる論点を 3〜5 個を目安に、各 1 文の疑問文で挙げてください。 本当に争点が無い場合は空配列を返して構いません。\n次の JSON 配列だけを返してください (前後に説明やコードフェンスを付けない):\n[\"論点1\", \"論点2\", ...]",
+          "model": null,
+          "maxTokens": null
+        },
+        {
+          "system": "外部の声は参考値であり、結論を決める投票や必須条件ではありません。外部の声がなくても、提示された内容と事前知識を用いて議論します。事前知識・推測・仮説を実ユーザーの意見として数えたり捏造したりせず、不確実性と出所を明示してください。後から意見や内容を修正して再議論できます。\nあなたは議論の準備担当です。 各論点について、手元の材料と前提・事前知識で 賛成側 (pro) と反対側 (con) の両方が根拠を張れるかを判定します。 返答は JSON 配列のみ。",
+          "prompt": "# 議題\n架空のテーマXYZ\n\n# 論点\n1. ガチャ緩和は収益を毀損するか\n2. 天井はライト層の課金動機を下げるか\n\n# 手元の材料 (外部の声)\n1. 好き 1\n2. 嫌い 1\n3. 好き 2\n\n各論点について、この材料で pro / con のどちら側が根拠を持てるかを判定し、次の JSON 配列だけを返してください (index は論点番号 1 始まり):\n[{\"index\":1,\"armable\":\"both\"|\"pro-only\"|\"con-only\"|\"neither\"}]",
+          "model": null,
+          "maxTokens": null
+        }
+      ],
+      "listCalls": [
+        {
+          "terms": [
+            "架空のテーマXYZ"
+          ],
+          "limit": 50
+        }
+      ]
+    },
+    {
+      "name": "gate-degraded",
+      "theme": "架空",
+      "tags": [
+        "開発"
+      ],
+      "useGames": false,
+      "voices": [],
+      "gate": {
+        "responses": [
+          {
+            "ok": false,
+            "error": "down"
+          }
+        ],
+        "min": 2
+      },
+      "draft": {
+        "theme": "架空",
+        "tags": [
+          "開発"
+        ],
+        "supplement": "【開発者観点】設計意図・実装コスト・技術的トレードオフを踏まえて議論してください。",
+        "mechanics": [],
+        "bodyMd": "# 議題\n架空\n\n# 観点補足\n【開発者観点】設計意図・実装コスト・技術的トレードオフを踏まえて議論してください。\n\n# ゲームのメカニクス\n(メカニクスデータなし)"
+      },
+      "info": {
+        "voiceCount": 0,
+        "countCapped": false,
+        "samples": [],
+        "debatability": {
+          "issues": [],
+          "armability": [],
+          "armableBothCount": 0,
+          "minArmableIssues": 2,
+          "evidence": {
+            "voiceCount": 0,
+            "positive": 0,
+            "negative": 0,
+            "neutral": 0,
+            "polaritySkew": 0,
+            "dominantSource": null
+          },
+          "debatable": true,
+          "degraded": true,
+          "recommendation": null,
+          "message": "議論適性ゲートを実行できませんでした (論点分解に失敗)。適性あり扱いで続行します。"
+        }
+      },
+      "llmCalls": [],
+      "understandingCalls": [],
+      "gateCalls": [
+        {
+          "system": "あなたは議論設計者です。 与えられた議題とディスカッションペーパーから、「賛成側と反対側が本気で対立できる論点 (争点)」だけを分解します。 単なる確認事項や、誰も反対しない自明な項目は含めません。 返答は JSON 配列のみ。",
+          "prompt": "# 議題\n架空\n\n# ディスカッションペーパー\n# 議題\n架空\n\n# 観点補足\n【開発者観点】設計意図・実装コスト・技術的トレードオフを踏まえて議論してください。\n\n# ゲームのメカニクス\n(メカニクスデータなし)\n\n賛否が本気で割れる論点を 3〜5 個を目安に、各 1 文の疑問文で挙げてください。 本当に争点が無い場合は空配列を返して構いません。\n次の JSON 配列だけを返してください (前後に説明やコードフェンスを付けない):\n[\"論点1\", \"論点2\", ...]",
+          "model": null,
+          "maxTokens": null
+        }
+      ],
+      "listCalls": [
+        {
+          "terms": [
+            "架空"
+          ],
+          "limit": 50
+        }
+      ]
+    }
+  ],
+  "edit": [
+    {
+      "draft": {
+        "theme": "T",
+        "tags": [
+          "開発"
+        ],
+        "supplement": "S",
+        "mechanics": [
+          {
+            "name": "M",
+            "description": "d",
+            "intended_affect": "喜",
+            "source": "crawl"
+          },
+          {
+            "name": "N",
+            "description": ""
+          }
+        ],
+        "issues": [
+          "i1"
+        ],
+        "bodyMd": "# 議題\nT\n\n# 観点補足\nS\n\n# 論点\n1. i1\n\n# ゲームのメカニクス\n- **M**: d → 期待感情: 喜 （出所: crawl）\n- **N**:  （出所: curated）"
+      },
+      "instruction": "  メカニクスにガチャを追加 ",
+      "model": "edit-model",
+      "responses": [
+        {
+          "ok": true,
+          "text": "{\"theme\":\"T2\",\"tags\":[\"開発\",\"運用\",\"存在しない\",\"開発\"],\"supplement\":\" S2 \",\"mechanics\":[{\"name\":\" ガチャ \",\"description\":\" 確率 \",\"intended_affect\":\" 射幸 \",\"source\":\"llm\"},{\"description\":\"名前なし\"},{\"name\":\"X\",\"source\":\"bogus\"}],\"changeSummary\":\" 追加 \"}"
+        }
+      ],
+      "result": {
+        "draft": {
+          "theme": "T2",
+          "tags": [
+            "開発",
+            "運用"
+          ],
+          "supplement": "S2",
+          "mechanics": [
+            {
+              "name": "ガチャ",
+              "description": "確率",
+              "intended_affect": "射幸",
+              "source": "llm"
+            },
+            {
+              "name": "X",
+              "description": ""
+            }
+          ],
+          "issues": [
+            "i1"
+          ],
+          "bodyMd": "# 議題\nT2\n\n# 観点補足\nS2\n\n# 論点\n1. i1\n\n# ゲームのメカニクス\n- **X**:  （出所: curated）\n\n# 仮説メカニクス (LLM抽出・未検証)\n- **ガチャ**: 確率 → 期待感情: 射幸"
+        },
+        "changeSummary": "追加",
+        "applied": true
+      },
+      "calls": [
+        {
+          "system": "あなたは議論ブリーフ (ディスカッションペーパー) の編集者です。ユーザの調整指示に従い、ペーパーを編集して **JSON のみ** で返してください。指示に関係ないフィールドは現行値のまま保持します。tags に使えるのは 機密/内部/運用/開発/未来予測 のみ。mechanics の source (curated/llm/crawl = 出所ラベル) は指示がない限り現行値を保持します。issues は議論の論点 (賛否が割れる争点) の配列です。出力スキーマ: {\"gameTitle\":string,\"discussionTheme\":string,\"discussionContent\":string,\"mechanicsContext\":string,\"themeSupplement\":string,\"theme\":string,\"tags\":string[],\"supplement\":string,\"issues\":string[],\"mechanics\":[{\"name\":string,\"description\":string,\"intended_affect\":string,\"source\":string}],\"changeSummary\":string}。changeSummary は変更点を 1 文 (日本語) で。前置きやコードフェンスは付けない。",
+          "prompt": "# 現行ペーパー\n{\n  \"gameTitle\": \"\",\n  \"discussionTheme\": \"T\",\n  \"discussionContent\": \"\",\n  \"mechanicsContext\": \"\",\n  \"themeSupplement\": \"S\",\n  \"theme\": \"T\",\n  \"tags\": [\n    \"開発\"\n  ],\n  \"supplement\": \"S\",\n  \"issues\": [\n    \"i1\"\n  ],\n  \"mechanics\": [\n    {\n      \"name\": \"M\",\n      \"description\": \"d\",\n      \"intended_affect\": \"喜\",\n      \"source\": \"crawl\"\n    },\n    {\n      \"name\": \"N\",\n      \"description\": \"\",\n      \"intended_affect\": \"\",\n      \"source\": \"curated\"\n    }\n  ]\n}\n\n# 調整指示\nメカニクスにガチャを追加\n\n上記指示を反映した編集後ペーパーを JSON で返してください。",
+          "model": "edit-model",
+          "maxTokens": null
+        }
+      ],
+      "warns": []
+    },
+    {
+      "draft": {
+        "theme": "T",
+        "tags": [
+          "開発"
+        ],
+        "supplement": "S",
+        "mechanics": [
+          {
+            "name": "M",
+            "description": "d",
+            "intended_affect": "喜",
+            "source": "crawl"
+          },
+          {
+            "name": "N",
+            "description": ""
+          }
+        ],
+        "issues": [
+          "i1"
+        ],
+        "bodyMd": "# 議題\nT\n\n# 観点補足\nS\n\n# 論点\n1. i1\n\n# ゲームのメカニクス\n- **M**: d → 期待感情: 喜 （出所: crawl）\n- **N**:  （出所: curated）"
+      },
+      "instruction": "フェンス",
+      "responses": [
+        {
+          "ok": true,
+          "text": "はい:\n```json\n{\"theme\":\"\",\"supplement\":\"S3\",\"mechanics\":[],\"changeSummary\":\"\"}\n```"
+        }
+      ],
+      "result": {
+        "draft": {
+          "theme": "T",
+          "tags": [
+            "開発"
+          ],
+          "supplement": "S3",
+          "mechanics": [],
+          "issues": [
+            "i1"
+          ],
+          "bodyMd": "# 議題\nT\n\n# 観点補足\nS3\n\n# 論点\n1. i1\n\n# ゲームのメカニクス\n(メカニクスデータなし)"
+        },
+        "changeSummary": "ペーパーを更新しました。",
+        "applied": true
+      },
+      "calls": [
+        {
+          "system": "あなたは議論ブリーフ (ディスカッションペーパー) の編集者です。ユーザの調整指示に従い、ペーパーを編集して **JSON のみ** で返してください。指示に関係ないフィールドは現行値のまま保持します。tags に使えるのは 機密/内部/運用/開発/未来予測 のみ。mechanics の source (curated/llm/crawl = 出所ラベル) は指示がない限り現行値を保持します。issues は議論の論点 (賛否が割れる争点) の配列です。出力スキーマ: {\"gameTitle\":string,\"discussionTheme\":string,\"discussionContent\":string,\"mechanicsContext\":string,\"themeSupplement\":string,\"theme\":string,\"tags\":string[],\"supplement\":string,\"issues\":string[],\"mechanics\":[{\"name\":string,\"description\":string,\"intended_affect\":string,\"source\":string}],\"changeSummary\":string}。changeSummary は変更点を 1 文 (日本語) で。前置きやコードフェンスは付けない。",
+          "prompt": "# 現行ペーパー\n{\n  \"gameTitle\": \"\",\n  \"discussionTheme\": \"T\",\n  \"discussionContent\": \"\",\n  \"mechanicsContext\": \"\",\n  \"themeSupplement\": \"S\",\n  \"theme\": \"T\",\n  \"tags\": [\n    \"開発\"\n  ],\n  \"supplement\": \"S\",\n  \"issues\": [\n    \"i1\"\n  ],\n  \"mechanics\": [\n    {\n      \"name\": \"M\",\n      \"description\": \"d\",\n      \"intended_affect\": \"喜\",\n      \"source\": \"crawl\"\n    },\n    {\n      \"name\": \"N\",\n      \"description\": \"\",\n      \"intended_affect\": \"\",\n      \"source\": \"curated\"\n    }\n  ]\n}\n\n# 調整指示\nフェンス\n\n上記指示を反映した編集後ペーパーを JSON で返してください。",
+          "model": null,
+          "maxTokens": null
+        }
+      ],
+      "warns": []
+    },
+    {
+      "draft": {
+        "theme": "T",
+        "tags": [
+          "開発"
+        ],
+        "supplement": "S",
+        "mechanics": [
+          {
+            "name": "M",
+            "description": "d",
+            "intended_affect": "喜",
+            "source": "crawl"
+          },
+          {
+            "name": "N",
+            "description": ""
+          }
+        ],
+        "issues": [
+          "i1"
+        ],
+        "bodyMd": "# 議題\nT\n\n# 観点補足\nS\n\n# 論点\n1. i1\n\n# ゲームのメカニクス\n- **M**: d → 期待感情: 喜 （出所: crawl）\n- **N**:  （出所: curated）"
+      },
+      "instruction": "曖昧",
+      "responses": [
+        {
+          "ok": true,
+          "text": "ごめんなさい"
+        }
+      ],
+      "result": {
+        "draft": {
+          "theme": "T",
+          "tags": [
+            "開発"
+          ],
+          "supplement": "S",
+          "mechanics": [
+            {
+              "name": "M",
+              "description": "d",
+              "intended_affect": "喜",
+              "source": "crawl"
+            },
+            {
+              "name": "N",
+              "description": ""
+            }
+          ],
+          "issues": [
+            "i1"
+          ],
+          "bodyMd": "# 議題\nT\n\n# 観点補足\nS\n\n# 論点\n1. i1\n\n# ゲームのメカニクス\n- **M**: d → 期待感情: 喜 （出所: crawl）\n- **N**:  （出所: curated）"
+        },
+        "changeSummary": "指示を反映できませんでした。言い換えてください。",
+        "applied": false
+      },
+      "calls": [
+        {
+          "system": "あなたは議論ブリーフ (ディスカッションペーパー) の編集者です。ユーザの調整指示に従い、ペーパーを編集して **JSON のみ** で返してください。指示に関係ないフィールドは現行値のまま保持します。tags に使えるのは 機密/内部/運用/開発/未来予測 のみ。mechanics の source (curated/llm/crawl = 出所ラベル) は指示がない限り現行値を保持します。issues は議論の論点 (賛否が割れる争点) の配列です。出力スキーマ: {\"gameTitle\":string,\"discussionTheme\":string,\"discussionContent\":string,\"mechanicsContext\":string,\"themeSupplement\":string,\"theme\":string,\"tags\":string[],\"supplement\":string,\"issues\":string[],\"mechanics\":[{\"name\":string,\"description\":string,\"intended_affect\":string,\"source\":string}],\"changeSummary\":string}。changeSummary は変更点を 1 文 (日本語) で。前置きやコードフェンスは付けない。",
+          "prompt": "# 現行ペーパー\n{\n  \"gameTitle\": \"\",\n  \"discussionTheme\": \"T\",\n  \"discussionContent\": \"\",\n  \"mechanicsContext\": \"\",\n  \"themeSupplement\": \"S\",\n  \"theme\": \"T\",\n  \"tags\": [\n    \"開発\"\n  ],\n  \"supplement\": \"S\",\n  \"issues\": [\n    \"i1\"\n  ],\n  \"mechanics\": [\n    {\n      \"name\": \"M\",\n      \"description\": \"d\",\n      \"intended_affect\": \"喜\",\n      \"source\": \"crawl\"\n    },\n    {\n      \"name\": \"N\",\n      \"description\": \"\",\n      \"intended_affect\": \"\",\n      \"source\": \"curated\"\n    }\n  ]\n}\n\n# 調整指示\n曖昧\n\n上記指示を反映した編集後ペーパーを JSON で返してください。",
+          "model": null,
+          "maxTokens": null
+        }
+      ],
+      "warns": []
+    },
+    {
+      "draft": {
+        "theme": "T",
+        "tags": [
+          "開発"
+        ],
+        "supplement": "S",
+        "mechanics": [
+          {
+            "name": "M",
+            "description": "d",
+            "intended_affect": "喜",
+            "source": "crawl"
+          },
+          {
+            "name": "N",
+            "description": ""
+          }
+        ],
+        "issues": [
+          "i1"
+        ],
+        "bodyMd": "# 議題\nT\n\n# 観点補足\nS\n\n# 論点\n1. i1\n\n# ゲームのメカニクス\n- **M**: d → 期待感情: 喜 （出所: crawl）\n- **N**:  （出所: curated）"
+      },
+      "instruction": "失敗",
+      "responses": [
+        {
+          "ok": false,
+          "error": "rate limited"
+        }
+      ],
+      "result": {
+        "draft": {
+          "theme": "T",
+          "tags": [
+            "開発"
+          ],
+          "supplement": "S",
+          "mechanics": [
+            {
+              "name": "M",
+              "description": "d",
+              "intended_affect": "喜",
+              "source": "crawl"
+            },
+            {
+              "name": "N",
+              "description": ""
+            }
+          ],
+          "issues": [
+            "i1"
+          ],
+          "bodyMd": "# 議題\nT\n\n# 観点補足\nS\n\n# 論点\n1. i1\n\n# ゲームのメカニクス\n- **M**: d → 期待感情: 喜 （出所: crawl）\n- **N**:  （出所: curated）"
+        },
+        "changeSummary": "編集に失敗しました。言い換えて再度お試しください。",
+        "applied": false
+      },
+      "calls": [
+        {
+          "system": "あなたは議論ブリーフ (ディスカッションペーパー) の編集者です。ユーザの調整指示に従い、ペーパーを編集して **JSON のみ** で返してください。指示に関係ないフィールドは現行値のまま保持します。tags に使えるのは 機密/内部/運用/開発/未来予測 のみ。mechanics の source (curated/llm/crawl = 出所ラベル) は指示がない限り現行値を保持します。issues は議論の論点 (賛否が割れる争点) の配列です。出力スキーマ: {\"gameTitle\":string,\"discussionTheme\":string,\"discussionContent\":string,\"mechanicsContext\":string,\"themeSupplement\":string,\"theme\":string,\"tags\":string[],\"supplement\":string,\"issues\":string[],\"mechanics\":[{\"name\":string,\"description\":string,\"intended_affect\":string,\"source\":string}],\"changeSummary\":string}。changeSummary は変更点を 1 文 (日本語) で。前置きやコードフェンスは付けない。",
+          "prompt": "# 現行ペーパー\n{\n  \"gameTitle\": \"\",\n  \"discussionTheme\": \"T\",\n  \"discussionContent\": \"\",\n  \"mechanicsContext\": \"\",\n  \"themeSupplement\": \"S\",\n  \"theme\": \"T\",\n  \"tags\": [\n    \"開発\"\n  ],\n  \"supplement\": \"S\",\n  \"issues\": [\n    \"i1\"\n  ],\n  \"mechanics\": [\n    {\n      \"name\": \"M\",\n      \"description\": \"d\",\n      \"intended_affect\": \"喜\",\n      \"source\": \"crawl\"\n    },\n    {\n      \"name\": \"N\",\n      \"description\": \"\",\n      \"intended_affect\": \"\",\n      \"source\": \"curated\"\n    }\n  ]\n}\n\n# 調整指示\n失敗\n\n上記指示を反映した編集後ペーパーを JSON で返してください。",
+          "model": null,
+          "maxTokens": null
+        }
+      ],
+      "warns": [
+        "paper-edit LLM エラー: rate limited"
+      ]
+    },
+    {
+      "draft": {
+        "theme": "T",
+        "tags": [
+          "開発"
+        ],
+        "supplement": "S",
+        "mechanics": [
+          {
+            "name": "M",
+            "description": "d",
+            "intended_affect": "喜",
+            "source": "crawl"
+          },
+          {
+            "name": "N",
+            "description": ""
+          }
+        ],
+        "issues": [
+          "i1"
+        ],
+        "bodyMd": "# 議題\nT\n\n# 観点補足\nS\n\n# 論点\n1. i1\n\n# ゲームのメカニクス\n- **M**: d → 期待感情: 喜 （出所: crawl）\n- **N**:  （出所: curated）"
+      },
+      "instruction": "例外",
+      "responses": [
+        {
+          "throws": "socket hang up"
+        }
+      ],
+      "result": {
+        "draft": {
+          "theme": "T",
+          "tags": [
+            "開発"
+          ],
+          "supplement": "S",
+          "mechanics": [
+            {
+              "name": "M",
+              "description": "d",
+              "intended_affect": "喜",
+              "source": "crawl"
+            },
+            {
+              "name": "N",
+              "description": ""
+            }
+          ],
+          "issues": [
+            "i1"
+          ],
+          "bodyMd": "# 議題\nT\n\n# 観点補足\nS\n\n# 論点\n1. i1\n\n# ゲームのメカニクス\n- **M**: d → 期待感情: 喜 （出所: crawl）\n- **N**:  （出所: curated）"
+        },
+        "changeSummary": "編集に失敗しました (LLM 例外)。言い換えて再度お試しください。",
+        "applied": false
+      },
+      "calls": [
+        {
+          "system": "あなたは議論ブリーフ (ディスカッションペーパー) の編集者です。ユーザの調整指示に従い、ペーパーを編集して **JSON のみ** で返してください。指示に関係ないフィールドは現行値のまま保持します。tags に使えるのは 機密/内部/運用/開発/未来予測 のみ。mechanics の source (curated/llm/crawl = 出所ラベル) は指示がない限り現行値を保持します。issues は議論の論点 (賛否が割れる争点) の配列です。出力スキーマ: {\"gameTitle\":string,\"discussionTheme\":string,\"discussionContent\":string,\"mechanicsContext\":string,\"themeSupplement\":string,\"theme\":string,\"tags\":string[],\"supplement\":string,\"issues\":string[],\"mechanics\":[{\"name\":string,\"description\":string,\"intended_affect\":string,\"source\":string}],\"changeSummary\":string}。changeSummary は変更点を 1 文 (日本語) で。前置きやコードフェンスは付けない。",
+          "prompt": "# 現行ペーパー\n{\n  \"gameTitle\": \"\",\n  \"discussionTheme\": \"T\",\n  \"discussionContent\": \"\",\n  \"mechanicsContext\": \"\",\n  \"themeSupplement\": \"S\",\n  \"theme\": \"T\",\n  \"tags\": [\n    \"開発\"\n  ],\n  \"supplement\": \"S\",\n  \"issues\": [\n    \"i1\"\n  ],\n  \"mechanics\": [\n    {\n      \"name\": \"M\",\n      \"description\": \"d\",\n      \"intended_affect\": \"喜\",\n      \"source\": \"crawl\"\n    },\n    {\n      \"name\": \"N\",\n      \"description\": \"\",\n      \"intended_affect\": \"\",\n      \"source\": \"curated\"\n    }\n  ]\n}\n\n# 調整指示\n例外\n\n上記指示を反映した編集後ペーパーを JSON で返してください。",
+          "model": null,
+          "maxTokens": null
+        }
+      ],
+      "warns": [
+        "paper-edit LLM 例外: socket hang up"
+      ]
+    },
+    {
+      "draft": {
+        "theme": "T",
+        "tags": [
+          "開発"
+        ],
+        "supplement": "S",
+        "mechanics": [
+          {
+            "name": "M",
+            "description": "d",
+            "intended_affect": "喜",
+            "source": "crawl"
+          },
+          {
+            "name": "N",
+            "description": ""
+          }
+        ],
+        "issues": [
+          "i1"
+        ],
+        "bodyMd": "# 議題\nT\n\n# 観点補足\nS\n\n# 論点\n1. i1\n\n# ゲームのメカニクス\n- **M**: d → 期待感情: 喜 （出所: crawl）\n- **N**:  （出所: curated）"
+      },
+      "instruction": "   ",
+      "responses": [
+        {
+          "ok": true,
+          "text": "{}"
+        }
+      ],
+      "result": {
+        "draft": {
+          "theme": "T",
+          "tags": [
+            "開発"
+          ],
+          "supplement": "S",
+          "mechanics": [
+            {
+              "name": "M",
+              "description": "d",
+              "intended_affect": "喜",
+              "source": "crawl"
+            },
+            {
+              "name": "N",
+              "description": ""
+            }
+          ],
+          "issues": [
+            "i1"
+          ],
+          "bodyMd": "# 議題\nT\n\n# 観点補足\nS\n\n# 論点\n1. i1\n\n# ゲームのメカニクス\n- **M**: d → 期待感情: 喜 （出所: crawl）\n- **N**:  （出所: curated）"
+        },
+        "changeSummary": "指示が空です。",
+        "applied": false
+      },
+      "calls": [],
+      "warns": []
+    },
+    {
+      "draft": {
+        "theme": "T",
+        "tags": [
+          "開発"
+        ],
+        "supplement": "S",
+        "mechanics": [
+          {
+            "name": "M",
+            "description": "d",
+            "intended_affect": "喜",
+            "source": "crawl"
+          },
+          {
+            "name": "N",
+            "description": ""
+          }
+        ],
+        "issues": [
+          "i1"
+        ],
+        "bodyMd": "# 議題\nT\n\n# 観点補足\nS\n\n# 論点\n1. i1\n\n# ゲームのメカニクス\n- **M**: d → 期待感情: 喜 （出所: crawl）\n- **N**:  （出所: curated）"
+      },
+      "instruction": "空 JSON",
+      "responses": [
+        {
+          "ok": true,
+          "text": "{}"
+        }
+      ],
+      "result": {
+        "draft": {
+          "theme": "T",
+          "tags": [
+            "開発"
+          ],
+          "supplement": "S",
+          "mechanics": [
+            {
+              "name": "M",
+              "description": "d",
+              "intended_affect": "喜",
+              "source": "crawl"
+            },
+            {
+              "name": "N",
+              "description": ""
+            }
+          ],
+          "issues": [
+            "i1"
+          ],
+          "bodyMd": "# 議題\nT\n\n# 観点補足\nS\n\n# 論点\n1. i1\n\n# ゲームのメカニクス\n- **M**: d → 期待感情: 喜 （出所: crawl）\n- **N**:  （出所: curated）"
+        },
+        "changeSummary": "ペーパーを更新しました。",
+        "applied": true
+      },
+      "calls": [
+        {
+          "system": "あなたは議論ブリーフ (ディスカッションペーパー) の編集者です。ユーザの調整指示に従い、ペーパーを編集して **JSON のみ** で返してください。指示に関係ないフィールドは現行値のまま保持します。tags に使えるのは 機密/内部/運用/開発/未来予測 のみ。mechanics の source (curated/llm/crawl = 出所ラベル) は指示がない限り現行値を保持します。issues は議論の論点 (賛否が割れる争点) の配列です。出力スキーマ: {\"gameTitle\":string,\"discussionTheme\":string,\"discussionContent\":string,\"mechanicsContext\":string,\"themeSupplement\":string,\"theme\":string,\"tags\":string[],\"supplement\":string,\"issues\":string[],\"mechanics\":[{\"name\":string,\"description\":string,\"intended_affect\":string,\"source\":string}],\"changeSummary\":string}。changeSummary は変更点を 1 文 (日本語) で。前置きやコードフェンスは付けない。",
+          "prompt": "# 現行ペーパー\n{\n  \"gameTitle\": \"\",\n  \"discussionTheme\": \"T\",\n  \"discussionContent\": \"\",\n  \"mechanicsContext\": \"\",\n  \"themeSupplement\": \"S\",\n  \"theme\": \"T\",\n  \"tags\": [\n    \"開発\"\n  ],\n  \"supplement\": \"S\",\n  \"issues\": [\n    \"i1\"\n  ],\n  \"mechanics\": [\n    {\n      \"name\": \"M\",\n      \"description\": \"d\",\n      \"intended_affect\": \"喜\",\n      \"source\": \"crawl\"\n    },\n    {\n      \"name\": \"N\",\n      \"description\": \"\",\n      \"intended_affect\": \"\",\n      \"source\": \"curated\"\n    }\n  ]\n}\n\n# 調整指示\n空 JSON\n\n上記指示を反映した編集後ペーパーを JSON で返してください。",
+          "model": null,
+          "maxTokens": null
+        }
+      ],
+      "warns": []
+    },
+    {
+      "draft": {
+        "theme": "T",
+        "tags": [
+          "開発"
+        ],
+        "supplement": "S",
+        "mechanics": [
+          {
+            "name": "M",
+            "description": "d",
+            "intended_affect": "喜",
+            "source": "crawl"
+          },
+          {
+            "name": "N",
+            "description": ""
+          }
+        ],
+        "issues": [
+          "i1"
+        ],
+        "bodyMd": "# 議題\nT\n\n# 観点補足\nS\n\n# 論点\n1. i1\n\n# ゲームのメカニクス\n- **M**: d → 期待感情: 喜 （出所: crawl）\n- **N**:  （出所: curated）"
+      },
+      "instruction": "issues 不正",
+      "responses": [
+        {
+          "ok": true,
+          "text": "{\"issues\":\"文字列\",\"tags\":null,\"mechanics\":\"x\"}"
+        }
+      ],
+      "result": {
+        "draft": {
+          "theme": "T",
+          "tags": [],
+          "supplement": "S",
+          "mechanics": [
+            {
+              "name": "M",
+              "description": "d",
+              "intended_affect": "喜",
+              "source": "crawl"
+            },
+            {
+              "name": "N",
+              "description": ""
+            }
+          ],
+          "bodyMd": "# 議題\nT\n\n# 観点補足\nS\n\n# ゲームのメカニクス\n- **M**: d → 期待感情: 喜 （出所: crawl）\n- **N**:  （出所: curated）"
+        },
+        "changeSummary": "ペーパーを更新しました。",
+        "applied": true
+      },
+      "calls": [
+        {
+          "system": "あなたは議論ブリーフ (ディスカッションペーパー) の編集者です。ユーザの調整指示に従い、ペーパーを編集して **JSON のみ** で返してください。指示に関係ないフィールドは現行値のまま保持します。tags に使えるのは 機密/内部/運用/開発/未来予測 のみ。mechanics の source (curated/llm/crawl = 出所ラベル) は指示がない限り現行値を保持します。issues は議論の論点 (賛否が割れる争点) の配列です。出力スキーマ: {\"gameTitle\":string,\"discussionTheme\":string,\"discussionContent\":string,\"mechanicsContext\":string,\"themeSupplement\":string,\"theme\":string,\"tags\":string[],\"supplement\":string,\"issues\":string[],\"mechanics\":[{\"name\":string,\"description\":string,\"intended_affect\":string,\"source\":string}],\"changeSummary\":string}。changeSummary は変更点を 1 文 (日本語) で。前置きやコードフェンスは付けない。",
+          "prompt": "# 現行ペーパー\n{\n  \"gameTitle\": \"\",\n  \"discussionTheme\": \"T\",\n  \"discussionContent\": \"\",\n  \"mechanicsContext\": \"\",\n  \"themeSupplement\": \"S\",\n  \"theme\": \"T\",\n  \"tags\": [\n    \"開発\"\n  ],\n  \"supplement\": \"S\",\n  \"issues\": [\n    \"i1\"\n  ],\n  \"mechanics\": [\n    {\n      \"name\": \"M\",\n      \"description\": \"d\",\n      \"intended_affect\": \"喜\",\n      \"source\": \"crawl\"\n    },\n    {\n      \"name\": \"N\",\n      \"description\": \"\",\n      \"intended_affect\": \"\",\n      \"source\": \"curated\"\n    }\n  ]\n}\n\n# 調整指示\nissues 不正\n\n上記指示を反映した編集後ペーパーを JSON で返してください。",
+          "model": null,
+          "maxTokens": null
+        }
+      ],
+      "warns": []
+    },
+    {
+      "draft": {
+        "theme": "固定T",
+        "tags": [],
+        "supplement": "旧",
+        "mechanics": [],
+        "gameTitle": "G",
+        "discussionTheme": "固定T",
+        "discussionContent": "C",
+        "mechanicsContext": "MC",
+        "themeSupplement": "TS",
+        "bodyMd": "# ゲームタイトル（または主目的）\nG\n\n# 議論したいテーマ\n固定T\n\n# 議論内容\nC\n\n# システム/メカニクスの説明\nMC\n\n# テーマについての補足情報\nTS"
+      },
+      "instruction": "固定欄",
+      "responses": [
+        {
+          "ok": true,
+          "text": "{\"gameTitle\":\" 新G \",\"discussionTheme\":\" 新テーマ \",\"discussionContent\":\"\",\"themeSupplement\":\" 新補足 \",\"supplement\":\"無視される\",\"issues\":[\" a \",1,\"\"]}"
+        }
+      ],
+      "result": {
+        "draft": {
+          "theme": "新テーマ",
+          "tags": [],
+          "supplement": "新補足",
+          "mechanics": [],
+          "issues": [
+            "a"
+          ],
+          "gameTitle": "新G",
+          "discussionTheme": "新テーマ",
+          "discussionContent": "",
+          "mechanicsContext": "MC",
+          "themeSupplement": "新補足",
+          "bodyMd": "# ゲームタイトル（または主目的）\n新G\n\n# 議論したいテーマ\n新テーマ\n\n# 議論内容\n\n\n# 論点\n1. a\n\n# システム/メカニクスの説明\nMC\n\n# テーマについての補足情報\n新補足"
+        },
+        "changeSummary": "ペーパーを更新しました。",
+        "applied": true
+      },
+      "calls": [
+        {
+          "system": "あなたは議論ブリーフ (ディスカッションペーパー) の編集者です。ユーザの調整指示に従い、ペーパーを編集して **JSON のみ** で返してください。指示に関係ないフィールドは現行値のまま保持します。tags に使えるのは 機密/内部/運用/開発/未来予測 のみ。mechanics の source (curated/llm/crawl = 出所ラベル) は指示がない限り現行値を保持します。issues は議論の論点 (賛否が割れる争点) の配列です。出力スキーマ: {\"gameTitle\":string,\"discussionTheme\":string,\"discussionContent\":string,\"mechanicsContext\":string,\"themeSupplement\":string,\"theme\":string,\"tags\":string[],\"supplement\":string,\"issues\":string[],\"mechanics\":[{\"name\":string,\"description\":string,\"intended_affect\":string,\"source\":string}],\"changeSummary\":string}。changeSummary は変更点を 1 文 (日本語) で。前置きやコードフェンスは付けない。",
+          "prompt": "# 現行ペーパー\n{\n  \"gameTitle\": \"G\",\n  \"discussionTheme\": \"固定T\",\n  \"discussionContent\": \"C\",\n  \"mechanicsContext\": \"MC\",\n  \"themeSupplement\": \"TS\",\n  \"theme\": \"固定T\",\n  \"tags\": [],\n  \"supplement\": \"旧\",\n  \"issues\": [],\n  \"mechanics\": []\n}\n\n# 調整指示\n固定欄\n\n上記指示を反映した編集後ペーパーを JSON で返してください。",
+          "model": null,
+          "maxTokens": null
+        }
+      ],
+      "warns": []
+    },
+    {
+      "draft": {
+        "theme": "固定T",
+        "tags": [],
+        "supplement": "旧",
+        "mechanics": [],
+        "gameTitle": "G",
+        "discussionTheme": "固定T",
+        "discussionContent": "C",
+        "mechanicsContext": "MC",
+        "themeSupplement": "TS",
+        "bodyMd": "# ゲームタイトル（または主目的）\nG\n\n# 議論したいテーマ\n固定T\n\n# 議論内容\nC\n\n# システム/メカニクスの説明\nMC\n\n# テーマについての補足情報\nTS"
+      },
+      "instruction": "固定欄2",
+      "responses": [
+        {
+          "ok": true,
+          "text": "{\"discussionTheme\":\"  \",\"theme\":\" 旧来テーマ \",\"themeSupplement\":\"\"}"
+        }
+      ],
+      "result": {
+        "draft": {
+          "theme": "固定T",
+          "tags": [],
+          "supplement": "",
+          "mechanics": [],
+          "gameTitle": "G",
+          "discussionTheme": "固定T",
+          "discussionContent": "C",
+          "mechanicsContext": "MC",
+          "themeSupplement": "",
+          "bodyMd": "# ゲームタイトル（または主目的）\nG\n\n# 議論したいテーマ\n固定T\n\n# 議論内容\nC\n\n# システム/メカニクスの説明\nMC\n\n# テーマについての補足情報\n"
+        },
+        "changeSummary": "ペーパーを更新しました。",
+        "applied": true
+      },
+      "calls": [
+        {
+          "system": "あなたは議論ブリーフ (ディスカッションペーパー) の編集者です。ユーザの調整指示に従い、ペーパーを編集して **JSON のみ** で返してください。指示に関係ないフィールドは現行値のまま保持します。tags に使えるのは 機密/内部/運用/開発/未来予測 のみ。mechanics の source (curated/llm/crawl = 出所ラベル) は指示がない限り現行値を保持します。issues は議論の論点 (賛否が割れる争点) の配列です。出力スキーマ: {\"gameTitle\":string,\"discussionTheme\":string,\"discussionContent\":string,\"mechanicsContext\":string,\"themeSupplement\":string,\"theme\":string,\"tags\":string[],\"supplement\":string,\"issues\":string[],\"mechanics\":[{\"name\":string,\"description\":string,\"intended_affect\":string,\"source\":string}],\"changeSummary\":string}。changeSummary は変更点を 1 文 (日本語) で。前置きやコードフェンスは付けない。",
+          "prompt": "# 現行ペーパー\n{\n  \"gameTitle\": \"G\",\n  \"discussionTheme\": \"固定T\",\n  \"discussionContent\": \"C\",\n  \"mechanicsContext\": \"MC\",\n  \"themeSupplement\": \"TS\",\n  \"theme\": \"固定T\",\n  \"tags\": [],\n  \"supplement\": \"旧\",\n  \"issues\": [],\n  \"mechanics\": []\n}\n\n# 調整指示\n固定欄2\n\n上記指示を反映した編集後ペーパーを JSON で返してください。",
+          "model": null,
+          "maxTokens": null
+        }
+      ],
+      "warns": []
+    },
+    {
+      "draft": {
+        "theme": "T",
+        "tags": [
+          "開発"
+        ],
+        "supplement": "S",
+        "mechanics": [
+          {
+            "name": "M",
+            "description": "d",
+            "intended_affect": "喜",
+            "source": "crawl"
+          },
+          {
+            "name": "N",
+            "description": ""
+          }
+        ],
+        "issues": [
+          "i1"
+        ],
+        "bodyMd": "# 議題\nT\n\n# 観点補足\nS\n\n# 論点\n1. i1\n\n# ゲームのメカニクス\n- **M**: d → 期待感情: 喜 （出所: crawl）\n- **N**:  （出所: curated）"
+      },
+      "instruction": "配列",
+      "responses": [
+        {
+          "ok": true,
+          "text": "[{\"theme\":\"x\"}]"
+        }
+      ],
+      "result": {
+        "draft": {
+          "theme": "x",
+          "tags": [
+            "開発"
+          ],
+          "supplement": "S",
+          "mechanics": [
+            {
+              "name": "M",
+              "description": "d",
+              "intended_affect": "喜",
+              "source": "crawl"
+            },
+            {
+              "name": "N",
+              "description": ""
+            }
+          ],
+          "issues": [
+            "i1"
+          ],
+          "bodyMd": "# 議題\nx\n\n# 観点補足\nS\n\n# 論点\n1. i1\n\n# ゲームのメカニクス\n- **M**: d → 期待感情: 喜 （出所: crawl）\n- **N**:  （出所: curated）"
+        },
+        "changeSummary": "ペーパーを更新しました。",
+        "applied": true
+      },
+      "calls": [
+        {
+          "system": "あなたは議論ブリーフ (ディスカッションペーパー) の編集者です。ユーザの調整指示に従い、ペーパーを編集して **JSON のみ** で返してください。指示に関係ないフィールドは現行値のまま保持します。tags に使えるのは 機密/内部/運用/開発/未来予測 のみ。mechanics の source (curated/llm/crawl = 出所ラベル) は指示がない限り現行値を保持します。issues は議論の論点 (賛否が割れる争点) の配列です。出力スキーマ: {\"gameTitle\":string,\"discussionTheme\":string,\"discussionContent\":string,\"mechanicsContext\":string,\"themeSupplement\":string,\"theme\":string,\"tags\":string[],\"supplement\":string,\"issues\":string[],\"mechanics\":[{\"name\":string,\"description\":string,\"intended_affect\":string,\"source\":string}],\"changeSummary\":string}。changeSummary は変更点を 1 文 (日本語) で。前置きやコードフェンスは付けない。",
+          "prompt": "# 現行ペーパー\n{\n  \"gameTitle\": \"\",\n  \"discussionTheme\": \"T\",\n  \"discussionContent\": \"\",\n  \"mechanicsContext\": \"\",\n  \"themeSupplement\": \"S\",\n  \"theme\": \"T\",\n  \"tags\": [\n    \"開発\"\n  ],\n  \"supplement\": \"S\",\n  \"issues\": [\n    \"i1\"\n  ],\n  \"mechanics\": [\n    {\n      \"name\": \"M\",\n      \"description\": \"d\",\n      \"intended_affect\": \"喜\",\n      \"source\": \"crawl\"\n    },\n    {\n      \"name\": \"N\",\n      \"description\": \"\",\n      \"intended_affect\": \"\",\n      \"source\": \"curated\"\n    }\n  ]\n}\n\n# 調整指示\n配列\n\n上記指示を反映した編集後ペーパーを JSON で返してください。",
+          "model": null,
+          "maxTokens": null
+        }
+      ],
+      "warns": []
+    },
+    {
+      "draft": {
+        "theme": "T",
+        "tags": [
+          "開発"
+        ],
+        "supplement": "S",
+        "mechanics": [
+          {
+            "name": "M",
+            "description": "d",
+            "intended_affect": "喜",
+            "source": "crawl"
+          },
+          {
+            "name": "N",
+            "description": ""
+          }
+        ],
+        "issues": [
+          "i1"
+        ],
+        "bodyMd": "# 議題\nT\n\n# 観点補足\nS\n\n# 論点\n1. i1\n\n# ゲームのメカニクス\n- **M**: d → 期待感情: 喜 （出所: crawl）\n- **N**:  （出所: curated）"
+      },
+      "instruction": "壊れ",
+      "responses": [
+        {
+          "ok": true,
+          "text": "{\"theme\": \"x\", } trailing }"
+        }
+      ],
+      "result": {
+        "draft": {
+          "theme": "T",
+          "tags": [
+            "開発"
+          ],
+          "supplement": "S",
+          "mechanics": [
+            {
+              "name": "M",
+              "description": "d",
+              "intended_affect": "喜",
+              "source": "crawl"
+            },
+            {
+              "name": "N",
+              "description": ""
+            }
+          ],
+          "issues": [
+            "i1"
+          ],
+          "bodyMd": "# 議題\nT\n\n# 観点補足\nS\n\n# 論点\n1. i1\n\n# ゲームのメカニクス\n- **M**: d → 期待感情: 喜 （出所: crawl）\n- **N**:  （出所: curated）"
+        },
+        "changeSummary": "指示を反映できませんでした。言い換えてください。",
+        "applied": false
+      },
+      "calls": [
+        {
+          "system": "あなたは議論ブリーフ (ディスカッションペーパー) の編集者です。ユーザの調整指示に従い、ペーパーを編集して **JSON のみ** で返してください。指示に関係ないフィールドは現行値のまま保持します。tags に使えるのは 機密/内部/運用/開発/未来予測 のみ。mechanics の source (curated/llm/crawl = 出所ラベル) は指示がない限り現行値を保持します。issues は議論の論点 (賛否が割れる争点) の配列です。出力スキーマ: {\"gameTitle\":string,\"discussionTheme\":string,\"discussionContent\":string,\"mechanicsContext\":string,\"themeSupplement\":string,\"theme\":string,\"tags\":string[],\"supplement\":string,\"issues\":string[],\"mechanics\":[{\"name\":string,\"description\":string,\"intended_affect\":string,\"source\":string}],\"changeSummary\":string}。changeSummary は変更点を 1 文 (日本語) で。前置きやコードフェンスは付けない。",
+          "prompt": "# 現行ペーパー\n{\n  \"gameTitle\": \"\",\n  \"discussionTheme\": \"T\",\n  \"discussionContent\": \"\",\n  \"mechanicsContext\": \"\",\n  \"themeSupplement\": \"S\",\n  \"theme\": \"T\",\n  \"tags\": [\n    \"開発\"\n  ],\n  \"supplement\": \"S\",\n  \"issues\": [\n    \"i1\"\n  ],\n  \"mechanics\": [\n    {\n      \"name\": \"M\",\n      \"description\": \"d\",\n      \"intended_affect\": \"喜\",\n      \"source\": \"crawl\"\n    },\n    {\n      \"name\": \"N\",\n      \"description\": \"\",\n      \"intended_affect\": \"\",\n      \"source\": \"curated\"\n    }\n  ]\n}\n\n# 調整指示\n壊れ\n\n上記指示を反映した編集後ペーパーを JSON で返してください。",
+          "model": null,
+          "maxTokens": null
+        }
+      ],
+      "warns": []
+    }
+  ],
+  "coerce": {
+    "fallback": {
+      "theme": "FB",
+      "tags": [
+        "開発"
+      ],
+      "supplement": "FBS",
+      "mechanics": [
+        {
+          "name": "FM",
+          "description": "d"
+        }
+      ],
+      "issues": [
+        "fi"
+      ],
+      "gameTitle": "FG",
+      "bodyMd": "# ゲームタイトル（または主目的）\nFG\n\n# 議論したいテーマ\nFB\n\n# 議論内容\n\n\n# 論点\n1. fi\n\n# システム/メカニクスの説明\n## 抽出されたメカニクス\n- **FM**: d （出所: curated）\n\n# テーマについての補足情報\nFBS"
+    },
+    "cases": [
+      {
+        "raw": null,
+        "result": {
+          "theme": "FB",
+          "tags": [
+            "開発"
+          ],
+          "supplement": "FBS",
+          "mechanics": [
+            {
+              "name": "FM",
+              "description": "d"
+            }
+          ],
+          "issues": [
+            "fi"
+          ],
+          "gameTitle": "FG",
+          "bodyMd": "# ゲームタイトル（または主目的）\nFG\n\n# 議論したいテーマ\nFB\n\n# 議論内容\n\n\n# 論点\n1. fi\n\n# システム/メカニクスの説明\n## 抽出されたメカニクス\n- **FM**: d （出所: curated）\n\n# テーマについての補足情報\nFBS"
+        }
+      },
+      {
+        "raw": 3,
+        "result": {
+          "theme": "FB",
+          "tags": [
+            "開発"
+          ],
+          "supplement": "FBS",
+          "mechanics": [
+            {
+              "name": "FM",
+              "description": "d"
+            }
+          ],
+          "issues": [
+            "fi"
+          ],
+          "gameTitle": "FG",
+          "bodyMd": "# ゲームタイトル（または主目的）\nFG\n\n# 議論したいテーマ\nFB\n\n# 議論内容\n\n\n# 論点\n1. fi\n\n# システム/メカニクスの説明\n## 抽出されたメカニクス\n- **FM**: d （出所: curated）\n\n# テーマについての補足情報\nFBS"
+        }
+      },
+      {
+        "raw": "str",
+        "result": {
+          "theme": "FB",
+          "tags": [
+            "開発"
+          ],
+          "supplement": "FBS",
+          "mechanics": [
+            {
+              "name": "FM",
+              "description": "d"
+            }
+          ],
+          "issues": [
+            "fi"
+          ],
+          "gameTitle": "FG",
+          "bodyMd": "# ゲームタイトル（または主目的）\nFG\n\n# 議論したいテーマ\nFB\n\n# 議論内容\n\n\n# 論点\n1. fi\n\n# システム/メカニクスの説明\n## 抽出されたメカニクス\n- **FM**: d （出所: curated）\n\n# テーマについての補足情報\nFBS"
+        }
+      },
+      {
+        "raw": [],
+        "result": {
+          "theme": "FB",
+          "tags": [
+            "開発"
+          ],
+          "supplement": "FBS",
+          "mechanics": [
+            {
+              "name": "FM",
+              "description": "d"
+            }
+          ],
+          "issues": [
+            "fi"
+          ],
+          "bodyMd": "# 議題\nFB\n\n# 観点補足\nFBS\n\n# 論点\n1. fi\n\n# ゲームのメカニクス\n- **FM**: d （出所: curated）"
+        }
+      },
+      {
+        "raw": {
+          "theme": "  新議題  ",
+          "tags": [
+            "運用",
+            "bad",
+            "運用"
+          ],
+          "mechanics": [
+            {
+              "name": "A",
+              "description": "x"
+            },
+            {
+              "description": "名前なし"
+            }
+          ]
+        },
+        "result": {
+          "theme": "新議題",
+          "tags": [
+            "運用"
+          ],
+          "supplement": "FBS",
+          "mechanics": [
+            {
+              "name": "A",
+              "description": "x"
+            }
+          ],
+          "issues": [
+            "fi"
+          ],
+          "bodyMd": "# 議題\n新議題\n\n# 観点補足\nFBS\n\n# 論点\n1. fi\n\n# ゲームのメカニクス\n- **A**: x （出所: curated）"
+        }
+      },
+      {
+        "raw": {
+          "supplement": 5,
+          "mechanics": "x",
+          "issues": [
+            " a ",
+            ""
+          ]
+        },
+        "result": {
+          "theme": "FB",
+          "tags": [
+            "開発"
+          ],
+          "supplement": "FBS",
+          "mechanics": [
+            {
+              "name": "FM",
+              "description": "d"
+            }
+          ],
+          "issues": [
+            "a"
+          ],
+          "bodyMd": "# 議題\nFB\n\n# 観点補足\nFBS\n\n# 論点\n1. a\n\n# ゲームのメカニクス\n- **FM**: d （出所: curated）"
+        }
+      },
+      {
+        "raw": {
+          "tags": null
+        },
+        "result": {
+          "theme": "FB",
+          "tags": [],
+          "supplement": "FBS",
+          "mechanics": [
+            {
+              "name": "FM",
+              "description": "d"
+            }
+          ],
+          "issues": [
+            "fi"
+          ],
+          "bodyMd": "# 議題\nFB\n\n# 観点補足\nFBS\n\n# 論点\n1. fi\n\n# ゲームのメカニクス\n- **FM**: d （出所: curated）"
+        }
+      },
+      {
+        "raw": {
+          "theme": "x",
+          "issues": null
+        },
+        "result": {
+          "theme": "x",
+          "tags": [
+            "開発"
+          ],
+          "supplement": "FBS",
+          "mechanics": [
+            {
+              "name": "FM",
+              "description": "d"
+            }
+          ],
+          "bodyMd": "# 議題\nx\n\n# 観点補足\nFBS\n\n# ゲームのメカニクス\n- **FM**: d （出所: curated）"
+        }
+      },
+      {
+        "raw": {
+          "bodyMd": "# 議題\n本文の議題\n\n# 観点補足\n補足\n\n# ゲームのメカニクス\n- **B**: b （出所: crawl）\n",
+          "tags": [
+            "機密"
+          ]
+        },
+        "result": {
+          "theme": "本文の議題",
+          "tags": [
+            "機密"
+          ],
+          "supplement": "補足",
+          "mechanics": [
+            {
+              "name": "B",
+              "description": "b",
+              "source": "crawl"
+            }
+          ],
+          "issues": [
+            "fi"
+          ],
+          "bodyMd": "# 議題\n本文の議題\n\n# 観点補足\n補足\n\n# ゲームのメカニクス\n- **B**: b （出所: crawl）\n"
+        }
+      },
+      {
+        "raw": {
+          "bodyMd": "   ",
+          "theme": "空 md は無視"
+        },
+        "result": {
+          "theme": "空 md は無視",
+          "tags": [
+            "開発"
+          ],
+          "supplement": "FBS",
+          "mechanics": [
+            {
+              "name": "FM",
+              "description": "d"
+            }
+          ],
+          "issues": [
+            "fi"
+          ],
+          "bodyMd": "# 議題\n空 md は無視\n\n# 観点補足\nFBS\n\n# 論点\n1. fi\n\n# ゲームのメカニクス\n- **FM**: d （出所: curated）"
+        }
+      },
+      {
+        "raw": {
+          "bodyMd": "# ゲームタイトル（または主目的）\nFG\n\n# 議論したいテーマ\nFB\n\n# 議論内容\n\n\n# 論点\n1. fi\n\n# システム/メカニクスの説明\n## 抽出されたメカニクス\n- **FM**: d （出所: curated）\n\n# テーマについての補足情報\nFBS"
+        },
+        "result": {
+          "theme": "FB",
+          "tags": [
+            "開発"
+          ],
+          "supplement": "FBS",
+          "mechanics": [
+            {
+              "name": "FM",
+              "description": "d",
+              "source": "curated"
+            }
+          ],
+          "issues": [
+            "fi"
+          ],
+          "gameTitle": "FG",
+          "bodyMd": "# ゲームタイトル（または主目的）\nFG\n\n# 議論したいテーマ\nFB\n\n# 議論内容\n\n\n# 論点\n1. fi\n\n# システム/メカニクスの説明\n## 抽出されたメカニクス\n- **FM**: d （出所: curated）\n\n# テーマについての補足情報\nFBS",
+          "discussionTheme": "FB",
+          "discussionContent": "",
+          "mechanicsContext": "",
+          "themeSupplement": "FBS"
+        }
+      }
+    ]
+  },
+  "render": [
+    {
+      "draft": {
+        "theme": "ローグライト",
+        "tags": [
+          "開発",
+          "運用"
+        ],
+        "supplement": "開発者観点で",
+        "mechanics": [
+          {
+            "name": "ビルド選択",
+            "description": "構成を変える",
+            "intended_affect": "発見"
+          },
+          {
+            "name": "周回",
+            "description": "回す",
+            "source": "crawl"
+          },
+          {
+            "name": "仮説",
+            "description": "LLM",
+            "source": "llm",
+            "intended_affect": "高揚"
+          },
+          {
+            "name": "仮説2",
+            "description": "",
+            "source": "llm"
+          }
+        ],
+        "issues": [
+          "論点A",
+          "論点B"
+        ],
+        "bodyMd": "# 議題\nローグライト\n\n# 観点補足\n開発者観点で\n\n# 論点\n1. 論点A\n2. 論点B\n\n# ゲームのメカニクス\n- **ビルド選択**: 構成を変える → 期待感情: 発見 （出所: curated）\n- **周回**: 回す （出所: crawl）\n\n# 仮説メカニクス (LLM抽出・未検証)\n- **仮説**: LLM → 期待感情: 高揚\n- **仮説2**: "
+      },
+      "info": {
+        "voiceCount": 50,
+        "countCapped": true,
+        "samples": [
+          {
+            "content": "楽しい",
+            "source": "niconico"
+          }
+        ]
+      },
+      "md": "📝 **ディスカッションペーパー (議論ブリーフ) — 確認してください**\n\n**議題**: ローグライト\n**観点タグ**: 開発 / 運用\n**観点補足**: 開発者観点で\n\n**論点**:\n1. 論点A\n2. 論点B\n\n**ゲームのメカニクス**:\n- ビルド選択: 構成を変える → 期待感情: 発見 （出所: curated）\n- 周回: 回す （出所: crawl）\n\n🧪 **仮説メカニクス (LLM抽出・未検証)**:\n- 仮説: LLM → 期待感情: 高揚\n- 仮説2: \n\n**集めた情報**: 外部の声 50+ 件\n- 「楽しい」(出所: niconico)"
+    },
+    {
+      "draft": {
+        "theme": "空",
+        "tags": [],
+        "supplement": "",
+        "mechanics": [],
+        "bodyMd": "# 議題\n空\n\n# ゲームのメカニクス\n(メカニクスデータなし)"
+      },
+      "info": {
+        "voiceCount": 0,
+        "countCapped": false,
+        "samples": []
+      },
+      "md": "📝 **ディスカッションペーパー (議論ブリーフ) — 確認してください**\n\n**議題**: 空\n\n**ゲームのメカニクス**: (なし)\n\n**集めた情報**: 外部の声 0 件"
+    },
+    {
+      "draft": {
+        "theme": "空",
+        "tags": [],
+        "supplement": "",
+        "mechanics": [],
+        "bodyMd": "# 議題\n空\n\n# ゲームのメカニクス\n(メカニクスデータなし)"
+      },
+      "info": {
+        "voiceCount": 1,
+        "countCapped": false,
+        "samples": [],
+        "debatability": {
+          "issues": [],
+          "armability": [],
+          "armableBothCount": 0,
+          "minArmableIssues": 2,
+          "evidence": {
+            "voiceCount": 0,
+            "positive": 0,
+            "negative": 0,
+            "neutral": 0,
+            "polaritySkew": 0,
+            "sourceShares": [],
+            "dominantSource": null
+          },
+          "debatable": true,
+          "degraded": false,
+          "message": "議論できます"
+        }
+      },
+      "md": "📝 **ディスカッションペーパー (議論ブリーフ) — 確認してください**\n\n**議題**: 空\n\n**ゲームのメカニクス**: (なし)\n\n**集めた情報**: 外部の声 1 件\n\n✅ 議論できます"
+    },
+    {
+      "draft": {
+        "theme": "空",
+        "tags": [],
+        "supplement": "",
+        "mechanics": [],
+        "bodyMd": "# 議題\n空\n\n# ゲームのメカニクス\n(メカニクスデータなし)"
+      },
+      "info": {
+        "voiceCount": 1,
+        "countCapped": false,
+        "samples": [],
+        "debatability": {
+          "issues": [],
+          "armability": [],
+          "armableBothCount": 0,
+          "minArmableIssues": 2,
+          "evidence": {
+            "voiceCount": 0,
+            "positive": 0,
+            "negative": 0,
+            "neutral": 0,
+            "polaritySkew": 0,
+            "sourceShares": [],
+            "dominantSource": null
+          },
+          "debatable": false,
+          "degraded": false,
+          "message": "不適",
+          "recommendation": {
+            "flow": "sparring",
+            "reason": "r"
+          }
+        }
+      },
+      "md": "📝 **ディスカッションペーパー (議論ブリーフ) — 確認してください**\n\n**議題**: 空\n\n**ゲームのメカニクス**: (なし)\n\n**集めた情報**: 外部の声 1 件\n\n⚠️ 不適\n論点を追記・修正するか、このまま議論を開始できます。"
+    },
+    {
+      "draft": {
+        "theme": "空",
+        "tags": [],
+        "supplement": "",
+        "mechanics": [],
+        "bodyMd": "# 議題\n空\n\n# ゲームのメカニクス\n(メカニクスデータなし)"
+      },
+      "info": {
+        "voiceCount": 1,
+        "countCapped": false,
+        "samples": [],
+        "debatability": {
+          "issues": [],
+          "armability": [],
+          "armableBothCount": 0,
+          "minArmableIssues": 2,
+          "evidence": {
+            "voiceCount": 0,
+            "positive": 0,
+            "negative": 0,
+            "neutral": 0,
+            "polaritySkew": 0,
+            "sourceShares": [],
+            "dominantSource": null
+          },
+          "debatable": false,
+          "degraded": false,
+          "message": "不適2"
+        }
+      },
+      "md": "📝 **ディスカッションペーパー (議論ブリーフ) — 確認してください**\n\n**議題**: 空\n\n**ゲームのメカニクス**: (なし)\n\n**集めた情報**: 外部の声 1 件\n\n⚠️ 不適2"
+    },
+    {
+      "draft": {
+        "theme": "空",
+        "tags": [],
+        "supplement": "",
+        "mechanics": [],
+        "bodyMd": "# 議題\n空\n\n# ゲームのメカニクス\n(メカニクスデータなし)"
+      },
+      "info": {
+        "voiceCount": 1,
+        "countCapped": false,
+        "samples": [],
+        "debatability": {
+          "issues": [],
+          "armability": [],
+          "armableBothCount": 0,
+          "minArmableIssues": 2,
+          "evidence": {
+            "voiceCount": 0,
+            "positive": 0,
+            "negative": 0,
+            "neutral": 0,
+            "polaritySkew": 0,
+            "sourceShares": [],
+            "dominantSource": null
+          },
+          "debatable": true,
+          "degraded": true,
+          "message": "失敗"
+        }
+      },
+      "md": "📝 **ディスカッションペーパー (議論ブリーフ) — 確認してください**\n\n**議題**: 空\n\n**ゲームのメカニクス**: (なし)\n\n**集めた情報**: 外部の声 1 件\n\n⚠️ 失敗"
+    }
+  ],
+  "words": [
+    {
+      "text": "開始",
+      "approval": true,
+      "revert": false
+    },
+    {
+      "text": "承認",
+      "approval": true,
+      "revert": false
+    },
+    {
+      "text": "OK",
+      "approval": true,
+      "revert": false
+    },
+    {
+      "text": "ok。",
+      "approval": true,
+      "revert": false
+    },
+    {
+      "text": "ok!!",
+      "approval": true,
+      "revert": false
+    },
+    {
+      "text": "Ok！ ",
+      "approval": true,
+      "revert": false
+    },
+    {
+      "text": "これで開始",
+      "approval": true,
+      "revert": false
+    },
+    {
+      "text": "これでOK",
+      "approval": true,
+      "revert": false
+    },
+    {
+      "text": "✅",
+      "approval": true,
+      "revert": false
+    },
+    {
+      "text": "👍",
+      "approval": true,
+      "revert": false
+    },
+    {
+      "text": "go",
+      "approval": true,
+      "revert": false
+    },
+    {
+      "text": " GO. ",
+      "approval": true,
+      "revert": false
+    },
+    {
+      "text": "approve",
+      "approval": true,
+      "revert": false
+    },
+    {
+      "text": "",
+      "approval": false,
+      "revert": false
+    },
+    {
+      "text": "  ",
+      "approval": false,
+      "revert": false
+    },
+    {
+      "text": "。",
+      "approval": false,
+      "revert": false
+    },
+    {
+      "text": "メカニクスにガチャを追加",
+      "approval": false,
+      "revert": false
+    },
+    {
+      "text": "開始したい理由は",
+      "approval": false,
+      "revert": false
+    },
+    {
+      "text": "戻す",
+      "approval": false,
+      "revert": true
+    },
+    {
+      "text": "戻して",
+      "approval": false,
+      "revert": true
+    },
+    {
+      "text": "undo",
+      "approval": false,
+      "revert": true
+    },
+    {
+      "text": "REVERT",
+      "approval": false,
+      "revert": true
+    },
+    {
+      "text": "↶",
+      "approval": false,
+      "revert": true
+    },
+    {
+      "text": "↩",
+      "approval": false,
+      "revert": true
+    },
+    {
+      "text": "取り消し",
+      "approval": false,
+      "revert": true
+    },
+    {
+      "text": "取消。",
+      "approval": false,
+      "revert": true
+    },
+    {
+      "text": "メカニクスを戻して具体化",
+      "approval": false,
+      "revert": false
+    },
+    {
+      "text": "ＯＫ",
+      "approval": false,
+      "revert": false
+    },
+    {
+      "text": "start　",
+      "approval": true,
+      "revert": false
+    },
+    {
+      "text": "start !",
+      "approval": true,
+      "revert": false
+    }
+  ],
+  "review": {
+    "bodyMd": "# 議題\n空\n\n# ゲームのメカニクス\n(メカニクスデータなし)",
+    "cases": [
+      {
+        "blockId": "b1",
+        "responses": [
+          {
+            "ok": true,
+            "text": "{\"proposed\":\" 改稿 \",\"rationale\":\" 具体化 \"}"
+          }
+        ],
+        "result": {
+          "blockId": "b1",
+          "original": "空",
+          "proposed": "改稿",
+          "rationale": "具体化",
+          "ok": true
+        },
+        "calls": [
+          {
+            "system": "あなたは議論ブリーフ (ディスカッションペーパー) の編集補佐です。渡された markdown ブロック 1 つを、議題ブリーフとして読みやすく改稿します。見出し記号 (#) や箇条書き記号 (-) のブロック種別は保ち、意味を勝手に増やさない。**JSON のみ** で返す。スキーマ: {\"proposed\":string,\"rationale\":string}。proposed は改稿後のブロック本文 (markdown)、rationale は変更点を 1 文 (日本語)。前置きやコードフェンスは付けない。",
+            "prompt": "# 調整方針\n議論しやすく明確に整える\n\n# 対象ブロック (現行)\n空\n\n# 参考: ブリーフ全文\n# 議題\n空\n\n# ゲームのメカニクス\n(メカニクスデータなし)\n\n上記ブロックの改稿案を JSON で返してください。",
+            "model": null,
+            "maxTokens": null
+          }
+        ],
+        "warns": []
+      },
+      {
+        "blockId": "b1",
+        "instruction": " もっと具体的に ",
+        "model": "rv",
+        "responses": [
+          {
+            "ok": true,
+            "text": "{\"proposed\":\"x\"}"
+          }
+        ],
+        "result": {
+          "blockId": "b1",
+          "original": "空",
+          "proposed": "x",
+          "rationale": "ブロックを改稿しました。",
+          "ok": true
+        },
+        "calls": [
+          {
+            "system": "あなたは議論ブリーフ (ディスカッションペーパー) の編集補佐です。渡された markdown ブロック 1 つを、議題ブリーフとして読みやすく改稿します。見出し記号 (#) や箇条書き記号 (-) のブロック種別は保ち、意味を勝手に増やさない。**JSON のみ** で返す。スキーマ: {\"proposed\":string,\"rationale\":string}。proposed は改稿後のブロック本文 (markdown)、rationale は変更点を 1 文 (日本語)。前置きやコードフェンスは付けない。",
+            "prompt": "# 調整方針\nもっと具体的に\n\n# 対象ブロック (現行)\n空\n\n# 参考: ブリーフ全文\n# 議題\n空\n\n# ゲームのメカニクス\n(メカニクスデータなし)\n\n上記ブロックの改稿案を JSON で返してください。",
+            "model": "rv",
+            "maxTokens": null
+          }
+        ],
+        "warns": []
+      },
+      {
+        "blockId": "b1",
+        "responses": [
+          {
+            "ok": true,
+            "text": "{\"proposed\":\"  \"}"
+          }
+        ],
+        "result": {
+          "blockId": "b1",
+          "original": "空",
+          "proposed": "空",
+          "rationale": "改稿案を取得できませんでした。",
+          "ok": false
+        },
+        "calls": [
+          {
+            "system": "あなたは議論ブリーフ (ディスカッションペーパー) の編集補佐です。渡された markdown ブロック 1 つを、議題ブリーフとして読みやすく改稿します。見出し記号 (#) や箇条書き記号 (-) のブロック種別は保ち、意味を勝手に増やさない。**JSON のみ** で返す。スキーマ: {\"proposed\":string,\"rationale\":string}。proposed は改稿後のブロック本文 (markdown)、rationale は変更点を 1 文 (日本語)。前置きやコードフェンスは付けない。",
+            "prompt": "# 調整方針\n議論しやすく明確に整える\n\n# 対象ブロック (現行)\n空\n\n# 参考: ブリーフ全文\n# 議題\n空\n\n# ゲームのメカニクス\n(メカニクスデータなし)\n\n上記ブロックの改稿案を JSON で返してください。",
+            "model": null,
+            "maxTokens": null
+          }
+        ],
+        "warns": []
+      },
+      {
+        "blockId": "b1",
+        "responses": [
+          {
+            "ok": true,
+            "text": "no json"
+          }
+        ],
+        "result": {
+          "blockId": "b1",
+          "original": "空",
+          "proposed": "空",
+          "rationale": "改稿案を取得できませんでした。",
+          "ok": false
+        },
+        "calls": [
+          {
+            "system": "あなたは議論ブリーフ (ディスカッションペーパー) の編集補佐です。渡された markdown ブロック 1 つを、議題ブリーフとして読みやすく改稿します。見出し記号 (#) や箇条書き記号 (-) のブロック種別は保ち、意味を勝手に増やさない。**JSON のみ** で返す。スキーマ: {\"proposed\":string,\"rationale\":string}。proposed は改稿後のブロック本文 (markdown)、rationale は変更点を 1 文 (日本語)。前置きやコードフェンスは付けない。",
+            "prompt": "# 調整方針\n議論しやすく明確に整える\n\n# 対象ブロック (現行)\n空\n\n# 参考: ブリーフ全文\n# 議題\n空\n\n# ゲームのメカニクス\n(メカニクスデータなし)\n\n上記ブロックの改稿案を JSON で返してください。",
+            "model": null,
+            "maxTokens": null
+          }
+        ],
+        "warns": []
+      },
+      {
+        "blockId": "b1",
+        "responses": [
+          {
+            "ok": false,
+            "error": "err"
+          }
+        ],
+        "result": {
+          "blockId": "b1",
+          "original": "空",
+          "proposed": "空",
+          "rationale": "改稿に失敗しました。",
+          "ok": false
+        },
+        "calls": [
+          {
+            "system": "あなたは議論ブリーフ (ディスカッションペーパー) の編集補佐です。渡された markdown ブロック 1 つを、議題ブリーフとして読みやすく改稿します。見出し記号 (#) や箇条書き記号 (-) のブロック種別は保ち、意味を勝手に増やさない。**JSON のみ** で返す。スキーマ: {\"proposed\":string,\"rationale\":string}。proposed は改稿後のブロック本文 (markdown)、rationale は変更点を 1 文 (日本語)。前置きやコードフェンスは付けない。",
+            "prompt": "# 調整方針\n議論しやすく明確に整える\n\n# 対象ブロック (現行)\n空\n\n# 参考: ブリーフ全文\n# 議題\n空\n\n# ゲームのメカニクス\n(メカニクスデータなし)\n\n上記ブロックの改稿案を JSON で返してください。",
+            "model": null,
+            "maxTokens": null
+          }
+        ],
+        "warns": [
+          "reviewBlock LLM エラー: err"
+        ]
+      },
+      {
+        "blockId": "b1",
+        "responses": [
+          {
+            "throws": "thrown"
+          }
+        ],
+        "result": {
+          "blockId": "b1",
+          "original": "空",
+          "proposed": "空",
+          "rationale": "改稿に失敗しました (LLM 例外)。",
+          "ok": false
+        },
+        "calls": [
+          {
+            "system": "あなたは議論ブリーフ (ディスカッションペーパー) の編集補佐です。渡された markdown ブロック 1 つを、議題ブリーフとして読みやすく改稿します。見出し記号 (#) や箇条書き記号 (-) のブロック種別は保ち、意味を勝手に増やさない。**JSON のみ** で返す。スキーマ: {\"proposed\":string,\"rationale\":string}。proposed は改稿後のブロック本文 (markdown)、rationale は変更点を 1 文 (日本語)。前置きやコードフェンスは付けない。",
+            "prompt": "# 調整方針\n議論しやすく明確に整える\n\n# 対象ブロック (現行)\n空\n\n# 参考: ブリーフ全文\n# 議題\n空\n\n# ゲームのメカニクス\n(メカニクスデータなし)\n\n上記ブロックの改稿案を JSON で返してください。",
+            "model": null,
+            "maxTokens": null
+          }
+        ],
+        "warns": [
+          "reviewBlock LLM 例外: thrown"
+        ]
+      },
+      {
+        "blockId": "b999",
+        "responses": [
+          {
+            "ok": true,
+            "text": "{}"
+          }
+        ],
+        "result": {
+          "blockId": "b999",
+          "original": "",
+          "proposed": "",
+          "rationale": "対象ブロックが見つかりません。",
+          "ok": false
+        },
+        "calls": [],
+        "warns": []
+      }
+    ]
+  },
+  "evidence": [
+    {
+      "topic": "ガチャ",
+      "voices": [
+        {
+          "content": "ガチャが楽しい",
+          "source": "niconico"
+        },
+        {
+          "content": "いいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいい",
+          "source": "youtube"
+        },
+        {
+          "content": "三件目",
+          "source": "steam"
+        }
+      ],
+      "responses": null,
+      "result": {
+        "voices": [
+          {
+            "content": "ガチャが楽しい",
+            "source": "niconico"
+          },
+          {
+            "content": "いいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいい…",
+            "source": "youtube"
+          },
+          {
+            "content": "三件目",
+            "source": "steam"
+          }
+        ],
+        "suggestion": "## 集めた根拠 (外部の声)\n- 「ガチャが楽しい」（出所: niconico）\n- 「いいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいい…」（出所: youtube）\n- 「三件目」（出所: steam）"
+      },
+      "calls": [],
+      "listCalls": [
+        {
+          "terms": [
+            "ガチャ"
+          ],
+          "limit": 12
+        }
+      ],
+      "warns": []
+    },
+    {
+      "topic": "無",
+      "voices": [],
+      "responses": [
+        {
+          "ok": true,
+          "text": "呼ばれない"
+        }
+      ],
+      "result": {
+        "voices": [],
+        "suggestion": ""
+      },
+      "calls": [],
+      "listCalls": [
+        {
+          "terms": [
+            "無"
+          ],
+          "limit": 12
+        }
+      ],
+      "warns": []
+    },
+    {
+      "topic": "ガチャ",
+      "voices": [
+        {
+          "content": "ガチャが楽しい",
+          "source": "niconico"
+        },
+        {
+          "content": "いいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいい",
+          "source": "youtube"
+        },
+        {
+          "content": "三件目",
+          "source": "steam"
+        }
+      ],
+      "responses": [
+        {
+          "ok": true,
+          "text": " ガチャは賛否が割れる要素。 "
+        }
+      ],
+      "model": "ev",
+      "result": {
+        "voices": [
+          {
+            "content": "ガチャが楽しい",
+            "source": "niconico"
+          },
+          {
+            "content": "いいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいい…",
+            "source": "youtube"
+          },
+          {
+            "content": "三件目",
+            "source": "steam"
+          }
+        ],
+        "suggestion": "ガチャは賛否が割れる要素。"
+      },
+      "calls": [
+        {
+          "system": "あなたは議論ブリーフの編集補佐です。集めた外部の声を踏まえ、議題に関する観点の根拠段落を中立的にまとめます。markdown の段落 (箇条書き可) のみを返す (前置き不要)。",
+          "prompt": "# 観点\nガチャ\n\n# 集めた外部の声\n- 「ガチャが楽しい」（出所: niconico）\n- 「いいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいい…」（出所: youtube）\n- 「三件目」（出所: steam）\n\n根拠段落をまとめてください。",
+          "model": "ev",
+          "maxTokens": null
+        }
+      ],
+      "listCalls": [
+        {
+          "terms": [
+            "ガチャ"
+          ],
+          "limit": 12
+        }
+      ],
+      "warns": []
+    },
+    {
+      "topic": "ガチャ",
+      "voices": [
+        {
+          "content": "ガチャが楽しい",
+          "source": "niconico"
+        },
+        {
+          "content": "いいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいい",
+          "source": "youtube"
+        },
+        {
+          "content": "三件目",
+          "source": "steam"
+        }
+      ],
+      "responses": [
+        {
+          "ok": true,
+          "text": "   "
+        }
+      ],
+      "result": {
+        "voices": [
+          {
+            "content": "ガチャが楽しい",
+            "source": "niconico"
+          },
+          {
+            "content": "いいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいい…",
+            "source": "youtube"
+          },
+          {
+            "content": "三件目",
+            "source": "steam"
+          }
+        ],
+        "suggestion": "## 集めた根拠 (外部の声)\n- 「ガチャが楽しい」（出所: niconico）\n- 「いいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいい…」（出所: youtube）\n- 「三件目」（出所: steam）"
+      },
+      "calls": [
+        {
+          "system": "あなたは議論ブリーフの編集補佐です。集めた外部の声を踏まえ、議題に関する観点の根拠段落を中立的にまとめます。markdown の段落 (箇条書き可) のみを返す (前置き不要)。",
+          "prompt": "# 観点\nガチャ\n\n# 集めた外部の声\n- 「ガチャが楽しい」（出所: niconico）\n- 「いいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいい…」（出所: youtube）\n- 「三件目」（出所: steam）\n\n根拠段落をまとめてください。",
+          "model": null,
+          "maxTokens": null
+        }
+      ],
+      "listCalls": [
+        {
+          "terms": [
+            "ガチャ"
+          ],
+          "limit": 12
+        }
+      ],
+      "warns": []
+    },
+    {
+      "topic": "ガチャ",
+      "voices": [
+        {
+          "content": "ガチャが楽しい",
+          "source": "niconico"
+        },
+        {
+          "content": "いいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいい",
+          "source": "youtube"
+        },
+        {
+          "content": "三件目",
+          "source": "steam"
+        }
+      ],
+      "responses": [
+        {
+          "ok": false,
+          "error": "x"
+        }
+      ],
+      "result": {
+        "voices": [
+          {
+            "content": "ガチャが楽しい",
+            "source": "niconico"
+          },
+          {
+            "content": "いいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいい…",
+            "source": "youtube"
+          },
+          {
+            "content": "三件目",
+            "source": "steam"
+          }
+        ],
+        "suggestion": "## 集めた根拠 (外部の声)\n- 「ガチャが楽しい」（出所: niconico）\n- 「いいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいい…」（出所: youtube）\n- 「三件目」（出所: steam）"
+      },
+      "calls": [
+        {
+          "system": "あなたは議論ブリーフの編集補佐です。集めた外部の声を踏まえ、議題に関する観点の根拠段落を中立的にまとめます。markdown の段落 (箇条書き可) のみを返す (前置き不要)。",
+          "prompt": "# 観点\nガチャ\n\n# 集めた外部の声\n- 「ガチャが楽しい」（出所: niconico）\n- 「いいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいい…」（出所: youtube）\n- 「三件目」（出所: steam）\n\n根拠段落をまとめてください。",
+          "model": null,
+          "maxTokens": null
+        }
+      ],
+      "listCalls": [
+        {
+          "terms": [
+            "ガチャ"
+          ],
+          "limit": 12
+        }
+      ],
+      "warns": []
+    },
+    {
+      "topic": "ガチャ",
+      "voices": [
+        {
+          "content": "ガチャが楽しい",
+          "source": "niconico"
+        },
+        {
+          "content": "いいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいい",
+          "source": "youtube"
+        },
+        {
+          "content": "三件目",
+          "source": "steam"
+        }
+      ],
+      "responses": [
+        {
+          "throws": "y"
+        }
+      ],
+      "limit": 2,
+      "result": {
+        "voices": [
+          {
+            "content": "ガチャが楽しい",
+            "source": "niconico"
+          },
+          {
+            "content": "いいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいい…",
+            "source": "youtube"
+          }
+        ],
+        "suggestion": "## 集めた根拠 (外部の声)\n- 「ガチャが楽しい」（出所: niconico）\n- 「いいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいい…」（出所: youtube）"
+      },
+      "calls": [
+        {
+          "system": "あなたは議論ブリーフの編集補佐です。集めた外部の声を踏まえ、議題に関する観点の根拠段落を中立的にまとめます。markdown の段落 (箇条書き可) のみを返す (前置き不要)。",
+          "prompt": "# 観点\nガチャ\n\n# 集めた外部の声\n- 「ガチャが楽しい」（出所: niconico）\n- 「いいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいい…」（出所: youtube）\n\n根拠段落をまとめてください。",
+          "model": null,
+          "maxTokens": null
+        }
+      ],
+      "listCalls": [
+        {
+          "terms": [
+            "ガチャ"
+          ],
+          "limit": 2
+        }
+      ],
+      "warns": [
+        "gatherEvidence LLM 例外: y"
+      ]
+    }
+  ],
+  "enrich": [
+    {
+      "intent": {
+        "kind": "adjust",
+        "text": "簡単に",
+        "terms": []
+      },
+      "result": {
+        "instruction": "簡単に",
+        "notice": ""
+      },
+      "crawlCalls": [],
+      "invCalls": [],
+      "warns": [],
+      "calls": []
+    },
+    {
+      "intent": {
+        "kind": "voices",
+        "text": "外部の声を集めて",
+        "terms": [
+          "ガチャ",
+          "天井"
+        ]
+      },
+      "crawl": 3,
+      "voices": [
+        {
+          "content": "ガチャが楽しい",
+          "source": "niconico"
+        },
+        {
+          "content": "いいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいい",
+          "source": "youtube"
+        },
+        {
+          "content": "三件目",
+          "source": "steam"
+        }
+      ],
+      "result": {
+        "instruction": "外部の声を集めて\n\n次の外部の声 (出所付き) を根拠として、ペーパーの該当箇所 (観点補足 / ゲーム内容 / 論点) に取り込んでください。出所は残し、個人名は書かないこと。\n\n## 集めた根拠 (外部の声)\n- 「ガチャが楽しい」（出所: niconico）\n- 「いいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいい…」（出所: youtube）\n- 「三件目」（出所: steam）",
+        "notice": "新たに 3 件をクロールして取り込み、「ガチャ 天井」の外部の声 3 件を根拠として反映します。"
+      },
+      "crawlCalls": [
+        "ガチャ 天井"
+      ],
+      "invCalls": [],
+      "warns": [],
+      "calls": []
+    },
+    {
+      "intent": {
+        "kind": "voices",
+        "text": "口コミ",
+        "terms": []
+      },
+      "crawl": "throw",
+      "voices": [],
+      "result": {
+        "instruction": null,
+        "notice": "「議題X」に関する外部の声は見つかりませんでした。"
+      },
+      "crawlCalls": [
+        "議題X"
+      ],
+      "invCalls": [],
+      "warns": [
+        "外部の声のクロール失敗 (議題X): crawl down"
+      ],
+      "calls": []
+    },
+    {
+      "intent": {
+        "kind": "voices",
+        "text": "口コミ",
+        "terms": []
+      },
+      "voices": null,
+      "result": {
+        "instruction": null,
+        "notice": "外部の声の検索が使えないため、取り込めませんでした。"
+      },
+      "crawlCalls": [],
+      "invCalls": [],
+      "warns": [],
+      "calls": []
+    },
+    {
+      "intent": {
+        "kind": "voices",
+        "text": "口コミ",
+        "terms": []
+      },
+      "crawl": 0,
+      "voices": [
+        {
+          "content": "ガチャが楽しい",
+          "source": "niconico"
+        },
+        {
+          "content": "いいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいい",
+          "source": "youtube"
+        },
+        {
+          "content": "三件目",
+          "source": "steam"
+        }
+      ],
+      "llm": [
+        {
+          "ok": true,
+          "text": "要約段落"
+        }
+      ],
+      "result": {
+        "instruction": "口コミ\n\n次の外部の声 (出所付き) を根拠として、ペーパーの該当箇所 (観点補足 / ゲーム内容 / 論点) に取り込んでください。出所は残し、個人名は書かないこと。\n\n要約段落",
+        "notice": "「議題X」の外部の声 3 件を根拠として反映します。"
+      },
+      "crawlCalls": [
+        "議題X"
+      ],
+      "invCalls": [],
+      "warns": [],
+      "calls": [
+        {
+          "system": "あなたは議論ブリーフの編集補佐です。集めた外部の声を踏まえ、議題に関する観点の根拠段落を中立的にまとめます。markdown の段落 (箇条書き可) のみを返す (前置き不要)。",
+          "prompt": "# 観点\n議題X\n\n# 集めた外部の声\n- 「ガチャが楽しい」（出所: niconico）\n- 「いいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいい…」（出所: youtube）\n- 「三件目」（出所: steam）\n\n根拠段落をまとめてください。",
+          "model": null,
+          "maxTokens": null
+        }
+      ]
+    },
+    {
+      "intent": {
+        "kind": "similar_games",
+        "text": "類似ゲーム",
+        "terms": [
+          "A",
+          "B",
+          "C",
+          "D",
+          "E",
+          "F"
+        ]
+      },
+      "investigate": {
+        "A": [
+          {
+            "name": "a1",
+            "description": ""
+          },
+          {
+            "name": "a2",
+            "description": "d0"
+          },
+          {
+            "name": "a3",
+            "description": "d1"
+          },
+          {
+            "name": "a4",
+            "description": "d2"
+          },
+          {
+            "name": "a5",
+            "description": "d3"
+          },
+          {
+            "name": "a6",
+            "description": "d4"
+          },
+          {
+            "name": "a7",
+            "description": "d5"
+          },
+          {
+            "name": "a8",
+            "description": "d6"
+          },
+          {
+            "name": "a9",
+            "description": "d7"
+          },
+          {
+            "name": "a10",
+            "description": "d8"
+          }
+        ],
+        "B": [],
+        "C": "throw"
+      },
+      "result": {
+        "instruction": "類似ゲーム\n\n類似するゲームのメカニクスを、このゲームのメカニクスの代替 (参考) として「メカニクス」に追加してください。追加する項目の説明には「(参考: ゲーム名)」を付け、このゲーム本来のメカニクスと区別すること。\n\n既存データにある類似ゲームのメカニクス:\n- [A] a1\n- [A] a2: d0\n- [A] a3: d1\n- [A] a4: d2\n- [A] a5: d3\n- [A] a6: d4\n- [A] a7: d5\n- [A] a8: d6\n\n既存データに無いゲーム (B、C、D、E) は、代表的なメカニクスを一般知識から補ってください。",
+        "notice": "類似ゲーム (A、B、C、D、E) のメカニクスを代替として反映します (既存データ 8 件)。"
+      },
+      "crawlCalls": [],
+      "invCalls": [
+        {
+          "theme": "A",
+          "tags": [
+            "開発"
+          ],
+          "gamesDir": "/no/such"
+        },
+        {
+          "theme": "B",
+          "tags": [
+            "開発"
+          ],
+          "gamesDir": "/no/such"
+        },
+        {
+          "theme": "C",
+          "tags": [
+            "開発"
+          ],
+          "gamesDir": "/no/such"
+        },
+        {
+          "theme": "D",
+          "tags": [
+            "開発"
+          ],
+          "gamesDir": "/no/such"
+        },
+        {
+          "theme": "E",
+          "tags": [
+            "開発"
+          ],
+          "gamesDir": "/no/such"
+        }
+      ],
+      "warns": [
+        "類似ゲームのメカニクス取得失敗 (C): inv down"
+      ],
+      "calls": []
+    },
+    {
+      "intent": {
+        "kind": "similar_games",
+        "text": "似たゲーム",
+        "terms": []
+      },
+      "result": {
+        "instruction": "似たゲーム\n\n類似するゲームのメカニクスを、このゲームのメカニクスの代替 (参考) として「メカニクス」に追加してください。追加する項目の説明には「(参考: ゲーム名)」を付け、このゲーム本来のメカニクスと区別すること。\n\nゲーム名の指定が無いため、議題に近い類似ゲームを 1〜3 本選び、その代表的なメカニクスを補ってください。",
+        "notice": "類似ゲームの指定が無いため、議題に近いゲームを選んでメカニクスの代替を補います。"
+      },
+      "crawlCalls": [],
+      "invCalls": [],
+      "warns": [],
+      "calls": []
+    },
+    {
+      "intent": {
+        "kind": "similar_games",
+        "text": "代替",
+        "terms": [
+          "X"
+        ]
+      },
+      "investigate": {
+        "X": []
+      },
+      "result": {
+        "instruction": "代替\n\n類似するゲームのメカニクスを、このゲームのメカニクスの代替 (参考) として「メカニクス」に追加してください。追加する項目の説明には「(参考: ゲーム名)」を付け、このゲーム本来のメカニクスと区別すること。\n\n既存データに無いゲーム (X) は、代表的なメカニクスを一般知識から補ってください。",
+        "notice": "類似ゲーム (X) のメカニクスを代替として反映します。"
+      },
+      "crawlCalls": [],
+      "invCalls": [
+        {
+          "theme": "X",
+          "tags": [
+            "開発"
+          ],
+          "gamesDir": "/no/such"
+        }
+      ],
+      "warns": [],
+      "calls": []
+    }
+  ],
+  "trends": [
+    {
+      "records": [
+        {
+          "gameSlug": "alpha",
+          "appId": 10,
+          "postedAt": 1787615940000,
+          "reaction": "positive"
+        },
+        {
+          "gameSlug": "alpha",
+          "appId": 10,
+          "postedAt": 1787615880000,
+          "reaction": "negative"
+        },
+        {
+          "gameSlug": "alpha",
+          "appId": 10,
+          "postedAt": 1787615870000,
+          "reaction": "positive"
+        },
+        {
+          "gameSlug": " beta ",
+          "appId": 20,
+          "postedAt": 1787615820000,
+          "reaction": "positive"
+        },
+        {
+          "gameSlug": "beta",
+          "appId": 21,
+          "postedAt": 1787615810000,
+          "reaction": null
+        },
+        {
+          "gameSlug": "gamma",
+          "appId": null,
+          "postedAt": 1787011200000,
+          "reaction": null
+        },
+        {
+          "gameSlug": "delta",
+          "appId": 40,
+          "postedAt": 1787615820000,
+          "reaction": "negative"
+        },
+        {
+          "gameSlug": "epsilon",
+          "appId": 50,
+          "postedAt": 1787615820000,
+          "reaction": "positive"
+        },
+        {
+          "gameSlug": "old",
+          "appId": 30,
+          "postedAt": 1786924800000,
+          "reaction": "positive"
+        },
+        {
+          "gameSlug": "future",
+          "appId": 30,
+          "postedAt": 1787616000001,
+          "reaction": "positive"
+        },
+        {
+          "gameSlug": null,
+          "appId": 1,
+          "postedAt": 1787615999999,
+          "reaction": "positive"
+        },
+        {
+          "gameSlug": "  ",
+          "appId": 1,
+          "postedAt": 1787615999999,
+          "reaction": "positive"
+        }
+      ],
+      "now": 1787616000000,
+      "limit": 8,
+      "result": [
+        {
+          "gameSlug": "alpha",
+          "appId": 10,
+          "recentReviewCount": 3,
+          "positivePercent": 67,
+          "latestReviewAt": "2026-08-24T23:59:00.000Z"
+        },
+        {
+          "gameSlug": "beta",
+          "appId": null,
+          "recentReviewCount": 2,
+          "positivePercent": 100,
+          "latestReviewAt": "2026-08-24T23:57:00.000Z"
+        },
+        {
+          "gameSlug": "delta",
+          "appId": 40,
+          "recentReviewCount": 1,
+          "positivePercent": 0,
+          "latestReviewAt": "2026-08-24T23:57:00.000Z"
+        },
+        {
+          "gameSlug": "epsilon",
+          "appId": 50,
+          "recentReviewCount": 1,
+          "positivePercent": 100,
+          "latestReviewAt": "2026-08-24T23:57:00.000Z"
+        },
+        {
+          "gameSlug": "gamma",
+          "appId": null,
+          "recentReviewCount": 1,
+          "positivePercent": null,
+          "latestReviewAt": "2026-08-18T00:00:00.000Z"
+        }
+      ]
+    },
+    {
+      "records": [
+        {
+          "gameSlug": "alpha",
+          "appId": 10,
+          "postedAt": 1787615940000,
+          "reaction": "positive"
+        },
+        {
+          "gameSlug": "alpha",
+          "appId": 10,
+          "postedAt": 1787615880000,
+          "reaction": "negative"
+        },
+        {
+          "gameSlug": "alpha",
+          "appId": 10,
+          "postedAt": 1787615870000,
+          "reaction": "positive"
+        },
+        {
+          "gameSlug": " beta ",
+          "appId": 20,
+          "postedAt": 1787615820000,
+          "reaction": "positive"
+        },
+        {
+          "gameSlug": "beta",
+          "appId": 21,
+          "postedAt": 1787615810000,
+          "reaction": null
+        },
+        {
+          "gameSlug": "gamma",
+          "appId": null,
+          "postedAt": 1787011200000,
+          "reaction": null
+        },
+        {
+          "gameSlug": "delta",
+          "appId": 40,
+          "postedAt": 1787615820000,
+          "reaction": "negative"
+        },
+        {
+          "gameSlug": "epsilon",
+          "appId": 50,
+          "postedAt": 1787615820000,
+          "reaction": "positive"
+        },
+        {
+          "gameSlug": "old",
+          "appId": 30,
+          "postedAt": 1786924800000,
+          "reaction": "positive"
+        },
+        {
+          "gameSlug": "future",
+          "appId": 30,
+          "postedAt": 1787616000001,
+          "reaction": "positive"
+        },
+        {
+          "gameSlug": null,
+          "appId": 1,
+          "postedAt": 1787615999999,
+          "reaction": "positive"
+        },
+        {
+          "gameSlug": "  ",
+          "appId": 1,
+          "postedAt": 1787615999999,
+          "reaction": "positive"
+        }
+      ],
+      "now": 1787616000000,
+      "limit": 2,
+      "result": [
+        {
+          "gameSlug": "alpha",
+          "appId": 10,
+          "recentReviewCount": 3,
+          "positivePercent": 67,
+          "latestReviewAt": "2026-08-24T23:59:00.000Z"
+        },
+        {
+          "gameSlug": "beta",
+          "appId": null,
+          "recentReviewCount": 2,
+          "positivePercent": 100,
+          "latestReviewAt": "2026-08-24T23:57:00.000Z"
+        }
+      ]
+    },
+    {
+      "records": [
+        {
+          "gameSlug": "alpha",
+          "appId": 10,
+          "postedAt": 1787615940000,
+          "reaction": "positive"
+        },
+        {
+          "gameSlug": "alpha",
+          "appId": 10,
+          "postedAt": 1787615880000,
+          "reaction": "negative"
+        },
+        {
+          "gameSlug": "alpha",
+          "appId": 10,
+          "postedAt": 1787615870000,
+          "reaction": "positive"
+        },
+        {
+          "gameSlug": " beta ",
+          "appId": 20,
+          "postedAt": 1787615820000,
+          "reaction": "positive"
+        },
+        {
+          "gameSlug": "beta",
+          "appId": 21,
+          "postedAt": 1787615810000,
+          "reaction": null
+        },
+        {
+          "gameSlug": "gamma",
+          "appId": null,
+          "postedAt": 1787011200000,
+          "reaction": null
+        },
+        {
+          "gameSlug": "delta",
+          "appId": 40,
+          "postedAt": 1787615820000,
+          "reaction": "negative"
+        },
+        {
+          "gameSlug": "epsilon",
+          "appId": 50,
+          "postedAt": 1787615820000,
+          "reaction": "positive"
+        },
+        {
+          "gameSlug": "old",
+          "appId": 30,
+          "postedAt": 1786924800000,
+          "reaction": "positive"
+        },
+        {
+          "gameSlug": "future",
+          "appId": 30,
+          "postedAt": 1787616000001,
+          "reaction": "positive"
+        },
+        {
+          "gameSlug": null,
+          "appId": 1,
+          "postedAt": 1787615999999,
+          "reaction": "positive"
+        },
+        {
+          "gameSlug": "  ",
+          "appId": 1,
+          "postedAt": 1787615999999,
+          "reaction": "positive"
+        }
+      ],
+      "now": 1787616000000,
+      "limit": -1,
+      "result": []
+    }
+  ],
+  "appIds": [
+    {
+      "url": "https://steamcommunity.com/profiles/1/recommended/1245620/",
+      "appId": 1245620
+    },
+    {
+      "url": "https://steamcommunity.com/id/x/recommended/1245620",
+      "appId": 1245620
+    },
+    {
+      "url": "https://store.steampowered.com/app/10/Name/",
+      "appId": 10
+    },
+    {
+      "url": "https://STORE.steampowered.com/app/0/",
+      "appId": null
+    },
+    {
+      "url": "http://store.steampowered.com/app/10/",
+      "appId": null
+    },
+    {
+      "url": "https://example.com/recommended/1245620/",
+      "appId": null
+    },
+    {
+      "url": "https://steamcommunity.com/recommended/12x/",
+      "appId": null
+    },
+    {
+      "url": "https://steamcommunity.com/app/12x/app/34",
+      "appId": 34
+    },
+    {
+      "url": "https://steamcommunity.com/app/9007199254740991",
+      "appId": 9007199254740991
+    },
+    {
+      "url": "https://steamcommunity.com/app/9007199254740992",
+      "appId": null
+    },
+    {
+      "url": "https://steamcommunity.com/app/007/",
+      "appId": 7
+    },
+    {
+      "url": "not a url",
+      "appId": null
+    },
+    {
+      "url": "",
+      "appId": null
+    },
+    {
+      "url": "https://steamcommunity.com/apps/10/",
+      "appId": null
+    },
+    {
+      "url": "https://steamcommunity.com/app//10",
+      "appId": null
+    },
+    {
+      "url": "https://steamcommunity.com:443/app/77?x=1",
+      "appId": 77
+    }
+  ],
+  "rooms": [
+    {
+      "raw": "",
+      "id": "lobby"
+    },
+    {
+      "raw": "  lobby2 ",
+      "id": "lobby2"
+    },
+    {
+      "raw": "a b/c?d=e",
+      "id": "abcde"
+    },
+    {
+      "raw": "日本語room",
+      "id": "room"
+    },
+    {
+      "raw": "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx",
+      "id": "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"
+    },
+    {
+      "raw": "...",
+      "id": "..."
+    },
+    {
+      "raw": "A-Z_a.z-09",
+      "id": "A-Z_a.z-09"
+    },
+    {
+      "raw": "🙂",
+      "id": "lobby"
+    },
+    {
+      "raw": null,
+      "id": "lobby"
+    }
+  ],
+  "transcript": {
+    "sessions": [
+      [
+        "s-in",
+        "knowledge",
+        "web-session:r1",
+        "web:r1",
+        1
+      ],
+      [
+        "s-gap",
+        "knowledge",
+        "discussion-of-gap:g1",
+        "web:r1",
+        2
+      ],
+      [
+        "s-other",
+        "knowledge",
+        "web-session:r2",
+        "web:r2",
+        3
+      ],
+      [
+        "s-ws",
+        "other",
+        "web-session:r1",
+        "web:r1",
+        4
+      ]
+    ],
+    "utterances": [
+      [
+        "u1",
+        "s-in",
+        "太郎",
+        "こんにちは",
+        100
+      ],
+      [
+        "u2",
+        "s-gap",
+        "太郎",
+        "ミラー",
+        100
+      ],
+      [
+        "u3",
+        "s-gap",
+        "persona:p1",
+        "ペルソナ発話",
+        110
+      ],
+      [
+        "u4",
+        "s-gap",
+        null,
+        "進行",
+        120
+      ],
+      [
+        "u5",
+        "s-gap",
+        "ext:steam:1",
+        "外部",
+        130
+      ],
+      [
+        "u6",
+        "s-in",
+        "persona:p2",
+        "入口の非人間",
+        140
+      ],
+      [
+        "u7",
+        "s-other",
+        "花子",
+        "別 room",
+        150
+      ],
+      [
+        "u8",
+        "s-ws",
+        "次郎",
+        "別 workspace",
+        160
+      ],
+      [
+        "u0",
+        "s-in",
+        "",
+        "空 speaker",
+        160
+      ],
+      [
+        "u9",
+        "s-gap",
+        "persona:",
+        "空 persona",
+        170
+      ]
+    ],
+    "cases": [
+      {
+        "options": {},
+        "result": [
+          {
+            "id": "u1",
+            "role": "human",
+            "speaker": "太郎",
+            "content": "こんにちは",
+            "postedAt": 100
+          },
+          {
+            "id": "u3",
+            "role": "persona",
+            "speaker": "p1",
+            "content": "ペルソナ発話",
+            "postedAt": 110
+          },
+          {
+            "id": "u4",
+            "role": "facilitator",
+            "speaker": "進行役",
+            "content": "進行",
+            "postedAt": 120
+          },
+          {
+            "id": "u5",
+            "role": "external",
+            "speaker": "外部の声",
+            "content": "外部",
+            "postedAt": 130
+          },
+          {
+            "id": "u9",
+            "role": "persona",
+            "speaker": "論者",
+            "content": "空 persona",
+            "postedAt": 170
+          }
+        ]
+      },
+      {
+        "options": {
+          "sinceTs": 120,
+          "limit": 3
+        },
+        "result": [
+          {
+            "id": "u4",
+            "role": "facilitator",
+            "speaker": "進行役",
+            "content": "進行",
+            "postedAt": 120
+          },
+          {
+            "id": "u5",
+            "role": "external",
+            "speaker": "外部の声",
+            "content": "外部",
+            "postedAt": 130
+          }
+        ]
+      },
+      {
+        "options": {
+          "resolve": true
+        },
+        "result": [
+          {
+            "id": "u1",
+            "role": "human",
+            "speaker": "太郎",
+            "content": "こんにちは",
+            "postedAt": 100
+          },
+          {
+            "id": "u3",
+            "role": "persona",
+            "speaker": "名:p1",
+            "content": "ペルソナ発話",
+            "postedAt": 110
+          },
+          {
+            "id": "u4",
+            "role": "facilitator",
+            "speaker": "進行役",
+            "content": "進行",
+            "postedAt": 120
+          },
+          {
+            "id": "u5",
+            "role": "external",
+            "speaker": "外部の声",
+            "content": "外部",
+            "postedAt": 130
+          },
+          {
+            "id": "u9",
+            "role": "persona",
+            "speaker": "名:",
+            "content": "空 persona",
+            "postedAt": 170
+          }
+        ]
+      },
+      {
+        "options": {
+          "room": "r2"
+        },
+        "result": [
+          {
+            "id": "u7",
+            "role": "human",
+            "speaker": "花子",
+            "content": "別 room",
+            "postedAt": 150
+          }
+        ]
+      }
+    ]
+  }
+}
