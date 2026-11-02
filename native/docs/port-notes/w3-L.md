@@ -10,6 +10,8 @@ Node 側はプロンプトの種類 (価値軸・開幕・発話・投票・要�
 C++ 側は記録した応答を順に返し (`ReplayLLM`)、同じ呼び出し列・同じ行・同じ通知になることを確かめる。
 randomUUID は出てきた順に `<U1>` `<U2>` … に置き換えて比べ、応答に含まれる `<Uk>` は C++ 側の実 id に戻して返す
 (ペルソナ価値軸の応答が personaId を含むため)。乱数は両側同じ LCG を注入する。
+投票者は 1 人にしている: 同票のくじは候補 id (乱数の UUID) の昇順で引くので、同票があると Node と C++ で勝者が変わる
+(実装の差ではなく id が乱数であるため。同票のくじ自体は w2-G の vote の golden で確認済み)。
 シナリオは 3 本: basic (投票・止揚・JSON 結論・空応答のスキップ・外部の声)、override (確定ペーパー・承認済み論点・
 機密タグの想定意見・開幕と発話の LLM エラー・早期収束・結論の JSON 失敗 2 回 → 未検証・議論適性の注記・リファイン)、
 scores (improvement フロー・機械スコアの評価差し替え・onVote の例外・憑依・結論 LLM 失敗)。
@@ -52,6 +54,9 @@ scores (improvement フロー・機械スコアの評価差し替え・onVote �
 | tests/fundamentum-export/run.ts | fundamentum_export.w3l_export (+ snapshot と content id の golden) |
 | tests/visualize/conclusion-publication.test.ts のルート部分 | api.conclusion_publication_routes |
 
+ctest 全体: 108/108 通過 (ビルドディレクトリ `/home/user/build-w3-L`、このうち w3-L の 4 本: flow.w3l_director /
+visualize.w3l_conclusions / fundamentum_export.w3l_export / api.conclusion_publication_routes)。
+
 ## 3. 安全の対応表
 
 | 防御 / 入力経路 | C++ |
@@ -83,7 +88,10 @@ scores (improvement フロー・機械スコアの評価差し替え・onVote �
   `recompute_material_counts` の算出値は double で受け、非有限・負は書かない (同じ)。読み戻しは整数 (小数の件数は切り捨て。TS は小数を保持)。
 - `ConclusionSummary` の件数・時刻は int64 (DB は INTEGER)。
 - `render_conclusion_markdown` は `updatedAt` が Date の範囲 (±8.64e15) 外なら `std::range_error` (TS の RangeError と同じ位置で失敗)。
-- `safe_slug` の 60 単位の切り出しはサロゲートの途中で切れたとき `str::js_slice` の扱い (U+FFFD) になる (TS は孤立サロゲートを含む文字列)。
+- `safe_slug` の 60 単位の切り出しはサロゲートの途中で切れたとき `str::js_slice` の扱いになる (TS は孤立サロゲートを含む文字列。
+  JSON に書けないため golden から外した)。
+- GLAB トークンの比較は Node と同じく「ヘッダ値を latin1 として読んだものの UTF-8」と設定値を比べる。設定値に非 ASCII を含むと
+  UTF-8 のまま送られた値とは一致しない (Node と同じ。テストで確認)。
 - `request_url_parts` (Host の正規化) は WHATWG URL の全規則ではない: `127.1` や `[0:0::1]` のような別表記・percent-encoding の
   ホストは正規化せずに不一致として 403 にする (TS は URL の正規化で通すことがあった。拒否側に倒れる差)。Host が無いときは 403 (Node は 400)。
 - `list_exported_discussions` の並びは `visualize::locale_compare` (ICU 近似、w1-F)。ASCII の議論 id では同じ。
@@ -97,6 +105,8 @@ scores (improvement フロー・機械スコアの評価差し替え・onVote �
   - `http::Request` に「要求 URL (Hono の `c.req.url`)」を組む関数。今は `api::request_url_parts` に局所的に持った (Host の読み方を各所で揃えるため)。
   - Node と同じ「ヘッダ値を latin1 として読んだ文字列の UTF-8」を返す補助 (`bearer_token_of` に局所的に持った)。
   - テスト補助: UUID の正規化と記録した応答を返す偽の LLM (`tests/flow/w3l_support.hpp`) は他の flow の golden でも使える。
+  - 作業環境: 全体ビルド中にディスクが満杯 (No space left on device) になった。各担当の Debug ビルド (-g) が 3GB 前後あるため。
+    このビルドディレクトリは `-DCMAKE_CXX_FLAGS_DEBUG=-g0 -DCMAKE_EXE_LINKER_FLAGS=-s` で構成した (CMake のファイルは変えていない)。
 - 人間の判断が要ること
   - 他の担当 (dialectic driver / foresight / web / discord-live) が `FlowUtteranceRecord` / `VoteEvent` / `FlowDirectorResult` を
     `flow/director.hpp` から使う前提にした。並行の担当が別に定義していれば統合時に一本化が要る。
