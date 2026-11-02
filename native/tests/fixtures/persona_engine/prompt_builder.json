@@ -1,0 +1,314 @@
+[
+  {
+    "scenario": {
+      "name": "full",
+      "sessionId": "s1",
+      "gaps": [
+        {
+          "id": "g-closed",
+          "title": "閉じた議題",
+          "description": "古い",
+          "status": "closed",
+          "gapIn": null,
+          "expectedAffect": null,
+          "observedAffect": null,
+          "hypothesisIds": [],
+          "updatedAt": 5
+        },
+        {
+          "id": "g1",
+          "title": "  ガチャの天井、 是か非か!? ",
+          "description": "対象ゲーム: モンスト「天井」/ 確率・課金 (2026)—検討",
+          "status": "OPEN",
+          "gapIn": "mech",
+          "expectedAffect": "joy",
+          "observedAffect": null,
+          "hypothesisIds": [
+            "h1",
+            "h2"
+          ],
+          "updatedAt": 4
+        }
+      ],
+      "voices": true,
+      "directives": [
+        "もっと簡単な言葉で",
+        "否定的に"
+      ],
+      "active": null
+    },
+    "system": "あなたは議論ペルソナ「懐疑者 (問田 鋭)」 です。\n性格 / 役割: 弱点を探す役\n特徴: 疑り深い / 鋭い\n話し方: 鋭く\n\nあなたは Discutere の議論エンジン上で発言するペルソナです。\n\n【発言 (text フィールド) の書き方 — 重要】\n- Discord のチャットで実在の人間が話すように、 自然な口語で書く。\n- 「反証:」「反例:」「弱点:」のような ラベル / 見出しは絶対に付けない。\n  否定したい時は『それは違うんじゃない?』のように普通の言葉で。\n  反例を出す時は『たとえば〇〇のケースだと…』のように具体例として話す。\n- 箇条書きや番号は使わず、 会話の一言として書く。\n- 一文ごとに改行する (。! ? で改行)。\n- 1〜3 文程度。 長文の説明にしない。\n\n出力は **必ず JSON のみ** で、 説明文や前置きを付けないでください。\n【応答 JSON の形式 — action は厳密にこの名前】\n- 発言する時: {\"action\":\"post_utterance\",\"text\":\"<あなたの発言>\"}\n  ※ action は必ず \"post_utterance\"。 \"speak\" や \"say\" 等の別名は不可 (エラーになる)。\n- 発言しない時: {\"action\":\"skip\",\"reasoning\":\"<理由>\"}\n確信が無い場合や、 ルールの意図に合わない場合は躊躇なく skip を返してください。",
+    "user": "# Rule (triggered by tick)\nid: refute-cold\ndescription: 説明\n## 議題 (この前提から絶対に外れない)\n題目:   ガチャの天井、 是か非か!? \n対象ゲーム: モンスト「天井」/ 確率・課金 (2026)—検討\n→ 上の対象ゲーム・ジャンルに即して論じる。別ゲームや別ジャンルの話に逸らさない。\n## 進行役への調整指示 (参加者からのリクエスト — 発言で必ず反映する)\n- もっと簡単な言葉で\n- 否定的に\n※ 議題そのものは変えない。 議論の進め方・トーン・語り口の調整として従う。\n## 外部の声 (JSON の externalVoices)\nexternalVoices は外部から集めた実在の意見 (出所付き / 投稿者は仮名)。\n議論に関連するものは「○○ (source) はこう言ってる」のように**出所(ソース種別)を添えて引用・参照**してよい。\n投稿者個人の特定はしない (表示名は仮名のまま)。関係ない声は無視してよい。\n## 指示\n指示1\n\n指示2\n## これまでの発言 (utterances は時系列。人間の発言があれば最優先で踏まえ、無視しない)\n## 議論コンテキスト (JSON)\n```json\n{\n  \"hypotheses\": [\n    {\n      \"id\": \"h1\",\n      \"statement\": \"天井は必要\",\n      \"status\": \"proposed\",\n      \"designGapId\": \"g1\",\n      \"updatedAt\": 10\n    },\n    {\n      \"id\": \"h2\",\n      \"statement\": \"不要\",\n      \"status\": \"proposed\",\n      \"designGapId\": null,\n      \"updatedAt\": 9\n    }\n  ],\n  \"gaps\": [\n    {\n      \"id\": \"g-closed\",\n      \"title\": \"閉じた議題\",\n      \"description\": \"古い\",\n      \"status\": \"closed\",\n      \"gapIn\": null,\n      \"expectedAffect\": null,\n      \"observedAffect\": null,\n      \"hypothesisIds\": [],\n      \"updatedAt\": 5\n    },\n    {\n      \"id\": \"g1\",\n      \"title\": \"  ガチャの天井、 是か非か!? \",\n      \"description\": \"対象ゲーム: モンスト「天井」/ 確率・課金 (2026)—検討\",\n      \"status\": \"OPEN\",\n      \"gapIn\": \"mech\",\n      \"expectedAffect\": \"joy\",\n      \"observedAffect\": null,\n      \"hypothesisIds\": [\n        \"h1\",\n        \"h2\"\n      ],\n      \"updatedAt\": 4\n    }\n  ],\n  \"utterances\": [\n    {\n      \"id\": \"u1\",\n      \"sessionId\": \"s1\",\n      \"rawContent\": \"人間です \\\"引用\\\"\",\n      \"postedAt\": 100\n    }\n  ],\n  \"externalVoices\": [\n    {\n      \"id\": \"v1\",\n      \"content\": \"天井ありがたい\",\n      \"source\": \"youtube\",\n      \"sourceUrl\": \"https://example.com/v\",\n      \"speakerLabel\": \"論者#a1b2\",\n      \"score\": 0.75\n    },\n    {\n      \"id\": \"v2\",\n      \"content\": \"x\",\n      \"source\": \"steam\",\n      \"sourceUrl\": null,\n      \"speakerLabel\": \"外部の声\",\n      \"score\": 1\n    }\n  ]\n}\n```\n上記の議題と発言を必ず踏まえ、 指示に従って応答 JSON のみを返してください。",
+    "calls": [
+      [
+        "hyp",
+        "ws",
+        8
+      ],
+      [
+        "gaps",
+        "ws",
+        6
+      ],
+      [
+        "utt",
+        "ws",
+        "s1",
+        12
+      ],
+      [
+        "voices",
+        "ws",
+        [
+          "ガチャの天井、 是か非か!?",
+          "ガチャの天井",
+          "是か非か",
+          "対象ゲーム",
+          "モンスト",
+          "天井",
+          "確率",
+          "課金",
+          "2026",
+          "検討"
+        ],
+        6
+      ],
+      [
+        "dir",
+        "ws",
+        "g1",
+        5
+      ]
+    ]
+  },
+  {
+    "scenario": {
+      "name": "tick-active-session",
+      "sessionId": null,
+      "gaps": [
+        {
+          "id": "g-closed",
+          "title": "閉じた議題",
+          "description": "古い",
+          "status": "closed",
+          "gapIn": null,
+          "expectedAffect": null,
+          "observedAffect": null,
+          "hypothesisIds": [],
+          "updatedAt": 5
+        },
+        {
+          "id": "g1",
+          "title": "  ガチャの天井、 是か非か!? ",
+          "description": "対象ゲーム: モンスト「天井」/ 確率・課金 (2026)—検討",
+          "status": "OPEN",
+          "gapIn": "mech",
+          "expectedAffect": "joy",
+          "observedAffect": null,
+          "hypothesisIds": [
+            "h1",
+            "h2"
+          ],
+          "updatedAt": 4
+        }
+      ],
+      "voices": false,
+      "directives": [],
+      "active": "s-active"
+    },
+    "system": "あなたは議論ペルソナ「懐疑者 (問田 鋭)」 です。\n性格 / 役割: 弱点を探す役\n特徴: 疑り深い / 鋭い\n話し方: 鋭く\n\nあなたは Discutere の議論エンジン上で発言するペルソナです。\n\n【発言 (text フィールド) の書き方 — 重要】\n- Discord のチャットで実在の人間が話すように、 自然な口語で書く。\n- 「反証:」「反例:」「弱点:」のような ラベル / 見出しは絶対に付けない。\n  否定したい時は『それは違うんじゃない?』のように普通の言葉で。\n  反例を出す時は『たとえば〇〇のケースだと…』のように具体例として話す。\n- 箇条書きや番号は使わず、 会話の一言として書く。\n- 一文ごとに改行する (。! ? で改行)。\n- 1〜3 文程度。 長文の説明にしない。\n\n出力は **必ず JSON のみ** で、 説明文や前置きを付けないでください。\n【応答 JSON の形式 — action は厳密にこの名前】\n- 発言する時: {\"action\":\"post_utterance\",\"text\":\"<あなたの発言>\"}\n  ※ action は必ず \"post_utterance\"。 \"speak\" や \"say\" 等の別名は不可 (エラーになる)。\n- 発言しない時: {\"action\":\"skip\",\"reasoning\":\"<理由>\"}\n確信が無い場合や、 ルールの意図に合わない場合は躊躇なく skip を返してください。",
+    "user": "# Rule (triggered by tick)\nid: refute-cold\ndescription: 説明\n## 議題 (この前提から絶対に外れない)\n題目:   ガチャの天井、 是か非か!? \n対象ゲーム: モンスト「天井」/ 確率・課金 (2026)—検討\n→ 上の対象ゲーム・ジャンルに即して論じる。別ゲームや別ジャンルの話に逸らさない。\n## 指示\n指示1\n\n指示2\n## これまでの発言 (utterances は時系列。人間の発言があれば最優先で踏まえ、無視しない)\n## 議論コンテキスト (JSON)\n```json\n{\n  \"hypotheses\": [\n    {\n      \"id\": \"h1\",\n      \"statement\": \"天井は必要\",\n      \"status\": \"proposed\",\n      \"designGapId\": \"g1\",\n      \"updatedAt\": 10\n    },\n    {\n      \"id\": \"h2\",\n      \"statement\": \"不要\",\n      \"status\": \"proposed\",\n      \"designGapId\": null,\n      \"updatedAt\": 9\n    }\n  ],\n  \"gaps\": [\n    {\n      \"id\": \"g-closed\",\n      \"title\": \"閉じた議題\",\n      \"description\": \"古い\",\n      \"status\": \"closed\",\n      \"gapIn\": null,\n      \"expectedAffect\": null,\n      \"observedAffect\": null,\n      \"hypothesisIds\": [],\n      \"updatedAt\": 5\n    },\n    {\n      \"id\": \"g1\",\n      \"title\": \"  ガチャの天井、 是か非か!? \",\n      \"description\": \"対象ゲーム: モンスト「天井」/ 確率・課金 (2026)—検討\",\n      \"status\": \"OPEN\",\n      \"gapIn\": \"mech\",\n      \"expectedAffect\": \"joy\",\n      \"observedAffect\": null,\n      \"hypothesisIds\": [\n        \"h1\",\n        \"h2\"\n      ],\n      \"updatedAt\": 4\n    }\n  ],\n  \"utterances\": [\n    {\n      \"id\": \"u1\",\n      \"sessionId\": \"s-active\",\n      \"rawContent\": \"人間です \\\"引用\\\"\",\n      \"postedAt\": 100\n    }\n  ]\n}\n```\n上記の議題と発言を必ず踏まえ、 指示に従って応答 JSON のみを返してください。",
+    "calls": [
+      [
+        "hyp",
+        "ws",
+        8
+      ],
+      [
+        "gaps",
+        "ws",
+        6
+      ],
+      [
+        "active",
+        "ws"
+      ],
+      [
+        "utt",
+        "ws",
+        "s-active",
+        12
+      ],
+      [
+        "voices",
+        "ws",
+        [
+          "ガチャの天井、 是か非か!?",
+          "ガチャの天井",
+          "是か非か",
+          "対象ゲーム",
+          "モンスト",
+          "天井",
+          "確率",
+          "課金",
+          "2026",
+          "検討"
+        ],
+        6
+      ],
+      [
+        "dir",
+        "ws",
+        "g1",
+        5
+      ]
+    ]
+  },
+  {
+    "scenario": {
+      "name": "tick-no-session",
+      "sessionId": null,
+      "gaps": [],
+      "voices": true,
+      "directives": [
+        "x"
+      ],
+      "active": null
+    },
+    "system": "あなたは議論ペルソナ「懐疑者 (問田 鋭)」 です。\n性格 / 役割: 弱点を探す役\n特徴: 疑り深い / 鋭い\n話し方: 鋭く\n\nあなたは Discutere の議論エンジン上で発言するペルソナです。\n\n【発言 (text フィールド) の書き方 — 重要】\n- Discord のチャットで実在の人間が話すように、 自然な口語で書く。\n- 「反証:」「反例:」「弱点:」のような ラベル / 見出しは絶対に付けない。\n  否定したい時は『それは違うんじゃない?』のように普通の言葉で。\n  反例を出す時は『たとえば〇〇のケースだと…』のように具体例として話す。\n- 箇条書きや番号は使わず、 会話の一言として書く。\n- 一文ごとに改行する (。! ? で改行)。\n- 1〜3 文程度。 長文の説明にしない。\n\n出力は **必ず JSON のみ** で、 説明文や前置きを付けないでください。\n【応答 JSON の形式 — action は厳密にこの名前】\n- 発言する時: {\"action\":\"post_utterance\",\"text\":\"<あなたの発言>\"}\n  ※ action は必ず \"post_utterance\"。 \"speak\" や \"say\" 等の別名は不可 (エラーになる)。\n- 発言しない時: {\"action\":\"skip\",\"reasoning\":\"<理由>\"}\n確信が無い場合や、 ルールの意図に合わない場合は躊躇なく skip を返してください。",
+    "user": "# Rule (triggered by tick)\nid: refute-cold\ndescription: 説明\n## 指示\n指示1\n\n指示2\n## これまでの発言 (utterances は時系列。人間の発言があれば最優先で踏まえ、無視しない)\n## 議論コンテキスト (JSON)\n```json\n{\n  \"hypotheses\": [\n    {\n      \"id\": \"h1\",\n      \"statement\": \"天井は必要\",\n      \"status\": \"proposed\",\n      \"designGapId\": \"g1\",\n      \"updatedAt\": 10\n    },\n    {\n      \"id\": \"h2\",\n      \"statement\": \"不要\",\n      \"status\": \"proposed\",\n      \"designGapId\": null,\n      \"updatedAt\": 9\n    }\n  ],\n  \"gaps\": [],\n  \"utterances\": []\n}\n```\n上記の議題と発言を必ず踏まえ、 指示に従って応答 JSON のみを返してください。",
+    "calls": [
+      [
+        "hyp",
+        "ws",
+        8
+      ],
+      [
+        "gaps",
+        "ws",
+        6
+      ],
+      [
+        "active",
+        "ws"
+      ]
+    ]
+  },
+  {
+    "scenario": {
+      "name": "all-closed",
+      "sessionId": "s1",
+      "gaps": [
+        {
+          "id": "g-closed",
+          "title": "閉じた議題",
+          "description": "古い",
+          "status": "closed",
+          "gapIn": null,
+          "expectedAffect": null,
+          "observedAffect": null,
+          "hypothesisIds": [],
+          "updatedAt": 5
+        }
+      ],
+      "voices": true,
+      "directives": [],
+      "active": null,
+      "rule": {
+        "description": null
+      },
+      "persona": {
+        "traits": "not json"
+      }
+    },
+    "system": "あなたは議論ペルソナ「懐疑者 (問田 鋭)」 です。\n性格 / 役割: 弱点を探す役\n特徴: \n話し方: 鋭く\n\nあなたは Discutere の議論エンジン上で発言するペルソナです。\n\n【発言 (text フィールド) の書き方 — 重要】\n- Discord のチャットで実在の人間が話すように、 自然な口語で書く。\n- 「反証:」「反例:」「弱点:」のような ラベル / 見出しは絶対に付けない。\n  否定したい時は『それは違うんじゃない?』のように普通の言葉で。\n  反例を出す時は『たとえば〇〇のケースだと…』のように具体例として話す。\n- 箇条書きや番号は使わず、 会話の一言として書く。\n- 一文ごとに改行する (。! ? で改行)。\n- 1〜3 文程度。 長文の説明にしない。\n\n出力は **必ず JSON のみ** で、 説明文や前置きを付けないでください。\n【応答 JSON の形式 — action は厳密にこの名前】\n- 発言する時: {\"action\":\"post_utterance\",\"text\":\"<あなたの発言>\"}\n  ※ action は必ず \"post_utterance\"。 \"speak\" や \"say\" 等の別名は不可 (エラーになる)。\n- 発言しない時: {\"action\":\"skip\",\"reasoning\":\"<理由>\"}\n確信が無い場合や、 ルールの意図に合わない場合は躊躇なく skip を返してください。",
+    "user": "# Rule (triggered by tick)\nid: refute-cold\n## 議題 (この前提から絶対に外れない)\n題目: 閉じた議題\n古い\n→ 上の対象ゲーム・ジャンルに即して論じる。別ゲームや別ジャンルの話に逸らさない。\n## 外部の声 (JSON の externalVoices)\nexternalVoices は外部から集めた実在の意見 (出所付き / 投稿者は仮名)。\n議論に関連するものは「○○ (source) はこう言ってる」のように**出所(ソース種別)を添えて引用・参照**してよい。\n投稿者個人の特定はしない (表示名は仮名のまま)。関係ない声は無視してよい。\n## 指示\n指示1\n\n指示2\n## これまでの発言 (utterances は時系列。人間の発言があれば最優先で踏まえ、無視しない)\n## 議論コンテキスト (JSON)\n```json\n{\n  \"hypotheses\": [\n    {\n      \"id\": \"h1\",\n      \"statement\": \"天井は必要\",\n      \"status\": \"proposed\",\n      \"designGapId\": \"g1\",\n      \"updatedAt\": 10\n    },\n    {\n      \"id\": \"h2\",\n      \"statement\": \"不要\",\n      \"status\": \"proposed\",\n      \"designGapId\": null,\n      \"updatedAt\": 9\n    }\n  ],\n  \"gaps\": [\n    {\n      \"id\": \"g-closed\",\n      \"title\": \"閉じた議題\",\n      \"description\": \"古い\",\n      \"status\": \"closed\",\n      \"gapIn\": null,\n      \"expectedAffect\": null,\n      \"observedAffect\": null,\n      \"hypothesisIds\": [],\n      \"updatedAt\": 5\n    }\n  ],\n  \"utterances\": [\n    {\n      \"id\": \"u1\",\n      \"sessionId\": \"s1\",\n      \"rawContent\": \"人間です \\\"引用\\\"\",\n      \"postedAt\": 100\n    }\n  ],\n  \"externalVoices\": [\n    {\n      \"id\": \"v1\",\n      \"content\": \"天井ありがたい\",\n      \"source\": \"youtube\",\n      \"sourceUrl\": \"https://example.com/v\",\n      \"speakerLabel\": \"論者#a1b2\",\n      \"score\": 0.75\n    },\n    {\n      \"id\": \"v2\",\n      \"content\": \"x\",\n      \"source\": \"steam\",\n      \"sourceUrl\": null,\n      \"speakerLabel\": \"外部の声\",\n      \"score\": 1\n    }\n  ]\n}\n```\n上記の議題と発言を必ず踏まえ、 指示に従って応答 JSON のみを返してください。",
+    "calls": [
+      [
+        "hyp",
+        "ws",
+        8
+      ],
+      [
+        "gaps",
+        "ws",
+        6
+      ],
+      [
+        "utt",
+        "ws",
+        "s1",
+        12
+      ],
+      [
+        "voices",
+        "ws",
+        [
+          "閉じた議題",
+          "古い"
+        ],
+        6
+      ],
+      [
+        "dir",
+        "ws",
+        "g-closed",
+        5
+      ]
+    ]
+  },
+  {
+    "scenario": {
+      "name": "null-description",
+      "sessionId": "",
+      "gaps": [
+        {
+          "id": "g1",
+          "title": "a",
+          "description": null,
+          "status": "OPEN",
+          "gapIn": "mech",
+          "expectedAffect": "joy",
+          "observedAffect": null,
+          "hypothesisIds": [
+            "h1",
+            "h2"
+          ],
+          "updatedAt": 4
+        }
+      ],
+      "voices": true,
+      "directives": [],
+      "active": "zz",
+      "persona": {
+        "traits": "{\"a\":1}"
+      }
+    },
+    "system": "あなたは議論ペルソナ「懐疑者 (問田 鋭)」 です。\n性格 / 役割: 弱点を探す役\n特徴: \n話し方: 鋭く\n\nあなたは Discutere の議論エンジン上で発言するペルソナです。\n\n【発言 (text フィールド) の書き方 — 重要】\n- Discord のチャットで実在の人間が話すように、 自然な口語で書く。\n- 「反証:」「反例:」「弱点:」のような ラベル / 見出しは絶対に付けない。\n  否定したい時は『それは違うんじゃない?』のように普通の言葉で。\n  反例を出す時は『たとえば〇〇のケースだと…』のように具体例として話す。\n- 箇条書きや番号は使わず、 会話の一言として書く。\n- 一文ごとに改行する (。! ? で改行)。\n- 1〜3 文程度。 長文の説明にしない。\n\n出力は **必ず JSON のみ** で、 説明文や前置きを付けないでください。\n【応答 JSON の形式 — action は厳密にこの名前】\n- 発言する時: {\"action\":\"post_utterance\",\"text\":\"<あなたの発言>\"}\n  ※ action は必ず \"post_utterance\"。 \"speak\" や \"say\" 等の別名は不可 (エラーになる)。\n- 発言しない時: {\"action\":\"skip\",\"reasoning\":\"<理由>\"}\n確信が無い場合や、 ルールの意図に合わない場合は躊躇なく skip を返してください。",
+    "user": "# Rule (triggered by tick)\nid: refute-cold\ndescription: 説明\n## 議題 (この前提から絶対に外れない)\n題目: a\n→ 上の対象ゲーム・ジャンルに即して論じる。別ゲームや別ジャンルの話に逸らさない。\n## 外部の声 (JSON の externalVoices)\nexternalVoices は外部から集めた実在の意見 (出所付き / 投稿者は仮名)。\n議論に関連するものは「○○ (source) はこう言ってる」のように**出所(ソース種別)を添えて引用・参照**してよい。\n投稿者個人の特定はしない (表示名は仮名のまま)。関係ない声は無視してよい。\n## 指示\n指示1\n\n指示2\n## これまでの発言 (utterances は時系列。人間の発言があれば最優先で踏まえ、無視しない)\n## 議論コンテキスト (JSON)\n```json\n{\n  \"hypotheses\": [\n    {\n      \"id\": \"h1\",\n      \"statement\": \"天井は必要\",\n      \"status\": \"proposed\",\n      \"designGapId\": \"g1\",\n      \"updatedAt\": 10\n    },\n    {\n      \"id\": \"h2\",\n      \"statement\": \"不要\",\n      \"status\": \"proposed\",\n      \"designGapId\": null,\n      \"updatedAt\": 9\n    }\n  ],\n  \"gaps\": [\n    {\n      \"id\": \"g1\",\n      \"title\": \"a\",\n      \"description\": null,\n      \"status\": \"OPEN\",\n      \"gapIn\": \"mech\",\n      \"expectedAffect\": \"joy\",\n      \"observedAffect\": null,\n      \"hypothesisIds\": [\n        \"h1\",\n        \"h2\"\n      ],\n      \"updatedAt\": 4\n    }\n  ],\n  \"utterances\": [],\n  \"externalVoices\": [\n    {\n      \"id\": \"v1\",\n      \"content\": \"天井ありがたい\",\n      \"source\": \"youtube\",\n      \"sourceUrl\": \"https://example.com/v\",\n      \"speakerLabel\": \"論者#a1b2\",\n      \"score\": 0.75\n    },\n    {\n      \"id\": \"v2\",\n      \"content\": \"x\",\n      \"source\": \"steam\",\n      \"sourceUrl\": null,\n      \"speakerLabel\": \"外部の声\",\n      \"score\": 1\n    }\n  ]\n}\n```\n上記の議題と発言を必ず踏まえ、 指示に従って応答 JSON のみを返してください。",
+    "calls": [
+      [
+        "hyp",
+        "ws",
+        8
+      ],
+      [
+        "gaps",
+        "ws",
+        6
+      ],
+      [
+        "voices",
+        "ws",
+        [],
+        6
+      ],
+      [
+        "dir",
+        "ws",
+        "g1",
+        5
+      ]
+    ]
+  }
+]
