@@ -1,0 +1,5663 @@
+{
+  "draftToMarkdown": [
+    {
+      "content": {
+        "theme": "テーマ1",
+        "tags": [],
+        "supplement": "",
+        "mechanics": []
+      },
+      "md": "# 議題\nテーマ1\n\n# ゲームのメカニクス\n(メカニクスデータなし)"
+    },
+    {
+      "content": {
+        "theme": "テーマ2",
+        "tags": [
+          "機密"
+        ],
+        "supplement": "補足です",
+        "mechanics": [
+          {
+            "name": "ガチャ",
+            "description": "ランダム排出",
+            "intended_affect": "期待",
+            "source": "curated"
+          },
+          {
+            "name": "周回",
+            "description": "同じステージを回す"
+          },
+          {
+            "name": "仮説A",
+            "description": "LLM が出した",
+            "source": "llm",
+            "intended_affect": "高揚"
+          },
+          {
+            "name": "クロール",
+            "description": "集めた",
+            "source": "crawl"
+          }
+        ],
+        "issues": [
+          " 論点1 ",
+          "",
+          "論点2"
+        ]
+      },
+      "md": "# 議題\nテーマ2\n\n# 観点補足\n補足です\n\n# 論点\n1. 論点1\n2. 論点2\n\n# ゲームのメカニクス\n- **ガチャ**: ランダム排出 → 期待感情: 期待 （出所: curated）\n- **周回**: 同じステージを回す （出所: curated）\n- **クロール**: 集めた （出所: crawl）\n\n# 仮説メカニクス (LLM抽出・未検証)\n- **仮説A**: LLM が出した → 期待感情: 高揚"
+    },
+    {
+      "content": {
+        "theme": "固定",
+        "tags": [],
+        "supplement": "旧補足",
+        "mechanics": [
+          {
+            "name": "ガチャ",
+            "description": "ランダム排出",
+            "intended_affect": "期待",
+            "source": "curated"
+          },
+          {
+            "name": "周回",
+            "description": "同じステージを回す"
+          },
+          {
+            "name": "仮説A",
+            "description": "LLM が出した",
+            "source": "llm",
+            "intended_affect": "高揚"
+          },
+          {
+            "name": "クロール",
+            "description": "集めた",
+            "source": "crawl"
+          }
+        ],
+        "gameTitle": " ゲームX ",
+        "discussionContent": "内容"
+      },
+      "md": "# ゲームタイトル（または主目的）\nゲームX\n\n# 議論したいテーマ\n固定\n\n# 議論内容\n内容\n\n# システム/メカニクスの説明\n## 抽出されたメカニクス\n- **ガチャ**: ランダム排出 → 期待感情: 期待 （出所: curated）\n- **周回**: 同じステージを回す （出所: curated）\n- **クロール**: 集めた （出所: crawl）\n\n# 仮説メカニクス (LLM抽出・未検証)\n- **仮説A**: LLM が出した → 期待感情: 高揚\n\n# テーマについての補足情報\n旧補足"
+    },
+    {
+      "content": {
+        "theme": "固定2",
+        "tags": [],
+        "supplement": "旧補足",
+        "mechanics": [],
+        "mechanicsContext": "仕様の説明",
+        "themeSupplement": ""
+      },
+      "md": "# ゲームタイトル（または主目的）\n\n\n# 議論したいテーマ\n固定2\n\n# 議論内容\n\n\n# システム/メカニクスの説明\n仕様の説明\n\n# テーマについての補足情報\n"
+    },
+    {
+      "content": {
+        "theme": "固定3",
+        "tags": [],
+        "supplement": "s",
+        "mechanics": [
+          {
+            "name": "仮説A",
+            "description": "LLM が出した",
+            "source": "llm",
+            "intended_affect": "高揚"
+          }
+        ],
+        "discussionTheme": "  ",
+        "mechanicsContext": "ctx",
+        "issues": [
+          "q?"
+        ]
+      },
+      "md": "# ゲームタイトル（または主目的）\n\n\n# 議論したいテーマ\n固定3\n\n# 議論内容\n\n\n# 論点\n1. q?\n\n# システム/メカニクスの説明\nctx\n\n# 仮説メカニクス (LLM抽出・未検証)\n- **仮説A**: LLM が出した → 期待感情: 高揚\n\n# テーマについての補足情報\ns"
+    }
+  ],
+  "fromMarkdown": [
+    {
+      "md": "# 議題\nテーマ1\n\n# ゲームのメカニクス\n(メカニクスデータなし)",
+      "draft": {
+        "theme": "テーマ1",
+        "tags": [
+          "内部"
+        ],
+        "supplement": "FB補足",
+        "mechanics": [],
+        "issues": [
+          "FB論点"
+        ]
+      },
+      "draftFixed": {
+        "theme": "テーマ1",
+        "tags": [
+          "内部"
+        ],
+        "supplement": "FB補足",
+        "mechanics": [],
+        "issues": [
+          "FB論点"
+        ]
+      },
+      "fixed": {
+        "gameTitle": "FBゲーム",
+        "discussionTheme": "FB",
+        "discussionContent": "",
+        "mechanicsContext": "FB文脈",
+        "themeSupplement": "FB補足"
+      },
+      "stripped": "# 議題\nテーマ1\n\n# ゲームのメカニクス\n(メカニクスデータなし)"
+    },
+    {
+      "md": "# 議題\nテーマ2\n\n# 観点補足\n補足です\n\n# 論点\n1. 論点1\n2. 論点2\n\n# ゲームのメカニクス\n- **ガチャ**: ランダム排出 → 期待感情: 期待 （出所: curated）\n- **周回**: 同じステージを回す （出所: curated）\n- **クロール**: 集めた （出所: crawl）\n\n# 仮説メカニクス (LLM抽出・未検証)\n- **仮説A**: LLM が出した → 期待感情: 高揚",
+      "draft": {
+        "theme": "テーマ2",
+        "tags": [
+          "内部"
+        ],
+        "supplement": "補足です",
+        "mechanics": [
+          {
+            "name": "ガチャ",
+            "description": "ランダム排出",
+            "intended_affect": "期待",
+            "source": "curated"
+          },
+          {
+            "name": "周回",
+            "description": "同じステージを回す",
+            "source": "curated"
+          },
+          {
+            "name": "クロール",
+            "description": "集めた",
+            "source": "crawl"
+          },
+          {
+            "name": "仮説A",
+            "description": "LLM が出した",
+            "intended_affect": "高揚",
+            "source": "llm"
+          }
+        ],
+        "issues": [
+          "論点1",
+          "論点2"
+        ]
+      },
+      "draftFixed": {
+        "theme": "テーマ2",
+        "tags": [
+          "内部"
+        ],
+        "supplement": "補足です",
+        "mechanics": [
+          {
+            "name": "ガチャ",
+            "description": "ランダム排出",
+            "intended_affect": "期待",
+            "source": "curated"
+          },
+          {
+            "name": "周回",
+            "description": "同じステージを回す",
+            "source": "curated"
+          },
+          {
+            "name": "クロール",
+            "description": "集めた",
+            "source": "crawl"
+          },
+          {
+            "name": "仮説A",
+            "description": "LLM が出した",
+            "intended_affect": "高揚",
+            "source": "llm"
+          }
+        ],
+        "issues": [
+          "論点1",
+          "論点2"
+        ]
+      },
+      "fixed": {
+        "gameTitle": "FBゲーム",
+        "discussionTheme": "FB",
+        "discussionContent": "",
+        "mechanicsContext": "FB文脈",
+        "themeSupplement": "FB補足"
+      },
+      "stripped": "# 議題\nテーマ2\n\n# 観点補足\n補足です\n\n# 論点\n1. 論点1\n2. 論点2\n\n# ゲームのメカニクス\n- **ガチャ**: ランダム排出 → 期待感情: 期待 （出所: curated）\n- **周回**: 同じステージを回す （出所: curated）\n- **クロール**: 集めた （出所: crawl）\n\n# 仮説メカニクス (LLM抽出・未検証)\n- **仮説A**: LLM が出した → 期待感情: 高揚"
+    },
+    {
+      "md": "# ゲームタイトル（または主目的）\nゲームX\n\n# 議論したいテーマ\n固定\n\n# 議論内容\n内容\n\n# システム/メカニクスの説明\n## 抽出されたメカニクス\n- **ガチャ**: ランダム排出 → 期待感情: 期待 （出所: curated）\n- **周回**: 同じステージを回す （出所: curated）\n- **クロール**: 集めた （出所: crawl）\n\n# 仮説メカニクス (LLM抽出・未検証)\n- **仮説A**: LLM が出した → 期待感情: 高揚\n\n# テーマについての補足情報\n旧補足",
+      "draft": {
+        "theme": "固定",
+        "tags": [
+          "内部"
+        ],
+        "supplement": "旧補足",
+        "mechanics": [
+          {
+            "name": "ガチャ",
+            "description": "ランダム排出",
+            "intended_affect": "期待",
+            "source": "curated"
+          },
+          {
+            "name": "周回",
+            "description": "同じステージを回す",
+            "source": "curated"
+          },
+          {
+            "name": "クロール",
+            "description": "集めた",
+            "source": "crawl"
+          },
+          {
+            "name": "仮説A",
+            "description": "LLM が出した",
+            "intended_affect": "高揚",
+            "source": "llm"
+          }
+        ],
+        "issues": [
+          "FB論点"
+        ],
+        "gameTitle": "ゲームX",
+        "discussionTheme": "固定",
+        "discussionContent": "内容",
+        "mechanicsContext": "",
+        "themeSupplement": "旧補足"
+      },
+      "draftFixed": {
+        "theme": "固定",
+        "tags": [
+          "内部"
+        ],
+        "supplement": "旧補足",
+        "mechanics": [
+          {
+            "name": "ガチャ",
+            "description": "ランダム排出",
+            "intended_affect": "期待",
+            "source": "curated"
+          },
+          {
+            "name": "周回",
+            "description": "同じステージを回す",
+            "source": "curated"
+          },
+          {
+            "name": "クロール",
+            "description": "集めた",
+            "source": "crawl"
+          },
+          {
+            "name": "仮説A",
+            "description": "LLM が出した",
+            "intended_affect": "高揚",
+            "source": "llm"
+          }
+        ],
+        "issues": [
+          "FB論点"
+        ],
+        "gameTitle": "ゲームX",
+        "mechanicsContext": "FB文脈",
+        "discussionTheme": "固定",
+        "discussionContent": "内容",
+        "themeSupplement": "旧補足"
+      },
+      "fixed": {
+        "gameTitle": "ゲームX",
+        "discussionTheme": "固定",
+        "discussionContent": "内容",
+        "mechanicsContext": "FB文脈",
+        "themeSupplement": "旧補足"
+      },
+      "stripped": "# ゲームタイトル（または主目的）\nゲームX\n\n# 議論したいテーマ\n固定\n\n# 議論内容\n内容\n\n# システム/メカニクスの説明\n## 抽出されたメカニクス\n- **ガチャ**: ランダム排出 → 期待感情: 期待 （出所: curated）\n- **周回**: 同じステージを回す （出所: curated）\n- **クロール**: 集めた （出所: crawl）\n\n# 仮説メカニクス (LLM抽出・未検証)\n- **仮説A**: LLM が出した → 期待感情: 高揚\n\n# テーマについての補足情報\n旧補足"
+    },
+    {
+      "md": "# ゲームタイトル（または主目的）\n\n\n# 議論したいテーマ\n固定2\n\n# 議論内容\n\n\n# システム/メカニクスの説明\n仕様の説明\n\n# テーマについての補足情報\n",
+      "draft": {
+        "theme": "固定2",
+        "tags": [
+          "内部"
+        ],
+        "supplement": "FB補足",
+        "mechanics": [],
+        "issues": [
+          "FB論点"
+        ],
+        "gameTitle": "",
+        "discussionTheme": "固定2",
+        "discussionContent": "",
+        "mechanicsContext": "仕様の説明",
+        "themeSupplement": "FB補足"
+      },
+      "draftFixed": {
+        "theme": "固定2",
+        "tags": [
+          "内部"
+        ],
+        "supplement": "FB補足",
+        "mechanics": [],
+        "issues": [
+          "FB論点"
+        ],
+        "gameTitle": "FBゲーム",
+        "mechanicsContext": "仕様の説明",
+        "discussionTheme": "固定2",
+        "discussionContent": "",
+        "themeSupplement": "FB補足"
+      },
+      "fixed": {
+        "gameTitle": "FBゲーム",
+        "discussionTheme": "固定2",
+        "discussionContent": "",
+        "mechanicsContext": "仕様の説明",
+        "themeSupplement": "FB補足"
+      },
+      "stripped": "# ゲームタイトル（または主目的）\n\n\n# 議論したいテーマ\n固定2\n\n# 議論内容\n\n\n# システム/メカニクスの説明\n仕様の説明\n\n# テーマについての補足情報"
+    },
+    {
+      "md": "# ゲームタイトル（または主目的）\n\n\n# 議論したいテーマ\n固定3\n\n# 議論内容\n\n\n# 論点\n1. q?\n\n# システム/メカニクスの説明\nctx\n\n# 仮説メカニクス (LLM抽出・未検証)\n- **仮説A**: LLM が出した → 期待感情: 高揚\n\n# テーマについての補足情報\ns",
+      "draft": {
+        "theme": "固定3",
+        "tags": [
+          "内部"
+        ],
+        "supplement": "s",
+        "mechanics": [
+          {
+            "name": "仮説A",
+            "description": "LLM が出した",
+            "intended_affect": "高揚",
+            "source": "llm"
+          }
+        ],
+        "issues": [
+          "q?"
+        ],
+        "gameTitle": "",
+        "discussionTheme": "固定3",
+        "discussionContent": "",
+        "mechanicsContext": "ctx",
+        "themeSupplement": "s"
+      },
+      "draftFixed": {
+        "theme": "固定3",
+        "tags": [
+          "内部"
+        ],
+        "supplement": "s",
+        "mechanics": [
+          {
+            "name": "仮説A",
+            "description": "LLM が出した",
+            "intended_affect": "高揚",
+            "source": "llm"
+          }
+        ],
+        "issues": [
+          "q?"
+        ],
+        "gameTitle": "FBゲーム",
+        "mechanicsContext": "ctx",
+        "discussionTheme": "固定3",
+        "discussionContent": "",
+        "themeSupplement": "s"
+      },
+      "fixed": {
+        "gameTitle": "FBゲーム",
+        "discussionTheme": "固定3",
+        "discussionContent": "",
+        "mechanicsContext": "ctx",
+        "themeSupplement": "s"
+      },
+      "stripped": "# ゲームタイトル（または主目的）\n\n\n# 議論したいテーマ\n固定3\n\n# 議論内容\n\n\n# 論点\n1. q?\n\n# システム/メカニクスの説明\nctx\n\n# 仮説メカニクス (LLM抽出・未検証)\n- **仮説A**: LLM が出した → 期待感情: 高揚\n\n# テーマについての補足情報\ns"
+    },
+    {
+      "md": "",
+      "draft": {
+        "theme": "FB",
+        "tags": [
+          "内部"
+        ],
+        "supplement": "FB補足",
+        "mechanics": [
+          {
+            "name": "ガチャ",
+            "description": "ランダム排出",
+            "intended_affect": "期待",
+            "source": "curated"
+          },
+          {
+            "name": "周回",
+            "description": "同じステージを回す"
+          },
+          {
+            "name": "仮説A",
+            "description": "LLM が出した",
+            "source": "llm",
+            "intended_affect": "高揚"
+          },
+          {
+            "name": "クロール",
+            "description": "集めた",
+            "source": "crawl"
+          }
+        ],
+        "issues": [
+          "FB論点"
+        ]
+      },
+      "draftFixed": {
+        "theme": "FB",
+        "tags": [
+          "内部"
+        ],
+        "supplement": "FB補足",
+        "mechanics": [
+          {
+            "name": "ガチャ",
+            "description": "ランダム排出",
+            "intended_affect": "期待",
+            "source": "curated"
+          },
+          {
+            "name": "周回",
+            "description": "同じステージを回す"
+          },
+          {
+            "name": "仮説A",
+            "description": "LLM が出した",
+            "source": "llm",
+            "intended_affect": "高揚"
+          },
+          {
+            "name": "クロール",
+            "description": "集めた",
+            "source": "crawl"
+          }
+        ],
+        "issues": [
+          "FB論点"
+        ]
+      },
+      "fixed": {
+        "gameTitle": "FBゲーム",
+        "discussionTheme": "FB",
+        "discussionContent": "",
+        "mechanicsContext": "FB文脈",
+        "themeSupplement": "FB補足"
+      },
+      "stripped": ""
+    },
+    {
+      "md": "自由に書いた本文\nだけ",
+      "draft": {
+        "theme": "FB",
+        "tags": [
+          "内部"
+        ],
+        "supplement": "FB補足",
+        "mechanics": [
+          {
+            "name": "ガチャ",
+            "description": "ランダム排出",
+            "intended_affect": "期待",
+            "source": "curated"
+          },
+          {
+            "name": "周回",
+            "description": "同じステージを回す"
+          },
+          {
+            "name": "仮説A",
+            "description": "LLM が出した",
+            "source": "llm",
+            "intended_affect": "高揚"
+          },
+          {
+            "name": "クロール",
+            "description": "集めた",
+            "source": "crawl"
+          }
+        ],
+        "issues": [
+          "FB論点"
+        ]
+      },
+      "draftFixed": {
+        "theme": "FB",
+        "tags": [
+          "内部"
+        ],
+        "supplement": "FB補足",
+        "mechanics": [
+          {
+            "name": "ガチャ",
+            "description": "ランダム排出",
+            "intended_affect": "期待",
+            "source": "curated"
+          },
+          {
+            "name": "周回",
+            "description": "同じステージを回す"
+          },
+          {
+            "name": "仮説A",
+            "description": "LLM が出した",
+            "source": "llm",
+            "intended_affect": "高揚"
+          },
+          {
+            "name": "クロール",
+            "description": "集めた",
+            "source": "crawl"
+          }
+        ],
+        "issues": [
+          "FB論点"
+        ]
+      },
+      "fixed": {
+        "gameTitle": "FBゲーム",
+        "discussionTheme": "FB",
+        "discussionContent": "",
+        "mechanicsContext": "FB文脈",
+        "themeSupplement": "FB補足"
+      },
+      "stripped": "自由に書いた本文\nだけ"
+    },
+    {
+      "md": "# 議題\n新議題\n\n# 観点補足\n\n# ゲームのメカニクス\n- **A**: 説明 → 期待感情: 喜び （出所: CRAWL）\n- **B** : x (出所：curated)\n-**C**: bad\n- ** **: 空名\n- **D***: 星\n\n# 論点\n1. 問い1 (両論: ○)\n2) 問い2（両論：賛成側のみ）\n- 問い3 (両論: ×) (補足)\n* 問い4\n3.no\n\n# 議論の経過\n## ラウンド 1\nまとめ",
+      "draft": {
+        "theme": "新議題",
+        "tags": [
+          "内部"
+        ],
+        "supplement": "",
+        "mechanics": [
+          {
+            "name": "A",
+            "description": "説明",
+            "intended_affect": "喜び",
+            "source": "crawl"
+          },
+          {
+            "name": "B",
+            "description": "x",
+            "source": "curated"
+          },
+          {
+            "name": "D*",
+            "description": "星"
+          }
+        ],
+        "issues": [
+          "問い1",
+          "問い2",
+          "問い3 (両論: ×) (補足)",
+          "問い4"
+        ]
+      },
+      "draftFixed": {
+        "theme": "新議題",
+        "tags": [
+          "内部"
+        ],
+        "supplement": "",
+        "mechanics": [
+          {
+            "name": "A",
+            "description": "説明",
+            "intended_affect": "喜び",
+            "source": "crawl"
+          },
+          {
+            "name": "B",
+            "description": "x",
+            "source": "curated"
+          },
+          {
+            "name": "D*",
+            "description": "星"
+          }
+        ],
+        "issues": [
+          "問い1",
+          "問い2",
+          "問い3 (両論: ×) (補足)",
+          "問い4"
+        ]
+      },
+      "fixed": {
+        "gameTitle": "FBゲーム",
+        "discussionTheme": "FB",
+        "discussionContent": "",
+        "mechanicsContext": "FB文脈",
+        "themeSupplement": "FB補足"
+      },
+      "stripped": "# 議題\n新議題\n\n# 観点補足\n\n# ゲームのメカニクス\n- **A**: 説明 → 期待感情: 喜び （出所: CRAWL）\n- **B** : x (出所：curated)\n-**C**: bad\n- ** **: 空名\n- **D***: 星\n\n# 論点\n1. 問い1 (両論: ○)\n2) 問い2（両論：賛成側のみ）\n- 問い3 (両論: ×) (補足)\n* 問い4\n3.no"
+    },
+    {
+      "md": "# 議題\r\nCRLF\r\n# 仮説メカニクス (LLM抽出・未検証)\r\n- **H**: h （出所: curated）\r\n",
+      "draft": {
+        "theme": "CRLF",
+        "tags": [
+          "内部"
+        ],
+        "supplement": "FB補足",
+        "mechanics": [
+          {
+            "name": "ガチャ",
+            "description": "ランダム排出",
+            "intended_affect": "期待",
+            "source": "curated"
+          },
+          {
+            "name": "周回",
+            "description": "同じステージを回す"
+          },
+          {
+            "name": "クロール",
+            "description": "集めた",
+            "source": "crawl"
+          },
+          {
+            "name": "H",
+            "description": "h",
+            "source": "llm"
+          }
+        ],
+        "issues": [
+          "FB論点"
+        ]
+      },
+      "draftFixed": {
+        "theme": "CRLF",
+        "tags": [
+          "内部"
+        ],
+        "supplement": "FB補足",
+        "mechanics": [
+          {
+            "name": "ガチャ",
+            "description": "ランダム排出",
+            "intended_affect": "期待",
+            "source": "curated"
+          },
+          {
+            "name": "周回",
+            "description": "同じステージを回す"
+          },
+          {
+            "name": "クロール",
+            "description": "集めた",
+            "source": "crawl"
+          },
+          {
+            "name": "H",
+            "description": "h",
+            "source": "llm"
+          }
+        ],
+        "issues": [
+          "FB論点"
+        ]
+      },
+      "fixed": {
+        "gameTitle": "FBゲーム",
+        "discussionTheme": "FB",
+        "discussionContent": "",
+        "mechanicsContext": "FB文脈",
+        "themeSupplement": "FB補足"
+      },
+      "stripped": "# 議題\r\nCRLF\r\n# 仮説メカニクス (LLM抽出・未検証)\r\n- **H**: h （出所: curated）"
+    },
+    {
+      "md": "#  \n#\tタブ見出し\n## 小見出し\n#議題\n# 議題   \n本文",
+      "draft": {
+        "theme": "本文",
+        "tags": [
+          "内部"
+        ],
+        "supplement": "FB補足",
+        "mechanics": [
+          {
+            "name": "ガチャ",
+            "description": "ランダム排出",
+            "intended_affect": "期待",
+            "source": "curated"
+          },
+          {
+            "name": "周回",
+            "description": "同じステージを回す"
+          },
+          {
+            "name": "仮説A",
+            "description": "LLM が出した",
+            "source": "llm",
+            "intended_affect": "高揚"
+          },
+          {
+            "name": "クロール",
+            "description": "集めた",
+            "source": "crawl"
+          }
+        ],
+        "issues": [
+          "FB論点"
+        ]
+      },
+      "draftFixed": {
+        "theme": "本文",
+        "tags": [
+          "内部"
+        ],
+        "supplement": "FB補足",
+        "mechanics": [
+          {
+            "name": "ガチャ",
+            "description": "ランダム排出",
+            "intended_affect": "期待",
+            "source": "curated"
+          },
+          {
+            "name": "周回",
+            "description": "同じステージを回す"
+          },
+          {
+            "name": "仮説A",
+            "description": "LLM が出した",
+            "source": "llm",
+            "intended_affect": "高揚"
+          },
+          {
+            "name": "クロール",
+            "description": "集めた",
+            "source": "crawl"
+          }
+        ],
+        "issues": [
+          "FB論点"
+        ]
+      },
+      "fixed": {
+        "gameTitle": "FBゲーム",
+        "discussionTheme": "FB",
+        "discussionContent": "",
+        "mechanicsContext": "FB文脈",
+        "themeSupplement": "FB補足"
+      },
+      "stripped": "#  \n#\tタブ見出し\n## 小見出し\n#議題\n# 議題   \n本文"
+    },
+    {
+      "md": "# ゲームタイトル（または主目的）\n\n# 議論したいテーマ\nT\n# システム/メカニクスの説明\n文脈\n\n## 抽出されたメカニクス\n- **E**: e （出所: crawl）\n# テーマについての補足情報\n",
+      "draft": {
+        "theme": "T",
+        "tags": [
+          "内部"
+        ],
+        "supplement": "FB補足",
+        "mechanics": [
+          {
+            "name": "E",
+            "description": "e",
+            "source": "crawl"
+          }
+        ],
+        "issues": [
+          "FB論点"
+        ],
+        "gameTitle": "",
+        "discussionTheme": "T",
+        "discussionContent": "",
+        "mechanicsContext": "文脈",
+        "themeSupplement": "FB補足"
+      },
+      "draftFixed": {
+        "theme": "T",
+        "tags": [
+          "内部"
+        ],
+        "supplement": "FB補足",
+        "mechanics": [
+          {
+            "name": "E",
+            "description": "e",
+            "source": "crawl"
+          }
+        ],
+        "issues": [
+          "FB論点"
+        ],
+        "gameTitle": "FBゲーム",
+        "mechanicsContext": "文脈",
+        "discussionTheme": "T",
+        "discussionContent": "",
+        "themeSupplement": "FB補足"
+      },
+      "fixed": {
+        "gameTitle": "FBゲーム",
+        "discussionTheme": "T",
+        "discussionContent": "",
+        "mechanicsContext": "文脈",
+        "themeSupplement": "FB補足"
+      },
+      "stripped": "# ゲームタイトル（または主目的）\n\n# 議論したいテーマ\nT\n# システム/メカニクスの説明\n文脈\n\n## 抽出されたメカニクス\n- **E**: e （出所: crawl）\n# テーマについての補足情報"
+    },
+    {
+      "md": "# 論点\n\n# ゲームのメカニクス\n(メカニクスデータなし)",
+      "draft": {
+        "theme": "FB",
+        "tags": [
+          "内部"
+        ],
+        "supplement": "FB補足",
+        "mechanics": [],
+        "issues": []
+      },
+      "draftFixed": {
+        "theme": "FB",
+        "tags": [
+          "内部"
+        ],
+        "supplement": "FB補足",
+        "mechanics": [],
+        "issues": []
+      },
+      "fixed": {
+        "gameTitle": "FBゲーム",
+        "discussionTheme": "FB",
+        "discussionContent": "",
+        "mechanicsContext": "FB文脈",
+        "themeSupplement": "FB補足"
+      },
+      "stripped": "# 論点\n\n# ゲームのメカニクス\n(メカニクスデータなし)"
+    },
+    {
+      "md": "- **X**: y → 期待感情:   （出所: llm）",
+      "draft": {
+        "theme": "FB",
+        "tags": [
+          "内部"
+        ],
+        "supplement": "FB補足",
+        "mechanics": [
+          {
+            "name": "ガチャ",
+            "description": "ランダム排出",
+            "intended_affect": "期待",
+            "source": "curated"
+          },
+          {
+            "name": "周回",
+            "description": "同じステージを回す"
+          },
+          {
+            "name": "仮説A",
+            "description": "LLM が出した",
+            "source": "llm",
+            "intended_affect": "高揚"
+          },
+          {
+            "name": "クロール",
+            "description": "集めた",
+            "source": "crawl"
+          }
+        ],
+        "issues": [
+          "FB論点"
+        ]
+      },
+      "draftFixed": {
+        "theme": "FB",
+        "tags": [
+          "内部"
+        ],
+        "supplement": "FB補足",
+        "mechanics": [
+          {
+            "name": "ガチャ",
+            "description": "ランダム排出",
+            "intended_affect": "期待",
+            "source": "curated"
+          },
+          {
+            "name": "周回",
+            "description": "同じステージを回す"
+          },
+          {
+            "name": "仮説A",
+            "description": "LLM が出した",
+            "source": "llm",
+            "intended_affect": "高揚"
+          },
+          {
+            "name": "クロール",
+            "description": "集めた",
+            "source": "crawl"
+          }
+        ],
+        "issues": [
+          "FB論点"
+        ]
+      },
+      "fixed": {
+        "gameTitle": "FBゲーム",
+        "discussionTheme": "FB",
+        "discussionContent": "",
+        "mechanicsContext": "FB文脈",
+        "themeSupplement": "FB補足"
+      },
+      "stripped": "- **X**: y → 期待感情:   （出所: llm）"
+    }
+  ],
+  "progress": [
+    {
+      "base": "# 議題\nX\n\n# 議論の経過\n古い",
+      "rounds": [
+        {
+          "round": 1,
+          "summary": "  まとめ1 ",
+          "aufhebung": []
+        },
+        {
+          "round": 2,
+          "summary": "",
+          "aufhebung": [
+            "止揚A",
+            "止揚B"
+          ]
+        }
+      ],
+      "conclusion": " 結論 ",
+      "md": "# 議題\nX\n\n# 議論の経過\n\n## ラウンド 1\nまとめ1\n\n## ラウンド 2\n(まとめなし)\n\n**止揚 (アウフヘーベン)**:\n- 止揚A\n- 止揚B\n\n# 結論\n結論"
+    },
+    {
+      "base": "# 議題\nX  \n\n",
+      "rounds": [],
+      "conclusion": "   ",
+      "md": "# 議題\nX"
+    },
+    {
+      "base": "",
+      "rounds": [
+        {
+          "round": 2,
+          "summary": "",
+          "aufhebung": [
+            "止揚A",
+            "止揚B"
+          ]
+        }
+      ],
+      "md": "\n\n# 議論の経過\n\n## ラウンド 2\n(まとめなし)\n\n**止揚 (アウフヘーベン)**:\n- 止揚A\n- 止揚B"
+    }
+  ],
+  "personaPaper": [
+    {
+      "args": {
+        "paper": {
+          "paperId": "P",
+          "sessionId": "S",
+          "theme": "議題",
+          "tags": [],
+          "mechanics": [
+            {
+              "name": "ガチャ",
+              "description": "ランダム排出",
+              "intended_affect": "期待",
+              "source": "curated"
+            },
+            {
+              "name": "周回",
+              "description": "同じステージを回す"
+            },
+            {
+              "name": "仮説A",
+              "description": "LLM が出した",
+              "source": "llm",
+              "intended_affect": "高揚"
+            },
+            {
+              "name": "クロール",
+              "description": "集めた",
+              "source": "crawl"
+            }
+          ],
+          "supplement": "",
+          "rounds": [
+            {
+              "round": 1,
+              "summary": "  まとめ1 ",
+              "aufhebung": []
+            },
+            {
+              "round": 2,
+              "summary": "",
+              "aufhebung": [
+                "止揚A",
+                "止揚B"
+              ]
+            }
+          ]
+        },
+        "persona": {
+          "id": "p1",
+          "name": "論者A",
+          "role": "debater",
+          "stance": "pro",
+          "speechStyle": "丁寧",
+          "traits": [
+            "冷静",
+            "皮肉"
+          ],
+          "model": "m",
+          "isLocal": false
+        },
+        "stance": "pro",
+        "currentRoundUtterances": [],
+        "userVoices": [
+          {
+            "content": "あああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああ",
+            "source": "steam",
+            "sourceUrl": "https://example.invalid/1"
+          },
+          {
+            "content": "短い声",
+            "source": "glab"
+          }
+        ]
+      },
+      "paper": {
+        "theme": "議題",
+        "supplement": "",
+        "mechanicsText": "- **ガチャ**: ランダム排出 → 期待感情: 期待 （出所: curated）\n- **周回**: 同じステージを回す （出所: curated）\n- **クロール**: 集めた （出所: crawl）\n\n# 仮説メカニクス (LLM抽出・未検証)\n- **仮説A**: LLM が出した → 期待感情: 高揚",
+        "previousRoundsText": "### ラウンド 1 まとめ\n  まとめ1 \n\n### ラウンド 2 まとめ\n\n  止揚: 止揚A / 止揚B",
+        "currentRoundUtterances": []
+      },
+      "system": "# 議題\n議題\n\n# ゲームのメカニクス\n- **ガチャ**: ランダム排出 → 期待感情: 期待 （出所: curated）\n- **周回**: 同じステージを回す （出所: curated）\n- **クロール**: 集めた （出所: crawl）\n\n# 仮説メカニクス (LLM抽出・未検証)\n- **仮説A**: LLM が出した → 期待感情: 高揚",
+      "user": "あなたは議論ペルソナ「論者A」。\n特徴: 冷静 / 皮肉 / 話し方: 丁寧\nこの議論でのあなたの立場は【賛成寄り】。主張を筋の通った形で擁護・補強する。\nDiscord のチャットで実在の人間が話すように、自然な口語で 1〜2 文だけ書く。\nラベルや箇条書きは使わない。既出の繰り返しは避け、議論を一歩進める。\n直近の発言と同じ結論・同じ理由の言い換えは禁止。重複しそうなら、未検討のユーザ層、メカニクス条件、反例、判断基準のいずれかを新しく出す。\n合意できない場合も同じ賛否を往復せず、未決条件、検証方法、または小さな修正案に分解する。\n発言テキストのみを返す (JSON や前置きは不要)。付け足す事が無ければ空行のみ返す。\n\n---\n# 前ラウンドの結果\n### ラウンド 1 まとめ\n  まとめ1 \n\n### ラウンド 2 まとめ\n\n  止揚: 止揚A / 止揚B",
+      "prompt": "あなたは議論ペルソナ「論者A」。\n特徴: 冷静 / 皮肉 / 話し方: 丁寧\nこの議論でのあなたの立場は【賛成寄り】。主張を筋の通った形で擁護・補強する。\nDiscord のチャットで実在の人間が話すように、自然な口語で 1〜2 文だけ書く。\nラベルや箇条書きは使わない。既出の繰り返しは避け、議論を一歩進める。\n直近の発言と同じ結論・同じ理由の言い換えは禁止。重複しそうなら、未検討のユーザ層、メカニクス条件、反例、判断基準のいずれかを新しく出す。\n合意できない場合も同じ賛否を往復せず、未決条件、検証方法、または小さな修正案に分解する。\n発言テキストのみを返す (JSON や前置きは不要)。付け足す事が無ければ空行のみ返す。\n\n---\n# 前ラウンドの結果\n### ラウンド 1 まとめ\n  まとめ1 \n\n### ラウンド 2 まとめ\n\n  止揚: 止揚A / 止揚B\n\n---\n# 議題\n議題\n\n# ゲームのメカニクス\n- **ガチャ**: ランダム排出 → 期待感情: 期待 （出所: curated）\n- **周回**: 同じステージを回す （出所: curated）\n- **クロール**: 集めた （出所: crawl）\n\n# 仮説メカニクス (LLM抽出・未検証)\n- **仮説A**: LLM が出した → 期待感情: 高揚"
+    },
+    {
+      "args": {
+        "paper": {
+          "paperId": "P",
+          "sessionId": "S",
+          "theme": "議題",
+          "tags": [
+            "機密"
+          ],
+          "mechanics": [
+            {
+              "name": "ガチャ",
+              "description": "ランダム排出",
+              "intended_affect": "期待",
+              "source": "curated"
+            },
+            {
+              "name": "周回",
+              "description": "同じステージを回す"
+            },
+            {
+              "name": "仮説A",
+              "description": "LLM が出した",
+              "source": "llm",
+              "intended_affect": "高揚"
+            },
+            {
+              "name": "クロール",
+              "description": "集めた",
+              "source": "crawl"
+            }
+          ],
+          "supplement": "",
+          "rounds": [
+            {
+              "round": 1,
+              "summary": "  まとめ1 ",
+              "aufhebung": []
+            },
+            {
+              "round": 2,
+              "summary": "",
+              "aufhebung": [
+                "止揚A",
+                "止揚B"
+              ]
+            }
+          ]
+        },
+        "persona": {
+          "id": "p2",
+          "name": "意見B",
+          "role": "opinion",
+          "stance": "opinion",
+          "speechStyle": "丁寧",
+          "traits": [
+            "冷静",
+            "皮肉"
+          ],
+          "model": "m",
+          "isLocal": false,
+          "valueAxis": "体験",
+          "coreClaims": [
+            "c1"
+          ]
+        },
+        "stance": "opinion",
+        "currentRoundUtterances": [
+          {
+            "personaName": "A",
+            "text": "t"
+          }
+        ],
+        "userVoices": [
+          {
+            "content": "あああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああ",
+            "source": "steam",
+            "sourceUrl": "https://example.invalid/1"
+          },
+          {
+            "content": "短い声",
+            "source": "glab"
+          }
+        ]
+      },
+      "paper": {
+        "theme": "議題",
+        "supplement": "【機密】実ユーザデータが使用できないため、メカニクス評価から合成した想定意見データを参考にしています。",
+        "mechanicsText": "- **ガチャ**: ランダム排出 → 期待感情: 期待 （出所: curated）\n- **周回**: 同じステージを回す （出所: curated）\n- **クロール**: 集めた （出所: crawl）\n\n# 仮説メカニクス (LLM抽出・未検証)\n- **仮説A**: LLM が出した → 期待感情: 高揚",
+        "previousRoundsText": "### ラウンド 1 まとめ\n  まとめ1 \n\n### ラウンド 2 まとめ\n\n  止揚: 止揚A / 止揚B",
+        "currentRoundUtterances": [
+          "A: t"
+        ],
+        "userOpinionsText": "## 想定意見データ (synthetic / 実ユーザデータなし)\n[想定 (synthetic)] 「ガチャ」について: 期待 という体験を期待している意見が考えられます。\n[想定 (synthetic)] 「仮説A」について: 高揚 という体験を期待している意見が考えられます。"
+      },
+      "system": "# 議題\n議題\n\n# 観点補足\n【機密】実ユーザデータが使用できないため、メカニクス評価から合成した想定意見データを参考にしています。\n\n# ゲームのメカニクス\n- **ガチャ**: ランダム排出 → 期待感情: 期待 （出所: curated）\n- **周回**: 同じステージを回す （出所: curated）\n- **クロール**: 集めた （出所: crawl）\n\n# 仮説メカニクス (LLM抽出・未検証)\n- **仮説A**: LLM が出した → 期待感情: 高揚",
+      "user": "あなたは議論ペルソナ「意見B」。\n特徴: 冷静 / 皮肉 / 話し方: 丁寧\nあなたが重視する価値: 体験\nあなたは意見役。ユーザの声を踏まえつつ自分の角度で意見を述べる。\nDiscord のチャットで実在の人間が話すように、自然な口語で 1〜2 文だけ書く。\nラベルや箇条書きは使わない。既出の繰り返しは避け、議論を一歩進める。\n直近の発言と同じ結論・同じ理由の言い換えは禁止。重複しそうなら、未検討のユーザ層、メカニクス条件、反例、判断基準のいずれかを新しく出す。\n合意できない場合も同じ賛否を往復せず、未決条件、検証方法、または小さな修正案に分解する。\n発言テキストのみを返す (JSON や前置きは不要)。付け足す事が無ければ空行のみ返す。\n\n---\n# 前ラウンドの結果\n### ラウンド 1 まとめ\n  まとめ1 \n\n### ラウンド 2 まとめ\n\n  止揚: 止揚A / 止揚B\n# 当ラウンドの意見 (これまで)\nA: t\n## 想定意見データ (synthetic / 実ユーザデータなし)\n[想定 (synthetic)] 「ガチャ」について: 期待 という体験を期待している意見が考えられます。\n[想定 (synthetic)] 「仮説A」について: 高揚 という体験を期待している意見が考えられます。",
+      "prompt": "あなたは議論ペルソナ「意見B」。\n特徴: 冷静 / 皮肉 / 話し方: 丁寧\nあなたが重視する価値: 体験\nあなたは意見役。ユーザの声を踏まえつつ自分の角度で意見を述べる。\nDiscord のチャットで実在の人間が話すように、自然な口語で 1〜2 文だけ書く。\nラベルや箇条書きは使わない。既出の繰り返しは避け、議論を一歩進める。\n直近の発言と同じ結論・同じ理由の言い換えは禁止。重複しそうなら、未検討のユーザ層、メカニクス条件、反例、判断基準のいずれかを新しく出す。\n合意できない場合も同じ賛否を往復せず、未決条件、検証方法、または小さな修正案に分解する。\n発言テキストのみを返す (JSON や前置きは不要)。付け足す事が無ければ空行のみ返す。\n\n---\n# 前ラウンドの結果\n### ラウンド 1 まとめ\n  まとめ1 \n\n### ラウンド 2 まとめ\n\n  止揚: 止揚A / 止揚B\n# 当ラウンドの意見 (これまで)\nA: t\n## 想定意見データ (synthetic / 実ユーザデータなし)\n[想定 (synthetic)] 「ガチャ」について: 期待 という体験を期待している意見が考えられます。\n[想定 (synthetic)] 「仮説A」について: 高揚 という体験を期待している意見が考えられます。\n\n---\n# 議題\n議題\n\n# 観点補足\n【機密】実ユーザデータが使用できないため、メカニクス評価から合成した想定意見データを参考にしています。\n\n# ゲームのメカニクス\n- **ガチャ**: ランダム排出 → 期待感情: 期待 （出所: curated）\n- **周回**: 同じステージを回す （出所: curated）\n- **クロール**: 集めた （出所: crawl）\n\n# 仮説メカニクス (LLM抽出・未検証)\n- **仮説A**: LLM が出した → 期待感情: 高揚"
+    },
+    {
+      "args": {
+        "paper": {
+          "paperId": "P",
+          "sessionId": "S",
+          "theme": "議題",
+          "tags": [
+            "機密"
+          ],
+          "mechanics": [
+            {
+              "name": "ガチャ",
+              "description": "ランダム排出",
+              "intended_affect": "期待",
+              "source": "curated"
+            },
+            {
+              "name": "周回",
+              "description": "同じステージを回す"
+            },
+            {
+              "name": "仮説A",
+              "description": "LLM が出した",
+              "source": "llm",
+              "intended_affect": "高揚"
+            },
+            {
+              "name": "クロール",
+              "description": "集めた",
+              "source": "crawl"
+            }
+          ],
+          "supplement": "",
+          "rounds": [
+            {
+              "round": 1,
+              "summary": "  まとめ1 ",
+              "aufhebung": []
+            },
+            {
+              "round": 2,
+              "summary": "",
+              "aufhebung": [
+                "止揚A",
+                "止揚B"
+              ]
+            }
+          ]
+        },
+        "persona": {
+          "id": "p4",
+          "name": "論者A",
+          "role": "facilitator",
+          "stance": "neutral",
+          "speechStyle": "丁寧",
+          "traits": [
+            "冷静",
+            "皮肉"
+          ],
+          "model": "m",
+          "isLocal": true,
+          "possession": {
+            "label": "L"
+          }
+        },
+        "stance": "neutral",
+        "currentRoundUtterances": [],
+        "userVoices": [],
+        "syntheticOpinions": [
+          "s1"
+        ]
+      },
+      "paper": {
+        "theme": "議題",
+        "supplement": "【機密】実ユーザデータが使用できないため、メカニクス評価から合成した想定意見データを参考にしています。",
+        "mechanicsText": "- **ガチャ**: ランダム排出 → 期待感情: 期待 （出所: curated）\n- **周回**: 同じステージを回す （出所: curated）\n- **クロール**: 集めた （出所: crawl）\n\n# 仮説メカニクス (LLM抽出・未検証)\n- **仮説A**: LLM が出した → 期待感情: 高揚",
+        "previousRoundsText": "### ラウンド 1 まとめ\n  まとめ1 \n\n### ラウンド 2 まとめ\n\n  止揚: 止揚A / 止揚B",
+        "currentRoundUtterances": [],
+        "userOpinionsText": "## 想定意見データ (synthetic / 実ユーザデータなし)\ns1"
+      },
+      "system": "# 議題\n議題\n\n# 観点補足\n【機密】実ユーザデータが使用できないため、メカニクス評価から合成した想定意見データを参考にしています。\n\n# ゲームのメカニクス\n- **ガチャ**: ランダム排出 → 期待感情: 期待 （出所: curated）\n- **周回**: 同じステージを回す （出所: curated）\n- **クロール**: 集めた （出所: crawl）\n\n# 仮説メカニクス (LLM抽出・未検証)\n- **仮説A**: LLM が出した → 期待感情: 高揚",
+      "user": "あなたは議論ペルソナ「論者A」。\n特徴: 冷静 / 皮肉 / 話し方: 丁寧\nあなたは今、データ由来の人物像「L」を憑依している。\nあなたはファシリテーター。対立を整理し議論を前に進める。\nDiscord のチャットで実在の人間が話すように、自然な口語で 1〜2 文だけ書く。\nラベルや箇条書きは使わない。既出の繰り返しは避け、議論を一歩進める。\n直近の発言と同じ結論・同じ理由の言い換えは禁止。重複しそうなら、未検討のユーザ層、メカニクス条件、反例、判断基準のいずれかを新しく出す。\n合意できない場合も同じ賛否を往復せず、未決条件、検証方法、または小さな修正案に分解する。\n発言テキストのみを返す (JSON や前置きは不要)。付け足す事が無ければ空行のみ返す。\n\n---\n# 前ラウンドの結果\n### ラウンド 1 まとめ\n  まとめ1 \n\n### ラウンド 2 まとめ\n\n  止揚: 止揚A / 止揚B\n## 想定意見データ (synthetic / 実ユーザデータなし)\ns1",
+      "prompt": "あなたは議論ペルソナ「論者A」。\n特徴: 冷静 / 皮肉 / 話し方: 丁寧\nあなたは今、データ由来の人物像「L」を憑依している。\nあなたはファシリテーター。対立を整理し議論を前に進める。\nDiscord のチャットで実在の人間が話すように、自然な口語で 1〜2 文だけ書く。\nラベルや箇条書きは使わない。既出の繰り返しは避け、議論を一歩進める。\n直近の発言と同じ結論・同じ理由の言い換えは禁止。重複しそうなら、未検討のユーザ層、メカニクス条件、反例、判断基準のいずれかを新しく出す。\n合意できない場合も同じ賛否を往復せず、未決条件、検証方法、または小さな修正案に分解する。\n発言テキストのみを返す (JSON や前置きは不要)。付け足す事が無ければ空行のみ返す。\n\n---\n# 前ラウンドの結果\n### ラウンド 1 まとめ\n  まとめ1 \n\n### ラウンド 2 まとめ\n\n  止揚: 止揚A / 止揚B\n## 想定意見データ (synthetic / 実ユーザデータなし)\ns1\n\n---\n# 議題\n議題\n\n# 観点補足\n【機密】実ユーザデータが使用できないため、メカニクス評価から合成した想定意見データを参考にしています。\n\n# ゲームのメカニクス\n- **ガチャ**: ランダム排出 → 期待感情: 期待 （出所: curated）\n- **周回**: 同じステージを回す （出所: curated）\n- **クロール**: 集めた （出所: crawl）\n\n# 仮説メカニクス (LLM抽出・未検証)\n- **仮説A**: LLM が出した → 期待感情: 高揚"
+    },
+    {
+      "args": {
+        "paper": {
+          "paperId": "P",
+          "sessionId": "S",
+          "theme": "議題",
+          "tags": [],
+          "mechanics": [
+            {
+              "name": "ガチャ",
+              "description": "ランダム排出",
+              "intended_affect": "期待",
+              "source": "curated"
+            },
+            {
+              "name": "周回",
+              "description": "同じステージを回す"
+            },
+            {
+              "name": "仮説A",
+              "description": "LLM が出した",
+              "source": "llm",
+              "intended_affect": "高揚"
+            },
+            {
+              "name": "クロール",
+              "description": "集めた",
+              "source": "crawl"
+            }
+          ],
+          "supplement": "",
+          "rounds": [],
+          "bodyMd": "# 本文"
+        },
+        "persona": {
+          "id": "p3",
+          "name": "論者A",
+          "role": "debater",
+          "stance": "con",
+          "speechStyle": "丁寧",
+          "traits": [
+            "冷静",
+            "皮肉"
+          ],
+          "model": "m",
+          "isLocal": false,
+          "valueAxis": "収益",
+          "coreClaims": [
+            "核1",
+            "核2"
+          ],
+          "possession": {
+            "label": "論者#abc",
+            "descriptor": "辛口"
+          }
+        },
+        "stance": "con",
+        "currentRoundUtterances": [],
+        "userVoices": [
+          {
+            "content": "あああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああ",
+            "source": "steam",
+            "sourceUrl": "https://example.invalid/1"
+          },
+          {
+            "content": "短い声",
+            "source": "glab"
+          }
+        ]
+      },
+      "paper": {
+        "theme": "議題",
+        "supplement": "",
+        "mechanicsText": "- **ガチャ**: ランダム排出 → 期待感情: 期待 （出所: curated）\n- **周回**: 同じステージを回す （出所: curated）\n- **クロール**: 集めた （出所: crawl）\n\n# 仮説メカニクス (LLM抽出・未検証)\n- **仮説A**: LLM が出した → 期待感情: 高揚",
+        "previousRoundsText": "(前ラウンドなし)",
+        "currentRoundUtterances": [],
+        "bodyMd": "# 本文"
+      },
+      "system": "# 本文",
+      "user": "あなたは議論ペルソナ「論者A」。\n特徴: 冷静 / 皮肉 / 話し方: 丁寧\nあなたが重視する価値: 収益\nあなたは今、データ由来の人物像「論者#abc」を憑依している。辛口\nこの議論でのあなたの立場は【反対寄り】。健全な反論・反例・見落とされた弱点を投げる。\nあなたの核となる主張: 核1 / 核2\nDiscord のチャットで実在の人間が話すように、自然な口語で 1〜2 文だけ書く。\nラベルや箇条書きは使わない。既出の繰り返しは避け、議論を一歩進める。\n直近の発言と同じ結論・同じ理由の言い換えは禁止。重複しそうなら、未検討のユーザ層、メカニクス条件、反例、判断基準のいずれかを新しく出す。\n合意できない場合も同じ賛否を往復せず、未決条件、検証方法、または小さな修正案に分解する。\n発言テキストのみを返す (JSON や前置きは不要)。付け足す事が無ければ空行のみ返す。",
+      "prompt": "あなたは議論ペルソナ「論者A」。\n特徴: 冷静 / 皮肉 / 話し方: 丁寧\nあなたが重視する価値: 収益\nあなたは今、データ由来の人物像「論者#abc」を憑依している。辛口\nこの議論でのあなたの立場は【反対寄り】。健全な反論・反例・見落とされた弱点を投げる。\nあなたの核となる主張: 核1 / 核2\nDiscord のチャットで実在の人間が話すように、自然な口語で 1〜2 文だけ書く。\nラベルや箇条書きは使わない。既出の繰り返しは避け、議論を一歩進める。\n直近の発言と同じ結論・同じ理由の言い換えは禁止。重複しそうなら、未検討のユーザ層、メカニクス条件、反例、判断基準のいずれかを新しく出す。\n合意できない場合も同じ賛否を往復せず、未決条件、検証方法、または小さな修正案に分解する。\n発言テキストのみを返す (JSON や前置きは不要)。付け足す事が無ければ空行のみ返す。\n\n---\n# 本文"
+    },
+    {
+      "args": {
+        "paper": {
+          "paperId": "P",
+          "sessionId": "S",
+          "theme": "議題",
+          "tags": [
+            "開発"
+          ],
+          "mechanics": [
+            {
+              "name": "ガチャ",
+              "description": "ランダム排出",
+              "intended_affect": "期待",
+              "source": "curated"
+            },
+            {
+              "name": "周回",
+              "description": "同じステージを回す"
+            },
+            {
+              "name": "仮説A",
+              "description": "LLM が出した",
+              "source": "llm",
+              "intended_affect": "高揚"
+            },
+            {
+              "name": "クロール",
+              "description": "集めた",
+              "source": "crawl"
+            }
+          ],
+          "supplement": "",
+          "rounds": [],
+          "bodyMd": "  "
+        },
+        "persona": {
+          "id": "p2",
+          "name": "意見B",
+          "role": "opinion",
+          "stance": "opinion",
+          "speechStyle": "丁寧",
+          "traits": [
+            "冷静",
+            "皮肉"
+          ],
+          "model": "m",
+          "isLocal": false,
+          "valueAxis": "体験",
+          "coreClaims": [
+            "c1"
+          ]
+        },
+        "stance": "weird",
+        "currentRoundUtterances": [],
+        "userVoices": []
+      },
+      "paper": {
+        "theme": "議題",
+        "supplement": "【開発者観点】設計意図・実装コスト・技術的トレードオフを踏まえて議論してください。",
+        "mechanicsText": "- **ガチャ**: ランダム排出 → 期待感情: 期待 （出所: curated）\n- **周回**: 同じステージを回す （出所: curated）\n- **クロール**: 集めた （出所: crawl）\n\n# 仮説メカニクス (LLM抽出・未検証)\n- **仮説A**: LLM が出した → 期待感情: 高揚",
+        "previousRoundsText": "(前ラウンドなし)",
+        "currentRoundUtterances": [],
+        "userOpinionsText": "",
+        "bodyMd": "  "
+      },
+      "system": "# 議題\n議題\n\n# 観点補足\n【開発者観点】設計意図・実装コスト・技術的トレードオフを踏まえて議論してください。\n\n# ゲームのメカニクス\n- **ガチャ**: ランダム排出 → 期待感情: 期待 （出所: curated）\n- **周回**: 同じステージを回す （出所: curated）\n- **クロール**: 集めた （出所: crawl）\n\n# 仮説メカニクス (LLM抽出・未検証)\n- **仮説A**: LLM が出した → 期待感情: 高揚",
+      "user": "あなたは議論ペルソナ「意見B」。\n特徴: 冷静 / 皮肉 / 話し方: 丁寧\nあなたが重視する価値: 体験\n\nDiscord のチャットで実在の人間が話すように、自然な口語で 1〜2 文だけ書く。\nラベルや箇条書きは使わない。既出の繰り返しは避け、議論を一歩進める。\n直近の発言と同じ結論・同じ理由の言い換えは禁止。重複しそうなら、未検討のユーザ層、メカニクス条件、反例、判断基準のいずれかを新しく出す。\n合意できない場合も同じ賛否を往復せず、未決条件、検証方法、または小さな修正案に分解する。\n発言テキストのみを返す (JSON や前置きは不要)。付け足す事が無ければ空行のみ返す。",
+      "prompt": "あなたは議論ペルソナ「意見B」。\n特徴: 冷静 / 皮肉 / 話し方: 丁寧\nあなたが重視する価値: 体験\n\nDiscord のチャットで実在の人間が話すように、自然な口語で 1〜2 文だけ書く。\nラベルや箇条書きは使わない。既出の繰り返しは避け、議論を一歩進める。\n直近の発言と同じ結論・同じ理由の言い換えは禁止。重複しそうなら、未検討のユーザ層、メカニクス条件、反例、判断基準のいずれかを新しく出す。\n合意できない場合も同じ賛否を往復せず、未決条件、検証方法、または小さな修正案に分解する。\n発言テキストのみを返す (JSON や前置きは不要)。付け足す事が無ければ空行のみ返す。\n\n---\n# 議題\n議題\n\n# 観点補足\n【開発者観点】設計意図・実装コスト・技術的トレードオフを踏まえて議論してください。\n\n# ゲームのメカニクス\n- **ガチャ**: ランダム排出 → 期待感情: 期待 （出所: curated）\n- **周回**: 同じステージを回す （出所: curated）\n- **クロール**: 集めた （出所: crawl）\n\n# 仮説メカニクス (LLM抽出・未検証)\n- **仮説A**: LLM が出した → 期待感情: 高揚"
+    }
+  ],
+  "stanceLines": [
+    [
+      "neutral",
+      "あなたはファシリテーター。対立を整理し議論を前に進める。"
+    ],
+    [
+      "pro",
+      "この議論でのあなたの立場は【賛成寄り】。主張を筋の通った形で擁護・補強する。"
+    ],
+    [
+      "con",
+      "この議論でのあなたの立場は【反対寄り】。健全な反論・反例・見落とされた弱点を投げる。"
+    ],
+    [
+      "opinion",
+      "あなたは意見役。ユーザの声を踏まえつつ自分の角度で意見を述べる。"
+    ],
+    [
+      "reform",
+      "この議論でのあなたの立場は【改革派 (賛同)】。破壊的な一手を支持し、実行で良く変わることを擁護する。"
+    ],
+    [
+      "conservative",
+      "この議論でのあなたの立場は【保守派 (否定)】。現行路線を守る理由と、破壊的な一手が失敗する筋書きを示す。"
+    ],
+    [
+      "x",
+      ""
+    ]
+  ],
+  "titles": [
+    [
+      "【収束】  タイトル\n二行目",
+      "タイトル"
+    ],
+    [
+      "\n\n  \r\n  三行目  ",
+      "三行目"
+    ],
+    [
+      "",
+      "(無題)"
+    ],
+    [
+      "【収束】",
+      "(無題)"
+    ],
+    [
+      "普通",
+      "普通"
+    ]
+  ],
+  "synthetic": [
+    "[想定 (synthetic)] 「ガチャ」について: 期待 という体験を期待している意見が考えられます。",
+    "[想定 (synthetic)] 「仮説A」について: 高揚 という体験を期待している意見が考えられます。"
+  ],
+  "extract": [
+    {
+      "raw": "{\"a\":1}",
+      "object": {
+        "a": 1
+      },
+      "array": null
+    },
+    {
+      "raw": "pre {\"a\":{\"b\":\"}\"}} post }",
+      "object": {
+        "a": {
+          "b": "}"
+        }
+      },
+      "array": null
+    },
+    {
+      "raw": "```json\n{\"a\":1,}\n{\"b\":2}\n```",
+      "object": null,
+      "array": null
+    },
+    {
+      "raw": "no json",
+      "object": null,
+      "array": null
+    },
+    {
+      "raw": "{\"x\": [1,2",
+      "object": null,
+      "array": null
+    },
+    {
+      "raw": "[1,2,3]",
+      "object": null,
+      "array": [
+        1,
+        2,
+        3
+      ]
+    },
+    {
+      "raw": "x [ {\"name\":\"a\"}, {\"name\":\"b\", \"description\":\"x\\\"}\"}, {\"name\": \"cut",
+      "object": {
+        "name": "a"
+      },
+      "array": [
+        {
+          "name": "a"
+        },
+        {
+          "name": "b",
+          "description": "x\"}"
+        }
+      ]
+    },
+    {
+      "raw": "[{\"a\":1}] trailing ]",
+      "object": {
+        "a": 1
+      },
+      "array": [
+        {
+          "a": 1
+        }
+      ]
+    },
+    {
+      "raw": "[]",
+      "object": null,
+      "array": []
+    },
+    {
+      "raw": "[ \"s\", {\"bad\": }, {\"ok\":true} ]",
+      "object": null,
+      "array": [
+        {
+          "ok": true
+        }
+      ]
+    },
+    {
+      "raw": "{\"a\":1} and {\"b\":2}",
+      "object": {
+        "a": 1
+      },
+      "array": null
+    },
+    {
+      "raw": "\"{\"",
+      "object": null,
+      "array": null
+    }
+  ],
+  "normalize": [
+    {
+      "raw": {
+        "changes": [
+          {
+            "dim": "asp.fun",
+            "delta": 0.5,
+            "reason": "r"
+          },
+          {
+            "dim": "x.unknown",
+            "delta": 1
+          },
+          {
+            "dim": " emo.valence ",
+            "delta": 3
+          },
+          {
+            "dim": "asp.fun",
+            "delta": -2
+          },
+          {
+            "delta": 1
+          },
+          "bad"
+        ],
+        "confidence": "low"
+      },
+      "result": {
+        "changes": [
+          {
+            "dim": "asp.fun",
+            "delta": 0.5,
+            "reason": "r"
+          },
+          {
+            "dim": "emo.valence",
+            "delta": 1
+          },
+          {
+            "dim": "asp.fun",
+            "delta": -1
+          }
+        ],
+        "confidence": "low"
+      },
+      "vector": [
+        1,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        -1,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+      ],
+      "warns": [
+        "効果予測: 未知の次元名 \"x.unknown\" を無視 (VECTOR_DIMS 外)"
+      ]
+    },
+    {
+      "raw": {
+        "changes": "no"
+      },
+      "result": null,
+      "vector": null,
+      "warns": []
+    },
+    {
+      "raw": {
+        "changes": [],
+        "confidence": "HIGH"
+      },
+      "result": {
+        "changes": [],
+        "confidence": "high"
+      },
+      "vector": [
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+      ],
+      "warns": []
+    }
+  ],
+  "predict": [
+    {
+      "responses": [
+        {
+          "ok": true,
+          "text": "説明 {\"changes\":[{\"dim\":\"asp.fun\",\"delta\":0.4}],\"confidence\":\"high\"}"
+        }
+      ],
+      "model": "small",
+      "result": {
+        "changes": [
+          {
+            "dim": "asp.fun",
+            "delta": 0.4
+          }
+        ],
+        "confidence": "high"
+      },
+      "calls": [
+        {
+          "system": "あなたはゲームデザイン分析者です。改善議論で出た意見を **採用した場合に、プレイヤー体験がどう変化するか** を予測します。意見の文面の感情ではなく、採用後の体験の変化を評価してください (熱く前向きな文面でも、採用すると体験が悪化する提案は負の変化です)。返答は JSON オブジェクトのみ。",
+          "prompt": "# テーマ\nテーマ\n\n# 既知のメカニクス (文脈)\n- ガチャ: ランダム排出\n- 周回: 同じステージを回す\n- 仮説A: LLM が出した\n- クロール: 集めた\n- ガチャ: ランダム排出\n- 周回: 同じステージを回す\n- 仮説A: LLM が出した\n- クロール: 集めた\n- ガチャ: ランダム排出\n- 周回: 同じステージを回す\n\n# 体験の次元 (この名前だけを使う)\nemo.valence, emo.arousal, emo.joy, emo.trust, emo.fear, emo.surprise, emo.sadness, emo.disgust, emo.anger, emo.anticipation, asp.fun, asp.difficulty, asp.content, asp.price_value, asp.performance, asp.story, asp.graphics, asp.replayability, meta.positive_ratio, meta.volume_log\n\n# 意見\n意見\n\nこの意見を採用した場合に **変化しそうな次元だけ** を挙げ、変化量 delta (-1..1、負=悪化/正=改善) を予測してください。全次元を無理に挙げないこと。次の JSON オブジェクトだけで返してください (前後に説明やコードフェンスを付けない):\n{\"changes\":[{\"dim\":\"asp.fun\",\"delta\":0.4,\"reason\":\"変化の理由 (1文)\"}],\"confidence\":\"high または low\"}",
+          "model": "small",
+          "maxTokens": 1500
+        }
+      ],
+      "warns": []
+    },
+    {
+      "responses": [
+        {
+          "ok": false,
+          "error": "boom"
+        }
+      ],
+      "result": null,
+      "calls": [
+        {
+          "system": "あなたはゲームデザイン分析者です。改善議論で出た意見を **採用した場合に、プレイヤー体験がどう変化するか** を予測します。意見の文面の感情ではなく、採用後の体験の変化を評価してください (熱く前向きな文面でも、採用すると体験が悪化する提案は負の変化です)。返答は JSON オブジェクトのみ。",
+          "prompt": "# テーマ\nテーマ\n\n# 既知のメカニクス (文脈)\n- ガチャ: ランダム排出\n- 周回: 同じステージを回す\n- 仮説A: LLM が出した\n- クロール: 集めた\n- ガチャ: ランダム排出\n- 周回: 同じステージを回す\n- 仮説A: LLM が出した\n- クロール: 集めた\n- ガチャ: ランダム排出\n- 周回: 同じステージを回す\n\n# 体験の次元 (この名前だけを使う)\nemo.valence, emo.arousal, emo.joy, emo.trust, emo.fear, emo.surprise, emo.sadness, emo.disgust, emo.anger, emo.anticipation, asp.fun, asp.difficulty, asp.content, asp.price_value, asp.performance, asp.story, asp.graphics, asp.replayability, meta.positive_ratio, meta.volume_log\n\n# 意見\n意見\n\nこの意見を採用した場合に **変化しそうな次元だけ** を挙げ、変化量 delta (-1..1、負=悪化/正=改善) を予測してください。全次元を無理に挙げないこと。次の JSON オブジェクトだけで返してください (前後に説明やコードフェンスを付けない):\n{\"changes\":[{\"dim\":\"asp.fun\",\"delta\":0.4,\"reason\":\"変化の理由 (1文)\"}],\"confidence\":\"high または low\"}",
+          "model": null,
+          "maxTokens": 1500
+        }
+      ],
+      "warns": [
+        "効果予測に失敗: boom"
+      ]
+    },
+    {
+      "responses": [
+        {
+          "ok": true,
+          "text": "nothing"
+        }
+      ],
+      "result": null,
+      "calls": [
+        {
+          "system": "あなたはゲームデザイン分析者です。改善議論で出た意見を **採用した場合に、プレイヤー体験がどう変化するか** を予測します。意見の文面の感情ではなく、採用後の体験の変化を評価してください (熱く前向きな文面でも、採用すると体験が悪化する提案は負の変化です)。返答は JSON オブジェクトのみ。",
+          "prompt": "# テーマ\nテーマ\n\n# 既知のメカニクス (文脈)\n- ガチャ: ランダム排出\n- 周回: 同じステージを回す\n- 仮説A: LLM が出した\n- クロール: 集めた\n- ガチャ: ランダム排出\n- 周回: 同じステージを回す\n- 仮説A: LLM が出した\n- クロール: 集めた\n- ガチャ: ランダム排出\n- 周回: 同じステージを回す\n\n# 体験の次元 (この名前だけを使う)\nemo.valence, emo.arousal, emo.joy, emo.trust, emo.fear, emo.surprise, emo.sadness, emo.disgust, emo.anger, emo.anticipation, asp.fun, asp.difficulty, asp.content, asp.price_value, asp.performance, asp.story, asp.graphics, asp.replayability, meta.positive_ratio, meta.volume_log\n\n# 意見\n意見\n\nこの意見を採用した場合に **変化しそうな次元だけ** を挙げ、変化量 delta (-1..1、負=悪化/正=改善) を予測してください。全次元を無理に挙げないこと。次の JSON オブジェクトだけで返してください (前後に説明やコードフェンスを付けない):\n{\"changes\":[{\"dim\":\"asp.fun\",\"delta\":0.4,\"reason\":\"変化の理由 (1文)\"}],\"confidence\":\"high または low\"}",
+          "model": null,
+          "maxTokens": 1500
+        }
+      ],
+      "warns": [
+        "効果予測の JSON 解析に失敗"
+      ]
+    },
+    {
+      "responses": [
+        {
+          "ok": true,
+          "text": "{\"changes\":1}"
+        }
+      ],
+      "model": "",
+      "result": null,
+      "calls": [
+        {
+          "system": "あなたはゲームデザイン分析者です。改善議論で出た意見を **採用した場合に、プレイヤー体験がどう変化するか** を予測します。意見の文面の感情ではなく、採用後の体験の変化を評価してください (熱く前向きな文面でも、採用すると体験が悪化する提案は負の変化です)。返答は JSON オブジェクトのみ。",
+          "prompt": "# テーマ\nテーマ\n\n# 既知のメカニクス (文脈)\n- ガチャ: ランダム排出\n- 周回: 同じステージを回す\n- 仮説A: LLM が出した\n- クロール: 集めた\n- ガチャ: ランダム排出\n- 周回: 同じステージを回す\n- 仮説A: LLM が出した\n- クロール: 集めた\n- ガチャ: ランダム排出\n- 周回: 同じステージを回す\n\n# 体験の次元 (この名前だけを使う)\nemo.valence, emo.arousal, emo.joy, emo.trust, emo.fear, emo.surprise, emo.sadness, emo.disgust, emo.anger, emo.anticipation, asp.fun, asp.difficulty, asp.content, asp.price_value, asp.performance, asp.story, asp.graphics, asp.replayability, meta.positive_ratio, meta.volume_log\n\n# 意見\n意見\n\nこの意見を採用した場合に **変化しそうな次元だけ** を挙げ、変化量 delta (-1..1、負=悪化/正=改善) を予測してください。全次元を無理に挙げないこと。次の JSON オブジェクトだけで返してください (前後に説明やコードフェンスを付けない):\n{\"changes\":[{\"dim\":\"asp.fun\",\"delta\":0.4,\"reason\":\"変化の理由 (1文)\"}],\"confidence\":\"high または low\"}",
+          "model": null,
+          "maxTokens": 1500
+        }
+      ],
+      "warns": [
+        "効果予測の changes が不正 (配列でない)"
+      ]
+    }
+  ],
+  "improvement": {
+    "gap": [
+      -1,
+      0,
+      1,
+      -1,
+      0,
+      1,
+      -1,
+      0,
+      1,
+      -1,
+      0,
+      1,
+      -1,
+      0,
+      1,
+      -1,
+      0,
+      1,
+      -1,
+      0
+    ],
+    "scored": [
+      {
+        "id": "a",
+        "score": -0.2338683247703084,
+        "method": "effect-predict",
+        "detail": [
+          {
+            "dim": "asp.fun",
+            "delta": 0.1
+          }
+        ]
+      },
+      {
+        "id": "b",
+        "score": -0.3449104698343553,
+        "method": "lexicon-fallback"
+      },
+      {
+        "id": "c",
+        "score": -0.2338683247703084,
+        "method": "effect-predict"
+      }
+    ],
+    "winner": "a",
+    "empty": null,
+    "opinion": -0.3337190418474118
+  },
+  "enrich": [
+    {
+      "existing": [
+        {
+          "name": "ガチャ",
+          "description": "ランダム排出",
+          "intended_affect": "期待",
+          "source": "curated"
+        },
+        {
+          "name": "周回",
+          "description": "同じステージを回す"
+        },
+        {
+          "name": "仮説A",
+          "description": "LLM が出した",
+          "source": "llm",
+          "intended_affect": "高揚"
+        },
+        {
+          "name": "クロール",
+          "description": "集めた",
+          "source": "crawl"
+        }
+      ],
+      "target": 3,
+      "responses": [
+        {
+          "ok": true,
+          "text": "[]"
+        }
+      ],
+      "result": [
+        {
+          "name": "ガチャ",
+          "description": "ランダム排出",
+          "intended_affect": "期待",
+          "source": "curated"
+        },
+        {
+          "name": "周回",
+          "description": "同じステージを回す"
+        },
+        {
+          "name": "仮説A",
+          "description": "LLM が出した",
+          "source": "llm",
+          "intended_affect": "高揚"
+        }
+      ],
+      "calls": [],
+      "warns": []
+    },
+    {
+      "existing": [
+        {
+          "name": "ガチャ",
+          "description": "ランダム排出",
+          "intended_affect": "期待",
+          "source": "curated"
+        }
+      ],
+      "target": 5,
+      "responses": [
+        {
+          "ok": true,
+          "text": "[{\"name\":\" ガチャ \"},{\"name\":\"新規\",\"description\":\" d \",\"intended_affect\":\" \"},{\"name\":\"\"},{\"name\":\"新規2\",\"intended_affect\":\"楽\"},{\"name\":\"新規3\"},{\"name\":\"新規4\"}]"
+        }
+      ],
+      "result": [
+        {
+          "name": "ガチャ",
+          "description": "ランダム排出",
+          "intended_affect": "期待",
+          "source": "curated"
+        },
+        {
+          "name": "新規",
+          "description": "d",
+          "source": "llm"
+        },
+        {
+          "name": "新規2",
+          "description": "",
+          "intended_affect": "楽",
+          "source": "llm"
+        },
+        {
+          "name": "新規3",
+          "description": "",
+          "source": "llm"
+        },
+        {
+          "name": "新規4",
+          "description": "",
+          "source": "llm"
+        }
+      ],
+      "calls": [
+        {
+          "system": "あなたはゲームデザイン分析者です。 議題のゲームについて、 プレイヤーの感想から **遊びのメカニクス** (プレイヤーの行動とその設計意図) を洗い出します。 既出と重複しない具体的なメカニクスを、 感想に根ざして抽出してください。 返答は JSON 配列のみ。",
+          "prompt": "# 議題\nテーマ\n\n# 既出メカニクス (重複させない)\n- ガチャ: ランダム排出\n\n# プレイヤーの感想 (抽出の根拠)\n1. いいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいい\n2. 声0\n3. 声1\n4. 声2\n5. 声3\n6. 声4\n7. 声5\n8. 声6\n9. 声7\n10. 声8\n11. 声9\n12. 声10\n13. 声11\n14. 声12\n15. 声13\n16. 声14\n17. 声15\n18. 声16\n19. 声17\n20. 声18\n21. 声19\n22. 声20\n23. 声21\n24. 声22\n25. 声23\n\n上記の感想から読み取れる **追加の** 遊びのメカニクスを最大 4 件、 次の JSON 配列だけで返してください (前後に説明やコードフェンスを付けない):\n[{\"name\":\"メカニクス名\",\"description\":\"プレイヤーの行動と設計意図 (1〜2文)\",\"intended_affect\":\"狙う感情 (任意)\"}]",
+          "model": "mm",
+          "maxTokens": 2000
+        }
+      ],
+      "warns": []
+    },
+    {
+      "existing": [],
+      "target": 2,
+      "responses": [
+        {
+          "ok": false,
+          "error": "down"
+        }
+      ],
+      "result": [],
+      "calls": [
+        {
+          "system": "あなたはゲームデザイン分析者です。 議題のゲームについて、 プレイヤーの感想から **遊びのメカニクス** (プレイヤーの行動とその設計意図) を洗い出します。 既出と重複しない具体的なメカニクスを、 感想に根ざして抽出してください。 返答は JSON 配列のみ。",
+          "prompt": "# 議題\nテーマ\n\n# 既出メカニクス (重複させない)\n(なし)\n\n# プレイヤーの感想 (抽出の根拠)\n1. いいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいい\n2. 声0\n3. 声1\n4. 声2\n5. 声3\n6. 声4\n7. 声5\n8. 声6\n9. 声7\n10. 声8\n11. 声9\n12. 声10\n13. 声11\n14. 声12\n15. 声13\n16. 声14\n17. 声15\n18. 声16\n19. 声17\n20. 声18\n21. 声19\n22. 声20\n23. 声21\n24. 声22\n25. 声23\n\n上記の感想から読み取れる **追加の** 遊びのメカニクスを最大 2 件、 次の JSON 配列だけで返してください (前後に説明やコードフェンスを付けない):\n[{\"name\":\"メカニクス名\",\"description\":\"プレイヤーの行動と設計意図 (1〜2文)\",\"intended_affect\":\"狙う感情 (任意)\"}]",
+          "model": "mm",
+          "maxTokens": 2000
+        }
+      ],
+      "warns": [
+        "メカニクス増補に失敗: down"
+      ]
+    },
+    {
+      "existing": [],
+      "target": 200,
+      "responses": [
+        {
+          "ok": true,
+          "text": "broken"
+        }
+      ],
+      "result": [],
+      "calls": [
+        {
+          "system": "あなたはゲームデザイン分析者です。 議題のゲームについて、 プレイヤーの感想から **遊びのメカニクス** (プレイヤーの行動とその設計意図) を洗い出します。 既出と重複しない具体的なメカニクスを、 感想に根ざして抽出してください。 返答は JSON 配列のみ。",
+          "prompt": "# 議題\nテーマ\n\n# 既出メカニクス (重複させない)\n(なし)\n\n# プレイヤーの感想 (抽出の根拠)\n1. いいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいい\n2. 声0\n3. 声1\n4. 声2\n5. 声3\n6. 声4\n7. 声5\n8. 声6\n9. 声7\n10. 声8\n11. 声9\n12. 声10\n13. 声11\n14. 声12\n15. 声13\n16. 声14\n17. 声15\n18. 声16\n19. 声17\n20. 声18\n21. 声19\n22. 声20\n23. 声21\n24. 声22\n25. 声23\n\n上記の感想から読み取れる **追加の** 遊びのメカニクスを最大 200 件、 次の JSON 配列だけで返してください (前後に説明やコードフェンスを付けない):\n[{\"name\":\"メカニクス名\",\"description\":\"プレイヤーの行動と設計意図 (1〜2文)\",\"intended_affect\":\"狙う感情 (任意)\"}]",
+          "model": "mm",
+          "maxTokens": 8000
+        }
+      ],
+      "warns": [
+        "メカニクス増補の JSON 解析に失敗"
+      ]
+    }
+  ],
+  "spec": [
+    {
+      "specText": "  ",
+      "responses": [
+        {
+          "ok": true,
+          "text": "[]"
+        }
+      ],
+      "result": [],
+      "calls": [],
+      "warns": []
+    },
+    {
+      "specText": "ガチャの仕様",
+      "maxMechanics": 2,
+      "responses": [
+        {
+          "ok": true,
+          "text": "[{\"name\":\"A\",\"description\":\" d \",\"intended_valence\":\" Positive \",\"intended_aspects\":[\" x \", \"\", 1],\"intended_emotions\":[]},{\"name\":\"a\"},{\"name\":\"B\"},{\"name\":\"C\"}]"
+        }
+      ],
+      "result": [
+        {
+          "name": "A",
+          "description": "d",
+          "intended_valence": "positive",
+          "intended_aspects": [
+            "x"
+          ]
+        },
+        {
+          "name": "B"
+        }
+      ],
+      "calls": [
+        {
+          "system": "あなたはゲームデザイン分析者です。 渡されたゲーム仕様書から、 実装されている / 設計されている **遊びのメカニクス** (プレイヤーの行動とその設計意図) を構造化して洗い出します。 仕様書に書かれている内容に忠実に、 具体的なメカニクスを抽出してください。 返答は JSON 配列のみ。",
+          "prompt": "# ゲーム / テーマ\nT\n\n# 仕様書\nガチャの仕様\n\n上記の仕様書から読み取れる遊びのメカニクスを最大 2 件、 次の JSON 配列だけで返してください (前後に説明やコードフェンスを付けない)。 各フィールドは仕様書から読み取れる範囲で埋め、 不明な任意フィールドは省略してください:\n[{\"name\":\"メカニクス名\",\"description\":\"プレイヤーの行動と設計意図 (1〜2文)\",\"intended_affect\":\"狙う感情 (任意)\",\"intended_valence\":\"positive|negative|neutral (任意)\",\"intended_aspects\":[\"設計面 (任意)\"],\"intended_emotions\":[\"想定感情 (任意)\"]}]",
+          "model": null,
+          "maxTokens": 2000
+        }
+      ],
+      "warns": []
+    },
+    {
+      "specText": "LONG",
+      "responses": [
+        {
+          "ok": true,
+          "text": "[{\"name\":\"X\"}]"
+        },
+        {
+          "ok": false,
+          "error": "e2"
+        },
+        {
+          "ok": true,
+          "text": "bad"
+        },
+        {
+          "ok": true,
+          "text": "[{\"name\":\"x\"},{\"name\":\"Y\"}]"
+        }
+      ],
+      "result": [
+        {
+          "name": "X"
+        },
+        {
+          "name": "Y"
+        }
+      ],
+      "calls": [
+        {
+          "system": "あなたはゲームデザイン分析者です。 渡されたゲーム仕様書から、 実装されている / 設計されている **遊びのメカニクス** (プレイヤーの行動とその設計意図) を構造化して洗い出します。 仕様書に書かれている内容に忠実に、 具体的なメカニクスを抽出してください。 返答は JSON 配列のみ。",
+          "prompt": "LEN:16346",
+          "model": null,
+          "maxTokens": 8000
+        },
+        {
+          "system": "あなたはゲームデザイン分析者です。 渡されたゲーム仕様書から、 実装されている / 設計されている **遊びのメカニクス** (プレイヤーの行動とその設計意図) を構造化して洗い出します。 仕様書に書かれている内容に忠実に、 具体的なメカニクスを抽出してください。 返答は JSON 配列のみ。",
+          "prompt": "LEN:16346",
+          "model": null,
+          "maxTokens": 8000
+        },
+        {
+          "system": "あなたはゲームデザイン分析者です。 渡されたゲーム仕様書から、 実装されている / 設計されている **遊びのメカニクス** (プレイヤーの行動とその設計意図) を構造化して洗い出します。 仕様書に書かれている内容に忠実に、 具体的なメカニクスを抽出してください。 返答は JSON 配列のみ。",
+          "prompt": "LEN:16346",
+          "model": null,
+          "maxTokens": 8000
+        },
+        {
+          "system": "あなたはゲームデザイン分析者です。 渡されたゲーム仕様書から、 実装されている / 設計されている **遊びのメカニクス** (プレイヤーの行動とその設計意図) を構造化して洗い出します。 仕様書に書かれている内容に忠実に、 具体的なメカニクスを抽出してください。 返答は JSON 配列のみ。",
+          "prompt": "LEN:6346",
+          "model": null,
+          "maxTokens": 8000
+        }
+      ],
+      "warns": [
+        "仕様書が長いため 4 チャンクに分割して解析します (元 48000 文字、最大 64000 文字を対象)",
+        "仕様書解析 (チャンク2) に失敗: e2",
+        "仕様書解析 (チャンク3) の JSON 解析に失敗"
+      ]
+    }
+  ],
+  "voteParse": [
+    {
+      "text": "id-1",
+      "valid": [
+        "id-1",
+        "id-2"
+      ],
+      "presented": [],
+      "id": "id-1"
+    },
+    {
+      "text": "選んだのは id-2 です",
+      "valid": [
+        "id-1",
+        "id-2"
+      ],
+      "presented": [],
+      "id": "id-2"
+    },
+    {
+      "text": "2",
+      "valid": [
+        "a",
+        "b"
+      ],
+      "presented": [
+        "b",
+        "a"
+      ],
+      "id": "a"
+    },
+    {
+      "text": " 1。 ",
+      "valid": [
+        "a",
+        "b"
+      ],
+      "presented": [
+        "b",
+        "a"
+      ],
+      "id": "b"
+    },
+    {
+      "text": "3番",
+      "valid": [
+        "a",
+        "b"
+      ],
+      "presented": [
+        "b",
+        "a"
+      ],
+      "id": null
+    },
+    {
+      "text": "1234",
+      "valid": [
+        "a"
+      ],
+      "presented": [
+        "a"
+      ],
+      "id": null
+    },
+    {
+      "text": "0",
+      "valid": [
+        "a"
+      ],
+      "presented": [
+        "a"
+      ],
+      "id": null
+    },
+    {
+      "text": "2.",
+      "valid": [
+        "a",
+        "b"
+      ],
+      "presented": [
+        "a",
+        "b"
+      ],
+      "id": "b"
+    },
+    {
+      "text": "x",
+      "valid": [
+        "a"
+      ],
+      "presented": [
+        "a"
+      ],
+      "id": null
+    }
+  ],
+  "voteWinner": [
+    {
+      "tally": {
+        "a": 1,
+        "b": 2
+      },
+      "r": 0.5,
+      "result": {
+        "winner": "b",
+        "maxVotes": 2
+      }
+    },
+    {
+      "tally": {
+        "b": 2,
+        "a": 2,
+        "c": 1
+      },
+      "r": 0.99,
+      "result": {
+        "winner": "b",
+        "maxVotes": 2
+      }
+    },
+    {
+      "tally": {
+        "b": 2,
+        "a": 2
+      },
+      "r": 0,
+      "result": {
+        "winner": "a",
+        "maxVotes": 2
+      }
+    },
+    {
+      "tally": {},
+      "r": 0.5,
+      "result": {
+        "winner": null,
+        "maxVotes": 0
+      }
+    },
+    {
+      "tally": {
+        "x": 0
+      },
+      "r": 0.5,
+      "result": {
+        "winner": null,
+        "maxVotes": 0
+      }
+    }
+  ],
+  "voiceKeys": [
+    [
+      [
+        "B",
+        "a",
+        " Ａ ",
+        "",
+        "😀",
+        "ｚ"
+      ],
+      5
+    ],
+    [
+      [],
+      0
+    ]
+  ],
+  "storedLookup": [
+    {
+      "terms": [
+        "ガチャ"
+      ],
+      "limit": 2,
+      "result": [
+        {
+          "content": "ガチャが楽しい",
+          "source": "s"
+        },
+        {
+          "content": "ガチャと周回",
+          "source": "s2",
+          "sourceUrl": "u"
+        }
+      ]
+    },
+    {
+      "terms": [
+        "周回 ガチャ"
+      ],
+      "limit": 5,
+      "result": [
+        {
+          "content": "ガチャと周回",
+          "source": "s2",
+          "sourceUrl": "u"
+        },
+        {
+          "content": "ガチャが楽しい",
+          "source": "s"
+        },
+        {
+          "content": "周回がつらい",
+          "source": "s"
+        }
+      ]
+    },
+    {
+      "terms": [
+        "無関係"
+      ],
+      "limit": 1,
+      "result": [
+        {
+          "content": "ガチャが楽しい",
+          "source": "s"
+        }
+      ]
+    },
+    {
+      "terms": [
+        "ガチャ"
+      ],
+      "limit": 0,
+      "result": []
+    }
+  ],
+  "mix": [
+    {
+      "content": "ガチャが楽しい",
+      "source": "s"
+    },
+    {
+      "content": "周回がつらい",
+      "source": "s"
+    },
+    {
+      "content": "ガチャと周回",
+      "source": "s2",
+      "sourceUrl": "u"
+    },
+    {
+      "content": "別",
+      "source": "y"
+    }
+  ],
+  "mixEvenly": [
+    1,
+    4,
+    5,
+    2,
+    3
+  ],
+  "cache": [
+    [
+      {
+        "content": "A+b3",
+        "source": "s"
+      }
+    ],
+    [
+      {
+        "content": "A+b3",
+        "source": "s"
+      }
+    ],
+    [
+      {
+        "content": "a3",
+        "source": "s"
+      }
+    ],
+    2,
+    1
+  ],
+  "reuseNo": [
+    [
+      "ペーパー#12",
+      12
+    ],
+    [
+      "PAPER ＃ ３４ です",
+      34
+    ],
+    [
+      "paper12",
+      12
+    ],
+    [
+      "ペーパー 0",
+      null
+    ],
+    [
+      "ペーパー x paper 7",
+      7
+    ],
+    [
+      "なし",
+      null
+    ],
+    [
+      "",
+      null
+    ],
+    [
+      "ペーパー#000123",
+      123
+    ],
+    [
+      "ペーパー＃",
+      null
+    ]
+  ],
+  "evidence": {
+    "voiceCount": 4,
+    "positive": 2,
+    "negative": 1,
+    "neutral": 1,
+    "polaritySkew": 0.3333,
+    "dominantSource": {
+      "name": "steam",
+      "share": 0.5
+    }
+  },
+  "evidenceEmpty": {
+    "voiceCount": 0,
+    "positive": 0,
+    "negative": 0,
+    "neutral": 0,
+    "polaritySkew": 0,
+    "dominantSource": null
+  },
+  "debatability": [
+    {
+      "responses": [
+        {
+          "ok": true,
+          "text": "[\"論点1\",\"論点2\", 3, \" \"]"
+        },
+        {
+          "ok": true,
+          "text": "[{\"index\":1,\"armable\":\"both\"},{\"index\":\"2\",\"armable\":\"pro-only\"},{\"index\":9,\"armable\":\"both\"}]"
+        }
+      ],
+      "min": 2,
+      "result": {
+        "issues": [
+          "論点1",
+          "論点2"
+        ],
+        "armability": [
+          {
+            "issue": "論点1",
+            "armable": "both"
+          },
+          {
+            "issue": "論点2",
+            "armable": "pro-only"
+          }
+        ],
+        "armableBothCount": 1,
+        "minArmableIssues": 2,
+        "evidence": {
+          "voiceCount": 4,
+          "positive": 2,
+          "negative": 1,
+          "neutral": 1,
+          "polaritySkew": 0.3333,
+          "dominantSource": {
+            "name": "steam",
+            "share": 0.5
+          }
+        },
+        "debatable": true,
+        "degraded": false,
+        "recommendation": null,
+        "message": "議論可能（外部の声は任意の参考値） (両論の参考根拠がある争点 1/2 件)"
+      },
+      "annotated": [
+        "論点1 (両論: ○)",
+        "論点2 (両論: 賛成側のみ)"
+      ],
+      "calls": [
+        {
+          "system": "あなたは議論設計者です。 与えられた議題とディスカッションペーパーから、「賛成側と反対側が本気で対立できる論点 (争点)」だけを分解します。 単なる確認事項や、誰も反対しない自明な項目は含めません。 返答は JSON 配列のみ。",
+          "prompt": "# 議題\n議題\n\n# ディスカッションペーパー\n# 議題\nX\n\n賛否が本気で割れる論点を 3〜5 個を目安に、各 1 文の疑問文で挙げてください。 本当に争点が無い場合は空配列を返して構いません。\n次の JSON 配列だけを返してください (前後に説明やコードフェンスを付けない):\n[\"論点1\", \"論点2\", ...]",
+          "model": "jm",
+          "maxTokens": null
+        },
+        {
+          "system": "外部の声は参考値であり、結論を決める投票や必須条件ではありません。外部の声がなくても、提示された内容と事前知識を用いて議論します。事前知識・推測・仮説を実ユーザーの意見として数えたり捏造したりせず、不確実性と出所を明示してください。後から意見や内容を修正して再議論できます。\nあなたは議論の準備担当です。 各論点について、手元の材料と前提・事前知識で 賛成側 (pro) と反対側 (con) の両方が根拠を張れるかを判定します。 返答は JSON 配列のみ。",
+          "prompt": "# 議題\n議題\n\n# 論点\n1. 論点1\n2. 論点2\n\n# 手元の材料 (外部の声)\n1. とても楽しい最高\n2. つまらない最悪\n3. 普通\n4. 楽しい\n\n各論点について、この材料で pro / con のどちら側が根拠を持てるかを判定し、次の JSON 配列だけを返してください (index は論点番号 1 始まり):\n[{\"index\":1,\"armable\":\"both\"|\"pro-only\"|\"con-only\"|\"neither\"}]",
+          "model": "jm",
+          "maxTokens": null
+        }
+      ],
+      "warns": []
+    },
+    {
+      "responses": [
+        {
+          "ok": false,
+          "error": "x"
+        }
+      ],
+      "min": 2,
+      "result": {
+        "issues": [],
+        "armability": [],
+        "armableBothCount": 0,
+        "minArmableIssues": 2,
+        "evidence": {
+          "voiceCount": 4,
+          "positive": 2,
+          "negative": 1,
+          "neutral": 1,
+          "polaritySkew": 0.3333,
+          "dominantSource": {
+            "name": "steam",
+            "share": 0.5
+          }
+        },
+        "debatable": true,
+        "degraded": true,
+        "recommendation": null,
+        "message": "議論適性ゲートを実行できませんでした (論点分解に失敗)。適性あり扱いで続行します。"
+      },
+      "annotated": [],
+      "calls": [
+        {
+          "system": "あなたは議論設計者です。 与えられた議題とディスカッションペーパーから、「賛成側と反対側が本気で対立できる論点 (争点)」だけを分解します。 単なる確認事項や、誰も反対しない自明な項目は含めません。 返答は JSON 配列のみ。",
+          "prompt": "# 議題\n議題\n\n# ディスカッションペーパー\n# 議題\nX\n\n賛否が本気で割れる論点を 3〜5 個を目安に、各 1 文の疑問文で挙げてください。 本当に争点が無い場合は空配列を返して構いません。\n次の JSON 配列だけを返してください (前後に説明やコードフェンスを付けない):\n[\"論点1\", \"論点2\", ...]",
+          "model": "jm",
+          "maxTokens": null
+        }
+      ],
+      "warns": [
+        "議論適性ゲート degrade: 論点分解 LLM エラー: x"
+      ]
+    },
+    {
+      "responses": [
+        {
+          "ok": true,
+          "text": "[\"論点1\"]"
+        },
+        {
+          "ok": true,
+          "text": "[]"
+        }
+      ],
+      "min": 1,
+      "result": {
+        "issues": [
+          "論点1"
+        ],
+        "armability": [],
+        "armableBothCount": 0,
+        "minArmableIssues": 1,
+        "evidence": {
+          "voiceCount": 4,
+          "positive": 2,
+          "negative": 1,
+          "neutral": 1,
+          "polaritySkew": 0.3333,
+          "dominantSource": {
+            "name": "steam",
+            "share": 0.5
+          }
+        },
+        "debatable": true,
+        "degraded": true,
+        "recommendation": null,
+        "message": "議論適性ゲートを実行できませんでした (両論武装判定に失敗)。適性あり扱いで続行します。"
+      },
+      "annotated": [
+        "論点1"
+      ],
+      "calls": [
+        {
+          "system": "あなたは議論設計者です。 与えられた議題とディスカッションペーパーから、「賛成側と反対側が本気で対立できる論点 (争点)」だけを分解します。 単なる確認事項や、誰も反対しない自明な項目は含めません。 返答は JSON 配列のみ。",
+          "prompt": "# 議題\n議題\n\n# ディスカッションペーパー\n# 議題\nX\n\n賛否が本気で割れる論点を 3〜5 個を目安に、各 1 文の疑問文で挙げてください。 本当に争点が無い場合は空配列を返して構いません。\n次の JSON 配列だけを返してください (前後に説明やコードフェンスを付けない):\n[\"論点1\", \"論点2\", ...]",
+          "model": "jm",
+          "maxTokens": null
+        },
+        {
+          "system": "外部の声は参考値であり、結論を決める投票や必須条件ではありません。外部の声がなくても、提示された内容と事前知識を用いて議論します。事前知識・推測・仮説を実ユーザーの意見として数えたり捏造したりせず、不確実性と出所を明示してください。後から意見や内容を修正して再議論できます。\nあなたは議論の準備担当です。 各論点について、手元の材料と前提・事前知識で 賛成側 (pro) と反対側 (con) の両方が根拠を張れるかを判定します。 返答は JSON 配列のみ。",
+          "prompt": "# 議題\n議題\n\n# 論点\n1. 論点1\n\n# 手元の材料 (外部の声)\n1. とても楽しい最高\n2. つまらない最悪\n3. 普通\n4. 楽しい\n\n各論点について、この材料で pro / con のどちら側が根拠を持てるかを判定し、次の JSON 配列だけを返してください (index は論点番号 1 始まり):\n[{\"index\":1,\"armable\":\"both\"|\"pro-only\"|\"con-only\"|\"neither\"}]",
+          "model": "jm",
+          "maxTokens": null
+        }
+      ],
+      "warns": [
+        "両論武装判定の結果が空 (解析不能)",
+        "議論適性ゲート degrade: 両論武装判定に失敗"
+      ]
+    },
+    {
+      "responses": [
+        {
+          "ok": true,
+          "text": "[]"
+        },
+        {
+          "ok": true,
+          "text": "[]"
+        }
+      ],
+      "min": 2,
+      "result": {
+        "issues": [],
+        "armability": [],
+        "armableBothCount": 0,
+        "minArmableIssues": 2,
+        "evidence": {
+          "voiceCount": 4,
+          "positive": 2,
+          "negative": 1,
+          "neutral": 1,
+          "polaritySkew": 0.3333,
+          "dominantSource": {
+            "name": "steam",
+            "share": 0.5
+          }
+        },
+        "debatable": false,
+        "degraded": false,
+        "recommendation": null,
+        "message": "議論適性: 低 (両論武装可能な争点 0/0 件 < 2)"
+      },
+      "annotated": [],
+      "calls": [
+        {
+          "system": "あなたは議論設計者です。 与えられた議題とディスカッションペーパーから、「賛成側と反対側が本気で対立できる論点 (争点)」だけを分解します。 単なる確認事項や、誰も反対しない自明な項目は含めません。 返答は JSON 配列のみ。",
+          "prompt": "# 議題\n議題\n\n# ディスカッションペーパー\n# 議題\nX\n\n賛否が本気で割れる論点を 3〜5 個を目安に、各 1 文の疑問文で挙げてください。 本当に争点が無い場合は空配列を返して構いません。\n次の JSON 配列だけを返してください (前後に説明やコードフェンスを付けない):\n[\"論点1\", \"論点2\", ...]",
+          "model": "jm",
+          "maxTokens": null
+        }
+      ],
+      "warns": []
+    },
+    {
+      "responses": [
+        {
+          "ok": true,
+          "text": "[\"A\",\"B\"]"
+        },
+        {
+          "ok": true,
+          "text": "[{\"index\":1.7,\"armable\":\"neither\"},{\"index\":2,\"armable\":\"bogus\"}]"
+        }
+      ],
+      "min": 3,
+      "result": {
+        "issues": [
+          "A",
+          "B"
+        ],
+        "armability": [
+          {
+            "issue": "A",
+            "armable": "neither"
+          },
+          {
+            "issue": "B",
+            "armable": "neither"
+          }
+        ],
+        "armableBothCount": 0,
+        "minArmableIssues": 3,
+        "evidence": {
+          "voiceCount": 4,
+          "positive": 2,
+          "negative": 1,
+          "neutral": 1,
+          "polaritySkew": 0.3333,
+          "dominantSource": {
+            "name": "steam",
+            "share": 0.5
+          }
+        },
+        "debatable": true,
+        "degraded": false,
+        "recommendation": null,
+        "message": "議論可能（外部の声は任意の参考値） (両論の参考根拠がある争点 0/2 件)"
+      },
+      "annotated": [
+        "A (両論: ×)",
+        "B (両論: ×)"
+      ],
+      "calls": [
+        {
+          "system": "あなたは議論設計者です。 与えられた議題とディスカッションペーパーから、「賛成側と反対側が本気で対立できる論点 (争点)」だけを分解します。 単なる確認事項や、誰も反対しない自明な項目は含めません。 返答は JSON 配列のみ。",
+          "prompt": "# 議題\n議題\n\n# ディスカッションペーパー\n# 議題\nX\n\n賛否が本気で割れる論点を 3〜5 個を目安に、各 1 文の疑問文で挙げてください。 本当に争点が無い場合は空配列を返して構いません。\n次の JSON 配列だけを返してください (前後に説明やコードフェンスを付けない):\n[\"論点1\", \"論点2\", ...]",
+          "model": "jm",
+          "maxTokens": null
+        },
+        {
+          "system": "外部の声は参考値であり、結論を決める投票や必須条件ではありません。外部の声がなくても、提示された内容と事前知識を用いて議論します。事前知識・推測・仮説を実ユーザーの意見として数えたり捏造したりせず、不確実性と出所を明示してください。後から意見や内容を修正して再議論できます。\nあなたは議論の準備担当です。 各論点について、手元の材料と前提・事前知識で 賛成側 (pro) と反対側 (con) の両方が根拠を張れるかを判定します。 返答は JSON 配列のみ。",
+          "prompt": "# 議題\n議題\n\n# 論点\n1. A\n2. B\n\n# 手元の材料 (外部の声)\n1. とても楽しい最高\n2. つまらない最悪\n3. 普通\n4. 楽しい\n\n各論点について、この材料で pro / con のどちら側が根拠を持てるかを判定し、次の JSON 配列だけを返してください (index は論点番号 1 始まり):\n[{\"index\":1,\"armable\":\"both\"|\"pro-only\"|\"con-only\"|\"neither\"}]",
+          "model": "jm",
+          "maxTokens": null
+        }
+      ],
+      "warns": []
+    }
+  ],
+  "goal": [
+    {
+      "standingA": [
+        "pro-G1",
+        "pro-G3"
+      ],
+      "result": {
+        "refuted": [
+          {
+            "id": "PB",
+            "issueId": "I1",
+            "personaId": "p3",
+            "stance": "con",
+            "claim": "不要",
+            "qualifier": null,
+            "grounds": [
+              {
+                "id": "con-G1",
+                "text": "射幸心",
+                "state": "challenged"
+              }
+            ],
+            "values": []
+          }
+        ],
+        "undecided": null,
+        "note": "「不要」は根拠がすべて崩れて論破された。「必要」 (限定: ライト層)が根拠 pro-G1, pro-G3 で残る"
+      }
+    },
+    {
+      "standingA": [],
+      "result": {
+        "refuted": [
+          {
+            "id": "PA",
+            "issueId": "I1",
+            "personaId": "p1",
+            "stance": "pro",
+            "claim": "必要",
+            "qualifier": "ライト層",
+            "grounds": [
+              {
+                "id": "pro-G1",
+                "text": "x",
+                "state": "challenged"
+              }
+            ],
+            "values": [
+              "収益"
+            ]
+          },
+          {
+            "id": "PB",
+            "issueId": "I1",
+            "personaId": "p3",
+            "stance": "con",
+            "claim": "不要",
+            "qualifier": null,
+            "grounds": [
+              {
+                "id": "con-G1",
+                "text": "射幸心",
+                "state": "challenged"
+              }
+            ],
+            "values": []
+          }
+        ],
+        "note": null,
+        "undecided": "双方の論拠がすべて崩れたため勝敗は付けない。「必要」「不要」のどちらも、今ある材料では支えられない (決着には追加の材料が要る)"
+      }
+    },
+    {
+      "standingA": [
+        "pro-G1",
+        "pro-G3"
+      ],
+      "result": {
+        "refuted": [
+          {
+            "id": "PB",
+            "issueId": "I1",
+            "personaId": "p3",
+            "stance": "con",
+            "claim": "不要",
+            "qualifier": null,
+            "grounds": [
+              {
+                "id": "con-G1",
+                "text": "x",
+                "state": "conceded"
+              }
+            ],
+            "values": []
+          }
+        ],
+        "undecided": null,
+        "note": "「不要」は根拠がすべて崩れて論破された。「必要」 (限定: ライト層)が根拠 pro-G1, pro-G3 で残る"
+      }
+    },
+    {
+      "standingA": [],
+      "result": {
+        "refuted": [
+          {
+            "id": "PA",
+            "issueId": "I1",
+            "personaId": "p1",
+            "stance": "pro",
+            "claim": "必要",
+            "qualifier": "ライト層",
+            "grounds": [
+              {
+                "id": "pro-G1",
+                "text": "x",
+                "state": "challenged"
+              }
+            ],
+            "values": [
+              "収益"
+            ]
+          },
+          {
+            "id": "PB",
+            "issueId": "I1",
+            "personaId": "p3",
+            "stance": "con",
+            "claim": "不要",
+            "qualifier": null,
+            "grounds": [
+              {
+                "id": "con-G1",
+                "text": "x",
+                "state": "conceded"
+              }
+            ],
+            "values": []
+          }
+        ],
+        "note": null,
+        "undecided": "双方の論拠がすべて崩れたため勝敗は付けない。「必要」「不要」のどちらも、今ある材料では支えられない (決着には追加の材料が要る)"
+      }
+    }
+  ],
+  "outcome": {
+    "reasons": [
+      [
+        "議論を打ち切った",
+        "議論を打ち切った"
+      ],
+      [
+        "事実の対立は照会で確かめた: メモ",
+        "事実の対立は照会で確かめた: メモ"
+      ],
+      [
+        null,
+        null
+      ],
+      [
+        "折衷案は批准されたが止揚ではない",
+        "折衷案は批准されたが止揚ではない — 折衷案: 折衷文"
+      ],
+      [
+        "止揚案が両陣営に批准されず対立が残った",
+        "止揚案が両陣営に批准されず対立が残った — 最終候補: 折衷文"
+      ],
+      [
+        "未解決の事実問題: メモ",
+        "未解決の事実問題: メモ"
+      ],
+      [
+        "(旧方式の合意判定) (記録なし)",
+        "(旧方式の合意判定) (記録なし)"
+      ],
+      [
+        "(旧方式のすり合わせ・詳細は記録なし)",
+        "(旧方式のすり合わせ・詳細は記録なし)"
+      ],
+      [
+        "(旧方式のすり合わせ・詳細は記録なし)",
+        "(旧方式のすり合わせ・詳細は記録なし)"
+      ]
+    ],
+    "outcomes": [
+      "refuted",
+      "aufheben",
+      "none"
+    ],
+    "line": "止揚: 詳細"
+  },
+  "stance": {
+    "prompt": [
+      "# 論点 (問い)\nガチャは必要か\n(問いの形でなければ「ガチャは必要か は成り立つか / 十分か」と読み替える)\n\n# 主張\n主張\n限定: (明示なし)\n\nこの主張は論点に対して「はい」と答えているか「いいえ」と答えているかを判定し、ラベルを 1 つだけ返してください (説明不要):\n- yes: 論点を肯定している (成り立つ / 十分だ / 正解だ)\n- no: 論点を否定している (成り立たない / 不十分だ / 正解ではない)\n- unclear: どちらとも言えない",
+      "# 論点 (問い)\nガチャは必要か\n(問いの形でなければ「ガチャは必要か は成り立つか / 十分か」と読み替える)\n\n# 主張\n主張\n限定: 限定\n\nこの主張は論点に対して「はい」と答えているか「いいえ」と答えているかを判定し、ラベルを 1 つだけ返してください (説明不要):\n- yes: 論点を肯定している (成り立つ / 十分だ / 正解だ)\n- no: 論点を否定している (成り立たない / 不十分だ / 正解ではない)\n- unclear: どちらとも言えない"
+    ],
+    "parse": [
+      "yes",
+      "no",
+      "unclear",
+      "no",
+      "no"
+    ],
+    "reversed": [
+      true,
+      false,
+      false
+    ],
+    "feedback": [
+      "前回の主張「前」は【賛成】の立場と逆向きでした。論点に「はい」と答える (肯定する)主張にしてください。相手陣営より強い肯定・否定にすり替えないこと。",
+      "前回の主張「前」は【反対】の立場と逆向きでした。論点に「いいえ」と答える (否定する)主張にしてください。相手陣営より強い肯定・否定にすり替えないこと。"
+    ]
+  },
+  "issueVoices": [
+    "",
+    "# プレイヤーの声 (集めた外部の声。根拠のデータとして使う)\n主張・根拠・反論のデータには、まずここにある実際の声を [V番号] で引いて使う。声に無いことを事実として作らない。\n- [V1] a b（出所: s）\n- [V2] 😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀…（出所: t）"
+  ],
+  "positionPrompt": [
+    "あなたは議論ペルソナ「論者A」。特徴: 冷静 / 皮肉 / 話し方: 丁寧\nあなたが重視する価値: 収益\nあなたの核となる主張 (これを種に組み立てる): 核1 / 核2\n\n# 論点 1\nガチャは必要か\n\nVOICES\n\n# 議論の前提ルール (厳守)\n次の 3 点について共通見解は取れている前提で議論する (すり合わせ直さない):\n- どんな体験をつくりたいか\n- どんな施策 (アイデア) を試したいか\n- 他のゲームではどうしているか、どうなっているか\n論拠をぶつけ合った結果、論点の結論は次のいずれかになる: 止揚 (両者の根拠を保ったまま一段上の結論に至る) / 論破 (一方の根拠がすべて崩れ、意見が出なくなる) / 結論なし (どちらにも至らない)。\n\n論拠は次の 3 種類のどれかで立てる:\n- 演繹 (deduction): この仕様を入れて、こういう人が遊ぶと、こういう体験になる\n- 帰納 (induction): この仕様を入れている他のゲームでは、こういう体験になっていた (同じ仕様であることを示す)\n- アブダクション (abduction): こういう体験を作りたいから、きっとこういう仕様にしたら良い\n\nトゥールミンの整理:\n- 主張とデータは別物。データ (事実・事例) と論拠 (データから主張へ橋渡しする理由) を混ぜない\n- データが正しくても論拠が間違っていれば主張は間違いになる。反論はデータ・論拠・限定のどれを突くか決めて行う\n- 主張の限定 (どのプレイヤー層・どの条件の話か) をはっきりさせる\n\n禁止 (前提の外から相手の主張を曲げる手):\n- 相手の限定の外側にある層・条件・事例を持ち出して主張全体を否定する\n- 相手が言っていない主張に置き換えて叩く\n- 根拠の中身に触れず「それって感想」「データあるの?」だけで退ける (足りないなら何が要るかを具体的に問う)\n- 論点をずらす、別の論点にすり替える\n- 何を論拠として認めるかという前提を途中で変える\n\nこの論点についてあなたは【反対】の立場 (con) で定立 (Position) を張ります。\n賛成 = 論点 (問い) に「はい」と答える立場、反対 = 「いいえ」と答える立場。論点が問いの形でなければ「ガチャは必要か は成り立つか / 十分か」と読み替える。主張は必ず【反対】の向きにし、相手陣営より強い肯定・否定にすり替えない。\nFB\n次の JSON 1 個だけを返してください (前後に説明やコードフェンスを付けない):\n{\"claim\": \"<主張 1 文>\", \"qualifier\": \"<主張の限定: どのプレイヤー層・どの条件の話か>\", \"grounds\": [{\"kind\": \"<deduction|induction|abduction>\", \"data\": \"<データ: 事実・事例・仕様>\", \"warrant\": \"<論拠: データから主張が言える理由>\", \"say\": \"<この論拠を Discord に流す口語 1〜2 文>\"}], \"values\": [\"<価値前提 (例: 収益 > 体験)>\"], \"text\": \"<主張を Discord に流す口語 1〜2 文 (論拠は say で別に流す)>\"}\ngrounds は 1〜3 個 (強い論拠だけに絞る)。data と warrant は混ぜずに分ける。text は実在の人間の雑談のような自然な口語で書く。",
+    "あなたは議論ペルソナ「論者A」。特徴: 冷静 / 皮肉 / 話し方: 丁寧\n\n# 論点 1\nガチャは必要か\n\n# 議論の前提ルール (厳守)\n次の 3 点について共通見解は取れている前提で議論する (すり合わせ直さない):\n- どんな体験をつくりたいか\n- どんな施策 (アイデア) を試したいか\n- 他のゲームではどうしているか、どうなっているか\n論拠をぶつけ合った結果、論点の結論は次のいずれかになる: 止揚 (両者の根拠を保ったまま一段上の結論に至る) / 論破 (一方の根拠がすべて崩れ、意見が出なくなる) / 結論なし (どちらにも至らない)。\n\n論拠は次の 3 種類のどれかで立てる:\n- 演繹 (deduction): この仕様を入れて、こういう人が遊ぶと、こういう体験になる\n- 帰納 (induction): この仕様を入れている他のゲームでは、こういう体験になっていた (同じ仕様であることを示す)\n- アブダクション (abduction): こういう体験を作りたいから、きっとこういう仕様にしたら良い\n\nトゥールミンの整理:\n- 主張とデータは別物。データ (事実・事例) と論拠 (データから主張へ橋渡しする理由) を混ぜない\n- データが正しくても論拠が間違っていれば主張は間違いになる。反論はデータ・論拠・限定のどれを突くか決めて行う\n- 主張の限定 (どのプレイヤー層・どの条件の話か) をはっきりさせる\n\n禁止 (前提の外から相手の主張を曲げる手):\n- 相手の限定の外側にある層・条件・事例を持ち出して主張全体を否定する\n- 相手が言っていない主張に置き換えて叩く\n- 根拠の中身に触れず「それって感想」「データあるの?」だけで退ける (足りないなら何が要るかを具体的に問う)\n- 論点をずらす、別の論点にすり替える\n- 何を論拠として認めるかという前提を途中で変える\n\nこの論点についてあなたは【賛成】の立場 (pro) で定立 (Position) を張ります。\n賛成 = 論点 (問い) に「はい」と答える立場、反対 = 「いいえ」と答える立場。論点が問いの形でなければ「ガチャは必要か は成り立つか / 十分か」と読み替える。主張は必ず【賛成】の向きにし、相手陣営より強い肯定・否定にすり替えない。\n次の JSON 1 個だけを返してください (前後に説明やコードフェンスを付けない):\n{\"claim\": \"<主張 1 文>\", \"qualifier\": \"<主張の限定: どのプレイヤー層・どの条件の話か>\", \"grounds\": [{\"kind\": \"<deduction|induction|abduction>\", \"data\": \"<データ: 事実・事例・仕様>\", \"warrant\": \"<論拠: データから主張が言える理由>\", \"say\": \"<この論拠を Discord に流す口語 1〜2 文>\"}], \"values\": [\"<価値前提 (例: 収益 > 体験)>\"], \"text\": \"<主張を Discord に流す口語 1〜2 文 (論拠は say で別に流す)>\"}\ngrounds は 1〜3 個 (強い論拠だけに絞る)。data と warrant は混ぜずに分ける。text は実在の人間の雑談のような自然な口語で書く。"
+  ],
+  "ruleCheck": {
+    "anchors": [
+      {
+        "claim": {
+          "attack": "data",
+          "groundId": "pro-G1",
+          "data": "d",
+          "warrant": "w"
+        },
+        "result": {
+          "ok": true,
+          "ground": {
+            "id": "pro-G1",
+            "text": "売上",
+            "state": "unchallenged",
+            "kind": "induction",
+            "warrant": "収益源"
+          }
+        }
+      },
+      {
+        "claim": {
+          "attack": "data",
+          "groundId": "pro-G2",
+          "data": "d",
+          "warrant": "w"
+        },
+        "result": {
+          "ok": false,
+          "foul": "unanchored"
+        }
+      },
+      {
+        "claim": {
+          "attack": "qualifier",
+          "groundId": null,
+          "data": "d",
+          "warrant": "w"
+        },
+        "result": {
+          "ok": true,
+          "ground": null
+        }
+      },
+      {
+        "claim": {
+          "attack": null,
+          "groundId": "pro-G1",
+          "data": "d",
+          "warrant": "w"
+        },
+        "result": {
+          "ok": false,
+          "foul": "unanchored"
+        }
+      },
+      {
+        "claim": {
+          "attack": "warrant",
+          "groundId": "pro-G1",
+          "data": null,
+          "warrant": "w"
+        },
+        "result": {
+          "ok": false,
+          "foul": "incomplete"
+        }
+      },
+      {
+        "claim": {
+          "attack": "warrant",
+          "groundId": "zz",
+          "data": "d",
+          "warrant": "w"
+        },
+        "result": {
+          "ok": false,
+          "foul": "unanchored"
+        }
+      }
+    ],
+    "judgePrompt": [
+      "# 論点\nガチャは必要か\n\n# 反論された側\n主張: 必要\n限定: ライト層\n突かれた根拠 [pro-G1] (帰納)\n  データ: 売上\n  論拠: 収益源\n\n# 反論した側の陣営の主張 (反論はこの主張を守る/支える向きでなければならない)\n主張: 不要\n限定: (明示なし)\n\n# 反論 (「データ」を突くと宣言)\n反論\n  反論のデータ: rd\n  反論の論拠: rw\n\nこの反論が議論の前提ルールを守っているかを判定し、ラベルを 1 つだけ返してください (説明不要):\n- ok: 宣言した要素 (データの真偽・論拠の妥当性・限定の範囲) を、相手の主張の限定の内側で突いている\n- out_of_scope: 相手の限定の外側にある層・条件・事例を持ち出して主張全体を否定している\n- straw_man: 相手が言っていない主張に置き換えて否定している\n- dismissal: 根拠の中身に触れず「感想にすぎない」「データが無い」だけで退けている (何が足りないかを具体的に示していない)\n- topic_shift: この論点と別の論点に話をずらしている\n- self_contradiction: 反論の内容が、反論した側の陣営の主張と逆向きになっている (相手陣営の主張を支えてしまっている)\n判断に迷う場合は ok を返す。",
+      "# 論点\nガチャは必要か\n\n# 反論された側\n主張: 不要\n限定: (明示なし)\n\n# 反論 (「限定」を突くと宣言)\n反論\n  反論のデータ: rd\n  反論の論拠: rw\n\nこの反論が議論の前提ルールを守っているかを判定し、ラベルを 1 つだけ返してください (説明不要):\n- ok: 宣言した要素 (データの真偽・論拠の妥当性・限定の範囲) を、相手の主張の限定の内側で突いている\n- out_of_scope: 相手の限定の外側にある層・条件・事例を持ち出して主張全体を否定している\n- straw_man: 相手が言っていない主張に置き換えて否定している\n- dismissal: 根拠の中身に触れず「感想にすぎない」「データが無い」だけで退けている (何が足りないかを具体的に示していない)\n- topic_shift: この論点と別の論点に話をずらしている\n判断に迷う場合は ok を返す。"
+    ],
+    "verdicts": [
+      "ok",
+      "straw_man",
+      "topic_shift",
+      null,
+      "ok"
+    ],
+    "concessionPrompt": "# 相手の発言\n相手\n\n# 返答\n返答\n\n返答は相手の発言を認めているか、それとも反論・追撃しているかを判定し、ラベルを 1 つだけ返してください (説明不要):\n- concede: 相手の言い分を認めている (部分的に認めて条件を付けるのも含む)\n- rebut: 相手の言い分を否定・反論・追撃している\n判断に迷う場合は concede を返す。",
+    "notices": [
+      "Aさんの今の反論は「反論自身のデータか論拠が示されていない」ので、根拠への反論としては数えずに問いとして扱いますね。反論のデータと論拠を示し、相手の主張の範囲の中でデータ・論拠・限定のどれが違うのかを突いてもらえると議論が進みます。",
+      "Aさんの今の反論は「本人の発言の引用だと言っているのに、その言葉が本人の発言に無い」ので、本人の考えとしては数えずに問いとして扱いますね。本人の発言 [E番号] に支えられることだけを本人の考えとして言い、それ以外は推測として言ってください。",
+      "Aさんの今の反論は「根拠の中身に触れずに退けている」ので、根拠への反論としては数えずに問いとして扱いますね。反論のデータと論拠を示し、相手の主張の範囲の中でデータ・論拠・限定のどれが違うのかを突いてもらえると議論が進みます。"
+    ]
+  },
+  "tensionPure": {
+    "classify": "# 論点\nガチャは必要か\n\n# 対立する 2 つの Position\nA (pro): 必要\n  価値前提: 収益\nB (con): 不要\n  価値前提: (なし)\n\nこの対立の「型」を 1 つだけ選んで、そのラベルのみを返してください (説明不要):\n- facts: 事実の真偽で決まる対立 (データ照会で解消できる)\n- values: 価値前提の対立 (収益性 vs 体験 など)\n- means: 目標は共有しているが手段が違う\n- tradeoff: 両立不能に見える 2 変数のトレードオフ",
+    "types": [
+      "means",
+      "tradeoff",
+      null,
+      "facts"
+    ],
+    "facts": [
+      [
+        "A",
+        "a"
+      ],
+      [
+        "b です",
+        "b"
+      ],
+      [
+        "None",
+        "none"
+      ],
+      [
+        "どちらも",
+        "none"
+      ],
+      [
+        "answer is B",
+        "b"
+      ],
+      [
+        "i think a, not b",
+        "a"
+      ],
+      [
+        "(a)",
+        "a"
+      ],
+      [
+        "abc",
+        null
+      ],
+      [
+        "",
+        null
+      ],
+      [
+        "A1",
+        "a"
+      ],
+      [
+        "a_b",
+        "a"
+      ]
+    ],
+    "factPrompt": "# 事実に関する対立\n論点: ガチャは必要か\nA: 必要\nB: 不要\n\n# 証拠 (外部の声)\n1. xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx（出所: s）\n\n証拠はどちらの主張を支持しますか。次のいずれか 1 語のみで答えてください (説明不要):\nA / B / none (どちらも支持しない・判定不能)"
+  },
+  "synthPure": {
+    "templates": [
+      "これは価値対立です。上位価値の発見、または適用条件の分割 (「コア層には X、ライト層には Y」のように、どちらの価値も条件付きで生かす分割) で統合してください。",
+      "これは手段対立です (目標は共有)。共通目標を再確認した上で、両者の手段の合成・段階化 (まず A で始めて条件を満たしたら B へ、など) で統合してください。",
+      "これはトレードオフです。二者択一に見える 2 変数をパラメータ化し、両方を部分的に満たす非線形の第 3 案 (構造を変えることでトレードオフ自体を無効化する案) を出してください。",
+      "対立する主張を条件分割で統合してください。"
+    ],
+    "prompt": [
+      "# 論点\n論点\n\n# 対立する Position (根拠は [id] で指す)\nA (pro): 必要\n  - [pro-G1] (unchallenged) 売上\n  - [pro-G2] (conceded) 期待感\n  - [pro-G3] (defended) 継続\n  価値前提: 収益\n\nB (con): 不要\n  - [con-G1] (challenged) 射幸心\n  価値前提: (なし)\n\n# 指示\nこれは価値対立です。上位価値の発見、または適用条件の分割 (「コア層には X、ライト層には Y」のように、どちらの価値も条件付きで生かす分割) で統合してください。\n\n止揚 (aufheben) の 3 要件をデータで示してください:\n- preserves: 各陣営から何を保存したか (上の根拠 id で指す。両陣営から挙げる)\n- negates: 何を放棄させたか (根拠 id)\n- elevates: 導入した新しい枠 (上位目標 / 条件分割 / 再定義)。単なる「両方やる」は不可\n\ntext には、保存した根拠がどう両立するかを短く含める。既存案の反復や「状況に応じて両方」は不可。\n\n次の JSON 1 個だけを返してください (前後に説明やコードフェンスを付けない):\n{\"text\": \"<統合案の口語 1〜3 文>\", \"preserves\": [\"<根拠id>\"], \"negates\": [\"<根拠id>\"], \"elevates\": \"<新しい枠の説明 1 文>\"}",
+      "# 論点\n論点\n\n# 対立する Position (根拠は [id] で指す)\nA (pro): 必要\n  - [pro-G1] (unchallenged) 売上\n  - [pro-G2] (conceded) 期待感\n  - [pro-G3] (defended) 継続\n  価値前提: 収益\n\nB (con): 不要\n  - [con-G1] (challenged) 射幸心\n  価値前提: (なし)\n\n# 指示\nこれは手段対立です (目標は共有)。共通目標を再確認した上で、両者の手段の合成・段階化 (まず A で始めて条件を満たしたら B へ、など) で統合してください。\n\n# 前回候補への批准フィードバック (これらの根拠が保存されておらず reject された)\n- pro-G1\n前回候補の言い換えは禁止です。欠けていた根拠を、どの条件・対象・検証方法で保存したかが分かる形に修正してください。\n\n止揚 (aufheben) の 3 要件をデータで示してください:\n- preserves: 各陣営から何を保存したか (上の根拠 id で指す。両陣営から挙げる)\n- negates: 何を放棄させたか (根拠 id)\n- elevates: 導入した新しい枠 (上位目標 / 条件分割 / 再定義)。単なる「両方やる」は不可\n\ntext には、保存した根拠がどう両立するかを短く含める。既存案の反復や「状況に応じて両方」は不可。\n\n次の JSON 1 個だけを返してください (前後に説明やコードフェンスを付けない):\n{\"text\": \"<統合案の口語 1〜3 文>\", \"preserves\": [\"<根拠id>\"], \"negates\": [\"<根拠id>\"], \"elevates\": \"<新しい枠の説明 1 文>\"}"
+    ],
+    "ratify": "あなたは議論ペルソナ「A」。この議論でのあなたの立場は pro、主張は「必要」です。\n\n# あなたの主張の根拠\n- [pro-G1] 売上\n- [pro-G2] 期待感\n- [pro-G3] 継続\n\n# 提示された統合案\n統合\n新しい枠: 枠\n(統合案が保存を主張する根拠: [なし])\n\n# チェックリスト (敵対的批准 — 甘い受諾をしない)\nあなたの主張の根拠は [pro-G1, pro-G2, pro-G3] だった。この統合案で**実際に保存されているもの**を ID で挙げよ。保存が確認できた根拠が過半数に満たなければ reject し、欠けているものを指摘せよ。**デフォルトは reject** — 保存を自分で確認できたときだけ accept せよ。\n\n次の JSON 1 個だけを返してください:\n{\"verdict\": \"accept\" | \"reject\", \"preservedIds\": [\"<確認できた根拠id>\"], \"missing\": [\"<欠けている根拠id>\"], \"reason\": \"<一言>\"}"
+  },
+  "turnPrompt": [
+    "あなたは議論ペルソナ「論者A」。\n特徴: 冷静 / 皮肉 / 話し方: 丁寧\nこの議論でのあなたの立場は【賛成寄り】。主張を筋の通った形で擁護・補強する。\n\n# 議論の前提ルール (厳守)\n次の 3 点について共通見解は取れている前提で議論する (すり合わせ直さない):\n- どんな体験をつくりたいか\n- どんな施策 (アイデア) を試したいか\n- 他のゲームではどうしているか、どうなっているか\n論拠をぶつけ合った結果、論点の結論は次のいずれかになる: 止揚 (両者の根拠を保ったまま一段上の結論に至る) / 論破 (一方の根拠がすべて崩れ、意見が出なくなる) / 結論なし (どちらにも至らない)。\n\n論拠は次の 3 種類のどれかで立てる:\n- 演繹 (deduction): この仕様を入れて、こういう人が遊ぶと、こういう体験になる\n- 帰納 (induction): この仕様を入れている他のゲームでは、こういう体験になっていた (同じ仕様であることを示す)\n- アブダクション (abduction): こういう体験を作りたいから、きっとこういう仕様にしたら良い\n\nトゥールミンの整理:\n- 主張とデータは別物。データ (事実・事例) と論拠 (データから主張へ橋渡しする理由) を混ぜない\n- データが正しくても論拠が間違っていれば主張は間違いになる。反論はデータ・論拠・限定のどれを突くか決めて行う\n- 主張の限定 (どのプレイヤー層・どの条件の話か) をはっきりさせる\n\n禁止 (前提の外から相手の主張を曲げる手):\n- 相手の限定の外側にある層・条件・事例を持ち出して主張全体を否定する\n- 相手が言っていない主張に置き換えて叩く\n- 根拠の中身に触れず「それって感想」「データあるの?」だけで退ける (足りないなら何が要るかを具体的に問う)\n- 論点をずらす、別の論点にすり替える\n- 何を論拠として認めるかという前提を途中で変える\n\n# 論点 1\nガチャは必要か\n\nVB\n\n# 現在の論証状態 (根拠は [id] で指す)\n論者A (あなた) (pro): 必要\n  限定: ライト層\n  - [pro-G1] (unchallenged 帰納) データ: 売上\n      論拠: 収益源\n  - [pro-G2] (conceded) データ: 期待感\n  - [pro-G3] (defended 演繹) データ: 継続\n  価値前提: 収益\n\n論者C (con): 不要\n  - [con-G1] (challenged) データ: 射幸心\n\n# 未応答の反論\n- [u2] B: 反論 → 対象: A の主張\n- [zz] (反論)\n\n進行役: どうぞ\n# 応答対象\n[u2] B: 反論\nこの発言に応答してください。\n# 指示\nあなたの発言は次の JSON 1 個だけで返す (前後に説明やコードフェンスを付けない):\n{\"act\": \"<support | rebut>\", \"target\": \"<応答先 utterance id (claim/question は null 可)>\", \"attack\": \"<rebut のとき必須: data | warrant | qualifier (突くのはデータ・論拠・限定のどれか)>\", \"groundId\": \"<rebut で data/warrant を突くとき必須: 攻撃対象の根拠 id>\", \"data\": \"<rebut のとき必須: 反論のデータ (事実・事例・仕様)>\", \"warrant\": \"<rebut のとき必須: 反論の論拠 (そのデータで相手のどこが崩れるか)>\", \"text\": \"<Discord に流す口語 1〜3 文>\"}\nact は今の議論状態で最も議論を前に進める手を選ぶ (許可: support | rebut)。\nrebut は相手の主張の限定の内側で、宣言したデータ・論拠・限定を突く。反論もトゥールミンモデルを満たす (反論自身のデータと論拠を書く)。満たさない反論・突く先を示せない反論は根拠への反論として数えない。\ntext は実在の人間の雑談のような自然な口語で書く (ラベル・箇条書き禁止)。",
+    "あなたは議論ペルソナ「意見B」。\n特徴: 冷静 / 皮肉 / 話し方: 丁寧\nあなたが重視する価値: 体験\nあなたは意見役。ユーザの声を踏まえつつ自分の角度で意見を述べる。\n\n# 議論の前提ルール (厳守)\n次の 3 点について共通見解は取れている前提で議論する (すり合わせ直さない):\n- どんな体験をつくりたいか\n- どんな施策 (アイデア) を試したいか\n- 他のゲームではどうしているか、どうなっているか\n論拠をぶつけ合った結果、論点の結論は次のいずれかになる: 止揚 (両者の根拠を保ったまま一段上の結論に至る) / 論破 (一方の根拠がすべて崩れ、意見が出なくなる) / 結論なし (どちらにも至らない)。\n\n論拠は次の 3 種類のどれかで立てる:\n- 演繹 (deduction): この仕様を入れて、こういう人が遊ぶと、こういう体験になる\n- 帰納 (induction): この仕様を入れている他のゲームでは、こういう体験になっていた (同じ仕様であることを示す)\n- アブダクション (abduction): こういう体験を作りたいから、きっとこういう仕様にしたら良い\n\nトゥールミンの整理:\n- 主張とデータは別物。データ (事実・事例) と論拠 (データから主張へ橋渡しする理由) を混ぜない\n- データが正しくても論拠が間違っていれば主張は間違いになる。反論はデータ・論拠・限定のどれを突くか決めて行う\n- 主張の限定 (どのプレイヤー層・どの条件の話か) をはっきりさせる\n\n禁止 (前提の外から相手の主張を曲げる手):\n- 相手の限定の外側にある層・条件・事例を持ち出して主張全体を否定する\n- 相手が言っていない主張に置き換えて叩く\n- 根拠の中身に触れず「それって感想」「データあるの?」だけで退ける (足りないなら何が要るかを具体的に問う)\n- 論点をずらす、別の論点にすり替える\n- 何を論拠として認めるかという前提を途中で変える\n\n# 論点 1\nガチャは必要か\n\n# 現在の論証状態 (根拠は [id] で指す)\n(Position なし)\n\n# 未応答の反論\n(未応答の反論なし)\n\n# 指示\nあなたの発言は次の JSON 1 個だけで返す (前後に説明やコードフェンスを付けない):\n{\"act\": \"<claim>\", \"target\": \"<応答先 utterance id (claim/question は null 可)>\", \"attack\": \"<rebut のとき必須: data | warrant | qualifier (突くのはデータ・論拠・限定のどれか)>\", \"groundId\": \"<rebut で data/warrant を突くとき必須: 攻撃対象の根拠 id>\", \"data\": \"<rebut のとき必須: 反論のデータ (事実・事例・仕様)>\", \"warrant\": \"<rebut のとき必須: 反論の論拠 (そのデータで相手のどこが崩れるか)>\", \"text\": \"<Discord に流す口語 1〜3 文>\"}\nact は今の議論状態で最も議論を前に進める手を選ぶ (許可: claim)。\nrebut は相手の主張の限定の内側で、宣言したデータ・論拠・限定を突く。反論もトゥールミンモデルを満たす (反論自身のデータと論拠を書く)。満たさない反論・突く先を示せない反論は根拠への反論として数えない。\ntext は実在の人間の雑談のような自然な口語で書く (ラベル・箇条書き禁止)。"
+  ],
+  "parseTurn": [
+    {
+      "raw": "{\"act\":\"rebut\",\"target\":\"u1\",\"attack\":\"データ\",\"groundId\":\" pro-G1 \",\"data\":\" d \",\"warrant\":\"w\",\"text\":\" 本文 \"}",
+      "result": {
+        "act": "rebut",
+        "targetId": "u1",
+        "groundId": "pro-G1",
+        "attack": "data",
+        "data": "d",
+        "warrant": "w",
+        "text": "本文",
+        "degraded": false
+      },
+      "warns": []
+    },
+    {
+      "raw": "{\"act\":\"synthesize\",\"target\":\"zz\",\"text\":\"t\"}",
+      "result": {
+        "act": "rebut",
+        "targetId": "u2",
+        "groundId": null,
+        "attack": null,
+        "data": null,
+        "warrant": null,
+        "text": "t",
+        "degraded": false
+      },
+      "warns": [
+        "act \"synthesize\" は許可外 (許可: rebut,question,support) — \"rebut\" に矯正",
+        "target \"zz\" は不明な utterance id — 指名ターゲットに置換"
+      ]
+    },
+    {
+      "raw": "{\"act\":\"support\",\"text\":\"t\"}",
+      "result": {
+        "act": "support",
+        "targetId": "u2",
+        "groundId": null,
+        "attack": null,
+        "data": null,
+        "warrant": null,
+        "text": "t",
+        "degraded": false
+      },
+      "warns": []
+    },
+    {
+      "raw": "壊れた応答",
+      "result": {
+        "act": "claim",
+        "targetId": null,
+        "groundId": null,
+        "attack": null,
+        "data": null,
+        "warrant": null,
+        "text": "壊れた応答",
+        "degraded": true
+      },
+      "warns": [
+        "発話 JSON パース失敗 — 全文を act=claim として受理 (degrade): 壊れた応答"
+      ]
+    },
+    {
+      "raw": "{\"text\":\"  \"}",
+      "result": {
+        "act": "claim",
+        "targetId": null,
+        "groundId": null,
+        "attack": null,
+        "data": null,
+        "warrant": null,
+        "text": "{\"text\":\"  \"}",
+        "degraded": true
+      },
+      "warns": [
+        "発話 JSON パース失敗 — 全文を act=claim として受理 (degrade): {\"text\":\"  \"}"
+      ]
+    },
+    {
+      "raw": "{\"act\":\"question\",\"target\":\"u2\",\"text\":\"q\",\"attack\":\"bogus\"}",
+      "result": {
+        "act": "question",
+        "targetId": "u2",
+        "groundId": null,
+        "attack": null,
+        "data": null,
+        "warrant": null,
+        "text": "q",
+        "degraded": false
+      },
+      "warns": []
+    }
+  ],
+  "exchange": {
+    "log": [
+      {
+        "utteranceId": "u-g1",
+        "side": "pro",
+        "personaId": "p1",
+        "groundId": "pro-G1",
+        "data": "g1",
+        "text": "say g1",
+        "id": "N1",
+        "parentId": null,
+        "depth": 0,
+        "status": "answered"
+      },
+      {
+        "utteranceId": "u-g3",
+        "side": "con",
+        "personaId": "p3",
+        "groundId": "con-G1",
+        "data": "g3",
+        "text": "say g3",
+        "id": "N3",
+        "parentId": null,
+        "depth": 0,
+        "status": "answered"
+      },
+      {
+        "utteranceId": "u-r1",
+        "side": "con",
+        "personaId": "p3",
+        "groundId": null,
+        "data": "r1",
+        "text": "say r1",
+        "id": "N4",
+        "parentId": "N1",
+        "depth": 1,
+        "status": "answered"
+      },
+      null,
+      0,
+      true
+    ],
+    "all": [
+      {
+        "utteranceId": "u-g1",
+        "side": "pro",
+        "personaId": "p1",
+        "groundId": "pro-G1",
+        "data": "g1",
+        "text": "say g1",
+        "id": "N1",
+        "parentId": null,
+        "depth": 0,
+        "status": "answered"
+      },
+      {
+        "utteranceId": "u-g2",
+        "side": "pro",
+        "personaId": "p1",
+        "groundId": "pro-G2",
+        "data": "g2",
+        "text": "say g2",
+        "id": "N2",
+        "parentId": null,
+        "depth": 0,
+        "status": "accepted"
+      },
+      {
+        "utteranceId": "u-g3",
+        "side": "con",
+        "personaId": "p3",
+        "groundId": "con-G1",
+        "data": "g3",
+        "text": "say g3",
+        "id": "N3",
+        "parentId": null,
+        "depth": 0,
+        "status": "answered"
+      },
+      {
+        "utteranceId": "u-r1",
+        "side": "con",
+        "personaId": "p3",
+        "groundId": null,
+        "data": "r1",
+        "text": "say r1",
+        "id": "N4",
+        "parentId": "N1",
+        "depth": 1,
+        "status": "answered"
+      },
+      {
+        "utteranceId": "u-r2",
+        "side": "pro",
+        "personaId": "p1",
+        "groundId": null,
+        "data": "r2",
+        "text": "say r2",
+        "id": "N5",
+        "parentId": "N3",
+        "depth": 1,
+        "status": "answered"
+      },
+      {
+        "utteranceId": "u-r3",
+        "side": "con",
+        "personaId": "p3",
+        "groundId": null,
+        "data": "r3",
+        "text": "say r3",
+        "id": "N6",
+        "parentId": "N5",
+        "depth": 2,
+        "status": "answered"
+      },
+      {
+        "utteranceId": "u-r4",
+        "side": "pro",
+        "personaId": "p1",
+        "groundId": null,
+        "data": "r4",
+        "text": "say r4",
+        "id": "N7",
+        "parentId": "N6",
+        "depth": 3,
+        "status": "cut"
+      }
+    ],
+    "path": [
+      {
+        "utteranceId": "u-g3",
+        "side": "con",
+        "personaId": "p3",
+        "groundId": "con-G1",
+        "data": "g3",
+        "text": "say g3",
+        "id": "N3",
+        "parentId": null,
+        "depth": 0,
+        "status": "answered"
+      },
+      {
+        "utteranceId": "u-r2",
+        "side": "pro",
+        "personaId": "p1",
+        "groundId": null,
+        "data": "r2",
+        "text": "say r2",
+        "id": "N5",
+        "parentId": "N3",
+        "depth": 1,
+        "status": "answered"
+      },
+      {
+        "utteranceId": "u-r3",
+        "side": "con",
+        "personaId": "p3",
+        "groundId": null,
+        "data": "r3",
+        "text": "say r3",
+        "id": "N6",
+        "parentId": "N5",
+        "depth": 2,
+        "status": "answered"
+      },
+      {
+        "utteranceId": "u-r4",
+        "side": "pro",
+        "personaId": "p1",
+        "groundId": null,
+        "data": "r4",
+        "text": "say r4",
+        "id": "N7",
+        "parentId": "N6",
+        "depth": 3,
+        "status": "cut"
+      }
+    ],
+    "children": [
+      {
+        "utteranceId": "u-r2",
+        "side": "pro",
+        "personaId": "p1",
+        "groundId": null,
+        "data": "r2",
+        "text": "say r2",
+        "id": "N5",
+        "parentId": "N3",
+        "depth": 1,
+        "status": "answered"
+      }
+    ],
+    "verdicts": [
+      [
+        "N1",
+        "refuted"
+      ],
+      [
+        "N2",
+        "standing"
+      ],
+      [
+        "N3",
+        "contested"
+      ],
+      [
+        "N4",
+        "standing"
+      ],
+      [
+        "N5",
+        "contested"
+      ],
+      [
+        "N6",
+        "contested"
+      ],
+      [
+        "N7",
+        "contested"
+      ]
+    ],
+    "groundStates": [
+      [
+        "pro-G1",
+        "challenged"
+      ],
+      [
+        "pro-G2",
+        "unchallenged"
+      ],
+      [
+        "con-G1",
+        "defended"
+      ]
+    ],
+    "standing": [
+      {
+        "standing": 1,
+        "total": 2
+      },
+      {
+        "standing": 1,
+        "total": 1
+      }
+    ],
+    "opposing": "con",
+    "prompt": "あなたは議論ペルソナ「論者A」。\n特徴: 冷静 / 皮肉 / 話し方: 丁寧\nあなたが重視する価値: 収益\nこの議論でのあなたの立場は【反対寄り】。健全な反論・反例・見落とされた弱点を投げる。\n\n# 議論の前提ルール (厳守)\n次の 3 点について共通見解は取れている前提で議論する (すり合わせ直さない):\n- どんな体験をつくりたいか\n- どんな施策 (アイデア) を試したいか\n- 他のゲームではどうしているか、どうなっているか\n論拠をぶつけ合った結果、論点の結論は次のいずれかになる: 止揚 (両者の根拠を保ったまま一段上の結論に至る) / 論破 (一方の根拠がすべて崩れ、意見が出なくなる) / 結論なし (どちらにも至らない)。\n\n論拠は次の 3 種類のどれかで立てる:\n- 演繹 (deduction): この仕様を入れて、こういう人が遊ぶと、こういう体験になる\n- 帰納 (induction): この仕様を入れている他のゲームでは、こういう体験になっていた (同じ仕様であることを示す)\n- アブダクション (abduction): こういう体験を作りたいから、きっとこういう仕様にしたら良い\n\nトゥールミンの整理:\n- 主張とデータは別物。データ (事実・事例) と論拠 (データから主張へ橋渡しする理由) を混ぜない\n- データが正しくても論拠が間違っていれば主張は間違いになる。反論はデータ・論拠・限定のどれを突くか決めて行う\n- 主張の限定 (どのプレイヤー層・どの条件の話か) をはっきりさせる\n\n禁止 (前提の外から相手の主張を曲げる手):\n- 相手の限定の外側にある層・条件・事例を持ち出して主張全体を否定する\n- 相手が言っていない主張に置き換えて叩く\n- 根拠の中身に触れず「それって感想」「データあるの?」だけで退ける (足りないなら何が要るかを具体的に問う)\n- 論点をずらす、別の論点にすり替える\n- 何を論拠として認めるかという前提を途中で変える\n\n# 論点 1\nガチャは必要か\n\nVB\n\n# 両陣営の主張と論拠\n論者A (pro): 必要\n  限定: ライト層\n  - [pro-G1] (unchallenged 帰納) データ: 売上\n      論拠: 収益源\n  - [pro-G2] (conceded) データ: 期待感\n  - [pro-G3] (defended 演繹) データ: 継続\n  価値前提: 収益\n\n論者C (あなた) (con): 不要\n  - [con-G1] (challenged) データ: 射幸心\n\n# この論拠の応酬 (上から順に。最後が応答対象)\n- 論拠 [con-G1] 論者C (あなた)\n    データ: g3\n    発言: say g3\n- 反論 1 論者A\n    データ: r2\n    発言: say r2\n- 反論 2 論者C (あなた)\n    データ: r3\n    発言: say r3\n\n# あなたの立場 (忘れないこと)\nあなたは【反対】陣営。あなたの陣営の主張: 不要\n答えは必ずこの主張を守る向き (相手の論拠を崩す / 自分の陣営の論拠を守る) にする。\n相手陣営の主張を支える内容を、反論として言わない。相手の言い分が正しいと思うなら反論せず concede で認める。\n\n# 指示\n論者Cさんの最後の反論に答えてください。答え方は次のどちらか 1 つ:\n- rebut: 反論する。反論も論拠 1 つだけで立てる (データ 1 つ + 論拠 1 つ)\n- concede: 相手の言い分を認める (崩せないと思うなら認める)\n次の JSON 1 個だけを返す (前後に説明やコードフェンスを付けない):\n{\"act\": \"<rebut | concede>\", \"attack\": \"<rebut のとき必須: data | warrant | qualifier (相手のデータ・論拠・限定のどれを突くか)>\", \"kind\": \"<rebut のとき: deduction | induction | abduction>\", \"data\": \"<rebut のとき必須: 反論のデータ (事実・事例・仕様) 1 つ>\", \"warrant\": \"<rebut のとき必須: 反論の論拠 (そのデータで相手のどこが崩れるか) 1 つ>\", \"text\": \"<Discord に流す口語 1〜3 文>\"}\n反論は相手の主張の限定の内側で突く。論拠を 2 つ以上並べない。\n根拠にする声は、プレイヤーの声の中から複数を照らし合わせて選ぶ。続けている人の声だけで全体を語らず、やめた人・不満のある人の声があればそれも検討する。声が足りなければ、何の材料が足りないかを言う。\ntext は実在の人間の雑談のような自然な口語で書く (ラベル・箇条書き禁止)。",
+    "prompt2": "あなたは議論ペルソナ「論者A」。\n特徴: 冷静 / 皮肉 / 話し方: 丁寧\nあなたは意見役。ユーザの声を踏まえつつ自分の角度で意見を述べる。\n\n# 議論の前提ルール (厳守)\n次の 3 点について共通見解は取れている前提で議論する (すり合わせ直さない):\n- どんな体験をつくりたいか\n- どんな施策 (アイデア) を試したいか\n- 他のゲームではどうしているか、どうなっているか\n論拠をぶつけ合った結果、論点の結論は次のいずれかになる: 止揚 (両者の根拠を保ったまま一段上の結論に至る) / 論破 (一方の根拠がすべて崩れ、意見が出なくなる) / 結論なし (どちらにも至らない)。\n\n論拠は次の 3 種類のどれかで立てる:\n- 演繹 (deduction): この仕様を入れて、こういう人が遊ぶと、こういう体験になる\n- 帰納 (induction): この仕様を入れている他のゲームでは、こういう体験になっていた (同じ仕様であることを示す)\n- アブダクション (abduction): こういう体験を作りたいから、きっとこういう仕様にしたら良い\n\nトゥールミンの整理:\n- 主張とデータは別物。データ (事実・事例) と論拠 (データから主張へ橋渡しする理由) を混ぜない\n- データが正しくても論拠が間違っていれば主張は間違いになる。反論はデータ・論拠・限定のどれを突くか決めて行う\n- 主張の限定 (どのプレイヤー層・どの条件の話か) をはっきりさせる\n\n禁止 (前提の外から相手の主張を曲げる手):\n- 相手の限定の外側にある層・条件・事例を持ち出して主張全体を否定する\n- 相手が言っていない主張に置き換えて叩く\n- 根拠の中身に触れず「それって感想」「データあるの?」だけで退ける (足りないなら何が要るかを具体的に問う)\n- 論点をずらす、別の論点にすり替える\n- 何を論拠として認めるかという前提を途中で変える\n\n# 論点 1\nガチャは必要か\n\n# 両陣営の主張と論拠\n(Position なし)\n\n# この論拠の応酬 (上から順に。最後が応答対象)\n\n\n# 指示\n相手さんの最後の論拠に答えてください。答え方は次のどちらか 1 つ:\n- rebut: 反論する。反論も論拠 1 つだけで立てる (データ 1 つ + 論拠 1 つ)\n- concede: 相手の言い分を認める (崩せないと思うなら認める)\n次の JSON 1 個だけを返す (前後に説明やコードフェンスを付けない):\n{\"act\": \"<rebut | concede>\", \"attack\": \"<rebut のとき必須: data | warrant | qualifier (相手のデータ・論拠・限定のどれを突くか)>\", \"kind\": \"<rebut のとき: deduction | induction | abduction>\", \"data\": \"<rebut のとき必須: 反論のデータ (事実・事例・仕様) 1 つ>\", \"warrant\": \"<rebut のとき必須: 反論の論拠 (そのデータで相手のどこが崩れるか) 1 つ>\", \"text\": \"<Discord に流す口語 1〜3 文>\"}\n反論は相手の主張の限定の内側で突く。論拠を 2 つ以上並べない。\n根拠にする声は、プレイヤーの声の中から複数を照らし合わせて選ぶ。続けている人の声だけで全体を語らず、やめた人・不満のある人の声があればそれも検討する。声が足りなければ、何の材料が足りないかを言う。\ntext は実在の人間の雑談のような自然な口語で書く (ラベル・箇条書き禁止)。"
+  },
+  "parseExchange": [
+    {
+      "raw": "{\"act\":\"Concede\",\"text\":\"t\"}",
+      "result": {
+        "act": "concede",
+        "attack": null,
+        "kind": null,
+        "data": null,
+        "warrant": null,
+        "text": "t",
+        "degraded": false,
+        "claimKind": null,
+        "evidenceIds": []
+      },
+      "warns": []
+    },
+    {
+      "raw": "{\"act\":\"x\",\"attack\":\"warrant\",\"kind\":\"帰納\",\"data\":\"d\",\"warrant\":\"w\",\"text\":\"t\",\"claimKind\":\"sourceQuote\",\"evidenceIds\":[\"E1\",\"[E2]\",\"E1\"]}",
+      "result": {
+        "act": "rebut",
+        "attack": "warrant",
+        "kind": "induction",
+        "data": "d",
+        "warrant": "w",
+        "text": "t",
+        "degraded": false,
+        "claimKind": "sourceQuote",
+        "evidenceIds": [
+          "E1",
+          "E2"
+        ]
+      },
+      "warns": [
+        "応酬の act \"x\" は不明 — rebut として扱う"
+      ]
+    },
+    {
+      "raw": "bad",
+      "result": {
+        "act": "question",
+        "attack": null,
+        "kind": null,
+        "data": null,
+        "warrant": null,
+        "text": "bad",
+        "degraded": true,
+        "claimKind": null,
+        "evidenceIds": []
+      },
+      "warns": [
+        "応酬の応答 JSON パース失敗 — question として受理 (degrade): bad"
+      ]
+    }
+  ],
+  "scheduler": {
+    "decisions": [
+      {
+        "kind": "respond",
+        "personaId": "p1",
+        "targetUtteranceId": "r1",
+        "allowedActs": [
+          "support",
+          "concede",
+          "rebut",
+          "question"
+        ],
+        "reason": "未応答の反論に応答権を指名"
+      },
+      {
+        "kind": "attack",
+        "personaId": "p3",
+        "targetUtteranceId": "c1",
+        "allowedActs": [
+          "rebut",
+          "question"
+        ],
+        "reason": "対立の焦点 (接続数最大の Position) への攻撃番を指名"
+      },
+      {
+        "kind": "free",
+        "personaId": "p2",
+        "targetUtteranceId": null,
+        "allowedActs": [
+          "claim",
+          "support",
+          "rebut",
+          "concede",
+          "question"
+        ],
+        "reason": "発言数最少ペルソナの自由ターン"
+      },
+      null
+    ],
+    "fallback": [
+      "Bさんの「長い長い長い長い長い長い長い長い長い長い長い長い長い長い長い長い長い長い長い長い長い長い長い長い長い長い長い長い長い長い」にまだ応答がありません。Aさん、どう応えますか?",
+      "Aさん、先ほどの反論にどう応えますか?",
+      "Aさん、Bさんの主張「長い長い長い長い長い長い長い長い長い長い長い長い長い長い長い長い長い長い長い長い長い長い長い長い長い長い長い長い長い長い」について、反対の立場から意見をどうぞ。",
+      "Aさん、反対の立場から意見をどうぞ。",
+      "Aさん、この論点について意見をどうぞ。",
+      "Aさん、この論点について意見をどうぞ。"
+    ],
+    "frame": [
+      "Bさんの次の指摘に、まだ応答がありません。Aさん、どう応えますか?",
+      "Aさん、先ほどの反論にどう応えますか?",
+      "Aさん、Bさんの次の主張について、反対の立場から意見をどうぞ。",
+      "Aさん、反対の立場から意見をどうぞ。",
+      "Aさん、この論点について意見をどうぞ。",
+      "Aさん、この論点について意見をどうぞ。"
+    ],
+    "quotes": [
+      "短い",
+      "ああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああ…",
+      "一文目です。いいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいいい…",
+      "a。bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb…",
+      "a b",
+      "😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀…"
+    ]
+  },
+  "llmDialectic": {
+    "decompose": [
+      {
+        "responses": [
+          {
+            "ok": true,
+            "text": "[\"Q1\",\" Q2 \",1,\"\",\"Q3\",\"Q4\",\"Q5\",\"Q6\"]"
+          }
+        ],
+        "result": [
+          "Q1",
+          "Q2",
+          "Q3",
+          "Q4",
+          "Q5"
+        ],
+        "error": null,
+        "calls": [
+          {
+            "system": "あなたは議論設計者です。 与えられた議題とディスカッションペーパーから、「賛成側と反対側が本気で対立できる論点 (争点)」だけを分解します。 単なる確認事項や、誰も反対しない自明な項目は含めません。 返答は JSON 配列のみ。",
+            "prompt": "# 議題\nT\n\n# ディスカッションペーパー\n# 本文\n\n賛否が本気で割れる論点を 3〜5 個を目安に、各 1 文の疑問文で挙げてください。 本当に争点が無い場合は空配列を返して構いません。\n次の JSON 配列だけを返してください (前後に説明やコードフェンスを付けない):\n[\"論点1\", \"論点2\", ...]",
+            "model": "m",
+            "maxTokens": null
+          }
+        ],
+        "warns": []
+      },
+      {
+        "responses": [
+          {
+            "ok": true,
+            "text": "[\"Q1\",\"Q2\"]"
+          }
+        ],
+        "result": [
+          "Q1"
+        ],
+        "error": null,
+        "calls": [
+          {
+            "system": "あなたは議論設計者です。 与えられた議題とディスカッションペーパーから、「賛成側と反対側が本気で対立できる論点 (争点)」だけを分解します。 単なる確認事項や、誰も反対しない自明な項目は含めません。 返答は JSON 配列のみ。",
+            "prompt": "# 議題\nT\n\n賛否が本気で割れる論点を 3〜3 個を目安に、各 1 文の疑問文で挙げてください。 本当に争点が無い場合は空配列を返して構いません。\n次の JSON 配列だけを返してください (前後に説明やコードフェンスを付けない):\n[\"論点1\", \"論点2\", ...]",
+            "model": null,
+            "maxTokens": null
+          }
+        ],
+        "warns": []
+      },
+      {
+        "responses": [
+          {
+            "ok": false,
+            "error": "e"
+          }
+        ],
+        "result": null,
+        "error": "論点分解 LLM エラー: e",
+        "calls": [
+          {
+            "system": "あなたは議論設計者です。 与えられた議題とディスカッションペーパーから、「賛成側と反対側が本気で対立できる論点 (争点)」だけを分解します。 単なる確認事項や、誰も反対しない自明な項目は含めません。 返答は JSON 配列のみ。",
+            "prompt": "# 議題\nT\n\n賛否が本気で割れる論点を 3〜5 個を目安に、各 1 文の疑問文で挙げてください。 本当に争点が無い場合は空配列を返して構いません。\n次の JSON 配列だけを返してください (前後に説明やコードフェンスを付けない):\n[\"論点1\", \"論点2\", ...]",
+            "model": null,
+            "maxTokens": null
+          }
+        ],
+        "warns": []
+      },
+      {
+        "responses": [
+          {
+            "ok": true,
+            "text": "x"
+          }
+        ],
+        "result": null,
+        "error": "論点分解の JSON 解析に失敗",
+        "calls": [
+          {
+            "system": "あなたは議論設計者です。 与えられた議題とディスカッションペーパーから、「賛成側と反対側が本気で対立できる論点 (争点)」だけを分解します。 単なる確認事項や、誰も反対しない自明な項目は含めません。 返答は JSON 配列のみ。",
+            "prompt": "# 議題\nT\n\n賛否が本気で割れる論点を 3〜5 個を目安に、各 1 文の疑問文で挙げてください。 本当に争点が無い場合は空配列を返して構いません。\n次の JSON 配列だけを返してください (前後に説明やコードフェンスを付けない):\n[\"論点1\", \"論点2\", ...]",
+            "model": null,
+            "maxTokens": null
+          }
+        ],
+        "warns": []
+      }
+    ],
+    "position": [
+      {
+        "responses": [
+          {
+            "ok": true,
+            "text": "{\"claim\":\" 主張 \",\"qualifier\":\" \",\"grounds\":[\" 旧形式 \",{\"kind\":\"帰納\",\"data\":\"D\",\"warrant\":\"W\",\"say\":\"S\",\"claimKind\":\"sourceQuote\",\"evidenceIds\":[\"E1\"]},{\"text\":\"T2\",\"warrant\":\"W2\"},{\"data\":\" \"},{\"data\":\"D4\"}],\"values\":[\"v1\",\" \",\"v2\",\"v3\",\"v4\",\"v5\"],\"text\":\"\"}"
+          }
+        ],
+        "result": {
+          "claim": "主張",
+          "qualifier": null,
+          "grounds": [
+            {
+              "id": "con-G1",
+              "text": "旧形式",
+              "state": "unchallenged"
+            },
+            {
+              "id": "con-G2",
+              "text": "D",
+              "state": "unchallenged",
+              "kind": "induction",
+              "warrant": "W",
+              "claimKind": "sourceQuote",
+              "evidenceIds": [
+                "E1"
+              ]
+            },
+            {
+              "id": "con-G3",
+              "text": "T2",
+              "state": "unchallenged",
+              "warrant": "W2"
+            }
+          ],
+          "values": [
+            "v1",
+            "v2",
+            "v3",
+            "v4"
+          ],
+          "text": "主張",
+          "groundTexts": [
+            "旧形式",
+            "S",
+            "T2。W2"
+          ],
+          "degraded": false
+        },
+        "error": null,
+        "calls": [
+          {
+            "system": "SYS",
+            "prompt": "あなたは議論ペルソナ「論者A」。特徴: 冷静 / 皮肉 / 話し方: 丁寧\nあなたが重視する価値: 収益\nあなたの核となる主張 (これを種に組み立てる): 核1 / 核2\n\n# 論点 1\nガチャは必要か\n\n# 議論の前提ルール (厳守)\n次の 3 点について共通見解は取れている前提で議論する (すり合わせ直さない):\n- どんな体験をつくりたいか\n- どんな施策 (アイデア) を試したいか\n- 他のゲームではどうしているか、どうなっているか\n論拠をぶつけ合った結果、論点の結論は次のいずれかになる: 止揚 (両者の根拠を保ったまま一段上の結論に至る) / 論破 (一方の根拠がすべて崩れ、意見が出なくなる) / 結論なし (どちらにも至らない)。\n\n論拠は次の 3 種類のどれかで立てる:\n- 演繹 (deduction): この仕様を入れて、こういう人が遊ぶと、こういう体験になる\n- 帰納 (induction): この仕様を入れている他のゲームでは、こういう体験になっていた (同じ仕様であることを示す)\n- アブダクション (abduction): こういう体験を作りたいから、きっとこういう仕様にしたら良い\n\nトゥールミンの整理:\n- 主張とデータは別物。データ (事実・事例) と論拠 (データから主張へ橋渡しする理由) を混ぜない\n- データが正しくても論拠が間違っていれば主張は間違いになる。反論はデータ・論拠・限定のどれを突くか決めて行う\n- 主張の限定 (どのプレイヤー層・どの条件の話か) をはっきりさせる\n\n禁止 (前提の外から相手の主張を曲げる手):\n- 相手の限定の外側にある層・条件・事例を持ち出して主張全体を否定する\n- 相手が言っていない主張に置き換えて叩く\n- 根拠の中身に触れず「それって感想」「データあるの?」だけで退ける (足りないなら何が要るかを具体的に問う)\n- 論点をずらす、別の論点にすり替える\n- 何を論拠として認めるかという前提を途中で変える\n\nこの論点についてあなたは【反対】の立場 (con) で定立 (Position) を張ります。\n賛成 = 論点 (問い) に「はい」と答える立場、反対 = 「いいえ」と答える立場。論点が問いの形でなければ「ガチャは必要か は成り立つか / 十分か」と読み替える。主張は必ず【反対】の向きにし、相手陣営より強い肯定・否定にすり替えない。\n次の JSON 1 個だけを返してください (前後に説明やコードフェンスを付けない):\n{\"claim\": \"<主張 1 文>\", \"qualifier\": \"<主張の限定: どのプレイヤー層・どの条件の話か>\", \"grounds\": [{\"kind\": \"<deduction|induction|abduction>\", \"data\": \"<データ: 事実・事例・仕様>\", \"warrant\": \"<論拠: データから主張が言える理由>\", \"say\": \"<この論拠を Discord に流す口語 1〜2 文>\"}], \"values\": [\"<価値前提 (例: 収益 > 体験)>\"], \"text\": \"<主張を Discord に流す口語 1〜2 文 (論拠は say で別に流す)>\"}\ngrounds は 1〜3 個 (強い論拠だけに絞る)。data と warrant は混ぜずに分ける。text は実在の人間の雑談のような自然な口語で書く。",
+            "model": "mm",
+            "maxTokens": null
+          }
+        ],
+        "warns": []
+      },
+      {
+        "responses": [
+          {
+            "ok": true,
+            "text": "{\"claim\":\"c\",\"grounds\":[]}"
+          }
+        ],
+        "result": {
+          "claim": "c",
+          "qualifier": null,
+          "grounds": [
+            {
+              "id": "pro-G1",
+              "text": "c",
+              "state": "unchallenged"
+            }
+          ],
+          "values": [],
+          "text": "c",
+          "groundTexts": [
+            "c"
+          ],
+          "degraded": false
+        },
+        "error": null,
+        "calls": [
+          {
+            "system": "SYS",
+            "prompt": "あなたは議論ペルソナ「論者A」。特徴: 冷静 / 皮肉 / 話し方: 丁寧\n\n# 論点 1\nガチャは必要か\n\n# 議論の前提ルール (厳守)\n次の 3 点について共通見解は取れている前提で議論する (すり合わせ直さない):\n- どんな体験をつくりたいか\n- どんな施策 (アイデア) を試したいか\n- 他のゲームではどうしているか、どうなっているか\n論拠をぶつけ合った結果、論点の結論は次のいずれかになる: 止揚 (両者の根拠を保ったまま一段上の結論に至る) / 論破 (一方の根拠がすべて崩れ、意見が出なくなる) / 結論なし (どちらにも至らない)。\n\n論拠は次の 3 種類のどれかで立てる:\n- 演繹 (deduction): この仕様を入れて、こういう人が遊ぶと、こういう体験になる\n- 帰納 (induction): この仕様を入れている他のゲームでは、こういう体験になっていた (同じ仕様であることを示す)\n- アブダクション (abduction): こういう体験を作りたいから、きっとこういう仕様にしたら良い\n\nトゥールミンの整理:\n- 主張とデータは別物。データ (事実・事例) と論拠 (データから主張へ橋渡しする理由) を混ぜない\n- データが正しくても論拠が間違っていれば主張は間違いになる。反論はデータ・論拠・限定のどれを突くか決めて行う\n- 主張の限定 (どのプレイヤー層・どの条件の話か) をはっきりさせる\n\n禁止 (前提の外から相手の主張を曲げる手):\n- 相手の限定の外側にある層・条件・事例を持ち出して主張全体を否定する\n- 相手が言っていない主張に置き換えて叩く\n- 根拠の中身に触れず「それって感想」「データあるの?」だけで退ける (足りないなら何が要るかを具体的に問う)\n- 論点をずらす、別の論点にすり替える\n- 何を論拠として認めるかという前提を途中で変える\n\nこの論点についてあなたは【賛成】の立場 (pro) で定立 (Position) を張ります。\n賛成 = 論点 (問い) に「はい」と答える立場、反対 = 「いいえ」と答える立場。論点が問いの形でなければ「ガチャは必要か は成り立つか / 十分か」と読み替える。主張は必ず【賛成】の向きにし、相手陣営より強い肯定・否定にすり替えない。\n次の JSON 1 個だけを返してください (前後に説明やコードフェンスを付けない):\n{\"claim\": \"<主張 1 文>\", \"qualifier\": \"<主張の限定: どのプレイヤー層・どの条件の話か>\", \"grounds\": [{\"kind\": \"<deduction|induction|abduction>\", \"data\": \"<データ: 事実・事例・仕様>\", \"warrant\": \"<論拠: データから主張が言える理由>\", \"say\": \"<この論拠を Discord に流す口語 1〜2 文>\"}], \"values\": [\"<価値前提 (例: 収益 > 体験)>\"], \"text\": \"<主張を Discord に流す口語 1〜2 文 (論拠は say で別に流す)>\"}\ngrounds は 1〜3 個 (強い論拠だけに絞る)。data と warrant は混ぜずに分ける。text は実在の人間の雑談のような自然な口語で書く。",
+            "model": null,
+            "maxTokens": null
+          }
+        ],
+        "warns": []
+      },
+      {
+        "responses": [
+          {
+            "ok": false,
+            "error": "down"
+          }
+        ],
+        "result": {
+          "claim": "核1",
+          "qualifier": null,
+          "grounds": [
+            {
+              "id": "con-G1",
+              "text": "核1",
+              "state": "unchallenged"
+            }
+          ],
+          "values": [
+            "収益"
+          ],
+          "text": "核1",
+          "groundTexts": [
+            "核1"
+          ],
+          "degraded": true
+        },
+        "error": null,
+        "calls": [
+          {
+            "system": "SYS",
+            "prompt": "あなたは議論ペルソナ「論者A」。特徴: 冷静 / 皮肉 / 話し方: 丁寧\nあなたが重視する価値: 収益\nあなたの核となる主張 (これを種に組み立てる): 核1 / 核2\n\n# 論点 1\nガチャは必要か\n\n# 議論の前提ルール (厳守)\n次の 3 点について共通見解は取れている前提で議論する (すり合わせ直さない):\n- どんな体験をつくりたいか\n- どんな施策 (アイデア) を試したいか\n- 他のゲームではどうしているか、どうなっているか\n論拠をぶつけ合った結果、論点の結論は次のいずれかになる: 止揚 (両者の根拠を保ったまま一段上の結論に至る) / 論破 (一方の根拠がすべて崩れ、意見が出なくなる) / 結論なし (どちらにも至らない)。\n\n論拠は次の 3 種類のどれかで立てる:\n- 演繹 (deduction): この仕様を入れて、こういう人が遊ぶと、こういう体験になる\n- 帰納 (induction): この仕様を入れている他のゲームでは、こういう体験になっていた (同じ仕様であることを示す)\n- アブダクション (abduction): こういう体験を作りたいから、きっとこういう仕様にしたら良い\n\nトゥールミンの整理:\n- 主張とデータは別物。データ (事実・事例) と論拠 (データから主張へ橋渡しする理由) を混ぜない\n- データが正しくても論拠が間違っていれば主張は間違いになる。反論はデータ・論拠・限定のどれを突くか決めて行う\n- 主張の限定 (どのプレイヤー層・どの条件の話か) をはっきりさせる\n\n禁止 (前提の外から相手の主張を曲げる手):\n- 相手の限定の外側にある層・条件・事例を持ち出して主張全体を否定する\n- 相手が言っていない主張に置き換えて叩く\n- 根拠の中身に触れず「それって感想」「データあるの?」だけで退ける (足りないなら何が要るかを具体的に問う)\n- 論点をずらす、別の論点にすり替える\n- 何を論拠として認めるかという前提を途中で変える\n\nこの論点についてあなたは【反対】の立場 (con) で定立 (Position) を張ります。\n賛成 = 論点 (問い) に「はい」と答える立場、反対 = 「いいえ」と答える立場。論点が問いの形でなければ「ガチャは必要か は成り立つか / 十分か」と読み替える。主張は必ず【反対】の向きにし、相手陣営より強い肯定・否定にすり替えない。\n次の JSON 1 個だけを返してください (前後に説明やコードフェンスを付けない):\n{\"claim\": \"<主張 1 文>\", \"qualifier\": \"<主張の限定: どのプレイヤー層・どの条件の話か>\", \"grounds\": [{\"kind\": \"<deduction|induction|abduction>\", \"data\": \"<データ: 事実・事例・仕様>\", \"warrant\": \"<論拠: データから主張が言える理由>\", \"say\": \"<この論拠を Discord に流す口語 1〜2 文>\"}], \"values\": [\"<価値前提 (例: 収益 > 体験)>\"], \"text\": \"<主張を Discord に流す口語 1〜2 文 (論拠は say で別に流す)>\"}\ngrounds は 1〜3 個 (強い論拠だけに絞る)。data と warrant は混ぜずに分ける。text は実在の人間の雑談のような自然な口語で書く。",
+            "model": null,
+            "maxTokens": null
+          }
+        ],
+        "warns": [
+          "Position 生成 LLM エラー (論者A/con): down — coreClaims で degrade"
+        ]
+      },
+      {
+        "responses": [
+          {
+            "ok": false,
+            "error": "down"
+          }
+        ],
+        "result": {
+          "claim": "c1",
+          "qualifier": null,
+          "grounds": [
+            {
+              "id": "pro-G1",
+              "text": "c1",
+              "state": "unchallenged"
+            }
+          ],
+          "values": [
+            "体験"
+          ],
+          "text": "c1",
+          "groundTexts": [
+            "c1"
+          ],
+          "degraded": true
+        },
+        "error": null,
+        "calls": [
+          {
+            "system": "SYS",
+            "prompt": "あなたは議論ペルソナ「意見B」。特徴: 冷静 / 皮肉 / 話し方: 丁寧\nあなたが重視する価値: 体験\nあなたの核となる主張 (これを種に組み立てる): c1\n\n# 論点 1\nガチャは必要か\n\n# 議論の前提ルール (厳守)\n次の 3 点について共通見解は取れている前提で議論する (すり合わせ直さない):\n- どんな体験をつくりたいか\n- どんな施策 (アイデア) を試したいか\n- 他のゲームではどうしているか、どうなっているか\n論拠をぶつけ合った結果、論点の結論は次のいずれかになる: 止揚 (両者の根拠を保ったまま一段上の結論に至る) / 論破 (一方の根拠がすべて崩れ、意見が出なくなる) / 結論なし (どちらにも至らない)。\n\n論拠は次の 3 種類のどれかで立てる:\n- 演繹 (deduction): この仕様を入れて、こういう人が遊ぶと、こういう体験になる\n- 帰納 (induction): この仕様を入れている他のゲームでは、こういう体験になっていた (同じ仕様であることを示す)\n- アブダクション (abduction): こういう体験を作りたいから、きっとこういう仕様にしたら良い\n\nトゥールミンの整理:\n- 主張とデータは別物。データ (事実・事例) と論拠 (データから主張へ橋渡しする理由) を混ぜない\n- データが正しくても論拠が間違っていれば主張は間違いになる。反論はデータ・論拠・限定のどれを突くか決めて行う\n- 主張の限定 (どのプレイヤー層・どの条件の話か) をはっきりさせる\n\n禁止 (前提の外から相手の主張を曲げる手):\n- 相手の限定の外側にある層・条件・事例を持ち出して主張全体を否定する\n- 相手が言っていない主張に置き換えて叩く\n- 根拠の中身に触れず「それって感想」「データあるの?」だけで退ける (足りないなら何が要るかを具体的に問う)\n- 論点をずらす、別の論点にすり替える\n- 何を論拠として認めるかという前提を途中で変える\n\nこの論点についてあなたは【賛成】の立場 (pro) で定立 (Position) を張ります。\n賛成 = 論点 (問い) に「はい」と答える立場、反対 = 「いいえ」と答える立場。論点が問いの形でなければ「ガチャは必要か は成り立つか / 十分か」と読み替える。主張は必ず【賛成】の向きにし、相手陣営より強い肯定・否定にすり替えない。\n次の JSON 1 個だけを返してください (前後に説明やコードフェンスを付けない):\n{\"claim\": \"<主張 1 文>\", \"qualifier\": \"<主張の限定: どのプレイヤー層・どの条件の話か>\", \"grounds\": [{\"kind\": \"<deduction|induction|abduction>\", \"data\": \"<データ: 事実・事例・仕様>\", \"warrant\": \"<論拠: データから主張が言える理由>\", \"say\": \"<この論拠を Discord に流す口語 1〜2 文>\"}], \"values\": [\"<価値前提 (例: 収益 > 体験)>\"], \"text\": \"<主張を Discord に流す口語 1〜2 文 (論拠は say で別に流す)>\"}\ngrounds は 1〜3 個 (強い論拠だけに絞る)。data と warrant は混ぜずに分ける。text は実在の人間の雑談のような自然な口語で書く。",
+            "model": null,
+            "maxTokens": null
+          }
+        ],
+        "warns": [
+          "Position 生成 LLM エラー (意見B/pro): down — coreClaims で degrade"
+        ]
+      },
+      {
+        "responses": [
+          {
+            "ok": true,
+            "text": "  ただの文章xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"
+          }
+        ],
+        "result": {
+          "claim": "ただの文章xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx",
+          "qualifier": null,
+          "grounds": [
+            {
+              "id": "pro-G1",
+              "text": "ただの文章xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx",
+              "state": "unchallenged"
+            }
+          ],
+          "values": [],
+          "text": "ただの文章xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx",
+          "groundTexts": [
+            "ただの文章xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"
+          ],
+          "degraded": true
+        },
+        "error": null,
+        "calls": [
+          {
+            "system": "SYS",
+            "prompt": "あなたは議論ペルソナ「論者A」。特徴: 冷静 / 皮肉 / 話し方: 丁寧\n\n# 論点 1\nガチャは必要か\n\n# 議論の前提ルール (厳守)\n次の 3 点について共通見解は取れている前提で議論する (すり合わせ直さない):\n- どんな体験をつくりたいか\n- どんな施策 (アイデア) を試したいか\n- 他のゲームではどうしているか、どうなっているか\n論拠をぶつけ合った結果、論点の結論は次のいずれかになる: 止揚 (両者の根拠を保ったまま一段上の結論に至る) / 論破 (一方の根拠がすべて崩れ、意見が出なくなる) / 結論なし (どちらにも至らない)。\n\n論拠は次の 3 種類のどれかで立てる:\n- 演繹 (deduction): この仕様を入れて、こういう人が遊ぶと、こういう体験になる\n- 帰納 (induction): この仕様を入れている他のゲームでは、こういう体験になっていた (同じ仕様であることを示す)\n- アブダクション (abduction): こういう体験を作りたいから、きっとこういう仕様にしたら良い\n\nトゥールミンの整理:\n- 主張とデータは別物。データ (事実・事例) と論拠 (データから主張へ橋渡しする理由) を混ぜない\n- データが正しくても論拠が間違っていれば主張は間違いになる。反論はデータ・論拠・限定のどれを突くか決めて行う\n- 主張の限定 (どのプレイヤー層・どの条件の話か) をはっきりさせる\n\n禁止 (前提の外から相手の主張を曲げる手):\n- 相手の限定の外側にある層・条件・事例を持ち出して主張全体を否定する\n- 相手が言っていない主張に置き換えて叩く\n- 根拠の中身に触れず「それって感想」「データあるの?」だけで退ける (足りないなら何が要るかを具体的に問う)\n- 論点をずらす、別の論点にすり替える\n- 何を論拠として認めるかという前提を途中で変える\n\nこの論点についてあなたは【賛成】の立場 (pro) で定立 (Position) を張ります。\n賛成 = 論点 (問い) に「はい」と答える立場、反対 = 「いいえ」と答える立場。論点が問いの形でなければ「ガチャは必要か は成り立つか / 十分か」と読み替える。主張は必ず【賛成】の向きにし、相手陣営より強い肯定・否定にすり替えない。\n次の JSON 1 個だけを返してください (前後に説明やコードフェンスを付けない):\n{\"claim\": \"<主張 1 文>\", \"qualifier\": \"<主張の限定: どのプレイヤー層・どの条件の話か>\", \"grounds\": [{\"kind\": \"<deduction|induction|abduction>\", \"data\": \"<データ: 事実・事例・仕様>\", \"warrant\": \"<論拠: データから主張が言える理由>\", \"say\": \"<この論拠を Discord に流す口語 1〜2 文>\"}], \"values\": [\"<価値前提 (例: 収益 > 体験)>\"], \"text\": \"<主張を Discord に流す口語 1〜2 文 (論拠は say で別に流す)>\"}\ngrounds は 1〜3 個 (強い論拠だけに絞る)。data と warrant は混ぜずに分ける。text は実在の人間の雑談のような自然な口語で書く。",
+            "model": null,
+            "maxTokens": null
+          }
+        ],
+        "warns": [
+          "Position 生成 JSON パース失敗 (論者A/pro) — 全文を claim として受理 (degrade)"
+        ]
+      },
+      {
+        "responses": [
+          {
+            "ok": true,
+            "text": ""
+          }
+        ],
+        "result": {
+          "claim": "ガチャは必要か",
+          "qualifier": null,
+          "grounds": [
+            {
+              "id": "pro-G1",
+              "text": "ガチャは必要か",
+              "state": "unchallenged"
+            }
+          ],
+          "values": [],
+          "text": "ガチャは必要か",
+          "groundTexts": [
+            "ガチャは必要か"
+          ],
+          "degraded": true
+        },
+        "error": null,
+        "calls": [
+          {
+            "system": "SYS",
+            "prompt": "あなたは議論ペルソナ「論者A」。特徴: 冷静 / 皮肉 / 話し方: 丁寧\n\n# 論点 1\nガチャは必要か\n\n# 議論の前提ルール (厳守)\n次の 3 点について共通見解は取れている前提で議論する (すり合わせ直さない):\n- どんな体験をつくりたいか\n- どんな施策 (アイデア) を試したいか\n- 他のゲームではどうしているか、どうなっているか\n論拠をぶつけ合った結果、論点の結論は次のいずれかになる: 止揚 (両者の根拠を保ったまま一段上の結論に至る) / 論破 (一方の根拠がすべて崩れ、意見が出なくなる) / 結論なし (どちらにも至らない)。\n\n論拠は次の 3 種類のどれかで立てる:\n- 演繹 (deduction): この仕様を入れて、こういう人が遊ぶと、こういう体験になる\n- 帰納 (induction): この仕様を入れている他のゲームでは、こういう体験になっていた (同じ仕様であることを示す)\n- アブダクション (abduction): こういう体験を作りたいから、きっとこういう仕様にしたら良い\n\nトゥールミンの整理:\n- 主張とデータは別物。データ (事実・事例) と論拠 (データから主張へ橋渡しする理由) を混ぜない\n- データが正しくても論拠が間違っていれば主張は間違いになる。反論はデータ・論拠・限定のどれを突くか決めて行う\n- 主張の限定 (どのプレイヤー層・どの条件の話か) をはっきりさせる\n\n禁止 (前提の外から相手の主張を曲げる手):\n- 相手の限定の外側にある層・条件・事例を持ち出して主張全体を否定する\n- 相手が言っていない主張に置き換えて叩く\n- 根拠の中身に触れず「それって感想」「データあるの?」だけで退ける (足りないなら何が要るかを具体的に問う)\n- 論点をずらす、別の論点にすり替える\n- 何を論拠として認めるかという前提を途中で変える\n\nこの論点についてあなたは【賛成】の立場 (pro) で定立 (Position) を張ります。\n賛成 = 論点 (問い) に「はい」と答える立場、反対 = 「いいえ」と答える立場。論点が問いの形でなければ「ガチャは必要か は成り立つか / 十分か」と読み替える。主張は必ず【賛成】の向きにし、相手陣営より強い肯定・否定にすり替えない。\n次の JSON 1 個だけを返してください (前後に説明やコードフェンスを付けない):\n{\"claim\": \"<主張 1 文>\", \"qualifier\": \"<主張の限定: どのプレイヤー層・どの条件の話か>\", \"grounds\": [{\"kind\": \"<deduction|induction|abduction>\", \"data\": \"<データ: 事実・事例・仕様>\", \"warrant\": \"<論拠: データから主張が言える理由>\", \"say\": \"<この論拠を Discord に流す口語 1〜2 文>\"}], \"values\": [\"<価値前提 (例: 収益 > 体験)>\"], \"text\": \"<主張を Discord に流す口語 1〜2 文 (論拠は say で別に流す)>\"}\ngrounds は 1〜3 個 (強い論拠だけに絞る)。data と warrant は混ぜずに分ける。text は実在の人間の雑談のような自然な口語で書く。",
+            "model": null,
+            "maxTokens": null
+          }
+        ],
+        "warns": [
+          "Position 生成 JSON パース失敗 (論者A/pro) — 全文を claim として受理 (degrade)"
+        ]
+      }
+    ],
+    "stance": [
+      {
+        "responses": [
+          {
+            "ok": true,
+            "text": "No"
+          }
+        ],
+        "result": "no",
+        "error": null,
+        "calls": [
+          {
+            "system": null,
+            "prompt": "# 論点 (問い)\nガチャは必要か\n(問いの形でなければ「ガチャは必要か は成り立つか / 十分か」と読み替える)\n\n# 主張\nc\n限定: (明示なし)\n\nこの主張は論点に対して「はい」と答えているか「いいえ」と答えているかを判定し、ラベルを 1 つだけ返してください (説明不要):\n- yes: 論点を肯定している (成り立つ / 十分だ / 正解だ)\n- no: 論点を否定している (成り立たない / 不十分だ / 正解ではない)\n- unclear: どちらとも言えない",
+            "model": "j",
+            "maxTokens": 50
+          }
+        ],
+        "warns": []
+      },
+      {
+        "responses": [
+          {
+            "ok": false,
+            "error": "e"
+          }
+        ],
+        "result": "unclear",
+        "error": null,
+        "calls": [
+          {
+            "system": null,
+            "prompt": "# 論点 (問い)\nガチャは必要か\n(問いの形でなければ「ガチャは必要か は成り立つか / 十分か」と読み替える)\n\n# 主張\nc\n限定: q\n\nこの主張は論点に対して「はい」と答えているか「いいえ」と答えているかを判定し、ラベルを 1 つだけ返してください (説明不要):\n- yes: 論点を肯定している (成り立つ / 十分だ / 正解だ)\n- no: 論点を否定している (成り立たない / 不十分だ / 正解ではない)\n- unclear: どちらとも言えない",
+            "model": null,
+            "maxTokens": 50
+          }
+        ],
+        "warns": [
+          "定立の向きの判定 LLM エラー: e — 作り直さずに続行 (degrade)"
+        ]
+      }
+    ],
+    "gate": [
+      {
+        "responses": [
+          {
+            "ok": true,
+            "text": "straw_man"
+          }
+        ],
+        "result": {
+          "accepted": false,
+          "foul": "straw_man"
+        },
+        "error": null,
+        "calls": [
+          {
+            "system": null,
+            "prompt": "# 論点\nガチャは必要か\n\n# 反論された側\n主張: 必要\n限定: ライト層\n突かれた根拠 [pro-G1] (帰納)\n  データ: 売上\n  論拠: 収益源\n\n# 反論した側の陣営の主張 (反論はこの主張を守る/支える向きでなければならない)\n主張: 不要\n限定: (明示なし)\n\n# 反論 (「データ」を突くと宣言)\nt\n  反論のデータ: d\n  反論の論拠: w\n\nこの反論が議論の前提ルールを守っているかを判定し、ラベルを 1 つだけ返してください (説明不要):\n- ok: 宣言した要素 (データの真偽・論拠の妥当性・限定の範囲) を、相手の主張の限定の内側で突いている\n- out_of_scope: 相手の限定の外側にある層・条件・事例を持ち出して主張全体を否定している\n- straw_man: 相手が言っていない主張に置き換えて否定している\n- dismissal: 根拠の中身に触れず「感想にすぎない」「データが無い」だけで退けている (何が足りないかを具体的に示していない)\n- topic_shift: この論点と別の論点に話をずらしている\n- self_contradiction: 反論の内容が、反論した側の陣営の主張と逆向きになっている (相手陣営の主張を支えてしまっている)\n判断に迷う場合は ok を返す。",
+            "model": "j",
+            "maxTokens": 50
+          }
+        ],
+        "warns": []
+      },
+      {
+        "responses": [
+          {
+            "ok": true,
+            "text": "???"
+          }
+        ],
+        "result": {
+          "accepted": true,
+          "ground": null
+        },
+        "error": null,
+        "calls": [
+          {
+            "system": null,
+            "prompt": "# 論点\nガチャは必要か\n\n# 反論された側\n主張: 必要\n限定: ライト層\n\n# 反論 (「限定」を突くと宣言)\nt\n  反論のデータ: d\n  反論の論拠: w\n\nこの反論が議論の前提ルールを守っているかを判定し、ラベルを 1 つだけ返してください (説明不要):\n- ok: 宣言した要素 (データの真偽・論拠の妥当性・限定の範囲) を、相手の主張の限定の内側で突いている\n- out_of_scope: 相手の限定の外側にある層・条件・事例を持ち出して主張全体を否定している\n- straw_man: 相手が言っていない主張に置き換えて否定している\n- dismissal: 根拠の中身に触れず「感想にすぎない」「データが無い」だけで退けている (何が足りないかを具体的に示していない)\n- topic_shift: この論点と別の論点に話をずらしている\n判断に迷う場合は ok を返す。",
+            "model": null,
+            "maxTokens": 50
+          }
+        ],
+        "warns": [
+          "前提ルール判定ラベル不明: \"???\" — ok として続行 (degrade)"
+        ]
+      },
+      {
+        "responses": [
+          {
+            "ok": false,
+            "error": "e"
+          }
+        ],
+        "result": {
+          "accepted": true,
+          "ground": {
+            "id": "pro-G1",
+            "text": "売上",
+            "state": "unchallenged",
+            "kind": "induction",
+            "warrant": "収益源"
+          }
+        },
+        "error": null,
+        "calls": [
+          {
+            "system": null,
+            "prompt": "# 論点\nガチャは必要か\n\n# 反論された側\n主張: 必要\n限定: ライト層\n突かれた根拠 [pro-G1] (帰納)\n  データ: 売上\n  論拠: 収益源\n\n# 反論 (「データ」を突くと宣言)\nt\n  反論のデータ: d\n  反論の論拠: w\n\nこの反論が議論の前提ルールを守っているかを判定し、ラベルを 1 つだけ返してください (説明不要):\n- ok: 宣言した要素 (データの真偽・論拠の妥当性・限定の範囲) を、相手の主張の限定の内側で突いている\n- out_of_scope: 相手の限定の外側にある層・条件・事例を持ち出して主張全体を否定している\n- straw_man: 相手が言っていない主張に置き換えて否定している\n- dismissal: 根拠の中身に触れず「感想にすぎない」「データが無い」だけで退けている (何が足りないかを具体的に示していない)\n- topic_shift: この論点と別の論点に話をずらしている\n判断に迷う場合は ok を返す。",
+            "model": null,
+            "maxTokens": 50
+          }
+        ],
+        "warns": [
+          "前提ルール判定 LLM エラー: e — ok として続行 (degrade)"
+        ]
+      },
+      {
+        "responses": [
+          {
+            "ok": true,
+            "text": "x"
+          }
+        ],
+        "result": {
+          "accepted": true,
+          "ground": {
+            "id": "pro-G1",
+            "text": "売上",
+            "state": "unchallenged",
+            "kind": "induction",
+            "warrant": "収益源"
+          }
+        },
+        "error": null,
+        "calls": [],
+        "warns": []
+      },
+      {
+        "responses": [
+          {
+            "ok": true,
+            "text": "x"
+          }
+        ],
+        "result": {
+          "accepted": false,
+          "foul": "unanchored"
+        },
+        "error": null,
+        "calls": [],
+        "warns": []
+      }
+    ],
+    "concession": [
+      {
+        "responses": [
+          {
+            "ok": true,
+            "text": "REBUT then concede"
+          }
+        ],
+        "result": "rebut",
+        "error": null,
+        "calls": [
+          {
+            "system": null,
+            "prompt": "# 相手の発言\na\n\n# 返答\nb\n\n返答は相手の発言を認めているか、それとも反論・追撃しているかを判定し、ラベルを 1 つだけ返してください (説明不要):\n- concede: 相手の言い分を認めている (部分的に認めて条件を付けるのも含む)\n- rebut: 相手の言い分を否定・反論・追撃している\n判断に迷う場合は concede を返す。",
+            "model": "j",
+            "maxTokens": 50
+          }
+        ],
+        "warns": []
+      },
+      {
+        "responses": [
+          {
+            "ok": true,
+            "text": "concede"
+          }
+        ],
+        "result": "concede",
+        "error": null,
+        "calls": [
+          {
+            "system": null,
+            "prompt": "# 相手の発言\na\n\n# 返答\nb\n\n返答は相手の発言を認めているか、それとも反論・追撃しているかを判定し、ラベルを 1 つだけ返してください (説明不要):\n- concede: 相手の言い分を認めている (部分的に認めて条件を付けるのも含む)\n- rebut: 相手の言い分を否定・反論・追撃している\n判断に迷う場合は concede を返す。",
+            "model": null,
+            "maxTokens": 50
+          }
+        ],
+        "warns": []
+      },
+      {
+        "responses": [
+          {
+            "ok": true,
+            "text": "?"
+          }
+        ],
+        "result": "concede",
+        "error": null,
+        "calls": [
+          {
+            "system": null,
+            "prompt": "# 相手の発言\na\n\n# 返答\nb\n\n返答は相手の発言を認めているか、それとも反論・追撃しているかを判定し、ラベルを 1 つだけ返してください (説明不要):\n- concede: 相手の言い分を認めている (部分的に認めて条件を付けるのも含む)\n- rebut: 相手の言い分を否定・反論・追撃している\n判断に迷う場合は concede を返す。",
+            "model": null,
+            "maxTokens": 50
+          }
+        ],
+        "warns": [
+          "認めるの判定ラベル不明: \"?\" — 申告どおり concede として続行 (degrade)"
+        ]
+      },
+      {
+        "responses": [
+          {
+            "ok": false,
+            "error": "e"
+          }
+        ],
+        "result": "concede",
+        "error": null,
+        "calls": [
+          {
+            "system": null,
+            "prompt": "# 相手の発言\na\n\n# 返答\nb\n\n返答は相手の発言を認めているか、それとも反論・追撃しているかを判定し、ラベルを 1 つだけ返してください (説明不要):\n- concede: 相手の言い分を認めている (部分的に認めて条件を付けるのも含む)\n- rebut: 相手の言い分を否定・反論・追撃している\n判断に迷う場合は concede を返す。",
+            "model": null,
+            "maxTokens": 50
+          }
+        ],
+        "warns": [
+          "認めるの判定 LLM エラー: e — 申告どおり concede として続行 (degrade)"
+        ]
+      }
+    ],
+    "classify": [
+      {
+        "responses": [
+          {
+            "ok": true,
+            "text": "tradeoff"
+          }
+        ],
+        "result": "tradeoff",
+        "error": null,
+        "calls": [
+          {
+            "system": null,
+            "prompt": "# 論点\nガチャは必要か\n\n# 対立する 2 つの Position\nA (pro): 必要\n  価値前提: 収益\nB (con): 不要\n  価値前提: (なし)\n\nこの対立の「型」を 1 つだけ選んで、そのラベルのみを返してください (説明不要):\n- facts: 事実の真偽で決まる対立 (データ照会で解消できる)\n- values: 価値前提の対立 (収益性 vs 体験 など)\n- means: 目標は共有しているが手段が違う\n- tradeoff: 両立不能に見える 2 変数のトレードオフ",
+            "model": "j",
+            "maxTokens": 100
+          }
+        ],
+        "warns": []
+      },
+      {
+        "responses": [
+          {
+            "ok": true,
+            "text": "??"
+          }
+        ],
+        "result": "values",
+        "error": null,
+        "calls": [
+          {
+            "system": null,
+            "prompt": "# 論点\nガチャは必要か\n\n# 対立する 2 つの Position\nA (pro): 必要\n  価値前提: 収益\nB (con): 不要\n  価値前提: (なし)\n\nこの対立の「型」を 1 つだけ選んで、そのラベルのみを返してください (説明不要):\n- facts: 事実の真偽で決まる対立 (データ照会で解消できる)\n- values: 価値前提の対立 (収益性 vs 体験 など)\n- means: 目標は共有しているが手段が違う\n- tradeoff: 両立不能に見える 2 変数のトレードオフ",
+            "model": null,
+            "maxTokens": 100
+          }
+        ],
+        "warns": [
+          "Tension 型分類ラベル不明: \"??\" — values に倒して続行 (degrade)"
+        ]
+      },
+      {
+        "responses": [
+          {
+            "ok": false,
+            "error": "e"
+          }
+        ],
+        "result": "values",
+        "error": null,
+        "calls": [
+          {
+            "system": null,
+            "prompt": "# 論点\nガチャは必要か\n\n# 対立する 2 つの Position\nA (pro): 必要\n  価値前提: 収益\nB (con): 不要\n  価値前提: (なし)\n\nこの対立の「型」を 1 つだけ選んで、そのラベルのみを返してください (説明不要):\n- facts: 事実の真偽で決まる対立 (データ照会で解消できる)\n- values: 価値前提の対立 (収益性 vs 体験 など)\n- means: 目標は共有しているが手段が違う\n- tradeoff: 両立不能に見える 2 変数のトレードオフ",
+            "model": null,
+            "maxTokens": 100
+          }
+        ],
+        "warns": [
+          "Tension 型分類 LLM エラー: e — values に倒して続行 (degrade)"
+        ]
+      }
+    ],
+    "fact": [
+      {
+        "responses": [
+          {
+            "ok": true,
+            "text": "B"
+          }
+        ],
+        "result": {
+          "status": "resolved",
+          "note": "証拠 (1 件) は B を支持: 不要"
+        },
+        "error": null,
+        "calls": [
+          {
+            "system": null,
+            "prompt": "# 事実に関する対立\n論点: ガチャは必要か\nA: 必要\nB: 不要\n\n# 証拠 (外部の声)\n1. ガチャは必要か|T10（出所: s）\n\n証拠はどちらの主張を支持しますか。次のいずれか 1 語のみで答えてください (説明不要):\nA / B / none (どちらも支持しない・判定不能)",
+            "model": null,
+            "maxTokens": 100
+          }
+        ],
+        "warns": []
+      },
+      {
+        "responses": [
+          {
+            "ok": true,
+            "text": "none"
+          }
+        ],
+        "result": {
+          "status": "unresolved_fact",
+          "note": "「ガチャは必要か」の事実対立 (A: 必要 / B: 不要) は証拠 1 件でも決着せず未解決"
+        },
+        "error": null,
+        "calls": [
+          {
+            "system": null,
+            "prompt": "# 事実に関する対立\n論点: ガチャは必要か\nA: 必要\nB: 不要\n\n# 証拠 (外部の声)\n1. c（出所: s）\n\n証拠はどちらの主張を支持しますか。次のいずれか 1 語のみで答えてください (説明不要):\nA / B / none (どちらも支持しない・判定不能)",
+            "model": null,
+            "maxTokens": 100
+          }
+        ],
+        "warns": []
+      },
+      {
+        "responses": [
+          {
+            "ok": false,
+            "error": "e"
+          }
+        ],
+        "result": {
+          "status": "unresolved_fact",
+          "note": "「ガチャは必要か」の事実対立は判定 LLM 障害により未解決 (証拠 1 件は取得済み)"
+        },
+        "error": null,
+        "calls": [
+          {
+            "system": null,
+            "prompt": "# 事実に関する対立\n論点: ガチャは必要か\nA: 必要\nB: 不要\n\n# 証拠 (外部の声)\n1. c（出所: s）\n\n証拠はどちらの主張を支持しますか。次のいずれか 1 語のみで答えてください (説明不要):\nA / B / none (どちらも支持しない・判定不能)",
+            "model": null,
+            "maxTokens": 100
+          }
+        ],
+        "warns": [
+          "事実照会判定 LLM エラー: e — unresolved_fact として続行 (degrade)"
+        ]
+      },
+      {
+        "responses": [
+          {
+            "ok": true,
+            "text": "A"
+          }
+        ],
+        "result": {
+          "status": "unresolved_fact",
+          "note": "「ガチャは必要か」の事実対立 (A: 必要 / B: 不要) は照会可能な証拠が見つからず未解決"
+        },
+        "error": null,
+        "calls": [],
+        "warns": [
+          "事実照会の証拠取得に失敗: kg down"
+        ]
+      }
+    ],
+    "elevation": [
+      {
+        "responses": [
+          {
+            "ok": true,
+            "text": "x"
+          }
+        ],
+        "result": "compromise",
+        "error": null,
+        "calls": [],
+        "warns": []
+      },
+      {
+        "responses": [
+          {
+            "ok": true,
+            "text": "x"
+          }
+        ],
+        "result": "compromise",
+        "error": null,
+        "calls": [],
+        "warns": []
+      },
+      {
+        "responses": [
+          {
+            "ok": true,
+            "text": "Aufheben だが compromise"
+          }
+        ],
+        "result": "aufheben",
+        "error": null,
+        "calls": [
+          {
+            "system": null,
+            "prompt": "統合案の「新しい枠」の記述です:\n\"Both の上位目標を再定義して条件分割で両立させる長い説明\"\n\nこれは (a) 上位目標の発見・適用条件の分割・問題の再定義など**新しい枠の導入**か、(b) 実質「両方やる」「折半する」でしかない**折衷**か。\naufheben (新しい枠) / compromise (折衷) のどちらか 1 語のみで答えてください。迷ったら compromise。",
+            "model": "j",
+            "maxTokens": 50
+          }
+        ],
+        "warns": []
+      },
+      {
+        "responses": [
+          {
+            "ok": true,
+            "text": "compromise"
+          }
+        ],
+        "result": "compromise",
+        "error": null,
+        "calls": [
+          {
+            "system": null,
+            "prompt": "統合案の「新しい枠」の記述です:\n\"新しい枠の説明がここにあり十分な長さを持つ文\"\n\nこれは (a) 上位目標の発見・適用条件の分割・問題の再定義など**新しい枠の導入**か、(b) 実質「両方やる」「折半する」でしかない**折衷**か。\naufheben (新しい枠) / compromise (折衷) のどちらか 1 語のみで答えてください。迷ったら compromise。",
+            "model": null,
+            "maxTokens": 50
+          }
+        ],
+        "warns": []
+      },
+      {
+        "responses": [
+          {
+            "ok": true,
+            "text": "?"
+          }
+        ],
+        "result": "compromise",
+        "error": null,
+        "calls": [
+          {
+            "system": null,
+            "prompt": "統合案の「新しい枠」の記述です:\n\"新しい枠の説明がここにあり十分な長さを持つ文\"\n\nこれは (a) 上位目標の発見・適用条件の分割・問題の再定義など**新しい枠の導入**か、(b) 実質「両方やる」「折半する」でしかない**折衷**か。\naufheben (新しい枠) / compromise (折衷) のどちらか 1 語のみで答えてください。迷ったら compromise。",
+            "model": null,
+            "maxTokens": 50
+          }
+        ],
+        "warns": [
+          "elevation ゲート ラベル不明: \"?\" — compromise に倒す (degrade)"
+        ]
+      },
+      {
+        "responses": [
+          {
+            "ok": false,
+            "error": "e"
+          }
+        ],
+        "result": "compromise",
+        "error": null,
+        "calls": [
+          {
+            "system": null,
+            "prompt": "統合案の「新しい枠」の記述です:\n\"新しい枠の説明がここにあり十分な長さを持つ文\"\n\nこれは (a) 上位目標の発見・適用条件の分割・問題の再定義など**新しい枠の導入**か、(b) 実質「両方やる」「折半する」でしかない**折衷**か。\naufheben (新しい枠) / compromise (折衷) のどちらか 1 語のみで答えてください。迷ったら compromise。",
+            "model": null,
+            "maxTokens": 50
+          }
+        ],
+        "warns": [
+          "elevation ゲート LLM エラー: e — compromise に倒す (degrade)"
+        ]
+      }
+    ],
+    "ratify": [
+      {
+        "responses": [
+          {
+            "ok": true,
+            "text": "{\"verdict\":\"accept\",\"preservedIds\":[\" pro-G1 \",\"pro-G3\",\"con-G1\"],\"missing\":[\"pro-G2\",\"x\"],\"reason\":\"r\"}"
+          }
+        ],
+        "result": {
+          "positionId": "PA",
+          "verdict": "accept",
+          "preservedIds": [
+            "pro-G1",
+            "pro-G3"
+          ],
+          "missing": [
+            "pro-G2"
+          ],
+          "reason": "r"
+        },
+        "error": null,
+        "calls": [
+          {
+            "system": null,
+            "prompt": "あなたは議論ペルソナ「A」。この議論でのあなたの立場は pro、主張は「必要」です。\n\n# あなたの主張の根拠\n- [pro-G1] 売上\n- [pro-G2] 期待感\n- [pro-G3] 継続\n\n# 提示された統合案\ns\n(統合案が保存を主張する根拠: [pro-G1])\n\n# チェックリスト (敵対的批准 — 甘い受諾をしない)\nあなたの主張の根拠は [pro-G1, pro-G2, pro-G3] だった。この統合案で**実際に保存されているもの**を ID で挙げよ。保存が確認できた根拠が過半数に満たなければ reject し、欠けているものを指摘せよ。**デフォルトは reject** — 保存を自分で確認できたときだけ accept せよ。\n\n次の JSON 1 個だけを返してください:\n{\"verdict\": \"accept\" | \"reject\", \"preservedIds\": [\"<確認できた根拠id>\"], \"missing\": [\"<欠けている根拠id>\"], \"reason\": \"<一言>\"}",
+            "model": null,
+            "maxTokens": null
+          }
+        ],
+        "warns": []
+      },
+      {
+        "responses": [
+          {
+            "ok": true,
+            "text": "{\"verdict\":\"accept\",\"preservedIds\":[\"pro-G1\"]}"
+          }
+        ],
+        "result": {
+          "positionId": "PA",
+          "verdict": "reject",
+          "preservedIds": [
+            "pro-G1"
+          ],
+          "missing": [
+            "pro-G2",
+            "pro-G3"
+          ],
+          "reason": ""
+        },
+        "error": null,
+        "calls": [
+          {
+            "system": null,
+            "prompt": "あなたは議論ペルソナ「A」。この議論でのあなたの立場は pro、主張は「必要」です。\n\n# あなたの主張の根拠\n- [pro-G1] 売上\n- [pro-G2] 期待感\n- [pro-G3] 継続\n\n# 提示された統合案\ns\n新しい枠: e\n(統合案が保存を主張する根拠: [なし])\n\n# チェックリスト (敵対的批准 — 甘い受諾をしない)\nあなたの主張の根拠は [pro-G1, pro-G2, pro-G3] だった。この統合案で**実際に保存されているもの**を ID で挙げよ。保存が確認できた根拠が過半数に満たなければ reject し、欠けているものを指摘せよ。**デフォルトは reject** — 保存を自分で確認できたときだけ accept せよ。\n\n次の JSON 1 個だけを返してください:\n{\"verdict\": \"accept\" | \"reject\", \"preservedIds\": [\"<確認できた根拠id>\"], \"missing\": [\"<欠けている根拠id>\"], \"reason\": \"<一言>\"}",
+            "model": "j",
+            "maxTokens": null
+          }
+        ],
+        "warns": [
+          "批准 (pro): verdict=accept だが保存確認 1/3 は過半数未満 — コードが reject に矯正"
+        ]
+      },
+      {
+        "responses": [
+          {
+            "ok": true,
+            "text": "bad"
+          }
+        ],
+        "result": {
+          "positionId": "PA",
+          "verdict": "reject",
+          "preservedIds": [],
+          "missing": [
+            "pro-G1",
+            "pro-G2",
+            "pro-G3"
+          ],
+          "reason": "批准応答を解析できず reject (デフォルト)"
+        },
+        "error": null,
+        "calls": [
+          {
+            "system": null,
+            "prompt": "あなたは議論ペルソナ「A」。この議論でのあなたの立場は pro、主張は「必要」です。\n\n# あなたの主張の根拠\n- [pro-G1] 売上\n- [pro-G2] 期待感\n- [pro-G3] 継続\n\n# 提示された統合案\ns\n(統合案が保存を主張する根拠: [なし])\n\n# チェックリスト (敵対的批准 — 甘い受諾をしない)\nあなたの主張の根拠は [pro-G1, pro-G2, pro-G3] だった。この統合案で**実際に保存されているもの**を ID で挙げよ。保存が確認できた根拠が過半数に満たなければ reject し、欠けているものを指摘せよ。**デフォルトは reject** — 保存を自分で確認できたときだけ accept せよ。\n\n次の JSON 1 個だけを返してください:\n{\"verdict\": \"accept\" | \"reject\", \"preservedIds\": [\"<確認できた根拠id>\"], \"missing\": [\"<欠けている根拠id>\"], \"reason\": \"<一言>\"}",
+            "model": null,
+            "maxTokens": null
+          }
+        ],
+        "warns": [
+          "批准 JSON パース失敗 (pro) — reject デフォルト"
+        ]
+      },
+      {
+        "responses": [
+          {
+            "ok": false,
+            "error": "e"
+          }
+        ],
+        "result": {
+          "positionId": "PB",
+          "verdict": "reject",
+          "preservedIds": [],
+          "missing": [
+            "con-G1"
+          ],
+          "reason": "批准 LLM 障害 (e)"
+        },
+        "error": null,
+        "calls": [
+          {
+            "system": null,
+            "prompt": "あなたは議論ペルソナ「C」。この議論でのあなたの立場は con、主張は「不要」です。\n\n# あなたの主張の根拠\n- [con-G1] 射幸心\n\n# 提示された統合案\ns\n(統合案が保存を主張する根拠: [なし])\n\n# チェックリスト (敵対的批准 — 甘い受諾をしない)\nあなたの主張の根拠は [con-G1] だった。この統合案で**実際に保存されているもの**を ID で挙げよ。保存が確認できた根拠が過半数に満たなければ reject し、欠けているものを指摘せよ。**デフォルトは reject** — 保存を自分で確認できたときだけ accept せよ。\n\n次の JSON 1 個だけを返してください:\n{\"verdict\": \"accept\" | \"reject\", \"preservedIds\": [\"<確認できた根拠id>\"], \"missing\": [\"<欠けている根拠id>\"], \"reason\": \"<一言>\"}",
+            "model": null,
+            "maxTokens": null
+          }
+        ],
+        "warns": [
+          "批准 LLM エラー (con): e — reject デフォルト"
+        ]
+      }
+    ],
+    "generate": [
+      {
+        "responses": [
+          {
+            "ok": true,
+            "text": "{\"text\":\" 統合 \",\"preserves\":[\"pro-G1\",\"zz\",\" con-G1 \"],\"negates\":[\"pro-G2\"],\"elevates\":\" 枠 \"}"
+          }
+        ],
+        "result": {
+          "text": "統合",
+          "preserves": [
+            "pro-G1",
+            "con-G1"
+          ],
+          "negates": [
+            "pro-G2"
+          ],
+          "elevates": "枠",
+          "degraded": false
+        },
+        "error": null,
+        "calls": [
+          {
+            "system": "SYS",
+            "prompt": "# 論点\nI\n\n# 対立する Position (根拠は [id] で指す)\nA (pro): 必要\n  - [pro-G1] (unchallenged) 売上\n  - [pro-G2] (conceded) 期待感\n  - [pro-G3] (defended) 継続\n  価値前提: 収益\n\nB (con): 不要\n  - [con-G1] (challenged) 射幸心\n  価値前提: (なし)\n\n# 指示\nこれは価値対立です。上位価値の発見、または適用条件の分割 (「コア層には X、ライト層には Y」のように、どちらの価値も条件付きで生かす分割) で統合してください。\n\n止揚 (aufheben) の 3 要件をデータで示してください:\n- preserves: 各陣営から何を保存したか (上の根拠 id で指す。両陣営から挙げる)\n- negates: 何を放棄させたか (根拠 id)\n- elevates: 導入した新しい枠 (上位目標 / 条件分割 / 再定義)。単なる「両方やる」は不可\n\ntext には、保存した根拠がどう両立するかを短く含める。既存案の反復や「状況に応じて両方」は不可。\n\n次の JSON 1 個だけを返してください (前後に説明やコードフェンスを付けない):\n{\"text\": \"<統合案の口語 1〜3 文>\", \"preserves\": [\"<根拠id>\"], \"negates\": [\"<根拠id>\"], \"elevates\": \"<新しい枠の説明 1 文>\"}",
+            "model": "mm",
+            "maxTokens": null
+          }
+        ],
+        "warns": []
+      },
+      {
+        "responses": [
+          {
+            "ok": true,
+            "text": " 生の文 "
+          }
+        ],
+        "result": {
+          "text": "生の文",
+          "preserves": [],
+          "negates": [],
+          "elevates": null,
+          "degraded": true
+        },
+        "error": null,
+        "calls": [
+          {
+            "system": "SYS",
+            "prompt": "# 論点\nI\n\n# 対立する Position (根拠は [id] で指す)\nA (pro): 必要\n  - [pro-G1] (unchallenged) 売上\n  - [pro-G2] (conceded) 期待感\n  - [pro-G3] (defended) 継続\n  価値前提: 収益\n\nB (con): 不要\n  - [con-G1] (challenged) 射幸心\n  価値前提: (なし)\n\n# 指示\nこれは価値対立です。上位価値の発見、または適用条件の分割 (「コア層には X、ライト層には Y」のように、どちらの価値も条件付きで生かす分割) で統合してください。\n\n止揚 (aufheben) の 3 要件をデータで示してください:\n- preserves: 各陣営から何を保存したか (上の根拠 id で指す。両陣営から挙げる)\n- negates: 何を放棄させたか (根拠 id)\n- elevates: 導入した新しい枠 (上位目標 / 条件分割 / 再定義)。単なる「両方やる」は不可\n\ntext には、保存した根拠がどう両立するかを短く含める。既存案の反復や「状況に応じて両方」は不可。\n\n次の JSON 1 個だけを返してください (前後に説明やコードフェンスを付けない):\n{\"text\": \"<統合案の口語 1〜3 文>\", \"preserves\": [\"<根拠id>\"], \"negates\": [\"<根拠id>\"], \"elevates\": \"<新しい枠の説明 1 文>\"}",
+            "model": null,
+            "maxTokens": null
+          }
+        ],
+        "warns": [
+          "Synthesis 生成 JSON パース失敗 — 全文を折衷候補として受理 (degrade)"
+        ]
+      },
+      {
+        "responses": [
+          {
+            "ok": false,
+            "error": "e"
+          }
+        ],
+        "result": {
+          "text": "必要 と 不要 の統合案は生成できませんでした",
+          "preserves": [],
+          "negates": [],
+          "elevates": null,
+          "degraded": true
+        },
+        "error": null,
+        "calls": [
+          {
+            "system": "SYS",
+            "prompt": "# 論点\nI\n\n# 対立する Position (根拠は [id] で指す)\nA (pro): 必要\n  - [pro-G1] (unchallenged) 売上\n  - [pro-G2] (conceded) 期待感\n  - [pro-G3] (defended) 継続\n  価値前提: 収益\n\nB (con): 不要\n  - [con-G1] (challenged) 射幸心\n  価値前提: (なし)\n\n# 指示\nこれは価値対立です。上位価値の発見、または適用条件の分割 (「コア層には X、ライト層には Y」のように、どちらの価値も条件付きで生かす分割) で統合してください。\n\n止揚 (aufheben) の 3 要件をデータで示してください:\n- preserves: 各陣営から何を保存したか (上の根拠 id で指す。両陣営から挙げる)\n- negates: 何を放棄させたか (根拠 id)\n- elevates: 導入した新しい枠 (上位目標 / 条件分割 / 再定義)。単なる「両方やる」は不可\n\ntext には、保存した根拠がどう両立するかを短く含める。既存案の反復や「状況に応じて両方」は不可。\n\n次の JSON 1 個だけを返してください (前後に説明やコードフェンスを付けない):\n{\"text\": \"<統合案の口語 1〜3 文>\", \"preserves\": [\"<根拠id>\"], \"negates\": [\"<根拠id>\"], \"elevates\": \"<新しい枠の説明 1 文>\"}",
+            "model": null,
+            "maxTokens": null
+          }
+        ],
+        "warns": [
+          "Synthesis 生成 LLM エラー: e — 空候補で degrade (折衷扱い)"
+        ]
+      }
+    ],
+    "nomination": [
+      {
+        "responses": [
+          {
+            "ok": true,
+            "text": "  "
+          }
+        ],
+        "result": "Bさんの次の指摘に、まだ応答がありません。Aさん、どう応えますか?\n> 長い長い長い長い長い長い長い長い長い長い長い長い長い長い長い長い長い長い長い長い長い長い長い長い長い長い長い長い長い長い長い長い長い長い長い長い長い長い長い長い",
+        "error": null,
+        "calls": [
+          {
+            "system": null,
+            "prompt": "あなたは議論の進行役です。次の進行内容を、自然な口語 1〜2 文にしてください(意味を変えない・装飾やラベルを付けない):\n内容: Bさんの次の指摘に、まだ応答がありません。Aさん、どう応えますか?",
+            "model": "f",
+            "maxTokens": 300
+          }
+        ],
+        "warns": []
+      },
+      {
+        "responses": [
+          {
+            "ok": false,
+            "error": "e"
+          }
+        ],
+        "result": "Aさん、この論点について意見をどうぞ。",
+        "error": null,
+        "calls": [
+          {
+            "system": null,
+            "prompt": "あなたは議論の進行役です。次の進行内容を、自然な口語 1〜2 文にしてください(意味を変えない・装飾やラベルを付けない):\n内容: Aさん、この論点について意見をどうぞ。",
+            "model": null,
+            "maxTokens": 300
+          }
+        ],
+        "warns": [
+          "ファシリテーター進行文レンダリング失敗: e — 定型文で続行 (degrade)"
+        ]
+      },
+      {
+        "responses": [
+          {
+            "ok": true,
+            "text": " 進行文 "
+          }
+        ],
+        "result": "進行文",
+        "error": null,
+        "calls": [
+          {
+            "system": null,
+            "prompt": "あなたは議論の進行役です。次の進行内容を、自然な口語 1〜2 文にしてください(意味を変えない・装飾やラベルを付けない):\n内容: 内容",
+            "model": null,
+            "maxTokens": 300
+          }
+        ],
+        "warns": []
+      }
+    ]
+  },
+  "inputs": {
+    "issue": {
+      "id": "I1",
+      "sessionId": "S",
+      "title": "ガチャは必要か",
+      "ordinal": 1,
+      "source": "llm",
+      "status": "open"
+    },
+    "posA": {
+      "id": "PA",
+      "issueId": "I1",
+      "personaId": "p1",
+      "stance": "pro",
+      "claim": "必要",
+      "qualifier": "ライト層",
+      "grounds": [
+        {
+          "id": "pro-G1",
+          "text": "売上",
+          "state": "unchallenged",
+          "kind": "induction",
+          "warrant": "収益源"
+        },
+        {
+          "id": "pro-G2",
+          "text": "期待感",
+          "state": "conceded"
+        },
+        {
+          "id": "pro-G3",
+          "text": "継続",
+          "state": "defended",
+          "kind": "deduction"
+        }
+      ],
+      "values": [
+        "収益"
+      ]
+    },
+    "posB": {
+      "id": "PB",
+      "issueId": "I1",
+      "personaId": "p3",
+      "stance": "con",
+      "claim": "不要",
+      "qualifier": null,
+      "grounds": [
+        {
+          "id": "con-G1",
+          "text": "射幸心",
+          "state": "challenged"
+        }
+      ],
+      "values": []
+    },
+    "posAdown": {
+      "id": "PA",
+      "issueId": "I1",
+      "personaId": "p1",
+      "stance": "pro",
+      "claim": "必要",
+      "qualifier": "ライト層",
+      "grounds": [
+        {
+          "id": "pro-G1",
+          "text": "x",
+          "state": "challenged"
+        }
+      ],
+      "values": [
+        "収益"
+      ]
+    },
+    "posBdown": {
+      "id": "PB",
+      "issueId": "I1",
+      "personaId": "p3",
+      "stance": "con",
+      "claim": "不要",
+      "qualifier": null,
+      "grounds": [
+        {
+          "id": "con-G1",
+          "text": "x",
+          "state": "conceded"
+        }
+      ],
+      "values": []
+    },
+    "tensions": [
+      {
+        "id": "T0",
+        "issueId": "I1",
+        "positionA": "PA",
+        "positionB": "PB",
+        "type": "values",
+        "status": "open",
+        "resolutionNote": null
+      },
+      {
+        "id": "T1",
+        "issueId": "I1",
+        "positionA": "PA",
+        "positionB": "PB",
+        "type": "values",
+        "status": "resolved",
+        "resolutionNote": "メモ"
+      },
+      {
+        "id": "T2",
+        "issueId": "I1",
+        "positionA": "PA",
+        "positionB": "PB",
+        "type": "values",
+        "status": "synthesized",
+        "resolutionNote": null
+      },
+      {
+        "id": "T3",
+        "issueId": "I1",
+        "positionA": "PA",
+        "positionB": "PB",
+        "type": "values",
+        "status": "compromised",
+        "resolutionNote": "メモ"
+      },
+      {
+        "id": "T4",
+        "issueId": "I1",
+        "positionA": "PA",
+        "positionB": "PB",
+        "type": "values",
+        "status": "agreed_disagree",
+        "resolutionNote": null
+      },
+      {
+        "id": "T5",
+        "issueId": "I1",
+        "positionA": "PA",
+        "positionB": "PB",
+        "type": "values",
+        "status": "unresolved_fact",
+        "resolutionNote": "メモ"
+      },
+      {
+        "id": "T6",
+        "issueId": "I1",
+        "positionA": "PA",
+        "positionB": "PB",
+        "type": "values",
+        "status": "agreed",
+        "resolutionNote": null
+      },
+      {
+        "id": "T7",
+        "issueId": "I1",
+        "positionA": "PA",
+        "positionB": "PB",
+        "type": "values",
+        "status": "aligned",
+        "resolutionNote": "メモ"
+      },
+      {
+        "id": "T8",
+        "issueId": "I1",
+        "positionA": "PA",
+        "positionB": "PB",
+        "type": "values",
+        "status": "partially_aligned",
+        "resolutionNote": null
+      }
+    ],
+    "synthRec": {
+      "id": "Y",
+      "tensionId": "T",
+      "preserves": [],
+      "negates": [],
+      "elevates": null,
+      "kind": "compromise",
+      "text": "折衷文",
+      "ratification": [],
+      "status": "rejected",
+      "revision": 0
+    },
+    "personas": [
+      {
+        "id": "p1",
+        "name": "論者A",
+        "role": "debater",
+        "stance": "pro",
+        "speechStyle": "丁寧",
+        "traits": [
+          "冷静",
+          "皮肉"
+        ],
+        "model": "m",
+        "isLocal": false
+      },
+      {
+        "id": "p2",
+        "name": "意見B",
+        "role": "opinion",
+        "stance": "opinion",
+        "speechStyle": "丁寧",
+        "traits": [
+          "冷静",
+          "皮肉"
+        ],
+        "model": "m",
+        "isLocal": false,
+        "valueAxis": "体験",
+        "coreClaims": [
+          "c1"
+        ]
+      },
+      {
+        "id": "p3",
+        "name": "論者A",
+        "role": "debater",
+        "stance": "con",
+        "speechStyle": "丁寧",
+        "traits": [
+          "冷静",
+          "皮肉"
+        ],
+        "model": "m",
+        "isLocal": false,
+        "valueAxis": "収益",
+        "coreClaims": [
+          "核1",
+          "核2"
+        ],
+        "possession": {
+          "label": "論者#abc",
+          "descriptor": "辛口"
+        }
+      },
+      {
+        "id": "p4",
+        "name": "論者A",
+        "role": "facilitator",
+        "stance": "neutral",
+        "speechStyle": "丁寧",
+        "traits": [
+          "冷静",
+          "皮肉"
+        ],
+        "model": "m",
+        "isLocal": true,
+        "possession": {
+          "label": "L"
+        }
+      }
+    ],
+    "names": {
+      "p1": "論者A",
+      "p3": "論者C"
+    },
+    "tgt": {
+      "id": "u1",
+      "personaName": "B",
+      "text": "長い長い長い長い長い長い長い長い長い長い長い長い長い長い長い長い長い長い長い長い長い長い長い長い長い長い長い長い長い長い長い長い長い長い長い長い長い長い長い長い"
+    },
+    "utterances": [
+      {
+        "id": "u1",
+        "personaName": "A",
+        "text": "主張1主張1主張1主張1主張1主張1主張1主張1主張1主張1主張1主張1主張1主張1主張1主張1主張1主張1主張1主張1主張1主張1主張1主張1主張1主張1主張1主張1主張1主張1主張1主張1主張1主張1主張1主張1主張1主張1主張1主張1主張1主張1主張1主張1主張1主張1主張1主張1主張1主張1"
+      },
+      {
+        "id": "u2",
+        "personaName": "B",
+        "text": "反論"
+      }
+    ],
+    "speakers": [
+      {
+        "id": "p1",
+        "name": "論者A",
+        "role": "debater",
+        "stance": "pro",
+        "speechStyle": "丁寧",
+        "traits": [
+          "冷静",
+          "皮肉"
+        ],
+        "model": "m",
+        "isLocal": false
+      },
+      {
+        "id": "p3",
+        "name": "論者A",
+        "role": "debater",
+        "stance": "con",
+        "speechStyle": "丁寧",
+        "traits": [
+          "冷静",
+          "皮肉"
+        ],
+        "model": "m",
+        "isLocal": false,
+        "valueAxis": "収益",
+        "coreClaims": [
+          "核1",
+          "核2"
+        ],
+        "possession": {
+          "label": "論者#abc",
+          "descriptor": "辛口"
+        }
+      },
+      {
+        "id": "p5",
+        "name": "論者A",
+        "role": "debater",
+        "stance": "con",
+        "speechStyle": "丁寧",
+        "traits": [
+          "冷静",
+          "皮肉"
+        ],
+        "model": "m",
+        "isLocal": false
+      }
+    ],
+    "anchors": [
+      {
+        "personaId": "p1",
+        "stance": "pro",
+        "utteranceId": "c1"
+      },
+      {
+        "personaId": "p3",
+        "stance": "con",
+        "utteranceId": "c2"
+      }
+    ],
+    "counts": {
+      "p1": 2,
+      "p3": 1,
+      "p5": 1
+    },
+    "mechs": [
+      {
+        "name": "ガチャ",
+        "description": "ランダム排出",
+        "intended_affect": "期待",
+        "source": "curated"
+      },
+      {
+        "name": "周回",
+        "description": "同じステージを回す"
+      },
+      {
+        "name": "仮説A",
+        "description": "LLM が出した",
+        "source": "llm",
+        "intended_affect": "高揚"
+      },
+      {
+        "name": "クロール",
+        "description": "集めた",
+        "source": "crawl"
+      }
+    ]
+  },
+  "positionAttribution": {
+    "input": {
+      "claim": "c",
+      "qualifier": null,
+      "values": [],
+      "text": "t",
+      "degraded": false,
+      "groundTexts": [
+        "g1",
+        "g2",
+        "g3"
+      ],
+      "grounds": [
+        {
+          "id": "pro-G1",
+          "text": "「最高に楽しい」と言っている",
+          "state": "unchallenged",
+          "claimKind": "sourceQuote",
+          "evidenceIds": [
+            "E1"
+          ]
+        },
+        {
+          "id": "pro-G2",
+          "text": "「安い」と言った",
+          "state": "unchallenged",
+          "claimKind": "sourceQuote",
+          "evidenceIds": [
+            "E2"
+          ]
+        },
+        {
+          "id": "pro-G3",
+          "text": "推測",
+          "state": "unchallenged"
+        }
+      ]
+    },
+    "persona": {
+      "id": "p1",
+      "name": "論者A",
+      "role": "debater",
+      "stance": "pro",
+      "speechStyle": "丁寧",
+      "traits": [
+        "冷静",
+        "皮肉"
+      ],
+      "model": "m",
+      "isLocal": false,
+      "proxy": {
+        "label": "論者#a",
+        "speakerKey": "k",
+        "genre": "g",
+        "bundleText": "b",
+        "evidenceIds": [
+          "E1",
+          "E2"
+        ],
+        "evidenceTexts": {
+          "E1": "このゲームは最高に楽しい",
+          "E2": "課金が高すぎる"
+        }
+      }
+    },
+    "result": {
+      "claim": "c",
+      "qualifier": null,
+      "values": [],
+      "text": "t",
+      "degraded": false,
+      "groundTexts": [
+        "g1 [E1]",
+        "g2（推測）",
+        "g3（推測）"
+      ],
+      "grounds": [
+        {
+          "id": "pro-G1",
+          "text": "「最高に楽しい」と言っている",
+          "state": "unchallenged",
+          "claimKind": "sourceQuote",
+          "evidenceIds": [
+            "E1"
+          ]
+        },
+        {
+          "id": "pro-G2",
+          "text": "「安い」と言った",
+          "state": "unchallenged",
+          "claimKind": "simulationInference",
+          "evidenceIds": [
+            "E2"
+          ]
+        },
+        {
+          "id": "pro-G3",
+          "text": "推測",
+          "state": "unchallenged",
+          "claimKind": "simulationInference",
+          "evidenceIds": []
+        }
+      ]
+    },
+    "warns": [
+      "代理 論者A の論拠 pro-G2: 帰属の検査に通らない (quote_mismatch) — 推測として扱う"
+    ],
+    "plain": {
+      "claim": "c",
+      "qualifier": null,
+      "values": [],
+      "text": "t",
+      "degraded": false,
+      "groundTexts": [
+        "g1",
+        "g2",
+        "g3"
+      ],
+      "grounds": [
+        {
+          "id": "pro-G1",
+          "text": "「最高に楽しい」と言っている",
+          "state": "unchallenged",
+          "claimKind": "sourceQuote",
+          "evidenceIds": [
+            "E1"
+          ]
+        },
+        {
+          "id": "pro-G2",
+          "text": "「安い」と言った",
+          "state": "unchallenged",
+          "claimKind": "sourceQuote",
+          "evidenceIds": [
+            "E2"
+          ]
+        },
+        {
+          "id": "pro-G3",
+          "text": "推測",
+          "state": "unchallenged"
+        }
+      ]
+    }
+  },
+  "voteRun": {
+    "results": [
+      {
+        "kind": "votes",
+        "tally": {
+          "u2": 1,
+          "u3": 1,
+          "u1": 1
+        },
+        "winner": "u3",
+        "winnerShare": 0.3333333333333333
+      },
+      {
+        "kind": "votes",
+        "tally": {},
+        "winner": null,
+        "winnerShare": null
+      }
+    ],
+    "calls": [
+      {
+        "system": null,
+        "prompt": "議論のテーマ: T\n\nこのラウンドの発言一覧:\n1. [ID:u3] t3\n2. [ID:u2] t2\n3. [ID:u1] t1\n\nあなたは中立な審判として、論理の一貫性・飛躍のなさを最重視して選ぶ。テーマに対して最も的を射た意見を 1 つ選び、 その発言の ID (または先頭の番号) だけを返してください。\n返答形式 (IDのみ): <選んだID>\n例: abc-123\n返答はIDまたは番号のみ (説明不要)。",
+        "model": null,
+        "maxTokens": null
+      },
+      {
+        "system": null,
+        "prompt": "議論のテーマ: T\n\nこのラウンドの発言一覧:\n1. [ID:u1] t1\n2. [ID:u3] t3\n3. [ID:u2] t2\n\nあなたは中立な審判として、根拠・具体例の裏付けを最重視して選ぶ。テーマに対して最も的を射た意見を 1 つ選び、 その発言の ID (または先頭の番号) だけを返してください。\n返答形式 (IDのみ): <選んだID>\n例: abc-123\n返答はIDまたは番号のみ (説明不要)。",
+        "model": null,
+        "maxTokens": null
+      },
+      {
+        "system": null,
+        "prompt": "議論のテーマ: T\n\nこのラウンドの発言一覧:\n1. [ID:u3] t3\n2. [ID:u2] t2\n3. [ID:u1] t1\n\nあなたは中立な審判として、テーマへの適合・議論を前に進める度合いを最重視して選ぶ。テーマに対して最も的を射た意見を 1 つ選び、 その発言の ID (または先頭の番号) だけを返してください。\n返答形式 (IDのみ): <選んだID>\n例: abc-123\n返答はIDまたは番号のみ (説明不要)。",
+        "model": null,
+        "maxTokens": null
+      },
+      {
+        "system": null,
+        "prompt": "議論のテーマ: T\n\nこのラウンドの発言一覧:\n1. [ID:u3] t3\n2. [ID:u1] t1\n3. [ID:u2] t2\n\nあなたは中立な審判として、論理の一貫性・飛躍のなさを最重視して選ぶ。テーマに対して最も的を射た意見を 1 つ選び、 その発言の ID (または先頭の番号) だけを返してください。\n返答形式 (IDのみ): <選んだID>\n例: abc-123\n返答はIDまたは番号のみ (説明不要)。",
+        "model": null,
+        "maxTokens": null
+      },
+      {
+        "system": null,
+        "prompt": "議論のテーマ: T\n\nこのラウンドの発言一覧:\n1. [ID:u3] t3\n2. [ID:u2] t2\n3. [ID:u1] t1\n\nあなたは中立な審判として、根拠・具体例の裏付けを最重視して選ぶ。テーマに対して最も的を射た意見を 1 つ選び、 その発言の ID (または先頭の番号) だけを返してください。\n返答形式 (IDのみ): <選んだID>\n例: abc-123\n返答はIDまたは番号のみ (説明不要)。",
+        "model": null,
+        "maxTokens": null
+      }
+    ],
+    "warns": [
+      "投票 round=1 voter=2 (relevance) 失敗: e",
+      "投票 round=1 voter=3 (logic): 有効な ID を解析できませんでした (??)"
+    ]
+  },
+  "personaSetup": {
+    "results": [
+      [
+        {
+          "id": "p1",
+          "name": "論者A",
+          "role": "debater",
+          "stance": "pro",
+          "speechStyle": "丁寧",
+          "traits": [
+            "冷静",
+            "皮肉"
+          ],
+          "model": "m",
+          "isLocal": false,
+          "valueAxis": "後勝ち"
+        },
+        {
+          "id": "p2",
+          "name": "意見B",
+          "role": "opinion",
+          "stance": "opinion",
+          "speechStyle": "丁寧",
+          "traits": [
+            "冷静",
+            "皮肉"
+          ],
+          "model": "m",
+          "isLocal": false,
+          "valueAxis": "体験",
+          "coreClaims": [
+            "c1"
+          ]
+        },
+        {
+          "id": "p3",
+          "name": "論者A",
+          "role": "debater",
+          "stance": "con",
+          "speechStyle": "丁寧",
+          "traits": [
+            "冷静",
+            "皮肉"
+          ],
+          "model": "m",
+          "isLocal": false,
+          "valueAxis": "収益",
+          "coreClaims": [
+            "核1",
+            "核2"
+          ],
+          "possession": {
+            "label": "論者#abc",
+            "descriptor": "辛口"
+          }
+        },
+        {
+          "id": "p4",
+          "name": "論者A",
+          "role": "facilitator",
+          "stance": "neutral",
+          "speechStyle": "丁寧",
+          "traits": [
+            "冷静",
+            "皮肉"
+          ],
+          "model": "m",
+          "isLocal": true,
+          "possession": {
+            "label": "L"
+          }
+        }
+      ],
+      [
+        {
+          "id": "p1",
+          "name": "論者A",
+          "role": "debater",
+          "stance": "pro",
+          "speechStyle": "丁寧",
+          "traits": [
+            "冷静",
+            "皮肉"
+          ],
+          "model": "m",
+          "isLocal": false
+        }
+      ],
+      [
+        {
+          "id": "p1",
+          "name": "論者A",
+          "role": "debater",
+          "stance": "pro",
+          "speechStyle": "丁寧",
+          "traits": [
+            "冷静",
+            "皮肉"
+          ],
+          "model": "m",
+          "isLocal": false
+        }
+      ]
+    ],
+    "calls": [
+      [
+        {
+          "system": null,
+          "prompt": "テーマ「T」の議論に参加するペルソナ一覧です。\n各ペルソナに「重視する価値 (価値軸)」を 1 文で割り当ててください。\ndebater には加えて「核となる主張」を 1〜2 個割り当ててください\n(pro と con は対立が成立するよう主張を対にする。facilitator / opinion は coreClaims 省略可)。\n\n# ペルソナ\n- id: p1 / 名前: 論者A / ロール: debater / スタンス: pro\n- id: p2 / 名前: 意見B / ロール: opinion / スタンス: opinion\n- id: p3 / 名前: 論者A / ロール: debater / スタンス: con\n- id: p4 / 名前: 論者A / ロール: facilitator / スタンス: neutral\n\n返答は次の JSON 配列のみ (説明不要):\n[{ \"personaId\": \"<id>\", \"valueAxis\": \"<重視する価値 1 文>\", \"coreClaims\": [\"<核主張>\"] }]",
+          "model": "m",
+          "maxTokens": null
+        }
+      ],
+      [
+        {
+          "system": null,
+          "prompt": "テーマ「T」の議論に参加するペルソナ一覧です。\n各ペルソナに「重視する価値 (価値軸)」を 1 文で割り当ててください。\ndebater には加えて「核となる主張」を 1〜2 個割り当ててください\n(pro と con は対立が成立するよう主張を対にする。facilitator / opinion は coreClaims 省略可)。\n\n# ペルソナ\n- id: p1 / 名前: 論者A / ロール: debater / スタンス: pro\n\n返答は次の JSON 配列のみ (説明不要):\n[{ \"personaId\": \"<id>\", \"valueAxis\": \"<重視する価値 1 文>\", \"coreClaims\": [\"<核主張>\"] }]",
+          "model": null,
+          "maxTokens": null
+        }
+      ],
+      [
+        {
+          "system": null,
+          "prompt": "テーマ「T」の議論に参加するペルソナ一覧です。\n各ペルソナに「重視する価値 (価値軸)」を 1 文で割り当ててください。\ndebater には加えて「核となる主張」を 1〜2 個割り当ててください\n(pro と con は対立が成立するよう主張を対にする。facilitator / opinion は coreClaims 省略可)。\n\n# ペルソナ\n- id: p1 / 名前: 論者A / ロール: debater / スタンス: pro\n\n返答は次の JSON 配列のみ (説明不要):\n[{ \"personaId\": \"<id>\", \"valueAxis\": \"<重視する価値 1 文>\", \"coreClaims\": [\"<核主張>\"] }]",
+          "model": null,
+          "maxTokens": null
+        }
+      ]
+    ],
+    "warns": [
+      "ペルソナ価値軸生成 JSON パース失敗: <msg> — 価値軸なしで議論を続行 (degrade)",
+      "ペルソナ価値軸生成 失敗: down — 価値軸なしで議論を続行 (degrade)"
+    ]
+  },
+  "roundSummary": {
+    "results": [
+      {
+        "summary": "まとめ文",
+        "aufhebung": [
+          "前の止揚",
+          "止揚X"
+        ],
+        "newAufhebung": [
+          "止揚X"
+        ]
+      },
+      {
+        "summary": "ラウンド 2 完了 (2 発話)",
+        "aufhebung": [],
+        "newAufhebung": []
+      },
+      {
+        "summary": "ラウンド 3 完了 (1 発話)",
+        "aufhebung": [],
+        "newAufhebung": []
+      }
+    ],
+    "calls": [
+      [
+        {
+          "system": null,
+          "prompt": "議題: T\n\n以下はこのラウンドで出た意見です:\n- A: a\n- B: b\n\nこのラウンドの議論を 2〜3 文で要約してください。対立点と共通点を明確にする。\n返答はサマリテキストのみ (JSON 不要)。",
+          "model": null,
+          "maxTokens": null
+        },
+        {
+          "system": null,
+          "prompt": "あなたは議論の進行役です。 議論の中に『アウフヘーベン(止揚)』、 すなわち 対立する複数の意見を否定し合うのではなく、 両者を活かして一段上の新しい結論へ統合した見解が 新たに現れたかを判定します。 単なる賛成・繰り返し・部分的な指摘は止揚ではありません。 返答は JSON のみ。\n\n# 議題\nT\n\n# 既にストック済みの止揚 (これと実質同じなら found=false)\n1. 前の止揚\n\n# 直近の議論\n- A: a\n- B: b\n\n# 指示\n直近の議論に、 既出と異なる新しい止揚が現れたか判定してください。 返答は次の JSON のみ:\n{ \"found\": <true/false>, \"summary\": \"<止揚の要旨を 1〜2 文で。 found=false なら空文字>\" }",
+          "model": null,
+          "maxTokens": null
+        }
+      ],
+      [
+        {
+          "system": null,
+          "prompt": "議題: T\n\n以下はこのラウンドで出た意見です:\n- A: a\n- B: b\n\nこのラウンドの議論を 2〜3 文で要約してください。対立点と共通点を明確にする。\n返答はサマリテキストのみ (JSON 不要)。",
+          "model": null,
+          "maxTokens": null
+        },
+        {
+          "system": null,
+          "prompt": "あなたは議論の進行役です。 議論の中に『アウフヘーベン(止揚)』、 すなわち 対立する複数の意見を否定し合うのではなく、 両者を活かして一段上の新しい結論へ統合した見解が 新たに現れたかを判定します。 単なる賛成・繰り返し・部分的な指摘は止揚ではありません。 返答は JSON のみ。\n\n# 議題\nT\n\n# 既にストック済みの止揚 (これと実質同じなら found=false)\n(まだ無し)\n\n# 直近の議論\n- A: a\n- B: b\n\n# 指示\n直近の議論に、 既出と異なる新しい止揚が現れたか判定してください。 返答は次の JSON のみ:\n{ \"found\": <true/false>, \"summary\": \"<止揚の要旨を 1〜2 文で。 found=false なら空文字>\" }",
+          "model": null,
+          "maxTokens": null
+        }
+      ],
+      [
+        {
+          "system": null,
+          "prompt": "議題: T\n\n以下はこのラウンドで出た意見です:\n- A: a\n\nこのラウンドの議論を 2〜3 文で要約してください。対立点と共通点を明確にする。\n返答はサマリテキストのみ (JSON 不要)。",
+          "model": null,
+          "maxTokens": null
+        }
+      ]
+    ],
+    "warns": [
+      "サマリ生成 round=2 失敗: e1",
+      "止揚検出 round=2: JSON パース失敗 — 止揚なしとして続行 (not json)"
+    ]
+  },
+  "refine": {
+    "results": [
+      {
+        "result": "# 議題\n改訂",
+        "calls": [
+          {
+            "system": null,
+            "prompt": "あなたはゲーム議論のディスカッションペーパー編集者です。\n以下の「現在のブリーフ」を、議論の成果を踏まえて改訂してください。\n\n# 制約\n- セクション見出し (# 議題 / # 観点補足 / # ゲームのメカニクス) を維持する。\n- 議題の主旨・タイトルは変えない。議論で深まった論点・観点を反映して具体化・整理する。\n- メカニクスは議論で重要と分かった項目を加筆/整理してよい (箇条書き `- **名前**: 説明` 形式を維持)。\n- 出力は markdown 本文のみ。「# 議論の経過」「# 結論」は付けない (別で付与する)。前置き・コードフェンスも不要。\n\n# 現在のブリーフ\n# 議題\nX\n\n# 議論の成果\n## ラウンド 1\nまとめ1\n\n## ラウンド 2\n(まとめなし)\n止揚: 止揚A / 止揚B\n\n## 結論\n結論",
+            "model": "m",
+            "maxTokens": null
+          }
+        ]
+      },
+      {
+        "result": null,
+        "calls": [
+          {
+            "system": null,
+            "prompt": "あなたはゲーム議論のディスカッションペーパー編集者です。\n以下の「現在のブリーフ」を、議論の成果を踏まえて改訂してください。\n\n# 制約\n- セクション見出し (# 議題 / # 観点補足 / # ゲームのメカニクス) を維持する。\n- 議題の主旨・タイトルは変えない。議論で深まった論点・観点を反映して具体化・整理する。\n- メカニクスは議論で重要と分かった項目を加筆/整理してよい (箇条書き `- **名前**: 説明` 形式を維持)。\n- 出力は markdown 本文のみ。「# 議論の経過」「# 結論」は付けない (別で付与する)。前置き・コードフェンスも不要。\n\n# 現在のブリーフ\n(空)\n\n# 議論の成果\n## ラウンド 1\nまとめ1\n\n## ラウンド 2\n(まとめなし)\n止揚: 止揚A / 止揚B\n\n## 結論\n結論",
+            "model": "m",
+            "maxTokens": null
+          }
+        ]
+      },
+      {
+        "result": null,
+        "calls": [
+          {
+            "system": null,
+            "prompt": "あなたはゲーム議論のディスカッションペーパー編集者です。\n以下の「現在のブリーフ」を、議論の成果を踏まえて改訂してください。\n\n# 制約\n- セクション見出し (# 議題 / # 観点補足 / # ゲームのメカニクス) を維持する。\n- 議題の主旨・タイトルは変えない。議論で深まった論点・観点を反映して具体化・整理する。\n- メカニクスは議論で重要と分かった項目を加筆/整理してよい (箇条書き `- **名前**: 説明` 形式を維持)。\n- 出力は markdown 本文のみ。「# 議論の経過」「# 結論」は付けない (別で付与する)。前置き・コードフェンスも不要。\n\n# 現在のブリーフ\n(空)\n\n# 議論の成果\n## ラウンド 1\nまとめ1\n\n## ラウンド 2\n(まとめなし)\n止揚: 止揚A / 止揚B\n\n## 結論\n結論",
+            "model": "m",
+            "maxTokens": null
+          }
+        ]
+      }
+    ],
+    "warns": [
+      "ペーパーリファイン出力が不正 (# 議題 欠落)。元のブリーフを使用",
+      "ペーパーリファイン失敗 (元のブリーフを使用): e"
+    ]
+  },
+  "synthesisLoop": {
+    "results": [
+      {
+        "record": {
+          "tensionId": "T0",
+          "preserves": [
+            "pro-G1",
+            "pro-G3",
+            "con-G1"
+          ],
+          "negates": [],
+          "elevates": "新しい上位目標を導入して条件で分割する案",
+          "kind": "aufheben",
+          "text": "案2",
+          "ratification": [
+            {
+              "positionId": "PA",
+              "verdict": "accept",
+              "preservedIds": [
+                "pro-G1",
+                "pro-G3"
+              ],
+              "missing": [
+                "pro-G2"
+              ],
+              "reason": ""
+            },
+            {
+              "positionId": "PB",
+              "verdict": "accept",
+              "preservedIds": [
+                "con-G1"
+              ],
+              "missing": [],
+              "reason": ""
+            }
+          ],
+          "status": "ratified",
+          "revision": 1,
+          "id": "<id>"
+        },
+        "tensionStatus": "synthesized"
+      },
+      {
+        "record": {
+          "tensionId": "T0",
+          "preserves": [],
+          "negates": [],
+          "elevates": null,
+          "kind": "compromise",
+          "text": "必要 と 不要 の統合案は生成できませんでした",
+          "ratification": [
+            {
+              "positionId": "PA",
+              "verdict": "reject",
+              "preservedIds": [],
+              "missing": [
+                "pro-G1",
+                "pro-G2",
+                "pro-G3"
+              ],
+              "reason": "批准応答を解析できず reject (デフォルト)"
+            },
+            {
+              "positionId": "PB",
+              "verdict": "reject",
+              "preservedIds": [],
+              "missing": [
+                "con-G1"
+              ],
+              "reason": "批准応答を解析できず reject (デフォルト)"
+            }
+          ],
+          "status": "rejected",
+          "revision": 2,
+          "id": "<id>"
+        },
+        "tensionStatus": "agreed_disagree"
+      }
+    ],
+    "calls": [
+      [
+        {
+          "system": "SYS",
+          "prompt": "# 論点\nI\n\n# 対立する Position (根拠は [id] で指す)\nA (pro): 必要\n  - [pro-G1] (unchallenged) 売上\n  - [pro-G2] (conceded) 期待感\n  - [pro-G3] (defended) 継続\n  価値前提: 収益\n\nB (con): 不要\n  - [con-G1] (challenged) 射幸心\n  価値前提: (なし)\n\n# 指示\nこれは価値対立です。上位価値の発見、または適用条件の分割 (「コア層には X、ライト層には Y」のように、どちらの価値も条件付きで生かす分割) で統合してください。\n\n止揚 (aufheben) の 3 要件をデータで示してください:\n- preserves: 各陣営から何を保存したか (上の根拠 id で指す。両陣営から挙げる)\n- negates: 何を放棄させたか (根拠 id)\n- elevates: 導入した新しい枠 (上位目標 / 条件分割 / 再定義)。単なる「両方やる」は不可\n\ntext には、保存した根拠がどう両立するかを短く含める。既存案の反復や「状況に応じて両方」は不可。\n\n次の JSON 1 個だけを返してください (前後に説明やコードフェンスを付けない):\n{\"text\": \"<統合案の口語 1〜3 文>\", \"preserves\": [\"<根拠id>\"], \"negates\": [\"<根拠id>\"], \"elevates\": \"<新しい枠の説明 1 文>\"}",
+          "model": "main",
+          "maxTokens": null
+        },
+        {
+          "system": "SYS",
+          "prompt": "# 論点\nI\n\n# 対立する Position (根拠は [id] で指す)\nA (pro): 必要\n  - [pro-G1] (unchallenged) 売上\n  - [pro-G2] (conceded) 期待感\n  - [pro-G3] (defended) 継続\n  価値前提: 収益\n\nB (con): 不要\n  - [con-G1] (challenged) 射幸心\n  価値前提: (なし)\n\n# 指示\nこれは価値対立です。上位価値の発見、または適用条件の分割 (「コア層には X、ライト層には Y」のように、どちらの価値も条件付きで生かす分割) で統合してください。\n\n# 前回候補への批准フィードバック (これらの根拠が保存されておらず reject された)\n- pro-G2\n前回候補の言い換えは禁止です。欠けていた根拠を、どの条件・対象・検証方法で保存したかが分かる形に修正してください。\n\n止揚 (aufheben) の 3 要件をデータで示してください:\n- preserves: 各陣営から何を保存したか (上の根拠 id で指す。両陣営から挙げる)\n- negates: 何を放棄させたか (根拠 id)\n- elevates: 導入した新しい枠 (上位目標 / 条件分割 / 再定義)。単なる「両方やる」は不可\n\ntext には、保存した根拠がどう両立するかを短く含める。既存案の反復や「状況に応じて両方」は不可。\n\n次の JSON 1 個だけを返してください (前後に説明やコードフェンスを付けない):\n{\"text\": \"<統合案の口語 1〜3 文>\", \"preserves\": [\"<根拠id>\"], \"negates\": [\"<根拠id>\"], \"elevates\": \"<新しい枠の説明 1 文>\"}",
+          "model": "main",
+          "maxTokens": null
+        }
+      ],
+      [
+        {
+          "system": null,
+          "prompt": "統合案の「新しい枠」の記述です:\n\"新しい上位目標を導入して条件で分割する案\"\n\nこれは (a) 上位目標の発見・適用条件の分割・問題の再定義など**新しい枠の導入**か、(b) 実質「両方やる」「折半する」でしかない**折衷**か。\naufheben (新しい枠) / compromise (折衷) のどちらか 1 語のみで答えてください。迷ったら compromise。",
+          "model": "judge",
+          "maxTokens": 50
+        }
+      ],
+      [
+        {
+          "system": null,
+          "prompt": "あなたは議論ペルソナ「論者A」。この議論でのあなたの立場は pro、主張は「必要」です。\n\n# あなたの主張の根拠\n- [pro-G1] 売上\n- [pro-G2] 期待感\n- [pro-G3] 継続\n\n# 提示された統合案\n案1\n新しい枠: 両方\n(統合案が保存を主張する根拠: [pro-G1])\n\n# チェックリスト (敵対的批准 — 甘い受諾をしない)\nあなたの主張の根拠は [pro-G1, pro-G2, pro-G3] だった。この統合案で**実際に保存されているもの**を ID で挙げよ。保存が確認できた根拠が過半数に満たなければ reject し、欠けているものを指摘せよ。**デフォルトは reject** — 保存を自分で確認できたときだけ accept せよ。\n\n次の JSON 1 個だけを返してください:\n{\"verdict\": \"accept\" | \"reject\", \"preservedIds\": [\"<確認できた根拠id>\"], \"missing\": [\"<欠けている根拠id>\"], \"reason\": \"<一言>\"}",
+          "model": "judge",
+          "maxTokens": null
+        },
+        {
+          "system": null,
+          "prompt": "あなたは議論ペルソナ「論者C」。この議論でのあなたの立場は con、主張は「不要」です。\n\n# あなたの主張の根拠\n- [con-G1] 射幸心\n\n# 提示された統合案\n案1\n新しい枠: 両方\n(統合案が保存を主張する根拠: [pro-G1])\n\n# チェックリスト (敵対的批准 — 甘い受諾をしない)\nあなたの主張の根拠は [con-G1] だった。この統合案で**実際に保存されているもの**を ID で挙げよ。保存が確認できた根拠が過半数に満たなければ reject し、欠けているものを指摘せよ。**デフォルトは reject** — 保存を自分で確認できたときだけ accept せよ。\n\n次の JSON 1 個だけを返してください:\n{\"verdict\": \"accept\" | \"reject\", \"preservedIds\": [\"<確認できた根拠id>\"], \"missing\": [\"<欠けている根拠id>\"], \"reason\": \"<一言>\"}",
+          "model": "judge",
+          "maxTokens": null
+        },
+        {
+          "system": null,
+          "prompt": "あなたは議論ペルソナ「論者A」。この議論でのあなたの立場は pro、主張は「必要」です。\n\n# あなたの主張の根拠\n- [pro-G1] 売上\n- [pro-G2] 期待感\n- [pro-G3] 継続\n\n# 提示された統合案\n案2\n新しい枠: 新しい上位目標を導入して条件で分割する案\n(統合案が保存を主張する根拠: [pro-G1, pro-G3, con-G1])\n\n# チェックリスト (敵対的批准 — 甘い受諾をしない)\nあなたの主張の根拠は [pro-G1, pro-G2, pro-G3] だった。この統合案で**実際に保存されているもの**を ID で挙げよ。保存が確認できた根拠が過半数に満たなければ reject し、欠けているものを指摘せよ。**デフォルトは reject** — 保存を自分で確認できたときだけ accept せよ。\n\n次の JSON 1 個だけを返してください:\n{\"verdict\": \"accept\" | \"reject\", \"preservedIds\": [\"<確認できた根拠id>\"], \"missing\": [\"<欠けている根拠id>\"], \"reason\": \"<一言>\"}",
+          "model": "judge",
+          "maxTokens": null
+        },
+        {
+          "system": null,
+          "prompt": "あなたは議論ペルソナ「論者C」。この議論でのあなたの立場は con、主張は「不要」です。\n\n# あなたの主張の根拠\n- [con-G1] 射幸心\n\n# 提示された統合案\n案2\n新しい枠: 新しい上位目標を導入して条件で分割する案\n(統合案が保存を主張する根拠: [pro-G1, pro-G3, con-G1])\n\n# チェックリスト (敵対的批准 — 甘い受諾をしない)\nあなたの主張の根拠は [con-G1] だった。この統合案で**実際に保存されているもの**を ID で挙げよ。保存が確認できた根拠が過半数に満たなければ reject し、欠けているものを指摘せよ。**デフォルトは reject** — 保存を自分で確認できたときだけ accept せよ。\n\n次の JSON 1 個だけを返してください:\n{\"verdict\": \"accept\" | \"reject\", \"preservedIds\": [\"<確認できた根拠id>\"], \"missing\": [\"<欠けている根拠id>\"], \"reason\": \"<一言>\"}",
+          "model": "judge",
+          "maxTokens": null
+        }
+      ],
+      [
+        {
+          "system": "SYS",
+          "prompt": "# 論点\nI\n\n# 対立する Position (根拠は [id] で指す)\nA (pro): 必要\n  - [pro-G1] (unchallenged) 売上\n  - [pro-G2] (conceded) 期待感\n  - [pro-G3] (defended) 継続\n  価値前提: 収益\n\nB (con): 不要\n  - [con-G1] (challenged) 射幸心\n  価値前提: (なし)\n\n# 指示\nこれは価値対立です。上位価値の発見、または適用条件の分割 (「コア層には X、ライト層には Y」のように、どちらの価値も条件付きで生かす分割) で統合してください。\n\n止揚 (aufheben) の 3 要件をデータで示してください:\n- preserves: 各陣営から何を保存したか (上の根拠 id で指す。両陣営から挙げる)\n- negates: 何を放棄させたか (根拠 id)\n- elevates: 導入した新しい枠 (上位目標 / 条件分割 / 再定義)。単なる「両方やる」は不可\n\ntext には、保存した根拠がどう両立するかを短く含める。既存案の反復や「状況に応じて両方」は不可。\n\n次の JSON 1 個だけを返してください (前後に説明やコードフェンスを付けない):\n{\"text\": \"<統合案の口語 1〜3 文>\", \"preserves\": [\"<根拠id>\"], \"negates\": [\"<根拠id>\"], \"elevates\": \"<新しい枠の説明 1 文>\"}",
+          "model": null,
+          "maxTokens": null
+        },
+        {
+          "system": "SYS",
+          "prompt": "# 論点\nI\n\n# 対立する Position (根拠は [id] で指す)\nA (pro): 必要\n  - [pro-G1] (unchallenged) 売上\n  - [pro-G2] (conceded) 期待感\n  - [pro-G3] (defended) 継続\n  価値前提: 収益\n\nB (con): 不要\n  - [con-G1] (challenged) 射幸心\n  価値前提: (なし)\n\n# 指示\nこれは価値対立です。上位価値の発見、または適用条件の分割 (「コア層には X、ライト層には Y」のように、どちらの価値も条件付きで生かす分割) で統合してください。\n\n# 前回候補への批准フィードバック (これらの根拠が保存されておらず reject された)\n- pro-G1\n- pro-G2\n- pro-G3\n- con-G1\n前回候補の言い換えは禁止です。欠けていた根拠を、どの条件・対象・検証方法で保存したかが分かる形に修正してください。\n\n止揚 (aufheben) の 3 要件をデータで示してください:\n- preserves: 各陣営から何を保存したか (上の根拠 id で指す。両陣営から挙げる)\n- negates: 何を放棄させたか (根拠 id)\n- elevates: 導入した新しい枠 (上位目標 / 条件分割 / 再定義)。単なる「両方やる」は不可\n\ntext には、保存した根拠がどう両立するかを短く含める。既存案の反復や「状況に応じて両方」は不可。\n\n次の JSON 1 個だけを返してください (前後に説明やコードフェンスを付けない):\n{\"text\": \"<統合案の口語 1〜3 文>\", \"preserves\": [\"<根拠id>\"], \"negates\": [\"<根拠id>\"], \"elevates\": \"<新しい枠の説明 1 文>\"}",
+          "model": null,
+          "maxTokens": null
+        },
+        {
+          "system": "SYS",
+          "prompt": "# 論点\nI\n\n# 対立する Position (根拠は [id] で指す)\nA (pro): 必要\n  - [pro-G1] (unchallenged) 売上\n  - [pro-G2] (conceded) 期待感\n  - [pro-G3] (defended) 継続\n  価値前提: 収益\n\nB (con): 不要\n  - [con-G1] (challenged) 射幸心\n  価値前提: (なし)\n\n# 指示\nこれは価値対立です。上位価値の発見、または適用条件の分割 (「コア層には X、ライト層には Y」のように、どちらの価値も条件付きで生かす分割) で統合してください。\n\n# 前回候補への批准フィードバック (これらの根拠が保存されておらず reject された)\n- pro-G1\n- pro-G2\n- pro-G3\n- con-G1\n前回候補の言い換えは禁止です。欠けていた根拠を、どの条件・対象・検証方法で保存したかが分かる形に修正してください。\n\n止揚 (aufheben) の 3 要件をデータで示してください:\n- preserves: 各陣営から何を保存したか (上の根拠 id で指す。両陣営から挙げる)\n- negates: 何を放棄させたか (根拠 id)\n- elevates: 導入した新しい枠 (上位目標 / 条件分割 / 再定義)。単なる「両方やる」は不可\n\ntext には、保存した根拠がどう両立するかを短く含める。既存案の反復や「状況に応じて両方」は不可。\n\n次の JSON 1 個だけを返してください (前後に説明やコードフェンスを付けない):\n{\"text\": \"<統合案の口語 1〜3 文>\", \"preserves\": [\"<根拠id>\"], \"negates\": [\"<根拠id>\"], \"elevates\": \"<新しい枠の説明 1 文>\"}",
+          "model": null,
+          "maxTokens": null
+        }
+      ],
+      [],
+      [
+        {
+          "system": null,
+          "prompt": "あなたは議論ペルソナ「p1」。この議論でのあなたの立場は pro、主張は「必要」です。\n\n# あなたの主張の根拠\n- [pro-G1] 売上\n- [pro-G2] 期待感\n- [pro-G3] 継続\n\n# 提示された統合案\n必要 と 不要 の統合案は生成できませんでした\n(統合案が保存を主張する根拠: [なし])\n\n# チェックリスト (敵対的批准 — 甘い受諾をしない)\nあなたの主張の根拠は [pro-G1, pro-G2, pro-G3] だった。この統合案で**実際に保存されているもの**を ID で挙げよ。保存が確認できた根拠が過半数に満たなければ reject し、欠けているものを指摘せよ。**デフォルトは reject** — 保存を自分で確認できたときだけ accept せよ。\n\n次の JSON 1 個だけを返してください:\n{\"verdict\": \"accept\" | \"reject\", \"preservedIds\": [\"<確認できた根拠id>\"], \"missing\": [\"<欠けている根拠id>\"], \"reason\": \"<一言>\"}",
+          "model": null,
+          "maxTokens": null
+        },
+        {
+          "system": null,
+          "prompt": "あなたは議論ペルソナ「p3」。この議論でのあなたの立場は con、主張は「不要」です。\n\n# あなたの主張の根拠\n- [con-G1] 射幸心\n\n# 提示された統合案\n必要 と 不要 の統合案は生成できませんでした\n(統合案が保存を主張する根拠: [なし])\n\n# チェックリスト (敵対的批准 — 甘い受諾をしない)\nあなたの主張の根拠は [con-G1] だった。この統合案で**実際に保存されているもの**を ID で挙げよ。保存が確認できた根拠が過半数に満たなければ reject し、欠けているものを指摘せよ。**デフォルトは reject** — 保存を自分で確認できたときだけ accept せよ。\n\n次の JSON 1 個だけを返してください:\n{\"verdict\": \"accept\" | \"reject\", \"preservedIds\": [\"<確認できた根拠id>\"], \"missing\": [\"<欠けている根拠id>\"], \"reason\": \"<一言>\"}",
+          "model": null,
+          "maxTokens": null
+        },
+        {
+          "system": null,
+          "prompt": "あなたは議論ペルソナ「p1」。この議論でのあなたの立場は pro、主張は「必要」です。\n\n# あなたの主張の根拠\n- [pro-G1] 売上\n- [pro-G2] 期待感\n- [pro-G3] 継続\n\n# 提示された統合案\n必要 と 不要 の統合案は生成できませんでした\n(統合案が保存を主張する根拠: [なし])\n\n# チェックリスト (敵対的批准 — 甘い受諾をしない)\nあなたの主張の根拠は [pro-G1, pro-G2, pro-G3] だった。この統合案で**実際に保存されているもの**を ID で挙げよ。保存が確認できた根拠が過半数に満たなければ reject し、欠けているものを指摘せよ。**デフォルトは reject** — 保存を自分で確認できたときだけ accept せよ。\n\n次の JSON 1 個だけを返してください:\n{\"verdict\": \"accept\" | \"reject\", \"preservedIds\": [\"<確認できた根拠id>\"], \"missing\": [\"<欠けている根拠id>\"], \"reason\": \"<一言>\"}",
+          "model": null,
+          "maxTokens": null
+        },
+        {
+          "system": null,
+          "prompt": "あなたは議論ペルソナ「p3」。この議論でのあなたの立場は con、主張は「不要」です。\n\n# あなたの主張の根拠\n- [con-G1] 射幸心\n\n# 提示された統合案\n必要 と 不要 の統合案は生成できませんでした\n(統合案が保存を主張する根拠: [なし])\n\n# チェックリスト (敵対的批准 — 甘い受諾をしない)\nあなたの主張の根拠は [con-G1] だった。この統合案で**実際に保存されているもの**を ID で挙げよ。保存が確認できた根拠が過半数に満たなければ reject し、欠けているものを指摘せよ。**デフォルトは reject** — 保存を自分で確認できたときだけ accept せよ。\n\n次の JSON 1 個だけを返してください:\n{\"verdict\": \"accept\" | \"reject\", \"preservedIds\": [\"<確認できた根拠id>\"], \"missing\": [\"<欠けている根拠id>\"], \"reason\": \"<一言>\"}",
+          "model": null,
+          "maxTokens": null
+        },
+        {
+          "system": null,
+          "prompt": "あなたは議論ペルソナ「p1」。この議論でのあなたの立場は pro、主張は「必要」です。\n\n# あなたの主張の根拠\n- [pro-G1] 売上\n- [pro-G2] 期待感\n- [pro-G3] 継続\n\n# 提示された統合案\n必要 と 不要 の統合案は生成できませんでした\n(統合案が保存を主張する根拠: [なし])\n\n# チェックリスト (敵対的批准 — 甘い受諾をしない)\nあなたの主張の根拠は [pro-G1, pro-G2, pro-G3] だった。この統合案で**実際に保存されているもの**を ID で挙げよ。保存が確認できた根拠が過半数に満たなければ reject し、欠けているものを指摘せよ。**デフォルトは reject** — 保存を自分で確認できたときだけ accept せよ。\n\n次の JSON 1 個だけを返してください:\n{\"verdict\": \"accept\" | \"reject\", \"preservedIds\": [\"<確認できた根拠id>\"], \"missing\": [\"<欠けている根拠id>\"], \"reason\": \"<一言>\"}",
+          "model": null,
+          "maxTokens": null
+        },
+        {
+          "system": null,
+          "prompt": "あなたは議論ペルソナ「p3」。この議論でのあなたの立場は con、主張は「不要」です。\n\n# あなたの主張の根拠\n- [con-G1] 射幸心\n\n# 提示された統合案\n必要 と 不要 の統合案は生成できませんでした\n(統合案が保存を主張する根拠: [なし])\n\n# チェックリスト (敵対的批准 — 甘い受諾をしない)\nあなたの主張の根拠は [con-G1] だった。この統合案で**実際に保存されているもの**を ID で挙げよ。保存が確認できた根拠が過半数に満たなければ reject し、欠けているものを指摘せよ。**デフォルトは reject** — 保存を自分で確認できたときだけ accept せよ。\n\n次の JSON 1 個だけを返してください:\n{\"verdict\": \"accept\" | \"reject\", \"preservedIds\": [\"<確認できた根拠id>\"], \"missing\": [\"<欠けている根拠id>\"], \"reason\": \"<一言>\"}",
+          "model": null,
+          "maxTokens": null
+        }
+      ]
+    ],
+    "warns": [
+      "Synthesis 批准 reject (revision 0/2): 欠落根拠 [pro-G2] — 修正ループへ",
+      "Synthesis 生成 LLM エラー: e — 空候補で degrade (折衷扱い)",
+      "批准 JSON パース失敗 (pro) — reject デフォルト",
+      "批准 JSON パース失敗 (con) — reject デフォルト",
+      "Synthesis 批准 reject (revision 0/2): 欠落根拠 [pro-G1, pro-G2, pro-G3, con-G1] — 修正ループへ",
+      "Synthesis 生成 LLM エラー: e — 空候補で degrade (折衷扱い)",
+      "批准 JSON パース失敗 (pro) — reject デフォルト",
+      "批准 JSON パース失敗 (con) — reject デフォルト",
+      "Synthesis 批准 reject (revision 1/2): 欠落根拠 [pro-G1, pro-G2, pro-G3, con-G1] — 修正ループへ",
+      "Synthesis 生成 LLM エラー: e — 空候補で degrade (折衷扱い)",
+      "批准 JSON パース失敗 (pro) — reject デフォルト",
+      "批准 JSON パース失敗 (con) — reject デフォルト",
+      "Synthesis 批准 reject (revision 2/2): 欠落根拠 [pro-G1, pro-G2, pro-G3, con-G1] — 打ち切り (agreed_disagree)"
+    ]
+  }
+}
