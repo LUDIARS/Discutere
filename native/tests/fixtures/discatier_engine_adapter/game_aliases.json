@@ -1,0 +1,1526 @@
+{
+  "staticGroups": [
+    [
+      "モンスターストライク",
+      "モンスト"
+    ],
+    [
+      "death stranding",
+      "デス・ストランディング",
+      "デスストランディング",
+      "デススト"
+    ],
+    [
+      "vampire survivors",
+      "ヴァンパイアサバイバーズ",
+      "ヴァンサバ"
+    ],
+    [
+      "hollow knight",
+      "ホロウナイト",
+      "ホロナイ"
+    ],
+    [
+      "genshin impact",
+      "原神",
+      "genshin"
+    ],
+    [
+      "shadow of the colossus",
+      "ワンダと巨像",
+      "ワンダ"
+    ]
+  ],
+  "ludusGroups": [
+    [
+      "ヒットボックス",
+      "Hitbox",
+      "当たり判定 (攻撃)",
+      "アタックボックス"
+    ],
+    [
+      "ハートボックス",
+      "Hurtbox",
+      "被弾判定",
+      "やられ判定"
+    ],
+    [
+      "無敵時間",
+      "Invincibility Frames",
+      "i-frame",
+      "iフレ"
+    ],
+    [
+      "ヒットストップ",
+      "Hitstop",
+      "打撃停止",
+      "フリーズ演出"
+    ],
+    [
+      "フレームデータ",
+      "Frame Data",
+      "フレ表"
+    ],
+    [
+      "発生フレーム",
+      "Startup",
+      "発生"
+    ],
+    [
+      "持続フレーム",
+      "Active Frames",
+      "持続"
+    ],
+    [
+      "硬直 (技後)",
+      "Recovery",
+      "後隙"
+    ],
+    [
+      "画面振動",
+      "Screen Shake",
+      "カメラシェイク"
+    ],
+    [
+      "経験値",
+      "XP",
+      "EXP",
+      "経験"
+    ],
+    [
+      "レベル",
+      "Level",
+      "LV",
+      "Lv"
+    ],
+    [
+      "スキルツリー",
+      "Skill Tree",
+      "タレントツリー"
+    ],
+    [
+      "テックツリー",
+      "Tech Tree",
+      "研究ツリー"
+    ],
+    [
+      "ドロップテーブル",
+      "Loot Table",
+      "ドロップ表"
+    ],
+    [
+      "ティックレート",
+      "Tick Rate"
+    ],
+    [
+      "ロールバック",
+      "Rollback",
+      "巻き戻し"
+    ],
+    [
+      "入力遅延",
+      "Input Delay"
+    ],
+    [
+      "ストリーミングロード",
+      "Streaming",
+      "動的ロード"
+    ],
+    [
+      "確定的",
+      "Deterministic",
+      "決定的"
+    ],
+    [
+      "アクション",
+      "Action"
+    ],
+    [
+      "格闘ゲーム",
+      "Fighting"
+    ],
+    [
+      "オープンワールド",
+      "Open World"
+    ],
+    [
+      "音ゲー (リズムゲーム)",
+      "Rhythm"
+    ],
+    [
+      "ランゲーム",
+      "Endless Runner"
+    ],
+    [
+      "シューティング",
+      "Shooter"
+    ],
+    [
+      "シミュレーション/ストラテジー",
+      "Strategy/Simulation"
+    ],
+    [
+      "ストーリー型JRPG",
+      "Story-driven JRPG"
+    ],
+    [
+      "追従カメラ",
+      "Camera Follow"
+    ],
+    [
+      "コンボシステム",
+      "Combo System"
+    ],
+    [
+      "回避 (ローリング)",
+      "Dodge Roll"
+    ],
+    [
+      "ヒットストップ",
+      "Hitstop"
+    ],
+    [
+      "体力システム",
+      "Health System"
+    ],
+    [
+      "ヒットボックスシステム",
+      "Hitbox System"
+    ],
+    [
+      "入力バッファ",
+      "Input Buffer"
+    ],
+    [
+      "インベントリ",
+      "Inventory"
+    ],
+    [
+      "セーブ/ロード",
+      "Save/Load"
+    ],
+    [
+      "スコアシステム",
+      "Score System"
+    ],
+    [
+      "コマンド入力",
+      "Command Input"
+    ],
+    [
+      "フレームデータ",
+      "Frame Data"
+    ],
+    [
+      "ガード / 投げ",
+      "Guard / Throw"
+    ],
+    [
+      "ラウンド制",
+      "Round System"
+    ],
+    [
+      "ヒーロースキル",
+      "Hero Skill"
+    ],
+    [
+      "ミニオンウェーブ",
+      "Minion Wave"
+    ],
+    [
+      "ロールバックネットコード",
+      "Rollback Netcode"
+    ],
+    [
+      "タワー / オブジェクト",
+      "Tower / Objective"
+    ],
+    [
+      "昼夜サイクル",
+      "Day/Night Cycle"
+    ],
+    [
+      "ファストトラベル",
+      "Fast Travel"
+    ],
+    [
+      "騎乗 / 乗り物",
+      "Mount / Vehicle"
+    ],
+    [
+      "ワールドストリーミング",
+      "World Streaming"
+    ],
+    [
+      "音声同期",
+      "Audio Sync"
+    ],
+    [
+      "コンボカウンタ",
+      "Combo Counter"
+    ],
+    [
+      "ノート譜面",
+      "Note Chart"
+    ],
+    [
+      "タイミング判定",
+      "Timing Judge"
+    ],
+    [
+      "自動前進",
+      "Auto Run"
+    ],
+    [
+      "レーン制",
+      "Lane System"
+    ],
+    [
+      "収集アイテム",
+      "Pickup System"
+    ],
+    [
+      "プロシージャル生成ステージ",
+      "Procedural Track"
+    ],
+    [
+      "弾幕パターン",
+      "Bullet Pattern"
+    ],
+    [
+      "発射体システム",
+      "Projectile System"
+    ],
+    [
+      "リコイル (反動)",
+      "Recoil"
+    ],
+    [
+      "武器システム",
+      "Weapon System"
+    ],
+    [
+      "ヘックス / グリッドマップ",
+      "Hex/Grid Map"
+    ],
+    [
+      "資源 / 経済",
+      "Resource Economy"
+    ],
+    [
+      "テック / 研究ツリー",
+      "Tech Tree"
+    ],
+    [
+      "ユニット行動",
+      "Unit Action"
+    ],
+    [
+      "コマンドバトル",
+      "Command Battle"
+    ],
+    [
+      "会話/ダイアログ",
+      "Dialogue System"
+    ],
+    [
+      "レベル / 経験値",
+      "Leveling / XP"
+    ],
+    [
+      "クエストシステム",
+      "Quest System"
+    ],
+    [
+      "ステータス管理",
+      "Stat System"
+    ]
+  ],
+  "parse": [
+    {
+      "title": "Genshin Impact (原神)",
+      "out": [
+        "Genshin Impact",
+        "原神"
+      ]
+    },
+    {
+      "title": "Shadow of the Colossus (ワンダと巨像)",
+      "out": [
+        "Shadow of the Colossus",
+        "ワンダと巨像"
+      ]
+    },
+    {
+      "title": "モンスターストライク",
+      "out": [
+        "モンスターストライク"
+      ]
+    },
+    {
+      "title": "Hollow Knight",
+      "out": [
+        "Hollow Knight"
+      ]
+    },
+    {
+      "title": "Elden Ring（エルデンリング）",
+      "out": [
+        "Elden Ring",
+        "エルデンリング"
+      ]
+    },
+    {
+      "title": "A (B) (C)",
+      "out": []
+    },
+    {
+      "title": "x()",
+      "out": []
+    },
+    {
+      "title": "(only inner)",
+      "out": [
+        "only inner"
+      ]
+    },
+    {
+      "title": "ab（",
+      "out": [
+        "ab"
+      ]
+    },
+    {
+      "title": "Title (",
+      "out": [
+        "Title"
+      ]
+    },
+    {
+      "title": "（全角）タイトル",
+      "out": [
+        "全角"
+      ]
+    },
+    {
+      "title": "Q ()(inner) z",
+      "out": [
+        "inner"
+      ]
+    }
+  ],
+  "titles": [
+    "Genshin Impact (原神)",
+    "Shadow of the Colossus (ワンダと巨像)",
+    "モンスターストライク",
+    "Hollow Knight",
+    "Elden Ring（エルデンリング）",
+    "A (B) (C)",
+    "x()",
+    "(only inner)",
+    "ab（",
+    "Title (",
+    "（全角）タイトル",
+    "Q ()(inner) z"
+  ],
+  "groups": [
+    [
+      "Genshin Impact",
+      "原神",
+      "genshin"
+    ],
+    [
+      "Shadow of the Colossus",
+      "ワンダと巨像",
+      "ワンダ"
+    ],
+    [
+      "モンスターストライク",
+      "モンスト"
+    ],
+    [
+      "Hollow Knight",
+      "ホロウナイト",
+      "ホロナイ"
+    ],
+    [
+      "Elden Ring",
+      "エルデンリング"
+    ],
+    [
+      "death stranding",
+      "デス・ストランディング",
+      "デスストランディング",
+      "デススト"
+    ],
+    [
+      "vampire survivors",
+      "ヴァンパイアサバイバーズ",
+      "ヴァンサバ"
+    ]
+  ],
+  "groupsExtra": [
+    [
+      "Genshin Impact",
+      "原神",
+      "genshin"
+    ],
+    [
+      "Shadow of the Colossus",
+      "ワンダと巨像",
+      "ワンダ"
+    ],
+    [
+      "モンスターストライク",
+      "モンスト"
+    ],
+    [
+      "Hollow Knight",
+      "ホロウナイト",
+      "ホロナイ"
+    ],
+    [
+      "Elden Ring",
+      "エルデンリング"
+    ],
+    [
+      "death stranding",
+      "デス・ストランディング",
+      "デスストランディング",
+      "デススト"
+    ],
+    [
+      "vampire survivors",
+      "ヴァンパイアサバイバーズ",
+      "ヴァンサバ"
+    ],
+    [
+      "ヒットボックス",
+      "Hitbox",
+      "当たり判定 (攻撃)",
+      "アタックボックス"
+    ],
+    [
+      "ハートボックス",
+      "Hurtbox",
+      "被弾判定",
+      "やられ判定"
+    ],
+    [
+      "無敵時間",
+      "Invincibility Frames",
+      "i-frame",
+      "iフレ"
+    ],
+    [
+      "ヒットストップ",
+      "Hitstop",
+      "打撃停止",
+      "フリーズ演出"
+    ],
+    [
+      "フレームデータ",
+      "Frame Data",
+      "フレ表"
+    ],
+    [
+      "発生フレーム",
+      "Startup",
+      "発生"
+    ],
+    [
+      "持続フレーム",
+      "Active Frames",
+      "持続"
+    ],
+    [
+      "硬直 (技後)",
+      "Recovery",
+      "後隙"
+    ],
+    [
+      "画面振動",
+      "Screen Shake",
+      "カメラシェイク"
+    ],
+    [
+      "経験値",
+      "XP",
+      "EXP",
+      "経験"
+    ],
+    [
+      "レベル",
+      "Level",
+      "LV",
+      "Lv"
+    ],
+    [
+      "スキルツリー",
+      "Skill Tree",
+      "タレントツリー"
+    ],
+    [
+      "テックツリー",
+      "Tech Tree",
+      "研究ツリー",
+      "テック / 研究ツリー"
+    ],
+    [
+      "ドロップテーブル",
+      "Loot Table",
+      "ドロップ表"
+    ],
+    [
+      "ティックレート",
+      "Tick Rate"
+    ],
+    [
+      "ロールバック",
+      "Rollback",
+      "巻き戻し"
+    ],
+    [
+      "入力遅延",
+      "Input Delay"
+    ],
+    [
+      "ストリーミングロード",
+      "Streaming",
+      "動的ロード"
+    ],
+    [
+      "確定的",
+      "Deterministic",
+      "決定的"
+    ],
+    [
+      "アクション",
+      "Action"
+    ],
+    [
+      "格闘ゲーム",
+      "Fighting"
+    ],
+    [
+      "オープンワールド",
+      "Open World"
+    ],
+    [
+      "音ゲー (リズムゲーム)",
+      "Rhythm"
+    ],
+    [
+      "ランゲーム",
+      "Endless Runner"
+    ],
+    [
+      "シューティング",
+      "Shooter"
+    ],
+    [
+      "シミュレーション/ストラテジー",
+      "Strategy/Simulation"
+    ],
+    [
+      "ストーリー型JRPG",
+      "Story-driven JRPG"
+    ],
+    [
+      "追従カメラ",
+      "Camera Follow"
+    ],
+    [
+      "コンボシステム",
+      "Combo System"
+    ],
+    [
+      "回避 (ローリング)",
+      "Dodge Roll"
+    ],
+    [
+      "体力システム",
+      "Health System"
+    ],
+    [
+      "ヒットボックスシステム",
+      "Hitbox System"
+    ],
+    [
+      "入力バッファ",
+      "Input Buffer"
+    ],
+    [
+      "インベントリ",
+      "Inventory"
+    ],
+    [
+      "セーブ/ロード",
+      "Save/Load"
+    ],
+    [
+      "スコアシステム",
+      "Score System"
+    ],
+    [
+      "コマンド入力",
+      "Command Input"
+    ],
+    [
+      "ガード / 投げ",
+      "Guard / Throw"
+    ],
+    [
+      "ラウンド制",
+      "Round System"
+    ],
+    [
+      "ヒーロースキル",
+      "Hero Skill"
+    ],
+    [
+      "ミニオンウェーブ",
+      "Minion Wave"
+    ],
+    [
+      "ロールバックネットコード",
+      "Rollback Netcode"
+    ],
+    [
+      "タワー / オブジェクト",
+      "Tower / Objective"
+    ],
+    [
+      "昼夜サイクル",
+      "Day/Night Cycle"
+    ],
+    [
+      "ファストトラベル",
+      "Fast Travel"
+    ],
+    [
+      "騎乗 / 乗り物",
+      "Mount / Vehicle"
+    ],
+    [
+      "ワールドストリーミング",
+      "World Streaming"
+    ],
+    [
+      "音声同期",
+      "Audio Sync"
+    ],
+    [
+      "コンボカウンタ",
+      "Combo Counter"
+    ],
+    [
+      "ノート譜面",
+      "Note Chart"
+    ],
+    [
+      "タイミング判定",
+      "Timing Judge"
+    ],
+    [
+      "自動前進",
+      "Auto Run"
+    ],
+    [
+      "レーン制",
+      "Lane System"
+    ],
+    [
+      "収集アイテム",
+      "Pickup System"
+    ],
+    [
+      "プロシージャル生成ステージ",
+      "Procedural Track"
+    ],
+    [
+      "弾幕パターン",
+      "Bullet Pattern"
+    ],
+    [
+      "発射体システム",
+      "Projectile System"
+    ],
+    [
+      "リコイル (反動)",
+      "Recoil"
+    ],
+    [
+      "武器システム",
+      "Weapon System"
+    ],
+    [
+      "ヘックス / グリッドマップ",
+      "Hex/Grid Map"
+    ],
+    [
+      "資源 / 経済",
+      "Resource Economy"
+    ],
+    [
+      "ユニット行動",
+      "Unit Action"
+    ],
+    [
+      "コマンドバトル",
+      "Command Battle"
+    ],
+    [
+      "会話/ダイアログ",
+      "Dialogue System"
+    ],
+    [
+      "レベル / 経験値",
+      "Leveling / XP"
+    ],
+    [
+      "クエストシステム",
+      "Quest System"
+    ],
+    [
+      "ステータス管理",
+      "Stat System"
+    ]
+  ],
+  "extraOnly": [
+    [
+      "モンスターストライク",
+      "モンスト"
+    ],
+    [
+      "death stranding",
+      "デス・ストランディング",
+      "デスストランディング",
+      "デススト"
+    ],
+    [
+      "vampire survivors",
+      "ヴァンパイアサバイバーズ",
+      "ヴァンサバ"
+    ],
+    [
+      "hollow knight",
+      "ホロウナイト",
+      "ホロナイ"
+    ],
+    [
+      "genshin impact",
+      "原神",
+      "genshin"
+    ],
+    [
+      "shadow of the colossus",
+      "ワンダと巨像",
+      "ワンダ"
+    ],
+    [
+      "経験値",
+      "XP",
+      "EXP"
+    ],
+    [
+      "bb",
+      "BB",
+      "cc"
+    ]
+  ],
+  "expand": [
+    {
+      "terms": [
+        "モンスターストライク"
+      ],
+      "which": "groups",
+      "max": 12,
+      "out": [
+        "モンスターストライク",
+        "モンスト"
+      ]
+    },
+    {
+      "terms": [
+        "モンスターストライク"
+      ],
+      "which": "groupsExtra",
+      "max": 12,
+      "out": [
+        "モンスターストライク",
+        "モンスト"
+      ]
+    },
+    {
+      "terms": [
+        "モンスターストライク"
+      ],
+      "which": "groupsExtra",
+      "max": 3,
+      "out": [
+        "モンスターストライク",
+        "モンスト"
+      ]
+    },
+    {
+      "terms": [
+        "モンスターストライク"
+      ],
+      "which": "extraOnly",
+      "max": 12,
+      "out": [
+        "モンスターストライク",
+        "モンスト"
+      ]
+    },
+    {
+      "terms": [
+        "モンスト"
+      ],
+      "which": "groups",
+      "max": 12,
+      "out": [
+        "モンスト",
+        "モンスターストライク"
+      ]
+    },
+    {
+      "terms": [
+        "モンスト"
+      ],
+      "which": "groupsExtra",
+      "max": 12,
+      "out": [
+        "モンスト",
+        "モンスターストライク"
+      ]
+    },
+    {
+      "terms": [
+        "モンスト"
+      ],
+      "which": "groupsExtra",
+      "max": 3,
+      "out": [
+        "モンスト",
+        "モンスターストライク"
+      ]
+    },
+    {
+      "terms": [
+        "モンスト"
+      ],
+      "which": "extraOnly",
+      "max": 12,
+      "out": [
+        "モンスト",
+        "モンスターストライク"
+      ]
+    },
+    {
+      "terms": [
+        "原神"
+      ],
+      "which": "groups",
+      "max": 12,
+      "out": [
+        "原神",
+        "genshin impact",
+        "genshin"
+      ]
+    },
+    {
+      "terms": [
+        "原神"
+      ],
+      "which": "groupsExtra",
+      "max": 12,
+      "out": [
+        "原神",
+        "genshin impact",
+        "genshin"
+      ]
+    },
+    {
+      "terms": [
+        "原神"
+      ],
+      "which": "groupsExtra",
+      "max": 3,
+      "out": [
+        "原神",
+        "genshin impact",
+        "genshin"
+      ]
+    },
+    {
+      "terms": [
+        "原神"
+      ],
+      "which": "extraOnly",
+      "max": 12,
+      "out": [
+        "原神",
+        "genshin impact",
+        "genshin"
+      ]
+    },
+    {
+      "terms": [
+        "無関係なテーマ"
+      ],
+      "which": "groups",
+      "max": 12,
+      "out": [
+        "無関係なテーマ"
+      ]
+    },
+    {
+      "terms": [
+        "無関係なテーマ"
+      ],
+      "which": "groupsExtra",
+      "max": 12,
+      "out": [
+        "無関係なテーマ"
+      ]
+    },
+    {
+      "terms": [
+        "無関係なテーマ"
+      ],
+      "which": "groupsExtra",
+      "max": 3,
+      "out": [
+        "無関係なテーマ"
+      ]
+    },
+    {
+      "terms": [
+        "無関係なテーマ"
+      ],
+      "which": "extraOnly",
+      "max": 12,
+      "out": [
+        "無関係なテーマ"
+      ]
+    },
+    {
+      "terms": [
+        "モンスト",
+        "周回"
+      ],
+      "which": "groups",
+      "max": 12,
+      "out": [
+        "モンスト",
+        "モンスターストライク",
+        "周回"
+      ]
+    },
+    {
+      "terms": [
+        "モンスト",
+        "周回"
+      ],
+      "which": "groupsExtra",
+      "max": 12,
+      "out": [
+        "モンスト",
+        "モンスターストライク",
+        "周回"
+      ]
+    },
+    {
+      "terms": [
+        "モンスト",
+        "周回"
+      ],
+      "which": "groupsExtra",
+      "max": 3,
+      "out": [
+        "モンスト",
+        "モンスターストライク",
+        "周回"
+      ]
+    },
+    {
+      "terms": [
+        "モンスト",
+        "周回"
+      ],
+      "which": "extraOnly",
+      "max": 12,
+      "out": [
+        "モンスト",
+        "モンスターストライク",
+        "周回"
+      ]
+    },
+    {
+      "terms": [
+        "Genshin"
+      ],
+      "which": "groups",
+      "max": 12,
+      "out": [
+        "genshin",
+        "genshin impact",
+        "原神"
+      ]
+    },
+    {
+      "terms": [
+        "Genshin"
+      ],
+      "which": "groupsExtra",
+      "max": 12,
+      "out": [
+        "genshin",
+        "genshin impact",
+        "原神"
+      ]
+    },
+    {
+      "terms": [
+        "Genshin"
+      ],
+      "which": "groupsExtra",
+      "max": 3,
+      "out": [
+        "genshin",
+        "genshin impact",
+        "原神"
+      ]
+    },
+    {
+      "terms": [
+        "Genshin"
+      ],
+      "which": "extraOnly",
+      "max": 12,
+      "out": [
+        "genshin",
+        "genshin impact",
+        "原神"
+      ]
+    },
+    {
+      "terms": [
+        "  ELDEN ring "
+      ],
+      "which": "groups",
+      "max": 12,
+      "out": [
+        "elden ring",
+        "エルデンリング"
+      ]
+    },
+    {
+      "terms": [
+        "  ELDEN ring "
+      ],
+      "which": "groupsExtra",
+      "max": 12,
+      "out": [
+        "elden ring",
+        "エルデンリング"
+      ]
+    },
+    {
+      "terms": [
+        "  ELDEN ring "
+      ],
+      "which": "groupsExtra",
+      "max": 3,
+      "out": [
+        "elden ring",
+        "エルデンリング"
+      ]
+    },
+    {
+      "terms": [
+        "  ELDEN ring "
+      ],
+      "which": "extraOnly",
+      "max": 12,
+      "out": [
+        "elden ring"
+      ]
+    },
+    {
+      "terms": [
+        "経験値"
+      ],
+      "which": "groups",
+      "max": 12,
+      "out": [
+        "経験値"
+      ]
+    },
+    {
+      "terms": [
+        "経験値"
+      ],
+      "which": "groupsExtra",
+      "max": 12,
+      "out": [
+        "経験値",
+        "xp",
+        "exp",
+        "経験"
+      ]
+    },
+    {
+      "terms": [
+        "経験値"
+      ],
+      "which": "groupsExtra",
+      "max": 3,
+      "out": [
+        "経験値",
+        "xp",
+        "exp"
+      ]
+    },
+    {
+      "terms": [
+        "経験値"
+      ],
+      "which": "extraOnly",
+      "max": 12,
+      "out": [
+        "経験値",
+        "xp",
+        "exp"
+      ]
+    },
+    {
+      "terms": [
+        "xp"
+      ],
+      "which": "groups",
+      "max": 12,
+      "out": [
+        "xp"
+      ]
+    },
+    {
+      "terms": [
+        "xp"
+      ],
+      "which": "groupsExtra",
+      "max": 12,
+      "out": [
+        "xp",
+        "経験値",
+        "exp",
+        "経験"
+      ]
+    },
+    {
+      "terms": [
+        "xp"
+      ],
+      "which": "groupsExtra",
+      "max": 3,
+      "out": [
+        "xp",
+        "経験値",
+        "exp"
+      ]
+    },
+    {
+      "terms": [
+        "xp"
+      ],
+      "which": "extraOnly",
+      "max": 12,
+      "out": [
+        "xp",
+        "経験値",
+        "exp"
+      ]
+    },
+    {
+      "terms": [
+        "ヒット"
+      ],
+      "which": "groups",
+      "max": 12,
+      "out": [
+        "ヒット"
+      ]
+    },
+    {
+      "terms": [
+        "ヒット"
+      ],
+      "which": "groupsExtra",
+      "max": 12,
+      "out": [
+        "ヒット"
+      ]
+    },
+    {
+      "terms": [
+        "ヒット"
+      ],
+      "which": "groupsExtra",
+      "max": 3,
+      "out": [
+        "ヒット"
+      ]
+    },
+    {
+      "terms": [
+        "ヒット"
+      ],
+      "which": "extraOnly",
+      "max": 12,
+      "out": [
+        "ヒット"
+      ]
+    },
+    {
+      "terms": [
+        "ヒットボックス判定"
+      ],
+      "which": "groups",
+      "max": 12,
+      "out": [
+        "ヒットボックス判定"
+      ]
+    },
+    {
+      "terms": [
+        "ヒットボックス判定"
+      ],
+      "which": "groupsExtra",
+      "max": 12,
+      "out": [
+        "ヒットボックス判定",
+        "ヒットボックス",
+        "hitbox",
+        "当たり判定 (攻撃)",
+        "アタックボックス"
+      ]
+    },
+    {
+      "terms": [
+        "ヒットボックス判定"
+      ],
+      "which": "groupsExtra",
+      "max": 3,
+      "out": [
+        "ヒットボックス判定",
+        "ヒットボックス",
+        "hitbox"
+      ]
+    },
+    {
+      "terms": [
+        "ヒットボックス判定"
+      ],
+      "which": "extraOnly",
+      "max": 12,
+      "out": [
+        "ヒットボックス判定"
+      ]
+    },
+    {
+      "terms": [
+        "ab",
+        "abc",
+        "abcd"
+      ],
+      "which": "groups",
+      "max": 12,
+      "out": [
+        "ab",
+        "abc",
+        "abcd"
+      ]
+    },
+    {
+      "terms": [
+        "ab",
+        "abc",
+        "abcd"
+      ],
+      "which": "groupsExtra",
+      "max": 12,
+      "out": [
+        "ab",
+        "abc",
+        "abcd"
+      ]
+    },
+    {
+      "terms": [
+        "ab",
+        "abc",
+        "abcd"
+      ],
+      "which": "groupsExtra",
+      "max": 3,
+      "out": [
+        "ab",
+        "abc",
+        "abcd"
+      ]
+    },
+    {
+      "terms": [
+        "ab",
+        "abc",
+        "abcd"
+      ],
+      "which": "extraOnly",
+      "max": 12,
+      "out": [
+        "ab",
+        "abc",
+        "abcd"
+      ]
+    },
+    {
+      "terms": [
+        ""
+      ],
+      "which": "groups",
+      "max": 12,
+      "out": []
+    },
+    {
+      "terms": [
+        ""
+      ],
+      "which": "groupsExtra",
+      "max": 12,
+      "out": []
+    },
+    {
+      "terms": [
+        ""
+      ],
+      "which": "groupsExtra",
+      "max": 3,
+      "out": []
+    },
+    {
+      "terms": [
+        ""
+      ],
+      "which": "extraOnly",
+      "max": 12,
+      "out": []
+    },
+    {
+      "terms": [
+        "death"
+      ],
+      "which": "groups",
+      "max": 12,
+      "out": [
+        "death",
+        "death stranding",
+        "デス・ストランディング",
+        "デスストランディング",
+        "デススト"
+      ]
+    },
+    {
+      "terms": [
+        "death"
+      ],
+      "which": "groupsExtra",
+      "max": 12,
+      "out": [
+        "death",
+        "death stranding",
+        "デス・ストランディング",
+        "デスストランディング",
+        "デススト"
+      ]
+    },
+    {
+      "terms": [
+        "death"
+      ],
+      "which": "groupsExtra",
+      "max": 3,
+      "out": [
+        "death",
+        "death stranding",
+        "デス・ストランディング"
+      ]
+    },
+    {
+      "terms": [
+        "death"
+      ],
+      "which": "extraOnly",
+      "max": 12,
+      "out": [
+        "death",
+        "death stranding",
+        "デス・ストランディング",
+        "デスストランディング",
+        "デススト"
+      ]
+    },
+    {
+      "terms": [
+        "デススト"
+      ],
+      "which": "groups",
+      "max": 12,
+      "out": [
+        "デススト",
+        "death stranding",
+        "デス・ストランディング",
+        "デスストランディング"
+      ]
+    },
+    {
+      "terms": [
+        "デススト"
+      ],
+      "which": "groupsExtra",
+      "max": 12,
+      "out": [
+        "デススト",
+        "death stranding",
+        "デス・ストランディング",
+        "デスストランディング"
+      ]
+    },
+    {
+      "terms": [
+        "デススト"
+      ],
+      "which": "groupsExtra",
+      "max": 3,
+      "out": [
+        "デススト",
+        "death stranding",
+        "デス・ストランディング"
+      ]
+    },
+    {
+      "terms": [
+        "デススト"
+      ],
+      "which": "extraOnly",
+      "max": 12,
+      "out": [
+        "デススト",
+        "death stranding",
+        "デス・ストランディング",
+        "デスストランディング"
+      ]
+    }
+  ]
+}

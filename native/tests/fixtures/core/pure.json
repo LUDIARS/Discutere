@@ -1,0 +1,552 @@
+{
+  "commands": [
+    {
+      "in": "hello",
+      "out": null
+    },
+    {
+      "in": "/define Jump Arc",
+      "out": {
+        "command": "define",
+        "args": [
+          "Jump",
+          "Arc"
+        ]
+      }
+    },
+    {
+      "in": " /SUBMIT   ",
+      "out": {
+        "command": "submit",
+        "args": []
+      }
+    },
+    {
+      "in": "/",
+      "out": null
+    },
+    {
+      "in": "/   ",
+      "out": null
+    },
+    {
+      "in": "/a\tb\nc",
+      "out": {
+        "command": "a",
+        "args": [
+          "b",
+          "c"
+        ]
+      }
+    },
+    {
+      "in": "//x",
+      "out": {
+        "command": "/x",
+        "args": []
+      }
+    },
+    {
+      "in": "/ÀB c",
+      "out": {
+        "command": "àb",
+        "args": [
+          "c"
+        ]
+      }
+    },
+    {
+      "in": "  /x  y  ",
+      "out": {
+        "command": "x",
+        "args": [
+          "y"
+        ]
+      }
+    }
+  ],
+  "responds": [
+    {
+      "in": "> @uid:abc.def-1 hi",
+      "out": "abc.def-1"
+    },
+    {
+      "in": ">@uid:X",
+      "out": "X"
+    },
+    {
+      "in": "  > @uid:a:b_c\nnext",
+      "out": "a:b_c"
+    },
+    {
+      "in": "text\n> @uid:x",
+      "out": null
+    },
+    {
+      "in": "> @uid:",
+      "out": null
+    },
+    {
+      "in": "> @uid:日本",
+      "out": null
+    },
+    {
+      "in": "\r\n> @uid:x",
+      "out": null
+    },
+    {
+      "in": "> @uid:ok!rest",
+      "out": "ok"
+    }
+  ],
+  "transitions": [
+    {
+      "from": "draft",
+      "action": "submit",
+      "out": {
+        "ok": true,
+        "to": "proposed"
+      }
+    },
+    {
+      "from": "draft",
+      "action": "validate_theory",
+      "out": {
+        "ok": false,
+        "error": "validate theory requires proposed"
+      }
+    },
+    {
+      "from": "draft",
+      "action": "validate_emotion",
+      "out": {
+        "ok": false,
+        "error": "validate emotion requires proposed or validated_by_theory"
+      }
+    },
+    {
+      "from": "draft",
+      "action": "session_end",
+      "out": {
+        "ok": false,
+        "error": "session end transition is invalid for current state"
+      }
+    },
+    {
+      "from": "draft",
+      "action": "integrate",
+      "out": {
+        "ok": false,
+        "error": "integrate requires validated_by_emotion"
+      }
+    },
+    {
+      "from": "draft",
+      "action": "reject",
+      "out": {
+        "ok": true,
+        "to": "rejected"
+      }
+    },
+    {
+      "from": "draft",
+      "action": "bogus",
+      "out": {
+        "ok": false,
+        "error": "unknown transition"
+      }
+    },
+    {
+      "from": "proposed",
+      "action": "submit",
+      "out": {
+        "ok": false,
+        "error": "submit requires draft"
+      }
+    },
+    {
+      "from": "proposed",
+      "action": "validate_theory",
+      "out": {
+        "ok": true,
+        "to": "under_theory_validation"
+      }
+    },
+    {
+      "from": "proposed",
+      "action": "validate_emotion",
+      "out": {
+        "ok": true,
+        "to": "under_emotion_validation"
+      }
+    },
+    {
+      "from": "proposed",
+      "action": "session_end",
+      "out": {
+        "ok": false,
+        "error": "session end transition is invalid for current state"
+      }
+    },
+    {
+      "from": "proposed",
+      "action": "integrate",
+      "out": {
+        "ok": false,
+        "error": "integrate requires validated_by_emotion"
+      }
+    },
+    {
+      "from": "proposed",
+      "action": "reject",
+      "out": {
+        "ok": true,
+        "to": "rejected"
+      }
+    },
+    {
+      "from": "proposed",
+      "action": "bogus",
+      "out": {
+        "ok": false,
+        "error": "unknown transition"
+      }
+    },
+    {
+      "from": "under_theory_validation",
+      "action": "submit",
+      "out": {
+        "ok": false,
+        "error": "submit requires draft"
+      }
+    },
+    {
+      "from": "under_theory_validation",
+      "action": "validate_theory",
+      "out": {
+        "ok": false,
+        "error": "validate theory requires proposed"
+      }
+    },
+    {
+      "from": "under_theory_validation",
+      "action": "validate_emotion",
+      "out": {
+        "ok": false,
+        "error": "validate emotion requires proposed or validated_by_theory"
+      }
+    },
+    {
+      "from": "under_theory_validation",
+      "action": "session_end",
+      "out": {
+        "ok": true,
+        "to": "validated_by_theory"
+      }
+    },
+    {
+      "from": "under_theory_validation",
+      "action": "integrate",
+      "out": {
+        "ok": false,
+        "error": "integrate requires validated_by_emotion"
+      }
+    },
+    {
+      "from": "under_theory_validation",
+      "action": "reject",
+      "out": {
+        "ok": true,
+        "to": "rejected"
+      }
+    },
+    {
+      "from": "under_theory_validation",
+      "action": "bogus",
+      "out": {
+        "ok": false,
+        "error": "unknown transition"
+      }
+    },
+    {
+      "from": "validated_by_theory",
+      "action": "submit",
+      "out": {
+        "ok": false,
+        "error": "submit requires draft"
+      }
+    },
+    {
+      "from": "validated_by_theory",
+      "action": "validate_theory",
+      "out": {
+        "ok": false,
+        "error": "validate theory requires proposed"
+      }
+    },
+    {
+      "from": "validated_by_theory",
+      "action": "validate_emotion",
+      "out": {
+        "ok": true,
+        "to": "under_emotion_validation"
+      }
+    },
+    {
+      "from": "validated_by_theory",
+      "action": "session_end",
+      "out": {
+        "ok": false,
+        "error": "session end transition is invalid for current state"
+      }
+    },
+    {
+      "from": "validated_by_theory",
+      "action": "integrate",
+      "out": {
+        "ok": false,
+        "error": "integrate requires validated_by_emotion"
+      }
+    },
+    {
+      "from": "validated_by_theory",
+      "action": "reject",
+      "out": {
+        "ok": true,
+        "to": "rejected"
+      }
+    },
+    {
+      "from": "validated_by_theory",
+      "action": "bogus",
+      "out": {
+        "ok": false,
+        "error": "unknown transition"
+      }
+    },
+    {
+      "from": "under_emotion_validation",
+      "action": "submit",
+      "out": {
+        "ok": false,
+        "error": "submit requires draft"
+      }
+    },
+    {
+      "from": "under_emotion_validation",
+      "action": "validate_theory",
+      "out": {
+        "ok": false,
+        "error": "validate theory requires proposed"
+      }
+    },
+    {
+      "from": "under_emotion_validation",
+      "action": "validate_emotion",
+      "out": {
+        "ok": false,
+        "error": "validate emotion requires proposed or validated_by_theory"
+      }
+    },
+    {
+      "from": "under_emotion_validation",
+      "action": "session_end",
+      "out": {
+        "ok": true,
+        "to": "validated_by_emotion"
+      }
+    },
+    {
+      "from": "under_emotion_validation",
+      "action": "integrate",
+      "out": {
+        "ok": false,
+        "error": "integrate requires validated_by_emotion"
+      }
+    },
+    {
+      "from": "under_emotion_validation",
+      "action": "reject",
+      "out": {
+        "ok": true,
+        "to": "rejected"
+      }
+    },
+    {
+      "from": "under_emotion_validation",
+      "action": "bogus",
+      "out": {
+        "ok": false,
+        "error": "unknown transition"
+      }
+    },
+    {
+      "from": "validated_by_emotion",
+      "action": "submit",
+      "out": {
+        "ok": false,
+        "error": "submit requires draft"
+      }
+    },
+    {
+      "from": "validated_by_emotion",
+      "action": "validate_theory",
+      "out": {
+        "ok": false,
+        "error": "validate theory requires proposed"
+      }
+    },
+    {
+      "from": "validated_by_emotion",
+      "action": "validate_emotion",
+      "out": {
+        "ok": false,
+        "error": "validate emotion requires proposed or validated_by_theory"
+      }
+    },
+    {
+      "from": "validated_by_emotion",
+      "action": "session_end",
+      "out": {
+        "ok": false,
+        "error": "session end transition is invalid for current state"
+      }
+    },
+    {
+      "from": "validated_by_emotion",
+      "action": "integrate",
+      "out": {
+        "ok": true,
+        "to": "integrated"
+      }
+    },
+    {
+      "from": "validated_by_emotion",
+      "action": "reject",
+      "out": {
+        "ok": true,
+        "to": "rejected"
+      }
+    },
+    {
+      "from": "validated_by_emotion",
+      "action": "bogus",
+      "out": {
+        "ok": false,
+        "error": "unknown transition"
+      }
+    },
+    {
+      "from": "integrated",
+      "action": "submit",
+      "out": {
+        "ok": false,
+        "error": "cannot transition from terminal state: integrated"
+      }
+    },
+    {
+      "from": "integrated",
+      "action": "validate_theory",
+      "out": {
+        "ok": false,
+        "error": "cannot transition from terminal state: integrated"
+      }
+    },
+    {
+      "from": "integrated",
+      "action": "validate_emotion",
+      "out": {
+        "ok": false,
+        "error": "cannot transition from terminal state: integrated"
+      }
+    },
+    {
+      "from": "integrated",
+      "action": "session_end",
+      "out": {
+        "ok": false,
+        "error": "cannot transition from terminal state: integrated"
+      }
+    },
+    {
+      "from": "integrated",
+      "action": "integrate",
+      "out": {
+        "ok": false,
+        "error": "cannot transition from terminal state: integrated"
+      }
+    },
+    {
+      "from": "integrated",
+      "action": "reject",
+      "out": {
+        "ok": true,
+        "to": "rejected"
+      }
+    },
+    {
+      "from": "integrated",
+      "action": "bogus",
+      "out": {
+        "ok": false,
+        "error": "cannot transition from terminal state: integrated"
+      }
+    },
+    {
+      "from": "rejected",
+      "action": "submit",
+      "out": {
+        "ok": false,
+        "error": "cannot transition from terminal state: rejected"
+      }
+    },
+    {
+      "from": "rejected",
+      "action": "validate_theory",
+      "out": {
+        "ok": false,
+        "error": "cannot transition from terminal state: rejected"
+      }
+    },
+    {
+      "from": "rejected",
+      "action": "validate_emotion",
+      "out": {
+        "ok": false,
+        "error": "cannot transition from terminal state: rejected"
+      }
+    },
+    {
+      "from": "rejected",
+      "action": "session_end",
+      "out": {
+        "ok": false,
+        "error": "cannot transition from terminal state: rejected"
+      }
+    },
+    {
+      "from": "rejected",
+      "action": "integrate",
+      "out": {
+        "ok": false,
+        "error": "cannot transition from terminal state: rejected"
+      }
+    },
+    {
+      "from": "rejected",
+      "action": "reject",
+      "out": {
+        "ok": true,
+        "to": "rejected"
+      }
+    },
+    {
+      "from": "rejected",
+      "action": "bogus",
+      "out": {
+        "ok": false,
+        "error": "cannot transition from terminal state: rejected"
+      }
+    }
+  ]
+}
