@@ -1,0 +1,3114 @@
+{
+  "descriptors": [
+    {
+      "persona": {
+        "id": "p",
+        "name": "n",
+        "role": "opinion",
+        "speechStyle": "",
+        "traits": [],
+        "affectVector": [
+          0.2,
+          0.2,
+          0.2,
+          0.2,
+          0.2,
+          0.2,
+          0.2,
+          0.2,
+          0.2,
+          0.2,
+          0.2,
+          0.2,
+          0.2,
+          0.2,
+          0.2,
+          0.2,
+          0.2,
+          0.2,
+          0.2,
+          0.2
+        ],
+        "origin": "imported",
+        "parentIds": [],
+        "preferenceAxes": {
+          "style.explorer": 0.9,
+          "style.narrative": 0.8,
+          "style.routine_tolerance": 0.1
+        },
+        "attributes": {
+          "ageBand": "20s",
+          "spending": "light"
+        },
+        "aversions": [
+          {
+            "target": "mechanic:core/gacha",
+            "strength": 0.8
+          }
+        ],
+        "mechanicReactions": [
+          {
+            "mechanicId": "action/dodge-roll",
+            "sentiment": 1.5
+          }
+        ]
+      },
+      "text": "この人物像は実データ由来。探索と物語を強く好む、反復は好まない、core/gachaを嫌う、20s / light、action/dodge-rollに強く反応。この感性になりきって発言する。"
+    },
+    {
+      "persona": {
+        "id": "p",
+        "name": "n",
+        "role": "opinion",
+        "speechStyle": "",
+        "traits": [],
+        "affectVector": [
+          0.2,
+          0.2,
+          0.2,
+          0.2,
+          0.2,
+          0.2,
+          0.2,
+          0.2,
+          0.2,
+          0.2,
+          0.2,
+          0.2,
+          0.2,
+          0.2,
+          0.2,
+          0.2,
+          0.2,
+          0.2,
+          0.2,
+          0.2
+        ],
+        "origin": "imported",
+        "parentIds": [],
+        "preferenceAxes": {
+          "style.b_x": 0.5,
+          "style.bx": 0.5,
+          "mtg.Z": 0.5,
+          "unknown.axis": 0.7
+        }
+      },
+      "text": "この人物像は実データ由来。unknown.axisとmtg.Zを強く好む、style.bxは好まない。この感性になりきって発言する。"
+    },
+    {
+      "persona": {
+        "id": "p",
+        "name": "n",
+        "role": "opinion",
+        "speechStyle": "",
+        "traits": [],
+        "affectVector": [
+          0.2,
+          0.2,
+          0.2,
+          0.2,
+          0.2,
+          0.2,
+          0.2,
+          0.2,
+          0.2,
+          0.2,
+          0.2,
+          0.2,
+          0.2,
+          0.2,
+          0.2,
+          0.2,
+          0.2,
+          0.2,
+          0.2,
+          0.2
+        ],
+        "origin": "imported",
+        "parentIds": [],
+        "preferenceAxes": {
+          "style.explorer": 0.4
+        },
+        "aversions": [
+          {
+            "target": "b",
+            "strength": 0.5
+          },
+          {
+            "target": "a",
+            "strength": 0.5
+          },
+          {
+            "target": "mechanic:c",
+            "strength": 0.9
+          }
+        ],
+        "mechanicReactions": [
+          {
+            "mechanicId": "x",
+            "sentiment": -1.8
+          },
+          {
+            "mechanicId": "y",
+            "sentiment": 1.8
+          },
+          {
+            "mechanicId": "z",
+            "sentiment": 0
+          }
+        ]
+      },
+      "text": "この人物像は実データ由来。探索を強く好む、c・aを嫌う、xが苦手、yに強く反応。この感性になりきって発言する。"
+    },
+    {
+      "persona": {
+        "id": "p",
+        "name": "n",
+        "role": "opinion",
+        "speechStyle": "",
+        "traits": [],
+        "affectVector": [
+          0.2,
+          0.2,
+          0.2,
+          0.2,
+          0.2,
+          0.2,
+          0.2,
+          0.2,
+          0.2,
+          0.2,
+          0.2,
+          0.2,
+          0.2,
+          0.2,
+          0.2,
+          0.2,
+          0.2,
+          0.2,
+          0.2,
+          0.2
+        ],
+        "origin": "imported",
+        "parentIds": [],
+        "attributes": {
+          "spending": "heavy"
+        }
+      },
+      "text": "この人物像は実データ由来。heavy。この感性になりきって発言する。"
+    },
+    {
+      "persona": {
+        "id": "p",
+        "name": "n",
+        "role": "opinion",
+        "speechStyle": "ストイック",
+        "traits": [
+          "高難度志向",
+          "上達快感"
+        ],
+        "affectVector": [
+          0.2,
+          0.2,
+          0.2,
+          0.2,
+          0.2,
+          0.2,
+          0.2,
+          0.2,
+          0.2,
+          0.2,
+          0.2,
+          0.2,
+          0.2,
+          0.2,
+          0.2,
+          0.2,
+          0.2,
+          0.2,
+          0.2,
+          0.2
+        ],
+        "origin": "imported",
+        "parentIds": [],
+        "learningSource": "steam",
+        "typicality": 0.95,
+        "polarityBias": 0.6,
+        "affectDispersion": 0.2
+      },
+      "text": "この人物像は実データ由来。特徴: 高難度志向 / 上達快感、話し方: ストイック、出所: steam、多数派寄りの感性、好き嫌いがはっきりしている、ゲームによって評価が大きく変わる。この感性になりきって発言する。"
+    },
+    {
+      "persona": {
+        "id": "p",
+        "name": "n",
+        "role": "opinion",
+        "speechStyle": "",
+        "traits": [],
+        "affectVector": [
+          0.2,
+          0.2,
+          0.2,
+          0.2,
+          0.2,
+          0.2,
+          0.2,
+          0.2,
+          0.2,
+          0.2,
+          0.2,
+          0.2,
+          0.2,
+          0.2,
+          0.2,
+          0.2,
+          0.2,
+          0.2,
+          0.2,
+          0.2
+        ],
+        "origin": "imported",
+        "parentIds": [],
+        "typicality": 0.5,
+        "polarityBias": 0.2,
+        "affectDispersion": 0.05
+      },
+      "text": "この人物像は実データ由来。やや独自の感性、是々非々で評価する。この感性になりきって発言する。"
+    },
+    {
+      "persona": {
+        "id": "p",
+        "name": "n",
+        "role": "opinion",
+        "speechStyle": "",
+        "traits": [],
+        "affectVector": [
+          0.2,
+          0.2,
+          0.2,
+          0.2,
+          0.2,
+          0.2,
+          0.2,
+          0.2,
+          0.2,
+          0.2,
+          0.2,
+          0.2,
+          0.2,
+          0.2,
+          0.2,
+          0.2,
+          0.2,
+          0.2,
+          0.2,
+          0.2
+        ],
+        "origin": "imported",
+        "parentIds": []
+      },
+      "text": "この人物像は実データ由来の感性を持つ。その立場になりきって発言する。"
+    }
+  ],
+  "evaluateSpeakers": {
+    "speakers": [
+      {
+        "speakerId": "ext:steam:good",
+        "source": "steam",
+        "opinions": [
+          {
+            "text": "great fun awesome",
+            "gameSlug": "game-a"
+          },
+          {
+            "text": "great fun awesome",
+            "gameSlug": "game-a"
+          },
+          {
+            "text": "great fun awesome",
+            "gameSlug": "game-a"
+          },
+          {
+            "text": "great fun awesome",
+            "gameSlug": "game-a"
+          },
+          {
+            "text": "great fun awesome",
+            "gameSlug": "game-a"
+          },
+          {
+            "text": "great fun awesome",
+            "gameSlug": "game-a"
+          },
+          {
+            "text": "boring bad terrible",
+            "gameSlug": "game-b"
+          },
+          {
+            "text": "boring bad terrible",
+            "gameSlug": "game-b"
+          },
+          {
+            "text": "boring bad terrible",
+            "gameSlug": "game-b"
+          },
+          {
+            "text": "boring bad terrible",
+            "gameSlug": "game-b"
+          },
+          {
+            "text": "boring bad terrible",
+            "gameSlug": "game-b"
+          },
+          {
+            "text": "boring bad terrible",
+            "gameSlug": "game-b"
+          }
+        ]
+      },
+      {
+        "speakerId": "ext:steam:allpos",
+        "source": "steam",
+        "opinions": [
+          {
+            "text": "great awesome best",
+            "gameSlug": "game-a"
+          },
+          {
+            "text": "great awesome best",
+            "gameSlug": "game-a"
+          },
+          {
+            "text": "great awesome best",
+            "gameSlug": "game-a"
+          },
+          {
+            "text": "great awesome best",
+            "gameSlug": "game-a"
+          },
+          {
+            "text": "great awesome best",
+            "gameSlug": "game-a"
+          },
+          {
+            "text": "fun amazing love",
+            "gameSlug": "game-b"
+          },
+          {
+            "text": "fun amazing love",
+            "gameSlug": "game-b"
+          },
+          {
+            "text": "fun amazing love",
+            "gameSlug": "game-b"
+          },
+          {
+            "text": "fun amazing love",
+            "gameSlug": "game-b"
+          },
+          {
+            "text": "fun amazing love",
+            "gameSlug": "game-b"
+          }
+        ]
+      },
+      {
+        "speakerId": "ext:steam:allneg",
+        "opinions": [
+          {
+            "text": "boring bad terrible",
+            "gameSlug": "game-a"
+          },
+          {
+            "text": "boring bad terrible",
+            "gameSlug": "game-a"
+          },
+          {
+            "text": "boring bad terrible",
+            "gameSlug": "game-a"
+          },
+          {
+            "text": "boring bad terrible",
+            "gameSlug": "game-a"
+          },
+          {
+            "text": "boring bad terrible",
+            "gameSlug": "game-a"
+          },
+          {
+            "text": "awful worst hate",
+            "gameSlug": "game-b"
+          },
+          {
+            "text": "awful worst hate",
+            "gameSlug": "game-b"
+          },
+          {
+            "text": "awful worst hate",
+            "gameSlug": "game-b"
+          },
+          {
+            "text": "awful worst hate",
+            "gameSlug": "game-b"
+          },
+          {
+            "text": "awful worst hate",
+            "gameSlug": "game-b"
+          }
+        ]
+      },
+      {
+        "speakerId": "ext:steam:few",
+        "source": "steam",
+        "opinions": [
+          {
+            "text": "good",
+            "gameSlug": "game-a"
+          },
+          {
+            "text": "good",
+            "gameSlug": "game-a"
+          },
+          {
+            "text": "good",
+            "gameSlug": "game-a"
+          },
+          {
+            "text": "good",
+            "gameSlug": "game-a"
+          },
+          {
+            "text": "good",
+            "gameSlug": "game-a"
+          }
+        ]
+      },
+      {
+        "speakerId": "ext:steam:onegame",
+        "source": "steam",
+        "opinions": [
+          {
+            "text": "great fun",
+            "gameSlug": "game-a"
+          },
+          {
+            "text": "great fun",
+            "gameSlug": "game-a"
+          },
+          {
+            "text": "great fun",
+            "gameSlug": "game-a"
+          },
+          {
+            "text": "great fun",
+            "gameSlug": "game-a"
+          },
+          {
+            "text": "great fun",
+            "gameSlug": "game-a"
+          },
+          {
+            "text": "bad boring",
+            "gameSlug": "game-a"
+          },
+          {
+            "text": "bad boring",
+            "gameSlug": "game-a"
+          },
+          {
+            "text": "bad boring",
+            "gameSlug": "game-a"
+          },
+          {
+            "text": "bad boring",
+            "gameSlug": "game-a"
+          },
+          {
+            "text": "bad boring",
+            "gameSlug": "game-a"
+          }
+        ]
+      },
+      {
+        "speakerId": "ext:yt:weighted",
+        "source": "youtube",
+        "opinions": [
+          {
+            "text": "楽しい 最高 面白い",
+            "gameSlug": "g1",
+            "weight": 5
+          },
+          {
+            "text": "楽しい 最高 面白い",
+            "gameSlug": "g1",
+            "weight": 5
+          },
+          {
+            "text": "楽しい 最高 面白い",
+            "gameSlug": "g1",
+            "weight": 5
+          },
+          {
+            "text": "楽しい 最高 面白い",
+            "gameSlug": "g1",
+            "weight": 5
+          },
+          {
+            "text": "つまらない 最悪 退屈",
+            "gameSlug": "g2",
+            "weight": 1
+          },
+          {
+            "text": "つまらない 最悪 退屈",
+            "gameSlug": "g2",
+            "weight": 1
+          },
+          {
+            "text": "つまらない 最悪 退屈",
+            "gameSlug": "g2",
+            "weight": 1
+          },
+          {
+            "text": "つまらない 最悪 退屈",
+            "gameSlug": "g2",
+            "weight": 1
+          },
+          {
+            "text": "普通",
+            "gameSlug": null
+          },
+          {
+            "text": "普通",
+            "gameSlug": null
+          },
+          {
+            "text": "普通",
+            "gameSlug": null
+          },
+          {
+            "text": "普通",
+            "gameSlug": null
+          }
+        ]
+      },
+      {
+        "speakerId": "ext:yt:nogap",
+        "opinions": [
+          {
+            "text": "x",
+            "gameSlug": "g1"
+          },
+          {
+            "text": "x",
+            "gameSlug": "g1"
+          },
+          {
+            "text": "x",
+            "gameSlug": "g1"
+          },
+          {
+            "text": "x",
+            "gameSlug": "g1"
+          },
+          {
+            "text": "x",
+            "gameSlug": "g1"
+          },
+          {
+            "text": "x",
+            "gameSlug": "g1"
+          },
+          {
+            "text": "x",
+            "gameSlug": "g2"
+          },
+          {
+            "text": "x",
+            "gameSlug": "g2"
+          },
+          {
+            "text": "x",
+            "gameSlug": "g2"
+          },
+          {
+            "text": "x",
+            "gameSlug": "g2"
+          },
+          {
+            "text": "x",
+            "gameSlug": "g2"
+          },
+          {
+            "text": "x",
+            "gameSlug": "g2"
+          }
+        ]
+      }
+    ],
+    "default": {
+      "candidates": [
+        {
+          "speakerId": "ext:steam:good",
+          "source": "steam",
+          "affect": [
+            0.5167,
+            0,
+            0.5,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0.75,
+            0.5,
+            0.5,
+            0.5,
+            0.5,
+            0.5,
+            0.5,
+            0.5,
+            0.5,
+            0.0753
+          ],
+          "count": 12,
+          "polarityBias": 0,
+          "affectDispersion": 1.7159
+        },
+        {
+          "speakerId": "ext:yt:weighted",
+          "source": "youtube",
+          "affect": [
+            0.7286,
+            0.1786,
+            0.7143,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0.8571,
+            0.5,
+            0.5,
+            0.5,
+            0.5,
+            0.5,
+            0.5,
+            0.5,
+            0.7143,
+            0.0753
+          ],
+          "count": 12,
+          "polarityBias": 0,
+          "affectDispersion": 1.2302
+        }
+      ],
+      "rejected": [
+        {
+          "speakerId": "ext:steam:allpos",
+          "reason": "all-positive",
+          "count": 10
+        },
+        {
+          "speakerId": "ext:steam:allneg",
+          "reason": "all-negative",
+          "count": 10
+        },
+        {
+          "speakerId": "ext:steam:few",
+          "reason": "too-few",
+          "count": 5
+        },
+        {
+          "speakerId": "ext:steam:onegame",
+          "reason": "no-game-gap",
+          "count": 10
+        },
+        {
+          "speakerId": "ext:yt:nogap",
+          "reason": "no-game-gap",
+          "count": 12
+        }
+      ]
+    },
+    "loose": {
+      "candidates": [
+        {
+          "speakerId": "ext:steam:good",
+          "source": "steam",
+          "affect": [
+            0.5167,
+            0,
+            0.5,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0.75,
+            0.5,
+            0.5,
+            0.5,
+            0.5,
+            0.5,
+            0.5,
+            0.5,
+            0.5,
+            0.0753
+          ],
+          "count": 12,
+          "polarityBias": 0,
+          "affectDispersion": 1.7159
+        },
+        {
+          "speakerId": "ext:yt:weighted",
+          "source": "youtube",
+          "affect": [
+            0.7286,
+            0.1786,
+            0.7143,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0.8571,
+            0.5,
+            0.5,
+            0.5,
+            0.5,
+            0.5,
+            0.5,
+            0.5,
+            0.7143,
+            0.0753
+          ],
+          "count": 12,
+          "polarityBias": 0,
+          "affectDispersion": 1.2302
+        }
+      ],
+      "rejected": [
+        {
+          "speakerId": "ext:steam:allpos",
+          "reason": "all-positive",
+          "count": 10
+        },
+        {
+          "speakerId": "ext:steam:allneg",
+          "reason": "all-negative",
+          "count": 10
+        },
+        {
+          "speakerId": "ext:steam:few",
+          "reason": "no-game-gap",
+          "count": 5
+        },
+        {
+          "speakerId": "ext:steam:onegame",
+          "reason": "no-game-gap",
+          "count": 10
+        },
+        {
+          "speakerId": "ext:yt:nogap",
+          "reason": "no-game-gap",
+          "count": 12
+        }
+      ]
+    }
+  },
+  "payloads": [
+    {
+      "input": {
+        "user_id": "ext:voluptas:0123456789abcdef",
+        "affect_vector": [
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25
+        ],
+        "vector_spec_version": 1,
+        "traits": [
+          "探索型"
+        ]
+      },
+      "ok": true,
+      "payload": {
+        "pseudoId": "ext:voluptas:0123456789abcdef",
+        "affectVector": [
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25
+        ],
+        "vectorSpecVersion": 1,
+        "traits": [
+          "探索型"
+        ],
+        "preferenceAxes": {},
+        "attributes": {},
+        "aversions": [],
+        "mechanicReactions": []
+      }
+    },
+    {
+      "input": {
+        "pseudoId": "ext:voluptas:0123456789abcdef",
+        "affectVector": [
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25
+        ],
+        "vectorSpecVersion": 1,
+        "exportSpecVersion": 2,
+        "traits": [
+          "  a ",
+          "a",
+          "",
+          "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx",
+          "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"
+        ],
+        "preferenceAxes": {
+          "style.routine_tolerance": 0.1,
+          "style.explorer": 0.9,
+          "mtg.timmy": 0,
+          "style.a_b": 1,
+          "style.ab": 0.5
+        },
+        "attributes": {
+          "ageBand": " 20s ",
+          "spending": ""
+        },
+        "aversions": [
+          {
+            "target": " mechanic:core/gacha ",
+            "strength": 0.8
+          }
+        ],
+        "mechanicReactions": [
+          {
+            "mechanicId": "action/dodge-roll",
+            "sentiment": 1.5
+          }
+        ]
+      },
+      "ok": true,
+      "payload": {
+        "pseudoId": "ext:voluptas:0123456789abcdef",
+        "affectVector": [
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25
+        ],
+        "vectorSpecVersion": 1,
+        "exportSpecVersion": 2,
+        "traits": [
+          "a",
+          "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"
+        ],
+        "preferenceAxes": {
+          "mtg.timmy": 0,
+          "style.a_b": 1,
+          "style.ab": 0.5,
+          "style.explorer": 0.9,
+          "style.routine_tolerance": 0.1
+        },
+        "attributes": {
+          "ageBand": "20s"
+        },
+        "aversions": [
+          {
+            "target": "mechanic:core/gacha",
+            "strength": 0.8
+          }
+        ],
+        "mechanicReactions": [
+          {
+            "mechanicId": "action/dodge-roll",
+            "sentiment": 1.5
+          }
+        ]
+      }
+    },
+    {
+      "input": {
+        "pseudoId": "ext:voluptas:0123456789abcdef",
+        "affectVector": [
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25
+        ],
+        "vectorSpecVersion": 1,
+        "traits": [
+          "t0",
+          "t1",
+          "t2",
+          "t3",
+          "t4",
+          "t5",
+          "t6",
+          "t7",
+          "t8",
+          "t9",
+          "t10",
+          "t11",
+          "t12",
+          "t13",
+          "t14",
+          "t15",
+          "t16",
+          "t17",
+          "t18",
+          "t19",
+          "t20",
+          "t21",
+          "t22",
+          "t23",
+          "t24",
+          "t25",
+          "t26",
+          "t27",
+          "t28",
+          "t29",
+          "t30",
+          "t31",
+          "t32",
+          "t33",
+          "t34",
+          "t35",
+          "t36",
+          "t37",
+          "t38",
+          "t39"
+        ]
+      },
+      "ok": true,
+      "payload": {
+        "pseudoId": "ext:voluptas:0123456789abcdef",
+        "affectVector": [
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25
+        ],
+        "vectorSpecVersion": 1,
+        "traits": [
+          "t0",
+          "t1",
+          "t2",
+          "t3",
+          "t4",
+          "t5",
+          "t6",
+          "t7",
+          "t8",
+          "t9",
+          "t10",
+          "t11",
+          "t12",
+          "t13",
+          "t14",
+          "t15",
+          "t16",
+          "t17",
+          "t18",
+          "t19",
+          "t20",
+          "t21",
+          "t22",
+          "t23",
+          "t24",
+          "t25",
+          "t26",
+          "t27",
+          "t28",
+          "t29",
+          "t30",
+          "t31"
+        ],
+        "preferenceAxes": {},
+        "attributes": {},
+        "aversions": [],
+        "mechanicReactions": []
+      }
+    },
+    {
+      "input": {
+        "pseudoId": "ext:voluptas:0123456789abcdef",
+        "vectorSpecVersion": null,
+        "vector_spec_version": 1,
+        "affectVector": [
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25
+        ]
+      },
+      "ok": true,
+      "payload": {
+        "pseudoId": "ext:voluptas:0123456789abcdef",
+        "affectVector": [
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25
+        ],
+        "vectorSpecVersion": 1,
+        "traits": [],
+        "preferenceAxes": {},
+        "attributes": {},
+        "aversions": [],
+        "mechanicReactions": []
+      }
+    },
+    {
+      "input": {
+        "user_id": "raw-voluptas-sid",
+        "affect_vector": [
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25
+        ],
+        "vector_spec_version": 1
+      },
+      "ok": false,
+      "error": "pseudoId must be a Voluptas HMAC pseudonym (ext:voluptas:<16 hex>)"
+    },
+    {
+      "input": {
+        "user_id": "ext:voluptas:0123456789abcdef",
+        "affect_vector": [
+          0
+        ],
+        "vector_spec_version": 1
+      },
+      "ok": false,
+      "error": "affectVector must contain exactly 20 values"
+    },
+    {
+      "input": {
+        "user_id": "ext:voluptas:0123456789abcdef",
+        "affect_vector": [
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25
+        ],
+        "vector_spec_version": 2
+      },
+      "ok": false,
+      "error": "unsupported vectorSpecVersion: 2"
+    },
+    {
+      "input": {
+        "user_id": "ext:voluptas:0123456789abcdef",
+        "affect_vector": [
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25
+        ]
+      },
+      "ok": false,
+      "error": "unsupported vectorSpecVersion: undefined"
+    },
+    {
+      "input": {
+        "user_id": "ext:voluptas:0123456789abcdef",
+        "affect_vector": [
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25
+        ],
+        "vectorSpecVersion": null
+      },
+      "ok": false,
+      "error": "unsupported vectorSpecVersion: undefined"
+    },
+    {
+      "input": {
+        "user_id": "ext:voluptas:0123456789abcdef",
+        "affect_vector": [
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25
+        ],
+        "vector_spec_version": 1,
+        "exportSpecVersion": 1
+      },
+      "ok": false,
+      "error": "unsupported exportSpecVersion: 1"
+    },
+    {
+      "input": {
+        "user_id": "ext:voluptas:0123456789abcdef",
+        "affect_vector": [
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25
+        ],
+        "vector_spec_version": 1,
+        "exportSpecVersion": null
+      },
+      "ok": false,
+      "error": "unsupported exportSpecVersion: null"
+    },
+    {
+      "input": {
+        "user_id": "ext:voluptas:0123456789abcdef",
+        "affect_vector": [
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25
+        ],
+        "vector_spec_version": 1,
+        "exportSpecVersion": "2"
+      },
+      "ok": false,
+      "error": "unsupported exportSpecVersion: 2"
+    },
+    {
+      "input": {
+        "user_id": "ext:voluptas:0123456789abcdef",
+        "affect_vector": [
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          1.5
+        ],
+        "vector_spec_version": 1
+      },
+      "ok": false,
+      "error": "affectVector values must be finite numbers in 0..1"
+    },
+    {
+      "input": {
+        "user_id": "ext:voluptas:0123456789abcdef",
+        "affect_vector": [
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25
+        ],
+        "vector_spec_version": 1,
+        "traits": "x"
+      },
+      "ok": false,
+      "error": "traits must be an array of strings"
+    },
+    {
+      "input": {
+        "user_id": "ext:voluptas:0123456789abcdef",
+        "affect_vector": [
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25
+        ],
+        "vector_spec_version": 1,
+        "traits": [
+          1
+        ]
+      },
+      "ok": false,
+      "error": "traits must be an array of strings"
+    },
+    {
+      "input": {
+        "user_id": "ext:voluptas:0123456789abcdef",
+        "affect_vector": [
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25
+        ],
+        "vector_spec_version": 1,
+        "preferenceAxes": {
+          "Style.x": 0.5
+        }
+      },
+      "ok": false,
+      "error": "preferenceAxes must contain canonical axis scores in 0..1"
+    },
+    {
+      "input": {
+        "user_id": "ext:voluptas:0123456789abcdef",
+        "affect_vector": [
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25
+        ],
+        "vector_spec_version": 1,
+        "preferenceAxes": []
+      },
+      "ok": false,
+      "error": "persona import item must be an object"
+    },
+    {
+      "input": {
+        "user_id": "ext:voluptas:0123456789abcdef",
+        "affect_vector": [
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25
+        ],
+        "vector_spec_version": 1,
+        "attributes": {
+          "ageBand": "yyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyy"
+        }
+      },
+      "ok": false,
+      "error": "attributes.ageBand must be a string up to 80 characters"
+    },
+    {
+      "input": {
+        "user_id": "ext:voluptas:0123456789abcdef",
+        "affect_vector": [
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25
+        ],
+        "vector_spec_version": 1,
+        "aversions": [
+          {
+            "target": " ",
+            "strength": 0.5
+          }
+        ]
+      },
+      "ok": false,
+      "error": "aversions need a target and strength in 0..1"
+    },
+    {
+      "input": {
+        "user_id": "ext:voluptas:0123456789abcdef",
+        "affect_vector": [
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25
+        ],
+        "vector_spec_version": 1,
+        "mechanicReactions": [
+          {
+            "mechanicId": "Bad",
+            "sentiment": 0
+          }
+        ]
+      },
+      "ok": false,
+      "error": "mechanicReactions need a mechanicId and sentiment in -2..2"
+    },
+    {
+      "input": {
+        "user_id": "ext:voluptas:0123456789abcdef",
+        "affect_vector": [
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25
+        ],
+        "vector_spec_version": 1,
+        "mechanicReactions": [
+          {
+            "mechanicId": "ok",
+            "sentiment": 3
+          }
+        ]
+      },
+      "ok": false,
+      "error": "mechanicReactions need a mechanicId and sentiment in -2..2"
+    },
+    {
+      "input": [],
+      "ok": false,
+      "error": "persona import item must be an object"
+    },
+    {
+      "input": null,
+      "ok": false,
+      "error": "persona import item must be an object"
+    }
+  ],
+  "bundle": {
+    "pack": {
+      "contractVersion": 1,
+      "personaKind": "observedSpeaker",
+      "speakerKey": "ext:steam:00000000000000a1",
+      "genre": "roguelike",
+      "genreSpecVersion": 1,
+      "profileVersion": "proxy-form-v1:a1",
+      "formation": {
+        "method": "rule",
+        "ruleVersion": "proxy-form-v1"
+      },
+      "window": {
+        "observedMonths": null,
+        "generatedAt": 1799913600000,
+        "expiresAt": 1802592000000
+      },
+      "sufficiency": {
+        "utterances": 12,
+        "positive": 7,
+        "negative": 5,
+        "games": 4,
+        "aspects": 4,
+        "confidence": "medium",
+        "reasons": []
+      },
+      "affect": {
+        "vector": [
+          0.6,
+          0.6,
+          0.6,
+          0.6,
+          0.6,
+          0.6,
+          0.6,
+          0.6,
+          0.6,
+          0.6,
+          0.6,
+          0.6,
+          0.6,
+          0.6,
+          0.6,
+          0.6,
+          0.6,
+          0.6,
+          0.6,
+          0.6
+        ],
+        "vectorSpecVersion": 1
+      },
+      "designGap": {
+        "vector": [
+          0.1,
+          0.1,
+          0.1,
+          0.1,
+          0.1,
+          0.1,
+          0.1,
+          0.1,
+          0.1,
+          0.1,
+          0.1,
+          0.1,
+          0.1,
+          0.1,
+          0.1,
+          0.1,
+          0.1,
+          0.1,
+          0.1,
+          0.1
+        ],
+        "method": "pos-minus-neg",
+        "wants": [
+          "asp.difficulty",
+          "emo.joy",
+          "x.unknown"
+        ],
+        "complaints": [
+          "asp.content"
+        ],
+        "reason": null
+      },
+      "conditionalGaps": [
+        {
+          "current": "毎日の周回",
+          "desired": "週末にまとめて",
+          "condition": "社会人",
+          "evidenceIds": [
+            "E1"
+          ]
+        },
+        {
+          "current": "a",
+          "desired": "b",
+          "condition": null,
+          "evidenceIds": [
+            "E2",
+            "E3"
+          ]
+        }
+      ],
+      "stanceCards": [
+        {
+          "id": "S1",
+          "claim": "毎日の周回を強いる作りは嫌だ",
+          "polarity": "neg",
+          "evidenceIds": [
+            "E1"
+          ],
+          "extractor": "rule"
+        },
+        {
+          "id": "S2",
+          "claim": "高難度に何時間でも挑みたい",
+          "polarity": "pos",
+          "evidenceIds": [
+            "E2",
+            "E10"
+          ],
+          "extractor": "rule"
+        }
+      ],
+      "evidence": [
+        {
+          "id": "E1",
+          "revision": "r1",
+          "text": "毎日の周回が義務になるのは本当に嫌だ。続ける気がなくなった。",
+          "sourceKind": "steam",
+          "gameTitle": "Game A",
+          "polarity": "neg",
+          "postedAt": null
+        },
+        {
+          "id": "E2",
+          "revision": "r2",
+          "text": "週末なら高難度に何時間でも挑みたい。難易度が最高。",
+          "sourceKind": "steam",
+          "gameTitle": "Game B",
+          "polarity": "pos",
+          "postedAt": null
+        },
+        {
+          "id": "E3",
+          "revision": "r3",
+          "text": "遊べる量が少なくて値段に見合わない。",
+          "sourceKind": "steam",
+          "gameTitle": "Game C",
+          "polarity": "neg",
+          "postedAt": null
+        },
+        {
+          "id": "E10",
+          "revision": "r10",
+          "text": "The difficulty curve is great and I keep coming back for more runs.",
+          "sourceKind": "steam",
+          "gameTitle": "Game D",
+          "polarity": "pos",
+          "postedAt": null
+        },
+        {
+          "id": "E4",
+          "revision": "r4",
+          "text": "周回 周回 周回",
+          "sourceKind": "steam",
+          "gameTitle": "周回ゲーム",
+          "polarity": "pos",
+          "postedAt": null
+        }
+      ],
+      "styleNotes": [
+        "短く書く",
+        "語尾が強い"
+      ],
+      "likedGames": [
+        "Game B"
+      ],
+      "heldOut": [],
+      "revoked": false
+    },
+    "packNoStyle": {
+      "contractVersion": 1,
+      "personaKind": "observedSpeaker",
+      "speakerKey": "ext:steam:00000000000000a1",
+      "genre": "roguelike",
+      "genreSpecVersion": 1,
+      "profileVersion": "proxy-form-v1:a1",
+      "formation": {
+        "method": "rule",
+        "ruleVersion": "proxy-form-v1"
+      },
+      "window": {
+        "observedMonths": null,
+        "generatedAt": 1799913600000,
+        "expiresAt": 1802592000000
+      },
+      "sufficiency": {
+        "utterances": 12,
+        "positive": 7,
+        "negative": 5,
+        "games": 4,
+        "aspects": 4,
+        "confidence": "medium",
+        "reasons": []
+      },
+      "affect": {
+        "vector": [
+          0.6,
+          0.6,
+          0.6,
+          0.6,
+          0.6,
+          0.6,
+          0.6,
+          0.6,
+          0.6,
+          0.6,
+          0.6,
+          0.6,
+          0.6,
+          0.6,
+          0.6,
+          0.6,
+          0.6,
+          0.6,
+          0.6,
+          0.6
+        ],
+        "vectorSpecVersion": 1
+      },
+      "designGap": {
+        "vector": null,
+        "method": "pos-minus-neg",
+        "wants": [],
+        "complaints": [],
+        "reason": "x"
+      },
+      "conditionalGaps": [],
+      "stanceCards": [
+        {
+          "id": "S1",
+          "claim": "毎日の周回を強いる作りは嫌だ",
+          "polarity": "neg",
+          "evidenceIds": [
+            "E1"
+          ],
+          "extractor": "rule"
+        },
+        {
+          "id": "S2",
+          "claim": "高難度に何時間でも挑みたい",
+          "polarity": "pos",
+          "evidenceIds": [
+            "E2",
+            "E10"
+          ],
+          "extractor": "rule"
+        }
+      ],
+      "evidence": [
+        {
+          "id": "E1",
+          "revision": "r1",
+          "text": "毎日の周回が義務になるのは本当に嫌だ。続ける気がなくなった。",
+          "sourceKind": "steam",
+          "gameTitle": "Game A",
+          "polarity": "neg",
+          "postedAt": null
+        },
+        {
+          "id": "E2",
+          "revision": "r2",
+          "text": "週末なら高難度に何時間でも挑みたい。難易度が最高。",
+          "sourceKind": "steam",
+          "gameTitle": "Game B",
+          "polarity": "pos",
+          "postedAt": null
+        },
+        {
+          "id": "E3",
+          "revision": "r3",
+          "text": "遊べる量が少なくて値段に見合わない。",
+          "sourceKind": "steam",
+          "gameTitle": "Game C",
+          "polarity": "neg",
+          "postedAt": null
+        },
+        {
+          "id": "E10",
+          "revision": "r10",
+          "text": "The difficulty curve is great and I keep coming back for more runs.",
+          "sourceKind": "steam",
+          "gameTitle": "Game D",
+          "polarity": "pos",
+          "postedAt": null
+        },
+        {
+          "id": "E4",
+          "revision": "r4",
+          "text": "周回 周回 周回",
+          "sourceKind": "steam",
+          "gameTitle": "周回ゲーム",
+          "polarity": "pos",
+          "postedAt": null
+        }
+      ],
+      "styleNotes": [],
+      "likedGames": [
+        "Game B"
+      ],
+      "heldOut": [],
+      "revoked": false
+    },
+    "tokens": [
+      {
+        "t": "",
+        "n": 0
+      },
+      {
+        "t": "abc",
+        "n": 1
+      },
+      {
+        "t": "日本語",
+        "n": 4
+      },
+      {
+        "t": "mixed 日本 text",
+        "n": 6
+      },
+      {
+        "t": "😀",
+        "n": 3
+      },
+      {
+        "t": "aaaaaaaaaa",
+        "n": 3
+      }
+    ],
+    "dims": [
+      {
+        "d": "emo.valence",
+        "l": "全体の好意"
+      },
+      {
+        "d": "asp.replayability",
+        "l": "繰り返し遊べるか"
+      },
+      {
+        "d": "meta.volume_log",
+        "l": "meta.volume_log"
+      }
+    ],
+    "order": [
+      {
+        "terms": [],
+        "ids": [
+          "E2",
+          "E1",
+          "E10",
+          "E3",
+          "E4"
+        ]
+      },
+      {
+        "terms": [
+          "周回"
+        ],
+        "ids": [
+          "E4",
+          "E1",
+          "E2",
+          "E3",
+          "E10"
+        ]
+      },
+      {
+        "terms": [
+          "Game"
+        ],
+        "ids": [
+          "E2",
+          "E1",
+          "E10",
+          "E3",
+          "E4"
+        ]
+      },
+      {
+        "terms": [
+          "難易度",
+          "周回"
+        ],
+        "ids": [
+          "E2",
+          "E1",
+          "E4",
+          "E3",
+          "E10"
+        ]
+      }
+    ],
+    "renders": [
+      {
+        "budgetTokens": 100000,
+        "focusTerms": [
+          "周回"
+        ],
+        "bundle": {
+          "text": "# あなたが代理する人物: 論者#aaaaaa\nこの人物は公開レビューの発言から作った AI の代理です。本人ではなく、本人の発言・同意でもありません。\nジャンル: roguelike / 材料: 発言 12 件 (好意的 7・否定的 5)、ゲーム 4 本\nこのジャンルで求めているもの: 難易度・楽しさ・喜び・x.unknown\nこのジャンルで不満を持ちやすいもの: 遊べる量\n望み: 毎日の周回 → 週末にまとめて (条件: 社会人) [E1]\n望み: a → b [E2,E3]\n話し方の癖: 短く書く / 語尾が強い\n\n# 本人の主張 (立場カード)\n- [S1] 否定: 毎日の周回を強いる作りは嫌だ (根拠 E1)\n- [S2] 肯定: 高難度に何時間でも挑みたい (根拠 E2,E10)\n\n# 本人の発言 (原文の抜粋)\n- [E1] (Game A・否定的) 毎日の周回が義務になるのは本当に嫌だ。続ける気がなくなった。\n- [E2] (Game B・好意的) 週末なら高難度に何時間でも挑みたい。難易度が最高。\n- [E3] (Game C・否定的) 遊べる量が少なくて値段に見合わない。\n- [E4] (周回ゲーム・好意的) 周回 周回 周回\n- [E10] (Game D・好意的) The difficulty curve is great and I keep coming back for more runs.\n\n# 代理の決まり\n- 本人の考えとして言えるのは、上の発言 [E番号] に支えられることだけ。根拠にした発言の id を必ず付ける。\n- 発言に無いことを言うときは「推測」として言い、本人がそう言ったように言わない。\n- 本人の発言に無い好みや属性 (年齢・国・名前など) を作らない。",
+          "evidenceIds": [
+            "E1",
+            "E2",
+            "E3",
+            "E4",
+            "E10"
+          ],
+          "evidenceTexts": {
+            "E1": "毎日の周回が義務になるのは本当に嫌だ。続ける気がなくなった。",
+            "E2": "週末なら高難度に何時間でも挑みたい。難易度が最高。",
+            "E3": "遊べる量が少なくて値段に見合わない。",
+            "E4": "周回 周回 周回",
+            "E10": "The difficulty curve is great and I keep coming back for more runs."
+          },
+          "estimatedTokens": 672,
+          "droppedEvidence": 0
+        }
+      },
+      {
+        "budgetTokens": 100000,
+        "focusTerms": [],
+        "bundle": {
+          "text": "# あなたが代理する人物: 論者#aaaaaa\nこの人物は公開レビューの発言から作った AI の代理です。本人ではなく、本人の発言・同意でもありません。\nジャンル: roguelike / 材料: 発言 12 件 (好意的 7・否定的 5)、ゲーム 4 本\nこのジャンルで求めているもの: 難易度・楽しさ・喜び・x.unknown\nこのジャンルで不満を持ちやすいもの: 遊べる量\n望み: 毎日の周回 → 週末にまとめて (条件: 社会人) [E1]\n望み: a → b [E2,E3]\n話し方の癖: 短く書く / 語尾が強い\n\n# 本人の主張 (立場カード)\n- [S1] 否定: 毎日の周回を強いる作りは嫌だ (根拠 E1)\n- [S2] 肯定: 高難度に何時間でも挑みたい (根拠 E2,E10)\n\n# 本人の発言 (原文の抜粋)\n- [E1] (Game A・否定的) 毎日の周回が義務になるのは本当に嫌だ。続ける気がなくなった。\n- [E2] (Game B・好意的) 週末なら高難度に何時間でも挑みたい。難易度が最高。\n- [E3] (Game C・否定的) 遊べる量が少なくて値段に見合わない。\n- [E4] (周回ゲーム・好意的) 周回 周回 周回\n- [E10] (Game D・好意的) The difficulty curve is great and I keep coming back for more runs.\n\n# 代理の決まり\n- 本人の考えとして言えるのは、上の発言 [E番号] に支えられることだけ。根拠にした発言の id を必ず付ける。\n- 発言に無いことを言うときは「推測」として言い、本人がそう言ったように言わない。\n- 本人の発言に無い好みや属性 (年齢・国・名前など) を作らない。",
+          "evidenceIds": [
+            "E1",
+            "E2",
+            "E3",
+            "E4",
+            "E10"
+          ],
+          "evidenceTexts": {
+            "E1": "毎日の周回が義務になるのは本当に嫌だ。続ける気がなくなった。",
+            "E2": "週末なら高難度に何時間でも挑みたい。難易度が最高。",
+            "E3": "遊べる量が少なくて値段に見合わない。",
+            "E4": "周回 周回 周回",
+            "E10": "The difficulty curve is great and I keep coming back for more runs."
+          },
+          "estimatedTokens": 672,
+          "droppedEvidence": 0
+        }
+      },
+      {
+        "budgetTokens": 672,
+        "focusTerms": [
+          "周回"
+        ],
+        "bundle": {
+          "text": "# あなたが代理する人物: 論者#aaaaaa\nこの人物は公開レビューの発言から作った AI の代理です。本人ではなく、本人の発言・同意でもありません。\nジャンル: roguelike / 材料: 発言 12 件 (好意的 7・否定的 5)、ゲーム 4 本\nこのジャンルで求めているもの: 難易度・楽しさ・喜び・x.unknown\nこのジャンルで不満を持ちやすいもの: 遊べる量\n望み: 毎日の周回 → 週末にまとめて (条件: 社会人) [E1]\n望み: a → b [E2,E3]\n話し方の癖: 短く書く / 語尾が強い\n\n# 本人の主張 (立場カード)\n- [S1] 否定: 毎日の周回を強いる作りは嫌だ (根拠 E1)\n- [S2] 肯定: 高難度に何時間でも挑みたい (根拠 E2,E10)\n\n# 本人の発言 (原文の抜粋)\n- [E1] (Game A・否定的) 毎日の周回が義務になるのは本当に嫌だ。続ける気がなくなった。\n- [E2] (Game B・好意的) 週末なら高難度に何時間でも挑みたい。難易度が最高。\n- [E3] (Game C・否定的) 遊べる量が少なくて値段に見合わない。\n- [E4] (周回ゲーム・好意的) 周回 周回 周回\n- [E10] (Game D・好意的) The difficulty curve is great and I keep coming back for more runs.\n\n# 代理の決まり\n- 本人の考えとして言えるのは、上の発言 [E番号] に支えられることだけ。根拠にした発言の id を必ず付ける。\n- 発言に無いことを言うときは「推測」として言い、本人がそう言ったように言わない。\n- 本人の発言に無い好みや属性 (年齢・国・名前など) を作らない。",
+          "evidenceIds": [
+            "E1",
+            "E2",
+            "E3",
+            "E4",
+            "E10"
+          ],
+          "evidenceTexts": {
+            "E1": "毎日の周回が義務になるのは本当に嫌だ。続ける気がなくなった。",
+            "E2": "週末なら高難度に何時間でも挑みたい。難易度が最高。",
+            "E3": "遊べる量が少なくて値段に見合わない。",
+            "E4": "周回 周回 周回",
+            "E10": "The difficulty curve is great and I keep coming back for more runs."
+          },
+          "estimatedTokens": 672,
+          "droppedEvidence": 0
+        }
+      },
+      {
+        "budgetTokens": 672,
+        "focusTerms": [],
+        "bundle": {
+          "text": "# あなたが代理する人物: 論者#aaaaaa\nこの人物は公開レビューの発言から作った AI の代理です。本人ではなく、本人の発言・同意でもありません。\nジャンル: roguelike / 材料: 発言 12 件 (好意的 7・否定的 5)、ゲーム 4 本\nこのジャンルで求めているもの: 難易度・楽しさ・喜び・x.unknown\nこのジャンルで不満を持ちやすいもの: 遊べる量\n望み: 毎日の周回 → 週末にまとめて (条件: 社会人) [E1]\n望み: a → b [E2,E3]\n話し方の癖: 短く書く / 語尾が強い\n\n# 本人の主張 (立場カード)\n- [S1] 否定: 毎日の周回を強いる作りは嫌だ (根拠 E1)\n- [S2] 肯定: 高難度に何時間でも挑みたい (根拠 E2,E10)\n\n# 本人の発言 (原文の抜粋)\n- [E1] (Game A・否定的) 毎日の周回が義務になるのは本当に嫌だ。続ける気がなくなった。\n- [E2] (Game B・好意的) 週末なら高難度に何時間でも挑みたい。難易度が最高。\n- [E3] (Game C・否定的) 遊べる量が少なくて値段に見合わない。\n- [E4] (周回ゲーム・好意的) 周回 周回 周回\n- [E10] (Game D・好意的) The difficulty curve is great and I keep coming back for more runs.\n\n# 代理の決まり\n- 本人の考えとして言えるのは、上の発言 [E番号] に支えられることだけ。根拠にした発言の id を必ず付ける。\n- 発言に無いことを言うときは「推測」として言い、本人がそう言ったように言わない。\n- 本人の発言に無い好みや属性 (年齢・国・名前など) を作らない。",
+          "evidenceIds": [
+            "E1",
+            "E2",
+            "E3",
+            "E4",
+            "E10"
+          ],
+          "evidenceTexts": {
+            "E1": "毎日の周回が義務になるのは本当に嫌だ。続ける気がなくなった。",
+            "E2": "週末なら高難度に何時間でも挑みたい。難易度が最高。",
+            "E3": "遊べる量が少なくて値段に見合わない。",
+            "E4": "周回 周回 周回",
+            "E10": "The difficulty curve is great and I keep coming back for more runs."
+          },
+          "estimatedTokens": 672,
+          "droppedEvidence": 0
+        }
+      },
+      {
+        "budgetTokens": 671,
+        "focusTerms": [
+          "周回"
+        ],
+        "bundle": {
+          "text": "# あなたが代理する人物: 論者#aaaaaa\nこの人物は公開レビューの発言から作った AI の代理です。本人ではなく、本人の発言・同意でもありません。\nジャンル: roguelike / 材料: 発言 12 件 (好意的 7・否定的 5)、ゲーム 4 本\nこのジャンルで求めているもの: 難易度・楽しさ・喜び・x.unknown\nこのジャンルで不満を持ちやすいもの: 遊べる量\n望み: 毎日の周回 → 週末にまとめて (条件: 社会人) [E1]\n望み: a → b [E2,E3]\n話し方の癖: 短く書く / 語尾が強い\n\n# 本人の主張 (立場カード)\n- [S1] 否定: 毎日の周回を強いる作りは嫌だ (根拠 E1)\n- [S2] 肯定: 高難度に何時間でも挑みたい (根拠 E2)\n\n# 本人の発言 (原文の抜粋)\n- [E1] (Game A・否定的) 毎日の周回が義務になるのは本当に嫌だ。続ける気がなくなった。\n- [E2] (Game B・好意的) 週末なら高難度に何時間でも挑みたい。難易度が最高。\n- [E3] (Game C・否定的) 遊べる量が少なくて値段に見合わない。\n- [E4] (周回ゲーム・好意的) 周回 周回 周回\n\n# 代理の決まり\n- 本人の考えとして言えるのは、上の発言 [E番号] に支えられることだけ。根拠にした発言の id を必ず付ける。\n- 発言に無いことを言うときは「推測」として言い、本人がそう言ったように言わない。\n- 本人の発言に無い好みや属性 (年齢・国・名前など) を作らない。",
+          "evidenceIds": [
+            "E1",
+            "E2",
+            "E3",
+            "E4"
+          ],
+          "evidenceTexts": {
+            "E1": "毎日の周回が義務になるのは本当に嫌だ。続ける気がなくなった。",
+            "E2": "週末なら高難度に何時間でも挑みたい。難易度が最高。",
+            "E3": "遊べる量が少なくて値段に見合わない。",
+            "E4": "周回 周回 周回"
+          },
+          "estimatedTokens": 640,
+          "droppedEvidence": 1
+        }
+      },
+      {
+        "budgetTokens": 671,
+        "focusTerms": [],
+        "bundle": {
+          "text": "# あなたが代理する人物: 論者#aaaaaa\nこの人物は公開レビューの発言から作った AI の代理です。本人ではなく、本人の発言・同意でもありません。\nジャンル: roguelike / 材料: 発言 12 件 (好意的 7・否定的 5)、ゲーム 4 本\nこのジャンルで求めているもの: 難易度・楽しさ・喜び・x.unknown\nこのジャンルで不満を持ちやすいもの: 遊べる量\n望み: 毎日の周回 → 週末にまとめて (条件: 社会人) [E1]\n望み: a → b [E2,E3]\n話し方の癖: 短く書く / 語尾が強い\n\n# 本人の主張 (立場カード)\n- [S1] 否定: 毎日の周回を強いる作りは嫌だ (根拠 E1)\n- [S2] 肯定: 高難度に何時間でも挑みたい (根拠 E2,E10)\n\n# 本人の発言 (原文の抜粋)\n- [E1] (Game A・否定的) 毎日の周回が義務になるのは本当に嫌だ。続ける気がなくなった。\n- [E2] (Game B・好意的) 週末なら高難度に何時間でも挑みたい。難易度が最高。\n- [E3] (Game C・否定的) 遊べる量が少なくて値段に見合わない。\n- [E10] (Game D・好意的) The difficulty curve is great and I keep coming back for more runs.\n\n# 代理の決まり\n- 本人の考えとして言えるのは、上の発言 [E番号] に支えられることだけ。根拠にした発言の id を必ず付ける。\n- 発言に無いことを言うときは「推測」として言い、本人がそう言ったように言わない。\n- 本人の発言に無い好みや属性 (年齢・国・名前など) を作らない。",
+          "evidenceIds": [
+            "E1",
+            "E2",
+            "E3",
+            "E10"
+          ],
+          "evidenceTexts": {
+            "E1": "毎日の周回が義務になるのは本当に嫌だ。続ける気がなくなった。",
+            "E2": "週末なら高難度に何時間でも挑みたい。難易度が最高。",
+            "E3": "遊べる量が少なくて値段に見合わない。",
+            "E10": "The difficulty curve is great and I keep coming back for more runs."
+          },
+          "estimatedTokens": 649,
+          "droppedEvidence": 1
+        }
+      },
+      {
+        "budgetTokens": 612,
+        "focusTerms": [
+          "周回"
+        ],
+        "bundle": {
+          "text": "# あなたが代理する人物: 論者#aaaaaa\nこの人物は公開レビューの発言から作った AI の代理です。本人ではなく、本人の発言・同意でもありません。\nジャンル: roguelike / 材料: 発言 12 件 (好意的 7・否定的 5)、ゲーム 4 本\nこのジャンルで求めているもの: 難易度・楽しさ・喜び・x.unknown\nこのジャンルで不満を持ちやすいもの: 遊べる量\n望み: 毎日の周回 → 週末にまとめて (条件: 社会人) [E1]\n話し方の癖: 短く書く / 語尾が強い\n\n# 本人の主張 (立場カード)\n- [S1] 否定: 毎日の周回を強いる作りは嫌だ (根拠 E1)\n- [S2] 肯定: 高難度に何時間でも挑みたい (根拠 E2)\n\n# 本人の発言 (原文の抜粋)\n- [E1] (Game A・否定的) 毎日の周回が義務になるのは本当に嫌だ。続ける気がなくなった。\n- [E2] (Game B・好意的) 週末なら高難度に何時間でも挑みたい。難易度が最高。\n- [E4] (周回ゲーム・好意的) 周回 周回 周回\n\n# 代理の決まり\n- 本人の考えとして言えるのは、上の発言 [E番号] に支えられることだけ。根拠にした発言の id を必ず付ける。\n- 発言に無いことを言うときは「推測」として言い、本人がそう言ったように言わない。\n- 本人の発言に無い好みや属性 (年齢・国・名前など) を作らない。",
+          "evidenceIds": [
+            "E1",
+            "E2",
+            "E4"
+          ],
+          "evidenceTexts": {
+            "E1": "毎日の周回が義務になるのは本当に嫌だ。続ける気がなくなった。",
+            "E2": "週末なら高難度に何時間でも挑みたい。難易度が最高。",
+            "E4": "周回 周回 周回"
+          },
+          "estimatedTokens": 598,
+          "droppedEvidence": 2
+        }
+      },
+      {
+        "budgetTokens": 612,
+        "focusTerms": [],
+        "bundle": {
+          "text": "# あなたが代理する人物: 論者#aaaaaa\nこの人物は公開レビューの発言から作った AI の代理です。本人ではなく、本人の発言・同意でもありません。\nジャンル: roguelike / 材料: 発言 12 件 (好意的 7・否定的 5)、ゲーム 4 本\nこのジャンルで求めているもの: 難易度・楽しさ・喜び・x.unknown\nこのジャンルで不満を持ちやすいもの: 遊べる量\n望み: 毎日の周回 → 週末にまとめて (条件: 社会人) [E1]\n話し方の癖: 短く書く / 語尾が強い\n\n# 本人の主張 (立場カード)\n- [S1] 否定: 毎日の周回を強いる作りは嫌だ (根拠 E1)\n- [S2] 肯定: 高難度に何時間でも挑みたい (根拠 E2,E10)\n\n# 本人の発言 (原文の抜粋)\n- [E1] (Game A・否定的) 毎日の周回が義務になるのは本当に嫌だ。続ける気がなくなった。\n- [E2] (Game B・好意的) 週末なら高難度に何時間でも挑みたい。難易度が最高。\n- [E10] (Game D・好意的) The difficulty curve is great and I keep coming back for more runs.\n\n# 代理の決まり\n- 本人の考えとして言えるのは、上の発言 [E番号] に支えられることだけ。根拠にした発言の id を必ず付ける。\n- 発言に無いことを言うときは「推測」として言い、本人がそう言ったように言わない。\n- 本人の発言に無い好みや属性 (年齢・国・名前など) を作らない。",
+          "evidenceIds": [
+            "E1",
+            "E2",
+            "E10"
+          ],
+          "evidenceTexts": {
+            "E1": "毎日の周回が義務になるのは本当に嫌だ。続ける気がなくなった。",
+            "E2": "週末なら高難度に何時間でも挑みたい。難易度が最高。",
+            "E10": "The difficulty curve is great and I keep coming back for more runs."
+          },
+          "estimatedTokens": 606,
+          "droppedEvidence": 2
+        }
+      },
+      {
+        "budgetTokens": 400,
+        "focusTerms": [
+          "周回"
+        ],
+        "bundle": null
+      },
+      {
+        "budgetTokens": 400,
+        "focusTerms": [],
+        "bundle": null
+      },
+      {
+        "budgetTokens": 300,
+        "focusTerms": [
+          "周回"
+        ],
+        "bundle": null
+      },
+      {
+        "budgetTokens": 300,
+        "focusTerms": [],
+        "bundle": null
+      },
+      {
+        "budgetTokens": 50,
+        "focusTerms": [
+          "周回"
+        ],
+        "bundle": null
+      },
+      {
+        "budgetTokens": 50,
+        "focusTerms": [],
+        "bundle": null
+      }
+    ],
+    "noStyle": {
+      "text": "# あなたが代理する人物: 論者#bbbbbb\nこの人物は公開レビューの発言から作った AI の代理です。本人ではなく、本人の発言・同意でもありません。\nジャンル: roguelike / 材料: 発言 12 件 (好意的 7・否定的 5)、ゲーム 4 本\n\n# 本人の主張 (立場カード)\n- [S1] 否定: 毎日の周回を強いる作りは嫌だ (根拠 E1)\n- [S2] 肯定: 高難度に何時間でも挑みたい (根拠 E2,E10)\n\n# 本人の発言 (原文の抜粋)\n- [E1] (Game A・否定的) 毎日の周回が義務になるのは本当に嫌だ。続ける気がなくなった。\n- [E2] (Game B・好意的) 週末なら高難度に何時間でも挑みたい。難易度が最高。\n- [E3] (Game C・否定的) 遊べる量が少なくて値段に見合わない。\n- [E4] (周回ゲーム・好意的) 周回 周回 周回\n- [E10] (Game D・好意的) The difficulty curve is great and I keep coming back for more runs.\n\n# 代理の決まり\n- 本人の考えとして言えるのは、上の発言 [E番号] に支えられることだけ。根拠にした発言の id を必ず付ける。\n- 発言に無いことを言うときは「推測」として言い、本人がそう言ったように言わない。\n- 本人の発言に無い好みや属性 (年齢・国・名前など) を作らない。",
+      "evidenceIds": [
+        "E1",
+        "E2",
+        "E3",
+        "E4",
+        "E10"
+      ],
+      "evidenceTexts": {
+        "E1": "毎日の周回が義務になるのは本当に嫌だ。続ける気がなくなった。",
+        "E2": "週末なら高難度に何時間でも挑みたい。難易度が最高。",
+        "E3": "遊べる量が少なくて値段に見合わない。",
+        "E4": "周回 周回 周回",
+        "E10": "The difficulty curve is great and I keep coming back for more runs."
+      },
+      "estimatedTokens": 549,
+      "droppedEvidence": 0
+    },
+    "low": null
+  },
+  "requests": [
+    {
+      "text": "代理: 論者#aaaaaa, 論者#bbbbbb 周回報酬は必要か",
+      "request": {
+        "labels": [
+          "論者#aaaaaa",
+          "論者#bbbbbb"
+        ],
+        "genre": null,
+        "theme": "周回報酬は必要か"
+      }
+    },
+    {
+      "text": "周回 代理：論者#aaaaaa vs 論者#bbbbbb ジャンル: roguelike",
+      "request": {
+        "labels": [
+          "論者#aaaaaa",
+          "論者#bbbbbb"
+        ],
+        "genre": "roguelike",
+        "theme": "周回"
+      }
+    },
+    {
+      "text": "代理:論者#aaaaaa と 論者#aaaaaa、論者#cccccc&論者#dddddd / 議題",
+      "request": {
+        "labels": [
+          "論者#aaaaaa",
+          "論者#cccccc",
+          "論者#dddddd"
+        ],
+        "genre": null,
+        "theme": "議題"
+      }
+    },
+    {
+      "text": "ふつうの議題",
+      "request": null
+    },
+    {
+      "text": "代理: なし 代理 : 論者#123abc",
+      "request": {
+        "labels": [
+          "論者#123abc"
+        ],
+        "genre": null,
+        "theme": "代理: なし"
+      }
+    },
+    {
+      "text": "代理: 論者#ABCDEF 大文字は不可",
+      "request": null
+    },
+    {
+      "text": "代理: 論者#aaaaaa",
+      "request": {
+        "labels": [
+          "論者#aaaaaa"
+        ],
+        "genre": null,
+        "theme": "代理: 論者#aaaaaa"
+      }
+    },
+    {
+      "text": "ジャンル: rpg_x-1 代理: 論者#aaaaaa,論者#bbbbbb",
+      "request": {
+        "labels": [
+          "論者#aaaaaa",
+          "論者#bbbbbb"
+        ],
+        "genre": "rpg_x-1",
+        "theme": "ジャンル: rpg_x-1 代理: 論者#aaaaaa,論者#bbbbbb"
+      }
+    },
+    {
+      "text": "代理: 論者#aaaaaa 論者#bbbbbbx 続き",
+      "request": {
+        "labels": [
+          "論者#aaaaaa",
+          "論者#bbbbbb"
+        ],
+        "genre": null,
+        "theme": "x 続き"
+      }
+    },
+    {
+      "text": "  / 代理: 論者#aaaaaa, 論者#bbbbbb ・、 ",
+      "request": {
+        "labels": [
+          "論者#aaaaaa",
+          "論者#bbbbbb"
+        ],
+        "genre": null,
+        "theme": "/ 代理: 論者#aaaaaa, 論者#bbbbbb ・、"
+      }
+    },
+    {
+      "text": "代理: 論者#aaaaaa, 論者#bbbbbb ジャンル: Bad",
+      "request": {
+        "labels": [
+          "論者#aaaaaa",
+          "論者#bbbbbb"
+        ],
+        "genre": null,
+        "theme": "ジャンル: Bad"
+      }
+    }
+  ],
+  "stances": [
+    {
+      "text": "con",
+      "stance": "con"
+    },
+    {
+      "text": "答え: neutral",
+      "stance": "neutral"
+    },
+    {
+      "text": "わからない",
+      "stance": null
+    },
+    {
+      "text": "PRO",
+      "stance": "pro"
+    },
+    {
+      "text": "professional",
+      "stance": null
+    },
+    {
+      "text": "neutral pro",
+      "stance": "neutral"
+    },
+    {
+      "text": "pro, con",
+      "stance": "pro"
+    },
+    {
+      "text": "con_x pro",
+      "stance": "pro"
+    },
+    {
+      "text": "",
+      "stance": null
+    },
+    {
+      "text": "→pro←",
+      "stance": "pro"
+    },
+    {
+      "text": "pro-con",
+      "stance": "pro"
+    }
+  ],
+  "stancePrompt": "束の本文\n\n# 論点 (問い)\n周回報酬は必要か\n(問いの形でなければ「周回報酬は必要か は成り立つか / 望ましいか」と読み替える)\n\n上の人物の主張と発言だけを材料に、この人物がこの論点に賛成するか反対するかを判定し、ラベルを 1 つだけ返してください (説明不要):\n- pro: 発言から賛成すると言える\n- con: 発言から反対すると言える\n- neutral: 発言からはどちらとも言えない / 材料が無い\n発言に無い好みを想像で補わない。迷ったら neutral。",
+  "sides": [
+    {
+      "stances": [
+        "con",
+        "pro"
+      ],
+      "labels": [
+        "A",
+        "B"
+      ],
+      "sides": {
+        "opposed": true,
+        "pro": 1,
+        "con": 0
+      }
+    },
+    {
+      "stances": [
+        "pro",
+        "pro"
+      ],
+      "labels": [
+        "A",
+        "B"
+      ],
+      "sides": {
+        "opposed": false,
+        "reason": "本人の発言から見るとAは賛成、Bは賛成で、この論点では対立していません。反対役を作らずに結論なしとします。"
+      }
+    },
+    {
+      "stances": [
+        "neutral",
+        "con"
+      ],
+      "labels": [
+        "A"
+      ],
+      "sides": {
+        "opposed": false,
+        "reason": "本人の発言から見るとAはどちらとも言えない、代理2は反対で、この論点では対立していません。反対役を作らずに結論なしとします。"
+      }
+    },
+    {
+      "stances": [
+        "neutral",
+        "neutral"
+      ],
+      "labels": [],
+      "sides": {
+        "opposed": false,
+        "reason": "本人の発言から見ると代理1はどちらとも言えない、代理2はどちらとも言えないで、この論点では対立していません。反対役を作らずに結論なしとします。"
+      }
+    }
+  ],
+  "designGap": {
+    "baseline": [
+      0.2,
+      0.5,
+      0.5,
+      0.5,
+      0.5,
+      0.5,
+      0.5,
+      0.5,
+      0.5,
+      0.5,
+      0.5,
+      0.5,
+      0.5,
+      0.5,
+      0.5,
+      0.5,
+      0.5,
+      0.5,
+      0.2,
+      0
+    ],
+    "targets": [
+      {
+        "mechanics": [],
+        "target": [
+          1,
+          0.5,
+          0.5,
+          0.5,
+          0.5,
+          0.5,
+          0.5,
+          0.5,
+          0.5,
+          0.5,
+          0.5,
+          0.5,
+          0.5,
+          0.5,
+          0.5,
+          0.5,
+          0.5,
+          0.5,
+          0.5,
+          0.5
+        ],
+        "gap": [
+          0.8,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0.3,
+          0.5
+        ]
+      },
+      {
+        "mechanics": [
+          {
+            "name": "m",
+            "description": "",
+            "intended_valence": "positive",
+            "intended_aspects": [
+              "fun",
+              "story",
+              "nope"
+            ],
+            "intended_emotions": [
+              "joy"
+            ]
+          }
+        ],
+        "target": [
+          1,
+          0.5,
+          1,
+          0.5,
+          0.5,
+          0.5,
+          0.5,
+          0.5,
+          0.5,
+          0.5,
+          1,
+          0.5,
+          0.5,
+          0.5,
+          0.5,
+          1,
+          0.5,
+          0.5,
+          0.5,
+          0.5
+        ],
+        "gap": [
+          0.8,
+          0,
+          0.5,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0.5,
+          0,
+          0,
+          0,
+          0,
+          0.5,
+          0,
+          0,
+          0.3,
+          0.5
+        ]
+      },
+      {
+        "mechanics": [
+          {
+            "name": "a",
+            "description": "",
+            "intended_valence": "negative"
+          },
+          {
+            "name": "b",
+            "description": "",
+            "intended_valence": "mixed"
+          },
+          {
+            "name": "c",
+            "description": ""
+          }
+        ],
+        "target": [
+          0.25,
+          0.5,
+          0.5,
+          0.5,
+          0.5,
+          0.5,
+          0.5,
+          0.5,
+          0.5,
+          0.5,
+          0.5,
+          0.5,
+          0.5,
+          0.5,
+          0.5,
+          0.5,
+          0.5,
+          0.5,
+          0.5,
+          0.5
+        ],
+        "gap": [
+          0.04999999999999999,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0.3,
+          0.5
+        ]
+      }
+    ]
+  },
+  "notionDepth": [
+    {
+      "text": "深さ:3 で読んで",
+      "depth": 3
+    },
+    {
+      "text": "depth=1",
+      "depth": 1
+    },
+    {
+      "text": "深さ：99",
+      "depth": 5
+    },
+    {
+      "text": "指示なし",
+      "depth": null
+    },
+    {
+      "text": "DEPTH : 4",
+      "depth": 4
+    },
+    {
+      "text": "深さ:x depth: 2",
+      "depth": 2
+    },
+    {
+      "text": "深さ:007",
+      "depth": 5
+    },
+    {
+      "text": "depth:",
+      "depth": null
+    },
+    {
+      "text": "深さ 　：　2",
+      "depth": 2
+    }
+  ],
+  "notionUrls": [
+    {
+      "text": "仕様: https://www.notion.so/ws/Spec-0123456789abcdef0123456789abcdef。",
+      "urls": [
+        "https://www.notion.so/ws/Spec-0123456789abcdef0123456789abcdef"
+      ]
+    },
+    {
+      "text": "https://acme.notion.site/Page-1,https://acme.notion.site/Page-1 と HTTPS://APP.NOTION.COM/p/x)",
+      "urls": [
+        "https://acme.notion.site/Page-1,https://acme.notion.site/Page-1",
+        "HTTPS://APP.NOTION.COM/p/x"
+      ]
+    },
+    {
+      "text": "(https://notion.so/a) <https://example.com/x> https://xnotion.so/a https://evil.com/notion.so",
+      "urls": [
+        "https://notion.so/a"
+      ]
+    },
+    {
+      "text": "http://www.notion.so/a」』） https://www.notion.so/b?p=1#h!?",
+      "urls": [
+        "http://www.notion.so/a",
+        "https://www.notion.so/b?p=1#h"
+      ]
+    },
+    {
+      "text": "https:// http://notion.site",
+      "urls": [
+        "http://notion.site"
+      ]
+    },
+    {
+      "text": "https://notion.so/日本語ページ、続き",
+      "urls": [
+        "https://notion.so/日本語ページ、続き"
+      ]
+    }
+  ],
+  "isNotion": [
+    {
+      "u": "https://www.notion.so/x",
+      "ok": true
+    },
+    {
+      "u": "ftp://notion.so/x",
+      "ok": false
+    },
+    {
+      "u": "https://notion.so.evil.com/x",
+      "ok": false
+    },
+    {
+      "u": "https://NOTION.SITE/a",
+      "ok": true
+    },
+    {
+      "u": "not a url",
+      "ok": false
+    }
+  ],
+  "notionExpand": {
+    "text": "https://www.notion.so/ws/Spec-0123456789abcdef0123456789abcdef。 深さ:1 https://acme.notion.site/Other",
+    "md": "# Notion 資料\n\n## 公開ページ\n出典: https://www.notion.so/ws/Spec-0123456789abcdef0123456789abcdef\n\n公開本文\n\n### (無題)\n出典: https://www.notion.so/ws/Spec-0123456789abcdef0123456789abcdef\n\n子本文\n\n###### 深い\n出典: https://acme.notion.site/Deep",
+    "warns": [
+      "Notion 公開ページ取得失敗 (https://acme.notion.site/Gone): 404",
+      "Notion ページ数上限 50 で打ち切り (https://www.notion.so/ws/Spec-0123456789abcdef0123456789abcdef)",
+      "Notion リンク取得失敗 (https://acme.notion.site/Other): timeout"
+    ]
+  },
+  "voiceNotices": [
+    {
+      "state": {
+        "referenceCount": 3,
+        "priorKnowledge": false,
+        "requestId": "di:s",
+        "requestStatus": "not_needed",
+        "choice": "unselected"
+      },
+      "notice": "外部の声は参考値です。なくても議論でき、後から意見・内容を修正して「再議論」できます。\n参考: 外部の声 3 件。"
+    },
+    {
+      "state": {
+        "referenceCount": 0,
+        "priorKnowledge": true,
+        "requestId": "di:s",
+        "requestStatus": "not_needed",
+        "choice": "unselected"
+      },
+      "notice": "外部の声は参考値です。なくても議論でき、後から意見・内容を修正して「再議論」できます。\n参考: 外部の声 0 件、事前知識・提示資料あり（実ユーザーの声とは別）。"
+    },
+    {
+      "state": {
+        "referenceCount": 0,
+        "priorKnowledge": false,
+        "requestId": "di:s",
+        "requestStatus": "accepted",
+        "choice": "wait"
+      },
+      "notice": "外部の声は参考値です。なくても議論でき、後から意見・内容を修正して「再議論」できます。\nVoluptas の依頼受付を確認しました。感想の取得完了とは別です。\n**「受付を待つ」** または **「外部の声なしで開始」** と回答してください。待機中は「受付確認」で状況を確認できます。"
+    },
+    {
+      "state": {
+        "referenceCount": 0,
+        "priorKnowledge": false,
+        "requestId": "di:s",
+        "requestStatus": "submitted",
+        "choice": "wait"
+      },
+      "notice": "外部の声は参考値です。なくても議論でき、後から意見・内容を修正して「再議論」できます。\nVoluptas に依頼を送信しました。受付はまだ確認できていません。\n**「受付を待つ」** または **「外部の声なしで開始」** と回答してください。待機中は「受付確認」で状況を確認できます。"
+    },
+    {
+      "state": {
+        "referenceCount": 0,
+        "priorKnowledge": false,
+        "requestId": "di:s",
+        "requestStatus": "unavailable",
+        "choice": "unselected"
+      },
+      "notice": "外部の声は参考値です。なくても議論でき、後から意見・内容を修正して「再議論」できます。\nVoluptas の依頼窓口が未設定のため、依頼は送信していません。\n**「受付を待つ」** または **「外部の声なしで開始」** と回答してください。待機中は「受付確認」で状況を確認できます。"
+    },
+    {
+      "state": {
+        "referenceCount": 0,
+        "priorKnowledge": false,
+        "requestId": "di:s",
+        "requestStatus": "unavailable",
+        "choice": "unselected",
+        "failure": "down"
+      },
+      "notice": "外部の声は参考値です。なくても議論でき、後から意見・内容を修正して「再議論」できます。\nVoluptas（Vo）が停止中、または接続できません。依頼の受付は確認できていません。\n**「受付を待つ」** または **「外部の声なしで開始」** と回答してください。待機中は「受付確認」で状況を確認できます。"
+    },
+    {
+      "state": {
+        "referenceCount": 0,
+        "priorKnowledge": false,
+        "requestId": "di:s",
+        "requestStatus": "unknown",
+        "choice": "unselected",
+        "failure": "protocol"
+      },
+      "notice": "外部の声は参考値です。なくても議論でき、後から意見・内容を修正して「再議論」できます。\nVoluptas の受付応答を確認できません。Voluptas への依頼結果が未確認です。重複送信せず受付を照合します。\n**「受付を待つ」** または **「外部の声なしで開始」** と回答してください。待機中は「受付確認」で状況を確認できます。"
+    },
+    {
+      "state": {
+        "referenceCount": 0,
+        "priorKnowledge": false,
+        "requestId": "di:s",
+        "requestStatus": "submitted",
+        "choice": "unselected",
+        "failure": "auth"
+      },
+      "notice": "外部の声は参考値です。なくても議論でき、後から意見・内容を修正して「再議論」できます。\nVoluptas の依頼権限を確認できません。Voluptas に依頼を送信しました。受付はまだ確認できていません。\n**「受付を待つ」** または **「外部の声なしで開始」** と回答してください。待機中は「受付確認」で状況を確認できます。"
+    },
+    {
+      "state": {
+        "referenceCount": 0,
+        "priorKnowledge": false,
+        "requestId": "di:s",
+        "requestStatus": "unknown",
+        "choice": "unselected",
+        "failure": "configuration"
+      },
+      "notice": "外部の声は参考値です。なくても議論でき、後から意見・内容を修正して「再議論」できます。\nVoluptas の接続設定を確認できません。Voluptas への依頼結果が未確認です。重複送信せず受付を照合します。\n**「受付を待つ」** または **「外部の声なしで開始」** と回答してください。待機中は「受付確認」で状況を確認できます。"
+    }
+  ],
+  "anatomia": {
+    "cards": [
+      {
+        "name": "Trial & Judgment",
+        "description": "裁判",
+        "mechanics": [
+          "trial",
+          "death-or-education"
+        ],
+        "specRefs": []
+      },
+      {
+        "name": "Client UI (PixiJS)",
+        "description": "描画",
+        "mechanics": [],
+        "specRefs": []
+      },
+      {
+        "name": "Incident Lifecycle",
+        "description": "事件",
+        "mechanics": [
+          "incident"
+        ],
+        "specRefs": [],
+        "rationale": "境界"
+      }
+    ],
+    "fallback": [
+      {
+        "name": "Trial & Judgment",
+        "description": "裁判 (実装メカニクス: trial, death-or-education)"
+      },
+      {
+        "name": "Incident Lifecycle",
+        "description": "事件 (実装メカニクス: incident)"
+      }
+    ],
+    "refined": [
+      {
+        "response": "[{\"name\":\" 裁判 \",\"description\":\" 村人を糾弾 \",\"intended_affect\":\" 緊張 \"},{\"name\":\"\",\"description\":\"x\"},[1],\"s\",{\"name\":\"事件\",\"intended_affect\":\"\"},{\"name\":\"x\",\"description\":3}]",
+        "out": [
+          {
+            "name": "裁判",
+            "description": "村人を糾弾",
+            "intended_affect": "緊張"
+          },
+          {
+            "name": "事件",
+            "description": ""
+          },
+          {
+            "name": "x",
+            "description": ""
+          }
+        ],
+        "warns": []
+      },
+      {
+        "response": "前置き ```json\n[{\"name\":\"a\"}]\n``` 後書き ] ",
+        "out": [
+          {
+            "name": "Trial & Judgment",
+            "description": "裁判 (実装メカニクス: trial, death-or-education)"
+          },
+          {
+            "name": "Incident Lifecycle",
+            "description": "事件 (実装メカニクス: incident)"
+          }
+        ],
+        "warns": [
+          "Anatomia 精製 LLM 応答が空/不正 → 決定論フォールバック"
+        ]
+      },
+      {
+        "response": "解析できませんでした",
+        "out": [
+          {
+            "name": "Trial & Judgment",
+            "description": "裁判 (実装メカニクス: trial, death-or-education)"
+          },
+          {
+            "name": "Incident Lifecycle",
+            "description": "事件 (実装メカニクス: incident)"
+          }
+        ],
+        "warns": [
+          "Anatomia 精製 LLM 応答が空/不正 → 決定論フォールバック"
+        ]
+      },
+      {
+        "response": "[]",
+        "out": [
+          {
+            "name": "Trial & Judgment",
+            "description": "裁判 (実装メカニクス: trial, death-or-education)"
+          },
+          {
+            "name": "Incident Lifecycle",
+            "description": "事件 (実装メカニクス: incident)"
+          }
+        ],
+        "warns": [
+          "Anatomia 精製 LLM 応答が空/不正 → 決定論フォールバック"
+        ]
+      },
+      {
+        "response": "[{\"name\": \"a\"} ] trailing [ ]",
+        "out": [
+          {
+            "name": "Trial & Judgment",
+            "description": "裁判 (実装メカニクス: trial, death-or-education)"
+          },
+          {
+            "name": "Incident Lifecycle",
+            "description": "事件 (実装メカニクス: incident)"
+          }
+        ],
+        "warns": [
+          "Anatomia 精製 LLM 応答が空/不正 → 決定論フォールバック"
+        ]
+      }
+    ],
+    "prompt": "あなたはゲームデザインのアナリストです。以下は Anatomia がソースコード解析から抽出したあるゲームの「ドメイン (実装上の責務の塊)」一覧です。\n\n- Trial & Judgment: 裁判 / 実装メカニクス: trial, death-or-education\n- Client UI (PixiJS): 描画\n- Incident Lifecycle: 事件 / 実装メカニクス: incident\n\n議論テーマ: Pagus の面白さ\n\nこの一覧から、**プレイヤーが体験する「遊びのメカニクス」** だけを抽出してください。\n- インフラ層 (LLM backend, サーバ/通信プロトコル, データ配置)・表示層 (UI/レンダリング)・内部基盤は **除外** する。\n- 採用する各メカニクスは、description を **プレイヤー視点** で言い直し、intended_affect に「そのメカニクスが狙う体験/感情」を 1 文で書く。\n- 実装用語ではなく、遊びとして何が起きるかを書く。\n\n出力は JSON 配列のみ (前置き/コードフェンス無し):\n[{\"name\":string,\"description\":string,\"intended_affect\":string}]",
+    "promptNoTheme": "あなたはゲームデザインのアナリストです。以下は Anatomia がソースコード解析から抽出したあるゲームの「ドメイン (実装上の責務の塊)」一覧です。\n\n- Trial & Judgment: 裁判 / 実装メカニクス: trial, death-or-education\n- Client UI (PixiJS): 描画\n- Incident Lifecycle: 事件 / 実装メカニクス: incident\n\nこの一覧から、**プレイヤーが体験する「遊びのメカニクス」** だけを抽出してください。\n- インフラ層 (LLM backend, サーバ/通信プロトコル, データ配置)・表示層 (UI/レンダリング)・内部基盤は **除外** する。\n- 採用する各メカニクスは、description を **プレイヤー視点** で言い直し、intended_affect に「そのメカニクスが狙う体験/感情」を 1 文で書く。\n- 実装用語ではなく、遊びとして何が起きるかを書く。\n\n出力は JSON 配列のみ (前置き/コードフェンス無し):\n[{\"name\":string,\"description\":string,\"intended_affect\":string}]"
+  }
+}
