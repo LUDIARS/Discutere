@@ -1,0 +1,1568 @@
+[
+  {
+    "case": {
+      "name": "invalid json",
+      "rawText": "not a json {{"
+    },
+    "result": {
+      "kind": "error",
+      "detail": "invalid JSON: not a json {{"
+    },
+    "logs": [
+      {
+        "rule_id": "meta-improve-rules",
+        "action": "error",
+        "actor": "ai",
+        "detail": "invalid JSON: not a json {{"
+      }
+    ],
+    "loggerCalls": [
+      {
+        "level": "warn",
+        "meta": {
+          "rule_id": "meta-improve-rules"
+        },
+        "msg": "invalid JSON: not a json {{"
+      }
+    ],
+    "proposed": [],
+    "posted": [],
+    "findCalls": [],
+    "rulesAfter": []
+  },
+  {
+    "case": {
+      "name": "invalid json long",
+      "rawText": "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx日本語日本語日本語日本語日本語日本語日本語日本語日本語日本語日本語日本語日本語日本語日本語日本語日本語日本語日本語日本語日本語日本語日本語日本語日本語日本語日本語日本語日本語日本語日本語日本語日本語日本語日本語日本語日本語日本語日本語日本語"
+    },
+    "result": {
+      "kind": "error",
+      "detail": "invalid JSON: xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"
+    },
+    "logs": [
+      {
+        "rule_id": "meta-improve-rules",
+        "action": "error",
+        "actor": "ai",
+        "detail": "invalid JSON: xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"
+      }
+    ],
+    "loggerCalls": [
+      {
+        "level": "warn",
+        "meta": {
+          "rule_id": "meta-improve-rules"
+        },
+        "msg": "invalid JSON: xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"
+      }
+    ],
+    "proposed": [],
+    "posted": [],
+    "findCalls": [],
+    "rulesAfter": []
+  },
+  {
+    "case": {
+      "name": "skip",
+      "rawText": "{\"action\":\"skip\",\"reasoning\":\"nothing\"}"
+    },
+    "result": {
+      "kind": "skip",
+      "detail": "nothing"
+    },
+    "logs": [
+      {
+        "rule_id": "meta-improve-rules",
+        "action": "skip",
+        "actor": "ai",
+        "detail": "persona neutral-observer skipped: nothing"
+      }
+    ],
+    "loggerCalls": [],
+    "proposed": [],
+    "posted": [],
+    "findCalls": [],
+    "rulesAfter": []
+  },
+  {
+    "case": {
+      "name": "skip no reason",
+      "rawText": "{\"action\":\"skip\"}"
+    },
+    "result": {
+      "kind": "skip",
+      "detail": "(no reason)"
+    },
+    "logs": [
+      {
+        "rule_id": "meta-improve-rules",
+        "action": "skip",
+        "actor": "ai",
+        "detail": "persona neutral-observer skipped: (no reason)"
+      }
+    ],
+    "loggerCalls": [],
+    "proposed": [],
+    "posted": [],
+    "findCalls": [],
+    "rulesAfter": []
+  },
+  {
+    "case": {
+      "name": "propose",
+      "rawText": "{\"action\":\"propose_hypothesis\",\"statement\":\"案A\",\"addresses_gap_id\":\"g-1\",\"reasoning\":\"r\"}"
+    },
+    "result": {
+      "kind": "propose_hypothesis",
+      "detail": "案A",
+      "createdId": "h-1"
+    },
+    "logs": [
+      {
+        "rule_id": "meta-improve-rules",
+        "action": "fire",
+        "actor": "ai",
+        "detail": "persona neutral-observer proposed hypothesis h-1"
+      }
+    ],
+    "loggerCalls": [
+      {
+        "level": "info",
+        "meta": {
+          "rule_id": "meta-improve-rules",
+          "persona_id": "neutral-observer",
+          "hypothesis_id": "h-1"
+        },
+        "msg": "hypothesis proposed"
+      }
+    ],
+    "proposed": [
+      {
+        "workspaceId": "knowledge",
+        "statement": "案A",
+        "designGapId": "g-1",
+        "byPersonaId": "neutral-observer",
+        "reasoning": "r"
+      }
+    ],
+    "posted": [],
+    "findCalls": [],
+    "rulesAfter": []
+  },
+  {
+    "case": {
+      "name": "propose gap_id",
+      "rawText": "{\"action\":\"propose_hypothesis\",\"statement\":\"案B\",\"gap_id\":\"g-2\"}"
+    },
+    "result": {
+      "kind": "propose_hypothesis",
+      "detail": "案B",
+      "createdId": "h-1"
+    },
+    "logs": [
+      {
+        "rule_id": "meta-improve-rules",
+        "action": "fire",
+        "actor": "ai",
+        "detail": "persona neutral-observer proposed hypothesis h-1"
+      }
+    ],
+    "loggerCalls": [
+      {
+        "level": "info",
+        "meta": {
+          "rule_id": "meta-improve-rules",
+          "persona_id": "neutral-observer",
+          "hypothesis_id": "h-1"
+        },
+        "msg": "hypothesis proposed"
+      }
+    ],
+    "proposed": [
+      {
+        "workspaceId": "knowledge",
+        "statement": "案B",
+        "designGapId": "g-2",
+        "byPersonaId": "neutral-observer"
+      }
+    ],
+    "posted": [],
+    "findCalls": [],
+    "rulesAfter": []
+  },
+  {
+    "case": {
+      "name": "propose empty addresses",
+      "rawText": "{\"action\":\"propose_hypothesis\",\"statement\":\"案\",\"addresses_gap_id\":\"\"}"
+    },
+    "result": {
+      "kind": "propose_hypothesis",
+      "detail": "案",
+      "createdId": "h-1"
+    },
+    "logs": [
+      {
+        "rule_id": "meta-improve-rules",
+        "action": "fire",
+        "actor": "ai",
+        "detail": "persona neutral-observer proposed hypothesis h-1"
+      }
+    ],
+    "loggerCalls": [
+      {
+        "level": "info",
+        "meta": {
+          "rule_id": "meta-improve-rules",
+          "persona_id": "neutral-observer",
+          "hypothesis_id": "h-1"
+        },
+        "msg": "hypothesis proposed"
+      }
+    ],
+    "proposed": [
+      {
+        "workspaceId": "knowledge",
+        "statement": "案",
+        "designGapId": "",
+        "byPersonaId": "neutral-observer"
+      }
+    ],
+    "posted": [],
+    "findCalls": [],
+    "rulesAfter": []
+  },
+  {
+    "case": {
+      "name": "propose infer",
+      "rawText": "{\"action\":\"propose_hypothesis\",\"statement\":\"案C\"}",
+      "triggerEvent": {
+        "kind": "DesignGapDetected",
+        "payload": {
+          "id": "g-9"
+        }
+      }
+    },
+    "result": {
+      "kind": "propose_hypothesis",
+      "detail": "案C",
+      "createdId": "h-1"
+    },
+    "logs": [
+      {
+        "rule_id": "meta-improve-rules",
+        "action": "fire",
+        "actor": "ai",
+        "detail": "persona neutral-observer proposed hypothesis h-1"
+      }
+    ],
+    "loggerCalls": [
+      {
+        "level": "info",
+        "meta": {
+          "rule_id": "meta-improve-rules",
+          "persona_id": "neutral-observer",
+          "hypothesis_id": "h-1"
+        },
+        "msg": "hypothesis proposed"
+      }
+    ],
+    "proposed": [
+      {
+        "workspaceId": "knowledge",
+        "statement": "案C",
+        "designGapId": "g-9",
+        "byPersonaId": "neutral-observer"
+      }
+    ],
+    "posted": [],
+    "findCalls": [],
+    "rulesAfter": []
+  },
+  {
+    "case": {
+      "name": "propose infer other kind",
+      "rawText": "{\"action\":\"propose_hypothesis\",\"statement\":\"案C\"}",
+      "triggerEvent": {
+        "kind": "Other",
+        "payload": {
+          "id": "g-9"
+        }
+      }
+    },
+    "result": {
+      "kind": "propose_hypothesis",
+      "detail": "案C",
+      "createdId": "h-1"
+    },
+    "logs": [
+      {
+        "rule_id": "meta-improve-rules",
+        "action": "fire",
+        "actor": "ai",
+        "detail": "persona neutral-observer proposed hypothesis h-1"
+      }
+    ],
+    "loggerCalls": [
+      {
+        "level": "info",
+        "meta": {
+          "rule_id": "meta-improve-rules",
+          "persona_id": "neutral-observer",
+          "hypothesis_id": "h-1"
+        },
+        "msg": "hypothesis proposed"
+      }
+    ],
+    "proposed": [
+      {
+        "workspaceId": "knowledge",
+        "statement": "案C",
+        "designGapId": null,
+        "byPersonaId": "neutral-observer"
+      }
+    ],
+    "posted": [],
+    "findCalls": [],
+    "rulesAfter": []
+  },
+  {
+    "case": {
+      "name": "propose infer empty id",
+      "rawText": "{\"action\":\"propose_hypothesis\",\"statement\":\"案C\"}",
+      "triggerEvent": {
+        "kind": "DesignGapUpdated",
+        "payload": {
+          "id": ""
+        }
+      }
+    },
+    "result": {
+      "kind": "propose_hypothesis",
+      "detail": "案C",
+      "createdId": "h-1"
+    },
+    "logs": [
+      {
+        "rule_id": "meta-improve-rules",
+        "action": "fire",
+        "actor": "ai",
+        "detail": "persona neutral-observer proposed hypothesis h-1"
+      }
+    ],
+    "loggerCalls": [
+      {
+        "level": "info",
+        "meta": {
+          "rule_id": "meta-improve-rules",
+          "persona_id": "neutral-observer",
+          "hypothesis_id": "h-1"
+        },
+        "msg": "hypothesis proposed"
+      }
+    ],
+    "proposed": [
+      {
+        "workspaceId": "knowledge",
+        "statement": "案C",
+        "designGapId": null,
+        "byPersonaId": "neutral-observer"
+      }
+    ],
+    "posted": [],
+    "findCalls": [],
+    "rulesAfter": []
+  },
+  {
+    "case": {
+      "name": "propose blank",
+      "rawText": "{\"action\":\"propose_hypothesis\",\"statement\":\"   \"}"
+    },
+    "result": {
+      "kind": "error",
+      "detail": "propose_hypothesis without statement"
+    },
+    "logs": [
+      {
+        "rule_id": "meta-improve-rules",
+        "action": "error",
+        "actor": "ai",
+        "detail": "propose_hypothesis without statement"
+      }
+    ],
+    "loggerCalls": [
+      {
+        "level": "warn",
+        "meta": {
+          "rule_id": "meta-improve-rules"
+        },
+        "msg": "propose_hypothesis without statement"
+      }
+    ],
+    "proposed": [],
+    "posted": [],
+    "findCalls": [],
+    "rulesAfter": []
+  },
+  {
+    "case": {
+      "name": "propose non-string",
+      "rawText": "{\"action\":\"propose_hypothesis\",\"statement\":5}"
+    },
+    "result": {
+      "kind": "error",
+      "detail": "propose_hypothesis without statement"
+    },
+    "logs": [
+      {
+        "rule_id": "meta-improve-rules",
+        "action": "error",
+        "actor": "ai",
+        "detail": "propose_hypothesis without statement"
+      }
+    ],
+    "loggerCalls": [
+      {
+        "level": "warn",
+        "meta": {
+          "rule_id": "meta-improve-rules"
+        },
+        "msg": "propose_hypothesis without statement"
+      }
+    ],
+    "proposed": [],
+    "posted": [],
+    "findCalls": [],
+    "rulesAfter": []
+  },
+  {
+    "case": {
+      "name": "post with session",
+      "rawText": "{\"action\":\"post_utterance\",\"text\":\"発話\",\"responds_to\":\"u-0\"}",
+      "sessionId": "s-1"
+    },
+    "result": {
+      "kind": "post_utterance",
+      "detail": "発話",
+      "createdId": "u-1"
+    },
+    "logs": [
+      {
+        "rule_id": "meta-improve-rules",
+        "action": "fire",
+        "actor": "ai",
+        "detail": "persona neutral-observer posted utterance u-1"
+      }
+    ],
+    "loggerCalls": [
+      {
+        "level": "info",
+        "meta": {
+          "rule_id": "meta-improve-rules",
+          "persona_id": "neutral-observer",
+          "utterance_id": "u-1"
+        },
+        "msg": "utterance posted"
+      }
+    ],
+    "proposed": [],
+    "posted": [
+      {
+        "workspaceId": "knowledge",
+        "sessionId": "s-1",
+        "text": "発話",
+        "byPersonaId": "neutral-observer",
+        "respondsTo": "u-0"
+      }
+    ],
+    "findCalls": [],
+    "rulesAfter": []
+  },
+  {
+    "case": {
+      "name": "post alias say",
+      "rawText": "{\"action\":\"say\",\"text\":\"言う\"}",
+      "sessionId": "s-1"
+    },
+    "result": {
+      "kind": "post_utterance",
+      "detail": "言う",
+      "createdId": "u-1"
+    },
+    "logs": [
+      {
+        "rule_id": "meta-improve-rules",
+        "action": "fire",
+        "actor": "ai",
+        "detail": "persona neutral-observer posted utterance u-1"
+      }
+    ],
+    "loggerCalls": [
+      {
+        "level": "info",
+        "meta": {
+          "rule_id": "meta-improve-rules",
+          "persona_id": "neutral-observer",
+          "utterance_id": "u-1"
+        },
+        "msg": "utterance posted"
+      }
+    ],
+    "proposed": [],
+    "posted": [
+      {
+        "workspaceId": "knowledge",
+        "sessionId": "s-1",
+        "text": "言う",
+        "byPersonaId": "neutral-observer"
+      }
+    ],
+    "findCalls": [],
+    "rulesAfter": []
+  },
+  {
+    "case": {
+      "name": "post alias without text",
+      "rawText": "{\"action\":\"talk\"}",
+      "sessionId": "s-1"
+    },
+    "result": {
+      "kind": "error",
+      "detail": "unknown action: talk"
+    },
+    "logs": [
+      {
+        "rule_id": "meta-improve-rules",
+        "action": "error",
+        "actor": "ai",
+        "detail": "unknown action: talk"
+      }
+    ],
+    "loggerCalls": [
+      {
+        "level": "warn",
+        "meta": {
+          "rule_id": "meta-improve-rules"
+        },
+        "msg": "unknown action: talk"
+      }
+    ],
+    "proposed": [],
+    "posted": [],
+    "findCalls": [],
+    "rulesAfter": []
+  },
+  {
+    "case": {
+      "name": "post by hypothesis",
+      "rawText": "{\"action\":\"post_utterance\",\"text\":\"t\",\"hypothesis_id\":\"h-1\"}",
+      "findSession": "s-h",
+      "findActive": "s-a"
+    },
+    "result": {
+      "kind": "post_utterance",
+      "detail": "t",
+      "createdId": "u-1"
+    },
+    "logs": [
+      {
+        "rule_id": "meta-improve-rules",
+        "action": "fire",
+        "actor": "ai",
+        "detail": "persona neutral-observer posted utterance u-1"
+      }
+    ],
+    "loggerCalls": [
+      {
+        "level": "info",
+        "meta": {
+          "rule_id": "meta-improve-rules",
+          "persona_id": "neutral-observer",
+          "utterance_id": "u-1"
+        },
+        "msg": "utterance posted"
+      }
+    ],
+    "proposed": [],
+    "posted": [
+      {
+        "workspaceId": "knowledge",
+        "sessionId": "s-h",
+        "text": "t",
+        "byPersonaId": "neutral-observer"
+      }
+    ],
+    "findCalls": [
+      {
+        "fn": "find",
+        "q": {
+          "workspaceId": "knowledge",
+          "hypothesisId": "h-1"
+        }
+      }
+    ],
+    "rulesAfter": []
+  },
+  {
+    "case": {
+      "name": "post hypothesis miss",
+      "rawText": "{\"action\":\"post_utterance\",\"text\":\"t\",\"hypothesis_id\":\"h-1\"}",
+      "findSession": null,
+      "findActive": "s-a"
+    },
+    "result": {
+      "kind": "post_utterance",
+      "detail": "t",
+      "createdId": "u-1"
+    },
+    "logs": [
+      {
+        "rule_id": "meta-improve-rules",
+        "action": "fire",
+        "actor": "ai",
+        "detail": "persona neutral-observer posted utterance u-1"
+      }
+    ],
+    "loggerCalls": [
+      {
+        "level": "info",
+        "meta": {
+          "rule_id": "meta-improve-rules",
+          "persona_id": "neutral-observer",
+          "utterance_id": "u-1"
+        },
+        "msg": "utterance posted"
+      }
+    ],
+    "proposed": [],
+    "posted": [
+      {
+        "workspaceId": "knowledge",
+        "sessionId": "s-a",
+        "text": "t",
+        "byPersonaId": "neutral-observer"
+      }
+    ],
+    "findCalls": [
+      {
+        "fn": "find",
+        "q": {
+          "workspaceId": "knowledge",
+          "hypothesisId": "h-1"
+        }
+      },
+      {
+        "fn": "active",
+        "q": {
+          "workspaceId": "knowledge"
+        }
+      }
+    ],
+    "rulesAfter": []
+  },
+  {
+    "case": {
+      "name": "post active",
+      "rawText": "{\"action\":\"post_utterance\",\"text\":\"t\"}",
+      "findActive": "s-a"
+    },
+    "result": {
+      "kind": "post_utterance",
+      "detail": "t",
+      "createdId": "u-1"
+    },
+    "logs": [
+      {
+        "rule_id": "meta-improve-rules",
+        "action": "fire",
+        "actor": "ai",
+        "detail": "persona neutral-observer posted utterance u-1"
+      }
+    ],
+    "loggerCalls": [
+      {
+        "level": "info",
+        "meta": {
+          "rule_id": "meta-improve-rules",
+          "persona_id": "neutral-observer",
+          "utterance_id": "u-1"
+        },
+        "msg": "utterance posted"
+      }
+    ],
+    "proposed": [],
+    "posted": [
+      {
+        "workspaceId": "knowledge",
+        "sessionId": "s-a",
+        "text": "t",
+        "byPersonaId": "neutral-observer"
+      }
+    ],
+    "findCalls": [
+      {
+        "fn": "active",
+        "q": {
+          "workspaceId": "knowledge"
+        }
+      }
+    ],
+    "rulesAfter": []
+  },
+  {
+    "case": {
+      "name": "post none",
+      "rawText": "{\"action\":\"post_utterance\",\"text\":\"t\"}"
+    },
+    "result": {
+      "kind": "skip",
+      "detail": "post_utterance: 議論 session を解決できないため skip (tick rule)"
+    },
+    "logs": [],
+    "loggerCalls": [],
+    "proposed": [],
+    "posted": [],
+    "findCalls": [],
+    "rulesAfter": []
+  },
+  {
+    "case": {
+      "name": "post empty session",
+      "rawText": "{\"action\":\"post_utterance\",\"text\":\"t\"}",
+      "sessionId": "",
+      "findActive": "s-a"
+    },
+    "result": {
+      "kind": "post_utterance",
+      "detail": "t",
+      "createdId": "u-1"
+    },
+    "logs": [
+      {
+        "rule_id": "meta-improve-rules",
+        "action": "fire",
+        "actor": "ai",
+        "detail": "persona neutral-observer posted utterance u-1"
+      }
+    ],
+    "loggerCalls": [
+      {
+        "level": "info",
+        "meta": {
+          "rule_id": "meta-improve-rules",
+          "persona_id": "neutral-observer",
+          "utterance_id": "u-1"
+        },
+        "msg": "utterance posted"
+      }
+    ],
+    "proposed": [],
+    "posted": [
+      {
+        "workspaceId": "knowledge",
+        "sessionId": "s-a",
+        "text": "t",
+        "byPersonaId": "neutral-observer"
+      }
+    ],
+    "findCalls": [
+      {
+        "fn": "active",
+        "q": {
+          "workspaceId": "knowledge"
+        }
+      }
+    ],
+    "rulesAfter": []
+  },
+  {
+    "case": {
+      "name": "post blank",
+      "rawText": "{\"action\":\"post_utterance\",\"text\":\"  \"}",
+      "sessionId": "s-1"
+    },
+    "result": {
+      "kind": "error",
+      "detail": "post_utterance without text"
+    },
+    "logs": [
+      {
+        "rule_id": "meta-improve-rules",
+        "action": "error",
+        "actor": "ai",
+        "detail": "post_utterance without text"
+      }
+    ],
+    "loggerCalls": [
+      {
+        "level": "warn",
+        "meta": {
+          "rule_id": "meta-improve-rules"
+        },
+        "msg": "post_utterance without text"
+      }
+    ],
+    "proposed": [],
+    "posted": [],
+    "findCalls": [],
+    "rulesAfter": []
+  },
+  {
+    "case": {
+      "name": "unknown",
+      "rawText": "{\"action\":\"dance\"}"
+    },
+    "result": {
+      "kind": "error",
+      "detail": "unknown action: dance"
+    },
+    "logs": [
+      {
+        "rule_id": "meta-improve-rules",
+        "action": "error",
+        "actor": "ai",
+        "detail": "unknown action: dance"
+      }
+    ],
+    "loggerCalls": [
+      {
+        "level": "warn",
+        "meta": {
+          "rule_id": "meta-improve-rules"
+        },
+        "msg": "unknown action: dance"
+      }
+    ],
+    "proposed": [],
+    "posted": [],
+    "findCalls": [],
+    "rulesAfter": []
+  },
+  {
+    "case": {
+      "name": "no action",
+      "rawText": "{\"text\":\"x\"}"
+    },
+    "result": {
+      "kind": "error",
+      "detail": "unknown action: "
+    },
+    "logs": [
+      {
+        "rule_id": "meta-improve-rules",
+        "action": "error",
+        "actor": "ai",
+        "detail": "unknown action: "
+      }
+    ],
+    "loggerCalls": [
+      {
+        "level": "warn",
+        "meta": {
+          "rule_id": "meta-improve-rules"
+        },
+        "msg": "unknown action: "
+      }
+    ],
+    "proposed": [],
+    "posted": [],
+    "findCalls": [],
+    "rulesAfter": []
+  },
+  {
+    "case": {
+      "name": "add_rule ok",
+      "rawText": "{\"action\":\"add_rule\",\"rule\":{\"id\":\"extra-counter\",\"description\":\"テスト\",\"trigger_type\":\"tick\",\"tick_sec\":600,\"target\":\"advocate\",\"cooldown_sec\":300,\"instructions\":\"これは十分に長い指示文で、議論の論点を一つ選び具体的な提案をする。\"}}"
+    },
+    "result": {
+      "kind": "add_rule",
+      "detail": "extra-counter",
+      "createdId": "extra-counter"
+    },
+    "logs": [
+      {
+        "rule_id": "extra-counter",
+        "action": "add",
+        "actor": "ai",
+        "detail": "persona neutral-observer added rule extra-counter via meta-improve-rules"
+      }
+    ],
+    "loggerCalls": [
+      {
+        "level": "info",
+        "meta": {
+          "rule_id": "extra-counter",
+          "persona_id": "neutral-observer",
+          "via": "meta-improve-rules"
+        },
+        "msg": "rule added by AI"
+      }
+    ],
+    "proposed": [],
+    "posted": [],
+    "findCalls": [],
+    "rulesAfter": [
+      {
+        "id": "extra-counter",
+        "description": "テスト",
+        "trigger_type": "tick",
+        "tick_sec": 600,
+        "event_kind": null,
+        "target": "advocate",
+        "cooldown_sec": 300,
+        "instructions": "これは十分に長い指示文で、議論の論点を一つ選び具体的な提案をする。",
+        "added_by": "ai:neutral-observer",
+        "enabled": 1,
+        "removed_by": null,
+        "removed_reason": null
+      }
+    ]
+  },
+  {
+    "case": {
+      "name": "add_rule event defaults",
+      "rawText": "{\"action\":\"add_rule\",\"rule\":{\"id\":\"  ev-rule  \",\"trigger_type\":\"event\",\"tick_sec\":2,\"cooldown_sec\":-1,\"event_kind\":\"GapDetected\",\"instructions\":\"これは十分に長い指示文で、議論の論点を一つ選び具体的な提案をする。\"}}"
+    },
+    "result": {
+      "kind": "add_rule",
+      "detail": "ev-rule",
+      "createdId": "ev-rule"
+    },
+    "logs": [
+      {
+        "rule_id": "ev-rule",
+        "action": "add",
+        "actor": "ai",
+        "detail": "persona neutral-observer added rule ev-rule via meta-improve-rules"
+      }
+    ],
+    "loggerCalls": [
+      {
+        "level": "info",
+        "meta": {
+          "rule_id": "ev-rule",
+          "persona_id": "neutral-observer",
+          "via": "meta-improve-rules"
+        },
+        "msg": "rule added by AI"
+      }
+    ],
+    "proposed": [],
+    "posted": [],
+    "findCalls": [],
+    "rulesAfter": [
+      {
+        "id": "ev-rule",
+        "description": null,
+        "trigger_type": "event",
+        "tick_sec": null,
+        "event_kind": "GapDetected",
+        "target": null,
+        "cooldown_sec": 60,
+        "instructions": "これは十分に長い指示文で、議論の論点を一つ選び具体的な提案をする。",
+        "added_by": "ai:neutral-observer",
+        "enabled": 1,
+        "removed_by": null,
+        "removed_reason": null
+      }
+    ]
+  },
+  {
+    "case": {
+      "name": "add_rule no rule",
+      "rawText": "{\"action\":\"add_rule\"}"
+    },
+    "result": {
+      "kind": "error",
+      "detail": "add_rule without rule object"
+    },
+    "logs": [
+      {
+        "rule_id": "meta-improve-rules",
+        "action": "error",
+        "actor": "ai",
+        "detail": "add_rule without rule object"
+      }
+    ],
+    "loggerCalls": [
+      {
+        "level": "warn",
+        "meta": {
+          "rule_id": "meta-improve-rules"
+        },
+        "msg": "add_rule without rule object"
+      }
+    ],
+    "proposed": [],
+    "posted": [],
+    "findCalls": [],
+    "rulesAfter": []
+  },
+  {
+    "case": {
+      "name": "add_rule array",
+      "rawText": "{\"action\":\"add_rule\",\"rule\":[1]}"
+    },
+    "result": {
+      "kind": "error",
+      "detail": "add_rule id invalid (must be kebab 2-64): "
+    },
+    "logs": [
+      {
+        "rule_id": "meta-improve-rules",
+        "action": "error",
+        "actor": "ai",
+        "detail": "add_rule id invalid (must be kebab 2-64): "
+      }
+    ],
+    "loggerCalls": [
+      {
+        "level": "warn",
+        "meta": {
+          "rule_id": "meta-improve-rules"
+        },
+        "msg": "add_rule id invalid (must be kebab 2-64): "
+      }
+    ],
+    "proposed": [],
+    "posted": [],
+    "findCalls": [],
+    "rulesAfter": []
+  },
+  {
+    "case": {
+      "name": "add_rule bad id",
+      "rawText": "{\"action\":\"add_rule\",\"rule\":{\"id\":\"Bad_Id\",\"trigger_type\":\"tick\",\"instructions\":\"これは十分に長い指示文で、議論の論点を一つ選び具体的な提案をする。\"}}"
+    },
+    "result": {
+      "kind": "error",
+      "detail": "add_rule id invalid (must be kebab 2-64): Bad_Id"
+    },
+    "logs": [
+      {
+        "rule_id": "meta-improve-rules",
+        "action": "error",
+        "actor": "ai",
+        "detail": "add_rule id invalid (must be kebab 2-64): Bad_Id"
+      }
+    ],
+    "loggerCalls": [
+      {
+        "level": "warn",
+        "meta": {
+          "rule_id": "meta-improve-rules"
+        },
+        "msg": "add_rule id invalid (must be kebab 2-64): Bad_Id"
+      }
+    ],
+    "proposed": [],
+    "posted": [],
+    "findCalls": [],
+    "rulesAfter": []
+  },
+  {
+    "case": {
+      "name": "add_rule one char id",
+      "rawText": "{\"action\":\"add_rule\",\"rule\":{\"id\":\"a\",\"trigger_type\":\"tick\",\"instructions\":\"これは十分に長い指示文で、議論の論点を一つ選び具体的な提案をする。\"}}"
+    },
+    "result": {
+      "kind": "error",
+      "detail": "add_rule id invalid (must be kebab 2-64): a"
+    },
+    "logs": [
+      {
+        "rule_id": "meta-improve-rules",
+        "action": "error",
+        "actor": "ai",
+        "detail": "add_rule id invalid (must be kebab 2-64): a"
+      }
+    ],
+    "loggerCalls": [
+      {
+        "level": "warn",
+        "meta": {
+          "rule_id": "meta-improve-rules"
+        },
+        "msg": "add_rule id invalid (must be kebab 2-64): a"
+      }
+    ],
+    "proposed": [],
+    "posted": [],
+    "findCalls": [],
+    "rulesAfter": []
+  },
+  {
+    "case": {
+      "name": "add_rule 64 id",
+      "rawText": "{\"action\":\"add_rule\",\"rule\":{\"id\":\"abbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb\",\"trigger_type\":\"tick\",\"instructions\":\"これは十分に長い指示文で、議論の論点を一つ選び具体的な提案をする。\"}}"
+    },
+    "result": {
+      "kind": "add_rule",
+      "detail": "abbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+      "createdId": "abbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb"
+    },
+    "logs": [
+      {
+        "rule_id": "abbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+        "action": "add",
+        "actor": "ai",
+        "detail": "persona neutral-observer added rule abbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb via meta-improve-rules"
+      }
+    ],
+    "loggerCalls": [
+      {
+        "level": "info",
+        "meta": {
+          "rule_id": "abbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+          "persona_id": "neutral-observer",
+          "via": "meta-improve-rules"
+        },
+        "msg": "rule added by AI"
+      }
+    ],
+    "proposed": [],
+    "posted": [],
+    "findCalls": [],
+    "rulesAfter": [
+      {
+        "id": "abbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+        "description": null,
+        "trigger_type": "tick",
+        "tick_sec": null,
+        "event_kind": null,
+        "target": null,
+        "cooldown_sec": 60,
+        "instructions": "これは十分に長い指示文で、議論の論点を一つ選び具体的な提案をする。",
+        "added_by": "ai:neutral-observer",
+        "enabled": 1,
+        "removed_by": null,
+        "removed_reason": null
+      }
+    ]
+  },
+  {
+    "case": {
+      "name": "add_rule 65 id",
+      "rawText": "{\"action\":\"add_rule\",\"rule\":{\"id\":\"abbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb\",\"trigger_type\":\"tick\",\"instructions\":\"これは十分に長い指示文で、議論の論点を一つ選び具体的な提案をする。\"}}"
+    },
+    "result": {
+      "kind": "error",
+      "detail": "add_rule id invalid (must be kebab 2-64): abbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb"
+    },
+    "logs": [
+      {
+        "rule_id": "meta-improve-rules",
+        "action": "error",
+        "actor": "ai",
+        "detail": "add_rule id invalid (must be kebab 2-64): abbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb"
+      }
+    ],
+    "loggerCalls": [
+      {
+        "level": "warn",
+        "meta": {
+          "rule_id": "meta-improve-rules"
+        },
+        "msg": "add_rule id invalid (must be kebab 2-64): abbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb"
+      }
+    ],
+    "proposed": [],
+    "posted": [],
+    "findCalls": [],
+    "rulesAfter": []
+  },
+  {
+    "case": {
+      "name": "add_rule bad trigger",
+      "rawText": "{\"action\":\"add_rule\",\"rule\":{\"id\":\"abc\",\"trigger_type\":\"cron\",\"instructions\":\"これは十分に長い指示文で、議論の論点を一つ選び具体的な提案をする。\"}}"
+    },
+    "result": {
+      "kind": "error",
+      "detail": "add_rule trigger_type must be tick|event: cron"
+    },
+    "logs": [
+      {
+        "rule_id": "meta-improve-rules",
+        "action": "error",
+        "actor": "ai",
+        "detail": "add_rule trigger_type must be tick|event: cron"
+      }
+    ],
+    "loggerCalls": [
+      {
+        "level": "warn",
+        "meta": {
+          "rule_id": "meta-improve-rules"
+        },
+        "msg": "add_rule trigger_type must be tick|event: cron"
+      }
+    ],
+    "proposed": [],
+    "posted": [],
+    "findCalls": [],
+    "rulesAfter": []
+  },
+  {
+    "case": {
+      "name": "add_rule short",
+      "rawText": "{\"action\":\"add_rule\",\"rule\":{\"id\":\"abc\",\"trigger_type\":\"tick\",\"instructions\":\"短い\"}}"
+    },
+    "result": {
+      "kind": "error",
+      "detail": "add_rule instructions length must be 16-4000"
+    },
+    "logs": [
+      {
+        "rule_id": "meta-improve-rules",
+        "action": "error",
+        "actor": "ai",
+        "detail": "add_rule instructions length must be 16-4000"
+      }
+    ],
+    "loggerCalls": [
+      {
+        "level": "warn",
+        "meta": {
+          "rule_id": "meta-improve-rules"
+        },
+        "msg": "add_rule instructions length must be 16-4000"
+      }
+    ],
+    "proposed": [],
+    "posted": [],
+    "findCalls": [],
+    "rulesAfter": []
+  },
+  {
+    "case": {
+      "name": "add_rule 16",
+      "rawText": "{\"action\":\"add_rule\",\"rule\":{\"id\":\"abc\",\"trigger_type\":\"tick\",\"instructions\":\"ああああああああああああああああ\"}}"
+    },
+    "result": {
+      "kind": "add_rule",
+      "detail": "abc",
+      "createdId": "abc"
+    },
+    "logs": [
+      {
+        "rule_id": "abc",
+        "action": "add",
+        "actor": "ai",
+        "detail": "persona neutral-observer added rule abc via meta-improve-rules"
+      }
+    ],
+    "loggerCalls": [
+      {
+        "level": "info",
+        "meta": {
+          "rule_id": "abc",
+          "persona_id": "neutral-observer",
+          "via": "meta-improve-rules"
+        },
+        "msg": "rule added by AI"
+      }
+    ],
+    "proposed": [],
+    "posted": [],
+    "findCalls": [],
+    "rulesAfter": [
+      {
+        "id": "abc",
+        "description": null,
+        "trigger_type": "tick",
+        "tick_sec": null,
+        "event_kind": null,
+        "target": null,
+        "cooldown_sec": 60,
+        "instructions": "ああああああああああああああああ",
+        "added_by": "ai:neutral-observer",
+        "enabled": 1,
+        "removed_by": null,
+        "removed_reason": null
+      }
+    ]
+  },
+  {
+    "case": {
+      "name": "add_rule 4000",
+      "rawText": "{\"action\":\"add_rule\",\"rule\":{\"id\":\"abd\",\"trigger_type\":\"tick\",\"instructions\":\"xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx\"}}"
+    },
+    "result": {
+      "kind": "add_rule",
+      "detail": "abd",
+      "createdId": "abd"
+    },
+    "logs": [
+      {
+        "rule_id": "abd",
+        "action": "add",
+        "actor": "ai",
+        "detail": "persona neutral-observer added rule abd via meta-improve-rules"
+      }
+    ],
+    "loggerCalls": [
+      {
+        "level": "info",
+        "meta": {
+          "rule_id": "abd",
+          "persona_id": "neutral-observer",
+          "via": "meta-improve-rules"
+        },
+        "msg": "rule added by AI"
+      }
+    ],
+    "proposed": [],
+    "posted": [],
+    "findCalls": [],
+    "rulesAfter": [
+      {
+        "id": "abd",
+        "description": null,
+        "trigger_type": "tick",
+        "tick_sec": null,
+        "event_kind": null,
+        "target": null,
+        "cooldown_sec": 60,
+        "instructions": "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx",
+        "added_by": "ai:neutral-observer",
+        "enabled": 1,
+        "removed_by": null,
+        "removed_reason": null
+      }
+    ]
+  },
+  {
+    "case": {
+      "name": "add_rule 4001",
+      "rawText": "{\"action\":\"add_rule\",\"rule\":{\"id\":\"abe\",\"trigger_type\":\"tick\",\"instructions\":\"xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx\"}}"
+    },
+    "result": {
+      "kind": "error",
+      "detail": "add_rule instructions length must be 16-4000"
+    },
+    "logs": [
+      {
+        "rule_id": "meta-improve-rules",
+        "action": "error",
+        "actor": "ai",
+        "detail": "add_rule instructions length must be 16-4000"
+      }
+    ],
+    "loggerCalls": [
+      {
+        "level": "warn",
+        "meta": {
+          "rule_id": "meta-improve-rules"
+        },
+        "msg": "add_rule instructions length must be 16-4000"
+      }
+    ],
+    "proposed": [],
+    "posted": [],
+    "findCalls": [],
+    "rulesAfter": []
+  },
+  {
+    "case": {
+      "name": "add_rule forbidden",
+      "rawText": "{\"action\":\"add_rule\",\"rule\":{\"id\":\"silent-check\",\"trigger_type\":\"tick\",\"instructions\":\"沈黙確認用の rule、これは禁則パターンに一致する\"}}"
+    },
+    "result": {
+      "kind": "error",
+      "detail": "add_rule forbidden: 無音 / 沈黙確認系 rule は禁止 (rule_log で見えるため不要)"
+    },
+    "logs": [
+      {
+        "rule_id": "meta-improve-rules",
+        "action": "error",
+        "actor": "ai",
+        "detail": "add_rule forbidden: 無音 / 沈黙確認系 rule は禁止 (rule_log で見えるため不要)"
+      }
+    ],
+    "loggerCalls": [
+      {
+        "level": "warn",
+        "meta": {
+          "rule_id": "meta-improve-rules"
+        },
+        "msg": "add_rule forbidden: 無音 / 沈黙確認系 rule は禁止 (rule_log で見えるため不要)"
+      }
+    ],
+    "proposed": [],
+    "posted": [],
+    "findCalls": [],
+    "rulesAfter": []
+  },
+  {
+    "case": {
+      "name": "add_rule duplicate",
+      "rawText": "{\"action\":\"add_rule\",\"rule\":{\"id\":\"propose-on-gap\",\"trigger_type\":\"tick\",\"instructions\":\"これは十分に長い指示文で、議論の論点を一つ選び具体的な提案をする。\"}}"
+    },
+    "result": {
+      "kind": "error",
+      "detail": "add_rule id already exists: propose-on-gap"
+    },
+    "logs": [
+      {
+        "rule_id": "meta-improve-rules",
+        "action": "error",
+        "actor": "ai",
+        "detail": "add_rule id already exists: propose-on-gap"
+      }
+    ],
+    "loggerCalls": [
+      {
+        "level": "warn",
+        "meta": {
+          "rule_id": "meta-improve-rules"
+        },
+        "msg": "add_rule id already exists: propose-on-gap"
+      }
+    ],
+    "proposed": [],
+    "posted": [],
+    "findCalls": [],
+    "rulesAfter": []
+  },
+  {
+    "case": {
+      "name": "remove seed",
+      "rawText": "{\"action\":\"remove_rule\",\"rule_id\":\"propose-on-gap\",\"reasoning\":\"r\"}"
+    },
+    "result": {
+      "kind": "error",
+      "detail": "remove_rule rejected: propose-on-gap is a protected seed"
+    },
+    "logs": [
+      {
+        "rule_id": "meta-improve-rules",
+        "action": "error",
+        "actor": "ai",
+        "detail": "remove_rule rejected: propose-on-gap is a protected seed"
+      }
+    ],
+    "loggerCalls": [
+      {
+        "level": "warn",
+        "meta": {
+          "rule_id": "meta-improve-rules"
+        },
+        "msg": "remove_rule rejected: propose-on-gap is a protected seed"
+      }
+    ],
+    "proposed": [],
+    "posted": [],
+    "findCalls": [],
+    "rulesAfter": []
+  },
+  {
+    "case": {
+      "name": "remove unknown",
+      "rawText": "{\"action\":\"remove_rule\",\"rule_id\":\"nope\"}"
+    },
+    "result": {
+      "kind": "error",
+      "detail": "remove_rule unknown id: nope"
+    },
+    "logs": [
+      {
+        "rule_id": "meta-improve-rules",
+        "action": "error",
+        "actor": "ai",
+        "detail": "remove_rule unknown id: nope"
+      }
+    ],
+    "loggerCalls": [
+      {
+        "level": "warn",
+        "meta": {
+          "rule_id": "meta-improve-rules"
+        },
+        "msg": "remove_rule unknown id: nope"
+      }
+    ],
+    "proposed": [],
+    "posted": [],
+    "findCalls": [],
+    "rulesAfter": []
+  },
+  {
+    "case": {
+      "name": "remove missing",
+      "rawText": "{\"action\":\"remove_rule\"}"
+    },
+    "result": {
+      "kind": "error",
+      "detail": "remove_rule without rule_id"
+    },
+    "logs": [
+      {
+        "rule_id": "meta-improve-rules",
+        "action": "error",
+        "actor": "ai",
+        "detail": "remove_rule without rule_id"
+      }
+    ],
+    "loggerCalls": [
+      {
+        "level": "warn",
+        "meta": {
+          "rule_id": "meta-improve-rules"
+        },
+        "msg": "remove_rule without rule_id"
+      }
+    ],
+    "proposed": [],
+    "posted": [],
+    "findCalls": [],
+    "rulesAfter": []
+  },
+  {
+    "case": {
+      "name": "remove ok",
+      "rawText": "{\"action\":\"remove_rule\",\"rule_id\":\"extra-x\",\"reasoning\":\"不要\"}",
+      "preAddRule": "extra-x"
+    },
+    "result": {
+      "kind": "remove_rule",
+      "detail": "extra-x"
+    },
+    "logs": [
+      {
+        "rule_id": "extra-x",
+        "action": "remove",
+        "actor": "ai",
+        "detail": "persona neutral-observer removed rule extra-x: 不要"
+      }
+    ],
+    "loggerCalls": [
+      {
+        "level": "info",
+        "meta": {
+          "rule_id": "extra-x",
+          "persona_id": "neutral-observer",
+          "reasoning": "不要"
+        },
+        "msg": "rule removed by AI"
+      }
+    ],
+    "proposed": [],
+    "posted": [],
+    "findCalls": [],
+    "rulesAfter": [
+      {
+        "id": "extra-x",
+        "description": null,
+        "trigger_type": "tick",
+        "tick_sec": 60,
+        "event_kind": null,
+        "target": null,
+        "cooldown_sec": 60,
+        "instructions": "これは十分に長い指示文で、議論の論点を一つ選び具体的な提案をする。",
+        "added_by": "ai:x",
+        "enabled": 0,
+        "removed_by": "ai:neutral-observer",
+        "removed_reason": "不要"
+      }
+    ]
+  }
+]
