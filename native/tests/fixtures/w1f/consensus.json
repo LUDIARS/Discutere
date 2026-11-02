@@ -1,0 +1,280 @@
+{
+  "sorted": [
+    "",
+    " ",
+    "_x",
+    "-x",
+    "!",
+    "(",
+    "「",
+    "#",
+    "＃",
+    "~",
+    "ー",
+    "1",
+    "10",
+    "2",
+    "a",
+    "ａ",
+    "A",
+    "Ａ",
+    "a1",
+    "A1",
+    "ab",
+    "aB",
+    "Ab",
+    "AB",
+    "b",
+    "B",
+    "e",
+    "é",
+    "f",
+    "persona 10",
+    "Persona 2",
+    "persona-1",
+    "x y",
+    "xy",
+    "Z",
+    "ぁ",
+    "あ",
+    "ア",
+    "あ い",
+    "あい",
+    "アイ",
+    "か",
+    "カ",
+    "が",
+    "ガ",
+    "は",
+    "ハ",
+    "ば",
+    "ぱ",
+    "パ",
+    "ﾊﾟ",
+    "ぺるそな",
+    "ペルソナ",
+    "保守派",
+    "字",
+    "改革派",
+    "漢",
+    "論者#a",
+    "論者#B"
+  ],
+  "rows": [
+    {
+      "id": "u2",
+      "personaId": "persona-a",
+      "displayName": "改革派A",
+      "traits": [
+        "慎重"
+      ],
+      "content": "second",
+      "postedAt": 20,
+      "agree": false,
+      "score": 3,
+      "reasoning": "no",
+      "opinionScore": 4
+    },
+    {
+      "id": "u1",
+      "personaId": "persona-a",
+      "displayName": "改革派A",
+      "traits": [
+        "慎重"
+      ],
+      "content": "first",
+      "postedAt": 10,
+      "agree": true,
+      "score": 7,
+      "reasoning": "yes",
+      "opinionScore": 2
+    },
+    {
+      "id": "u3",
+      "personaId": "persona-b",
+      "displayName": "あいだ",
+      "traits": [
+        "新規性重視"
+      ],
+      "content": "pending",
+      "postedAt": 15,
+      "agree": null,
+      "score": null,
+      "reasoning": null,
+      "opinionScore": 1
+    },
+    {
+      "id": "u4",
+      "personaId": "persona-c",
+      "displayName": "Bob",
+      "traits": [],
+      "content": "c1",
+      "postedAt": 5,
+      "agree": true,
+      "score": 2.5,
+      "reasoning": null,
+      "opinionScore": 0.5
+    },
+    {
+      "id": "u5",
+      "personaId": "persona-c",
+      "displayName": "Bob",
+      "traits": [],
+      "content": "c0",
+      "postedAt": 5,
+      "agree": true,
+      "score": null,
+      "reasoning": "tie",
+      "opinionScore": 1
+    },
+    {
+      "id": "u6",
+      "personaId": "persona-d",
+      "displayName": "alice",
+      "traits": [
+        "x",
+        "y"
+      ],
+      "content": "d",
+      "postedAt": 1,
+      "agree": false,
+      "score": -1,
+      "reasoning": "",
+      "opinionScore": -2
+    },
+    {
+      "id": "u7",
+      "personaId": "persona-e",
+      "displayName": "アイダ",
+      "traits": [],
+      "content": "e",
+      "postedAt": 2,
+      "agree": true,
+      "score": 1,
+      "reasoning": null,
+      "opinionScore": 0
+    }
+  ],
+  "aggregated": [
+    {
+      "personaId": "persona-d",
+      "displayName": "alice",
+      "traits": [
+        "x",
+        "y"
+      ],
+      "utterances": [
+        {
+          "id": "u6",
+          "content": "d",
+          "postedAt": 1,
+          "agree": false,
+          "score": -1,
+          "reasoning": ""
+        }
+      ],
+      "opinionScore": -2,
+      "consensusScore": -1,
+      "agreeRatio": 0
+    },
+    {
+      "personaId": "persona-c",
+      "displayName": "Bob",
+      "traits": [],
+      "utterances": [
+        {
+          "id": "u4",
+          "content": "c1",
+          "postedAt": 5,
+          "agree": true,
+          "score": 2.5,
+          "reasoning": null
+        },
+        {
+          "id": "u5",
+          "content": "c0",
+          "postedAt": 5,
+          "agree": true,
+          "score": null,
+          "reasoning": "tie"
+        }
+      ],
+      "opinionScore": 1.5,
+      "consensusScore": 2.5,
+      "agreeRatio": 1
+    },
+    {
+      "personaId": "persona-b",
+      "displayName": "あいだ",
+      "traits": [
+        "新規性重視"
+      ],
+      "utterances": [
+        {
+          "id": "u3",
+          "content": "pending",
+          "postedAt": 15,
+          "agree": null,
+          "score": null,
+          "reasoning": null
+        }
+      ],
+      "opinionScore": 1,
+      "consensusScore": 0,
+      "agreeRatio": 0
+    },
+    {
+      "personaId": "persona-e",
+      "displayName": "アイダ",
+      "traits": [],
+      "utterances": [
+        {
+          "id": "u7",
+          "content": "e",
+          "postedAt": 2,
+          "agree": true,
+          "score": 1,
+          "reasoning": null
+        }
+      ],
+      "opinionScore": 0,
+      "consensusScore": 1,
+      "agreeRatio": 1
+    },
+    {
+      "personaId": "persona-a",
+      "displayName": "改革派A",
+      "traits": [
+        "慎重"
+      ],
+      "utterances": [
+        {
+          "id": "u1",
+          "content": "first",
+          "postedAt": 10,
+          "agree": true,
+          "score": 7,
+          "reasoning": "yes"
+        },
+        {
+          "id": "u2",
+          "content": "second",
+          "postedAt": 20,
+          "agree": false,
+          "score": 3,
+          "reasoning": "no"
+        }
+      ],
+      "opinionScore": 6,
+      "consensusScore": 10,
+      "agreeRatio": 0.5
+    }
+  ],
+  "empty": [],
+  "ratios": [
+    0,
+    0,
+    0.5,
+    0.6666666666666666
+  ]
+}

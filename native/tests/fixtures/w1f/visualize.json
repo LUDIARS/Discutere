@@ -1,0 +1,968 @@
+{
+  "schema": [
+    "CREATE TABLE games (id TEXT PRIMARY KEY, workspace_id TEXT, title TEXT, genre TEXT, updated_at INTEGER)",
+    "CREATE TABLE mechanics (id TEXT PRIMARY KEY, workspace_id TEXT, game_id TEXT, name TEXT, description TEXT, intends TEXT, intended_affect TEXT, updated_at INTEGER)",
+    "CREATE TABLE aesthetics (id TEXT PRIMARY KEY, workspace_id TEXT, game_id TEXT, name TEXT, description TEXT, updated_at INTEGER)",
+    "CREATE TABLE affects (id TEXT PRIMARY KEY, workspace_id TEXT, mood TEXT)",
+    "CREATE TABLE design_gaps (id TEXT PRIMARY KEY, workspace_id TEXT, game_id TEXT, title TEXT, description TEXT, status TEXT, gap_in TEXT, expected_affect TEXT, observed_affect TEXT, updated_at INTEGER)",
+    "CREATE TABLE hypotheses (id TEXT PRIMARY KEY, workspace_id TEXT, design_gap_id TEXT, statement TEXT, status TEXT, integrated INTEGER, updated_at INTEGER)",
+    "CREATE TABLE sessions (id TEXT PRIMARY KEY, workspace_id TEXT, title TEXT, scene TEXT)",
+    "CREATE TABLE utterances (id TEXT PRIMARY KEY, workspace_id TEXT, session_id TEXT, raw_content TEXT)"
+  ],
+  "inserts": [
+    "INSERT INTO games VALUES ('game-1','knowledge','Sample Game','action',100)",
+    "INSERT INTO games VALUES ('game-2','knowledge','Other','puzzle',300)",
+    "INSERT INTO games VALUES ('game-3','knowledge','Empty',NULL,200)",
+    "INSERT INTO games VALUES ('game-x','other','Elsewhere','x',999)",
+    "INSERT INTO mechanics VALUES ('m1','knowledge','game-1','Dash','fast movement','make traversal confident','accomplishment',120)",
+    "INSERT INTO mechanics VALUES ('m2','knowledge','game-1','Reward Loop',NULL,NULL,'accomplishment',110)",
+    "INSERT INTO mechanics VALUES ('m3','knowledge','game-2','Match','three','calm','calm',310)",
+    "INSERT INTO aesthetics VALUES ('a1','knowledge','game-1','Speed',NULL,105)",
+    "INSERT INTO aesthetics VALUES ('a2','knowledge','game-2','Calm','quiet',305)",
+    "INSERT INTO affects VALUES ('af1','knowledge','accomplishment')",
+    "INSERT INTO affects VALUES ('af2','knowledge','calm')",
+    "INSERT INTO design_gaps VALUES ('g1','knowledge','game-1','Dash feels unclear',NULL,'open','m1','accomplishment','confusion',130)",
+    "INSERT INTO design_gaps VALUES ('g-big','knowledge','game-2','オンボーディングが長い','初回体験の離脱が多い','open','m1','confidence','confusion',200)",
+    "INSERT INTO design_gaps VALUES ('g-small','knowledge',NULL,'報酬が弱い',NULL,'open',NULL,NULL,NULL,300)",
+    "INSERT INTO design_gaps VALUES ('g-tie','knowledge',NULL,'同点',NULL,NULL,NULL,NULL,NULL,300)",
+    "INSERT INTO hypotheses VALUES ('h1','knowledge','g1','Add a stronger dash trail','proposed',0,140)",
+    "INSERT INTO hypotheses VALUES ('h2','knowledge','g-big','最初の選択肢を二つに絞る','proposed',0,220)",
+    "INSERT INTO hypotheses VALUES ('h3','knowledge','g-big','説明をプレイ中の短い提示へ移す','integrated',1,230)",
+    "INSERT INTO hypotheses VALUES ('h4','knowledge','g-small','短期報酬を追加する',NULL,0,240)",
+    "INSERT INTO hypotheses VALUES ('h5','knowledge','g-small','real で 1',NULL,1.0,250)",
+    "INSERT INTO sessions VALUES ('s1','knowledge','website:shadow-of-the-colossus',NULL)",
+    "INSERT INTO sessions VALUES ('s2','knowledge','website:shadow-of-the-colossus',NULL)",
+    "INSERT INTO sessions VALUES ('s3','knowledge','youtube:shadow-of-the-colossus',NULL)",
+    "INSERT INTO sessions VALUES ('s4','knowledge','steam:vampire-survivors',NULL)",
+    "INSERT INTO sessions VALUES ('s5','knowledge','discussion-of-gap:3460FDC0-9a31-4f90-bcd6-979fb9073157',NULL)",
+    "INSERT INTO sessions VALUES ('s6','knowledge',NULL,'discord:guild/thread')",
+    "INSERT INTO sessions VALUES ('s7','knowledge',NULL,'gap:g-big')",
+    "INSERT INTO sessions VALUES ('s8','knowledge',NULL,NULL)",
+    "INSERT INTO sessions VALUES ('s10','knowledge','plaintitle',NULL)",
+    "INSERT INTO sessions VALUES ('s11','knowledge','newsource:(gap)',NULL)",
+    "INSERT INTO sessions VALUES ('s12','knowledge','discussion-of-gap:g-big','gap:g-big')",
+    "INSERT INTO sessions VALUES ('s13','knowledge','reddit:b-game',NULL)",
+    "INSERT INTO sessions VALUES ('s14','knowledge','fandom:a-game',NULL)",
+    "INSERT INTO sessions VALUES ('s9','other','steam:x',NULL)",
+    "INSERT INTO utterances VALUES ('u1','knowledge','s1','x')",
+    "INSERT INTO utterances VALUES ('u2','knowledge','s2','x')",
+    "INSERT INTO utterances VALUES ('u3','knowledge','s3','x')",
+    "INSERT INTO utterances VALUES ('u4','knowledge','s3','x')",
+    "INSERT INTO utterances VALUES ('u5','knowledge','s3','x')",
+    "INSERT INTO utterances VALUES ('u6','knowledge','s4','x')",
+    "INSERT INTO utterances VALUES ('u7','knowledge','s5','x')",
+    "INSERT INTO utterances VALUES ('u8','knowledge','s6','x')",
+    "INSERT INTO utterances VALUES ('u10','knowledge','s12','x')",
+    "INSERT INTO utterances VALUES ('u11','knowledge','s12','x')",
+    "INSERT INTO utterances VALUES ('u12','knowledge','s13','x')",
+    "INSERT INTO utterances VALUES ('u13','knowledge','s14','x')",
+    "INSERT INTO utterances VALUES ('u9','other','s9','x')"
+  ],
+  "vocabulary": {
+    "affects": [
+      {
+        "key": "accomplishment",
+        "label_ja": "達成感",
+        "valence": "positive",
+        "mda": "challenge",
+        "description": "やりきった"
+      },
+      {
+        "key": " calm ",
+        "label_ja": "  ",
+        "valence": 3,
+        "description": "落ち着き"
+      },
+      {
+        "key": "zeal"
+      },
+      {
+        "key": ""
+      },
+      {
+        "label_ja": "鍵なし"
+      },
+      {
+        "key": "Alpha"
+      },
+      {
+        "key": "beta_x"
+      },
+      {
+        "key": "beta1"
+      }
+    ]
+  },
+  "dataSources": {
+    "workspaceId": "knowledge",
+    "generatedAt": 1000,
+    "totals": {
+      "sources": 10,
+      "importSources": 5,
+      "internalSources": 5,
+      "utterances": 12,
+      "importUtterances": 8,
+      "games": 5
+    },
+    "sources": [
+      {
+        "source": "youtube",
+        "label": "YouTube コメント",
+        "kind": "import",
+        "origin": "YouTube Data API v3",
+        "sessions": 1,
+        "utterances": 3,
+        "games": [
+          "shadow-of-the-colossus"
+        ],
+        "gameCount": 1,
+        "size": 3
+      },
+      {
+        "source": "discussion-of-gap",
+        "label": "自走議論 (facilitator/persona)",
+        "kind": "internal",
+        "origin": "Discatier 内部生成",
+        "sessions": 3,
+        "utterances": 3,
+        "games": [
+          "g-big"
+        ],
+        "gameCount": 1,
+        "size": 3
+      },
+      {
+        "source": "website",
+        "label": "Web 記事",
+        "kind": "import",
+        "origin": "任意 URL の HTML 本文抽出",
+        "sessions": 2,
+        "utterances": 2,
+        "games": [
+          "shadow-of-the-colossus"
+        ],
+        "gameCount": 1,
+        "size": 2
+      },
+      {
+        "source": "steam",
+        "label": "Steam レビュー",
+        "kind": "import",
+        "origin": "store.steampowered.com appreviews API",
+        "sessions": 1,
+        "utterances": 1,
+        "games": [
+          "vampire-survivors"
+        ],
+        "gameCount": 1,
+        "size": 1
+      },
+      {
+        "source": "discord-session",
+        "label": "Discord 議論",
+        "kind": "internal",
+        "origin": "Discord guild",
+        "sessions": 1,
+        "utterances": 1,
+        "games": [],
+        "gameCount": 0,
+        "size": 1
+      },
+      {
+        "source": "reddit",
+        "label": "Reddit",
+        "kind": "import",
+        "origin": "Reddit OAuth API",
+        "sessions": 1,
+        "utterances": 1,
+        "games": [
+          "b-game"
+        ],
+        "gameCount": 1,
+        "size": 1
+      },
+      {
+        "source": "fandom",
+        "label": "Fandom / Wiki",
+        "kind": "import",
+        "origin": "MediaWiki action=parse",
+        "sessions": 1,
+        "utterances": 1,
+        "games": [
+          "a-game"
+        ],
+        "gameCount": 1,
+        "size": 1
+      },
+      {
+        "source": "(none)",
+        "label": "(none)",
+        "kind": "internal",
+        "origin": "不明",
+        "sessions": 1,
+        "utterances": 0,
+        "games": [],
+        "gameCount": 0,
+        "size": 0
+      },
+      {
+        "source": "plaintitle",
+        "label": "plaintitle",
+        "kind": "internal",
+        "origin": "不明",
+        "sessions": 1,
+        "utterances": 0,
+        "games": [],
+        "gameCount": 0,
+        "size": 0
+      },
+      {
+        "source": "newsource",
+        "label": "newsource",
+        "kind": "internal",
+        "origin": "不明",
+        "sessions": 1,
+        "utterances": 0,
+        "games": [],
+        "gameCount": 0,
+        "size": 0
+      }
+    ],
+    "byGame": [
+      {
+        "slug": "shadow-of-the-colossus",
+        "sessions": 3,
+        "utterances": 5,
+        "sources": [
+          {
+            "source": "youtube",
+            "label": "YouTube コメント",
+            "kind": "import",
+            "sessions": 1,
+            "utterances": 3
+          },
+          {
+            "source": "website",
+            "label": "Web 記事",
+            "kind": "import",
+            "sessions": 2,
+            "utterances": 2
+          }
+        ]
+      },
+      {
+        "slug": "g-big",
+        "sessions": 1,
+        "utterances": 2,
+        "sources": [
+          {
+            "source": "discussion-of-gap",
+            "label": "自走議論 (facilitator/persona)",
+            "kind": "internal",
+            "sessions": 1,
+            "utterances": 2
+          }
+        ]
+      },
+      {
+        "slug": "vampire-survivors",
+        "sessions": 1,
+        "utterances": 1,
+        "sources": [
+          {
+            "source": "steam",
+            "label": "Steam レビュー",
+            "kind": "import",
+            "sessions": 1,
+            "utterances": 1
+          }
+        ]
+      },
+      {
+        "slug": "b-game",
+        "sessions": 1,
+        "utterances": 1,
+        "sources": [
+          {
+            "source": "reddit",
+            "label": "Reddit",
+            "kind": "import",
+            "sessions": 1,
+            "utterances": 1
+          }
+        ]
+      },
+      {
+        "slug": "a-game",
+        "sessions": 1,
+        "utterances": 1,
+        "sources": [
+          {
+            "source": "fandom",
+            "label": "Fandom / Wiki",
+            "kind": "import",
+            "sessions": 1,
+            "utterances": 1
+          }
+        ]
+      }
+    ]
+  },
+  "dataSourcesOther": {
+    "workspaceId": "nobody",
+    "generatedAt": 5,
+    "totals": {
+      "sources": 0,
+      "importSources": 0,
+      "internalSources": 0,
+      "utterances": 0,
+      "importUtterances": 0,
+      "games": 0
+    },
+    "sources": [],
+    "byGame": []
+  },
+  "topics": {
+    "workspaceId": "knowledge",
+    "generatedAt": 0,
+    "topics": [
+      {
+        "id": "g-big",
+        "title": "オンボーディングが長い",
+        "description": "初回体験の離脱が多い",
+        "status": "open",
+        "gapIn": "m1",
+        "expectedAffect": "confidence",
+        "observedAffect": "confusion",
+        "opinionCount": 2,
+        "utteranceCount": 2,
+        "size": 8,
+        "updatedAt": 200,
+        "opinions": [
+          {
+            "id": "h3",
+            "statement": "説明をプレイ中の短い提示へ移す",
+            "status": "integrated",
+            "integrated": true,
+            "updatedAt": 230
+          },
+          {
+            "id": "h2",
+            "statement": "最初の選択肢を二つに絞る",
+            "status": "proposed",
+            "integrated": false,
+            "updatedAt": 220
+          }
+        ]
+      },
+      {
+        "id": "g-small",
+        "title": "報酬が弱い",
+        "description": null,
+        "status": "open",
+        "gapIn": null,
+        "expectedAffect": null,
+        "observedAffect": null,
+        "opinionCount": 2,
+        "utteranceCount": 0,
+        "size": 6,
+        "updatedAt": 300,
+        "opinions": [
+          {
+            "id": "h5",
+            "statement": "real で 1",
+            "status": null,
+            "integrated": true,
+            "updatedAt": 250
+          },
+          {
+            "id": "h4",
+            "statement": "短期報酬を追加する",
+            "status": null,
+            "integrated": false,
+            "updatedAt": 240
+          }
+        ]
+      },
+      {
+        "id": "g1",
+        "title": "Dash feels unclear",
+        "description": null,
+        "status": "open",
+        "gapIn": "m1",
+        "expectedAffect": "accomplishment",
+        "observedAffect": "confusion",
+        "opinionCount": 1,
+        "utteranceCount": 0,
+        "size": 3,
+        "updatedAt": 130,
+        "opinions": [
+          {
+            "id": "h1",
+            "statement": "Add a stronger dash trail",
+            "status": "proposed",
+            "integrated": false,
+            "updatedAt": 140
+          }
+        ]
+      },
+      {
+        "id": "g-tie",
+        "title": "同点",
+        "description": null,
+        "status": null,
+        "gapIn": null,
+        "expectedAffect": null,
+        "observedAffect": null,
+        "opinionCount": 0,
+        "utteranceCount": 0,
+        "size": 0,
+        "updatedAt": 300,
+        "opinions": []
+      }
+    ],
+    "totals": {
+      "topics": 4,
+      "opinions": 5,
+      "utterances": 2
+    }
+  },
+  "topicsLimit": {
+    "workspaceId": "knowledge",
+    "generatedAt": 0,
+    "topics": [
+      {
+        "id": "g-small",
+        "title": "報酬が弱い",
+        "description": null,
+        "status": "open",
+        "gapIn": null,
+        "expectedAffect": null,
+        "observedAffect": null,
+        "opinionCount": 2,
+        "utteranceCount": 0,
+        "size": 6,
+        "updatedAt": 300,
+        "opinions": [
+          {
+            "id": "h5",
+            "statement": "real で 1",
+            "status": null,
+            "integrated": true,
+            "updatedAt": 250
+          }
+        ]
+      }
+    ],
+    "totals": {
+      "topics": 1,
+      "opinions": 2,
+      "utterances": 0
+    }
+  },
+  "topicsHuge": {
+    "workspaceId": "knowledge",
+    "generatedAt": 0,
+    "topics": [
+      {
+        "id": "g-big",
+        "title": "オンボーディングが長い",
+        "description": "初回体験の離脱が多い",
+        "status": "open",
+        "gapIn": "m1",
+        "expectedAffect": "confidence",
+        "observedAffect": "confusion",
+        "opinionCount": 2,
+        "utteranceCount": 2,
+        "size": 8,
+        "updatedAt": 200,
+        "opinions": [
+          {
+            "id": "h3",
+            "statement": "説明をプレイ中の短い提示へ移す",
+            "status": "integrated",
+            "integrated": true,
+            "updatedAt": 230
+          }
+        ]
+      },
+      {
+        "id": "g-small",
+        "title": "報酬が弱い",
+        "description": null,
+        "status": "open",
+        "gapIn": null,
+        "expectedAffect": null,
+        "observedAffect": null,
+        "opinionCount": 2,
+        "utteranceCount": 0,
+        "size": 6,
+        "updatedAt": 300,
+        "opinions": [
+          {
+            "id": "h5",
+            "statement": "real で 1",
+            "status": null,
+            "integrated": true,
+            "updatedAt": 250
+          }
+        ]
+      },
+      {
+        "id": "g1",
+        "title": "Dash feels unclear",
+        "description": null,
+        "status": "open",
+        "gapIn": "m1",
+        "expectedAffect": "accomplishment",
+        "observedAffect": "confusion",
+        "opinionCount": 1,
+        "utteranceCount": 0,
+        "size": 3,
+        "updatedAt": 130,
+        "opinions": [
+          {
+            "id": "h1",
+            "statement": "Add a stronger dash trail",
+            "status": "proposed",
+            "integrated": false,
+            "updatedAt": 140
+          }
+        ]
+      },
+      {
+        "id": "g-tie",
+        "title": "同点",
+        "description": null,
+        "status": null,
+        "gapIn": null,
+        "expectedAffect": null,
+        "observedAffect": null,
+        "opinionCount": 0,
+        "utteranceCount": 0,
+        "size": 0,
+        "updatedAt": 300,
+        "opinions": []
+      }
+    ],
+    "totals": {
+      "topics": 4,
+      "opinions": 5,
+      "utterances": 2
+    }
+  },
+  "layers": {
+    "knowledge": {
+      "layer": "knowledge",
+      "workspaceId": "knowledge",
+      "generatedAt": 0,
+      "totals": {
+        "affects": 6,
+        "mechanics": 3,
+        "aesthetics": 2,
+        "games": 3,
+        "gaps": 4,
+        "hypotheses": 5
+      },
+      "affects": [
+        {
+          "key": "accomplishment",
+          "labelJa": "達成感",
+          "valence": "positive",
+          "mda": "challenge",
+          "description": "やりきった",
+          "usageCount": 4,
+          "size": 4
+        },
+        {
+          "key": "calm",
+          "labelJa": null,
+          "valence": null,
+          "mda": null,
+          "description": "落ち着き",
+          "usageCount": 2,
+          "size": 2
+        },
+        {
+          "key": "Alpha",
+          "labelJa": null,
+          "valence": null,
+          "mda": null,
+          "description": null,
+          "usageCount": 0,
+          "size": 1
+        },
+        {
+          "key": "beta_x",
+          "labelJa": null,
+          "valence": null,
+          "mda": null,
+          "description": null,
+          "usageCount": 0,
+          "size": 1
+        },
+        {
+          "key": "beta1",
+          "labelJa": null,
+          "valence": null,
+          "mda": null,
+          "description": null,
+          "usageCount": 0,
+          "size": 1
+        },
+        {
+          "key": "zeal",
+          "labelJa": null,
+          "valence": null,
+          "mda": null,
+          "description": null,
+          "usageCount": 0,
+          "size": 1
+        }
+      ]
+    },
+    "knowledgeLimit": {
+      "layer": "knowledge",
+      "workspaceId": "knowledge",
+      "generatedAt": 0,
+      "totals": {
+        "affects": 6,
+        "mechanics": 3,
+        "aesthetics": 2,
+        "games": 3,
+        "gaps": 4,
+        "hypotheses": 5
+      },
+      "affects": [
+        {
+          "key": "accomplishment",
+          "labelJa": "達成感",
+          "valence": "positive",
+          "mda": "challenge",
+          "description": "やりきった",
+          "usageCount": 4,
+          "size": 4
+        },
+        {
+          "key": "calm",
+          "labelJa": null,
+          "valence": null,
+          "mda": null,
+          "description": "落ち着き",
+          "usageCount": 2,
+          "size": 2
+        }
+      ]
+    },
+    "games": {
+      "layer": "games",
+      "workspaceId": "knowledge",
+      "generatedAt": 0,
+      "totals": {
+        "games": 3,
+        "mechanics": 3,
+        "aesthetics": 2,
+        "opinions": 3
+      },
+      "games": [
+        {
+          "id": "game-2",
+          "title": "Other",
+          "genre": "puzzle",
+          "mechanicCount": 1,
+          "aestheticCount": 1,
+          "opinionCount": 2,
+          "size": 9,
+          "updatedAt": 300,
+          "mechanics": [
+            {
+              "id": "m3",
+              "name": "Match",
+              "description": "three",
+              "intends": "calm",
+              "intendedAffect": "calm"
+            }
+          ],
+          "aesthetics": [
+            {
+              "id": "a2",
+              "name": "Calm",
+              "description": "quiet"
+            }
+          ]
+        },
+        {
+          "id": "game-1",
+          "title": "Sample Game",
+          "genre": "action",
+          "mechanicCount": 2,
+          "aestheticCount": 1,
+          "opinionCount": 1,
+          "size": 8,
+          "updatedAt": 100,
+          "mechanics": [
+            {
+              "id": "m1",
+              "name": "Dash",
+              "description": "fast movement",
+              "intends": "make traversal confident",
+              "intendedAffect": "accomplishment"
+            },
+            {
+              "id": "m2",
+              "name": "Reward Loop",
+              "description": null,
+              "intends": null,
+              "intendedAffect": "accomplishment"
+            }
+          ],
+          "aesthetics": [
+            {
+              "id": "a1",
+              "name": "Speed",
+              "description": null
+            }
+          ]
+        },
+        {
+          "id": "game-3",
+          "title": "Empty",
+          "genre": null,
+          "mechanicCount": 0,
+          "aestheticCount": 0,
+          "opinionCount": 0,
+          "size": 0,
+          "updatedAt": 200,
+          "mechanics": [],
+          "aesthetics": []
+        }
+      ]
+    },
+    "gamesLimit": {
+      "layer": "games",
+      "workspaceId": "knowledge",
+      "generatedAt": 0,
+      "totals": {
+        "games": 1,
+        "mechanics": 1,
+        "aesthetics": 1,
+        "opinions": 2
+      },
+      "games": [
+        {
+          "id": "game-2",
+          "title": "Other",
+          "genre": "puzzle",
+          "mechanicCount": 1,
+          "aestheticCount": 1,
+          "opinionCount": 2,
+          "size": 9,
+          "updatedAt": 300,
+          "mechanics": [
+            {
+              "id": "m3",
+              "name": "Match",
+              "description": "three",
+              "intends": "calm",
+              "intendedAffect": "calm"
+            }
+          ],
+          "aesthetics": [
+            {
+              "id": "a2",
+              "name": "Calm",
+              "description": "quiet"
+            }
+          ]
+        }
+      ]
+    },
+    "opinions": {
+      "layer": "opinions",
+      "workspaceId": "knowledge",
+      "generatedAt": 0,
+      "topics": [
+        {
+          "id": "g-big",
+          "title": "オンボーディングが長い",
+          "description": "初回体験の離脱が多い",
+          "status": "open",
+          "gapIn": "m1",
+          "expectedAffect": "confidence",
+          "observedAffect": "confusion",
+          "opinionCount": 2,
+          "utteranceCount": 2,
+          "size": 8,
+          "updatedAt": 200,
+          "opinions": [
+            {
+              "id": "h3",
+              "statement": "説明をプレイ中の短い提示へ移す",
+              "status": "integrated",
+              "integrated": true,
+              "updatedAt": 230
+            },
+            {
+              "id": "h2",
+              "statement": "最初の選択肢を二つに絞る",
+              "status": "proposed",
+              "integrated": false,
+              "updatedAt": 220
+            }
+          ]
+        },
+        {
+          "id": "g-small",
+          "title": "報酬が弱い",
+          "description": null,
+          "status": "open",
+          "gapIn": null,
+          "expectedAffect": null,
+          "observedAffect": null,
+          "opinionCount": 2,
+          "utteranceCount": 0,
+          "size": 6,
+          "updatedAt": 300,
+          "opinions": [
+            {
+              "id": "h5",
+              "statement": "real で 1",
+              "status": null,
+              "integrated": true,
+              "updatedAt": 250
+            },
+            {
+              "id": "h4",
+              "statement": "短期報酬を追加する",
+              "status": null,
+              "integrated": false,
+              "updatedAt": 240
+            }
+          ]
+        },
+        {
+          "id": "g1",
+          "title": "Dash feels unclear",
+          "description": null,
+          "status": "open",
+          "gapIn": "m1",
+          "expectedAffect": "accomplishment",
+          "observedAffect": "confusion",
+          "opinionCount": 1,
+          "utteranceCount": 0,
+          "size": 3,
+          "updatedAt": 130,
+          "opinions": [
+            {
+              "id": "h1",
+              "statement": "Add a stronger dash trail",
+              "status": "proposed",
+              "integrated": false,
+              "updatedAt": 140
+            }
+          ]
+        },
+        {
+          "id": "g-tie",
+          "title": "同点",
+          "description": null,
+          "status": null,
+          "gapIn": null,
+          "expectedAffect": null,
+          "observedAffect": null,
+          "opinionCount": 0,
+          "utteranceCount": 0,
+          "size": 0,
+          "updatedAt": 300,
+          "opinions": []
+        }
+      ],
+      "totals": {
+        "topics": 4,
+        "opinions": 5,
+        "utterances": 2
+      }
+    },
+    "opinionsNaN": {
+      "layer": "opinions",
+      "workspaceId": "knowledge",
+      "generatedAt": 0,
+      "topics": [
+        {
+          "id": "g-small",
+          "title": "報酬が弱い",
+          "description": null,
+          "status": "open",
+          "gapIn": null,
+          "expectedAffect": null,
+          "observedAffect": null,
+          "opinionCount": 2,
+          "utteranceCount": 0,
+          "size": 6,
+          "updatedAt": 300,
+          "opinions": [
+            {
+              "id": "h5",
+              "statement": "real で 1",
+              "status": null,
+              "integrated": true,
+              "updatedAt": 250
+            }
+          ]
+        }
+      ],
+      "totals": {
+        "topics": 1,
+        "opinions": 2,
+        "utterances": 0
+      }
+    },
+    "otherWs": {
+      "layer": "games",
+      "workspaceId": "other",
+      "generatedAt": 0,
+      "totals": {
+        "games": 1,
+        "mechanics": 0,
+        "aesthetics": 0,
+        "opinions": 0
+      },
+      "games": [
+        {
+          "id": "game-x",
+          "title": "Elsewhere",
+          "genre": "x",
+          "mechanicCount": 0,
+          "aestheticCount": 0,
+          "opinionCount": 0,
+          "size": 0,
+          "updatedAt": 999,
+          "mechanics": [],
+          "aesthetics": []
+        }
+      ]
+    },
+    "knowledgeBroken": {
+      "layer": "knowledge",
+      "workspaceId": "knowledge",
+      "generatedAt": 0,
+      "totals": {
+        "affects": 0,
+        "mechanics": 3,
+        "aesthetics": 2,
+        "games": 3,
+        "gaps": 4,
+        "hypotheses": 5
+      },
+      "affects": []
+    }
+  },
+  "normalize": [
+    "games",
+    "knowledge",
+    "knowledge",
+    "opinions",
+    "knowledge",
+    "knowledge"
+  ]
+}

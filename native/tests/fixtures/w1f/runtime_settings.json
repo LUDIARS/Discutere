@@ -1,0 +1,991 @@
+{
+  "defaults": {
+    "facilitator": {
+      "tickMs": 30000,
+      "idleGapMs": 120000,
+      "maxPersonas": 20,
+      "aufhebungTarget": 3,
+      "convergePolicy": "default"
+    },
+    "costRelay": {
+      "enabled": false,
+      "anatomiaUrl": "",
+      "concordiaUrl": "",
+      "service": "discutere"
+    }
+  },
+  "fac": [
+    {
+      "override": null,
+      "result": {
+        "tickMs": 30000,
+        "idleGapMs": 120000,
+        "maxPersonas": 20,
+        "aufhebungTarget": 3,
+        "convergePolicy": "default"
+      }
+    },
+    {
+      "override": {},
+      "result": {
+        "tickMs": 30000,
+        "idleGapMs": 120000,
+        "maxPersonas": 20,
+        "aufhebungTarget": 3,
+        "convergePolicy": "default"
+      }
+    },
+    {
+      "override": {
+        "maxPersonas": 8
+      },
+      "result": {
+        "tickMs": 30000,
+        "idleGapMs": 120000,
+        "maxPersonas": 8,
+        "aufhebungTarget": 3,
+        "convergePolicy": "default"
+      }
+    },
+    {
+      "override": {
+        "maxPersonas": 0
+      },
+      "result": {
+        "tickMs": 30000,
+        "idleGapMs": 120000,
+        "maxPersonas": 1,
+        "aufhebungTarget": 3,
+        "convergePolicy": "default"
+      }
+    },
+    {
+      "override": {
+        "maxPersonas": -3
+      },
+      "result": {
+        "tickMs": 30000,
+        "idleGapMs": 120000,
+        "maxPersonas": 1,
+        "aufhebungTarget": 3,
+        "convergePolicy": "default"
+      }
+    },
+    {
+      "override": {
+        "tickMs": 999
+      },
+      "result": {
+        "tickMs": 1000,
+        "idleGapMs": 120000,
+        "maxPersonas": 20,
+        "aufhebungTarget": 3,
+        "convergePolicy": "default"
+      }
+    },
+    {
+      "override": {
+        "tickMs": 1500.5
+      },
+      "result": {
+        "tickMs": 1501,
+        "idleGapMs": 120000,
+        "maxPersonas": 20,
+        "aufhebungTarget": 3,
+        "convergePolicy": "default"
+      }
+    },
+    {
+      "override": {
+        "tickMs": 2499.5
+      },
+      "result": {
+        "tickMs": 2500,
+        "idleGapMs": 120000,
+        "maxPersonas": 20,
+        "aufhebungTarget": 3,
+        "convergePolicy": "default"
+      }
+    },
+    {
+      "override": {
+        "idleGapMs": "4000"
+      },
+      "result": {
+        "tickMs": 30000,
+        "idleGapMs": 4000,
+        "maxPersonas": 20,
+        "aufhebungTarget": 3,
+        "convergePolicy": "default"
+      }
+    },
+    {
+      "override": {
+        "idleGapMs": " 5000 "
+      },
+      "result": {
+        "tickMs": 30000,
+        "idleGapMs": 5000,
+        "maxPersonas": 20,
+        "aufhebungTarget": 3,
+        "convergePolicy": "default"
+      }
+    },
+    {
+      "override": {
+        "idleGapMs": ""
+      },
+      "result": {
+        "tickMs": 30000,
+        "idleGapMs": 1000,
+        "maxPersonas": 20,
+        "aufhebungTarget": 3,
+        "convergePolicy": "default"
+      }
+    },
+    {
+      "override": {
+        "idleGapMs": "x"
+      },
+      "result": {
+        "tickMs": 30000,
+        "idleGapMs": 120000,
+        "maxPersonas": 20,
+        "aufhebungTarget": 3,
+        "convergePolicy": "default"
+      }
+    },
+    {
+      "override": {
+        "aufhebungTarget": true
+      },
+      "result": {
+        "tickMs": 30000,
+        "idleGapMs": 120000,
+        "maxPersonas": 20,
+        "aufhebungTarget": 1,
+        "convergePolicy": "default"
+      }
+    },
+    {
+      "override": {
+        "aufhebungTarget": false
+      },
+      "result": {
+        "tickMs": 30000,
+        "idleGapMs": 120000,
+        "maxPersonas": 20,
+        "aufhebungTarget": 1,
+        "convergePolicy": "default"
+      }
+    },
+    {
+      "override": {
+        "aufhebungTarget": null
+      },
+      "result": {
+        "tickMs": 30000,
+        "idleGapMs": 120000,
+        "maxPersonas": 20,
+        "aufhebungTarget": 1,
+        "convergePolicy": "default"
+      }
+    },
+    {
+      "override": {
+        "aufhebungTarget": []
+      },
+      "result": {
+        "tickMs": 30000,
+        "idleGapMs": 120000,
+        "maxPersonas": 20,
+        "aufhebungTarget": 1,
+        "convergePolicy": "default"
+      }
+    },
+    {
+      "override": {
+        "aufhebungTarget": [
+          7
+        ]
+      },
+      "result": {
+        "tickMs": 30000,
+        "idleGapMs": 120000,
+        "maxPersonas": 20,
+        "aufhebungTarget": 7,
+        "convergePolicy": "default"
+      }
+    },
+    {
+      "override": {
+        "aufhebungTarget": [
+          "9"
+        ]
+      },
+      "result": {
+        "tickMs": 30000,
+        "idleGapMs": 120000,
+        "maxPersonas": 20,
+        "aufhebungTarget": 9,
+        "convergePolicy": "default"
+      }
+    },
+    {
+      "override": {
+        "aufhebungTarget": {}
+      },
+      "result": {
+        "tickMs": 30000,
+        "idleGapMs": 120000,
+        "maxPersonas": 20,
+        "aufhebungTarget": 3,
+        "convergePolicy": "default"
+      }
+    },
+    {
+      "override": {
+        "maxPersonas": 1e+300
+      },
+      "result": {
+        "tickMs": 30000,
+        "idleGapMs": 120000,
+        "maxPersonas": 1e+300,
+        "aufhebungTarget": 3,
+        "convergePolicy": "default"
+      }
+    },
+    {
+      "override": {
+        "convergePolicy": "aufhebung-only"
+      },
+      "result": {
+        "tickMs": 30000,
+        "idleGapMs": 120000,
+        "maxPersonas": 20,
+        "aufhebungTarget": 3,
+        "convergePolicy": "aufhebung-only"
+      }
+    },
+    {
+      "override": {
+        "convergePolicy": "bogus"
+      },
+      "result": {
+        "tickMs": 30000,
+        "idleGapMs": 120000,
+        "maxPersonas": 20,
+        "aufhebungTarget": 3,
+        "convergePolicy": "default"
+      }
+    },
+    {
+      "override": {
+        "convergePolicy": 1
+      },
+      "result": {
+        "tickMs": 30000,
+        "idleGapMs": 120000,
+        "maxPersonas": 20,
+        "aufhebungTarget": 3,
+        "convergePolicy": "default"
+      }
+    },
+    {
+      "override": {
+        "maxPersonas": 2.5
+      },
+      "result": {
+        "tickMs": 30000,
+        "idleGapMs": 120000,
+        "maxPersonas": 3,
+        "aufhebungTarget": 3,
+        "convergePolicy": "default"
+      }
+    },
+    {
+      "override": {
+        "maxPersonas": 3.5
+      },
+      "result": {
+        "tickMs": 30000,
+        "idleGapMs": 120000,
+        "maxPersonas": 4,
+        "aufhebungTarget": 3,
+        "convergePolicy": "default"
+      }
+    },
+    {
+      "override": {
+        "maxPersonas": -0.5
+      },
+      "result": {
+        "tickMs": 30000,
+        "idleGapMs": 120000,
+        "maxPersonas": 1,
+        "aufhebungTarget": 3,
+        "convergePolicy": "default"
+      }
+    },
+    {
+      "override": {
+        "idleGapMs": "1e4"
+      },
+      "result": {
+        "tickMs": 30000,
+        "idleGapMs": 10000,
+        "maxPersonas": 20,
+        "aufhebungTarget": 3,
+        "convergePolicy": "default"
+      }
+    },
+    {
+      "override": {
+        "idleGapMs": "0x10"
+      },
+      "result": {
+        "tickMs": 30000,
+        "idleGapMs": 1000,
+        "maxPersonas": 20,
+        "aufhebungTarget": 3,
+        "convergePolicy": "default"
+      }
+    },
+    {
+      "override": 5,
+      "result": {
+        "tickMs": 30000,
+        "idleGapMs": 120000,
+        "maxPersonas": 20,
+        "aufhebungTarget": 3,
+        "convergePolicy": "default"
+      }
+    },
+    {
+      "override": "str",
+      "result": {
+        "tickMs": 30000,
+        "idleGapMs": 120000,
+        "maxPersonas": 20,
+        "aufhebungTarget": 3,
+        "convergePolicy": "default"
+      }
+    },
+    {
+      "override": [
+        1,
+        2
+      ],
+      "result": {
+        "tickMs": 30000,
+        "idleGapMs": 120000,
+        "maxPersonas": 20,
+        "aufhebungTarget": 3,
+        "convergePolicy": "default"
+      }
+    }
+  ],
+  "cr": [
+    {
+      "override": null,
+      "result": {
+        "enabled": false,
+        "anatomiaUrl": "",
+        "concordiaUrl": "",
+        "service": "discutere"
+      }
+    },
+    {
+      "override": {},
+      "result": {
+        "enabled": false,
+        "anatomiaUrl": "",
+        "concordiaUrl": "",
+        "service": "discutere"
+      }
+    },
+    {
+      "override": {
+        "enabled": true
+      },
+      "result": {
+        "enabled": true,
+        "anatomiaUrl": "",
+        "concordiaUrl": "",
+        "service": "discutere"
+      }
+    },
+    {
+      "override": {
+        "enabled": "yes"
+      },
+      "result": {
+        "enabled": false,
+        "anatomiaUrl": "",
+        "concordiaUrl": "",
+        "service": "discutere"
+      }
+    },
+    {
+      "override": {
+        "enabled": 1
+      },
+      "result": {
+        "enabled": false,
+        "anatomiaUrl": "",
+        "concordiaUrl": "",
+        "service": "discutere"
+      }
+    },
+    {
+      "override": {
+        "anatomiaUrl": " http://a "
+      },
+      "result": {
+        "enabled": false,
+        "anatomiaUrl": "http://a",
+        "concordiaUrl": "",
+        "service": "discutere"
+      }
+    },
+    {
+      "override": {
+        "service": ""
+      },
+      "result": {
+        "enabled": false,
+        "anatomiaUrl": "",
+        "concordiaUrl": "",
+        "service": "discutere"
+      }
+    },
+    {
+      "override": {
+        "service": "  "
+      },
+      "result": {
+        "enabled": false,
+        "anatomiaUrl": "",
+        "concordiaUrl": "",
+        "service": "discutere"
+      }
+    },
+    {
+      "override": {
+        "service": " x "
+      },
+      "result": {
+        "enabled": false,
+        "anatomiaUrl": "",
+        "concordiaUrl": "",
+        "service": "x"
+      }
+    },
+    {
+      "override": {
+        "concordiaUrl": 5
+      },
+      "result": {
+        "enabled": false,
+        "anatomiaUrl": "",
+        "concordiaUrl": "",
+        "service": "discutere"
+      }
+    },
+    {
+      "override": {
+        "anatomiaUrl": null
+      },
+      "result": {
+        "enabled": false,
+        "anatomiaUrl": "",
+        "concordiaUrl": "",
+        "service": "discutere"
+      }
+    },
+    {
+      "override": 7,
+      "result": {
+        "enabled": false,
+        "anatomiaUrl": "",
+        "concordiaUrl": "",
+        "service": "discutere"
+      }
+    }
+  ],
+  "before": [
+    {
+      "method": "GET",
+      "path": "/admin/tuning/data",
+      "status": 503,
+      "json": {
+        "enabled": false
+      },
+      "text": null
+    },
+    {
+      "method": "PUT",
+      "path": "/admin/tuning/facilitator",
+      "body": "{}",
+      "status": 503,
+      "json": {
+        "error": "settings store not ready"
+      },
+      "text": null
+    }
+  ],
+  "after": [
+    {
+      "method": "GET",
+      "path": "/admin/tuning/data",
+      "status": 200,
+      "json": {
+        "enabled": true,
+        "facilitator": {
+          "tickMs": 30000,
+          "idleGapMs": 120000,
+          "maxPersonas": 20,
+          "aufhebungTarget": 3,
+          "convergePolicy": "default"
+        },
+        "rolePrompts": [
+          {
+            "key": "rolePrompt:5",
+            "default": "数字キー",
+            "override": null,
+            "effective": "数字キー"
+          },
+          {
+            "key": "rolePrompt:ファシリテーター",
+            "default": "司会の既定",
+            "override": null,
+            "effective": "司会の既定"
+          },
+          {
+            "key": "rolePrompt:意見屋",
+            "default": "意見屋の既定",
+            "override": null,
+            "effective": "意見屋の既定"
+          }
+        ],
+        "ruleInstructions": [
+          {
+            "key": "ruleInstruction:tick-con-opus",
+            "default": "否定の既定",
+            "override": null,
+            "effective": "否定の既定"
+          },
+          {
+            "key": "ruleInstruction:tick-pro",
+            "default": "肯定の既定",
+            "override": null,
+            "effective": "肯定の既定"
+          }
+        ],
+        "costRelay": {
+          "enabled": false,
+          "anatomiaUrl": "",
+          "concordiaUrl": "",
+          "service": "discutere"
+        },
+        "secrets": {
+          "youtubeApiKey": {
+            "present": false
+          }
+        }
+      },
+      "text": null
+    },
+    {
+      "method": "PUT",
+      "path": "/admin/tuning/facilitator",
+      "body": "{\"maxPersonas\":12,\"convergePolicy\":\"aufhebung-only\"}",
+      "status": 200,
+      "json": {
+        "ok": true,
+        "facilitator": {
+          "tickMs": 30000,
+          "idleGapMs": 120000,
+          "maxPersonas": 12,
+          "aufhebungTarget": 3,
+          "convergePolicy": "aufhebung-only"
+        }
+      },
+      "text": null
+    },
+    {
+      "method": "PUT",
+      "path": "/admin/tuning/facilitator",
+      "body": "{\"tickMs\":\"abc\",\"idleGapMs\":\"2000\",\"extra\":1}",
+      "status": 200,
+      "json": {
+        "ok": true,
+        "facilitator": {
+          "tickMs": 30000,
+          "idleGapMs": 2000,
+          "maxPersonas": 12,
+          "aufhebungTarget": 3,
+          "convergePolicy": "aufhebung-only"
+        }
+      },
+      "text": null
+    },
+    {
+      "method": "PUT",
+      "path": "/admin/tuning/facilitator",
+      "body": "{\"aufhebungTarget\":null,\"convergePolicy\":\"bad\"}",
+      "status": 200,
+      "json": {
+        "ok": true,
+        "facilitator": {
+          "tickMs": 30000,
+          "idleGapMs": 2000,
+          "maxPersonas": 12,
+          "aufhebungTarget": 1,
+          "convergePolicy": "default"
+        }
+      },
+      "text": null
+    },
+    {
+      "method": "PUT",
+      "path": "/admin/tuning/facilitator",
+      "body": "not json",
+      "status": 200,
+      "json": {
+        "ok": true,
+        "facilitator": {
+          "tickMs": 30000,
+          "idleGapMs": 2000,
+          "maxPersonas": 12,
+          "aufhebungTarget": 1,
+          "convergePolicy": "default"
+        }
+      },
+      "text": null
+    },
+    {
+      "method": "PUT",
+      "path": "/admin/tuning/facilitator",
+      "body": "null",
+      "status": 500,
+      "json": null,
+      "text": "Internal Server Error"
+    },
+    {
+      "method": "PUT",
+      "path": "/admin/tuning/facilitator",
+      "body": "[1]",
+      "status": 200,
+      "json": {
+        "ok": true,
+        "facilitator": {
+          "tickMs": 30000,
+          "idleGapMs": 2000,
+          "maxPersonas": 12,
+          "aufhebungTarget": 1,
+          "convergePolicy": "default"
+        }
+      },
+      "text": null
+    },
+    {
+      "method": "PUT",
+      "path": "/admin/tuning/cost-relay",
+      "body": "{\"enabled\":1,\"concordiaUrl\":\" http://localhost:17330 \"}",
+      "status": 200,
+      "json": {
+        "ok": true,
+        "costRelay": {
+          "enabled": true,
+          "anatomiaUrl": "",
+          "concordiaUrl": "http://localhost:17330",
+          "service": "discutere"
+        }
+      },
+      "text": null
+    },
+    {
+      "method": "PUT",
+      "path": "/admin/tuning/cost-relay",
+      "body": "{\"anatomiaUrl\":null,\"service\":42}",
+      "status": 200,
+      "json": {
+        "ok": true,
+        "costRelay": {
+          "enabled": true,
+          "anatomiaUrl": "null",
+          "concordiaUrl": "http://localhost:17330",
+          "service": "42"
+        }
+      },
+      "text": null
+    },
+    {
+      "method": "PUT",
+      "path": "/admin/tuning/cost-relay",
+      "body": "{\"enabled\":\"\",\"service\":{\"a\":1}}",
+      "status": 200,
+      "json": {
+        "ok": true,
+        "costRelay": {
+          "enabled": false,
+          "anatomiaUrl": "null",
+          "concordiaUrl": "http://localhost:17330",
+          "service": "[object Object]"
+        }
+      },
+      "text": null
+    },
+    {
+      "method": "PUT",
+      "path": "/admin/tuning/cost-relay",
+      "body": "{\"service\":[1,\"a\"]}",
+      "status": 200,
+      "json": {
+        "ok": true,
+        "costRelay": {
+          "enabled": false,
+          "anatomiaUrl": "null",
+          "concordiaUrl": "http://localhost:17330",
+          "service": "1,a"
+        }
+      },
+      "text": null
+    },
+    {
+      "method": "PUT",
+      "path": "/admin/tuning/role",
+      "body": "{\"text\":\"x\"}",
+      "status": 400,
+      "json": {
+        "error": "role required"
+      },
+      "text": null
+    },
+    {
+      "method": "PUT",
+      "path": "/admin/tuning/role",
+      "body": "{\"role\":\"\",\"text\":\"x\"}",
+      "status": 400,
+      "json": {
+        "error": "role required"
+      },
+      "text": null
+    },
+    {
+      "method": "PUT",
+      "path": "/admin/tuning/role",
+      "body": "{\"role\":\"ファシリテーター\",\"text\":\"新しい司会指示\"}",
+      "status": 200,
+      "json": {
+        "ok": true,
+        "role": "ファシリテーター",
+        "effective": "新しい司会指示"
+      },
+      "text": null
+    },
+    {
+      "method": "PUT",
+      "path": "/admin/tuning/role",
+      "body": "{\"role\":\"意見屋\",\"text\":\"  \"}",
+      "status": 200,
+      "json": {
+        "ok": true,
+        "role": "意見屋",
+        "effective": "意見屋の既定"
+      },
+      "text": null
+    },
+    {
+      "method": "PUT",
+      "path": "/admin/tuning/role",
+      "body": "{\"role\":\"未知の役\",\"text\":\"追加\"}",
+      "status": 200,
+      "json": {
+        "ok": true,
+        "role": "未知の役",
+        "effective": "追加"
+      },
+      "text": null
+    },
+    {
+      "method": "PUT",
+      "path": "/admin/tuning/role",
+      "body": "{\"role\":5,\"text\":\"数字\"}",
+      "status": 200,
+      "json": {
+        "ok": true,
+        "role": 5,
+        "effective": "数字"
+      },
+      "text": null
+    },
+    {
+      "method": "PUT",
+      "path": "/admin/tuning/role",
+      "body": "{\"role\":\"意見屋\",\"text\":3}",
+      "status": 500,
+      "json": null,
+      "text": "Internal Server Error"
+    },
+    {
+      "method": "PUT",
+      "path": "/admin/tuning/role",
+      "body": "{\"role\":\"意見屋\"}",
+      "status": 200,
+      "json": {
+        "ok": true,
+        "role": "意見屋",
+        "effective": "意見屋の既定"
+      },
+      "text": null
+    },
+    {
+      "method": "PUT",
+      "path": "/admin/tuning/rule",
+      "body": "{\"ruleId\":\"tick-con-opus\",\"text\":\"もっと鋭く\"}",
+      "status": 200,
+      "json": {
+        "ok": true,
+        "ruleId": "tick-con-opus",
+        "effective": "もっと鋭く"
+      },
+      "text": null
+    },
+    {
+      "method": "PUT",
+      "path": "/admin/tuning/rule",
+      "body": "{\"ruleId\":\"tick-pro\",\"text\":null}",
+      "status": 200,
+      "json": {
+        "ok": true,
+        "ruleId": "tick-pro",
+        "effective": "肯定の既定"
+      },
+      "text": null
+    },
+    {
+      "method": "PUT",
+      "path": "/admin/tuning/rule",
+      "body": "{\"text\":\"x\"}",
+      "status": 400,
+      "json": {
+        "error": "ruleId required"
+      },
+      "text": null
+    },
+    {
+      "method": "PUT",
+      "path": "/admin/tuning/secrets/youtube-api-key",
+      "body": "{}",
+      "status": 404,
+      "json": null,
+      "text": "404 Not Found"
+    },
+    {
+      "method": "POST",
+      "path": "/admin/tuning/secrets/youtube-api-key/refresh",
+      "body": "{}",
+      "status": 404,
+      "json": null,
+      "text": "404 Not Found"
+    },
+    {
+      "method": "POST",
+      "path": "/admin/tuning/facilitator",
+      "body": "{}",
+      "status": 404,
+      "json": null,
+      "text": "404 Not Found"
+    },
+    {
+      "method": "GET",
+      "path": "/admin/tuning/data",
+      "status": 200,
+      "json": {
+        "enabled": true,
+        "facilitator": {
+          "tickMs": 30000,
+          "idleGapMs": 2000,
+          "maxPersonas": 12,
+          "aufhebungTarget": 1,
+          "convergePolicy": "default"
+        },
+        "rolePrompts": [
+          {
+            "key": "rolePrompt:5",
+            "default": "数字キー",
+            "override": "数字",
+            "effective": "数字"
+          },
+          {
+            "key": "rolePrompt:ファシリテーター",
+            "default": "司会の既定",
+            "override": "新しい司会指示",
+            "effective": "新しい司会指示"
+          },
+          {
+            "key": "rolePrompt:意見屋",
+            "default": "意見屋の既定",
+            "override": null,
+            "effective": "意見屋の既定"
+          }
+        ],
+        "ruleInstructions": [
+          {
+            "key": "ruleInstruction:tick-con-opus",
+            "default": "否定の既定",
+            "override": "もっと鋭く",
+            "effective": "もっと鋭く"
+          },
+          {
+            "key": "ruleInstruction:tick-pro",
+            "default": "肯定の既定",
+            "override": null,
+            "effective": "肯定の既定"
+          }
+        ],
+        "costRelay": {
+          "enabled": false,
+          "anatomiaUrl": "null",
+          "concordiaUrl": "http://localhost:17330",
+          "service": "1,a"
+        },
+        "secrets": {
+          "youtubeApiKey": {
+            "present": false
+          }
+        }
+      },
+      "text": null
+    }
+  ],
+  "reseeds": 2,
+  "rows": [
+    {
+      "key": "costRelay",
+      "value": "{\"enabled\":false,\"anatomiaUrl\":\"null\",\"concordiaUrl\":\"http://localhost:17330\",\"service\":\"1,a\"}"
+    },
+    {
+      "key": "facilitator",
+      "value": "{\"tickMs\":30000,\"idleGapMs\":2000,\"maxPersonas\":12,\"aufhebungTarget\":1,\"convergePolicy\":\"default\"}"
+    },
+    {
+      "key": "rolePrompt:5",
+      "value": "数字"
+    },
+    {
+      "key": "rolePrompt:ファシリテーター",
+      "value": "新しい司会指示"
+    },
+    {
+      "key": "rolePrompt:未知の役",
+      "value": "追加"
+    },
+    {
+      "key": "ruleInstruction:tick-con-opus",
+      "value": "もっと鋭く"
+    }
+  ]
+}
