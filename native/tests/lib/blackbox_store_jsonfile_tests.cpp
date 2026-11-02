@@ -1,6 +1,8 @@
 // @ludiars/blackbox store-jsonfile.test.ts の移植 (一時ディレクトリ)。
 #include "check.hpp"
 
+#include <vector>
+
 #include "base/crypto.hpp"
 #include "base/env.hpp"
 #include "base/fsutil.hpp"
@@ -13,8 +15,23 @@ using namespace di::lib::blackbox;
 
 namespace {
 const Json COND = Json{{"op", "cmp"}, {"feature", "x"}, {"cmp", ">="}, {"value", 1}};
+// テストが作った一時ディレクトリはプロセス終了時に消す (上限テストで 64MiB 超のファイルを作るため)。
+struct TempDirs {
+    std::vector<std::filesystem::path> dirs;
+    ~TempDirs() {
+        for (const auto& d : dirs) {
+            std::error_code ec;
+            std::filesystem::remove_all(d, ec);
+        }
+    }
+};
+TempDirs& temp_dirs() {
+    static TempDirs t;
+    return t;
+}
 std::string tmp_path() {
     const auto dir = std::filesystem::temp_directory_path() / ("bb-file-" + crypto::uuid_v4());
+    temp_dirs().dirs.push_back(dir);
     return fs::from_path(dir / "blackbox.json");
 }
 DecisionInput sample_input() {
