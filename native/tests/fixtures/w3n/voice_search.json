@@ -1,0 +1,1112 @@
+{
+  "workspaceId": "knowledge",
+  "model": "golden-model",
+  "tables": {
+    "people": [],
+    "games": [
+      {
+        "id": "g-star",
+        "workspace_id": "knowledge",
+        "title": "Star Quest (スタークエスト)",
+        "genre": null,
+        "created_at": 1793628186424,
+        "updated_at": 1793628186424,
+        "shared": 0
+      },
+      {
+        "id": "g-dragon",
+        "workspace_id": "knowledge",
+        "title": "Dragon Saga",
+        "genre": null,
+        "created_at": 1793628186425,
+        "updated_at": 1793628186425,
+        "shared": 0
+      }
+    ],
+    "mechanics": [],
+    "aesthetics": [],
+    "affects": [],
+    "sessions": [],
+    "utterances": [
+      {
+        "id": "v01",
+        "workspace_id": "knowledge",
+        "session_id": "ext:session",
+        "speaker_id": "ext:youtube:UC1",
+        "raw_content": "スタークエストのボス戦は理不尽すぎる",
+        "normalized_content": null,
+        "posted_at": 1700000000000,
+        "created_at": 1793628186425,
+        "updated_at": 1793628186425,
+        "responds_to": null
+      },
+      {
+        "id": "v02",
+        "workspace_id": "knowledge",
+        "session_id": "ext:session",
+        "speaker_id": "ext:steam:7656",
+        "raw_content": "Star Quest boss fight is UNFAIR",
+        "normalized_content": null,
+        "posted_at": 1700000001000,
+        "created_at": 1793628186426,
+        "updated_at": 1793628186426,
+        "responds_to": null
+      },
+      {
+        "id": "v03",
+        "workspace_id": "knowledge",
+        "session_id": "ext:session",
+        "speaker_id": "ext:youtube:UC2",
+        "raw_content": "スタークエストのボス戦は理不尽すぎる！",
+        "normalized_content": null,
+        "posted_at": 1700000002000,
+        "created_at": 1793628186426,
+        "updated_at": 1793628186426,
+        "responds_to": null
+      },
+      {
+        "id": "v04",
+        "workspace_id": "knowledge",
+        "session_id": "ext:session",
+        "speaker_id": "ext:niconico:n1",
+        "raw_content": "ボス戦の難易度が高い 100%_理不尽",
+        "normalized_content": null,
+        "posted_at": 1700000003000,
+        "created_at": 1793628186426,
+        "updated_at": 1793628186426,
+        "responds_to": null
+      },
+      {
+        "id": "v05",
+        "workspace_id": "knowledge",
+        "session_id": "ext:session",
+        "speaker_id": "persona:advocate",
+        "raw_content": "ボス戦は歯ごたえがあって良い",
+        "normalized_content": null,
+        "posted_at": 1700000004000,
+        "created_at": 1793628186426,
+        "updated_at": 1793628186426,
+        "responds_to": null
+      },
+      {
+        "id": "v06",
+        "workspace_id": "knowledge",
+        "session_id": "ext:session",
+        "speaker_id": "ext:niconico:n2",
+        "raw_content": "今日は良い天気ですね",
+        "normalized_content": null,
+        "posted_at": 1700000005000,
+        "created_at": 1793628186426,
+        "updated_at": 1793628186426,
+        "responds_to": null
+      },
+      {
+        "id": "v07",
+        "workspace_id": "knowledge",
+        "session_id": "ext:session",
+        "speaker_id": "ext:niconico:n3",
+        "raw_content": "ボス戦 最高",
+        "normalized_content": null,
+        "posted_at": 1700000006000,
+        "created_at": 1793628186427,
+        "updated_at": 1793628186427,
+        "responds_to": null
+      },
+      {
+        "id": "v08",
+        "workspace_id": "knowledge",
+        "session_id": "ext:session",
+        "speaker_id": "ext:test:a",
+        "raw_content": "経験値とXPの両方が成長実感につながる",
+        "normalized_content": null,
+        "posted_at": 1700000007000,
+        "created_at": 1793628186427,
+        "updated_at": 1793628186427,
+        "responds_to": null
+      },
+      {
+        "id": "v09",
+        "workspace_id": "knowledge",
+        "session_id": "ext:session",
+        "speaker_id": "ext:test:b",
+        "raw_content": "経験値だけでは単調に感じる",
+        "normalized_content": null,
+        "posted_at": 1700000008000,
+        "created_at": 1793628186427,
+        "updated_at": 1793628186427,
+        "responds_to": null
+      },
+      {
+        "id": "v10",
+        "workspace_id": "knowledge",
+        "session_id": "ext:session",
+        "speaker_id": "ext:test:c",
+        "raw_content": "XPの表示方法を変えてほしい",
+        "normalized_content": null,
+        "posted_at": 1700000009000,
+        "created_at": 1793628186427,
+        "updated_at": 1793628186427,
+        "responds_to": null
+      },
+      {
+        "id": "v11",
+        "workspace_id": "knowledge",
+        "session_id": "ext:session",
+        "speaker_id": "ext:test:d",
+        "raw_content": "xp が足りない",
+        "normalized_content": null,
+        "posted_at": 1700000010000,
+        "created_at": 1793628186427,
+        "updated_at": 1793628186427,
+        "responds_to": null
+      },
+      {
+        "id": "v12",
+        "workspace_id": "knowledge",
+        "session_id": "ext:session",
+        "speaker_id": "ext:youtube:UC3",
+        "raw_content": "スタークエストのボス戦について長文で語る🎮。序盤から終盤まで敵の配置と報酬の釣り合いが気になる。序盤から終盤まで敵の配置と報酬の釣り合いが気になる。序盤から終盤まで敵の配置と報酬の釣り合いが気になる。序盤から終盤まで敵の配置と報酬の釣り合いが気になる。序盤から終盤まで敵の配置と報酬の釣り合いが気になる。序盤から終盤まで敵の配置と報酬の釣り合いが気になる。序盤から終盤まで敵の配置と報酬の釣り合いが気になる。序盤から終盤まで敵の配置と報酬の釣り合いが気になる。序盤から終盤まで敵の配置と報酬の釣り合いが気になる。序盤から終盤まで敵の配置と報酬の釣り合いが気になる。序盤から終盤まで敵の配置と報酬の釣り合いが気になる。序盤から終盤まで敵の配置と報酬の釣り合いが気になる。",
+        "normalized_content": null,
+        "posted_at": 1700000011000,
+        "created_at": 1793628186427,
+        "updated_at": 1793628186427,
+        "responds_to": null
+      },
+      {
+        "id": "v13",
+        "workspace_id": "knowledge",
+        "session_id": "ext:session",
+        "speaker_id": "ext:steam:9999",
+        "raw_content": "ドラゴンサーガ? Dragon Saga の戦闘はテンポが良い",
+        "normalized_content": null,
+        "posted_at": 1700000012000,
+        "created_at": 1793628186428,
+        "updated_at": 1793628186428,
+        "responds_to": null
+      },
+      {
+        "id": "v14",
+        "workspace_id": "knowledge",
+        "session_id": "ext:session",
+        "speaker_id": "ext:youtube:UC4",
+        "raw_content": "ボス戦BGMが好き",
+        "normalized_content": null,
+        "posted_at": 1700000013000,
+        "created_at": 1793628186428,
+        "updated_at": 1793628186428,
+        "responds_to": null
+      },
+      {
+        "id": "v15",
+        "workspace_id": "knowledge",
+        "session_id": "ext:session",
+        "speaker_id": "ext:youtube:UC5",
+        "raw_content": "ボス戦BGMが好き。",
+        "normalized_content": null,
+        "posted_at": 1700000014000,
+        "created_at": 1793628186428,
+        "updated_at": 1793628186428,
+        "responds_to": null
+      },
+      {
+        "id": "f00",
+        "workspace_id": "knowledge",
+        "session_id": "ext:session",
+        "speaker_id": "ext:niconico:filler",
+        "raw_content": "無関係な雑談コメント番号 0",
+        "normalized_content": null,
+        "posted_at": 1700000015000,
+        "created_at": 1793628186428,
+        "updated_at": 1793628186428,
+        "responds_to": null
+      },
+      {
+        "id": "f01",
+        "workspace_id": "knowledge",
+        "session_id": "ext:session",
+        "speaker_id": "ext:niconico:filler",
+        "raw_content": "無関係な雑談コメント番号 1",
+        "normalized_content": null,
+        "posted_at": 1700000016000,
+        "created_at": 1793628186428,
+        "updated_at": 1793628186428,
+        "responds_to": null
+      },
+      {
+        "id": "f02",
+        "workspace_id": "knowledge",
+        "session_id": "ext:session",
+        "speaker_id": "ext:niconico:filler",
+        "raw_content": "無関係な雑談コメント番号 2",
+        "normalized_content": null,
+        "posted_at": 1700000017000,
+        "created_at": 1793628186428,
+        "updated_at": 1793628186428,
+        "responds_to": null
+      },
+      {
+        "id": "f03",
+        "workspace_id": "knowledge",
+        "session_id": "ext:session",
+        "speaker_id": "ext:niconico:filler",
+        "raw_content": "無関係な雑談コメント番号 3",
+        "normalized_content": null,
+        "posted_at": 1700000018000,
+        "created_at": 1793628186429,
+        "updated_at": 1793628186429,
+        "responds_to": null
+      },
+      {
+        "id": "f04",
+        "workspace_id": "knowledge",
+        "session_id": "ext:session",
+        "speaker_id": "ext:niconico:filler",
+        "raw_content": "無関係な雑談コメント番号 4",
+        "normalized_content": null,
+        "posted_at": 1700000019000,
+        "created_at": 1793628186429,
+        "updated_at": 1793628186429,
+        "responds_to": null
+      },
+      {
+        "id": "f05",
+        "workspace_id": "knowledge",
+        "session_id": "ext:session",
+        "speaker_id": "ext:niconico:filler",
+        "raw_content": "無関係な雑談コメント番号 5",
+        "normalized_content": null,
+        "posted_at": 1700000020000,
+        "created_at": 1793628186429,
+        "updated_at": 1793628186429,
+        "responds_to": null
+      },
+      {
+        "id": "f06",
+        "workspace_id": "knowledge",
+        "session_id": "ext:session",
+        "speaker_id": "ext:niconico:filler",
+        "raw_content": "無関係な雑談コメント番号 6",
+        "normalized_content": null,
+        "posted_at": 1700000021000,
+        "created_at": 1793628186429,
+        "updated_at": 1793628186429,
+        "responds_to": null
+      },
+      {
+        "id": "f07",
+        "workspace_id": "knowledge",
+        "session_id": "ext:session",
+        "speaker_id": "ext:niconico:filler",
+        "raw_content": "無関係な雑談コメント番号 7",
+        "normalized_content": null,
+        "posted_at": 1700000022000,
+        "created_at": 1793628186429,
+        "updated_at": 1793628186429,
+        "responds_to": null
+      },
+      {
+        "id": "f08",
+        "workspace_id": "knowledge",
+        "session_id": "ext:session",
+        "speaker_id": "ext:niconico:filler",
+        "raw_content": "無関係な雑談コメント番号 8",
+        "normalized_content": null,
+        "posted_at": 1700000023000,
+        "created_at": 1793628186429,
+        "updated_at": 1793628186429,
+        "responds_to": null
+      },
+      {
+        "id": "f09",
+        "workspace_id": "knowledge",
+        "session_id": "ext:session",
+        "speaker_id": "ext:niconico:filler",
+        "raw_content": "無関係な雑談コメント番号 9",
+        "normalized_content": null,
+        "posted_at": 1700000024000,
+        "created_at": 1793628186430,
+        "updated_at": 1793628186430,
+        "responds_to": null
+      },
+      {
+        "id": "f10",
+        "workspace_id": "knowledge",
+        "session_id": "ext:session",
+        "speaker_id": "ext:niconico:filler",
+        "raw_content": "無関係な雑談コメント番号 10",
+        "normalized_content": null,
+        "posted_at": 1700000025000,
+        "created_at": 1793628186430,
+        "updated_at": 1793628186430,
+        "responds_to": null
+      },
+      {
+        "id": "f11",
+        "workspace_id": "knowledge",
+        "session_id": "ext:session",
+        "speaker_id": "ext:niconico:filler",
+        "raw_content": "無関係な雑談コメント番号 11",
+        "normalized_content": null,
+        "posted_at": 1700000026000,
+        "created_at": 1793628186430,
+        "updated_at": 1793628186430,
+        "responds_to": null
+      },
+      {
+        "id": "f12",
+        "workspace_id": "knowledge",
+        "session_id": "ext:session",
+        "speaker_id": "ext:niconico:filler",
+        "raw_content": "無関係な雑談コメント番号 12",
+        "normalized_content": null,
+        "posted_at": 1700000027000,
+        "created_at": 1793628186430,
+        "updated_at": 1793628186430,
+        "responds_to": null
+      },
+      {
+        "id": "f13",
+        "workspace_id": "knowledge",
+        "session_id": "ext:session",
+        "speaker_id": "ext:niconico:filler",
+        "raw_content": "無関係な雑談コメント番号 13",
+        "normalized_content": null,
+        "posted_at": 1700000028000,
+        "created_at": 1793628186430,
+        "updated_at": 1793628186430,
+        "responds_to": null
+      },
+      {
+        "id": "f14",
+        "workspace_id": "knowledge",
+        "session_id": "ext:session",
+        "speaker_id": "ext:niconico:filler",
+        "raw_content": "無関係な雑談コメント番号 14",
+        "normalized_content": null,
+        "posted_at": 1700000029000,
+        "created_at": 1793628186431,
+        "updated_at": 1793628186431,
+        "responds_to": null
+      },
+      {
+        "id": "f15",
+        "workspace_id": "knowledge",
+        "session_id": "ext:session",
+        "speaker_id": "ext:niconico:filler",
+        "raw_content": "無関係な雑談コメント番号 15",
+        "normalized_content": null,
+        "posted_at": 1700000030000,
+        "created_at": 1793628186431,
+        "updated_at": 1793628186431,
+        "responds_to": null
+      },
+      {
+        "id": "f16",
+        "workspace_id": "knowledge",
+        "session_id": "ext:session",
+        "speaker_id": "ext:niconico:filler",
+        "raw_content": "無関係な雑談コメント番号 16",
+        "normalized_content": null,
+        "posted_at": 1700000031000,
+        "created_at": 1793628186431,
+        "updated_at": 1793628186431,
+        "responds_to": null
+      },
+      {
+        "id": "f17",
+        "workspace_id": "knowledge",
+        "session_id": "ext:session",
+        "speaker_id": "ext:niconico:filler",
+        "raw_content": "無関係な雑談コメント番号 17",
+        "normalized_content": null,
+        "posted_at": 1700000032000,
+        "created_at": 1793628186431,
+        "updated_at": 1793628186431,
+        "responds_to": null
+      },
+      {
+        "id": "f18",
+        "workspace_id": "knowledge",
+        "session_id": "ext:session",
+        "speaker_id": "ext:niconico:filler",
+        "raw_content": "無関係な雑談コメント番号 18",
+        "normalized_content": null,
+        "posted_at": 1700000033000,
+        "created_at": 1793628186431,
+        "updated_at": 1793628186431,
+        "responds_to": null
+      },
+      {
+        "id": "f19",
+        "workspace_id": "knowledge",
+        "session_id": "ext:session",
+        "speaker_id": "ext:niconico:filler",
+        "raw_content": "無関係な雑談コメント番号 19",
+        "normalized_content": null,
+        "posted_at": 1700000034000,
+        "created_at": 1793628186431,
+        "updated_at": 1793628186431,
+        "responds_to": null
+      }
+    ],
+    "design_gaps": [],
+    "hypotheses": [],
+    "hypothesis_validations": [],
+    "embeddings": [
+      {
+        "id": "97a09737-5e32-4ded-a31e-432fd1fdf40d",
+        "workspace_id": "knowledge",
+        "node_type": "utterance",
+        "node_id": "v08",
+        "vector_json": "[0,1]",
+        "created_at": 1793628186432
+      },
+      {
+        "id": "96878f12-5802-445f-97f3-11f54056eb46",
+        "workspace_id": "knowledge",
+        "node_type": "utterance",
+        "node_id": "v09",
+        "vector_json": "[1,0]",
+        "created_at": 1793628186433
+      },
+      {
+        "id": "c3120c45-0e97-4feb-ab6c-f824b8ae36eb",
+        "workspace_id": "knowledge",
+        "node_type": "utterance",
+        "node_id": "v10",
+        "vector_json": "[0.9,0.1]",
+        "created_at": 1793628186433
+      },
+      {
+        "id": "97435312-6b5c-4a9c-9b25-b358602cea83",
+        "workspace_id": "knowledge",
+        "node_type": "utterance",
+        "node_id": "v01",
+        "vector_json": "[0.2,0.8]",
+        "created_at": 1793628186433
+      },
+      {
+        "id": "b2448867-f95b-4e4f-96e7-2604a7fdbf81",
+        "workspace_id": "knowledge",
+        "node_type": "utterance",
+        "node_id": "v03",
+        "vector_json": "[0.21,0.79]",
+        "created_at": 1793628186433
+      },
+      {
+        "id": "fddac733-68e1-4644-b19d-d5eb518fa9ea",
+        "workspace_id": "knowledge",
+        "node_type": "utterance",
+        "node_id": "v04",
+        "vector_json": "[0.7,0.3]",
+        "created_at": 1793628186433
+      },
+      {
+        "id": "241c1f67-4c1e-49c8-91d2-97f20a45a3f0",
+        "workspace_id": "knowledge",
+        "node_type": "utterance",
+        "node_id": "v12",
+        "vector_json": "[0.5,0.5]",
+        "created_at": 1793628186433
+      },
+      {
+        "id": "dfddd345-4d95-4f99-875a-827007bf00f7",
+        "workspace_id": "knowledge",
+        "node_type": "utterance",
+        "node_id": "v14",
+        "vector_json": "[0.6,0.4]",
+        "created_at": 1793628186433
+      },
+      {
+        "id": "d237ef85-676d-465d-b95a-d44d360edd29",
+        "workspace_id": "knowledge",
+        "node_type": "utterance",
+        "node_id": "v15",
+        "vector_json": "[0.6,0.41]",
+        "created_at": 1793628186433
+      }
+    ],
+    "opinion_scores": [
+      {
+        "target_id": "v06",
+        "target_kind": "utterance",
+        "score": 3,
+        "updated_at": 1700000000000
+      },
+      {
+        "target_id": "v09",
+        "target_kind": "utterance",
+        "score": 5,
+        "updated_at": 1700000000000
+      },
+      {
+        "target_id": "v02",
+        "target_kind": "utterance",
+        "score": -2,
+        "updated_at": 1700000000000
+      },
+      {
+        "target_id": "v14",
+        "target_kind": "utterance",
+        "score": 1,
+        "updated_at": 1700000000000
+      }
+    ],
+    "utterance_exclusions": [
+      {
+        "utterance_id": "v07",
+        "reason": "noise",
+        "created_at": 1793628186432
+      }
+    ],
+    "embedding_query_cache": [
+      {
+        "query_hash": "876da3d7cea0cd9ab210e3ecea70342fbcb6d97c09add6c695ba24dd1323488d",
+        "query_text": "",
+        "vector_json": "[1,0]",
+        "created_at": 1793628186435
+      },
+      {
+        "query_hash": "8b022695a797f051c161bc82ad8218552068cfe61756c301e8d233b5933cbb5d",
+        "query_text": "",
+        "vector_json": "[0.9,0.1]",
+        "created_at": 1793628186435
+      },
+      {
+        "query_hash": "05283cfc3ab31c767399a8f2f63cb93991093f177cefe2f7b6aa16373f6a7439",
+        "query_text": "",
+        "vector_json": "[0.65,0.35]",
+        "created_at": 1793628186436
+      },
+      {
+        "query_hash": "8fa82ceea94956ff5ad4b85f13b63921ab20d085f9df675036e63adbdad13bd7",
+        "query_text": "",
+        "vector_json": "[0.1,0.9]",
+        "created_at": 1793628186436
+      },
+      {
+        "query_hash": "29a572fe1b6364e2ceba95fee3303ea6c3e4fcabfa399bc6d47b1617c7da4cc3",
+        "query_text": "",
+        "vector_json": "[0.7,0.31]",
+        "created_at": 1793628186437
+      }
+    ]
+  },
+  "attributions": [
+    {
+      "utteranceId": "v01",
+      "source": "youtube",
+      "sourceUrl": "https://www.youtube.com/watch?v=vid1&lc=c1",
+      "nativeId": "c1",
+      "gameSlug": "star-quest",
+      "at": 1700000000000
+    },
+    {
+      "utteranceId": "v12",
+      "source": "youtube",
+      "sourceUrl": "https://www.youtube.com/watch?v=vid2",
+      "nativeId": "c2",
+      "gameSlug": null,
+      "at": 1700000000000
+    },
+    {
+      "utteranceId": "v04",
+      "source": "niconico",
+      "sourceUrl": "https://www.nicovideo.jp/watch/sm1",
+      "nativeId": "n1",
+      "gameSlug": null,
+      "at": 1700000000000
+    }
+  ],
+  "queries": [
+    {
+      "terms": [
+        "スタークエストのボス戦は面白いか"
+      ],
+      "limit": 6,
+      "useEmbedding": false,
+      "searchTerms": null,
+      "rows": [
+        {
+          "id": "v01",
+          "speakerId": "ext:youtube:UC1",
+          "rawContent": "スタークエストのボス戦は理不尽すぎる",
+          "score": 20
+        },
+        {
+          "id": "v12",
+          "speakerId": "ext:youtube:UC3",
+          "rawContent": "スタークエストのボス戦について長文で語る🎮。序盤から終盤まで敵の配置と報酬の釣り合いが気になる。序盤から終盤まで敵の配置と報酬の釣り合いが気になる。序盤から終盤まで敵の配置と報酬の釣り合いが気になる。序盤から終盤まで敵の配置と報酬の釣り合いが気になる。序盤から終盤まで敵の配置と報酬の釣り合いが気になる。序盤から終盤まで敵の配置と報酬の釣り合いが気になる。序盤から終盤まで敵の配置と報酬の釣り合いが気になる。序盤から終盤まで敵の配置と報酬の釣り合いが気になる。序盤から終盤まで敵の配置と報酬の釣り合いが気になる。序盤から終盤まで敵の配置と報酬の釣り合いが気になる。序盤から終盤まで敵の配置と報酬の釣り合いが気になる。序盤から終盤まで敵の配置と報酬の釣り合いが気になる。",
+          "score": 20
+        },
+        {
+          "id": "v14",
+          "speakerId": "ext:youtube:UC4",
+          "rawContent": "ボス戦BGMが好き",
+          "score": 11
+        },
+        {
+          "id": "v04",
+          "speakerId": "ext:niconico:n1",
+          "rawContent": "ボス戦の難易度が高い 100%_理不尽",
+          "score": 10
+        },
+        {
+          "id": "v02",
+          "speakerId": "ext:steam:7656",
+          "rawContent": "Star Quest boss fight is UNFAIR",
+          "score": 8
+        }
+      ]
+    },
+    {
+      "terms": [
+        "Star Quest"
+      ],
+      "limit": 6,
+      "useEmbedding": false,
+      "searchTerms": null,
+      "rows": [
+        {
+          "id": "v02",
+          "speakerId": "ext:steam:7656",
+          "rawContent": "Star Quest boss fight is UNFAIR",
+          "score": 28
+        },
+        {
+          "id": "v01",
+          "speakerId": "ext:youtube:UC1",
+          "rawContent": "スタークエストのボス戦は理不尽すぎる",
+          "score": 10
+        },
+        {
+          "id": "v12",
+          "speakerId": "ext:youtube:UC3",
+          "rawContent": "スタークエストのボス戦について長文で語る🎮。序盤から終盤まで敵の配置と報酬の釣り合いが気になる。序盤から終盤まで敵の配置と報酬の釣り合いが気になる。序盤から終盤まで敵の配置と報酬の釣り合いが気になる。序盤から終盤まで敵の配置と報酬の釣り合いが気になる。序盤から終盤まで敵の配置と報酬の釣り合いが気になる。序盤から終盤まで敵の配置と報酬の釣り合いが気になる。序盤から終盤まで敵の配置と報酬の釣り合いが気になる。序盤から終盤まで敵の配置と報酬の釣り合いが気になる。序盤から終盤まで敵の配置と報酬の釣り合いが気になる。序盤から終盤まで敵の配置と報酬の釣り合いが気になる。序盤から終盤まで敵の配置と報酬の釣り合いが気になる。序盤から終盤まで敵の配置と報酬の釣り合いが気になる。",
+          "score": 10
+        }
+      ]
+    },
+    {
+      "terms": [],
+      "limit": 6,
+      "useEmbedding": false,
+      "searchTerms": null,
+      "rows": [
+        {
+          "id": "v09",
+          "speakerId": "ext:test:b",
+          "rawContent": "経験値だけでは単調に感じる",
+          "score": 5
+        },
+        {
+          "id": "v06",
+          "speakerId": "ext:niconico:n2",
+          "rawContent": "今日は良い天気ですね",
+          "score": 3
+        },
+        {
+          "id": "v14",
+          "speakerId": "ext:youtube:UC4",
+          "rawContent": "ボス戦BGMが好き",
+          "score": 1
+        }
+      ]
+    },
+    {
+      "terms": [
+        "100%"
+      ],
+      "limit": 6,
+      "useEmbedding": false,
+      "searchTerms": null,
+      "rows": [
+        {
+          "id": "v04",
+          "speakerId": "ext:niconico:n1",
+          "rawContent": "ボス戦の難易度が高い 100%_理不尽",
+          "score": 10
+        }
+      ]
+    },
+    {
+      "terms": [
+        "ボス戦"
+      ],
+      "limit": 2,
+      "useEmbedding": false,
+      "searchTerms": null,
+      "rows": [
+        {
+          "id": "v14",
+          "speakerId": "ext:youtube:UC4",
+          "rawContent": "ボス戦BGMが好き",
+          "score": 11
+        },
+        {
+          "id": "v01",
+          "speakerId": "ext:youtube:UC1",
+          "rawContent": "スタークエストのボス戦は理不尽すぎる",
+          "score": 10
+        }
+      ]
+    },
+    {
+      "terms": [
+        "ボス戦"
+      ],
+      "limit": 10,
+      "useEmbedding": false,
+      "searchTerms": null,
+      "rows": [
+        {
+          "id": "v14",
+          "speakerId": "ext:youtube:UC4",
+          "rawContent": "ボス戦BGMが好き",
+          "score": 11
+        },
+        {
+          "id": "v01",
+          "speakerId": "ext:youtube:UC1",
+          "rawContent": "スタークエストのボス戦は理不尽すぎる",
+          "score": 10
+        },
+        {
+          "id": "v04",
+          "speakerId": "ext:niconico:n1",
+          "rawContent": "ボス戦の難易度が高い 100%_理不尽",
+          "score": 10
+        },
+        {
+          "id": "v12",
+          "speakerId": "ext:youtube:UC3",
+          "rawContent": "スタークエストのボス戦について長文で語る🎮。序盤から終盤まで敵の配置と報酬の釣り合いが気になる。序盤から終盤まで敵の配置と報酬の釣り合いが気になる。序盤から終盤まで敵の配置と報酬の釣り合いが気になる。序盤から終盤まで敵の配置と報酬の釣り合いが気になる。序盤から終盤まで敵の配置と報酬の釣り合いが気になる。序盤から終盤まで敵の配置と報酬の釣り合いが気になる。序盤から終盤まで敵の配置と報酬の釣り合いが気になる。序盤から終盤まで敵の配置と報酬の釣り合いが気になる。序盤から終盤まで敵の配置と報酬の釣り合いが気になる。序盤から終盤まで敵の配置と報酬の釣り合いが気になる。序盤から終盤まで敵の配置と報酬の釣り合いが気になる。序盤から終盤まで敵の配置と報酬の釣り合いが気になる。",
+          "score": 10
+        }
+      ]
+    },
+    {
+      "terms": [
+        "ドラゴンサーガ"
+      ],
+      "limit": 6,
+      "useEmbedding": false,
+      "searchTerms": null,
+      "rows": [
+        {
+          "id": "v13",
+          "speakerId": "ext:steam:9999",
+          "rawContent": "ドラゴンサーガ? Dragon Saga の戦闘はテンポが良い",
+          "score": 10
+        }
+      ]
+    },
+    {
+      "terms": [
+        "経験値"
+      ],
+      "limit": 1,
+      "useEmbedding": true,
+      "searchTerms": null,
+      "rows": [
+        {
+          "id": "v08",
+          "speakerId": "ext:test:a",
+          "rawContent": "経験値とXPの両方が成長実感につながる",
+          "score": 30
+        }
+      ]
+    },
+    {
+      "terms": [
+        "経験値"
+      ],
+      "limit": 3,
+      "useEmbedding": true,
+      "searchTerms": null,
+      "rows": [
+        {
+          "id": "v08",
+          "speakerId": "ext:test:a",
+          "rawContent": "経験値とXPの両方が成長実感につながる",
+          "score": 30
+        },
+        {
+          "id": "v09",
+          "speakerId": "ext:test:b",
+          "rawContent": "経験値だけでは単調に感じる",
+          "score": 25
+        },
+        {
+          "id": "v10",
+          "speakerId": "ext:test:c",
+          "rawContent": "XPの表示方法を変えてほしい",
+          "score": 10
+        }
+      ]
+    },
+    {
+      "terms": [
+        "XP"
+      ],
+      "limit": 5,
+      "useEmbedding": true,
+      "searchTerms": null,
+      "rows": [
+        {
+          "id": "v08",
+          "speakerId": "ext:test:a",
+          "rawContent": "経験値とXPの両方が成長実感につながる",
+          "score": 30
+        },
+        {
+          "id": "v09",
+          "speakerId": "ext:test:b",
+          "rawContent": "経験値だけでは単調に感じる",
+          "score": 25
+        },
+        {
+          "id": "v10",
+          "speakerId": "ext:test:c",
+          "rawContent": "XPの表示方法を変えてほしい",
+          "score": 10
+        },
+        {
+          "id": "v11",
+          "speakerId": "ext:test:d",
+          "rawContent": "xp が足りない",
+          "score": 10
+        }
+      ]
+    },
+    {
+      "terms": [
+        "ボス戦"
+      ],
+      "limit": 4,
+      "useEmbedding": true,
+      "searchTerms": null,
+      "rows": [
+        {
+          "id": "v14",
+          "speakerId": "ext:youtube:UC4",
+          "rawContent": "ボス戦BGMが好き",
+          "score": 11
+        },
+        {
+          "id": "v04",
+          "speakerId": "ext:niconico:n1",
+          "rawContent": "ボス戦の難易度が高い 100%_理不尽",
+          "score": 10
+        },
+        {
+          "id": "v01",
+          "speakerId": "ext:youtube:UC1",
+          "rawContent": "スタークエストのボス戦は理不尽すぎる",
+          "score": 10
+        },
+        {
+          "id": "v12",
+          "speakerId": "ext:youtube:UC3",
+          "rawContent": "スタークエストのボス戦について長文で語る🎮。序盤から終盤まで敵の配置と報酬の釣り合いが気になる。序盤から終盤まで敵の配置と報酬の釣り合いが気になる。序盤から終盤まで敵の配置と報酬の釣り合いが気になる。序盤から終盤まで敵の配置と報酬の釣り合いが気になる。序盤から終盤まで敵の配置と報酬の釣り合いが気になる。序盤から終盤まで敵の配置と報酬の釣り合いが気になる。序盤から終盤まで敵の配置と報酬の釣り合いが気になる。序盤から終盤まで敵の配置と報酬の釣り合いが気になる。序盤から終盤まで敵の配置と報酬の釣り合いが気になる。序盤から終盤まで敵の配置と報酬の釣り合いが気になる。序盤から終盤まで敵の配置と報酬の釣り合いが気になる。序盤から終盤まで敵の配置と報酬の釣り合いが気になる。",
+          "score": 10
+        }
+      ]
+    },
+    {
+      "terms": [
+        "ボス戦"
+      ],
+      "limit": 10,
+      "useEmbedding": true,
+      "searchTerms": null,
+      "rows": [
+        {
+          "id": "v14",
+          "speakerId": "ext:youtube:UC4",
+          "rawContent": "ボス戦BGMが好き",
+          "score": 11
+        },
+        {
+          "id": "v04",
+          "speakerId": "ext:niconico:n1",
+          "rawContent": "ボス戦の難易度が高い 100%_理不尽",
+          "score": 10
+        },
+        {
+          "id": "v01",
+          "speakerId": "ext:youtube:UC1",
+          "rawContent": "スタークエストのボス戦は理不尽すぎる",
+          "score": 10
+        },
+        {
+          "id": "v12",
+          "speakerId": "ext:youtube:UC3",
+          "rawContent": "スタークエストのボス戦について長文で語る🎮。序盤から終盤まで敵の配置と報酬の釣り合いが気になる。序盤から終盤まで敵の配置と報酬の釣り合いが気になる。序盤から終盤まで敵の配置と報酬の釣り合いが気になる。序盤から終盤まで敵の配置と報酬の釣り合いが気になる。序盤から終盤まで敵の配置と報酬の釣り合いが気になる。序盤から終盤まで敵の配置と報酬の釣り合いが気になる。序盤から終盤まで敵の配置と報酬の釣り合いが気になる。序盤から終盤まで敵の配置と報酬の釣り合いが気になる。序盤から終盤まで敵の配置と報酬の釣り合いが気になる。序盤から終盤まで敵の配置と報酬の釣り合いが気になる。序盤から終盤まで敵の配置と報酬の釣り合いが気になる。序盤から終盤まで敵の配置と報酬の釣り合いが気になる。",
+          "score": 10
+        }
+      ]
+    },
+    {
+      "terms": [
+        "スタークエストのボス戦"
+      ],
+      "limit": 6,
+      "useEmbedding": true,
+      "searchTerms": null,
+      "rows": [
+        {
+          "id": "v01",
+          "speakerId": "ext:youtube:UC1",
+          "rawContent": "スタークエストのボス戦は理不尽すぎる",
+          "score": 20
+        },
+        {
+          "id": "v12",
+          "speakerId": "ext:youtube:UC3",
+          "rawContent": "スタークエストのボス戦について長文で語る🎮。序盤から終盤まで敵の配置と報酬の釣り合いが気になる。序盤から終盤まで敵の配置と報酬の釣り合いが気になる。序盤から終盤まで敵の配置と報酬の釣り合いが気になる。序盤から終盤まで敵の配置と報酬の釣り合いが気になる。序盤から終盤まで敵の配置と報酬の釣り合いが気になる。序盤から終盤まで敵の配置と報酬の釣り合いが気になる。序盤から終盤まで敵の配置と報酬の釣り合いが気になる。序盤から終盤まで敵の配置と報酬の釣り合いが気になる。序盤から終盤まで敵の配置と報酬の釣り合いが気になる。序盤から終盤まで敵の配置と報酬の釣り合いが気になる。序盤から終盤まで敵の配置と報酬の釣り合いが気になる。序盤から終盤まで敵の配置と報酬の釣り合いが気になる。",
+          "score": 20
+        },
+        {
+          "id": "v14",
+          "speakerId": "ext:youtube:UC4",
+          "rawContent": "ボス戦BGMが好き",
+          "score": 11
+        },
+        {
+          "id": "v04",
+          "speakerId": "ext:niconico:n1",
+          "rawContent": "ボス戦の難易度が高い 100%_理不尽",
+          "score": 10
+        },
+        {
+          "id": "v02",
+          "speakerId": "ext:steam:7656",
+          "rawContent": "Star Quest boss fight is UNFAIR",
+          "score": 8
+        }
+      ]
+    },
+    {
+      "terms": [
+        "経験値"
+      ],
+      "limit": 0,
+      "useEmbedding": true,
+      "searchTerms": null,
+      "rows": []
+    },
+    {
+      "terms": [
+        "存在しない語"
+      ],
+      "limit": 6,
+      "useEmbedding": false,
+      "searchTerms": null,
+      "rows": []
+    }
+  ],
+  "adapter": [
+    {
+      "terms": [
+        "スタークエストのボス戦"
+      ],
+      "limit": 6,
+      "voices": [
+        {
+          "id": "v01",
+          "content": "スタークエストのボス戦は理不尽すぎる",
+          "source": "youtube",
+          "sourceUrl": "https://www.youtube.com/watch?v=vid1&lc=c1",
+          "speakerLabel": "論者#6c49f5",
+          "score": 20
+        },
+        {
+          "id": "v12",
+          "content": "スタークエストのボス戦について長文で語る🎮。序盤から終盤まで敵の配置と報酬の釣り合いが気になる。序盤から終盤まで敵の配置と報酬の釣り合いが気になる。序盤から終盤まで敵の配置と報酬の釣り合いが気になる。序盤から終盤まで敵の配置と報酬の釣り合いが気になる。序盤から終盤まで敵の配置と報酬の釣り合いが気になる。序盤から終盤まで敵の配置と報酬の釣り合いが気になる。序盤から終盤まで敵の配置と報酬の釣り合いが…",
+          "source": "youtube",
+          "sourceUrl": "https://www.youtube.com/watch?v=vid2",
+          "speakerLabel": "論者#f2fd12",
+          "score": 20
+        },
+        {
+          "id": "v14",
+          "content": "ボス戦BGMが好き",
+          "source": "external",
+          "sourceUrl": null,
+          "speakerLabel": "論者#f3dea3",
+          "score": 11
+        },
+        {
+          "id": "v04",
+          "content": "ボス戦の難易度が高い 100%_理不尽",
+          "source": "niconico",
+          "sourceUrl": "https://www.nicovideo.jp/watch/sm1",
+          "speakerLabel": "論者#434889",
+          "score": 10
+        },
+        {
+          "id": "v02",
+          "content": "Star Quest boss fight is UNFAIR",
+          "source": "external",
+          "sourceUrl": null,
+          "speakerLabel": "論者#e8171a",
+          "score": 8
+        }
+      ]
+    },
+    {
+      "terms": [
+        "100%"
+      ],
+      "limit": 6,
+      "voices": [
+        {
+          "id": "v04",
+          "content": "ボス戦の難易度が高い 100%_理不尽",
+          "source": "niconico",
+          "sourceUrl": "https://www.nicovideo.jp/watch/sm1",
+          "speakerLabel": "論者#434889",
+          "score": 10
+        }
+      ]
+    },
+    {
+      "terms": [],
+      "limit": 6,
+      "voices": [
+        {
+          "id": "v09",
+          "content": "経験値だけでは単調に感じる",
+          "source": "external",
+          "sourceUrl": null,
+          "speakerLabel": "論者#555078",
+          "score": 5
+        },
+        {
+          "id": "v06",
+          "content": "今日は良い天気ですね",
+          "source": "external",
+          "sourceUrl": null,
+          "speakerLabel": "論者#bedc1c",
+          "score": 3
+        },
+        {
+          "id": "v14",
+          "content": "ボス戦BGMが好き",
+          "source": "external",
+          "sourceUrl": null,
+          "speakerLabel": "論者#f3dea3",
+          "score": 1
+        }
+      ]
+    },
+    {
+      "terms": [
+        "ボス戦"
+      ],
+      "limit": 0,
+      "voices": []
+    }
+  ]
+}

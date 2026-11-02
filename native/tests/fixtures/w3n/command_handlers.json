@@ -1,0 +1,857 @@
+{
+  "workspaceId": "knowledge",
+  "sessionId": "s1",
+  "tables": {
+    "people": [
+      {
+        "id": "p1",
+        "workspace_id": "knowledge",
+        "name": "Alice",
+        "role": "player",
+        "created_at": 1700000012000,
+        "updated_at": 1700000012000
+      }
+    ],
+    "games": [],
+    "mechanics": [
+      {
+        "id": "m1",
+        "workspace_id": "knowledge",
+        "game_id": null,
+        "name": "Dash",
+        "description": "高速移動",
+        "created_at": 1700000001000,
+        "updated_at": 1700000001000,
+        "intends": "爽快感",
+        "intended_affect": null,
+        "shared": 0
+      },
+      {
+        "id": "m2",
+        "workspace_id": "knowledge",
+        "game_id": null,
+        "name": "Jump",
+        "description": null,
+        "created_at": 1700000002000,
+        "updated_at": 1700000002000,
+        "intends": null,
+        "intended_affect": null,
+        "shared": 0
+      }
+    ],
+    "aesthetics": [],
+    "affects": [
+      {
+        "id": "af1",
+        "workspace_id": "knowledge",
+        "session_id": null,
+        "subject_id": null,
+        "mood": "Thrill",
+        "score": null,
+        "created_at": 1700000003000,
+        "updated_at": 1700000003000,
+        "vocabulary_status": null,
+        "valence": null,
+        "shared": 0
+      }
+    ],
+    "sessions": [
+      {
+        "id": "s1",
+        "workspace_id": "knowledge",
+        "title": "play",
+        "started_at": 1700000000000,
+        "ended_at": null,
+        "created_at": 1700000004000,
+        "updated_at": 1700000004000,
+        "mode": "theory",
+        "scene": null
+      }
+    ],
+    "utterances": [
+      {
+        "id": "u1",
+        "workspace_id": "knowledge",
+        "session_id": "s1",
+        "speaker_id": null,
+        "raw_content": "Dash が気持ちいい",
+        "normalized_content": "[uncategorized] x",
+        "posted_at": 1700000000001,
+        "created_at": 1700000005000,
+        "updated_at": 1700000005000,
+        "responds_to": null
+      },
+      {
+        "id": "u2",
+        "workspace_id": "knowledge",
+        "session_id": "s1",
+        "speaker_id": null,
+        "raw_content": "  dash 遅い",
+        "normalized_content": "[uncategorized] x",
+        "posted_at": 1700000000002,
+        "created_at": 1700000006000,
+        "updated_at": 1700000006000,
+        "responds_to": null
+      },
+      {
+        "id": "u3",
+        "workspace_id": "knowledge",
+        "session_id": "s1",
+        "speaker_id": null,
+        "raw_content": "Jump\tもっと高く",
+        "normalized_content": "[uncategorized] x",
+        "posted_at": 1700000000003,
+        "created_at": 1700000007000,
+        "updated_at": 1700000007000,
+        "responds_to": null
+      },
+      {
+        "id": "u4",
+        "workspace_id": "knowledge",
+        "session_id": "s1",
+        "speaker_id": null,
+        "raw_content": "dash again",
+        "normalized_content": "[uncategorized] x",
+        "posted_at": 1700000000004,
+        "created_at": 1700000008000,
+        "updated_at": 1700000008000,
+        "responds_to": null
+      }
+    ],
+    "design_gaps": [
+      {
+        "id": "gap1",
+        "workspace_id": "knowledge",
+        "game_id": null,
+        "title": "Dash の爽快感",
+        "description": null,
+        "status": null,
+        "created_at": 1700000009000,
+        "updated_at": 1700000009000,
+        "gap_in": "m1",
+        "expected_affect": null,
+        "observed_affect": null,
+        "evidence_json": null
+      }
+    ],
+    "hypotheses": [
+      {
+        "id": "h1",
+        "workspace_id": "knowledge",
+        "design_gap_id": null,
+        "statement": "Dash を短くすると爽快感が増す",
+        "status": "draft",
+        "integrated": 0,
+        "created_at": 1700000010000,
+        "updated_at": 1700000900000,
+        "validated_by_emotion": 0,
+        "refs_json": "[]",
+        "stale_flagged": 0
+      },
+      {
+        "id": "h2",
+        "workspace_id": "knowledge",
+        "design_gap_id": null,
+        "statement": "Jump は不要",
+        "status": "proposed",
+        "integrated": 0,
+        "created_at": 1700000011000,
+        "updated_at": 1700000011000,
+        "validated_by_emotion": 0,
+        "refs_json": "[\"u1\"]",
+        "stale_flagged": 1
+      }
+    ],
+    "hypothesis_validations": [],
+    "embeddings": []
+  },
+  "steps": [
+    {
+      "family": "cross",
+      "command": "hotspot",
+      "args": [],
+      "result": {
+        "ok": true,
+        "value": {
+          "ok": true,
+          "message": "1. Dash score=3.50 (u:3 g:1 s:0)\n2. Jump score=2.00 (u:1 g:0 s:1)"
+        }
+      },
+      "events": []
+    },
+    {
+      "family": "cross",
+      "command": "cluster",
+      "args": [],
+      "result": {
+        "ok": true,
+        "value": {
+          "ok": true,
+          "message": "- dash: 2\n- jump: 1\n- misc: 1"
+        }
+      },
+      "events": []
+    },
+    {
+      "family": "cross",
+      "command": "find",
+      "args": [
+        "DASH"
+      ],
+      "result": {
+        "ok": true,
+        "value": {
+          "ok": true,
+          "message": "mechanic:m1:Dash\nhypothesis:h1:Dash を短くすると爽快感が増す\nutterance:u1\nutterance:u2\nutterance:u4"
+        }
+      },
+      "events": []
+    },
+    {
+      "family": "cross",
+      "command": "find",
+      "args": [
+        "thr"
+      ],
+      "result": {
+        "ok": true,
+        "value": {
+          "ok": true,
+          "message": "affect:af1:Thrill"
+        }
+      },
+      "events": []
+    },
+    {
+      "family": "cross",
+      "command": "find",
+      "args": [
+        "  "
+      ],
+      "result": {
+        "ok": true,
+        "value": {
+          "ok": false,
+          "error": "usage: /find <query>"
+        }
+      },
+      "events": []
+    },
+    {
+      "family": "cross",
+      "command": "find",
+      "args": [
+        "zzz"
+      ],
+      "result": {
+        "ok": true,
+        "value": {
+          "ok": true,
+          "message": "no results"
+        }
+      },
+      "events": []
+    },
+    {
+      "family": "cross",
+      "command": "stale",
+      "args": [],
+      "result": {
+        "ok": true,
+        "value": {
+          "ok": true,
+          "message": "- h2 (proposed): Jump は不要"
+        }
+      },
+      "events": []
+    },
+    {
+      "family": "cross",
+      "command": "lineage",
+      "args": [
+        "m1"
+      ],
+      "result": {
+        "ok": true,
+        "value": {
+          "ok": true,
+          "message": "# Lineage Dash\n- mechanic: m1\n- utterances: 3\n- hypotheses: 1"
+        }
+      },
+      "events": []
+    },
+    {
+      "family": "cross",
+      "command": "lineage",
+      "args": [
+        "nope"
+      ],
+      "result": {
+        "ok": true,
+        "value": {
+          "ok": false,
+          "error": "mechanic not found"
+        }
+      },
+      "events": []
+    },
+    {
+      "family": "cross",
+      "command": "lineage",
+      "args": [],
+      "result": {
+        "ok": true,
+        "value": {
+          "ok": false,
+          "error": "usage: /lineage <mechanic_id>"
+        }
+      },
+      "events": []
+    },
+    {
+      "family": "cross",
+      "command": "me",
+      "args": [
+        "Role",
+        "Theorist"
+      ],
+      "personId": "p1",
+      "result": {
+        "ok": true,
+        "value": {
+          "ok": true,
+          "message": "role updated to theorist"
+        }
+      },
+      "events": [
+        {
+          "eventType": "PersonUpdated",
+          "payload": {
+            "workspaceId": "knowledge",
+            "name": "Alice",
+            "role": "theorist",
+            "id": "p1"
+          }
+        }
+      ]
+    },
+    {
+      "family": "cross",
+      "command": "me",
+      "args": [
+        "role",
+        "developer"
+      ],
+      "personId": "p9",
+      "result": {
+        "ok": true,
+        "value": {
+          "ok": true,
+          "message": "role updated to developer"
+        }
+      },
+      "events": [
+        {
+          "eventType": "PersonCreated",
+          "payload": {
+            "id": "p9",
+            "workspaceId": "knowledge",
+            "name": "p9",
+            "role": "developer"
+          }
+        }
+      ]
+    },
+    {
+      "family": "cross",
+      "command": "me",
+      "args": [
+        "role",
+        "boss"
+      ],
+      "personId": "p1",
+      "result": {
+        "ok": true,
+        "value": {
+          "ok": false,
+          "error": "usage: /me role <theorist|player|developer>"
+        }
+      },
+      "events": []
+    },
+    {
+      "family": "cross",
+      "command": "me",
+      "args": [
+        "x"
+      ],
+      "personId": "p1",
+      "result": {
+        "ok": true,
+        "value": {
+          "ok": false,
+          "error": "usage: /me role <...>"
+        }
+      },
+      "events": []
+    },
+    {
+      "family": "cross",
+      "command": "me",
+      "args": [
+        "role",
+        "player"
+      ],
+      "result": {
+        "ok": true,
+        "value": {
+          "ok": false,
+          "error": "personId is required"
+        }
+      },
+      "events": []
+    },
+    {
+      "family": "cross",
+      "command": "nope",
+      "args": [],
+      "result": {
+        "ok": true,
+        "value": {
+          "ok": false,
+          "error": "unknown cross command: nope"
+        }
+      },
+      "events": []
+    },
+    {
+      "family": "learning",
+      "command": "intends",
+      "args": [
+        "緊張",
+        "感"
+      ],
+      "result": {
+        "ok": true,
+        "value": {
+          "ok": true,
+          "message": "mechanic intent updated"
+        }
+      },
+      "events": [
+        {
+          "eventType": "MechanicRefined",
+          "payload": {
+            "id": "m2",
+            "workspaceId": "knowledge",
+            "name": "Jump",
+            "description": null,
+            "intends": "緊張 感"
+          }
+        }
+      ]
+    },
+    {
+      "family": "learning",
+      "command": "refine",
+      "args": [
+        "新しい",
+        "説明"
+      ],
+      "result": {
+        "ok": true,
+        "value": {
+          "ok": true,
+          "message": "mechanic refined"
+        }
+      },
+      "events": [
+        {
+          "eventType": "MechanicRefined",
+          "payload": {
+            "id": "m2",
+            "workspaceId": "knowledge",
+            "name": "Jump",
+            "description": "新しい 説明",
+            "intends": "緊張 感"
+          }
+        }
+      ]
+    },
+    {
+      "family": "learning",
+      "command": "compare",
+      "args": [
+        "a"
+      ],
+      "result": {
+        "ok": true,
+        "value": {
+          "ok": false,
+          "error": "usage: /compare <a> <b>"
+        }
+      },
+      "events": []
+    },
+    {
+      "family": "learning",
+      "command": "compare",
+      "args": [
+        "a",
+        "b"
+      ],
+      "result": {
+        "ok": true,
+        "value": {
+          "ok": true,
+          "message": "compare stub: a vs b"
+        }
+      },
+      "events": []
+    },
+    {
+      "family": "learning",
+      "command": "history",
+      "args": [
+        "Dash"
+      ],
+      "result": {
+        "ok": true,
+        "value": {
+          "ok": true,
+          "message": "history count=1"
+        }
+      },
+      "events": []
+    },
+    {
+      "family": "learning",
+      "command": "define",
+      "args": [],
+      "result": {
+        "ok": true,
+        "value": {
+          "ok": false,
+          "error": "usage: /define <name>"
+        }
+      },
+      "events": []
+    },
+    {
+      "family": "synthesis",
+      "command": "refs",
+      "args": [
+        "u1,",
+        " u2 ,,u3"
+      ],
+      "result": {
+        "ok": true,
+        "value": {
+          "ok": true,
+          "message": "refs linked"
+        }
+      },
+      "events": [
+        {
+          "eventType": "HypothesisUpdated",
+          "payload": {
+            "id": "h1",
+            "workspaceId": "knowledge",
+            "statement": "Dash を短くすると爽快感が増す",
+            "status": "draft",
+            "integrated": false,
+            "validatedByEmotion": false,
+            "refs": [
+              "u1",
+              "u2",
+              "u3"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "family": "synthesis",
+      "command": "submit",
+      "args": [],
+      "result": {
+        "ok": true,
+        "value": {
+          "ok": false,
+          "error": "/addresses is required before /submit"
+        }
+      },
+      "events": []
+    },
+    {
+      "family": "synthesis",
+      "command": "addresses",
+      "args": [
+        "gap1"
+      ],
+      "result": {
+        "ok": true,
+        "value": {
+          "ok": true,
+          "message": "addresses linked"
+        }
+      },
+      "events": [
+        {
+          "eventType": "HypothesisUpdated",
+          "payload": {
+            "id": "h1",
+            "workspaceId": "knowledge",
+            "statement": "Dash を短くすると爽快感が増す",
+            "designGapId": "gap1",
+            "status": "draft",
+            "integrated": false,
+            "validatedByEmotion": false,
+            "refs": [
+              "u1",
+              "u2",
+              "u3"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "family": "synthesis",
+      "command": "submit",
+      "args": [],
+      "result": {
+        "ok": true,
+        "value": {
+          "ok": true,
+          "message": "submitted"
+        }
+      },
+      "events": [
+        {
+          "eventType": "HypothesisProposed",
+          "payload": {
+            "id": "h1",
+            "workspaceId": "knowledge",
+            "statement": "Dash を短くすると爽快感が増す",
+            "designGapId": "gap1",
+            "status": "proposed",
+            "integrated": false,
+            "validatedByEmotion": false,
+            "sessionId": "s1",
+            "refs": [
+              "u1",
+              "u2",
+              "u3"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "family": "synthesis",
+      "command": "validate",
+      "args": [
+        "Theory"
+      ],
+      "result": {
+        "ok": true,
+        "value": {
+          "ok": true,
+          "message": "validated theory"
+        }
+      },
+      "events": [
+        {
+          "eventType": "HypothesisDebated",
+          "payload": {
+            "id": "h1",
+            "workspaceId": "knowledge",
+            "statement": "Dash を短くすると爽快感が増す",
+            "designGapId": "gap1",
+            "status": "under_theory_validation",
+            "integrated": false,
+            "validatedByEmotion": false,
+            "sessionId": "s1",
+            "refs": [
+              "u1",
+              "u2",
+              "u3"
+            ]
+          }
+        },
+        {
+          "eventType": "HypothesisValidated",
+          "payload": {
+            "id": "h1",
+            "workspaceId": "knowledge",
+            "statement": "Dash を短くすると爽快感が増す",
+            "designGapId": "gap1",
+            "status": "validated_by_theory",
+            "integrated": false,
+            "validatedByEmotion": false,
+            "sessionId": "s1",
+            "refs": [
+              "u1",
+              "u2",
+              "u3"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "family": "synthesis",
+      "command": "validate",
+      "args": [
+        "bogus"
+      ],
+      "result": {
+        "ok": true,
+        "value": {
+          "ok": false,
+          "error": "usage: /validate theory|emotion"
+        }
+      },
+      "events": []
+    },
+    {
+      "family": "synthesis",
+      "command": "integrate",
+      "args": [],
+      "result": {
+        "ok": true,
+        "value": {
+          "ok": false,
+          "error": "integrate requires validated_by_emotion"
+        }
+      },
+      "events": []
+    },
+    {
+      "family": "synthesis",
+      "command": "reject",
+      "args": [],
+      "result": {
+        "ok": true,
+        "value": {
+          "ok": true,
+          "message": "rejected"
+        }
+      },
+      "events": [
+        {
+          "eventType": "HypothesisRejected",
+          "payload": {
+            "id": "h1",
+            "workspaceId": "knowledge",
+            "statement": "Dash を短くすると爽快感が増す",
+            "designGapId": "gap1",
+            "status": "rejected",
+            "integrated": false,
+            "validatedByEmotion": false,
+            "sessionId": "s1",
+            "refs": [
+              "u1",
+              "u2",
+              "u3"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "family": "synthesis",
+      "command": "jump",
+      "args": [],
+      "result": {
+        "ok": true,
+        "value": {
+          "ok": true,
+          "message": "jumped to axis1"
+        }
+      },
+      "events": []
+    },
+    {
+      "family": "synthesis",
+      "command": "propose",
+      "args": [],
+      "result": {
+        "ok": true,
+        "value": {
+          "ok": false,
+          "error": "usage: /propose <title>"
+        }
+      },
+      "events": []
+    },
+    {
+      "family": "emotion",
+      "command": "scene",
+      "args": [
+        "夜の",
+        "街"
+      ],
+      "result": {
+        "ok": true,
+        "value": {
+          "ok": true,
+          "message": "scene set"
+        }
+      },
+      "events": [
+        {
+          "eventType": "SessionUpdated",
+          "payload": {
+            "id": "s1",
+            "workspaceId": "knowledge",
+            "title": "play",
+            "startedAt": 1700000000000,
+            "mode": "emotion",
+            "scene": "夜の 街"
+          }
+        }
+      ]
+    },
+    {
+      "family": "emotion",
+      "command": "scene",
+      "args": [],
+      "result": {
+        "ok": true,
+        "value": {
+          "ok": false,
+          "error": "usage: /scene <description>"
+        }
+      },
+      "events": []
+    },
+    {
+      "family": "emotion",
+      "command": "done",
+      "args": [],
+      "result": {
+        "ok": true,
+        "value": {
+          "ok": true,
+          "message": "session ended"
+        }
+      },
+      "events": [
+        {
+          "eventType": "SessionEnded",
+          "payload": {
+            "id": "s1",
+            "workspaceId": "knowledge",
+            "title": "play",
+            "startedAt": 1700000000000,
+            "endedAt": 1793628186733,
+            "mode": "emotion",
+            "scene": "夜の 街"
+          }
+        }
+      ]
+    }
+  ]
+}

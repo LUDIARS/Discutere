@@ -1,0 +1,604 @@
+{
+  "fallback": [
+    {
+      "content": "ヴァンサバに必要な要素とは何か？",
+      "threadTitle": null,
+      "result": {
+        "action": "start_discussion",
+        "category": "game_design_question",
+        "title": "Discord議題: ヴァンサバに必要な要素とは何か？",
+        "description": "Discord投稿から自動検出: ヴァンサバに必要な要素とは何か？",
+        "expectedAffect": "unknown",
+        "observedAffect": "question",
+        "reason": "question or game-design terms detected"
+      }
+    },
+    {
+      "content": "/command arg",
+      "threadTitle": null,
+      "result": {
+        "action": "record_only",
+        "category": "command_like",
+        "title": "Discord議題: /command arg",
+        "description": "Discord投稿から自動検出: /command arg",
+        "reason": "command-like or link-only content"
+      }
+    },
+    {
+      "content": "HTTP://example.com/x",
+      "threadTitle": null,
+      "result": {
+        "action": "record_only",
+        "category": "command_like",
+        "title": "Discord議題: HTTP://example.com/x",
+        "description": "Discord投稿から自動検出: HTTP://example.com/x",
+        "reason": "command-like or link-only content"
+      }
+    },
+    {
+      "content": "短い?",
+      "threadTitle": null,
+      "result": {
+        "action": "record_only",
+        "category": "noise",
+        "title": "Discord議題: 短い?",
+        "description": "Discord投稿から自動検出: 短い?",
+        "reason": "not enough discussion signal"
+      }
+    },
+    {
+      "content": "こんにちは、今日は晴れです",
+      "threadTitle": null,
+      "result": {
+        "action": "record_only",
+        "category": "noise",
+        "title": "Discord議題: こんにちは、今日は晴れです",
+        "description": "Discord投稿から自動検出: こんにちは、今日は晴れです",
+        "reason": "not enough discussion signal"
+      }
+    },
+    {
+      "content": "このゲームのテンポは良いか悪いか議論したい",
+      "threadTitle": null,
+      "result": {
+        "action": "start_discussion",
+        "category": "game_design_question",
+        "title": "Discord議題: このゲームのテンポは良いか悪いか議論したい",
+        "description": "Discord投稿から自動検出: このゲームのテンポは良いか悪いか議論したい",
+        "expectedAffect": "unknown",
+        "observedAffect": "question",
+        "reason": "question or game-design terms detected"
+      }
+    },
+    {
+      "content": "なぜ敵が強いのかな",
+      "threadTitle": "ワンダと巨像",
+      "result": {
+        "action": "start_discussion",
+        "category": "mechanic_question",
+        "title": "Discord議題: なぜ敵が強いのかな",
+        "description": "Discord投稿から自動検出: なぜ敵が強いのかな",
+        "gameTitle": "ワンダと巨像",
+        "expectedAffect": "unknown",
+        "observedAffect": "question",
+        "reason": "question or game-design terms detected"
+      }
+    },
+    {
+      "content": "   なぜ敵が強いのかな   ",
+      "threadTitle": "  ",
+      "result": {
+        "action": "start_discussion",
+        "category": "mechanic_question",
+        "title": "Discord議題: なぜ敵が強いのかな",
+        "description": "Discord投稿から自動検出: なぜ敵が強いのかな",
+        "expectedAffect": "unknown",
+        "observedAffect": "question",
+        "reason": "question or game-design terms detected"
+      }
+    },
+    {
+      "content": "vampire survivors is fun",
+      "threadTitle": null,
+      "result": {
+        "action": "start_discussion",
+        "category": "game_design_question",
+        "title": "Discord議題: vampire survivors is fun",
+        "description": "Discord投稿から自動検出: vampire survivors is fun",
+        "expectedAffect": "unknown",
+        "observedAffect": "question",
+        "reason": "question or game-design terms detected"
+      }
+    },
+    {
+      "content": "Vampire survivors is fun",
+      "threadTitle": null,
+      "result": {
+        "action": "record_only",
+        "category": "noise",
+        "title": "Discord議題: Vampire survivors is fun",
+        "description": "Discord投稿から自動検出: Vampire survivors is fun",
+        "reason": "not enough discussion signal"
+      }
+    },
+    {
+      "content": "どうして長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長🎮🎮",
+      "threadTitle": null,
+      "result": {
+        "action": "start_discussion",
+        "category": "mechanic_question",
+        "title": "Discord議題: どうして長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長…",
+        "description": "Discord投稿から自動検出: どうして長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長🎮🎮",
+        "expectedAffect": "unknown",
+        "observedAffect": "question",
+        "reason": "question or game-design terms detected"
+      }
+    },
+    {
+      "content": "",
+      "threadTitle": null,
+      "result": {
+        "action": "record_only",
+        "category": "noise",
+        "title": "Discord議題: ",
+        "description": "Discord投稿から自動検出: ",
+        "reason": "not enough discussion signal"
+      }
+    }
+  ],
+  "directives": [
+    {
+      "direction": "improvement",
+      "text": "【議論の方向性: 改善提案】この議題はゲーム/メカニクスの課題を洗い出し、具体的な改善案を出し合って収束させる。"
+    },
+    {
+      "direction": "fun",
+      "text": "【議論の方向性: 面白さ】この議題は何がどう面白いのか、体験の魅力を多角的に語り合って収束させる。"
+    },
+    {
+      "direction": "other",
+      "text": "【議論の方向性: 面白さ】この議題は何がどう面白いのか、体験の魅力を多角的に語り合って収束させる。"
+    }
+  ],
+  "llm": [
+    {
+      "content": "Vampire Survivors はテンポが悪いと思う",
+      "threadTitle": null,
+      "llm": {
+        "ok": true,
+        "text": "{\"action\":\"start_discussion\",\"category\":\"opinion\",\"gameTitle\":\"Vampire Survivors\",\"genre\":\"ローグライト\",\"title\":\"LLM分類議題\",\"description\":\"LLMで分類した議題\",\"reason\":\"mock\"}"
+      },
+      "result": {
+        "ok": true,
+        "value": {
+          "action": "start_discussion",
+          "category": "opinion",
+          "title": "LLM分類議題",
+          "description": "LLMで分類した議題",
+          "gameTitle": "Vampire Survivors",
+          "genre": "ローグライト",
+          "reason": "mock"
+        }
+      },
+      "invocation": {
+        "system": "You classify Discord posts for an automatic game-design discussion system. You MUST read the post body carefully and identify which game and genre it is about. Return only compact JSON.",
+        "prompt": "Classify the post.\n【ゲームタイトル・ジャンルの判定 (最重要)】\n- 投稿本文(とスレッドタイトル)から、議論の対象となる『ゲームタイトル』と『ジャンル』を特定する。\n- gameTitle: 具体的なゲーム名 (例「Vampire Survivors」「ワンダと巨像」)。特定できなければ空文字。\n- genre: そのゲームのジャンル (例「ローグライト」「アクションアドベンチャー」「ヴァンサバ系」)。\n- 整合性を判断する: genre がその gameTitle に実際に合っているか? 投稿が本当にその対象についてか?\n  矛盾する / どのゲーム・ジャンルか特定できない 場合は action=record_only にし、reason に理由を書く。\n  (対象ゲーム・ジャンルが定まらない議題は噛み合わないので議論を開始しない。)\n- start_discussion にするのは、gameTitle が特定でき、genre と整合し、議論に値する内容のときだけ。\nJSON schema:\n{\"action\":\"start_discussion|record_only\",\"category\":\"game_design_question|mechanic_question|opinion|noise|command_like\",\"gameTitle\":\"対象ゲーム名 or 空\",\"genre\":\"ジャンル or 空\",\"title\":\"short Japanese title\",\"description\":\"本文の要点を踏まえた日本語要約\",\"expectedAffect\":\"optional\",\"observedAffect\":\"optional\",\"reason\":\"short reason (特に開始しない場合は理由)\"}\nPost: Vampire Survivors はテンポが悪いと思う",
+        "maxTokens": 700
+      }
+    },
+    {
+      "content": "なんか最近のゲームつまらないよね",
+      "threadTitle": null,
+      "llm": {
+        "ok": true,
+        "text": "{\"action\":\"start_discussion\",\"category\":\"opinion\",\"gameTitle\":\"\",\"title\":\"曖昧な議題\",\"description\":\"どのゲームか不明\",\"reason\":\"mock\"}"
+      },
+      "result": {
+        "ok": true,
+        "value": {
+          "action": "record_only",
+          "category": "opinion",
+          "title": "曖昧な議題",
+          "description": "どのゲームか不明",
+          "reason": "対象ゲームを特定できないため議論を開始しない (mock)"
+        }
+      },
+      "invocation": {
+        "system": "You classify Discord posts for an automatic game-design discussion system. You MUST read the post body carefully and identify which game and genre it is about. Return only compact JSON.",
+        "prompt": "Classify the post.\n【ゲームタイトル・ジャンルの判定 (最重要)】\n- 投稿本文(とスレッドタイトル)から、議論の対象となる『ゲームタイトル』と『ジャンル』を特定する。\n- gameTitle: 具体的なゲーム名 (例「Vampire Survivors」「ワンダと巨像」)。特定できなければ空文字。\n- genre: そのゲームのジャンル (例「ローグライト」「アクションアドベンチャー」「ヴァンサバ系」)。\n- 整合性を判断する: genre がその gameTitle に実際に合っているか? 投稿が本当にその対象についてか?\n  矛盾する / どのゲーム・ジャンルか特定できない 場合は action=record_only にし、reason に理由を書く。\n  (対象ゲーム・ジャンルが定まらない議題は噛み合わないので議論を開始しない。)\n- start_discussion にするのは、gameTitle が特定でき、genre と整合し、議論に値する内容のときだけ。\nJSON schema:\n{\"action\":\"start_discussion|record_only\",\"category\":\"game_design_question|mechanic_question|opinion|noise|command_like\",\"gameTitle\":\"対象ゲーム名 or 空\",\"genre\":\"ジャンル or 空\",\"title\":\"short Japanese title\",\"description\":\"本文の要点を踏まえた日本語要約\",\"expectedAffect\":\"optional\",\"observedAffect\":\"optional\",\"reason\":\"short reason (特に開始しない場合は理由)\"}\nPost: なんか最近のゲームつまらないよね",
+        "maxTokens": 700
+      }
+    },
+    {
+      "content": "なんか最近のゲームつまらないよね",
+      "threadTitle": null,
+      "llm": {
+        "ok": true,
+        "text": "{\"action\":\"start_discussion\",\"category\":\"opinion\",\"gameTitle\":\"  \"}"
+      },
+      "result": {
+        "ok": true,
+        "value": {
+          "action": "record_only",
+          "category": "opinion",
+          "title": "Discord議題: なんか最近のゲームつまらないよね",
+          "description": "Discord投稿から自動検出: なんか最近のゲームつまらないよね",
+          "reason": "対象ゲームを特定できないため議論を開始しない (gameTitle 不明)"
+        }
+      },
+      "invocation": {
+        "system": "You classify Discord posts for an automatic game-design discussion system. You MUST read the post body carefully and identify which game and genre it is about. Return only compact JSON.",
+        "prompt": "Classify the post.\n【ゲームタイトル・ジャンルの判定 (最重要)】\n- 投稿本文(とスレッドタイトル)から、議論の対象となる『ゲームタイトル』と『ジャンル』を特定する。\n- gameTitle: 具体的なゲーム名 (例「Vampire Survivors」「ワンダと巨像」)。特定できなければ空文字。\n- genre: そのゲームのジャンル (例「ローグライト」「アクションアドベンチャー」「ヴァンサバ系」)。\n- 整合性を判断する: genre がその gameTitle に実際に合っているか? 投稿が本当にその対象についてか?\n  矛盾する / どのゲーム・ジャンルか特定できない 場合は action=record_only にし、reason に理由を書く。\n  (対象ゲーム・ジャンルが定まらない議題は噛み合わないので議論を開始しない。)\n- start_discussion にするのは、gameTitle が特定でき、genre と整合し、議論に値する内容のときだけ。\nJSON schema:\n{\"action\":\"start_discussion|record_only\",\"category\":\"game_design_question|mechanic_question|opinion|noise|command_like\",\"gameTitle\":\"対象ゲーム名 or 空\",\"genre\":\"ジャンル or 空\",\"title\":\"short Japanese title\",\"description\":\"本文の要点を踏まえた日本語要約\",\"expectedAffect\":\"optional\",\"observedAffect\":\"optional\",\"reason\":\"short reason (特に開始しない場合は理由)\"}\nPost: なんか最近のゲームつまらないよね",
+        "maxTokens": 700
+      }
+    },
+    {
+      "content": "よじ登りがだるい",
+      "threadTitle": "ワンダと巨像",
+      "llm": {
+        "ok": true,
+        "text": "前置き\n```json\n{\"action\":\"start_discussion\",\"category\":\"game_design_question\",\"title\":\"全然違うゲームの議題\",\"description\":\"本文だけから推測した説明\"}\n```\n後書き}"
+      },
+      "result": {
+        "ok": true,
+        "value": {
+          "action": "record_only",
+          "category": "noise",
+          "title": "Discord議題: よじ登りがだるい",
+          "description": "Discord投稿から自動検出: よじ登りがだるい",
+          "gameTitle": "ワンダと巨像",
+          "reason": "not enough discussion signal"
+        }
+      },
+      "invocation": {
+        "system": "You classify Discord posts for an automatic game-design discussion system. You MUST read the post body carefully and identify which game and genre it is about. Return only compact JSON.",
+        "prompt": "Classify the post.\nThread title (議論の主題・対象ゲーム — これが対象ゲームの最優先根拠): ワンダと巨像\n【ゲームタイトル・ジャンルの判定 (最重要)】\n- 投稿本文(とスレッドタイトル)から、議論の対象となる『ゲームタイトル』と『ジャンル』を特定する。\n- gameTitle: 具体的なゲーム名 (例「Vampire Survivors」「ワンダと巨像」)。特定できなければ空文字。\n- genre: そのゲームのジャンル (例「ローグライト」「アクションアドベンチャー」「ヴァンサバ系」)。\n- 整合性を判断する: genre がその gameTitle に実際に合っているか? 投稿が本当にその対象についてか?\n  矛盾する / どのゲーム・ジャンルか特定できない 場合は action=record_only にし、reason に理由を書く。\n  (対象ゲーム・ジャンルが定まらない議題は噛み合わないので議論を開始しない。)\n- start_discussion にするのは、gameTitle が特定でき、genre と整合し、議論に値する内容のときだけ。\nJSON schema:\n{\"action\":\"start_discussion|record_only\",\"category\":\"game_design_question|mechanic_question|opinion|noise|command_like\",\"gameTitle\":\"対象ゲーム名 or 空\",\"genre\":\"ジャンル or 空\",\"title\":\"short Japanese title\",\"description\":\"本文の要点を踏まえた日本語要約\",\"expectedAffect\":\"optional\",\"observedAffect\":\"optional\",\"reason\":\"short reason (特に開始しない場合は理由)\"}\nPost: よじ登りがだるい",
+        "maxTokens": 700
+      }
+    },
+    {
+      "content": "何かの投稿",
+      "threadTitle": null,
+      "llm": {
+        "ok": true,
+        "text": "[1, 2, {\"a\": 1}]"
+      },
+      "result": {
+        "ok": true,
+        "value": {
+          "action": "record_only",
+          "category": "noise",
+          "title": "Discord議題: 何かの投稿",
+          "description": "Discord投稿から自動検出: 何かの投稿"
+        }
+      },
+      "invocation": {
+        "system": "You classify Discord posts for an automatic game-design discussion system. You MUST read the post body carefully and identify which game and genre it is about. Return only compact JSON.",
+        "prompt": "Classify the post.\n【ゲームタイトル・ジャンルの判定 (最重要)】\n- 投稿本文(とスレッドタイトル)から、議論の対象となる『ゲームタイトル』と『ジャンル』を特定する。\n- gameTitle: 具体的なゲーム名 (例「Vampire Survivors」「ワンダと巨像」)。特定できなければ空文字。\n- genre: そのゲームのジャンル (例「ローグライト」「アクションアドベンチャー」「ヴァンサバ系」)。\n- 整合性を判断する: genre がその gameTitle に実際に合っているか? 投稿が本当にその対象についてか?\n  矛盾する / どのゲーム・ジャンルか特定できない 場合は action=record_only にし、reason に理由を書く。\n  (対象ゲーム・ジャンルが定まらない議題は噛み合わないので議論を開始しない。)\n- start_discussion にするのは、gameTitle が特定でき、genre と整合し、議論に値する内容のときだけ。\nJSON schema:\n{\"action\":\"start_discussion|record_only\",\"category\":\"game_design_question|mechanic_question|opinion|noise|command_like\",\"gameTitle\":\"対象ゲーム名 or 空\",\"genre\":\"ジャンル or 空\",\"title\":\"short Japanese title\",\"description\":\"本文の要点を踏まえた日本語要約\",\"expectedAffect\":\"optional\",\"observedAffect\":\"optional\",\"reason\":\"short reason (特に開始しない場合は理由)\"}\nPost: 何かの投稿",
+        "maxTokens": 700
+      }
+    },
+    {
+      "content": "何かの投稿",
+      "threadTitle": null,
+      "llm": {
+        "ok": true,
+        "text": "no json here"
+      },
+      "result": {
+        "ok": true,
+        "value": {
+          "action": "record_only",
+          "category": "noise",
+          "title": "Discord議題: 何かの投稿",
+          "description": "Discord投稿から自動検出: 何かの投稿",
+          "reason": "not enough discussion signal"
+        }
+      },
+      "invocation": {
+        "system": "You classify Discord posts for an automatic game-design discussion system. You MUST read the post body carefully and identify which game and genre it is about. Return only compact JSON.",
+        "prompt": "Classify the post.\n【ゲームタイトル・ジャンルの判定 (最重要)】\n- 投稿本文(とスレッドタイトル)から、議論の対象となる『ゲームタイトル』と『ジャンル』を特定する。\n- gameTitle: 具体的なゲーム名 (例「Vampire Survivors」「ワンダと巨像」)。特定できなければ空文字。\n- genre: そのゲームのジャンル (例「ローグライト」「アクションアドベンチャー」「ヴァンサバ系」)。\n- 整合性を判断する: genre がその gameTitle に実際に合っているか? 投稿が本当にその対象についてか?\n  矛盾する / どのゲーム・ジャンルか特定できない 場合は action=record_only にし、reason に理由を書く。\n  (対象ゲーム・ジャンルが定まらない議題は噛み合わないので議論を開始しない。)\n- start_discussion にするのは、gameTitle が特定でき、genre と整合し、議論に値する内容のときだけ。\nJSON schema:\n{\"action\":\"start_discussion|record_only\",\"category\":\"game_design_question|mechanic_question|opinion|noise|command_like\",\"gameTitle\":\"対象ゲーム名 or 空\",\"genre\":\"ジャンル or 空\",\"title\":\"short Japanese title\",\"description\":\"本文の要点を踏まえた日本語要約\",\"expectedAffect\":\"optional\",\"observedAffect\":\"optional\",\"reason\":\"short reason (特に開始しない場合は理由)\"}\nPost: 何かの投稿",
+        "maxTokens": 700
+      }
+    },
+    {
+      "content": "何かの投稿?",
+      "threadTitle": null,
+      "llm": {
+        "ok": true,
+        "text": "{ broken json"
+      },
+      "result": {
+        "ok": true,
+        "value": {
+          "action": "record_only",
+          "category": "mechanic_question",
+          "title": "Discord議題: 何かの投稿?",
+          "description": "Discord投稿から自動検出: 何かの投稿?",
+          "expectedAffect": "unknown",
+          "observedAffect": "question",
+          "reason": "対象ゲームを特定できないため議論を開始しない (question or game-design terms detected)"
+        }
+      },
+      "invocation": {
+        "system": "You classify Discord posts for an automatic game-design discussion system. You MUST read the post body carefully and identify which game and genre it is about. Return only compact JSON.",
+        "prompt": "Classify the post.\n【ゲームタイトル・ジャンルの判定 (最重要)】\n- 投稿本文(とスレッドタイトル)から、議論の対象となる『ゲームタイトル』と『ジャンル』を特定する。\n- gameTitle: 具体的なゲーム名 (例「Vampire Survivors」「ワンダと巨像」)。特定できなければ空文字。\n- genre: そのゲームのジャンル (例「ローグライト」「アクションアドベンチャー」「ヴァンサバ系」)。\n- 整合性を判断する: genre がその gameTitle に実際に合っているか? 投稿が本当にその対象についてか?\n  矛盾する / どのゲーム・ジャンルか特定できない 場合は action=record_only にし、reason に理由を書く。\n  (対象ゲーム・ジャンルが定まらない議題は噛み合わないので議論を開始しない。)\n- start_discussion にするのは、gameTitle が特定でき、genre と整合し、議論に値する内容のときだけ。\nJSON schema:\n{\"action\":\"start_discussion|record_only\",\"category\":\"game_design_question|mechanic_question|opinion|noise|command_like\",\"gameTitle\":\"対象ゲーム名 or 空\",\"genre\":\"ジャンル or 空\",\"title\":\"short Japanese title\",\"description\":\"本文の要点を踏まえた日本語要約\",\"expectedAffect\":\"optional\",\"observedAffect\":\"optional\",\"reason\":\"short reason (特に開始しない場合は理由)\"}\nPost: 何かの投稿?",
+        "maxTokens": 700
+      }
+    },
+    {
+      "content": "何かの投稿?",
+      "threadTitle": null,
+      "llm": {
+        "ok": true,
+        "text": "} reversed {"
+      },
+      "result": {
+        "ok": true,
+        "value": {
+          "action": "record_only",
+          "category": "mechanic_question",
+          "title": "Discord議題: 何かの投稿?",
+          "description": "Discord投稿から自動検出: 何かの投稿?",
+          "expectedAffect": "unknown",
+          "observedAffect": "question",
+          "reason": "対象ゲームを特定できないため議論を開始しない (question or game-design terms detected)"
+        }
+      },
+      "invocation": {
+        "system": "You classify Discord posts for an automatic game-design discussion system. You MUST read the post body carefully and identify which game and genre it is about. Return only compact JSON.",
+        "prompt": "Classify the post.\n【ゲームタイトル・ジャンルの判定 (最重要)】\n- 投稿本文(とスレッドタイトル)から、議論の対象となる『ゲームタイトル』と『ジャンル』を特定する。\n- gameTitle: 具体的なゲーム名 (例「Vampire Survivors」「ワンダと巨像」)。特定できなければ空文字。\n- genre: そのゲームのジャンル (例「ローグライト」「アクションアドベンチャー」「ヴァンサバ系」)。\n- 整合性を判断する: genre がその gameTitle に実際に合っているか? 投稿が本当にその対象についてか?\n  矛盾する / どのゲーム・ジャンルか特定できない 場合は action=record_only にし、reason に理由を書く。\n  (対象ゲーム・ジャンルが定まらない議題は噛み合わないので議論を開始しない。)\n- start_discussion にするのは、gameTitle が特定でき、genre と整合し、議論に値する内容のときだけ。\nJSON schema:\n{\"action\":\"start_discussion|record_only\",\"category\":\"game_design_question|mechanic_question|opinion|noise|command_like\",\"gameTitle\":\"対象ゲーム名 or 空\",\"genre\":\"ジャンル or 空\",\"title\":\"short Japanese title\",\"description\":\"本文の要点を踏まえた日本語要約\",\"expectedAffect\":\"optional\",\"observedAffect\":\"optional\",\"reason\":\"short reason (特に開始しない場合は理由)\"}\nPost: 何かの投稿?",
+        "maxTokens": 700
+      }
+    },
+    {
+      "content": "何かの投稿?",
+      "threadTitle": "スレ",
+      "llm": {
+        "ok": false
+      },
+      "result": {
+        "ok": true,
+        "value": {
+          "action": "start_discussion",
+          "category": "mechanic_question",
+          "title": "Discord議題: 何かの投稿?",
+          "description": "Discord投稿から自動検出: 何かの投稿?",
+          "gameTitle": "スレ",
+          "expectedAffect": "unknown",
+          "observedAffect": "question",
+          "reason": "question or game-design terms detected"
+        }
+      },
+      "invocation": {
+        "system": "You classify Discord posts for an automatic game-design discussion system. You MUST read the post body carefully and identify which game and genre it is about. Return only compact JSON.",
+        "prompt": "Classify the post.\nThread title (議論の主題・対象ゲーム — これが対象ゲームの最優先根拠): スレ\n【ゲームタイトル・ジャンルの判定 (最重要)】\n- 投稿本文(とスレッドタイトル)から、議論の対象となる『ゲームタイトル』と『ジャンル』を特定する。\n- gameTitle: 具体的なゲーム名 (例「Vampire Survivors」「ワンダと巨像」)。特定できなければ空文字。\n- genre: そのゲームのジャンル (例「ローグライト」「アクションアドベンチャー」「ヴァンサバ系」)。\n- 整合性を判断する: genre がその gameTitle に実際に合っているか? 投稿が本当にその対象についてか?\n  矛盾する / どのゲーム・ジャンルか特定できない 場合は action=record_only にし、reason に理由を書く。\n  (対象ゲーム・ジャンルが定まらない議題は噛み合わないので議論を開始しない。)\n- start_discussion にするのは、gameTitle が特定でき、genre と整合し、議論に値する内容のときだけ。\nJSON schema:\n{\"action\":\"start_discussion|record_only\",\"category\":\"game_design_question|mechanic_question|opinion|noise|command_like\",\"gameTitle\":\"対象ゲーム名 or 空\",\"genre\":\"ジャンル or 空\",\"title\":\"short Japanese title\",\"description\":\"本文の要点を踏まえた日本語要約\",\"expectedAffect\":\"optional\",\"observedAffect\":\"optional\",\"reason\":\"short reason (特に開始しない場合は理由)\"}\nPost: 何かの投稿?",
+        "maxTokens": 700
+      }
+    },
+    {
+      "content": "x",
+      "threadTitle": null,
+      "llm": {
+        "ok": true,
+        "text": "{\"action\":\"start_discussion\",\"category\":\"mystery\",\"gameTitle\":\"G\",\"title\":\"TTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTT🎮\",\"description\":\"DDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDD\",\"expectedAffect\":\"  \",\"observedAffect\":\" joy \",\"reason\":\"  \"}"
+      },
+      "result": {
+        "ok": true,
+        "value": {
+          "action": "start_discussion",
+          "category": "noise",
+          "title": "TTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTT…",
+          "description": "DDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDD…",
+          "gameTitle": "G",
+          "observedAffect": "joy"
+        }
+      },
+      "invocation": {
+        "system": "You classify Discord posts for an automatic game-design discussion system. You MUST read the post body carefully and identify which game and genre it is about. Return only compact JSON.",
+        "prompt": "Classify the post.\n【ゲームタイトル・ジャンルの判定 (最重要)】\n- 投稿本文(とスレッドタイトル)から、議論の対象となる『ゲームタイトル』と『ジャンル』を特定する。\n- gameTitle: 具体的なゲーム名 (例「Vampire Survivors」「ワンダと巨像」)。特定できなければ空文字。\n- genre: そのゲームのジャンル (例「ローグライト」「アクションアドベンチャー」「ヴァンサバ系」)。\n- 整合性を判断する: genre がその gameTitle に実際に合っているか? 投稿が本当にその対象についてか?\n  矛盾する / どのゲーム・ジャンルか特定できない 場合は action=record_only にし、reason に理由を書く。\n  (対象ゲーム・ジャンルが定まらない議題は噛み合わないので議論を開始しない。)\n- start_discussion にするのは、gameTitle が特定でき、genre と整合し、議論に値する内容のときだけ。\nJSON schema:\n{\"action\":\"start_discussion|record_only\",\"category\":\"game_design_question|mechanic_question|opinion|noise|command_like\",\"gameTitle\":\"対象ゲーム名 or 空\",\"genre\":\"ジャンル or 空\",\"title\":\"short Japanese title\",\"description\":\"本文の要点を踏まえた日本語要約\",\"expectedAffect\":\"optional\",\"observedAffect\":\"optional\",\"reason\":\"short reason (特に開始しない場合は理由)\"}\nPost: x",
+        "maxTokens": 700
+      }
+    },
+    {
+      "content": "x",
+      "threadTitle": null,
+      "llm": {
+        "ok": true,
+        "text": "{\"action\":\"record_only\",\"category\":\"noise\",\"title\":5}"
+      },
+      "result": {
+        "ok": false,
+        "error": "raw.title?.trim is not a function"
+      },
+      "invocation": {
+        "system": "You classify Discord posts for an automatic game-design discussion system. You MUST read the post body carefully and identify which game and genre it is about. Return only compact JSON.",
+        "prompt": "Classify the post.\n【ゲームタイトル・ジャンルの判定 (最重要)】\n- 投稿本文(とスレッドタイトル)から、議論の対象となる『ゲームタイトル』と『ジャンル』を特定する。\n- gameTitle: 具体的なゲーム名 (例「Vampire Survivors」「ワンダと巨像」)。特定できなければ空文字。\n- genre: そのゲームのジャンル (例「ローグライト」「アクションアドベンチャー」「ヴァンサバ系」)。\n- 整合性を判断する: genre がその gameTitle に実際に合っているか? 投稿が本当にその対象についてか?\n  矛盾する / どのゲーム・ジャンルか特定できない 場合は action=record_only にし、reason に理由を書く。\n  (対象ゲーム・ジャンルが定まらない議題は噛み合わないので議論を開始しない。)\n- start_discussion にするのは、gameTitle が特定でき、genre と整合し、議論に値する内容のときだけ。\nJSON schema:\n{\"action\":\"start_discussion|record_only\",\"category\":\"game_design_question|mechanic_question|opinion|noise|command_like\",\"gameTitle\":\"対象ゲーム名 or 空\",\"genre\":\"ジャンル or 空\",\"title\":\"short Japanese title\",\"description\":\"本文の要点を踏まえた日本語要約\",\"expectedAffect\":\"optional\",\"observedAffect\":\"optional\",\"reason\":\"short reason (特に開始しない場合は理由)\"}\nPost: x",
+        "maxTokens": 700
+      }
+    },
+    {
+      "content": "x",
+      "threadTitle": null,
+      "llm": {
+        "ok": true,
+        "text": "{\"action\":\"start_discussion\",\"category\":\"opinion\",\"gameTitle\":null,\"title\":null,\"genre\":\"ジャンル\"}"
+      },
+      "result": {
+        "ok": true,
+        "value": {
+          "action": "record_only",
+          "category": "opinion",
+          "title": "Discord議題: x",
+          "description": "Discord投稿から自動検出: x",
+          "genre": "ジャンル",
+          "reason": "対象ゲームを特定できないため議論を開始しない (gameTitle 不明)"
+        }
+      },
+      "invocation": {
+        "system": "You classify Discord posts for an automatic game-design discussion system. You MUST read the post body carefully and identify which game and genre it is about. Return only compact JSON.",
+        "prompt": "Classify the post.\n【ゲームタイトル・ジャンルの判定 (最重要)】\n- 投稿本文(とスレッドタイトル)から、議論の対象となる『ゲームタイトル』と『ジャンル』を特定する。\n- gameTitle: 具体的なゲーム名 (例「Vampire Survivors」「ワンダと巨像」)。特定できなければ空文字。\n- genre: そのゲームのジャンル (例「ローグライト」「アクションアドベンチャー」「ヴァンサバ系」)。\n- 整合性を判断する: genre がその gameTitle に実際に合っているか? 投稿が本当にその対象についてか?\n  矛盾する / どのゲーム・ジャンルか特定できない 場合は action=record_only にし、reason に理由を書く。\n  (対象ゲーム・ジャンルが定まらない議題は噛み合わないので議論を開始しない。)\n- start_discussion にするのは、gameTitle が特定でき、genre と整合し、議論に値する内容のときだけ。\nJSON schema:\n{\"action\":\"start_discussion|record_only\",\"category\":\"game_design_question|mechanic_question|opinion|noise|command_like\",\"gameTitle\":\"対象ゲーム名 or 空\",\"genre\":\"ジャンル or 空\",\"title\":\"short Japanese title\",\"description\":\"本文の要点を踏まえた日本語要約\",\"expectedAffect\":\"optional\",\"observedAffect\":\"optional\",\"reason\":\"short reason (特に開始しない場合は理由)\"}\nPost: x",
+        "maxTokens": 700
+      }
+    }
+  ],
+  "starts": [
+    {
+      "input": {
+        "workspaceId": "knowledge",
+        "guildId": "g1",
+        "channelId": "ch1",
+        "sessionId": "s1",
+        "utteranceId": "ua",
+        "authorId": "u1",
+        "content": "ヴァンサバに必要な要素とは何か？"
+      },
+      "llmText": null,
+      "started": true,
+      "hasGapId": true,
+      "classification": {
+        "action": "start_discussion",
+        "category": "game_design_question",
+        "title": "Discord議題: ヴァンサバに必要な要素とは何か？",
+        "description": "Discord投稿から自動検出: ヴァンサバに必要な要素とは何か？",
+        "expectedAffect": "unknown",
+        "observedAffect": "question",
+        "reason": "question or game-design terms detected"
+      },
+      "gap": {
+        "title": "Discord議題: ヴァンサバに必要な要素とは何か？",
+        "description": "Discord投稿から自動検出: ヴァンサバに必要な要素とは何か？",
+        "status": "open",
+        "gap_in": "discord:game_design_question:<gapId>",
+        "expected_affect": "unknown",
+        "observed_affect": "question",
+        "evidence_json": "{\"source\":\"discord:auto-classifier\",\"category\":\"game_design_question\",\"gameTitle\":null,\"genre\":null,\"tags\":[],\"reason\":\"question or game-design terms detected\",\"direction\":null,\"utteranceIds\":[\"ua\"],\"guildId\":\"g1\",\"channelId\":\"ch1\",\"sessionId\":\"s1\",\"authorId\":\"u1\"}"
+      }
+    },
+    {
+      "input": {
+        "workspaceId": "knowledge",
+        "guildId": "g1",
+        "channelId": "ch1",
+        "sessionId": "s1",
+        "utteranceId": "ua",
+        "authorId": "u1",
+        "content": "ヴァンサバに必要な要素とは何か？"
+      },
+      "llmText": null,
+      "started": false,
+      "hasGapId": true,
+      "classification": {
+        "action": "start_discussion",
+        "category": "game_design_question",
+        "title": "Discord議題: ヴァンサバに必要な要素とは何か？",
+        "description": "Discord投稿から自動検出: ヴァンサバに必要な要素とは何か？",
+        "expectedAffect": "unknown",
+        "observedAffect": "question",
+        "reason": "question or game-design terms detected"
+      },
+      "gap": {
+        "title": "Discord議題: ヴァンサバに必要な要素とは何か？",
+        "description": "Discord投稿から自動検出: ヴァンサバに必要な要素とは何か？",
+        "status": "open",
+        "gap_in": "discord:game_design_question:<gapId>",
+        "expected_affect": "unknown",
+        "observed_affect": "question",
+        "evidence_json": "{\"source\":\"discord:auto-classifier\",\"category\":\"game_design_question\",\"gameTitle\":null,\"genre\":null,\"tags\":[],\"reason\":\"question or game-design terms detected\",\"direction\":null,\"utteranceIds\":[\"ua\"],\"guildId\":\"g1\",\"channelId\":\"ch1\",\"sessionId\":\"s1\",\"authorId\":\"u1\"}"
+      }
+    },
+    {
+      "input": {
+        "workspaceId": "knowledge",
+        "guildId": "g1",
+        "channelId": "ch-forum",
+        "sessionId": "s1",
+        "utteranceId": "ub",
+        "authorId": "u1",
+        "content": "名作の要素はどこ？",
+        "forumTitle": " ワンダと巨像 ",
+        "direction": "improvement",
+        "forumTags": [
+          " 議論 ",
+          "",
+          "開発"
+        ]
+      },
+      "llmText": "{\"action\":\"start_discussion\",\"category\":\"game_design_question\",\"title\":\"全然違うゲームの議題\",\"description\":\"本文だけから推測した説明\",\"expectedAffect\":\"awe\"}",
+      "started": true,
+      "hasGapId": true,
+      "classification": {
+        "action": "start_discussion",
+        "category": "game_design_question",
+        "title": "全然違うゲームの議題",
+        "description": "本文だけから推測した説明",
+        "gameTitle": "ワンダと巨像",
+        "expectedAffect": "awe"
+      },
+      "gap": {
+        "title": "ワンダと巨像",
+        "description": "【対象ゲーム: ワンダと巨像】この議論は必ずこのゲーム・ジャンルに即して論じる。別ゲームの話や前提のすり替えは持ち込まない。\n本文だけから推測した説明\n\n【議論の方向性: 改善提案】この議題はゲーム/メカニクスの課題を洗い出し、具体的な改善案を出し合って収束させる。",
+        "status": "open",
+        "gap_in": "discord:game_design_question:<gapId>",
+        "expected_affect": "awe",
+        "observed_affect": null,
+        "evidence_json": "{\"source\":\"discord:auto-classifier\",\"category\":\"game_design_question\",\"gameTitle\":\"ワンダと巨像\",\"genre\":null,\"tags\":[\"議論\",\"開発\"],\"reason\":null,\"direction\":\"improvement\",\"utteranceIds\":[\"ub\"],\"guildId\":\"g1\",\"channelId\":\"ch-forum\",\"sessionId\":\"s1\",\"authorId\":\"u1\"}"
+      }
+    },
+    {
+      "input": {
+        "workspaceId": "knowledge",
+        "guildId": "web",
+        "channelId": "room",
+        "sessionId": "s2",
+        "utteranceId": "uc",
+        "authorId": "u2",
+        "content": "このゲームのテンポは?",
+        "direction": "fun"
+      },
+      "llmText": "{\"action\":\"start_discussion\",\"category\":\"opinion\",\"gameTitle\":\"Hollow Knight\",\"genre\":\"メトロイドヴァニア\",\"description\":\"\",\"reason\":\"r\"}",
+      "started": true,
+      "hasGapId": true,
+      "classification": {
+        "action": "start_discussion",
+        "category": "opinion",
+        "title": "Discord議題: このゲームのテンポは?",
+        "description": "Discord投稿から自動検出: このゲームのテンポは?",
+        "gameTitle": "Hollow Knight",
+        "genre": "メトロイドヴァニア",
+        "reason": "r"
+      },
+      "gap": {
+        "title": "Hollow Knight",
+        "description": "【対象ゲーム: Hollow Knight / ジャンル: メトロイドヴァニア】この議論は必ずこのゲーム・ジャンルに即して論じる。別ゲームの話や前提のすり替えは持ち込まない。\nDiscord投稿から自動検出: このゲームのテンポは?\n\n【議論の方向性: 面白さ】この議題は何がどう面白いのか、体験の魅力を多角的に語り合って収束させる。",
+        "status": "open",
+        "gap_in": "discord:opinion:<gapId>",
+        "expected_affect": null,
+        "observed_affect": null,
+        "evidence_json": "{\"source\":\"discord:auto-classifier\",\"category\":\"opinion\",\"gameTitle\":\"Hollow Knight\",\"genre\":\"メトロイドヴァニア\",\"tags\":[],\"reason\":\"r\",\"direction\":\"fun\",\"utteranceIds\":[\"uc\"],\"guildId\":\"web\",\"channelId\":\"room\",\"sessionId\":\"s2\",\"authorId\":\"u2\"}"
+      }
+    },
+    {
+      "input": {
+        "workspaceId": "knowledge",
+        "guildId": "g1",
+        "channelId": "ch2",
+        "sessionId": "s3",
+        "utteranceId": "ud",
+        "authorId": "u3",
+        "content": "天気の話"
+      },
+      "llmText": null,
+      "started": false,
+      "hasGapId": false,
+      "classification": {
+        "action": "record_only",
+        "category": "noise",
+        "title": "Discord議題: 天気の話",
+        "description": "Discord投稿から自動検出: 天気の話",
+        "reason": "not enough discussion signal"
+      },
+      "gap": null
+    }
+  ]
+}
