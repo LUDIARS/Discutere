@@ -63,6 +63,7 @@ struct Attempt {
     bool done = false;
     std::string error;
     int status = 0;
+    std::string reason;
     Headers headers;
     std::string body;
 };
@@ -102,6 +103,7 @@ asio::awaitable<void> exchange(Stream& stream, const url::Url& u, const ClientRe
     lorica::input_budget budget({req.max_response_bytes, 1, 1, 1});
     if (!budget.consume(res.body().size(), 1, 1)) throw std::runtime_error("response too large");
     out.status = static_cast<int>(res.result_int());
+    out.reason = std::string(res.reason());
     for (const auto& f : res) out.headers.add(std::string(f.name_string()), std::string(f.value()));
     out.body = std::move(res.body());
     out.done = true;
@@ -158,7 +160,31 @@ std::optional<std::string> resolve_location(const url::Url& base, const std::str
 
 } // namespace
 
+namespace {
+FetchErrorKind classify(const std::string& e) {
+    if (e.empty()) return FetchErrorKind::none;
+    if (str::starts_with(e, "timeout")) return FetchErrorKind::timeout;
+    if (str::starts_with(e, "blocked")) return FetchErrorKind::blocked;
+    if (str::starts_with(e, "busy")) return FetchErrorKind::busy;
+    if (str::starts_with(e, "dns")) return FetchErrorKind::dns;
+    if (str::starts_with(e, "invalid url")) return FetchErrorKind::invalid_url;
+    if (str::starts_with(e, "too many redirects")) return FetchErrorKind::too_many_redirects;
+    if (str::contains(e, "body limit") || str::contains(e, "response too large") || str::contains(e, "header limit"))
+        return FetchErrorKind::too_large;
+    return FetchErrorKind::network;
+}
+ClientResponse fetch_impl(const ClientRequest& request);
+} // namespace
+
 ClientResponse fetch(const ClientRequest& request) {
+    ClientResponse out = fetch_impl(request);
+    if (str::contains(out.error, "body limit") || str::contains(out.error, "header limit")) out.error = "response too large";
+    out.error_kind = classify(out.error);
+    return out;
+}
+
+namespace {
+ClientResponse fetch_impl(const ClientRequest& request) {
     ClientResponse out;
     const auto start = std::chrono::steady_clock::now();
     const auto total_deadline = start + request.timeout;
@@ -222,6 +248,7 @@ ClientResponse fetch(const ClientRequest& request) {
         }
         out.transport_ok = true;
         out.status = s;
+        out.reason = std::move(a.reason);
         out.headers = std::move(a.headers);
         out.body = std::move(a.body);
         out.final_url = current;
@@ -230,5 +257,7 @@ ClientResponse fetch(const ClientRequest& request) {
     out.error = "too many redirects";
     return out;
 }
+
+} // namespace
 
 } // namespace di::http

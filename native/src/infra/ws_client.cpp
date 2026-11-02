@@ -113,7 +113,8 @@ public:
 
     void close(int code, std::string reason) override {
         asio::post(io_, [this, code, reason = std::move(reason)] {
-            if (!open_) return;
+            // 2 回目以降の close は何もしない (Beast は async_close の重複を assert で落とす)。
+            if (!open_ || closing_) return;
             closing_ = true;
             websocket::close_reason cr(static_cast<websocket::close_code>(code), reason);
             ws_->async_close(cr, [this](beast::error_code) {
@@ -194,7 +195,7 @@ private:
     }
 
     void write_next() {
-        if (queue_.empty() || !open_) {
+        if (queue_.empty() || !open_ || closing_) {
             writing_ = false;
             return;
         }
