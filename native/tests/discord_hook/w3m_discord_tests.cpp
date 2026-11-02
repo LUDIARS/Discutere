@@ -489,12 +489,14 @@ TEST_CASE("RestInteractionResponder: 偽 Discord に deferred(ephemeral) と @or
                    {"data",
                     {{"name", "level-check"},
                      {"options", Json::array({Json{{"name", "level"}, {"type", 3}, {"value", lreq["levelText"]}},
+                                              Json{{"name", "baseline"}, {"type", 3}, {"value", lreq["baselineText"]}},
                                               Json{{"name", "input"}, {"type", 3},
                                                    {"value", json_stringify(Json{{"references", lreq["references"]}, {"playModel", lreq["playModel"]}})}}})}}}};
     const auto inter = slash_interaction_from_json(raw);
     CHECK_EQ(inter.userId.value_or(""), std::string("u1"));
     CHECK_EQ(inter.get_string("level").value_or(""), lreq["levelText"].get<std::string>());
-    CHECK(!inter.get_string("baseline").has_value());
+    CHECK(!inter.get_string("missing").has_value());
+    CHECK(!inter.get_boolean("level").has_value());
     RestInteractionResponder responder(api, inter);
     design_diagnostic::DiagnosticDependencies deps{llm_text(lres), std::nullopt};
     CHECK(handle_level_check_command(inter, responder, &deps));
@@ -645,10 +647,10 @@ TEST_CASE("monitor-card: カテゴリとチャンネルを作り、カードを�
 
     // 再起動相当: 既存のカードが 2 枚 (新しい方を残し古い方を消す)、他人のメッセージは無視
     d.channel_messages = Json::array({
-        Json{{"id", "1000"}, {"author", {{"id", "bot"}}}, {"embeds", Json::array({Json{{"title", "🟢 Discutere Monitor"}}})}},
-        Json{{"id", "3000"}, {"author", {{"id", "bot"}}}, {"embeds", Json::array({Json{{"title", "🟢 Discutere Monitor"}}})}},
-        Json{{"id", "9000"}, {"author", {{"id", "human"}}}, {"embeds", Json::array({Json{{"title", "Discutere Monitor"}}})}},
-        Json{{"id", "8000"}, {"author", {{"id", "bot"}}}, {"embeds", Json::array()}},
+        Json{{"id", "1000"}, {"channel_id", "c"}, {"author", {{"username", "u"}, {"id", "bot"}}}, {"embeds", Json::array({Json{{"title", "🟢 Discutere Monitor"}}})}},
+        Json{{"id", "3000"}, {"channel_id", "c"}, {"author", {{"username", "u"}, {"id", "bot"}}}, {"embeds", Json::array({Json{{"title", "🟢 Discutere Monitor"}}})}},
+        Json{{"id", "9000"}, {"channel_id", "c"}, {"author", {{"username", "u"}, {"id", "human"}}}, {"embeds", Json::array({Json{{"title", "Discutere Monitor"}}})}},
+        Json{{"id", "8000"}, {"channel_id", "c"}, {"author", {{"username", "u"}, {"id", "bot"}}}, {"embeds", Json::array()}},
     });
     MonitorCard card2({api, "knowledge", "g"});
     card2.tick();

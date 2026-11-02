@@ -406,11 +406,12 @@ TEST_CASE("score_once: 未採点の意見 (persona/人間) を最大 8 件採点
     // utterance 2 (persona:a) は Discord に投稿済み
     discord_hook::record_posted_message(w.core->raw(), {"m-1", c.utteranceIds[2], "utterance", std::string("ch-1"), std::nullopt});
     std::vector<std::string> prompts;
-    auto llm = std::make_shared<MockLLMClient>(std::vector<MockResponder>{[&](const LLMInvokeArgs& a) -> Variant {
+    MockResponder respond = [&](const LLMInvokeArgs& a) -> Variant {
         prompts.push_back(a.prompt);
         CHECK_EQ(a.maxTokens.value_or(0), 700);
         return std::string(R"([{"i":0,"agree":true,"score":4.5},{"i":1,"agree":false,"score":3},{"i":2,"agree":true,"score":9},{"i":99,"agree":true,"score":5},{"i":-1,"agree":true,"score":5}])");
-    }});
+    };
+    auto llm = std::make_shared<MockLLMClient>(std::vector<MockResponder>{respond, respond});
     std::vector<ps::ConsensusReactInput> reacts;
     ps::ConsensusScorerDeps deps;
     deps.core = w.core;
