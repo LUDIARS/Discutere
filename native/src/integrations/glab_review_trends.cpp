@@ -12,6 +12,7 @@
 #include "core/index.hpp"
 #include "core/kg_registry.hpp"
 #include "core/noise/exclusions.hpp"
+#include "visualize/locale_compare.hpp"
 
 namespace di::integrations {
 
@@ -131,11 +132,11 @@ std::vector<GameReviewTrend> analyze_stored_review_trends(const std::vector<Stor
         e.trend.latestReviewAt = time::iso_utc(static_cast<std::int64_t>(g.latest));
         entries.push_back(std::move(e));
     }
-    // localeCompare は ASCII の slug ではバイト順で近似する (port-notes に記載)。
+    // localeCompare は visualize::locale_compare (ICU 照合の近似、w1-F) で比べる。
     std::stable_sort(entries.begin(), entries.end(), [](const Entry& l, const Entry& r) {
         if (l.trend.recentReviewCount != r.trend.recentReviewCount) return l.trend.recentReviewCount > r.trend.recentReviewCount;
         if (l.latest != r.latest) return l.latest > r.latest;
-        return l.trend.gameSlug < r.trend.gameSlug;
+        return visualize::locale_compare(l.trend.gameSlug, r.trend.gameSlug) < 0;
     });
     std::vector<GameReviewTrend> out;
     const std::size_t n = static_cast<std::size_t>(std::max(0, limit));

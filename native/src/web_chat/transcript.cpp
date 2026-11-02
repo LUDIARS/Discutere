@@ -8,7 +8,7 @@ namespace di::web_chat {
 namespace {
 
 ChatRole classify_role(const std::optional<std::string>& speaker_id) {
-    if (!speaker_id) return "facilitator";
+    if (!speaker_id || speaker_id->empty()) return "facilitator";  // !speakerId ("" も偽)
     if (str::starts_with(*speaker_id, "persona:")) return "persona";
     if (str::starts_with(*speaker_id, "ext:")) return "external";
     return "human";
