@@ -1,0 +1,98 @@
+[
+  {
+    "input": "Hello World",
+    "toSlug": "hello-world",
+    "deriveSlug": "hello-world",
+    "glabGameSlug": "glab-hello-world"
+  },
+  {
+    "input": "  --Vampire Survivors!!  ",
+    "toSlug": "vampire-survivors",
+    "deriveSlug": "vampire-survivors",
+    "glabGameSlug": "glab----vampire-survivors!!-"
+  },
+  {
+    "input": "モンスターストライク",
+    "toSlug": "",
+    "deriveSlug": "モンスターストライク",
+    "glabGameSlug": "glab-モンスターストライク"
+  },
+  {
+    "input": "ローグライト",
+    "toSlug": "",
+    "deriveSlug": "ローグライト",
+    "glabGameSlug": "glab-ローグライト"
+  },
+  {
+    "input": "Slay the Spire 2",
+    "toSlug": "slay-the-spire-2",
+    "deriveSlug": "slay-the-spire-2",
+    "glabGameSlug": "glab-slay-the-spire-2"
+  },
+  {
+    "input": "ポケモン Legends Z-A",
+    "toSlug": "legends-z-a",
+    "deriveSlug": "legends-z-a",
+    "glabGameSlug": "glab-ポケモン-legends-z-a"
+  },
+  {
+    "input": "İstanbul Kart",
+    "toSlug": "i-stanbul-kart",
+    "deriveSlug": "i-stanbul-kart",
+    "glabGameSlug": "glab-i̇stanbul-kart"
+  },
+  {
+    "input": "Kelvin",
+    "toSlug": "kelvin",
+    "deriveSlug": "kelvin",
+    "glabGameSlug": "glab-kelvin"
+  },
+  {
+    "input": "a\tb\n c",
+    "toSlug": "a-b-c",
+    "deriveSlug": "a-b-c",
+    "glabGameSlug": "glab-a-b-c"
+  },
+  {
+    "input": "",
+    "toSlug": "",
+    "deriveSlug": "discussion",
+    "glabGameSlug": "glab-game"
+  },
+  {
+    "input": "   ",
+    "toSlug": "",
+    "deriveSlug": "discussion",
+    "glabGameSlug": "glab--"
+  },
+  {
+    "input": "ゲーム　全角空白　入り",
+    "toSlug": "",
+    "deriveSlug": "ゲーム-全角空白-入り",
+    "glabGameSlug": "glab-ゲーム-全角空白-入り"
+  },
+  {
+    "input": "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx",
+    "toSlug": "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx",
+    "deriveSlug": "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx",
+    "glabGameSlug": "glab-xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"
+  },
+  {
+    "input": "ああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああ",
+    "toSlug": "",
+    "deriveSlug": "ああああああああああああああああああああああああああああああああああああああああああああああああ",
+    "glabGameSlug": "glab-ああああああああああああああああああああああああああああああああああああああああああああああああ"
+  },
+  {
+    "input": "😀絵文字😀ゲーム",
+    "toSlug": "",
+    "deriveSlug": "😀絵文字😀ゲーム",
+    "glabGameSlug": "glab-😀絵文字😀ゲーム"
+  },
+  {
+    "input": "Ünïcödé Gämé",
+    "toSlug": "n-c-d-g-m",
+    "deriveSlug": "n-c-d-g-m",
+    "glabGameSlug": "glab-ünïcödé-gämé"
+  }
+]

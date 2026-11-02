@@ -1,0 +1,5176 @@
+[
+  {
+    "body": {
+      "impressions": [
+        {
+          "id": "imp-1",
+          "gameTitle": " テストゲーム ",
+          "recommend": true,
+          "polarity": "positive",
+          "comment": "周回が楽しい",
+          "createdAt": "2026-10-01T00:00:00.000Z"
+        }
+      ]
+    },
+    "ok": true,
+    "value": {
+      "impressions": [
+        {
+          "id": "imp-1",
+          "gameTitle": "テストゲーム",
+          "recommend": true,
+          "polarity": "positive",
+          "comment": "周回が楽しい",
+          "createdAt": "2026-10-01T00:00:00.000Z"
+        }
+      ],
+      "skipped": {
+        "non_anonymous_field": 0,
+        "invalid": 0
+      }
+    }
+  },
+  {
+    "body": {
+      "impressions": [
+        {
+          "id": "imp-1",
+          "gameTitle": " テストゲーム ",
+          "recommend": true,
+          "polarity": "positive",
+          "comment": "周回が楽しい",
+          "createdAt": "2026-10-01T00:00:00.000Z"
+        },
+        {
+          "id": "imp-2",
+          "gameTitle": " テストゲーム ",
+          "recommend": true,
+          "polarity": "positive",
+          "comment": "周回が楽しい",
+          "createdAt": "2026-10-01T00:00:00.000Z",
+          "userId": "u"
+        },
+        {
+          "id": "a b",
+          "gameTitle": " テストゲーム ",
+          "recommend": true,
+          "polarity": "positive",
+          "comment": "周回が楽しい",
+          "createdAt": "2026-10-01T00:00:00.000Z"
+        },
+        {
+          "id": "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx",
+          "gameTitle": " テストゲーム ",
+          "recommend": true,
+          "polarity": "positive",
+          "comment": "周回が楽しい",
+          "createdAt": "2026-10-01T00:00:00.000Z"
+        },
+        {
+          "id": "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx",
+          "gameTitle": " テストゲーム ",
+          "recommend": true,
+          "polarity": "positive",
+          "comment": "周回が楽しい",
+          "createdAt": "2026-10-01T00:00:00.000Z"
+        }
+      ]
+    },
+    "ok": true,
+    "value": {
+      "impressions": [
+        {
+          "id": "imp-1",
+          "gameTitle": "テストゲーム",
+          "recommend": true,
+          "polarity": "positive",
+          "comment": "周回が楽しい",
+          "createdAt": "2026-10-01T00:00:00.000Z"
+        },
+        {
+          "id": "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx",
+          "gameTitle": "テストゲーム",
+          "recommend": true,
+          "polarity": "positive",
+          "comment": "周回が楽しい",
+          "createdAt": "2026-10-01T00:00:00.000Z"
+        }
+      ],
+      "skipped": {
+        "non_anonymous_field": 1,
+        "invalid": 2
+      }
+    }
+  },
+  {
+    "body": {
+      "impressions": [
+        {
+          "id": "imp-1",
+          "gameTitle": "gggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggg",
+          "recommend": true,
+          "polarity": "positive",
+          "comment": "周回が楽しい",
+          "createdAt": "2026-10-01T00:00:00.000Z"
+        },
+        {
+          "id": "imp-1",
+          "gameTitle": "ggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggg",
+          "recommend": true,
+          "polarity": "positive",
+          "comment": "周回が楽しい",
+          "createdAt": "2026-10-01T00:00:00.000Z"
+        },
+        {
+          "id": "imp-1",
+          "gameTitle": "😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀",
+          "recommend": true,
+          "polarity": "positive",
+          "comment": "周回が楽しい",
+          "createdAt": "2026-10-01T00:00:00.000Z"
+        },
+        {
+          "id": "imp-1",
+          "gameTitle": "😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀",
+          "recommend": true,
+          "polarity": "positive",
+          "comment": "周回が楽しい",
+          "createdAt": "2026-10-01T00:00:00.000Z"
+        }
+      ]
+    },
+    "ok": true,
+    "value": {
+      "impressions": [
+        {
+          "id": "imp-1",
+          "gameTitle": "gggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggg",
+          "recommend": true,
+          "polarity": "positive",
+          "comment": "周回が楽しい",
+          "createdAt": "2026-10-01T00:00:00.000Z"
+        },
+        {
+          "id": "imp-1",
+          "gameTitle": "😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀",
+          "recommend": true,
+          "polarity": "positive",
+          "comment": "周回が楽しい",
+          "createdAt": "2026-10-01T00:00:00.000Z"
+        }
+      ],
+      "skipped": {
+        "non_anonymous_field": 0,
+        "invalid": 2
+      }
+    }
+  },
+  {
+    "body": {
+      "impressions": [
+        {
+          "id": "imp-1",
+          "gameTitle": " テストゲーム ",
+          "recommend": true,
+          "polarity": "positive",
+          "comment": "cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc",
+          "createdAt": "2026-10-01T00:00:00.000Z"
+        },
+        {
+          "id": "imp-1",
+          "gameTitle": " テストゲーム ",
+          "recommend": true,
+          "polarity": "positive",
+          "comment": "ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc",
+          "createdAt": "2026-10-01T00:00:00.000Z"
+        },
+        {
+          "id": "imp-1",
+          "gameTitle": " テストゲーム ",
+          "recommend": true,
+          "polarity": "positive",
+          "comment": "   ",
+          "createdAt": "2026-10-01T00:00:00.000Z"
+        }
+      ]
+    },
+    "ok": true,
+    "value": {
+      "impressions": [
+        {
+          "id": "imp-1",
+          "gameTitle": "テストゲーム",
+          "recommend": true,
+          "polarity": "positive",
+          "comment": "cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc",
+          "createdAt": "2026-10-01T00:00:00.000Z"
+        }
+      ],
+      "skipped": {
+        "non_anonymous_field": 0,
+        "invalid": 2
+      }
+    }
+  },
+  {
+    "body": {
+      "impressions": [
+        {
+          "id": "imp-1",
+          "gameTitle": " テストゲーム ",
+          "recommend": null,
+          "polarity": null,
+          "comment": "周回が楽しい",
+          "createdAt": "2026-10-01T00:00:00.000Z"
+        },
+        {
+          "id": "imp-1",
+          "gameTitle": " テストゲーム ",
+          "recommend": "yes",
+          "polarity": "positive",
+          "comment": "周回が楽しい",
+          "createdAt": "2026-10-01T00:00:00.000Z"
+        },
+        {
+          "id": "imp-1",
+          "gameTitle": " テストゲーム ",
+          "recommend": true,
+          "polarity": 1,
+          "comment": "周回が楽しい",
+          "createdAt": "2026-10-01T00:00:00.000Z"
+        },
+        {
+          "id": "m",
+          "gameTitle": "g",
+          "comment": "c",
+          "createdAt": "2026-10-02T00:00:00Z"
+        }
+      ]
+    },
+    "ok": true,
+    "value": {
+      "impressions": [
+        {
+          "id": "imp-1",
+          "gameTitle": "テストゲーム",
+          "recommend": null,
+          "polarity": null,
+          "comment": "周回が楽しい",
+          "createdAt": "2026-10-01T00:00:00.000Z"
+        },
+        {
+          "id": "m",
+          "gameTitle": "g",
+          "recommend": null,
+          "polarity": null,
+          "comment": "c",
+          "createdAt": "2026-10-02T00:00:00Z"
+        }
+      ],
+      "skipped": {
+        "non_anonymous_field": 0,
+        "invalid": 2
+      }
+    }
+  },
+  {
+    "body": {
+      "impressions": [
+        {
+          "id": "imp-1",
+          "gameTitle": " テストゲーム ",
+          "recommend": true,
+          "polarity": "positive",
+          "comment": "周回が楽しい",
+          "createdAt": "not-a-date"
+        },
+        {
+          "id": "imp-1",
+          "gameTitle": " テストゲーム ",
+          "recommend": true,
+          "polarity": "positive",
+          "comment": "周回が楽しい",
+          "createdAt": 5
+        },
+        null,
+        [],
+        "s",
+        3
+      ]
+    },
+    "ok": true,
+    "value": {
+      "impressions": [],
+      "skipped": {
+        "non_anonymous_field": 0,
+        "invalid": 6
+      }
+    }
+  },
+  {
+    "body": {
+      "impressions": []
+    },
+    "ok": true,
+    "value": {
+      "impressions": [],
+      "skipped": {
+        "non_anonymous_field": 0,
+        "invalid": 0
+      }
+    }
+  },
+  {
+    "body": {
+      "impressions": [
+        {
+          "id": "i0",
+          "gameTitle": " テストゲーム ",
+          "recommend": true,
+          "polarity": "positive",
+          "comment": "周回が楽しい",
+          "createdAt": "2026-10-01T00:00:00.000Z"
+        },
+        {
+          "id": "i1",
+          "gameTitle": " テストゲーム ",
+          "recommend": true,
+          "polarity": "positive",
+          "comment": "周回が楽しい",
+          "createdAt": "2026-10-01T00:00:00.000Z"
+        },
+        {
+          "id": "i2",
+          "gameTitle": " テストゲーム ",
+          "recommend": true,
+          "polarity": "positive",
+          "comment": "周回が楽しい",
+          "createdAt": "2026-10-01T00:00:00.000Z"
+        },
+        {
+          "id": "i3",
+          "gameTitle": " テストゲーム ",
+          "recommend": true,
+          "polarity": "positive",
+          "comment": "周回が楽しい",
+          "createdAt": "2026-10-01T00:00:00.000Z"
+        },
+        {
+          "id": "i4",
+          "gameTitle": " テストゲーム ",
+          "recommend": true,
+          "polarity": "positive",
+          "comment": "周回が楽しい",
+          "createdAt": "2026-10-01T00:00:00.000Z"
+        },
+        {
+          "id": "i5",
+          "gameTitle": " テストゲーム ",
+          "recommend": true,
+          "polarity": "positive",
+          "comment": "周回が楽しい",
+          "createdAt": "2026-10-01T00:00:00.000Z"
+        },
+        {
+          "id": "i6",
+          "gameTitle": " テストゲーム ",
+          "recommend": true,
+          "polarity": "positive",
+          "comment": "周回が楽しい",
+          "createdAt": "2026-10-01T00:00:00.000Z"
+        },
+        {
+          "id": "i7",
+          "gameTitle": " テストゲーム ",
+          "recommend": true,
+          "polarity": "positive",
+          "comment": "周回が楽しい",
+          "createdAt": "2026-10-01T00:00:00.000Z"
+        },
+        {
+          "id": "i8",
+          "gameTitle": " テストゲーム ",
+          "recommend": true,
+          "polarity": "positive",
+          "comment": "周回が楽しい",
+          "createdAt": "2026-10-01T00:00:00.000Z"
+        },
+        {
+          "id": "i9",
+          "gameTitle": " テストゲーム ",
+          "recommend": true,
+          "polarity": "positive",
+          "comment": "周回が楽しい",
+          "createdAt": "2026-10-01T00:00:00.000Z"
+        },
+        {
+          "id": "i10",
+          "gameTitle": " テストゲーム ",
+          "recommend": true,
+          "polarity": "positive",
+          "comment": "周回が楽しい",
+          "createdAt": "2026-10-01T00:00:00.000Z"
+        },
+        {
+          "id": "i11",
+          "gameTitle": " テストゲーム ",
+          "recommend": true,
+          "polarity": "positive",
+          "comment": "周回が楽しい",
+          "createdAt": "2026-10-01T00:00:00.000Z"
+        },
+        {
+          "id": "i12",
+          "gameTitle": " テストゲーム ",
+          "recommend": true,
+          "polarity": "positive",
+          "comment": "周回が楽しい",
+          "createdAt": "2026-10-01T00:00:00.000Z"
+        },
+        {
+          "id": "i13",
+          "gameTitle": " テストゲーム ",
+          "recommend": true,
+          "polarity": "positive",
+          "comment": "周回が楽しい",
+          "createdAt": "2026-10-01T00:00:00.000Z"
+        },
+        {
+          "id": "i14",
+          "gameTitle": " テストゲーム ",
+          "recommend": true,
+          "polarity": "positive",
+          "comment": "周回が楽しい",
+          "createdAt": "2026-10-01T00:00:00.000Z"
+        },
+        {
+          "id": "i15",
+          "gameTitle": " テストゲーム ",
+          "recommend": true,
+          "polarity": "positive",
+          "comment": "周回が楽しい",
+          "createdAt": "2026-10-01T00:00:00.000Z"
+        },
+        {
+          "id": "i16",
+          "gameTitle": " テストゲーム ",
+          "recommend": true,
+          "polarity": "positive",
+          "comment": "周回が楽しい",
+          "createdAt": "2026-10-01T00:00:00.000Z"
+        },
+        {
+          "id": "i17",
+          "gameTitle": " テストゲーム ",
+          "recommend": true,
+          "polarity": "positive",
+          "comment": "周回が楽しい",
+          "createdAt": "2026-10-01T00:00:00.000Z"
+        },
+        {
+          "id": "i18",
+          "gameTitle": " テストゲーム ",
+          "recommend": true,
+          "polarity": "positive",
+          "comment": "周回が楽しい",
+          "createdAt": "2026-10-01T00:00:00.000Z"
+        },
+        {
+          "id": "i19",
+          "gameTitle": " テストゲーム ",
+          "recommend": true,
+          "polarity": "positive",
+          "comment": "周回が楽しい",
+          "createdAt": "2026-10-01T00:00:00.000Z"
+        },
+        {
+          "id": "i20",
+          "gameTitle": " テストゲーム ",
+          "recommend": true,
+          "polarity": "positive",
+          "comment": "周回が楽しい",
+          "createdAt": "2026-10-01T00:00:00.000Z"
+        },
+        {
+          "id": "i21",
+          "gameTitle": " テストゲーム ",
+          "recommend": true,
+          "polarity": "positive",
+          "comment": "周回が楽しい",
+          "createdAt": "2026-10-01T00:00:00.000Z"
+        },
+        {
+          "id": "i22",
+          "gameTitle": " テストゲーム ",
+          "recommend": true,
+          "polarity": "positive",
+          "comment": "周回が楽しい",
+          "createdAt": "2026-10-01T00:00:00.000Z"
+        },
+        {
+          "id": "i23",
+          "gameTitle": " テストゲーム ",
+          "recommend": true,
+          "polarity": "positive",
+          "comment": "周回が楽しい",
+          "createdAt": "2026-10-01T00:00:00.000Z"
+        },
+        {
+          "id": "i24",
+          "gameTitle": " テストゲーム ",
+          "recommend": true,
+          "polarity": "positive",
+          "comment": "周回が楽しい",
+          "createdAt": "2026-10-01T00:00:00.000Z"
+        },
+        {
+          "id": "i25",
+          "gameTitle": " テストゲーム ",
+          "recommend": true,
+          "polarity": "positive",
+          "comment": "周回が楽しい",
+          "createdAt": "2026-10-01T00:00:00.000Z"
+        },
+        {
+          "id": "i26",
+          "gameTitle": " テストゲーム ",
+          "recommend": true,
+          "polarity": "positive",
+          "comment": "周回が楽しい",
+          "createdAt": "2026-10-01T00:00:00.000Z"
+        },
+        {
+          "id": "i27",
+          "gameTitle": " テストゲーム ",
+          "recommend": true,
+          "polarity": "positive",
+          "comment": "周回が楽しい",
+          "createdAt": "2026-10-01T00:00:00.000Z"
+        },
+        {
+          "id": "i28",
+          "gameTitle": " テストゲーム ",
+          "recommend": true,
+          "polarity": "positive",
+          "comment": "周回が楽しい",
+          "createdAt": "2026-10-01T00:00:00.000Z"
+        },
+        {
+          "id": "i29",
+          "gameTitle": " テストゲーム ",
+          "recommend": true,
+          "polarity": "positive",
+          "comment": "周回が楽しい",
+          "createdAt": "2026-10-01T00:00:00.000Z"
+        },
+        {
+          "id": "i30",
+          "gameTitle": " テストゲーム ",
+          "recommend": true,
+          "polarity": "positive",
+          "comment": "周回が楽しい",
+          "createdAt": "2026-10-01T00:00:00.000Z"
+        },
+        {
+          "id": "i31",
+          "gameTitle": " テストゲーム ",
+          "recommend": true,
+          "polarity": "positive",
+          "comment": "周回が楽しい",
+          "createdAt": "2026-10-01T00:00:00.000Z"
+        },
+        {
+          "id": "i32",
+          "gameTitle": " テストゲーム ",
+          "recommend": true,
+          "polarity": "positive",
+          "comment": "周回が楽しい",
+          "createdAt": "2026-10-01T00:00:00.000Z"
+        },
+        {
+          "id": "i33",
+          "gameTitle": " テストゲーム ",
+          "recommend": true,
+          "polarity": "positive",
+          "comment": "周回が楽しい",
+          "createdAt": "2026-10-01T00:00:00.000Z"
+        },
+        {
+          "id": "i34",
+          "gameTitle": " テストゲーム ",
+          "recommend": true,
+          "polarity": "positive",
+          "comment": "周回が楽しい",
+          "createdAt": "2026-10-01T00:00:00.000Z"
+        },
+        {
+          "id": "i35",
+          "gameTitle": " テストゲーム ",
+          "recommend": true,
+          "polarity": "positive",
+          "comment": "周回が楽しい",
+          "createdAt": "2026-10-01T00:00:00.000Z"
+        },
+        {
+          "id": "i36",
+          "gameTitle": " テストゲーム ",
+          "recommend": true,
+          "polarity": "positive",
+          "comment": "周回が楽しい",
+          "createdAt": "2026-10-01T00:00:00.000Z"
+        },
+        {
+          "id": "i37",
+          "gameTitle": " テストゲーム ",
+          "recommend": true,
+          "polarity": "positive",
+          "comment": "周回が楽しい",
+          "createdAt": "2026-10-01T00:00:00.000Z"
+        },
+        {
+          "id": "i38",
+          "gameTitle": " テストゲーム ",
+          "recommend": true,
+          "polarity": "positive",
+          "comment": "周回が楽しい",
+          "createdAt": "2026-10-01T00:00:00.000Z"
+        },
+        {
+          "id": "i39",
+          "gameTitle": " テストゲーム ",
+          "recommend": true,
+          "polarity": "positive",
+          "comment": "周回が楽しい",
+          "createdAt": "2026-10-01T00:00:00.000Z"
+        },
+        {
+          "id": "i40",
+          "gameTitle": " テストゲーム ",
+          "recommend": true,
+          "polarity": "positive",
+          "comment": "周回が楽しい",
+          "createdAt": "2026-10-01T00:00:00.000Z"
+        },
+        {
+          "id": "i41",
+          "gameTitle": " テストゲーム ",
+          "recommend": true,
+          "polarity": "positive",
+          "comment": "周回が楽しい",
+          "createdAt": "2026-10-01T00:00:00.000Z"
+        },
+        {
+          "id": "i42",
+          "gameTitle": " テストゲーム ",
+          "recommend": true,
+          "polarity": "positive",
+          "comment": "周回が楽しい",
+          "createdAt": "2026-10-01T00:00:00.000Z"
+        },
+        {
+          "id": "i43",
+          "gameTitle": " テストゲーム ",
+          "recommend": true,
+          "polarity": "positive",
+          "comment": "周回が楽しい",
+          "createdAt": "2026-10-01T00:00:00.000Z"
+        },
+        {
+          "id": "i44",
+          "gameTitle": " テストゲーム ",
+          "recommend": true,
+          "polarity": "positive",
+          "comment": "周回が楽しい",
+          "createdAt": "2026-10-01T00:00:00.000Z"
+        },
+        {
+          "id": "i45",
+          "gameTitle": " テストゲーム ",
+          "recommend": true,
+          "polarity": "positive",
+          "comment": "周回が楽しい",
+          "createdAt": "2026-10-01T00:00:00.000Z"
+        },
+        {
+          "id": "i46",
+          "gameTitle": " テストゲーム ",
+          "recommend": true,
+          "polarity": "positive",
+          "comment": "周回が楽しい",
+          "createdAt": "2026-10-01T00:00:00.000Z"
+        },
+        {
+          "id": "i47",
+          "gameTitle": " テストゲーム ",
+          "recommend": true,
+          "polarity": "positive",
+          "comment": "周回が楽しい",
+          "createdAt": "2026-10-01T00:00:00.000Z"
+        },
+        {
+          "id": "i48",
+          "gameTitle": " テストゲーム ",
+          "recommend": true,
+          "polarity": "positive",
+          "comment": "周回が楽しい",
+          "createdAt": "2026-10-01T00:00:00.000Z"
+        },
+        {
+          "id": "i49",
+          "gameTitle": " テストゲーム ",
+          "recommend": true,
+          "polarity": "positive",
+          "comment": "周回が楽しい",
+          "createdAt": "2026-10-01T00:00:00.000Z"
+        },
+        {
+          "id": "i50",
+          "gameTitle": " テストゲーム ",
+          "recommend": true,
+          "polarity": "positive",
+          "comment": "周回が楽しい",
+          "createdAt": "2026-10-01T00:00:00.000Z"
+        },
+        {
+          "id": "i51",
+          "gameTitle": " テストゲーム ",
+          "recommend": true,
+          "polarity": "positive",
+          "comment": "周回が楽しい",
+          "createdAt": "2026-10-01T00:00:00.000Z"
+        },
+        {
+          "id": "i52",
+          "gameTitle": " テストゲーム ",
+          "recommend": true,
+          "polarity": "positive",
+          "comment": "周回が楽しい",
+          "createdAt": "2026-10-01T00:00:00.000Z"
+        },
+        {
+          "id": "i53",
+          "gameTitle": " テストゲーム ",
+          "recommend": true,
+          "polarity": "positive",
+          "comment": "周回が楽しい",
+          "createdAt": "2026-10-01T00:00:00.000Z"
+        },
+        {
+          "id": "i54",
+          "gameTitle": " テストゲーム ",
+          "recommend": true,
+          "polarity": "positive",
+          "comment": "周回が楽しい",
+          "createdAt": "2026-10-01T00:00:00.000Z"
+        },
+        {
+          "id": "i55",
+          "gameTitle": " テストゲーム ",
+          "recommend": true,
+          "polarity": "positive",
+          "comment": "周回が楽しい",
+          "createdAt": "2026-10-01T00:00:00.000Z"
+        },
+        {
+          "id": "i56",
+          "gameTitle": " テストゲーム ",
+          "recommend": true,
+          "polarity": "positive",
+          "comment": "周回が楽しい",
+          "createdAt": "2026-10-01T00:00:00.000Z"
+        },
+        {
+          "id": "i57",
+          "gameTitle": " テストゲーム ",
+          "recommend": true,
+          "polarity": "positive",
+          "comment": "周回が楽しい",
+          "createdAt": "2026-10-01T00:00:00.000Z"
+        },
+        {
+          "id": "i58",
+          "gameTitle": " テストゲーム ",
+          "recommend": true,
+          "polarity": "positive",
+          "comment": "周回が楽しい",
+          "createdAt": "2026-10-01T00:00:00.000Z"
+        },
+        {
+          "id": "i59",
+          "gameTitle": " テストゲーム ",
+          "recommend": true,
+          "polarity": "positive",
+          "comment": "周回が楽しい",
+          "createdAt": "2026-10-01T00:00:00.000Z"
+        },
+        {
+          "id": "i60",
+          "gameTitle": " テストゲーム ",
+          "recommend": true,
+          "polarity": "positive",
+          "comment": "周回が楽しい",
+          "createdAt": "2026-10-01T00:00:00.000Z"
+        },
+        {
+          "id": "i61",
+          "gameTitle": " テストゲーム ",
+          "recommend": true,
+          "polarity": "positive",
+          "comment": "周回が楽しい",
+          "createdAt": "2026-10-01T00:00:00.000Z"
+        },
+        {
+          "id": "i62",
+          "gameTitle": " テストゲーム ",
+          "recommend": true,
+          "polarity": "positive",
+          "comment": "周回が楽しい",
+          "createdAt": "2026-10-01T00:00:00.000Z"
+        },
+        {
+          "id": "i63",
+          "gameTitle": " テストゲーム ",
+          "recommend": true,
+          "polarity": "positive",
+          "comment": "周回が楽しい",
+          "createdAt": "2026-10-01T00:00:00.000Z"
+        },
+        {
+          "id": "i64",
+          "gameTitle": " テストゲーム ",
+          "recommend": true,
+          "polarity": "positive",
+          "comment": "周回が楽しい",
+          "createdAt": "2026-10-01T00:00:00.000Z"
+        },
+        {
+          "id": "i65",
+          "gameTitle": " テストゲーム ",
+          "recommend": true,
+          "polarity": "positive",
+          "comment": "周回が楽しい",
+          "createdAt": "2026-10-01T00:00:00.000Z"
+        },
+        {
+          "id": "i66",
+          "gameTitle": " テストゲーム ",
+          "recommend": true,
+          "polarity": "positive",
+          "comment": "周回が楽しい",
+          "createdAt": "2026-10-01T00:00:00.000Z"
+        },
+        {
+          "id": "i67",
+          "gameTitle": " テストゲーム ",
+          "recommend": true,
+          "polarity": "positive",
+          "comment": "周回が楽しい",
+          "createdAt": "2026-10-01T00:00:00.000Z"
+        },
+        {
+          "id": "i68",
+          "gameTitle": " テストゲーム ",
+          "recommend": true,
+          "polarity": "positive",
+          "comment": "周回が楽しい",
+          "createdAt": "2026-10-01T00:00:00.000Z"
+        },
+        {
+          "id": "i69",
+          "gameTitle": " テストゲーム ",
+          "recommend": true,
+          "polarity": "positive",
+          "comment": "周回が楽しい",
+          "createdAt": "2026-10-01T00:00:00.000Z"
+        },
+        {
+          "id": "i70",
+          "gameTitle": " テストゲーム ",
+          "recommend": true,
+          "polarity": "positive",
+          "comment": "周回が楽しい",
+          "createdAt": "2026-10-01T00:00:00.000Z"
+        },
+        {
+          "id": "i71",
+          "gameTitle": " テストゲーム ",
+          "recommend": true,
+          "polarity": "positive",
+          "comment": "周回が楽しい",
+          "createdAt": "2026-10-01T00:00:00.000Z"
+        },
+        {
+          "id": "i72",
+          "gameTitle": " テストゲーム ",
+          "recommend": true,
+          "polarity": "positive",
+          "comment": "周回が楽しい",
+          "createdAt": "2026-10-01T00:00:00.000Z"
+        },
+        {
+          "id": "i73",
+          "gameTitle": " テストゲーム ",
+          "recommend": true,
+          "polarity": "positive",
+          "comment": "周回が楽しい",
+          "createdAt": "2026-10-01T00:00:00.000Z"
+        },
+        {
+          "id": "i74",
+          "gameTitle": " テストゲーム ",
+          "recommend": true,
+          "polarity": "positive",
+          "comment": "周回が楽しい",
+          "createdAt": "2026-10-01T00:00:00.000Z"
+        },
+        {
+          "id": "i75",
+          "gameTitle": " テストゲーム ",
+          "recommend": true,
+          "polarity": "positive",
+          "comment": "周回が楽しい",
+          "createdAt": "2026-10-01T00:00:00.000Z"
+        },
+        {
+          "id": "i76",
+          "gameTitle": " テストゲーム ",
+          "recommend": true,
+          "polarity": "positive",
+          "comment": "周回が楽しい",
+          "createdAt": "2026-10-01T00:00:00.000Z"
+        },
+        {
+          "id": "i77",
+          "gameTitle": " テストゲーム ",
+          "recommend": true,
+          "polarity": "positive",
+          "comment": "周回が楽しい",
+          "createdAt": "2026-10-01T00:00:00.000Z"
+        },
+        {
+          "id": "i78",
+          "gameTitle": " テストゲーム ",
+          "recommend": true,
+          "polarity": "positive",
+          "comment": "周回が楽しい",
+          "createdAt": "2026-10-01T00:00:00.000Z"
+        },
+        {
+          "id": "i79",
+          "gameTitle": " テストゲーム ",
+          "recommend": true,
+          "polarity": "positive",
+          "comment": "周回が楽しい",
+          "createdAt": "2026-10-01T00:00:00.000Z"
+        },
+        {
+          "id": "i80",
+          "gameTitle": " テストゲーム ",
+          "recommend": true,
+          "polarity": "positive",
+          "comment": "周回が楽しい",
+          "createdAt": "2026-10-01T00:00:00.000Z"
+        },
+        {
+          "id": "i81",
+          "gameTitle": " テストゲーム ",
+          "recommend": true,
+          "polarity": "positive",
+          "comment": "周回が楽しい",
+          "createdAt": "2026-10-01T00:00:00.000Z"
+        },
+        {
+          "id": "i82",
+          "gameTitle": " テストゲーム ",
+          "recommend": true,
+          "polarity": "positive",
+          "comment": "周回が楽しい",
+          "createdAt": "2026-10-01T00:00:00.000Z"
+        },
+        {
+          "id": "i83",
+          "gameTitle": " テストゲーム ",
+          "recommend": true,
+          "polarity": "positive",
+          "comment": "周回が楽しい",
+          "createdAt": "2026-10-01T00:00:00.000Z"
+        },
+        {
+          "id": "i84",
+          "gameTitle": " テストゲーム ",
+          "recommend": true,
+          "polarity": "positive",
+          "comment": "周回が楽しい",
+          "createdAt": "2026-10-01T00:00:00.000Z"
+        },
+        {
+          "id": "i85",
+          "gameTitle": " テストゲーム ",
+          "recommend": true,
+          "polarity": "positive",
+          "comment": "周回が楽しい",
+          "createdAt": "2026-10-01T00:00:00.000Z"
+        },
+        {
+          "id": "i86",
+          "gameTitle": " テストゲーム ",
+          "recommend": true,
+          "polarity": "positive",
+          "comment": "周回が楽しい",
+          "createdAt": "2026-10-01T00:00:00.000Z"
+        },
+        {
+          "id": "i87",
+          "gameTitle": " テストゲーム ",
+          "recommend": true,
+          "polarity": "positive",
+          "comment": "周回が楽しい",
+          "createdAt": "2026-10-01T00:00:00.000Z"
+        },
+        {
+          "id": "i88",
+          "gameTitle": " テストゲーム ",
+          "recommend": true,
+          "polarity": "positive",
+          "comment": "周回が楽しい",
+          "createdAt": "2026-10-01T00:00:00.000Z"
+        },
+        {
+          "id": "i89",
+          "gameTitle": " テストゲーム ",
+          "recommend": true,
+          "polarity": "positive",
+          "comment": "周回が楽しい",
+          "createdAt": "2026-10-01T00:00:00.000Z"
+        },
+        {
+          "id": "i90",
+          "gameTitle": " テストゲーム ",
+          "recommend": true,
+          "polarity": "positive",
+          "comment": "周回が楽しい",
+          "createdAt": "2026-10-01T00:00:00.000Z"
+        },
+        {
+          "id": "i91",
+          "gameTitle": " テストゲーム ",
+          "recommend": true,
+          "polarity": "positive",
+          "comment": "周回が楽しい",
+          "createdAt": "2026-10-01T00:00:00.000Z"
+        },
+        {
+          "id": "i92",
+          "gameTitle": " テストゲーム ",
+          "recommend": true,
+          "polarity": "positive",
+          "comment": "周回が楽しい",
+          "createdAt": "2026-10-01T00:00:00.000Z"
+        },
+        {
+          "id": "i93",
+          "gameTitle": " テストゲーム ",
+          "recommend": true,
+          "polarity": "positive",
+          "comment": "周回が楽しい",
+          "createdAt": "2026-10-01T00:00:00.000Z"
+        },
+        {
+          "id": "i94",
+          "gameTitle": " テストゲーム ",
+          "recommend": true,
+          "polarity": "positive",
+          "comment": "周回が楽しい",
+          "createdAt": "2026-10-01T00:00:00.000Z"
+        },
+        {
+          "id": "i95",
+          "gameTitle": " テストゲーム ",
+          "recommend": true,
+          "polarity": "positive",
+          "comment": "周回が楽しい",
+          "createdAt": "2026-10-01T00:00:00.000Z"
+        },
+        {
+          "id": "i96",
+          "gameTitle": " テストゲーム ",
+          "recommend": true,
+          "polarity": "positive",
+          "comment": "周回が楽しい",
+          "createdAt": "2026-10-01T00:00:00.000Z"
+        },
+        {
+          "id": "i97",
+          "gameTitle": " テストゲーム ",
+          "recommend": true,
+          "polarity": "positive",
+          "comment": "周回が楽しい",
+          "createdAt": "2026-10-01T00:00:00.000Z"
+        },
+        {
+          "id": "i98",
+          "gameTitle": " テストゲーム ",
+          "recommend": true,
+          "polarity": "positive",
+          "comment": "周回が楽しい",
+          "createdAt": "2026-10-01T00:00:00.000Z"
+        },
+        {
+          "id": "i99",
+          "gameTitle": " テストゲーム ",
+          "recommend": true,
+          "polarity": "positive",
+          "comment": "周回が楽しい",
+          "createdAt": "2026-10-01T00:00:00.000Z"
+        },
+        {
+          "id": "i100",
+          "gameTitle": " テストゲーム ",
+          "recommend": true,
+          "polarity": "positive",
+          "comment": "周回が楽しい",
+          "createdAt": "2026-10-01T00:00:00.000Z"
+        },
+        {
+          "id": "i101",
+          "gameTitle": " テストゲーム ",
+          "recommend": true,
+          "polarity": "positive",
+          "comment": "周回が楽しい",
+          "createdAt": "2026-10-01T00:00:00.000Z"
+        },
+        {
+          "id": "i102",
+          "gameTitle": " テストゲーム ",
+          "recommend": true,
+          "polarity": "positive",
+          "comment": "周回が楽しい",
+          "createdAt": "2026-10-01T00:00:00.000Z"
+        },
+        {
+          "id": "i103",
+          "gameTitle": " テストゲーム ",
+          "recommend": true,
+          "polarity": "positive",
+          "comment": "周回が楽しい",
+          "createdAt": "2026-10-01T00:00:00.000Z"
+        },
+        {
+          "id": "i104",
+          "gameTitle": " テストゲーム ",
+          "recommend": true,
+          "polarity": "positive",
+          "comment": "周回が楽しい",
+          "createdAt": "2026-10-01T00:00:00.000Z"
+        },
+        {
+          "id": "i105",
+          "gameTitle": " テストゲーム ",
+          "recommend": true,
+          "polarity": "positive",
+          "comment": "周回が楽しい",
+          "createdAt": "2026-10-01T00:00:00.000Z"
+        },
+        {
+          "id": "i106",
+          "gameTitle": " テストゲーム ",
+          "recommend": true,
+          "polarity": "positive",
+          "comment": "周回が楽しい",
+          "createdAt": "2026-10-01T00:00:00.000Z"
+        },
+        {
+          "id": "i107",
+          "gameTitle": " テストゲーム ",
+          "recommend": true,
+          "polarity": "positive",
+          "comment": "周回が楽しい",
+          "createdAt": "2026-10-01T00:00:00.000Z"
+        },
+        {
+          "id": "i108",
+          "gameTitle": " テストゲーム ",
+          "recommend": true,
+          "polarity": "positive",
+          "comment": "周回が楽しい",
+          "createdAt": "2026-10-01T00:00:00.000Z"
+        },
+        {
+          "id": "i109",
+          "gameTitle": " テストゲーム ",
+          "recommend": true,
+          "polarity": "positive",
+          "comment": "周回が楽しい",
+          "createdAt": "2026-10-01T00:00:00.000Z"
+        },
+        {
+          "id": "i110",
+          "gameTitle": " テストゲーム ",
+          "recommend": true,
+          "polarity": "positive",
+          "comment": "周回が楽しい",
+          "createdAt": "2026-10-01T00:00:00.000Z"
+        },
+        {
+          "id": "i111",
+          "gameTitle": " テストゲーム ",
+          "recommend": true,
+          "polarity": "positive",
+          "comment": "周回が楽しい",
+          "createdAt": "2026-10-01T00:00:00.000Z"
+        },
+        {
+          "id": "i112",
+          "gameTitle": " テストゲーム ",
+          "recommend": true,
+          "polarity": "positive",
+          "comment": "周回が楽しい",
+          "createdAt": "2026-10-01T00:00:00.000Z"
+        },
+        {
+          "id": "i113",
+          "gameTitle": " テストゲーム ",
+          "recommend": true,
+          "polarity": "positive",
+          "comment": "周回が楽しい",
+          "createdAt": "2026-10-01T00:00:00.000Z"
+        },
+        {
+          "id": "i114",
+          "gameTitle": " テストゲーム ",
+          "recommend": true,
+          "polarity": "positive",
+          "comment": "周回が楽しい",
+          "createdAt": "2026-10-01T00:00:00.000Z"
+        },
+        {
+          "id": "i115",
+          "gameTitle": " テストゲーム ",
+          "recommend": true,
+          "polarity": "positive",
+          "comment": "周回が楽しい",
+          "createdAt": "2026-10-01T00:00:00.000Z"
+        },
+        {
+          "id": "i116",
+          "gameTitle": " テストゲーム ",
+          "recommend": true,
+          "polarity": "positive",
+          "comment": "周回が楽しい",
+          "createdAt": "2026-10-01T00:00:00.000Z"
+        },
+        {
+          "id": "i117",
+          "gameTitle": " テストゲーム ",
+          "recommend": true,
+          "polarity": "positive",
+          "comment": "周回が楽しい",
+          "createdAt": "2026-10-01T00:00:00.000Z"
+        },
+        {
+          "id": "i118",
+          "gameTitle": " テストゲーム ",
+          "recommend": true,
+          "polarity": "positive",
+          "comment": "周回が楽しい",
+          "createdAt": "2026-10-01T00:00:00.000Z"
+        },
+        {
+          "id": "i119",
+          "gameTitle": " テストゲーム ",
+          "recommend": true,
+          "polarity": "positive",
+          "comment": "周回が楽しい",
+          "createdAt": "2026-10-01T00:00:00.000Z"
+        },
+        {
+          "id": "i120",
+          "gameTitle": " テストゲーム ",
+          "recommend": true,
+          "polarity": "positive",
+          "comment": "周回が楽しい",
+          "createdAt": "2026-10-01T00:00:00.000Z"
+        },
+        {
+          "id": "i121",
+          "gameTitle": " テストゲーム ",
+          "recommend": true,
+          "polarity": "positive",
+          "comment": "周回が楽しい",
+          "createdAt": "2026-10-01T00:00:00.000Z"
+        },
+        {
+          "id": "i122",
+          "gameTitle": " テストゲーム ",
+          "recommend": true,
+          "polarity": "positive",
+          "comment": "周回が楽しい",
+          "createdAt": "2026-10-01T00:00:00.000Z"
+        },
+        {
+          "id": "i123",
+          "gameTitle": " テストゲーム ",
+          "recommend": true,
+          "polarity": "positive",
+          "comment": "周回が楽しい",
+          "createdAt": "2026-10-01T00:00:00.000Z"
+        },
+        {
+          "id": "i124",
+          "gameTitle": " テストゲーム ",
+          "recommend": true,
+          "polarity": "positive",
+          "comment": "周回が楽しい",
+          "createdAt": "2026-10-01T00:00:00.000Z"
+        },
+        {
+          "id": "i125",
+          "gameTitle": " テストゲーム ",
+          "recommend": true,
+          "polarity": "positive",
+          "comment": "周回が楽しい",
+          "createdAt": "2026-10-01T00:00:00.000Z"
+        },
+        {
+          "id": "i126",
+          "gameTitle": " テストゲーム ",
+          "recommend": true,
+          "polarity": "positive",
+          "comment": "周回が楽しい",
+          "createdAt": "2026-10-01T00:00:00.000Z"
+        },
+        {
+          "id": "i127",
+          "gameTitle": " テストゲーム ",
+          "recommend": true,
+          "polarity": "positive",
+          "comment": "周回が楽しい",
+          "createdAt": "2026-10-01T00:00:00.000Z"
+        },
+        {
+          "id": "i128",
+          "gameTitle": " テストゲーム ",
+          "recommend": true,
+          "polarity": "positive",
+          "comment": "周回が楽しい",
+          "createdAt": "2026-10-01T00:00:00.000Z"
+        },
+        {
+          "id": "i129",
+          "gameTitle": " テストゲーム ",
+          "recommend": true,
+          "polarity": "positive",
+          "comment": "周回が楽しい",
+          "createdAt": "2026-10-01T00:00:00.000Z"
+        },
+        {
+          "id": "i130",
+          "gameTitle": " テストゲーム ",
+          "recommend": true,
+          "polarity": "positive",
+          "comment": "周回が楽しい",
+          "createdAt": "2026-10-01T00:00:00.000Z"
+        },
+        {
+          "id": "i131",
+          "gameTitle": " テストゲーム ",
+          "recommend": true,
+          "polarity": "positive",
+          "comment": "周回が楽しい",
+          "createdAt": "2026-10-01T00:00:00.000Z"
+        },
+        {
+          "id": "i132",
+          "gameTitle": " テストゲーム ",
+          "recommend": true,
+          "polarity": "positive",
+          "comment": "周回が楽しい",
+          "createdAt": "2026-10-01T00:00:00.000Z"
+        },
+        {
+          "id": "i133",
+          "gameTitle": " テストゲーム ",
+          "recommend": true,
+          "polarity": "positive",
+          "comment": "周回が楽しい",
+          "createdAt": "2026-10-01T00:00:00.000Z"
+        },
+        {
+          "id": "i134",
+          "gameTitle": " テストゲーム ",
+          "recommend": true,
+          "polarity": "positive",
+          "comment": "周回が楽しい",
+          "createdAt": "2026-10-01T00:00:00.000Z"
+        },
+        {
+          "id": "i135",
+          "gameTitle": " テストゲーム ",
+          "recommend": true,
+          "polarity": "positive",
+          "comment": "周回が楽しい",
+          "createdAt": "2026-10-01T00:00:00.000Z"
+        },
+        {
+          "id": "i136",
+          "gameTitle": " テストゲーム ",
+          "recommend": true,
+          "polarity": "positive",
+          "comment": "周回が楽しい",
+          "createdAt": "2026-10-01T00:00:00.000Z"
+        },
+        {
+          "id": "i137",
+          "gameTitle": " テストゲーム ",
+          "recommend": true,
+          "polarity": "positive",
+          "comment": "周回が楽しい",
+          "createdAt": "2026-10-01T00:00:00.000Z"
+        },
+        {
+          "id": "i138",
+          "gameTitle": " テストゲーム ",
+          "recommend": true,
+          "polarity": "positive",
+          "comment": "周回が楽しい",
+          "createdAt": "2026-10-01T00:00:00.000Z"
+        },
+        {
+          "id": "i139",
+          "gameTitle": " テストゲーム ",
+          "recommend": true,
+          "polarity": "positive",
+          "comment": "周回が楽しい",
+          "createdAt": "2026-10-01T00:00:00.000Z"
+        },
+        {
+          "id": "i140",
+          "gameTitle": " テストゲーム ",
+          "recommend": true,
+          "polarity": "positive",
+          "comment": "周回が楽しい",
+          "createdAt": "2026-10-01T00:00:00.000Z"
+        },
+        {
+          "id": "i141",
+          "gameTitle": " テストゲーム ",
+          "recommend": true,
+          "polarity": "positive",
+          "comment": "周回が楽しい",
+          "createdAt": "2026-10-01T00:00:00.000Z"
+        },
+        {
+          "id": "i142",
+          "gameTitle": " テストゲーム ",
+          "recommend": true,
+          "polarity": "positive",
+          "comment": "周回が楽しい",
+          "createdAt": "2026-10-01T00:00:00.000Z"
+        },
+        {
+          "id": "i143",
+          "gameTitle": " テストゲーム ",
+          "recommend": true,
+          "polarity": "positive",
+          "comment": "周回が楽しい",
+          "createdAt": "2026-10-01T00:00:00.000Z"
+        },
+        {
+          "id": "i144",
+          "gameTitle": " テストゲーム ",
+          "recommend": true,
+          "polarity": "positive",
+          "comment": "周回が楽しい",
+          "createdAt": "2026-10-01T00:00:00.000Z"
+        },
+        {
+          "id": "i145",
+          "gameTitle": " テストゲーム ",
+          "recommend": true,
+          "polarity": "positive",
+          "comment": "周回が楽しい",
+          "createdAt": "2026-10-01T00:00:00.000Z"
+        },
+        {
+          "id": "i146",
+          "gameTitle": " テストゲーム ",
+          "recommend": true,
+          "polarity": "positive",
+          "comment": "周回が楽しい",
+          "createdAt": "2026-10-01T00:00:00.000Z"
+        },
+        {
+          "id": "i147",
+          "gameTitle": " テストゲーム ",
+          "recommend": true,
+          "polarity": "positive",
+          "comment": "周回が楽しい",
+          "createdAt": "2026-10-01T00:00:00.000Z"
+        },
+        {
+          "id": "i148",
+          "gameTitle": " テストゲーム ",
+          "recommend": true,
+          "polarity": "positive",
+          "comment": "周回が楽しい",
+          "createdAt": "2026-10-01T00:00:00.000Z"
+        },
+        {
+          "id": "i149",
+          "gameTitle": " テストゲーム ",
+          "recommend": true,
+          "polarity": "positive",
+          "comment": "周回が楽しい",
+          "createdAt": "2026-10-01T00:00:00.000Z"
+        },
+        {
+          "id": "i150",
+          "gameTitle": " テストゲーム ",
+          "recommend": true,
+          "polarity": "positive",
+          "comment": "周回が楽しい",
+          "createdAt": "2026-10-01T00:00:00.000Z"
+        },
+        {
+          "id": "i151",
+          "gameTitle": " テストゲーム ",
+          "recommend": true,
+          "polarity": "positive",
+          "comment": "周回が楽しい",
+          "createdAt": "2026-10-01T00:00:00.000Z"
+        },
+        {
+          "id": "i152",
+          "gameTitle": " テストゲーム ",
+          "recommend": true,
+          "polarity": "positive",
+          "comment": "周回が楽しい",
+          "createdAt": "2026-10-01T00:00:00.000Z"
+        },
+        {
+          "id": "i153",
+          "gameTitle": " テストゲーム ",
+          "recommend": true,
+          "polarity": "positive",
+          "comment": "周回が楽しい",
+          "createdAt": "2026-10-01T00:00:00.000Z"
+        },
+        {
+          "id": "i154",
+          "gameTitle": " テストゲーム ",
+          "recommend": true,
+          "polarity": "positive",
+          "comment": "周回が楽しい",
+          "createdAt": "2026-10-01T00:00:00.000Z"
+        },
+        {
+          "id": "i155",
+          "gameTitle": " テストゲーム ",
+          "recommend": true,
+          "polarity": "positive",
+          "comment": "周回が楽しい",
+          "createdAt": "2026-10-01T00:00:00.000Z"
+        },
+        {
+          "id": "i156",
+          "gameTitle": " テストゲーム ",
+          "recommend": true,
+          "polarity": "positive",
+          "comment": "周回が楽しい",
+          "createdAt": "2026-10-01T00:00:00.000Z"
+        },
+        {
+          "id": "i157",
+          "gameTitle": " テストゲーム ",
+          "recommend": true,
+          "polarity": "positive",
+          "comment": "周回が楽しい",
+          "createdAt": "2026-10-01T00:00:00.000Z"
+        },
+        {
+          "id": "i158",
+          "gameTitle": " テストゲーム ",
+          "recommend": true,
+          "polarity": "positive",
+          "comment": "周回が楽しい",
+          "createdAt": "2026-10-01T00:00:00.000Z"
+        },
+        {
+          "id": "i159",
+          "gameTitle": " テストゲーム ",
+          "recommend": true,
+          "polarity": "positive",
+          "comment": "周回が楽しい",
+          "createdAt": "2026-10-01T00:00:00.000Z"
+        },
+        {
+          "id": "i160",
+          "gameTitle": " テストゲーム ",
+          "recommend": true,
+          "polarity": "positive",
+          "comment": "周回が楽しい",
+          "createdAt": "2026-10-01T00:00:00.000Z"
+        },
+        {
+          "id": "i161",
+          "gameTitle": " テストゲーム ",
+          "recommend": true,
+          "polarity": "positive",
+          "comment": "周回が楽しい",
+          "createdAt": "2026-10-01T00:00:00.000Z"
+        },
+        {
+          "id": "i162",
+          "gameTitle": " テストゲーム ",
+          "recommend": true,
+          "polarity": "positive",
+          "comment": "周回が楽しい",
+          "createdAt": "2026-10-01T00:00:00.000Z"
+        },
+        {
+          "id": "i163",
+          "gameTitle": " テストゲーム ",
+          "recommend": true,
+          "polarity": "positive",
+          "comment": "周回が楽しい",
+          "createdAt": "2026-10-01T00:00:00.000Z"
+        },
+        {
+          "id": "i164",
+          "gameTitle": " テストゲーム ",
+          "recommend": true,
+          "polarity": "positive",
+          "comment": "周回が楽しい",
+          "createdAt": "2026-10-01T00:00:00.000Z"
+        },
+        {
+          "id": "i165",
+          "gameTitle": " テストゲーム ",
+          "recommend": true,
+          "polarity": "positive",
+          "comment": "周回が楽しい",
+          "createdAt": "2026-10-01T00:00:00.000Z"
+        },
+        {
+          "id": "i166",
+          "gameTitle": " テストゲーム ",
+          "recommend": true,
+          "polarity": "positive",
+          "comment": "周回が楽しい",
+          "createdAt": "2026-10-01T00:00:00.000Z"
+        },
+        {
+          "id": "i167",
+          "gameTitle": " テストゲーム ",
+          "recommend": true,
+          "polarity": "positive",
+          "comment": "周回が楽しい",
+          "createdAt": "2026-10-01T00:00:00.000Z"
+        },
+        {
+          "id": "i168",
+          "gameTitle": " テストゲーム ",
+          "recommend": true,
+          "polarity": "positive",
+          "comment": "周回が楽しい",
+          "createdAt": "2026-10-01T00:00:00.000Z"
+        },
+        {
+          "id": "i169",
+          "gameTitle": " テストゲーム ",
+          "recommend": true,
+          "polarity": "positive",
+          "comment": "周回が楽しい",
+          "createdAt": "2026-10-01T00:00:00.000Z"
+        },
+        {
+          "id": "i170",
+          "gameTitle": " テストゲーム ",
+          "recommend": true,
+          "polarity": "positive",
+          "comment": "周回が楽しい",
+          "createdAt": "2026-10-01T00:00:00.000Z"
+        },
+        {
+          "id": "i171",
+          "gameTitle": " テストゲーム ",
+          "recommend": true,
+          "polarity": "positive",
+          "comment": "周回が楽しい",
+          "createdAt": "2026-10-01T00:00:00.000Z"
+        },
+        {
+          "id": "i172",
+          "gameTitle": " テストゲーム ",
+          "recommend": true,
+          "polarity": "positive",
+          "comment": "周回が楽しい",
+          "createdAt": "2026-10-01T00:00:00.000Z"
+        },
+        {
+          "id": "i173",
+          "gameTitle": " テストゲーム ",
+          "recommend": true,
+          "polarity": "positive",
+          "comment": "周回が楽しい",
+          "createdAt": "2026-10-01T00:00:00.000Z"
+        },
+        {
+          "id": "i174",
+          "gameTitle": " テストゲーム ",
+          "recommend": true,
+          "polarity": "positive",
+          "comment": "周回が楽しい",
+          "createdAt": "2026-10-01T00:00:00.000Z"
+        },
+        {
+          "id": "i175",
+          "gameTitle": " テストゲーム ",
+          "recommend": true,
+          "polarity": "positive",
+          "comment": "周回が楽しい",
+          "createdAt": "2026-10-01T00:00:00.000Z"
+        },
+        {
+          "id": "i176",
+          "gameTitle": " テストゲーム ",
+          "recommend": true,
+          "polarity": "positive",
+          "comment": "周回が楽しい",
+          "createdAt": "2026-10-01T00:00:00.000Z"
+        },
+        {
+          "id": "i177",
+          "gameTitle": " テストゲーム ",
+          "recommend": true,
+          "polarity": "positive",
+          "comment": "周回が楽しい",
+          "createdAt": "2026-10-01T00:00:00.000Z"
+        },
+        {
+          "id": "i178",
+          "gameTitle": " テストゲーム ",
+          "recommend": true,
+          "polarity": "positive",
+          "comment": "周回が楽しい",
+          "createdAt": "2026-10-01T00:00:00.000Z"
+        },
+        {
+          "id": "i179",
+          "gameTitle": " テストゲーム ",
+          "recommend": true,
+          "polarity": "positive",
+          "comment": "周回が楽しい",
+          "createdAt": "2026-10-01T00:00:00.000Z"
+        },
+        {
+          "id": "i180",
+          "gameTitle": " テストゲーム ",
+          "recommend": true,
+          "polarity": "positive",
+          "comment": "周回が楽しい",
+          "createdAt": "2026-10-01T00:00:00.000Z"
+        },
+        {
+          "id": "i181",
+          "gameTitle": " テストゲーム ",
+          "recommend": true,
+          "polarity": "positive",
+          "comment": "周回が楽しい",
+          "createdAt": "2026-10-01T00:00:00.000Z"
+        },
+        {
+          "id": "i182",
+          "gameTitle": " テストゲーム ",
+          "recommend": true,
+          "polarity": "positive",
+          "comment": "周回が楽しい",
+          "createdAt": "2026-10-01T00:00:00.000Z"
+        },
+        {
+          "id": "i183",
+          "gameTitle": " テストゲーム ",
+          "recommend": true,
+          "polarity": "positive",
+          "comment": "周回が楽しい",
+          "createdAt": "2026-10-01T00:00:00.000Z"
+        },
+        {
+          "id": "i184",
+          "gameTitle": " テストゲーム ",
+          "recommend": true,
+          "polarity": "positive",
+          "comment": "周回が楽しい",
+          "createdAt": "2026-10-01T00:00:00.000Z"
+        },
+        {
+          "id": "i185",
+          "gameTitle": " テストゲーム ",
+          "recommend": true,
+          "polarity": "positive",
+          "comment": "周回が楽しい",
+          "createdAt": "2026-10-01T00:00:00.000Z"
+        },
+        {
+          "id": "i186",
+          "gameTitle": " テストゲーム ",
+          "recommend": true,
+          "polarity": "positive",
+          "comment": "周回が楽しい",
+          "createdAt": "2026-10-01T00:00:00.000Z"
+        },
+        {
+          "id": "i187",
+          "gameTitle": " テストゲーム ",
+          "recommend": true,
+          "polarity": "positive",
+          "comment": "周回が楽しい",
+          "createdAt": "2026-10-01T00:00:00.000Z"
+        },
+        {
+          "id": "i188",
+          "gameTitle": " テストゲーム ",
+          "recommend": true,
+          "polarity": "positive",
+          "comment": "周回が楽しい",
+          "createdAt": "2026-10-01T00:00:00.000Z"
+        },
+        {
+          "id": "i189",
+          "gameTitle": " テストゲーム ",
+          "recommend": true,
+          "polarity": "positive",
+          "comment": "周回が楽しい",
+          "createdAt": "2026-10-01T00:00:00.000Z"
+        },
+        {
+          "id": "i190",
+          "gameTitle": " テストゲーム ",
+          "recommend": true,
+          "polarity": "positive",
+          "comment": "周回が楽しい",
+          "createdAt": "2026-10-01T00:00:00.000Z"
+        },
+        {
+          "id": "i191",
+          "gameTitle": " テストゲーム ",
+          "recommend": true,
+          "polarity": "positive",
+          "comment": "周回が楽しい",
+          "createdAt": "2026-10-01T00:00:00.000Z"
+        },
+        {
+          "id": "i192",
+          "gameTitle": " テストゲーム ",
+          "recommend": true,
+          "polarity": "positive",
+          "comment": "周回が楽しい",
+          "createdAt": "2026-10-01T00:00:00.000Z"
+        },
+        {
+          "id": "i193",
+          "gameTitle": " テストゲーム ",
+          "recommend": true,
+          "polarity": "positive",
+          "comment": "周回が楽しい",
+          "createdAt": "2026-10-01T00:00:00.000Z"
+        },
+        {
+          "id": "i194",
+          "gameTitle": " テストゲーム ",
+          "recommend": true,
+          "polarity": "positive",
+          "comment": "周回が楽しい",
+          "createdAt": "2026-10-01T00:00:00.000Z"
+        },
+        {
+          "id": "i195",
+          "gameTitle": " テストゲーム ",
+          "recommend": true,
+          "polarity": "positive",
+          "comment": "周回が楽しい",
+          "createdAt": "2026-10-01T00:00:00.000Z"
+        },
+        {
+          "id": "i196",
+          "gameTitle": " テストゲーム ",
+          "recommend": true,
+          "polarity": "positive",
+          "comment": "周回が楽しい",
+          "createdAt": "2026-10-01T00:00:00.000Z"
+        },
+        {
+          "id": "i197",
+          "gameTitle": " テストゲーム ",
+          "recommend": true,
+          "polarity": "positive",
+          "comment": "周回が楽しい",
+          "createdAt": "2026-10-01T00:00:00.000Z"
+        },
+        {
+          "id": "i198",
+          "gameTitle": " テストゲーム ",
+          "recommend": true,
+          "polarity": "positive",
+          "comment": "周回が楽しい",
+          "createdAt": "2026-10-01T00:00:00.000Z"
+        },
+        {
+          "id": "i199",
+          "gameTitle": " テストゲーム ",
+          "recommend": true,
+          "polarity": "positive",
+          "comment": "周回が楽しい",
+          "createdAt": "2026-10-01T00:00:00.000Z"
+        }
+      ]
+    },
+    "ok": true,
+    "value": {
+      "impressions": [
+        {
+          "id": "i0",
+          "gameTitle": "テストゲーム",
+          "recommend": true,
+          "polarity": "positive",
+          "comment": "周回が楽しい",
+          "createdAt": "2026-10-01T00:00:00.000Z"
+        },
+        {
+          "id": "i1",
+          "gameTitle": "テストゲーム",
+          "recommend": true,
+          "polarity": "positive",
+          "comment": "周回が楽しい",
+          "createdAt": "2026-10-01T00:00:00.000Z"
+        },
+        {
+          "id": "i2",
+          "gameTitle": "テストゲーム",
+          "recommend": true,
+          "polarity": "positive",
+          "comment": "周回が楽しい",
+          "createdAt": "2026-10-01T00:00:00.000Z"
+        },
+        {
+          "id": "i3",
+          "gameTitle": "テストゲーム",
+          "recommend": true,
+          "polarity": "positive",
+          "comment": "周回が楽しい",
+          "createdAt": "2026-10-01T00:00:00.000Z"
+        },
+        {
+          "id": "i4",
+          "gameTitle": "テストゲーム",
+          "recommend": true,
+          "polarity": "positive",
+          "comment": "周回が楽しい",
+          "createdAt": "2026-10-01T00:00:00.000Z"
+        },
+        {
+          "id": "i5",
+          "gameTitle": "テストゲーム",
+          "recommend": true,
+          "polarity": "positive",
+          "comment": "周回が楽しい",
+          "createdAt": "2026-10-01T00:00:00.000Z"
+        },
+        {
+          "id": "i6",
+          "gameTitle": "テストゲーム",
+          "recommend": true,
+          "polarity": "positive",
+          "comment": "周回が楽しい",
+          "createdAt": "2026-10-01T00:00:00.000Z"
+        },
+        {
+          "id": "i7",
+          "gameTitle": "テストゲーム",
+          "recommend": true,
+          "polarity": "positive",
+          "comment": "周回が楽しい",
+          "createdAt": "2026-10-01T00:00:00.000Z"
+        },
+        {
+          "id": "i8",
+          "gameTitle": "テストゲーム",
+          "recommend": true,
+          "polarity": "positive",
+          "comment": "周回が楽しい",
+          "createdAt": "2026-10-01T00:00:00.000Z"
+        },
+        {
+          "id": "i9",
+          "gameTitle": "テストゲーム",
+          "recommend": true,
+          "polarity": "positive",
+          "comment": "周回が楽しい",
+          "createdAt": "2026-10-01T00:00:00.000Z"
+        },
+        {
+          "id": "i10",
+          "gameTitle": "テストゲーム",
+          "recommend": true,
+          "polarity": "positive",
+          "comment": "周回が楽しい",
+          "createdAt": "2026-10-01T00:00:00.000Z"
+        },
+        {
+          "id": "i11",
+          "gameTitle": "テストゲーム",
+          "recommend": true,
+          "polarity": "positive",
+          "comment": "周回が楽しい",
+          "createdAt": "2026-10-01T00:00:00.000Z"
+        },
+        {
+          "id": "i12",
+          "gameTitle": "テストゲーム",
+          "recommend": true,
+          "polarity": "positive",
+          "comment": "周回が楽しい",
+          "createdAt": "2026-10-01T00:00:00.000Z"
+        },
+        {
+          "id": "i13",
+          "gameTitle": "テストゲーム",
+          "recommend": true,
+          "polarity": "positive",
+          "comment": "周回が楽しい",
+          "createdAt": "2026-10-01T00:00:00.000Z"
+        },
+        {
+          "id": "i14",
+          "gameTitle": "テストゲーム",
+          "recommend": true,
+          "polarity": "positive",
+          "comment": "周回が楽しい",
+          "createdAt": "2026-10-01T00:00:00.000Z"
+        },
+        {
+          "id": "i15",
+          "gameTitle": "テストゲーム",
+          "recommend": true,
+          "polarity": "positive",
+          "comment": "周回が楽しい",
+          "createdAt": "2026-10-01T00:00:00.000Z"
+        },
+        {
+          "id": "i16",
+          "gameTitle": "テストゲーム",
+          "recommend": true,
+          "polarity": "positive",
+          "comment": "周回が楽しい",
+          "createdAt": "2026-10-01T00:00:00.000Z"
+        },
+        {
+          "id": "i17",
+          "gameTitle": "テストゲーム",
+          "recommend": true,
+          "polarity": "positive",
+          "comment": "周回が楽しい",
+          "createdAt": "2026-10-01T00:00:00.000Z"
+        },
+        {
+          "id": "i18",
+          "gameTitle": "テストゲーム",
+          "recommend": true,
+          "polarity": "positive",
+          "comment": "周回が楽しい",
+          "createdAt": "2026-10-01T00:00:00.000Z"
+        },
+        {
+          "id": "i19",
+          "gameTitle": "テストゲーム",
+          "recommend": true,
+          "polarity": "positive",
+          "comment": "周回が楽しい",
+          "createdAt": "2026-10-01T00:00:00.000Z"
+        },
+        {
+          "id": "i20",
+          "gameTitle": "テストゲーム",
+          "recommend": true,
+          "polarity": "positive",
+          "comment": "周回が楽しい",
+          "createdAt": "2026-10-01T00:00:00.000Z"
+        },
+        {
+          "id": "i21",
+          "gameTitle": "テストゲーム",
+          "recommend": true,
+          "polarity": "positive",
+          "comment": "周回が楽しい",
+          "createdAt": "2026-10-01T00:00:00.000Z"
+        },
+        {
+          "id": "i22",
+          "gameTitle": "テストゲーム",
+          "recommend": true,
+          "polarity": "positive",
+          "comment": "周回が楽しい",
+          "createdAt": "2026-10-01T00:00:00.000Z"
+        },
+        {
+          "id": "i23",
+          "gameTitle": "テストゲーム",
+          "recommend": true,
+          "polarity": "positive",
+          "comment": "周回が楽しい",
+          "createdAt": "2026-10-01T00:00:00.000Z"
+        },
+        {
+          "id": "i24",
+          "gameTitle": "テストゲーム",
+          "recommend": true,
+          "polarity": "positive",
+          "comment": "周回が楽しい",
+          "createdAt": "2026-10-01T00:00:00.000Z"
+        },
+        {
+          "id": "i25",
+          "gameTitle": "テストゲーム",
+          "recommend": true,
+          "polarity": "positive",
+          "comment": "周回が楽しい",
+          "createdAt": "2026-10-01T00:00:00.000Z"
+        },
+        {
+          "id": "i26",
+          "gameTitle": "テストゲーム",
+          "recommend": true,
+          "polarity": "positive",
+          "comment": "周回が楽しい",
+          "createdAt": "2026-10-01T00:00:00.000Z"
+        },
+        {
+          "id": "i27",
+          "gameTitle": "テストゲーム",
+          "recommend": true,
+          "polarity": "positive",
+          "comment": "周回が楽しい",
+          "createdAt": "2026-10-01T00:00:00.000Z"
+        },
+        {
+          "id": "i28",
+          "gameTitle": "テストゲーム",
+          "recommend": true,
+          "polarity": "positive",
+          "comment": "周回が楽しい",
+          "createdAt": "2026-10-01T00:00:00.000Z"
+        },
+        {
+          "id": "i29",
+          "gameTitle": "テストゲーム",
+          "recommend": true,
+          "polarity": "positive",
+          "comment": "周回が楽しい",
+          "createdAt": "2026-10-01T00:00:00.000Z"
+        },
+        {
+          "id": "i30",
+          "gameTitle": "テストゲーム",
+          "recommend": true,
+          "polarity": "positive",
+          "comment": "周回が楽しい",
+          "createdAt": "2026-10-01T00:00:00.000Z"
+        },
+        {
+          "id": "i31",
+          "gameTitle": "テストゲーム",
+          "recommend": true,
+          "polarity": "positive",
+          "comment": "周回が楽しい",
+          "createdAt": "2026-10-01T00:00:00.000Z"
+        },
+        {
+          "id": "i32",
+          "gameTitle": "テストゲーム",
+          "recommend": true,
+          "polarity": "positive",
+          "comment": "周回が楽しい",
+          "createdAt": "2026-10-01T00:00:00.000Z"
+        },
+        {
+          "id": "i33",
+          "gameTitle": "テストゲーム",
+          "recommend": true,
+          "polarity": "positive",
+          "comment": "周回が楽しい",
+          "createdAt": "2026-10-01T00:00:00.000Z"
+        },
+        {
+          "id": "i34",
+          "gameTitle": "テストゲーム",
+          "recommend": true,
+          "polarity": "positive",
+          "comment": "周回が楽しい",
+          "createdAt": "2026-10-01T00:00:00.000Z"
+        },
+        {
+          "id": "i35",
+          "gameTitle": "テストゲーム",
+          "recommend": true,
+          "polarity": "positive",
+          "comment": "周回が楽しい",
+          "createdAt": "2026-10-01T00:00:00.000Z"
+        },
+        {
+          "id": "i36",
+          "gameTitle": "テストゲーム",
+          "recommend": true,
+          "polarity": "positive",
+          "comment": "周回が楽しい",
+          "createdAt": "2026-10-01T00:00:00.000Z"
+        },
+        {
+          "id": "i37",
+          "gameTitle": "テストゲーム",
+          "recommend": true,
+          "polarity": "positive",
+          "comment": "周回が楽しい",
+          "createdAt": "2026-10-01T00:00:00.000Z"
+        },
+        {
+          "id": "i38",
+          "gameTitle": "テストゲーム",
+          "recommend": true,
+          "polarity": "positive",
+          "comment": "周回が楽しい",
+          "createdAt": "2026-10-01T00:00:00.000Z"
+        },
+        {
+          "id": "i39",
+          "gameTitle": "テストゲーム",
+          "recommend": true,
+          "polarity": "positive",
+          "comment": "周回が楽しい",
+          "createdAt": "2026-10-01T00:00:00.000Z"
+        },
+        {
+          "id": "i40",
+          "gameTitle": "テストゲーム",
+          "recommend": true,
+          "polarity": "positive",
+          "comment": "周回が楽しい",
+          "createdAt": "2026-10-01T00:00:00.000Z"
+        },
+        {
+          "id": "i41",
+          "gameTitle": "テストゲーム",
+          "recommend": true,
+          "polarity": "positive",
+          "comment": "周回が楽しい",
+          "createdAt": "2026-10-01T00:00:00.000Z"
+        },
+        {
+          "id": "i42",
+          "gameTitle": "テストゲーム",
+          "recommend": true,
+          "polarity": "positive",
+          "comment": "周回が楽しい",
+          "createdAt": "2026-10-01T00:00:00.000Z"
+        },
+        {
+          "id": "i43",
+          "gameTitle": "テストゲーム",
+          "recommend": true,
+          "polarity": "positive",
+          "comment": "周回が楽しい",
+          "createdAt": "2026-10-01T00:00:00.000Z"
+        },
+        {
+          "id": "i44",
+          "gameTitle": "テストゲーム",
+          "recommend": true,
+          "polarity": "positive",
+          "comment": "周回が楽しい",
+          "createdAt": "2026-10-01T00:00:00.000Z"
+        },
+        {
+          "id": "i45",
+          "gameTitle": "テストゲーム",
+          "recommend": true,
+          "polarity": "positive",
+          "comment": "周回が楽しい",
+          "createdAt": "2026-10-01T00:00:00.000Z"
+        },
+        {
+          "id": "i46",
+          "gameTitle": "テストゲーム",
+          "recommend": true,
+          "polarity": "positive",
+          "comment": "周回が楽しい",
+          "createdAt": "2026-10-01T00:00:00.000Z"
+        },
+        {
+          "id": "i47",
+          "gameTitle": "テストゲーム",
+          "recommend": true,
+          "polarity": "positive",
+          "comment": "周回が楽しい",
+          "createdAt": "2026-10-01T00:00:00.000Z"
+        },
+        {
+          "id": "i48",
+          "gameTitle": "テストゲーム",
+          "recommend": true,
+          "polarity": "positive",
+          "comment": "周回が楽しい",
+          "createdAt": "2026-10-01T00:00:00.000Z"
+        },
+        {
+          "id": "i49",
+          "gameTitle": "テストゲーム",
+          "recommend": true,
+          "polarity": "positive",
+          "comment": "周回が楽しい",
+          "createdAt": "2026-10-01T00:00:00.000Z"
+        },
+        {
+          "id": "i50",
+          "gameTitle": "テストゲーム",
+          "recommend": true,
+          "polarity": "positive",
+          "comment": "周回が楽しい",
+          "createdAt": "2026-10-01T00:00:00.000Z"
+        },
+        {
+          "id": "i51",
+          "gameTitle": "テストゲーム",
+          "recommend": true,
+          "polarity": "positive",
+          "comment": "周回が楽しい",
+          "createdAt": "2026-10-01T00:00:00.000Z"
+        },
+        {
+          "id": "i52",
+          "gameTitle": "テストゲーム",
+          "recommend": true,
+          "polarity": "positive",
+          "comment": "周回が楽しい",
+          "createdAt": "2026-10-01T00:00:00.000Z"
+        },
+        {
+          "id": "i53",
+          "gameTitle": "テストゲーム",
+          "recommend": true,
+          "polarity": "positive",
+          "comment": "周回が楽しい",
+          "createdAt": "2026-10-01T00:00:00.000Z"
+        },
+        {
+          "id": "i54",
+          "gameTitle": "テストゲーム",
+          "recommend": true,
+          "polarity": "positive",
+          "comment": "周回が楽しい",
+          "createdAt": "2026-10-01T00:00:00.000Z"
+        },
+        {
+          "id": "i55",
+          "gameTitle": "テストゲーム",
+          "recommend": true,
+          "polarity": "positive",
+          "comment": "周回が楽しい",
+          "createdAt": "2026-10-01T00:00:00.000Z"
+        },
+        {
+          "id": "i56",
+          "gameTitle": "テストゲーム",
+          "recommend": true,
+          "polarity": "positive",
+          "comment": "周回が楽しい",
+          "createdAt": "2026-10-01T00:00:00.000Z"
+        },
+        {
+          "id": "i57",
+          "gameTitle": "テストゲーム",
+          "recommend": true,
+          "polarity": "positive",
+          "comment": "周回が楽しい",
+          "createdAt": "2026-10-01T00:00:00.000Z"
+        },
+        {
+          "id": "i58",
+          "gameTitle": "テストゲーム",
+          "recommend": true,
+          "polarity": "positive",
+          "comment": "周回が楽しい",
+          "createdAt": "2026-10-01T00:00:00.000Z"
+        },
+        {
+          "id": "i59",
+          "gameTitle": "テストゲーム",
+          "recommend": true,
+          "polarity": "positive",
+          "comment": "周回が楽しい",
+          "createdAt": "2026-10-01T00:00:00.000Z"
+        },
+        {
+          "id": "i60",
+          "gameTitle": "テストゲーム",
+          "recommend": true,
+          "polarity": "positive",
+          "comment": "周回が楽しい",
+          "createdAt": "2026-10-01T00:00:00.000Z"
+        },
+        {
+          "id": "i61",
+          "gameTitle": "テストゲーム",
+          "recommend": true,
+          "polarity": "positive",
+          "comment": "周回が楽しい",
+          "createdAt": "2026-10-01T00:00:00.000Z"
+        },
+        {
+          "id": "i62",
+          "gameTitle": "テストゲーム",
+          "recommend": true,
+          "polarity": "positive",
+          "comment": "周回が楽しい",
+          "createdAt": "2026-10-01T00:00:00.000Z"
+        },
+        {
+          "id": "i63",
+          "gameTitle": "テストゲーム",
+          "recommend": true,
+          "polarity": "positive",
+          "comment": "周回が楽しい",
+          "createdAt": "2026-10-01T00:00:00.000Z"
+        },
+        {
+          "id": "i64",
+          "gameTitle": "テストゲーム",
+          "recommend": true,
+          "polarity": "positive",
+          "comment": "周回が楽しい",
+          "createdAt": "2026-10-01T00:00:00.000Z"
+        },
+        {
+          "id": "i65",
+          "gameTitle": "テストゲーム",
+          "recommend": true,
+          "polarity": "positive",
+          "comment": "周回が楽しい",
+          "createdAt": "2026-10-01T00:00:00.000Z"
+        },
+        {
+          "id": "i66",
+          "gameTitle": "テストゲーム",
+          "recommend": true,
+          "polarity": "positive",
+          "comment": "周回が楽しい",
+          "createdAt": "2026-10-01T00:00:00.000Z"
+        },
+        {
+          "id": "i67",
+          "gameTitle": "テストゲーム",
+          "recommend": true,
+          "polarity": "positive",
+          "comment": "周回が楽しい",
+          "createdAt": "2026-10-01T00:00:00.000Z"
+        },
+        {
+          "id": "i68",
+          "gameTitle": "テストゲーム",
+          "recommend": true,
+          "polarity": "positive",
+          "comment": "周回が楽しい",
+          "createdAt": "2026-10-01T00:00:00.000Z"
+        },
+        {
+          "id": "i69",
+          "gameTitle": "テストゲーム",
+          "recommend": true,
+          "polarity": "positive",
+          "comment": "周回が楽しい",
+          "createdAt": "2026-10-01T00:00:00.000Z"
+        },
+        {
+          "id": "i70",
+          "gameTitle": "テストゲーム",
+          "recommend": true,
+          "polarity": "positive",
+          "comment": "周回が楽しい",
+          "createdAt": "2026-10-01T00:00:00.000Z"
+        },
+        {
+          "id": "i71",
+          "gameTitle": "テストゲーム",
+          "recommend": true,
+          "polarity": "positive",
+          "comment": "周回が楽しい",
+          "createdAt": "2026-10-01T00:00:00.000Z"
+        },
+        {
+          "id": "i72",
+          "gameTitle": "テストゲーム",
+          "recommend": true,
+          "polarity": "positive",
+          "comment": "周回が楽しい",
+          "createdAt": "2026-10-01T00:00:00.000Z"
+        },
+        {
+          "id": "i73",
+          "gameTitle": "テストゲーム",
+          "recommend": true,
+          "polarity": "positive",
+          "comment": "周回が楽しい",
+          "createdAt": "2026-10-01T00:00:00.000Z"
+        },
+        {
+          "id": "i74",
+          "gameTitle": "テストゲーム",
+          "recommend": true,
+          "polarity": "positive",
+          "comment": "周回が楽しい",
+          "createdAt": "2026-10-01T00:00:00.000Z"
+        },
+        {
+          "id": "i75",
+          "gameTitle": "テストゲーム",
+          "recommend": true,
+          "polarity": "positive",
+          "comment": "周回が楽しい",
+          "createdAt": "2026-10-01T00:00:00.000Z"
+        },
+        {
+          "id": "i76",
+          "gameTitle": "テストゲーム",
+          "recommend": true,
+          "polarity": "positive",
+          "comment": "周回が楽しい",
+          "createdAt": "2026-10-01T00:00:00.000Z"
+        },
+        {
+          "id": "i77",
+          "gameTitle": "テストゲーム",
+          "recommend": true,
+          "polarity": "positive",
+          "comment": "周回が楽しい",
+          "createdAt": "2026-10-01T00:00:00.000Z"
+        },
+        {
+          "id": "i78",
+          "gameTitle": "テストゲーム",
+          "recommend": true,
+          "polarity": "positive",
+          "comment": "周回が楽しい",
+          "createdAt": "2026-10-01T00:00:00.000Z"
+        },
+        {
+          "id": "i79",
+          "gameTitle": "テストゲーム",
+          "recommend": true,
+          "polarity": "positive",
+          "comment": "周回が楽しい",
+          "createdAt": "2026-10-01T00:00:00.000Z"
+        },
+        {
+          "id": "i80",
+          "gameTitle": "テストゲーム",
+          "recommend": true,
+          "polarity": "positive",
+          "comment": "周回が楽しい",
+          "createdAt": "2026-10-01T00:00:00.000Z"
+        },
+        {
+          "id": "i81",
+          "gameTitle": "テストゲーム",
+          "recommend": true,
+          "polarity": "positive",
+          "comment": "周回が楽しい",
+          "createdAt": "2026-10-01T00:00:00.000Z"
+        },
+        {
+          "id": "i82",
+          "gameTitle": "テストゲーム",
+          "recommend": true,
+          "polarity": "positive",
+          "comment": "周回が楽しい",
+          "createdAt": "2026-10-01T00:00:00.000Z"
+        },
+        {
+          "id": "i83",
+          "gameTitle": "テストゲーム",
+          "recommend": true,
+          "polarity": "positive",
+          "comment": "周回が楽しい",
+          "createdAt": "2026-10-01T00:00:00.000Z"
+        },
+        {
+          "id": "i84",
+          "gameTitle": "テストゲーム",
+          "recommend": true,
+          "polarity": "positive",
+          "comment": "周回が楽しい",
+          "createdAt": "2026-10-01T00:00:00.000Z"
+        },
+        {
+          "id": "i85",
+          "gameTitle": "テストゲーム",
+          "recommend": true,
+          "polarity": "positive",
+          "comment": "周回が楽しい",
+          "createdAt": "2026-10-01T00:00:00.000Z"
+        },
+        {
+          "id": "i86",
+          "gameTitle": "テストゲーム",
+          "recommend": true,
+          "polarity": "positive",
+          "comment": "周回が楽しい",
+          "createdAt": "2026-10-01T00:00:00.000Z"
+        },
+        {
+          "id": "i87",
+          "gameTitle": "テストゲーム",
+          "recommend": true,
+          "polarity": "positive",
+          "comment": "周回が楽しい",
+          "createdAt": "2026-10-01T00:00:00.000Z"
+        },
+        {
+          "id": "i88",
+          "gameTitle": "テストゲーム",
+          "recommend": true,
+          "polarity": "positive",
+          "comment": "周回が楽しい",
+          "createdAt": "2026-10-01T00:00:00.000Z"
+        },
+        {
+          "id": "i89",
+          "gameTitle": "テストゲーム",
+          "recommend": true,
+          "polarity": "positive",
+          "comment": "周回が楽しい",
+          "createdAt": "2026-10-01T00:00:00.000Z"
+        },
+        {
+          "id": "i90",
+          "gameTitle": "テストゲーム",
+          "recommend": true,
+          "polarity": "positive",
+          "comment": "周回が楽しい",
+          "createdAt": "2026-10-01T00:00:00.000Z"
+        },
+        {
+          "id": "i91",
+          "gameTitle": "テストゲーム",
+          "recommend": true,
+          "polarity": "positive",
+          "comment": "周回が楽しい",
+          "createdAt": "2026-10-01T00:00:00.000Z"
+        },
+        {
+          "id": "i92",
+          "gameTitle": "テストゲーム",
+          "recommend": true,
+          "polarity": "positive",
+          "comment": "周回が楽しい",
+          "createdAt": "2026-10-01T00:00:00.000Z"
+        },
+        {
+          "id": "i93",
+          "gameTitle": "テストゲーム",
+          "recommend": true,
+          "polarity": "positive",
+          "comment": "周回が楽しい",
+          "createdAt": "2026-10-01T00:00:00.000Z"
+        },
+        {
+          "id": "i94",
+          "gameTitle": "テストゲーム",
+          "recommend": true,
+          "polarity": "positive",
+          "comment": "周回が楽しい",
+          "createdAt": "2026-10-01T00:00:00.000Z"
+        },
+        {
+          "id": "i95",
+          "gameTitle": "テストゲーム",
+          "recommend": true,
+          "polarity": "positive",
+          "comment": "周回が楽しい",
+          "createdAt": "2026-10-01T00:00:00.000Z"
+        },
+        {
+          "id": "i96",
+          "gameTitle": "テストゲーム",
+          "recommend": true,
+          "polarity": "positive",
+          "comment": "周回が楽しい",
+          "createdAt": "2026-10-01T00:00:00.000Z"
+        },
+        {
+          "id": "i97",
+          "gameTitle": "テストゲーム",
+          "recommend": true,
+          "polarity": "positive",
+          "comment": "周回が楽しい",
+          "createdAt": "2026-10-01T00:00:00.000Z"
+        },
+        {
+          "id": "i98",
+          "gameTitle": "テストゲーム",
+          "recommend": true,
+          "polarity": "positive",
+          "comment": "周回が楽しい",
+          "createdAt": "2026-10-01T00:00:00.000Z"
+        },
+        {
+          "id": "i99",
+          "gameTitle": "テストゲーム",
+          "recommend": true,
+          "polarity": "positive",
+          "comment": "周回が楽しい",
+          "createdAt": "2026-10-01T00:00:00.000Z"
+        },
+        {
+          "id": "i100",
+          "gameTitle": "テストゲーム",
+          "recommend": true,
+          "polarity": "positive",
+          "comment": "周回が楽しい",
+          "createdAt": "2026-10-01T00:00:00.000Z"
+        },
+        {
+          "id": "i101",
+          "gameTitle": "テストゲーム",
+          "recommend": true,
+          "polarity": "positive",
+          "comment": "周回が楽しい",
+          "createdAt": "2026-10-01T00:00:00.000Z"
+        },
+        {
+          "id": "i102",
+          "gameTitle": "テストゲーム",
+          "recommend": true,
+          "polarity": "positive",
+          "comment": "周回が楽しい",
+          "createdAt": "2026-10-01T00:00:00.000Z"
+        },
+        {
+          "id": "i103",
+          "gameTitle": "テストゲーム",
+          "recommend": true,
+          "polarity": "positive",
+          "comment": "周回が楽しい",
+          "createdAt": "2026-10-01T00:00:00.000Z"
+        },
+        {
+          "id": "i104",
+          "gameTitle": "テストゲーム",
+          "recommend": true,
+          "polarity": "positive",
+          "comment": "周回が楽しい",
+          "createdAt": "2026-10-01T00:00:00.000Z"
+        },
+        {
+          "id": "i105",
+          "gameTitle": "テストゲーム",
+          "recommend": true,
+          "polarity": "positive",
+          "comment": "周回が楽しい",
+          "createdAt": "2026-10-01T00:00:00.000Z"
+        },
+        {
+          "id": "i106",
+          "gameTitle": "テストゲーム",
+          "recommend": true,
+          "polarity": "positive",
+          "comment": "周回が楽しい",
+          "createdAt": "2026-10-01T00:00:00.000Z"
+        },
+        {
+          "id": "i107",
+          "gameTitle": "テストゲーム",
+          "recommend": true,
+          "polarity": "positive",
+          "comment": "周回が楽しい",
+          "createdAt": "2026-10-01T00:00:00.000Z"
+        },
+        {
+          "id": "i108",
+          "gameTitle": "テストゲーム",
+          "recommend": true,
+          "polarity": "positive",
+          "comment": "周回が楽しい",
+          "createdAt": "2026-10-01T00:00:00.000Z"
+        },
+        {
+          "id": "i109",
+          "gameTitle": "テストゲーム",
+          "recommend": true,
+          "polarity": "positive",
+          "comment": "周回が楽しい",
+          "createdAt": "2026-10-01T00:00:00.000Z"
+        },
+        {
+          "id": "i110",
+          "gameTitle": "テストゲーム",
+          "recommend": true,
+          "polarity": "positive",
+          "comment": "周回が楽しい",
+          "createdAt": "2026-10-01T00:00:00.000Z"
+        },
+        {
+          "id": "i111",
+          "gameTitle": "テストゲーム",
+          "recommend": true,
+          "polarity": "positive",
+          "comment": "周回が楽しい",
+          "createdAt": "2026-10-01T00:00:00.000Z"
+        },
+        {
+          "id": "i112",
+          "gameTitle": "テストゲーム",
+          "recommend": true,
+          "polarity": "positive",
+          "comment": "周回が楽しい",
+          "createdAt": "2026-10-01T00:00:00.000Z"
+        },
+        {
+          "id": "i113",
+          "gameTitle": "テストゲーム",
+          "recommend": true,
+          "polarity": "positive",
+          "comment": "周回が楽しい",
+          "createdAt": "2026-10-01T00:00:00.000Z"
+        },
+        {
+          "id": "i114",
+          "gameTitle": "テストゲーム",
+          "recommend": true,
+          "polarity": "positive",
+          "comment": "周回が楽しい",
+          "createdAt": "2026-10-01T00:00:00.000Z"
+        },
+        {
+          "id": "i115",
+          "gameTitle": "テストゲーム",
+          "recommend": true,
+          "polarity": "positive",
+          "comment": "周回が楽しい",
+          "createdAt": "2026-10-01T00:00:00.000Z"
+        },
+        {
+          "id": "i116",
+          "gameTitle": "テストゲーム",
+          "recommend": true,
+          "polarity": "positive",
+          "comment": "周回が楽しい",
+          "createdAt": "2026-10-01T00:00:00.000Z"
+        },
+        {
+          "id": "i117",
+          "gameTitle": "テストゲーム",
+          "recommend": true,
+          "polarity": "positive",
+          "comment": "周回が楽しい",
+          "createdAt": "2026-10-01T00:00:00.000Z"
+        },
+        {
+          "id": "i118",
+          "gameTitle": "テストゲーム",
+          "recommend": true,
+          "polarity": "positive",
+          "comment": "周回が楽しい",
+          "createdAt": "2026-10-01T00:00:00.000Z"
+        },
+        {
+          "id": "i119",
+          "gameTitle": "テストゲーム",
+          "recommend": true,
+          "polarity": "positive",
+          "comment": "周回が楽しい",
+          "createdAt": "2026-10-01T00:00:00.000Z"
+        },
+        {
+          "id": "i120",
+          "gameTitle": "テストゲーム",
+          "recommend": true,
+          "polarity": "positive",
+          "comment": "周回が楽しい",
+          "createdAt": "2026-10-01T00:00:00.000Z"
+        },
+        {
+          "id": "i121",
+          "gameTitle": "テストゲーム",
+          "recommend": true,
+          "polarity": "positive",
+          "comment": "周回が楽しい",
+          "createdAt": "2026-10-01T00:00:00.000Z"
+        },
+        {
+          "id": "i122",
+          "gameTitle": "テストゲーム",
+          "recommend": true,
+          "polarity": "positive",
+          "comment": "周回が楽しい",
+          "createdAt": "2026-10-01T00:00:00.000Z"
+        },
+        {
+          "id": "i123",
+          "gameTitle": "テストゲーム",
+          "recommend": true,
+          "polarity": "positive",
+          "comment": "周回が楽しい",
+          "createdAt": "2026-10-01T00:00:00.000Z"
+        },
+        {
+          "id": "i124",
+          "gameTitle": "テストゲーム",
+          "recommend": true,
+          "polarity": "positive",
+          "comment": "周回が楽しい",
+          "createdAt": "2026-10-01T00:00:00.000Z"
+        },
+        {
+          "id": "i125",
+          "gameTitle": "テストゲーム",
+          "recommend": true,
+          "polarity": "positive",
+          "comment": "周回が楽しい",
+          "createdAt": "2026-10-01T00:00:00.000Z"
+        },
+        {
+          "id": "i126",
+          "gameTitle": "テストゲーム",
+          "recommend": true,
+          "polarity": "positive",
+          "comment": "周回が楽しい",
+          "createdAt": "2026-10-01T00:00:00.000Z"
+        },
+        {
+          "id": "i127",
+          "gameTitle": "テストゲーム",
+          "recommend": true,
+          "polarity": "positive",
+          "comment": "周回が楽しい",
+          "createdAt": "2026-10-01T00:00:00.000Z"
+        },
+        {
+          "id": "i128",
+          "gameTitle": "テストゲーム",
+          "recommend": true,
+          "polarity": "positive",
+          "comment": "周回が楽しい",
+          "createdAt": "2026-10-01T00:00:00.000Z"
+        },
+        {
+          "id": "i129",
+          "gameTitle": "テストゲーム",
+          "recommend": true,
+          "polarity": "positive",
+          "comment": "周回が楽しい",
+          "createdAt": "2026-10-01T00:00:00.000Z"
+        },
+        {
+          "id": "i130",
+          "gameTitle": "テストゲーム",
+          "recommend": true,
+          "polarity": "positive",
+          "comment": "周回が楽しい",
+          "createdAt": "2026-10-01T00:00:00.000Z"
+        },
+        {
+          "id": "i131",
+          "gameTitle": "テストゲーム",
+          "recommend": true,
+          "polarity": "positive",
+          "comment": "周回が楽しい",
+          "createdAt": "2026-10-01T00:00:00.000Z"
+        },
+        {
+          "id": "i132",
+          "gameTitle": "テストゲーム",
+          "recommend": true,
+          "polarity": "positive",
+          "comment": "周回が楽しい",
+          "createdAt": "2026-10-01T00:00:00.000Z"
+        },
+        {
+          "id": "i133",
+          "gameTitle": "テストゲーム",
+          "recommend": true,
+          "polarity": "positive",
+          "comment": "周回が楽しい",
+          "createdAt": "2026-10-01T00:00:00.000Z"
+        },
+        {
+          "id": "i134",
+          "gameTitle": "テストゲーム",
+          "recommend": true,
+          "polarity": "positive",
+          "comment": "周回が楽しい",
+          "createdAt": "2026-10-01T00:00:00.000Z"
+        },
+        {
+          "id": "i135",
+          "gameTitle": "テストゲーム",
+          "recommend": true,
+          "polarity": "positive",
+          "comment": "周回が楽しい",
+          "createdAt": "2026-10-01T00:00:00.000Z"
+        },
+        {
+          "id": "i136",
+          "gameTitle": "テストゲーム",
+          "recommend": true,
+          "polarity": "positive",
+          "comment": "周回が楽しい",
+          "createdAt": "2026-10-01T00:00:00.000Z"
+        },
+        {
+          "id": "i137",
+          "gameTitle": "テストゲーム",
+          "recommend": true,
+          "polarity": "positive",
+          "comment": "周回が楽しい",
+          "createdAt": "2026-10-01T00:00:00.000Z"
+        },
+        {
+          "id": "i138",
+          "gameTitle": "テストゲーム",
+          "recommend": true,
+          "polarity": "positive",
+          "comment": "周回が楽しい",
+          "createdAt": "2026-10-01T00:00:00.000Z"
+        },
+        {
+          "id": "i139",
+          "gameTitle": "テストゲーム",
+          "recommend": true,
+          "polarity": "positive",
+          "comment": "周回が楽しい",
+          "createdAt": "2026-10-01T00:00:00.000Z"
+        },
+        {
+          "id": "i140",
+          "gameTitle": "テストゲーム",
+          "recommend": true,
+          "polarity": "positive",
+          "comment": "周回が楽しい",
+          "createdAt": "2026-10-01T00:00:00.000Z"
+        },
+        {
+          "id": "i141",
+          "gameTitle": "テストゲーム",
+          "recommend": true,
+          "polarity": "positive",
+          "comment": "周回が楽しい",
+          "createdAt": "2026-10-01T00:00:00.000Z"
+        },
+        {
+          "id": "i142",
+          "gameTitle": "テストゲーム",
+          "recommend": true,
+          "polarity": "positive",
+          "comment": "周回が楽しい",
+          "createdAt": "2026-10-01T00:00:00.000Z"
+        },
+        {
+          "id": "i143",
+          "gameTitle": "テストゲーム",
+          "recommend": true,
+          "polarity": "positive",
+          "comment": "周回が楽しい",
+          "createdAt": "2026-10-01T00:00:00.000Z"
+        },
+        {
+          "id": "i144",
+          "gameTitle": "テストゲーム",
+          "recommend": true,
+          "polarity": "positive",
+          "comment": "周回が楽しい",
+          "createdAt": "2026-10-01T00:00:00.000Z"
+        },
+        {
+          "id": "i145",
+          "gameTitle": "テストゲーム",
+          "recommend": true,
+          "polarity": "positive",
+          "comment": "周回が楽しい",
+          "createdAt": "2026-10-01T00:00:00.000Z"
+        },
+        {
+          "id": "i146",
+          "gameTitle": "テストゲーム",
+          "recommend": true,
+          "polarity": "positive",
+          "comment": "周回が楽しい",
+          "createdAt": "2026-10-01T00:00:00.000Z"
+        },
+        {
+          "id": "i147",
+          "gameTitle": "テストゲーム",
+          "recommend": true,
+          "polarity": "positive",
+          "comment": "周回が楽しい",
+          "createdAt": "2026-10-01T00:00:00.000Z"
+        },
+        {
+          "id": "i148",
+          "gameTitle": "テストゲーム",
+          "recommend": true,
+          "polarity": "positive",
+          "comment": "周回が楽しい",
+          "createdAt": "2026-10-01T00:00:00.000Z"
+        },
+        {
+          "id": "i149",
+          "gameTitle": "テストゲーム",
+          "recommend": true,
+          "polarity": "positive",
+          "comment": "周回が楽しい",
+          "createdAt": "2026-10-01T00:00:00.000Z"
+        },
+        {
+          "id": "i150",
+          "gameTitle": "テストゲーム",
+          "recommend": true,
+          "polarity": "positive",
+          "comment": "周回が楽しい",
+          "createdAt": "2026-10-01T00:00:00.000Z"
+        },
+        {
+          "id": "i151",
+          "gameTitle": "テストゲーム",
+          "recommend": true,
+          "polarity": "positive",
+          "comment": "周回が楽しい",
+          "createdAt": "2026-10-01T00:00:00.000Z"
+        },
+        {
+          "id": "i152",
+          "gameTitle": "テストゲーム",
+          "recommend": true,
+          "polarity": "positive",
+          "comment": "周回が楽しい",
+          "createdAt": "2026-10-01T00:00:00.000Z"
+        },
+        {
+          "id": "i153",
+          "gameTitle": "テストゲーム",
+          "recommend": true,
+          "polarity": "positive",
+          "comment": "周回が楽しい",
+          "createdAt": "2026-10-01T00:00:00.000Z"
+        },
+        {
+          "id": "i154",
+          "gameTitle": "テストゲーム",
+          "recommend": true,
+          "polarity": "positive",
+          "comment": "周回が楽しい",
+          "createdAt": "2026-10-01T00:00:00.000Z"
+        },
+        {
+          "id": "i155",
+          "gameTitle": "テストゲーム",
+          "recommend": true,
+          "polarity": "positive",
+          "comment": "周回が楽しい",
+          "createdAt": "2026-10-01T00:00:00.000Z"
+        },
+        {
+          "id": "i156",
+          "gameTitle": "テストゲーム",
+          "recommend": true,
+          "polarity": "positive",
+          "comment": "周回が楽しい",
+          "createdAt": "2026-10-01T00:00:00.000Z"
+        },
+        {
+          "id": "i157",
+          "gameTitle": "テストゲーム",
+          "recommend": true,
+          "polarity": "positive",
+          "comment": "周回が楽しい",
+          "createdAt": "2026-10-01T00:00:00.000Z"
+        },
+        {
+          "id": "i158",
+          "gameTitle": "テストゲーム",
+          "recommend": true,
+          "polarity": "positive",
+          "comment": "周回が楽しい",
+          "createdAt": "2026-10-01T00:00:00.000Z"
+        },
+        {
+          "id": "i159",
+          "gameTitle": "テストゲーム",
+          "recommend": true,
+          "polarity": "positive",
+          "comment": "周回が楽しい",
+          "createdAt": "2026-10-01T00:00:00.000Z"
+        },
+        {
+          "id": "i160",
+          "gameTitle": "テストゲーム",
+          "recommend": true,
+          "polarity": "positive",
+          "comment": "周回が楽しい",
+          "createdAt": "2026-10-01T00:00:00.000Z"
+        },
+        {
+          "id": "i161",
+          "gameTitle": "テストゲーム",
+          "recommend": true,
+          "polarity": "positive",
+          "comment": "周回が楽しい",
+          "createdAt": "2026-10-01T00:00:00.000Z"
+        },
+        {
+          "id": "i162",
+          "gameTitle": "テストゲーム",
+          "recommend": true,
+          "polarity": "positive",
+          "comment": "周回が楽しい",
+          "createdAt": "2026-10-01T00:00:00.000Z"
+        },
+        {
+          "id": "i163",
+          "gameTitle": "テストゲーム",
+          "recommend": true,
+          "polarity": "positive",
+          "comment": "周回が楽しい",
+          "createdAt": "2026-10-01T00:00:00.000Z"
+        },
+        {
+          "id": "i164",
+          "gameTitle": "テストゲーム",
+          "recommend": true,
+          "polarity": "positive",
+          "comment": "周回が楽しい",
+          "createdAt": "2026-10-01T00:00:00.000Z"
+        },
+        {
+          "id": "i165",
+          "gameTitle": "テストゲーム",
+          "recommend": true,
+          "polarity": "positive",
+          "comment": "周回が楽しい",
+          "createdAt": "2026-10-01T00:00:00.000Z"
+        },
+        {
+          "id": "i166",
+          "gameTitle": "テストゲーム",
+          "recommend": true,
+          "polarity": "positive",
+          "comment": "周回が楽しい",
+          "createdAt": "2026-10-01T00:00:00.000Z"
+        },
+        {
+          "id": "i167",
+          "gameTitle": "テストゲーム",
+          "recommend": true,
+          "polarity": "positive",
+          "comment": "周回が楽しい",
+          "createdAt": "2026-10-01T00:00:00.000Z"
+        },
+        {
+          "id": "i168",
+          "gameTitle": "テストゲーム",
+          "recommend": true,
+          "polarity": "positive",
+          "comment": "周回が楽しい",
+          "createdAt": "2026-10-01T00:00:00.000Z"
+        },
+        {
+          "id": "i169",
+          "gameTitle": "テストゲーム",
+          "recommend": true,
+          "polarity": "positive",
+          "comment": "周回が楽しい",
+          "createdAt": "2026-10-01T00:00:00.000Z"
+        },
+        {
+          "id": "i170",
+          "gameTitle": "テストゲーム",
+          "recommend": true,
+          "polarity": "positive",
+          "comment": "周回が楽しい",
+          "createdAt": "2026-10-01T00:00:00.000Z"
+        },
+        {
+          "id": "i171",
+          "gameTitle": "テストゲーム",
+          "recommend": true,
+          "polarity": "positive",
+          "comment": "周回が楽しい",
+          "createdAt": "2026-10-01T00:00:00.000Z"
+        },
+        {
+          "id": "i172",
+          "gameTitle": "テストゲーム",
+          "recommend": true,
+          "polarity": "positive",
+          "comment": "周回が楽しい",
+          "createdAt": "2026-10-01T00:00:00.000Z"
+        },
+        {
+          "id": "i173",
+          "gameTitle": "テストゲーム",
+          "recommend": true,
+          "polarity": "positive",
+          "comment": "周回が楽しい",
+          "createdAt": "2026-10-01T00:00:00.000Z"
+        },
+        {
+          "id": "i174",
+          "gameTitle": "テストゲーム",
+          "recommend": true,
+          "polarity": "positive",
+          "comment": "周回が楽しい",
+          "createdAt": "2026-10-01T00:00:00.000Z"
+        },
+        {
+          "id": "i175",
+          "gameTitle": "テストゲーム",
+          "recommend": true,
+          "polarity": "positive",
+          "comment": "周回が楽しい",
+          "createdAt": "2026-10-01T00:00:00.000Z"
+        },
+        {
+          "id": "i176",
+          "gameTitle": "テストゲーム",
+          "recommend": true,
+          "polarity": "positive",
+          "comment": "周回が楽しい",
+          "createdAt": "2026-10-01T00:00:00.000Z"
+        },
+        {
+          "id": "i177",
+          "gameTitle": "テストゲーム",
+          "recommend": true,
+          "polarity": "positive",
+          "comment": "周回が楽しい",
+          "createdAt": "2026-10-01T00:00:00.000Z"
+        },
+        {
+          "id": "i178",
+          "gameTitle": "テストゲーム",
+          "recommend": true,
+          "polarity": "positive",
+          "comment": "周回が楽しい",
+          "createdAt": "2026-10-01T00:00:00.000Z"
+        },
+        {
+          "id": "i179",
+          "gameTitle": "テストゲーム",
+          "recommend": true,
+          "polarity": "positive",
+          "comment": "周回が楽しい",
+          "createdAt": "2026-10-01T00:00:00.000Z"
+        },
+        {
+          "id": "i180",
+          "gameTitle": "テストゲーム",
+          "recommend": true,
+          "polarity": "positive",
+          "comment": "周回が楽しい",
+          "createdAt": "2026-10-01T00:00:00.000Z"
+        },
+        {
+          "id": "i181",
+          "gameTitle": "テストゲーム",
+          "recommend": true,
+          "polarity": "positive",
+          "comment": "周回が楽しい",
+          "createdAt": "2026-10-01T00:00:00.000Z"
+        },
+        {
+          "id": "i182",
+          "gameTitle": "テストゲーム",
+          "recommend": true,
+          "polarity": "positive",
+          "comment": "周回が楽しい",
+          "createdAt": "2026-10-01T00:00:00.000Z"
+        },
+        {
+          "id": "i183",
+          "gameTitle": "テストゲーム",
+          "recommend": true,
+          "polarity": "positive",
+          "comment": "周回が楽しい",
+          "createdAt": "2026-10-01T00:00:00.000Z"
+        },
+        {
+          "id": "i184",
+          "gameTitle": "テストゲーム",
+          "recommend": true,
+          "polarity": "positive",
+          "comment": "周回が楽しい",
+          "createdAt": "2026-10-01T00:00:00.000Z"
+        },
+        {
+          "id": "i185",
+          "gameTitle": "テストゲーム",
+          "recommend": true,
+          "polarity": "positive",
+          "comment": "周回が楽しい",
+          "createdAt": "2026-10-01T00:00:00.000Z"
+        },
+        {
+          "id": "i186",
+          "gameTitle": "テストゲーム",
+          "recommend": true,
+          "polarity": "positive",
+          "comment": "周回が楽しい",
+          "createdAt": "2026-10-01T00:00:00.000Z"
+        },
+        {
+          "id": "i187",
+          "gameTitle": "テストゲーム",
+          "recommend": true,
+          "polarity": "positive",
+          "comment": "周回が楽しい",
+          "createdAt": "2026-10-01T00:00:00.000Z"
+        },
+        {
+          "id": "i188",
+          "gameTitle": "テストゲーム",
+          "recommend": true,
+          "polarity": "positive",
+          "comment": "周回が楽しい",
+          "createdAt": "2026-10-01T00:00:00.000Z"
+        },
+        {
+          "id": "i189",
+          "gameTitle": "テストゲーム",
+          "recommend": true,
+          "polarity": "positive",
+          "comment": "周回が楽しい",
+          "createdAt": "2026-10-01T00:00:00.000Z"
+        },
+        {
+          "id": "i190",
+          "gameTitle": "テストゲーム",
+          "recommend": true,
+          "polarity": "positive",
+          "comment": "周回が楽しい",
+          "createdAt": "2026-10-01T00:00:00.000Z"
+        },
+        {
+          "id": "i191",
+          "gameTitle": "テストゲーム",
+          "recommend": true,
+          "polarity": "positive",
+          "comment": "周回が楽しい",
+          "createdAt": "2026-10-01T00:00:00.000Z"
+        },
+        {
+          "id": "i192",
+          "gameTitle": "テストゲーム",
+          "recommend": true,
+          "polarity": "positive",
+          "comment": "周回が楽しい",
+          "createdAt": "2026-10-01T00:00:00.000Z"
+        },
+        {
+          "id": "i193",
+          "gameTitle": "テストゲーム",
+          "recommend": true,
+          "polarity": "positive",
+          "comment": "周回が楽しい",
+          "createdAt": "2026-10-01T00:00:00.000Z"
+        },
+        {
+          "id": "i194",
+          "gameTitle": "テストゲーム",
+          "recommend": true,
+          "polarity": "positive",
+          "comment": "周回が楽しい",
+          "createdAt": "2026-10-01T00:00:00.000Z"
+        },
+        {
+          "id": "i195",
+          "gameTitle": "テストゲーム",
+          "recommend": true,
+          "polarity": "positive",
+          "comment": "周回が楽しい",
+          "createdAt": "2026-10-01T00:00:00.000Z"
+        },
+        {
+          "id": "i196",
+          "gameTitle": "テストゲーム",
+          "recommend": true,
+          "polarity": "positive",
+          "comment": "周回が楽しい",
+          "createdAt": "2026-10-01T00:00:00.000Z"
+        },
+        {
+          "id": "i197",
+          "gameTitle": "テストゲーム",
+          "recommend": true,
+          "polarity": "positive",
+          "comment": "周回が楽しい",
+          "createdAt": "2026-10-01T00:00:00.000Z"
+        },
+        {
+          "id": "i198",
+          "gameTitle": "テストゲーム",
+          "recommend": true,
+          "polarity": "positive",
+          "comment": "周回が楽しい",
+          "createdAt": "2026-10-01T00:00:00.000Z"
+        },
+        {
+          "id": "i199",
+          "gameTitle": "テストゲーム",
+          "recommend": true,
+          "polarity": "positive",
+          "comment": "周回が楽しい",
+          "createdAt": "2026-10-01T00:00:00.000Z"
+        }
+      ],
+      "skipped": {
+        "non_anonymous_field": 0,
+        "invalid": 0
+      }
+    }
+  },
+  {
+    "body": {
+      "impressions": [
+        {
+          "id": "i0",
+          "gameTitle": " テストゲーム ",
+          "recommend": true,
+          "polarity": "positive",
+          "comment": "周回が楽しい",
+          "createdAt": "2026-10-01T00:00:00.000Z"
+        },
+        {
+          "id": "i1",
+          "gameTitle": " テストゲーム ",
+          "recommend": true,
+          "polarity": "positive",
+          "comment": "周回が楽しい",
+          "createdAt": "2026-10-01T00:00:00.000Z"
+        },
+        {
+          "id": "i2",
+          "gameTitle": " テストゲーム ",
+          "recommend": true,
+          "polarity": "positive",
+          "comment": "周回が楽しい",
+          "createdAt": "2026-10-01T00:00:00.000Z"
+        },
+        {
+          "id": "i3",
+          "gameTitle": " テストゲーム ",
+          "recommend": true,
+          "polarity": "positive",
+          "comment": "周回が楽しい",
+          "createdAt": "2026-10-01T00:00:00.000Z"
+        },
+        {
+          "id": "i4",
+          "gameTitle": " テストゲーム ",
+          "recommend": true,
+          "polarity": "positive",
+          "comment": "周回が楽しい",
+          "createdAt": "2026-10-01T00:00:00.000Z"
+        },
+        {
+          "id": "i5",
+          "gameTitle": " テストゲーム ",
+          "recommend": true,
+          "polarity": "positive",
+          "comment": "周回が楽しい",
+          "createdAt": "2026-10-01T00:00:00.000Z"
+        },
+        {
+          "id": "i6",
+          "gameTitle": " テストゲーム ",
+          "recommend": true,
+          "polarity": "positive",
+          "comment": "周回が楽しい",
+          "createdAt": "2026-10-01T00:00:00.000Z"
+        },
+        {
+          "id": "i7",
+          "gameTitle": " テストゲーム ",
+          "recommend": true,
+          "polarity": "positive",
+          "comment": "周回が楽しい",
+          "createdAt": "2026-10-01T00:00:00.000Z"
+        },
+        {
+          "id": "i8",
+          "gameTitle": " テストゲーム ",
+          "recommend": true,
+          "polarity": "positive",
+          "comment": "周回が楽しい",
+          "createdAt": "2026-10-01T00:00:00.000Z"
+        },
+        {
+          "id": "i9",
+          "gameTitle": " テストゲーム ",
+          "recommend": true,
+          "polarity": "positive",
+          "comment": "周回が楽しい",
+          "createdAt": "2026-10-01T00:00:00.000Z"
+        },
+        {
+          "id": "i10",
+          "gameTitle": " テストゲーム ",
+          "recommend": true,
+          "polarity": "positive",
+          "comment": "周回が楽しい",
+          "createdAt": "2026-10-01T00:00:00.000Z"
+        },
+        {
+          "id": "i11",
+          "gameTitle": " テストゲーム ",
+          "recommend": true,
+          "polarity": "positive",
+          "comment": "周回が楽しい",
+          "createdAt": "2026-10-01T00:00:00.000Z"
+        },
+        {
+          "id": "i12",
+          "gameTitle": " テストゲーム ",
+          "recommend": true,
+          "polarity": "positive",
+          "comment": "周回が楽しい",
+          "createdAt": "2026-10-01T00:00:00.000Z"
+        },
+        {
+          "id": "i13",
+          "gameTitle": " テストゲーム ",
+          "recommend": true,
+          "polarity": "positive",
+          "comment": "周回が楽しい",
+          "createdAt": "2026-10-01T00:00:00.000Z"
+        },
+        {
+          "id": "i14",
+          "gameTitle": " テストゲーム ",
+          "recommend": true,
+          "polarity": "positive",
+          "comment": "周回が楽しい",
+          "createdAt": "2026-10-01T00:00:00.000Z"
+        },
+        {
+          "id": "i15",
+          "gameTitle": " テストゲーム ",
+          "recommend": true,
+          "polarity": "positive",
+          "comment": "周回が楽しい",
+          "createdAt": "2026-10-01T00:00:00.000Z"
+        },
+        {
+          "id": "i16",
+          "gameTitle": " テストゲーム ",
+          "recommend": true,
+          "polarity": "positive",
+          "comment": "周回が楽しい",
+          "createdAt": "2026-10-01T00:00:00.000Z"
+        },
+        {
+          "id": "i17",
+          "gameTitle": " テストゲーム ",
+          "recommend": true,
+          "polarity": "positive",
+          "comment": "周回が楽しい",
+          "createdAt": "2026-10-01T00:00:00.000Z"
+        },
+        {
+          "id": "i18",
+          "gameTitle": " テストゲーム ",
+          "recommend": true,
+          "polarity": "positive",
+          "comment": "周回が楽しい",
+          "createdAt": "2026-10-01T00:00:00.000Z"
+        },
+        {
+          "id": "i19",
+          "gameTitle": " テストゲーム ",
+          "recommend": true,
+          "polarity": "positive",
+          "comment": "周回が楽しい",
+          "createdAt": "2026-10-01T00:00:00.000Z"
+        },
+        {
+          "id": "i20",
+          "gameTitle": " テストゲーム ",
+          "recommend": true,
+          "polarity": "positive",
+          "comment": "周回が楽しい",
+          "createdAt": "2026-10-01T00:00:00.000Z"
+        },
+        {
+          "id": "i21",
+          "gameTitle": " テストゲーム ",
+          "recommend": true,
+          "polarity": "positive",
+          "comment": "周回が楽しい",
+          "createdAt": "2026-10-01T00:00:00.000Z"
+        },
+        {
+          "id": "i22",
+          "gameTitle": " テストゲーム ",
+          "recommend": true,
+          "polarity": "positive",
+          "comment": "周回が楽しい",
+          "createdAt": "2026-10-01T00:00:00.000Z"
+        },
+        {
+          "id": "i23",
+          "gameTitle": " テストゲーム ",
+          "recommend": true,
+          "polarity": "positive",
+          "comment": "周回が楽しい",
+          "createdAt": "2026-10-01T00:00:00.000Z"
+        },
+        {
+          "id": "i24",
+          "gameTitle": " テストゲーム ",
+          "recommend": true,
+          "polarity": "positive",
+          "comment": "周回が楽しい",
+          "createdAt": "2026-10-01T00:00:00.000Z"
+        },
+        {
+          "id": "i25",
+          "gameTitle": " テストゲーム ",
+          "recommend": true,
+          "polarity": "positive",
+          "comment": "周回が楽しい",
+          "createdAt": "2026-10-01T00:00:00.000Z"
+        },
+        {
+          "id": "i26",
+          "gameTitle": " テストゲーム ",
+          "recommend": true,
+          "polarity": "positive",
+          "comment": "周回が楽しい",
+          "createdAt": "2026-10-01T00:00:00.000Z"
+        },
+        {
+          "id": "i27",
+          "gameTitle": " テストゲーム ",
+          "recommend": true,
+          "polarity": "positive",
+          "comment": "周回が楽しい",
+          "createdAt": "2026-10-01T00:00:00.000Z"
+        },
+        {
+          "id": "i28",
+          "gameTitle": " テストゲーム ",
+          "recommend": true,
+          "polarity": "positive",
+          "comment": "周回が楽しい",
+          "createdAt": "2026-10-01T00:00:00.000Z"
+        },
+        {
+          "id": "i29",
+          "gameTitle": " テストゲーム ",
+          "recommend": true,
+          "polarity": "positive",
+          "comment": "周回が楽しい",
+          "createdAt": "2026-10-01T00:00:00.000Z"
+        },
+        {
+          "id": "i30",
+          "gameTitle": " テストゲーム ",
+          "recommend": true,
+          "polarity": "positive",
+          "comment": "周回が楽しい",
+          "createdAt": "2026-10-01T00:00:00.000Z"
+        },
+        {
+          "id": "i31",
+          "gameTitle": " テストゲーム ",
+          "recommend": true,
+          "polarity": "positive",
+          "comment": "周回が楽しい",
+          "createdAt": "2026-10-01T00:00:00.000Z"
+        },
+        {
+          "id": "i32",
+          "gameTitle": " テストゲーム ",
+          "recommend": true,
+          "polarity": "positive",
+          "comment": "周回が楽しい",
+          "createdAt": "2026-10-01T00:00:00.000Z"
+        },
+        {
+          "id": "i33",
+          "gameTitle": " テストゲーム ",
+          "recommend": true,
+          "polarity": "positive",
+          "comment": "周回が楽しい",
+          "createdAt": "2026-10-01T00:00:00.000Z"
+        },
+        {
+          "id": "i34",
+          "gameTitle": " テストゲーム ",
+          "recommend": true,
+          "polarity": "positive",
+          "comment": "周回が楽しい",
+          "createdAt": "2026-10-01T00:00:00.000Z"
+        },
+        {
+          "id": "i35",
+          "gameTitle": " テストゲーム ",
+          "recommend": true,
+          "polarity": "positive",
+          "comment": "周回が楽しい",
+          "createdAt": "2026-10-01T00:00:00.000Z"
+        },
+        {
+          "id": "i36",
+          "gameTitle": " テストゲーム ",
+          "recommend": true,
+          "polarity": "positive",
+          "comment": "周回が楽しい",
+          "createdAt": "2026-10-01T00:00:00.000Z"
+        },
+        {
+          "id": "i37",
+          "gameTitle": " テストゲーム ",
+          "recommend": true,
+          "polarity": "positive",
+          "comment": "周回が楽しい",
+          "createdAt": "2026-10-01T00:00:00.000Z"
+        },
+        {
+          "id": "i38",
+          "gameTitle": " テストゲーム ",
+          "recommend": true,
+          "polarity": "positive",
+          "comment": "周回が楽しい",
+          "createdAt": "2026-10-01T00:00:00.000Z"
+        },
+        {
+          "id": "i39",
+          "gameTitle": " テストゲーム ",
+          "recommend": true,
+          "polarity": "positive",
+          "comment": "周回が楽しい",
+          "createdAt": "2026-10-01T00:00:00.000Z"
+        },
+        {
+          "id": "i40",
+          "gameTitle": " テストゲーム ",
+          "recommend": true,
+          "polarity": "positive",
+          "comment": "周回が楽しい",
+          "createdAt": "2026-10-01T00:00:00.000Z"
+        },
+        {
+          "id": "i41",
+          "gameTitle": " テストゲーム ",
+          "recommend": true,
+          "polarity": "positive",
+          "comment": "周回が楽しい",
+          "createdAt": "2026-10-01T00:00:00.000Z"
+        },
+        {
+          "id": "i42",
+          "gameTitle": " テストゲーム ",
+          "recommend": true,
+          "polarity": "positive",
+          "comment": "周回が楽しい",
+          "createdAt": "2026-10-01T00:00:00.000Z"
+        },
+        {
+          "id": "i43",
+          "gameTitle": " テストゲーム ",
+          "recommend": true,
+          "polarity": "positive",
+          "comment": "周回が楽しい",
+          "createdAt": "2026-10-01T00:00:00.000Z"
+        },
+        {
+          "id": "i44",
+          "gameTitle": " テストゲーム ",
+          "recommend": true,
+          "polarity": "positive",
+          "comment": "周回が楽しい",
+          "createdAt": "2026-10-01T00:00:00.000Z"
+        },
+        {
+          "id": "i45",
+          "gameTitle": " テストゲーム ",
+          "recommend": true,
+          "polarity": "positive",
+          "comment": "周回が楽しい",
+          "createdAt": "2026-10-01T00:00:00.000Z"
+        },
+        {
+          "id": "i46",
+          "gameTitle": " テストゲーム ",
+          "recommend": true,
+          "polarity": "positive",
+          "comment": "周回が楽しい",
+          "createdAt": "2026-10-01T00:00:00.000Z"
+        },
+        {
+          "id": "i47",
+          "gameTitle": " テストゲーム ",
+          "recommend": true,
+          "polarity": "positive",
+          "comment": "周回が楽しい",
+          "createdAt": "2026-10-01T00:00:00.000Z"
+        },
+        {
+          "id": "i48",
+          "gameTitle": " テストゲーム ",
+          "recommend": true,
+          "polarity": "positive",
+          "comment": "周回が楽しい",
+          "createdAt": "2026-10-01T00:00:00.000Z"
+        },
+        {
+          "id": "i49",
+          "gameTitle": " テストゲーム ",
+          "recommend": true,
+          "polarity": "positive",
+          "comment": "周回が楽しい",
+          "createdAt": "2026-10-01T00:00:00.000Z"
+        },
+        {
+          "id": "i50",
+          "gameTitle": " テストゲーム ",
+          "recommend": true,
+          "polarity": "positive",
+          "comment": "周回が楽しい",
+          "createdAt": "2026-10-01T00:00:00.000Z"
+        },
+        {
+          "id": "i51",
+          "gameTitle": " テストゲーム ",
+          "recommend": true,
+          "polarity": "positive",
+          "comment": "周回が楽しい",
+          "createdAt": "2026-10-01T00:00:00.000Z"
+        },
+        {
+          "id": "i52",
+          "gameTitle": " テストゲーム ",
+          "recommend": true,
+          "polarity": "positive",
+          "comment": "周回が楽しい",
+          "createdAt": "2026-10-01T00:00:00.000Z"
+        },
+        {
+          "id": "i53",
+          "gameTitle": " テストゲーム ",
+          "recommend": true,
+          "polarity": "positive",
+          "comment": "周回が楽しい",
+          "createdAt": "2026-10-01T00:00:00.000Z"
+        },
+        {
+          "id": "i54",
+          "gameTitle": " テストゲーム ",
+          "recommend": true,
+          "polarity": "positive",
+          "comment": "周回が楽しい",
+          "createdAt": "2026-10-01T00:00:00.000Z"
+        },
+        {
+          "id": "i55",
+          "gameTitle": " テストゲーム ",
+          "recommend": true,
+          "polarity": "positive",
+          "comment": "周回が楽しい",
+          "createdAt": "2026-10-01T00:00:00.000Z"
+        },
+        {
+          "id": "i56",
+          "gameTitle": " テストゲーム ",
+          "recommend": true,
+          "polarity": "positive",
+          "comment": "周回が楽しい",
+          "createdAt": "2026-10-01T00:00:00.000Z"
+        },
+        {
+          "id": "i57",
+          "gameTitle": " テストゲーム ",
+          "recommend": true,
+          "polarity": "positive",
+          "comment": "周回が楽しい",
+          "createdAt": "2026-10-01T00:00:00.000Z"
+        },
+        {
+          "id": "i58",
+          "gameTitle": " テストゲーム ",
+          "recommend": true,
+          "polarity": "positive",
+          "comment": "周回が楽しい",
+          "createdAt": "2026-10-01T00:00:00.000Z"
+        },
+        {
+          "id": "i59",
+          "gameTitle": " テストゲーム ",
+          "recommend": true,
+          "polarity": "positive",
+          "comment": "周回が楽しい",
+          "createdAt": "2026-10-01T00:00:00.000Z"
+        },
+        {
+          "id": "i60",
+          "gameTitle": " テストゲーム ",
+          "recommend": true,
+          "polarity": "positive",
+          "comment": "周回が楽しい",
+          "createdAt": "2026-10-01T00:00:00.000Z"
+        },
+        {
+          "id": "i61",
+          "gameTitle": " テストゲーム ",
+          "recommend": true,
+          "polarity": "positive",
+          "comment": "周回が楽しい",
+          "createdAt": "2026-10-01T00:00:00.000Z"
+        },
+        {
+          "id": "i62",
+          "gameTitle": " テストゲーム ",
+          "recommend": true,
+          "polarity": "positive",
+          "comment": "周回が楽しい",
+          "createdAt": "2026-10-01T00:00:00.000Z"
+        },
+        {
+          "id": "i63",
+          "gameTitle": " テストゲーム ",
+          "recommend": true,
+          "polarity": "positive",
+          "comment": "周回が楽しい",
+          "createdAt": "2026-10-01T00:00:00.000Z"
+        },
+        {
+          "id": "i64",
+          "gameTitle": " テストゲーム ",
+          "recommend": true,
+          "polarity": "positive",
+          "comment": "周回が楽しい",
+          "createdAt": "2026-10-01T00:00:00.000Z"
+        },
+        {
+          "id": "i65",
+          "gameTitle": " テストゲーム ",
+          "recommend": true,
+          "polarity": "positive",
+          "comment": "周回が楽しい",
+          "createdAt": "2026-10-01T00:00:00.000Z"
+        },
+        {
+          "id": "i66",
+          "gameTitle": " テストゲーム ",
+          "recommend": true,
+          "polarity": "positive",
+          "comment": "周回が楽しい",
+          "createdAt": "2026-10-01T00:00:00.000Z"
+        },
+        {
+          "id": "i67",
+          "gameTitle": " テストゲーム ",
+          "recommend": true,
+          "polarity": "positive",
+          "comment": "周回が楽しい",
+          "createdAt": "2026-10-01T00:00:00.000Z"
+        },
+        {
+          "id": "i68",
+          "gameTitle": " テストゲーム ",
+          "recommend": true,
+          "polarity": "positive",
+          "comment": "周回が楽しい",
+          "createdAt": "2026-10-01T00:00:00.000Z"
+        },
+        {
+          "id": "i69",
+          "gameTitle": " テストゲーム ",
+          "recommend": true,
+          "polarity": "positive",
+          "comment": "周回が楽しい",
+          "createdAt": "2026-10-01T00:00:00.000Z"
+        },
+        {
+          "id": "i70",
+          "gameTitle": " テストゲーム ",
+          "recommend": true,
+          "polarity": "positive",
+          "comment": "周回が楽しい",
+          "createdAt": "2026-10-01T00:00:00.000Z"
+        },
+        {
+          "id": "i71",
+          "gameTitle": " テストゲーム ",
+          "recommend": true,
+          "polarity": "positive",
+          "comment": "周回が楽しい",
+          "createdAt": "2026-10-01T00:00:00.000Z"
+        },
+        {
+          "id": "i72",
+          "gameTitle": " テストゲーム ",
+          "recommend": true,
+          "polarity": "positive",
+          "comment": "周回が楽しい",
+          "createdAt": "2026-10-01T00:00:00.000Z"
+        },
+        {
+          "id": "i73",
+          "gameTitle": " テストゲーム ",
+          "recommend": true,
+          "polarity": "positive",
+          "comment": "周回が楽しい",
+          "createdAt": "2026-10-01T00:00:00.000Z"
+        },
+        {
+          "id": "i74",
+          "gameTitle": " テストゲーム ",
+          "recommend": true,
+          "polarity": "positive",
+          "comment": "周回が楽しい",
+          "createdAt": "2026-10-01T00:00:00.000Z"
+        },
+        {
+          "id": "i75",
+          "gameTitle": " テストゲーム ",
+          "recommend": true,
+          "polarity": "positive",
+          "comment": "周回が楽しい",
+          "createdAt": "2026-10-01T00:00:00.000Z"
+        },
+        {
+          "id": "i76",
+          "gameTitle": " テストゲーム ",
+          "recommend": true,
+          "polarity": "positive",
+          "comment": "周回が楽しい",
+          "createdAt": "2026-10-01T00:00:00.000Z"
+        },
+        {
+          "id": "i77",
+          "gameTitle": " テストゲーム ",
+          "recommend": true,
+          "polarity": "positive",
+          "comment": "周回が楽しい",
+          "createdAt": "2026-10-01T00:00:00.000Z"
+        },
+        {
+          "id": "i78",
+          "gameTitle": " テストゲーム ",
+          "recommend": true,
+          "polarity": "positive",
+          "comment": "周回が楽しい",
+          "createdAt": "2026-10-01T00:00:00.000Z"
+        },
+        {
+          "id": "i79",
+          "gameTitle": " テストゲーム ",
+          "recommend": true,
+          "polarity": "positive",
+          "comment": "周回が楽しい",
+          "createdAt": "2026-10-01T00:00:00.000Z"
+        },
+        {
+          "id": "i80",
+          "gameTitle": " テストゲーム ",
+          "recommend": true,
+          "polarity": "positive",
+          "comment": "周回が楽しい",
+          "createdAt": "2026-10-01T00:00:00.000Z"
+        },
+        {
+          "id": "i81",
+          "gameTitle": " テストゲーム ",
+          "recommend": true,
+          "polarity": "positive",
+          "comment": "周回が楽しい",
+          "createdAt": "2026-10-01T00:00:00.000Z"
+        },
+        {
+          "id": "i82",
+          "gameTitle": " テストゲーム ",
+          "recommend": true,
+          "polarity": "positive",
+          "comment": "周回が楽しい",
+          "createdAt": "2026-10-01T00:00:00.000Z"
+        },
+        {
+          "id": "i83",
+          "gameTitle": " テストゲーム ",
+          "recommend": true,
+          "polarity": "positive",
+          "comment": "周回が楽しい",
+          "createdAt": "2026-10-01T00:00:00.000Z"
+        },
+        {
+          "id": "i84",
+          "gameTitle": " テストゲーム ",
+          "recommend": true,
+          "polarity": "positive",
+          "comment": "周回が楽しい",
+          "createdAt": "2026-10-01T00:00:00.000Z"
+        },
+        {
+          "id": "i85",
+          "gameTitle": " テストゲーム ",
+          "recommend": true,
+          "polarity": "positive",
+          "comment": "周回が楽しい",
+          "createdAt": "2026-10-01T00:00:00.000Z"
+        },
+        {
+          "id": "i86",
+          "gameTitle": " テストゲーム ",
+          "recommend": true,
+          "polarity": "positive",
+          "comment": "周回が楽しい",
+          "createdAt": "2026-10-01T00:00:00.000Z"
+        },
+        {
+          "id": "i87",
+          "gameTitle": " テストゲーム ",
+          "recommend": true,
+          "polarity": "positive",
+          "comment": "周回が楽しい",
+          "createdAt": "2026-10-01T00:00:00.000Z"
+        },
+        {
+          "id": "i88",
+          "gameTitle": " テストゲーム ",
+          "recommend": true,
+          "polarity": "positive",
+          "comment": "周回が楽しい",
+          "createdAt": "2026-10-01T00:00:00.000Z"
+        },
+        {
+          "id": "i89",
+          "gameTitle": " テストゲーム ",
+          "recommend": true,
+          "polarity": "positive",
+          "comment": "周回が楽しい",
+          "createdAt": "2026-10-01T00:00:00.000Z"
+        },
+        {
+          "id": "i90",
+          "gameTitle": " テストゲーム ",
+          "recommend": true,
+          "polarity": "positive",
+          "comment": "周回が楽しい",
+          "createdAt": "2026-10-01T00:00:00.000Z"
+        },
+        {
+          "id": "i91",
+          "gameTitle": " テストゲーム ",
+          "recommend": true,
+          "polarity": "positive",
+          "comment": "周回が楽しい",
+          "createdAt": "2026-10-01T00:00:00.000Z"
+        },
+        {
+          "id": "i92",
+          "gameTitle": " テストゲーム ",
+          "recommend": true,
+          "polarity": "positive",
+          "comment": "周回が楽しい",
+          "createdAt": "2026-10-01T00:00:00.000Z"
+        },
+        {
+          "id": "i93",
+          "gameTitle": " テストゲーム ",
+          "recommend": true,
+          "polarity": "positive",
+          "comment": "周回が楽しい",
+          "createdAt": "2026-10-01T00:00:00.000Z"
+        },
+        {
+          "id": "i94",
+          "gameTitle": " テストゲーム ",
+          "recommend": true,
+          "polarity": "positive",
+          "comment": "周回が楽しい",
+          "createdAt": "2026-10-01T00:00:00.000Z"
+        },
+        {
+          "id": "i95",
+          "gameTitle": " テストゲーム ",
+          "recommend": true,
+          "polarity": "positive",
+          "comment": "周回が楽しい",
+          "createdAt": "2026-10-01T00:00:00.000Z"
+        },
+        {
+          "id": "i96",
+          "gameTitle": " テストゲーム ",
+          "recommend": true,
+          "polarity": "positive",
+          "comment": "周回が楽しい",
+          "createdAt": "2026-10-01T00:00:00.000Z"
+        },
+        {
+          "id": "i97",
+          "gameTitle": " テストゲーム ",
+          "recommend": true,
+          "polarity": "positive",
+          "comment": "周回が楽しい",
+          "createdAt": "2026-10-01T00:00:00.000Z"
+        },
+        {
+          "id": "i98",
+          "gameTitle": " テストゲーム ",
+          "recommend": true,
+          "polarity": "positive",
+          "comment": "周回が楽しい",
+          "createdAt": "2026-10-01T00:00:00.000Z"
+        },
+        {
+          "id": "i99",
+          "gameTitle": " テストゲーム ",
+          "recommend": true,
+          "polarity": "positive",
+          "comment": "周回が楽しい",
+          "createdAt": "2026-10-01T00:00:00.000Z"
+        },
+        {
+          "id": "i100",
+          "gameTitle": " テストゲーム ",
+          "recommend": true,
+          "polarity": "positive",
+          "comment": "周回が楽しい",
+          "createdAt": "2026-10-01T00:00:00.000Z"
+        },
+        {
+          "id": "i101",
+          "gameTitle": " テストゲーム ",
+          "recommend": true,
+          "polarity": "positive",
+          "comment": "周回が楽しい",
+          "createdAt": "2026-10-01T00:00:00.000Z"
+        },
+        {
+          "id": "i102",
+          "gameTitle": " テストゲーム ",
+          "recommend": true,
+          "polarity": "positive",
+          "comment": "周回が楽しい",
+          "createdAt": "2026-10-01T00:00:00.000Z"
+        },
+        {
+          "id": "i103",
+          "gameTitle": " テストゲーム ",
+          "recommend": true,
+          "polarity": "positive",
+          "comment": "周回が楽しい",
+          "createdAt": "2026-10-01T00:00:00.000Z"
+        },
+        {
+          "id": "i104",
+          "gameTitle": " テストゲーム ",
+          "recommend": true,
+          "polarity": "positive",
+          "comment": "周回が楽しい",
+          "createdAt": "2026-10-01T00:00:00.000Z"
+        },
+        {
+          "id": "i105",
+          "gameTitle": " テストゲーム ",
+          "recommend": true,
+          "polarity": "positive",
+          "comment": "周回が楽しい",
+          "createdAt": "2026-10-01T00:00:00.000Z"
+        },
+        {
+          "id": "i106",
+          "gameTitle": " テストゲーム ",
+          "recommend": true,
+          "polarity": "positive",
+          "comment": "周回が楽しい",
+          "createdAt": "2026-10-01T00:00:00.000Z"
+        },
+        {
+          "id": "i107",
+          "gameTitle": " テストゲーム ",
+          "recommend": true,
+          "polarity": "positive",
+          "comment": "周回が楽しい",
+          "createdAt": "2026-10-01T00:00:00.000Z"
+        },
+        {
+          "id": "i108",
+          "gameTitle": " テストゲーム ",
+          "recommend": true,
+          "polarity": "positive",
+          "comment": "周回が楽しい",
+          "createdAt": "2026-10-01T00:00:00.000Z"
+        },
+        {
+          "id": "i109",
+          "gameTitle": " テストゲーム ",
+          "recommend": true,
+          "polarity": "positive",
+          "comment": "周回が楽しい",
+          "createdAt": "2026-10-01T00:00:00.000Z"
+        },
+        {
+          "id": "i110",
+          "gameTitle": " テストゲーム ",
+          "recommend": true,
+          "polarity": "positive",
+          "comment": "周回が楽しい",
+          "createdAt": "2026-10-01T00:00:00.000Z"
+        },
+        {
+          "id": "i111",
+          "gameTitle": " テストゲーム ",
+          "recommend": true,
+          "polarity": "positive",
+          "comment": "周回が楽しい",
+          "createdAt": "2026-10-01T00:00:00.000Z"
+        },
+        {
+          "id": "i112",
+          "gameTitle": " テストゲーム ",
+          "recommend": true,
+          "polarity": "positive",
+          "comment": "周回が楽しい",
+          "createdAt": "2026-10-01T00:00:00.000Z"
+        },
+        {
+          "id": "i113",
+          "gameTitle": " テストゲーム ",
+          "recommend": true,
+          "polarity": "positive",
+          "comment": "周回が楽しい",
+          "createdAt": "2026-10-01T00:00:00.000Z"
+        },
+        {
+          "id": "i114",
+          "gameTitle": " テストゲーム ",
+          "recommend": true,
+          "polarity": "positive",
+          "comment": "周回が楽しい",
+          "createdAt": "2026-10-01T00:00:00.000Z"
+        },
+        {
+          "id": "i115",
+          "gameTitle": " テストゲーム ",
+          "recommend": true,
+          "polarity": "positive",
+          "comment": "周回が楽しい",
+          "createdAt": "2026-10-01T00:00:00.000Z"
+        },
+        {
+          "id": "i116",
+          "gameTitle": " テストゲーム ",
+          "recommend": true,
+          "polarity": "positive",
+          "comment": "周回が楽しい",
+          "createdAt": "2026-10-01T00:00:00.000Z"
+        },
+        {
+          "id": "i117",
+          "gameTitle": " テストゲーム ",
+          "recommend": true,
+          "polarity": "positive",
+          "comment": "周回が楽しい",
+          "createdAt": "2026-10-01T00:00:00.000Z"
+        },
+        {
+          "id": "i118",
+          "gameTitle": " テストゲーム ",
+          "recommend": true,
+          "polarity": "positive",
+          "comment": "周回が楽しい",
+          "createdAt": "2026-10-01T00:00:00.000Z"
+        },
+        {
+          "id": "i119",
+          "gameTitle": " テストゲーム ",
+          "recommend": true,
+          "polarity": "positive",
+          "comment": "周回が楽しい",
+          "createdAt": "2026-10-01T00:00:00.000Z"
+        },
+        {
+          "id": "i120",
+          "gameTitle": " テストゲーム ",
+          "recommend": true,
+          "polarity": "positive",
+          "comment": "周回が楽しい",
+          "createdAt": "2026-10-01T00:00:00.000Z"
+        },
+        {
+          "id": "i121",
+          "gameTitle": " テストゲーム ",
+          "recommend": true,
+          "polarity": "positive",
+          "comment": "周回が楽しい",
+          "createdAt": "2026-10-01T00:00:00.000Z"
+        },
+        {
+          "id": "i122",
+          "gameTitle": " テストゲーム ",
+          "recommend": true,
+          "polarity": "positive",
+          "comment": "周回が楽しい",
+          "createdAt": "2026-10-01T00:00:00.000Z"
+        },
+        {
+          "id": "i123",
+          "gameTitle": " テストゲーム ",
+          "recommend": true,
+          "polarity": "positive",
+          "comment": "周回が楽しい",
+          "createdAt": "2026-10-01T00:00:00.000Z"
+        },
+        {
+          "id": "i124",
+          "gameTitle": " テストゲーム ",
+          "recommend": true,
+          "polarity": "positive",
+          "comment": "周回が楽しい",
+          "createdAt": "2026-10-01T00:00:00.000Z"
+        },
+        {
+          "id": "i125",
+          "gameTitle": " テストゲーム ",
+          "recommend": true,
+          "polarity": "positive",
+          "comment": "周回が楽しい",
+          "createdAt": "2026-10-01T00:00:00.000Z"
+        },
+        {
+          "id": "i126",
+          "gameTitle": " テストゲーム ",
+          "recommend": true,
+          "polarity": "positive",
+          "comment": "周回が楽しい",
+          "createdAt": "2026-10-01T00:00:00.000Z"
+        },
+        {
+          "id": "i127",
+          "gameTitle": " テストゲーム ",
+          "recommend": true,
+          "polarity": "positive",
+          "comment": "周回が楽しい",
+          "createdAt": "2026-10-01T00:00:00.000Z"
+        },
+        {
+          "id": "i128",
+          "gameTitle": " テストゲーム ",
+          "recommend": true,
+          "polarity": "positive",
+          "comment": "周回が楽しい",
+          "createdAt": "2026-10-01T00:00:00.000Z"
+        },
+        {
+          "id": "i129",
+          "gameTitle": " テストゲーム ",
+          "recommend": true,
+          "polarity": "positive",
+          "comment": "周回が楽しい",
+          "createdAt": "2026-10-01T00:00:00.000Z"
+        },
+        {
+          "id": "i130",
+          "gameTitle": " テストゲーム ",
+          "recommend": true,
+          "polarity": "positive",
+          "comment": "周回が楽しい",
+          "createdAt": "2026-10-01T00:00:00.000Z"
+        },
+        {
+          "id": "i131",
+          "gameTitle": " テストゲーム ",
+          "recommend": true,
+          "polarity": "positive",
+          "comment": "周回が楽しい",
+          "createdAt": "2026-10-01T00:00:00.000Z"
+        },
+        {
+          "id": "i132",
+          "gameTitle": " テストゲーム ",
+          "recommend": true,
+          "polarity": "positive",
+          "comment": "周回が楽しい",
+          "createdAt": "2026-10-01T00:00:00.000Z"
+        },
+        {
+          "id": "i133",
+          "gameTitle": " テストゲーム ",
+          "recommend": true,
+          "polarity": "positive",
+          "comment": "周回が楽しい",
+          "createdAt": "2026-10-01T00:00:00.000Z"
+        },
+        {
+          "id": "i134",
+          "gameTitle": " テストゲーム ",
+          "recommend": true,
+          "polarity": "positive",
+          "comment": "周回が楽しい",
+          "createdAt": "2026-10-01T00:00:00.000Z"
+        },
+        {
+          "id": "i135",
+          "gameTitle": " テストゲーム ",
+          "recommend": true,
+          "polarity": "positive",
+          "comment": "周回が楽しい",
+          "createdAt": "2026-10-01T00:00:00.000Z"
+        },
+        {
+          "id": "i136",
+          "gameTitle": " テストゲーム ",
+          "recommend": true,
+          "polarity": "positive",
+          "comment": "周回が楽しい",
+          "createdAt": "2026-10-01T00:00:00.000Z"
+        },
+        {
+          "id": "i137",
+          "gameTitle": " テストゲーム ",
+          "recommend": true,
+          "polarity": "positive",
+          "comment": "周回が楽しい",
+          "createdAt": "2026-10-01T00:00:00.000Z"
+        },
+        {
+          "id": "i138",
+          "gameTitle": " テストゲーム ",
+          "recommend": true,
+          "polarity": "positive",
+          "comment": "周回が楽しい",
+          "createdAt": "2026-10-01T00:00:00.000Z"
+        },
+        {
+          "id": "i139",
+          "gameTitle": " テストゲーム ",
+          "recommend": true,
+          "polarity": "positive",
+          "comment": "周回が楽しい",
+          "createdAt": "2026-10-01T00:00:00.000Z"
+        },
+        {
+          "id": "i140",
+          "gameTitle": " テストゲーム ",
+          "recommend": true,
+          "polarity": "positive",
+          "comment": "周回が楽しい",
+          "createdAt": "2026-10-01T00:00:00.000Z"
+        },
+        {
+          "id": "i141",
+          "gameTitle": " テストゲーム ",
+          "recommend": true,
+          "polarity": "positive",
+          "comment": "周回が楽しい",
+          "createdAt": "2026-10-01T00:00:00.000Z"
+        },
+        {
+          "id": "i142",
+          "gameTitle": " テストゲーム ",
+          "recommend": true,
+          "polarity": "positive",
+          "comment": "周回が楽しい",
+          "createdAt": "2026-10-01T00:00:00.000Z"
+        },
+        {
+          "id": "i143",
+          "gameTitle": " テストゲーム ",
+          "recommend": true,
+          "polarity": "positive",
+          "comment": "周回が楽しい",
+          "createdAt": "2026-10-01T00:00:00.000Z"
+        },
+        {
+          "id": "i144",
+          "gameTitle": " テストゲーム ",
+          "recommend": true,
+          "polarity": "positive",
+          "comment": "周回が楽しい",
+          "createdAt": "2026-10-01T00:00:00.000Z"
+        },
+        {
+          "id": "i145",
+          "gameTitle": " テストゲーム ",
+          "recommend": true,
+          "polarity": "positive",
+          "comment": "周回が楽しい",
+          "createdAt": "2026-10-01T00:00:00.000Z"
+        },
+        {
+          "id": "i146",
+          "gameTitle": " テストゲーム ",
+          "recommend": true,
+          "polarity": "positive",
+          "comment": "周回が楽しい",
+          "createdAt": "2026-10-01T00:00:00.000Z"
+        },
+        {
+          "id": "i147",
+          "gameTitle": " テストゲーム ",
+          "recommend": true,
+          "polarity": "positive",
+          "comment": "周回が楽しい",
+          "createdAt": "2026-10-01T00:00:00.000Z"
+        },
+        {
+          "id": "i148",
+          "gameTitle": " テストゲーム ",
+          "recommend": true,
+          "polarity": "positive",
+          "comment": "周回が楽しい",
+          "createdAt": "2026-10-01T00:00:00.000Z"
+        },
+        {
+          "id": "i149",
+          "gameTitle": " テストゲーム ",
+          "recommend": true,
+          "polarity": "positive",
+          "comment": "周回が楽しい",
+          "createdAt": "2026-10-01T00:00:00.000Z"
+        },
+        {
+          "id": "i150",
+          "gameTitle": " テストゲーム ",
+          "recommend": true,
+          "polarity": "positive",
+          "comment": "周回が楽しい",
+          "createdAt": "2026-10-01T00:00:00.000Z"
+        },
+        {
+          "id": "i151",
+          "gameTitle": " テストゲーム ",
+          "recommend": true,
+          "polarity": "positive",
+          "comment": "周回が楽しい",
+          "createdAt": "2026-10-01T00:00:00.000Z"
+        },
+        {
+          "id": "i152",
+          "gameTitle": " テストゲーム ",
+          "recommend": true,
+          "polarity": "positive",
+          "comment": "周回が楽しい",
+          "createdAt": "2026-10-01T00:00:00.000Z"
+        },
+        {
+          "id": "i153",
+          "gameTitle": " テストゲーム ",
+          "recommend": true,
+          "polarity": "positive",
+          "comment": "周回が楽しい",
+          "createdAt": "2026-10-01T00:00:00.000Z"
+        },
+        {
+          "id": "i154",
+          "gameTitle": " テストゲーム ",
+          "recommend": true,
+          "polarity": "positive",
+          "comment": "周回が楽しい",
+          "createdAt": "2026-10-01T00:00:00.000Z"
+        },
+        {
+          "id": "i155",
+          "gameTitle": " テストゲーム ",
+          "recommend": true,
+          "polarity": "positive",
+          "comment": "周回が楽しい",
+          "createdAt": "2026-10-01T00:00:00.000Z"
+        },
+        {
+          "id": "i156",
+          "gameTitle": " テストゲーム ",
+          "recommend": true,
+          "polarity": "positive",
+          "comment": "周回が楽しい",
+          "createdAt": "2026-10-01T00:00:00.000Z"
+        },
+        {
+          "id": "i157",
+          "gameTitle": " テストゲーム ",
+          "recommend": true,
+          "polarity": "positive",
+          "comment": "周回が楽しい",
+          "createdAt": "2026-10-01T00:00:00.000Z"
+        },
+        {
+          "id": "i158",
+          "gameTitle": " テストゲーム ",
+          "recommend": true,
+          "polarity": "positive",
+          "comment": "周回が楽しい",
+          "createdAt": "2026-10-01T00:00:00.000Z"
+        },
+        {
+          "id": "i159",
+          "gameTitle": " テストゲーム ",
+          "recommend": true,
+          "polarity": "positive",
+          "comment": "周回が楽しい",
+          "createdAt": "2026-10-01T00:00:00.000Z"
+        },
+        {
+          "id": "i160",
+          "gameTitle": " テストゲーム ",
+          "recommend": true,
+          "polarity": "positive",
+          "comment": "周回が楽しい",
+          "createdAt": "2026-10-01T00:00:00.000Z"
+        },
+        {
+          "id": "i161",
+          "gameTitle": " テストゲーム ",
+          "recommend": true,
+          "polarity": "positive",
+          "comment": "周回が楽しい",
+          "createdAt": "2026-10-01T00:00:00.000Z"
+        },
+        {
+          "id": "i162",
+          "gameTitle": " テストゲーム ",
+          "recommend": true,
+          "polarity": "positive",
+          "comment": "周回が楽しい",
+          "createdAt": "2026-10-01T00:00:00.000Z"
+        },
+        {
+          "id": "i163",
+          "gameTitle": " テストゲーム ",
+          "recommend": true,
+          "polarity": "positive",
+          "comment": "周回が楽しい",
+          "createdAt": "2026-10-01T00:00:00.000Z"
+        },
+        {
+          "id": "i164",
+          "gameTitle": " テストゲーム ",
+          "recommend": true,
+          "polarity": "positive",
+          "comment": "周回が楽しい",
+          "createdAt": "2026-10-01T00:00:00.000Z"
+        },
+        {
+          "id": "i165",
+          "gameTitle": " テストゲーム ",
+          "recommend": true,
+          "polarity": "positive",
+          "comment": "周回が楽しい",
+          "createdAt": "2026-10-01T00:00:00.000Z"
+        },
+        {
+          "id": "i166",
+          "gameTitle": " テストゲーム ",
+          "recommend": true,
+          "polarity": "positive",
+          "comment": "周回が楽しい",
+          "createdAt": "2026-10-01T00:00:00.000Z"
+        },
+        {
+          "id": "i167",
+          "gameTitle": " テストゲーム ",
+          "recommend": true,
+          "polarity": "positive",
+          "comment": "周回が楽しい",
+          "createdAt": "2026-10-01T00:00:00.000Z"
+        },
+        {
+          "id": "i168",
+          "gameTitle": " テストゲーム ",
+          "recommend": true,
+          "polarity": "positive",
+          "comment": "周回が楽しい",
+          "createdAt": "2026-10-01T00:00:00.000Z"
+        },
+        {
+          "id": "i169",
+          "gameTitle": " テストゲーム ",
+          "recommend": true,
+          "polarity": "positive",
+          "comment": "周回が楽しい",
+          "createdAt": "2026-10-01T00:00:00.000Z"
+        },
+        {
+          "id": "i170",
+          "gameTitle": " テストゲーム ",
+          "recommend": true,
+          "polarity": "positive",
+          "comment": "周回が楽しい",
+          "createdAt": "2026-10-01T00:00:00.000Z"
+        },
+        {
+          "id": "i171",
+          "gameTitle": " テストゲーム ",
+          "recommend": true,
+          "polarity": "positive",
+          "comment": "周回が楽しい",
+          "createdAt": "2026-10-01T00:00:00.000Z"
+        },
+        {
+          "id": "i172",
+          "gameTitle": " テストゲーム ",
+          "recommend": true,
+          "polarity": "positive",
+          "comment": "周回が楽しい",
+          "createdAt": "2026-10-01T00:00:00.000Z"
+        },
+        {
+          "id": "i173",
+          "gameTitle": " テストゲーム ",
+          "recommend": true,
+          "polarity": "positive",
+          "comment": "周回が楽しい",
+          "createdAt": "2026-10-01T00:00:00.000Z"
+        },
+        {
+          "id": "i174",
+          "gameTitle": " テストゲーム ",
+          "recommend": true,
+          "polarity": "positive",
+          "comment": "周回が楽しい",
+          "createdAt": "2026-10-01T00:00:00.000Z"
+        },
+        {
+          "id": "i175",
+          "gameTitle": " テストゲーム ",
+          "recommend": true,
+          "polarity": "positive",
+          "comment": "周回が楽しい",
+          "createdAt": "2026-10-01T00:00:00.000Z"
+        },
+        {
+          "id": "i176",
+          "gameTitle": " テストゲーム ",
+          "recommend": true,
+          "polarity": "positive",
+          "comment": "周回が楽しい",
+          "createdAt": "2026-10-01T00:00:00.000Z"
+        },
+        {
+          "id": "i177",
+          "gameTitle": " テストゲーム ",
+          "recommend": true,
+          "polarity": "positive",
+          "comment": "周回が楽しい",
+          "createdAt": "2026-10-01T00:00:00.000Z"
+        },
+        {
+          "id": "i178",
+          "gameTitle": " テストゲーム ",
+          "recommend": true,
+          "polarity": "positive",
+          "comment": "周回が楽しい",
+          "createdAt": "2026-10-01T00:00:00.000Z"
+        },
+        {
+          "id": "i179",
+          "gameTitle": " テストゲーム ",
+          "recommend": true,
+          "polarity": "positive",
+          "comment": "周回が楽しい",
+          "createdAt": "2026-10-01T00:00:00.000Z"
+        },
+        {
+          "id": "i180",
+          "gameTitle": " テストゲーム ",
+          "recommend": true,
+          "polarity": "positive",
+          "comment": "周回が楽しい",
+          "createdAt": "2026-10-01T00:00:00.000Z"
+        },
+        {
+          "id": "i181",
+          "gameTitle": " テストゲーム ",
+          "recommend": true,
+          "polarity": "positive",
+          "comment": "周回が楽しい",
+          "createdAt": "2026-10-01T00:00:00.000Z"
+        },
+        {
+          "id": "i182",
+          "gameTitle": " テストゲーム ",
+          "recommend": true,
+          "polarity": "positive",
+          "comment": "周回が楽しい",
+          "createdAt": "2026-10-01T00:00:00.000Z"
+        },
+        {
+          "id": "i183",
+          "gameTitle": " テストゲーム ",
+          "recommend": true,
+          "polarity": "positive",
+          "comment": "周回が楽しい",
+          "createdAt": "2026-10-01T00:00:00.000Z"
+        },
+        {
+          "id": "i184",
+          "gameTitle": " テストゲーム ",
+          "recommend": true,
+          "polarity": "positive",
+          "comment": "周回が楽しい",
+          "createdAt": "2026-10-01T00:00:00.000Z"
+        },
+        {
+          "id": "i185",
+          "gameTitle": " テストゲーム ",
+          "recommend": true,
+          "polarity": "positive",
+          "comment": "周回が楽しい",
+          "createdAt": "2026-10-01T00:00:00.000Z"
+        },
+        {
+          "id": "i186",
+          "gameTitle": " テストゲーム ",
+          "recommend": true,
+          "polarity": "positive",
+          "comment": "周回が楽しい",
+          "createdAt": "2026-10-01T00:00:00.000Z"
+        },
+        {
+          "id": "i187",
+          "gameTitle": " テストゲーム ",
+          "recommend": true,
+          "polarity": "positive",
+          "comment": "周回が楽しい",
+          "createdAt": "2026-10-01T00:00:00.000Z"
+        },
+        {
+          "id": "i188",
+          "gameTitle": " テストゲーム ",
+          "recommend": true,
+          "polarity": "positive",
+          "comment": "周回が楽しい",
+          "createdAt": "2026-10-01T00:00:00.000Z"
+        },
+        {
+          "id": "i189",
+          "gameTitle": " テストゲーム ",
+          "recommend": true,
+          "polarity": "positive",
+          "comment": "周回が楽しい",
+          "createdAt": "2026-10-01T00:00:00.000Z"
+        },
+        {
+          "id": "i190",
+          "gameTitle": " テストゲーム ",
+          "recommend": true,
+          "polarity": "positive",
+          "comment": "周回が楽しい",
+          "createdAt": "2026-10-01T00:00:00.000Z"
+        },
+        {
+          "id": "i191",
+          "gameTitle": " テストゲーム ",
+          "recommend": true,
+          "polarity": "positive",
+          "comment": "周回が楽しい",
+          "createdAt": "2026-10-01T00:00:00.000Z"
+        },
+        {
+          "id": "i192",
+          "gameTitle": " テストゲーム ",
+          "recommend": true,
+          "polarity": "positive",
+          "comment": "周回が楽しい",
+          "createdAt": "2026-10-01T00:00:00.000Z"
+        },
+        {
+          "id": "i193",
+          "gameTitle": " テストゲーム ",
+          "recommend": true,
+          "polarity": "positive",
+          "comment": "周回が楽しい",
+          "createdAt": "2026-10-01T00:00:00.000Z"
+        },
+        {
+          "id": "i194",
+          "gameTitle": " テストゲーム ",
+          "recommend": true,
+          "polarity": "positive",
+          "comment": "周回が楽しい",
+          "createdAt": "2026-10-01T00:00:00.000Z"
+        },
+        {
+          "id": "i195",
+          "gameTitle": " テストゲーム ",
+          "recommend": true,
+          "polarity": "positive",
+          "comment": "周回が楽しい",
+          "createdAt": "2026-10-01T00:00:00.000Z"
+        },
+        {
+          "id": "i196",
+          "gameTitle": " テストゲーム ",
+          "recommend": true,
+          "polarity": "positive",
+          "comment": "周回が楽しい",
+          "createdAt": "2026-10-01T00:00:00.000Z"
+        },
+        {
+          "id": "i197",
+          "gameTitle": " テストゲーム ",
+          "recommend": true,
+          "polarity": "positive",
+          "comment": "周回が楽しい",
+          "createdAt": "2026-10-01T00:00:00.000Z"
+        },
+        {
+          "id": "i198",
+          "gameTitle": " テストゲーム ",
+          "recommend": true,
+          "polarity": "positive",
+          "comment": "周回が楽しい",
+          "createdAt": "2026-10-01T00:00:00.000Z"
+        },
+        {
+          "id": "i199",
+          "gameTitle": " テストゲーム ",
+          "recommend": true,
+          "polarity": "positive",
+          "comment": "周回が楽しい",
+          "createdAt": "2026-10-01T00:00:00.000Z"
+        },
+        {
+          "id": "i200",
+          "gameTitle": " テストゲーム ",
+          "recommend": true,
+          "polarity": "positive",
+          "comment": "周回が楽しい",
+          "createdAt": "2026-10-01T00:00:00.000Z"
+        }
+      ]
+    },
+    "ok": false,
+    "error": "impressions must be at most 200 items"
+  },
+  {
+    "body": {},
+    "ok": false,
+    "error": "impressions must be an array"
+  },
+  {
+    "body": {
+      "impressions": "x"
+    },
+    "ok": false,
+    "error": "impressions must be an array"
+  },
+  {
+    "body": [],
+    "ok": false,
+    "error": "impressions must be an array"
+  },
+  {
+    "body": null,
+    "ok": false,
+    "error": "impressions must be an array"
+  }
+]
