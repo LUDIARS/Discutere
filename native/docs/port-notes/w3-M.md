@@ -39,14 +39,14 @@ job `cpp-node-20261030`。担当 TS 17 ファイルをすべて C++ に移した
 
 | TS テスト | ctest |
 |---|---|
-| tests/persona-engine/facilitator.test.ts | persona_engine.w3m_facilitator_tests (evaluate・拡張・止揚収束・session の ended_at) |
-| (新規) facilitator の converge_now / onConverged / 調整指示の注入 / 除外発話 / 人間の下駄 / maxPersonas と aufhebung-only / 壊れた応答 / start・stop | persona_engine.w3m_facilitator_tests |
-| (新規) consensus scorer (TS テスト無し) | persona_engine.w3m_facilitator_tests (parse_verdicts の境界・採点・👍・失敗) |
-| (新規) discussion-seed (TS テスト無し) | discussion_seed.w3m_scheduler_tests |
-| (新規) admin / consensus-persona / gap-creation ルート (TS テスト無し) | api.w3m_admin_routes_tests |
-| tests/discord-hook/level-check.test.ts, mechanics-check.test.ts | discord_hook.w3m_discord_tests (slash 入力・defer→llm→edit・失敗の返信・他コマンド・転送失敗) |
-| tests/level-check/tool.test.ts, tests/mechanics-check/tool.test.ts の tool 部分 | discord_hook.w3m_discord_tests (golden・検証失敗で LLM を呼ばない・llm_failed に秘密を出さない・invalid_response・期限・use_level_check) |
-| (新規) command-defs / register-commands / discussion-bridge / directive-handler / monitor-card | discord_hook.w3m_discord_tests |
+| tests/persona-engine/facilitator.test.ts | persona_engine.w3m_facilitator (evaluate・拡張・止揚収束・session の ended_at) |
+| (新規) facilitator の converge_now / onConverged / 調整指示の注入 / 除外発話 / 人間の下駄 / maxPersonas と aufhebung-only / 壊れた応答 / start・stop | persona_engine.w3m_facilitator |
+| (新規) consensus scorer (TS テスト無し) | persona_engine.w3m_facilitator (parse_verdicts の境界・採点・👍・失敗) |
+| (新規) discussion-seed (TS テスト無し) | discussion_seed.w3m_scheduler |
+| (新規) admin / consensus-persona / gap-creation ルート (TS テスト無し) | api.w3m_admin_routes |
+| tests/discord-hook/level-check.test.ts, mechanics-check.test.ts | discord_hook.w3m_discord (slash 入力・defer→llm→edit・失敗の返信・他コマンド・転送失敗) |
+| tests/level-check/tool.test.ts, tests/mechanics-check/tool.test.ts の tool 部分 | discord_hook.w3m_discord (golden・検証失敗で LLM を呼ばない・llm_failed に秘密を出さない・invalid_response・期限・use_level_check) |
+| (新規) command-defs / register-commands / discussion-bridge / directive-handler / monitor-card | discord_hook.w3m_discord |
 
 golden: `native/tests/golden/w3-M-golden.gen.ts` → `native/tests/fixtures/w3m/`
 (`command_defs.json` = `JSON.stringify(DISCORD_COMMAND_DEFS)` そのもの、`monitor_embeds.json`、`js_values.json`、`diagnostic_tools.json`)。
@@ -109,3 +109,8 @@ level-check / mechanics-check は admin コマンドではない (TS でも allo
   monitor-card では汎用の `request()` で生 JSON を読んでいる。
 - **人間の判断**: admin の `POST /admin/sessions/:id/converge` は LLM まとめを HTTP ハンドラの中で同期に待つ (TS も await していた)。
   議論が多いと応答が数分かかり、HTTP の worker を占有する。background に回して即応答する形に変えるかは UI の挙動が変わるので判断が要る。
+
+## 結果
+
+`DI_RUN_TESTS=1 tools/build.sh /home/user/build-w3-M` で全 108 ctest が通過 (担当分 4: api.w3m_admin_routes / discord_hook.w3m_discord /
+discussion_seed.w3m_scheduler / persona_engine.w3m_facilitator)。
