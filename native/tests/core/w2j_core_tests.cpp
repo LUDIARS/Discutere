@@ -83,7 +83,9 @@ TEST_CASE("repos: games/aesthetics は直接書き、game は PlayContextCapture
     CHECK_EQ(json_stringify(all.back().payload), json_stringify(Json{{"id", "gap-1"}, {"workspaceId", "ws"}, {"title", "t"}}));
     CHECK(core->repos.designGap.get("gap-1").has_value());
     // eventId 起点の読み出し
-    CHECK_EQ(core->eventLog.load_events_since({all.back().id, std::nullopt}).size(), std::size_t{1});
+    // created_at が同じミリ秒の行も含む (>=)。末尾は指定したイベント。
+    const auto since = core->eventLog.load_events_since({all.back().id, std::nullopt});
+    CHECK(!since.empty() && since.size() <= 2 && since.back().id == all.back().id);
 }
 
 TEST_CASE("EventLog: 1 行の上限ちょうど/超過・壊れた payload") {
