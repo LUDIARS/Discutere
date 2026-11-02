@@ -139,7 +139,6 @@ tests/crawler/external/importer.test.ts・summary.test.ts、level-check / mechan
 
 - **`ws::Client::close` が冪等でない**: 2 回呼ぶ (例: 相手の disconnect 処理と stop が重なる) と Beast の `soft_mutex` の assert で落ちる。
   socket_mode では 1 回だけ呼ぶよう守ったが、土台側で close を冪等にしてほしい (Gateway 担当も同じ罠に当たる)。
-- **`url::decode_form` の境界**: `i + 2 < s.size()` のため文字列末尾の `%XX` が戻らない (`a=%41` → `%41`)。`<=` が正しいはず。
 - `str::strip_html` に「ブロック要素の終わりを改行にする」版があると website の本文の段落を保てる (今は空白に詰まる)。
 - WHATWG URL のシリアライズ (`new URL(u).toString()`) 相当が base にあると normalize_url の差を無くせる。
 - `http::Headers` の多値・`Retry-After` の HTTP-date 形式は読まない (Discord は秒数のみ返すので実害なし)。
