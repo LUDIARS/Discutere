@@ -188,8 +188,10 @@ std::string detect_lang(std::string_view text) {
 } // namespace
 
 std::string normalize_url(std::string_view raw_url) {
-    auto u = url::parse(raw_url);
-    if (!u || (u->scheme != "http" && u->scheme != "https")) return str::trim(raw_url);
+    // new URL() は前後の空白 (C0 制御文字・空白) を落としてから読む。
+    const std::string trimmed = str::trim(raw_url);
+    auto u = url::parse(trimmed);
+    if (!u || (u->scheme != "http" && u->scheme != "https")) return trimmed;
     std::string query = u->query;
     const auto pairs = url::parse_query(query);
     std::vector<std::pair<std::string, std::string>> kept;
@@ -257,7 +259,7 @@ ExternalUtterance map_website_article(const WebsiteMapInput& input) {
     u.postedAt = input.fetchedAt;
     // 公開・安定な同一性アンカー: 署名があれば「サイト:著者」、無ければサイトドメイン
     u.authorId = has_author ? host + ":" + *input.article.author : host;
-    u.authorName = has_author ? *input.article.author : host;
+    u.authorName = input.article.author ? *input.article.author : host;  // TS は ?? (空文字はそのまま)
     u.sourceUrl = canonical;
     return u;
 }

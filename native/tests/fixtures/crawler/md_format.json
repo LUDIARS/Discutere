@@ -1,0 +1,130 @@
+[
+  {
+    "input": "---\nid: my-game\ntitle: My Game\n---\n",
+    "ok": true,
+    "value": {
+      "id": "my-game",
+      "title": "My Game",
+      "workspace_id": "knowledge",
+      "sources": [],
+      "mechanics": [],
+      "aesthetics": []
+    }
+  },
+  {
+    "input": "---\nid: my-game\ntitle: My Game\ngenre: action\nworkspace_id: ws\nsources:\n  - url: https://example.com\n    title: T\n    excerpt_policy: summary-only\nmechanics:\n  - name: ガチャ\n    description: 確率\n    intended_valence: positive\n    intended_aspects: [fun, '', 3]\n    intended_emotions: []\n  - name: 協力\n    intended_valence: odd\naesthetics:\n  - name: 美\n---\n\n# Body\n",
+    "ok": true,
+    "value": {
+      "id": "my-game",
+      "title": "My Game",
+      "genre": "action",
+      "workspace_id": "ws",
+      "sources": [
+        {
+          "url": "https://example.com",
+          "title": "T",
+          "excerpt_policy": "summary-only"
+        }
+      ],
+      "mechanics": [
+        {
+          "name": "ガチャ",
+          "description": "確率",
+          "intended_valence": "positive",
+          "intended_aspects": [
+            "fun"
+          ]
+        },
+        {
+          "name": "協力"
+        }
+      ],
+      "aesthetics": [
+        {
+          "name": "美"
+        }
+      ],
+      "body": "\n# Body\n"
+    }
+  },
+  {
+    "input": "---\nid: Bad_ID\ntitle: x\n---\n",
+    "ok": false,
+    "error": "frontmatter.id is required and must be kebab-case ASCII (got \"Bad_ID\") (file: x.md)"
+  },
+  {
+    "input": "---\ntitle: x\n---\n",
+    "ok": false,
+    "error": "frontmatter.id is required and must be kebab-case ASCII (got undefined) (file: x.md)"
+  },
+  {
+    "input": "---\nid: 123\ntitle: x\n---\n",
+    "ok": false,
+    "error": "frontmatter.id is required and must be kebab-case ASCII (got 123) (file: x.md)"
+  },
+  {
+    "input": "---\nid: a\ntitle: '  '\n---\n",
+    "ok": false,
+    "error": "frontmatter.title is required (file: x.md)"
+  },
+  {
+    "input": "---\nid: a\ntitle: t\nworkspace_id: '  '\n---\n   \n",
+    "ok": true,
+    "value": {
+      "id": "a",
+      "title": "t",
+      "workspace_id": "knowledge",
+      "sources": [],
+      "mechanics": [],
+      "aesthetics": []
+    }
+  },
+  {
+    "input": "---\nid: a\ntitle: t\nsources:\n  - 3\n---\n",
+    "ok": false,
+    "error": "sources[0] is not an object"
+  },
+  {
+    "input": "---\nid: a\ntitle: t\nsources:\n  - [x]\n---\n",
+    "ok": false,
+    "error": "sources[0].url is required"
+  },
+  {
+    "input": "---\nid: a\ntitle: t\nsources:\n  - url: u\n    excerpt_policy: bad\n---\n",
+    "ok": false,
+    "error": "sources[0].excerpt_policy must be one of summary-only / fair-use-quote / forbidden"
+  },
+  {
+    "input": "---\nid: a\ntitle: t\nsources:\n  - url: u\n    excerpt_policy:\n---\n",
+    "ok": false,
+    "error": "sources[0].excerpt_policy must be one of summary-only / fair-use-quote / forbidden"
+  },
+  {
+    "input": "---\nid: a\ntitle: t\nmechanics:\n  - description: d\n---\n",
+    "ok": false,
+    "error": "mechanics[0].name is required"
+  },
+  {
+    "input": "---\nid: a\ntitle: t\naesthetics:\n  - name: ' '\n---\n",
+    "ok": false,
+    "error": "aesthetics[0].name is required"
+  },
+  {
+    "input": "---\nid: a\ntitle: t\nmechanics: notarray\n---\nbody",
+    "ok": true,
+    "value": {
+      "id": "a",
+      "title": "t",
+      "workspace_id": "knowledge",
+      "sources": [],
+      "mechanics": [],
+      "aesthetics": [],
+      "body": "body"
+    }
+  },
+  {
+    "input": "no front matter",
+    "ok": false,
+    "error": "frontmatter.id is required and must be kebab-case ASCII (got undefined) (file: x.md)"
+  }
+]

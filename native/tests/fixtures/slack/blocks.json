@@ -1,0 +1,113 @@
+{
+  "pick": [
+    {
+      "type": "section",
+      "text": {
+        "type": "mrkdwn",
+        "text": "*議論タイプを選択してください* (必須)"
+      }
+    },
+    {
+      "type": "actions",
+      "elements": [
+        {
+          "type": "static_select",
+          "action_id": "slack-flow-pick",
+          "placeholder": {
+            "type": "plain_text",
+            "text": "議論タイプを選択"
+          },
+          "options": [
+            {
+              "text": {
+                "type": "plain_text",
+                "text": "議論 (中立投票で世論をまとめる)"
+              },
+              "value": "議論"
+            },
+            {
+              "text": {
+                "type": "plain_text",
+                "text": "改善 (課題抽出 + 改善案)"
+              },
+              "value": "改善"
+            },
+            {
+              "text": {
+                "type": "plain_text",
+                "text": "学習 (外部の声を収集して KG に取り込む)"
+              },
+              "value": "学習"
+            },
+            {
+              "text": {
+                "type": "plain_text",
+                "text": "壁打ち (あなたの発言に AI が応答し続ける)"
+              },
+              "value": "壁打ち"
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "settings": [
+    {
+      "type": "section",
+      "text": {
+        "type": "mrkdwn",
+        "text": "*進行量を選んで開始* (ラウンド数 × ターン数)"
+      }
+    },
+    {
+      "type": "actions",
+      "elements": [
+        {
+          "type": "static_select",
+          "action_id": "slack-flow-settings",
+          "placeholder": {
+            "type": "plain_text",
+            "text": "進行量を選択"
+          },
+          "options": [
+            {
+              "text": {
+                "type": "plain_text",
+                "text": "標準で開始 (設定ファイルの既定)"
+              },
+              "value": "default"
+            },
+            {
+              "text": {
+                "type": "plain_text",
+                "text": "さくっと (2R×4T)"
+              },
+              "value": "2x4"
+            },
+            {
+              "text": {
+                "type": "plain_text",
+                "text": "標準量 (3R×6T)"
+              },
+              "value": "3x6"
+            },
+            {
+              "text": {
+                "type": "plain_text",
+                "text": "じっくり (5R×8T)"
+              },
+              "value": "5x8"
+            },
+            {
+              "text": {
+                "type": "plain_text",
+                "text": "とことん (8R×12T)"
+              },
+              "value": "8x12"
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

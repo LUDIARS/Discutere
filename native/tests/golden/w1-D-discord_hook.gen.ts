@@ -61,7 +61,7 @@ write("pure.json", {
     ["a\n\tb", null],
     ["<@123>", "123"],
   ].map(([c, b]) => ({ content: c, botId: b, output: stripBotMention(c as string, b as string | null) })),
-  normalizeDirective: ["   ", "x".repeat(300), "x".repeat(301), " 日本語 ", "😀".repeat(200)].map((t) => ({
+  normalizeDirective: ["   ", "x".repeat(300), "x".repeat(301), " 日本語 ", "あ".repeat(400)].map((t) => ({
     input: t,
     output: normalizeDirectiveText(t),
   })),

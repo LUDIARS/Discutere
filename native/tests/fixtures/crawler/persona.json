@@ -1,0 +1,33 @@
+{
+  "labels": [
+    {
+      "input": "ext:steam:1",
+      "output": "論者#741323"
+    },
+    {
+      "input": "ext:youtube:UCabc",
+      "output": "論者#ccb5de"
+    },
+    {
+      "input": "",
+      "output": "論者#e3b0c4"
+    },
+    {
+      "input": "ext:discord:user-999",
+      "output": "論者#6392ad"
+    }
+  ],
+  "speakerId": "ext:steam:765",
+  "masked": [
+    {
+      "speaker": "論者#741323",
+      "source": "steam",
+      "sourceUrl": "https://s/"
+    },
+    {
+      "speaker": "論者#741323",
+      "source": null,
+      "sourceUrl": null
+    }
+  ]
+}

@@ -21,6 +21,17 @@ struct Connection {
     std::shared_ptr<ws::Client> client;
     bool closed = false;
     bool abandoned = false;
+    /** close() は 1 回だけ呼ぶ (ws::Client::close を重ねて呼ぶと Beast が close_op の重複で落ちる)。 */
+    std::atomic<bool> close_requested{false};
+    void close_once() {
+        if (close_requested.exchange(true)) return;
+        std::shared_ptr<ws::Client> c;
+        {
+            std::lock_guard lock(mutex);
+            c = client;
+        }
+        if (c) c->close();
+    }
 };
 
 class SocketMode final : public SocketModeHandle, public std::enable_shared_from_this<SocketMode> {
@@ -45,14 +56,12 @@ public:
         }
         cv_.notify_all();
         if (conn) {
-            std::shared_ptr<ws::Client> client;
             {
                 std::lock_guard lock(conn->mutex);
                 conn->abandoned = true;
-                client = conn->client;
             }
             conn->cv.notify_all();
-            if (client) client->close();
+            conn->close_once();
         }
         if (thread_.joinable()) {
             // 最後の参照が接続ループ自身で外れたときは自分を join できないので切り離す。
@@ -156,7 +165,7 @@ private:
                 if (current_ == conn) current_.reset();
             }
             if (is_stopped()) {
-                client->close();
+                conn->close_once();
                 break;
             }
             deps_.warn("WebSocket close → 再接続をスケジュール");
@@ -219,13 +228,8 @@ private:
             deps_.log("hello (接続確立)");
         } else if (type == "disconnect") {
             deps_.log("disconnect 受信 → 再接続");
-            std::shared_ptr<ws::Client> client;
-            {
-                std::lock_guard lock(conn.mutex);
-                client = conn.client;
-            }
             // close ハンドラが接続ループを起こし、再接続をスケジュールする。
-            if (client) client->close();
+            conn.close_once();
         } else if (type == "events_api") {
             ack(conn, envelope);
             auto payload = as_payload(envelope);

@@ -67,7 +67,8 @@ Json to_json(const PlayEnvelope& v) {
 Json to_json(const PlayEnvelopeDifference& v) {
     Json o = Json::object();
     o["kind"] = v.kind;
-    for (const auto& [k, val] : design_diagnostic::to_json(static_cast<const design_diagnostic::DiagnosticFinding&>(v)).items()) o[k] = val;
+    const Json finding = design_diagnostic::to_json(static_cast<const design_diagnostic::DiagnosticFinding&>(v));
+    for (const auto& [k, val] : finding.items()) o[k] = val;
     o["envelope"] = to_json(v.envelope);
     return o;
 }
