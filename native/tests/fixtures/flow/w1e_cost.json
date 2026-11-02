@@ -1,0 +1,757 @@
+{
+  "schema": "CREATE TABLE llm_call_log (\n  id INTEGER PRIMARY KEY AUTOINCREMENT, flow TEXT NOT NULL, session_id TEXT NOT NULL, round INTEGER, turn INTEGER,\n  role TEXT, persona TEXT, location TEXT NOT NULL, model TEXT, backend TEXT, latency_ms INTEGER,\n  input_tokens INTEGER, output_tokens INTEGER, prompt TEXT, response TEXT, created_at INTEGER NOT NULL,\n  cache_read_input_tokens INTEGER, cache_creation_input_tokens INTEGER, cost_usd REAL)",
+  "rows": [
+    [
+      "discussion",
+      "S1",
+      "opus",
+      "claude-cli",
+      10,
+      4,
+      100,
+      20,
+      0.01,
+      1000
+    ],
+    [
+      "discussion",
+      "S1",
+      "opus",
+      "claude-cli",
+      10,
+      4,
+      100,
+      20,
+      0.02,
+      2000
+    ],
+    [
+      "improvement",
+      "S2",
+      "haiku",
+      "anthropic",
+      7,
+      3,
+      null,
+      null,
+      null,
+      3000
+    ],
+    [
+      "discussion",
+      "S3長いセッション名でパディングを超えるかもしれないもの",
+      null,
+      null,
+      123456789,
+      1,
+      0,
+      0,
+      1.03125,
+      4000
+    ],
+    [
+      "learning",
+      "S4",
+      "sonnet",
+      "claude-cli",
+      5,
+      5,
+      5,
+      5,
+      0.333333,
+      5000
+    ]
+  ],
+  "cases": [
+    {
+      "filter": {},
+      "report": {
+        "total": {
+          "key": "(total)",
+          "calls": 5,
+          "inputTokens": 123456821,
+          "outputTokens": 17,
+          "cacheReadTokens": 205,
+          "cacheCreationTokens": 45,
+          "costUsd": 1.394583
+        },
+        "bySession": [
+          {
+            "key": "S3長いセッション名でパディングを超えるかもしれないもの",
+            "calls": 1,
+            "inputTokens": 123456789,
+            "outputTokens": 1,
+            "cacheReadTokens": 0,
+            "cacheCreationTokens": 0,
+            "costUsd": 1.03125
+          },
+          {
+            "key": "S4",
+            "calls": 1,
+            "inputTokens": 5,
+            "outputTokens": 5,
+            "cacheReadTokens": 5,
+            "cacheCreationTokens": 5,
+            "costUsd": 0.333333
+          },
+          {
+            "key": "S1",
+            "calls": 2,
+            "inputTokens": 20,
+            "outputTokens": 8,
+            "cacheReadTokens": 200,
+            "cacheCreationTokens": 40,
+            "costUsd": 0.03
+          },
+          {
+            "key": "S2",
+            "calls": 1,
+            "inputTokens": 7,
+            "outputTokens": 3,
+            "cacheReadTokens": 0,
+            "cacheCreationTokens": 0,
+            "costUsd": 0
+          }
+        ],
+        "byFlow": [
+          {
+            "key": "discussion",
+            "calls": 3,
+            "inputTokens": 123456809,
+            "outputTokens": 9,
+            "cacheReadTokens": 200,
+            "cacheCreationTokens": 40,
+            "costUsd": 1.06125
+          },
+          {
+            "key": "learning",
+            "calls": 1,
+            "inputTokens": 5,
+            "outputTokens": 5,
+            "cacheReadTokens": 5,
+            "cacheCreationTokens": 5,
+            "costUsd": 0.333333
+          },
+          {
+            "key": "improvement",
+            "calls": 1,
+            "inputTokens": 7,
+            "outputTokens": 3,
+            "cacheReadTokens": 0,
+            "cacheCreationTokens": 0,
+            "costUsd": 0
+          }
+        ],
+        "byBackend": [
+          {
+            "key": "(none)",
+            "calls": 1,
+            "inputTokens": 123456789,
+            "outputTokens": 1,
+            "cacheReadTokens": 0,
+            "cacheCreationTokens": 0,
+            "costUsd": 1.03125
+          },
+          {
+            "key": "claude-cli",
+            "calls": 3,
+            "inputTokens": 25,
+            "outputTokens": 13,
+            "cacheReadTokens": 205,
+            "cacheCreationTokens": 45,
+            "costUsd": 0.363333
+          },
+          {
+            "key": "anthropic",
+            "calls": 1,
+            "inputTokens": 7,
+            "outputTokens": 3,
+            "cacheReadTokens": 0,
+            "cacheCreationTokens": 0,
+            "costUsd": 0
+          }
+        ]
+      },
+      "feed": [
+        {
+          "sessionId": "S1",
+          "model": "opus",
+          "backend": "claude-cli",
+          "calls": 2,
+          "inputTokens": 20,
+          "outputTokens": 8,
+          "cacheReadTokens": 200,
+          "cacheCreationTokens": 40,
+          "costUsd": 0.03
+        },
+        {
+          "sessionId": "S2",
+          "model": "haiku",
+          "backend": "anthropic",
+          "calls": 1,
+          "inputTokens": 7,
+          "outputTokens": 3,
+          "cacheReadTokens": 0,
+          "cacheCreationTokens": 0,
+          "costUsd": 0
+        },
+        {
+          "sessionId": "S3長いセッション名でパディングを超えるかもしれないもの",
+          "calls": 1,
+          "inputTokens": 123456789,
+          "outputTokens": 1,
+          "cacheReadTokens": 0,
+          "cacheCreationTokens": 0,
+          "costUsd": 1.03125
+        },
+        {
+          "sessionId": "S4",
+          "model": "sonnet",
+          "backend": "claude-cli",
+          "calls": 1,
+          "inputTokens": 5,
+          "outputTokens": 5,
+          "cacheReadTokens": 5,
+          "cacheCreationTokens": 5,
+          "costUsd": 0.333333
+        }
+      ],
+      "text": "=== Discutere LLM cost report ===\nTOTAL  calls=5 in=123456821 out=17 cacheRead=205 cacheCreate=45 cost=$1.3946\n(cost_usd: claude-cli=等価API換算の推定 / anthropic従量=未取得でNULL=0)\n\nby backend:\n  (none)                       calls=    1 in=123456789 out=      1 cacheR=        0 cacheW=       0 cost=$1.0313\n  claude-cli                   calls=    3 in=      25 out=     13 cacheR=      205 cacheW=      45 cost=$0.3633\n  anthropic                    calls=    1 in=       7 out=      3 cacheR=        0 cacheW=       0 cost=$0.0000\n\nby flow:\n  discussion                   calls=    3 in=123456809 out=      9 cacheR=      200 cacheW=      40 cost=$1.0613\n  learning                     calls=    1 in=       5 out=      5 cacheR=        5 cacheW=       5 cost=$0.3333\n  improvement                  calls=    1 in=       7 out=      3 cacheR=        0 cacheW=       0 cost=$0.0000\n\nby session:\n  S3長いセッション名でパディングを超えるかもしれないもの calls=    1 in=123456789 out=      1 cacheR=        0 cacheW=       0 cost=$1.0313\n  S4                           calls=    1 in=       5 out=      5 cacheR=        5 cacheW=       5 cost=$0.3333\n  S1                           calls=    2 in=      20 out=      8 cacheR=      200 cacheW=      40 cost=$0.0300\n  S2                           calls=    1 in=       7 out=      3 cacheR=        0 cacheW=       0 cost=$0.0000"
+    },
+    {
+      "filter": {
+        "sessionId": "S1"
+      },
+      "report": {
+        "total": {
+          "key": "(total)",
+          "calls": 2,
+          "inputTokens": 20,
+          "outputTokens": 8,
+          "cacheReadTokens": 200,
+          "cacheCreationTokens": 40,
+          "costUsd": 0.03
+        },
+        "bySession": [
+          {
+            "key": "S1",
+            "calls": 2,
+            "inputTokens": 20,
+            "outputTokens": 8,
+            "cacheReadTokens": 200,
+            "cacheCreationTokens": 40,
+            "costUsd": 0.03
+          }
+        ],
+        "byFlow": [
+          {
+            "key": "discussion",
+            "calls": 2,
+            "inputTokens": 20,
+            "outputTokens": 8,
+            "cacheReadTokens": 200,
+            "cacheCreationTokens": 40,
+            "costUsd": 0.03
+          }
+        ],
+        "byBackend": [
+          {
+            "key": "claude-cli",
+            "calls": 2,
+            "inputTokens": 20,
+            "outputTokens": 8,
+            "cacheReadTokens": 200,
+            "cacheCreationTokens": 40,
+            "costUsd": 0.03
+          }
+        ]
+      },
+      "feed": [
+        {
+          "sessionId": "S1",
+          "model": "opus",
+          "backend": "claude-cli",
+          "calls": 2,
+          "inputTokens": 20,
+          "outputTokens": 8,
+          "cacheReadTokens": 200,
+          "cacheCreationTokens": 40,
+          "costUsd": 0.03
+        }
+      ],
+      "text": "=== Discutere LLM cost report ===\nTOTAL  calls=2 in=20 out=8 cacheRead=200 cacheCreate=40 cost=$0.0300\n(cost_usd: claude-cli=等価API換算の推定 / anthropic従量=未取得でNULL=0)\n\nby backend:\n  claude-cli                   calls=    2 in=      20 out=      8 cacheR=      200 cacheW=      40 cost=$0.0300\n\nby flow:\n  discussion                   calls=    2 in=      20 out=      8 cacheR=      200 cacheW=      40 cost=$0.0300\n\nby session:\n  S1                           calls=    2 in=      20 out=      8 cacheR=      200 cacheW=      40 cost=$0.0300"
+    },
+    {
+      "filter": {
+        "since": 2500
+      },
+      "report": {
+        "total": {
+          "key": "(total)",
+          "calls": 3,
+          "inputTokens": 123456801,
+          "outputTokens": 9,
+          "cacheReadTokens": 5,
+          "cacheCreationTokens": 5,
+          "costUsd": 1.364583
+        },
+        "bySession": [
+          {
+            "key": "S3長いセッション名でパディングを超えるかもしれないもの",
+            "calls": 1,
+            "inputTokens": 123456789,
+            "outputTokens": 1,
+            "cacheReadTokens": 0,
+            "cacheCreationTokens": 0,
+            "costUsd": 1.03125
+          },
+          {
+            "key": "S4",
+            "calls": 1,
+            "inputTokens": 5,
+            "outputTokens": 5,
+            "cacheReadTokens": 5,
+            "cacheCreationTokens": 5,
+            "costUsd": 0.333333
+          },
+          {
+            "key": "S2",
+            "calls": 1,
+            "inputTokens": 7,
+            "outputTokens": 3,
+            "cacheReadTokens": 0,
+            "cacheCreationTokens": 0,
+            "costUsd": 0
+          }
+        ],
+        "byFlow": [
+          {
+            "key": "discussion",
+            "calls": 1,
+            "inputTokens": 123456789,
+            "outputTokens": 1,
+            "cacheReadTokens": 0,
+            "cacheCreationTokens": 0,
+            "costUsd": 1.03125
+          },
+          {
+            "key": "learning",
+            "calls": 1,
+            "inputTokens": 5,
+            "outputTokens": 5,
+            "cacheReadTokens": 5,
+            "cacheCreationTokens": 5,
+            "costUsd": 0.333333
+          },
+          {
+            "key": "improvement",
+            "calls": 1,
+            "inputTokens": 7,
+            "outputTokens": 3,
+            "cacheReadTokens": 0,
+            "cacheCreationTokens": 0,
+            "costUsd": 0
+          }
+        ],
+        "byBackend": [
+          {
+            "key": "(none)",
+            "calls": 1,
+            "inputTokens": 123456789,
+            "outputTokens": 1,
+            "cacheReadTokens": 0,
+            "cacheCreationTokens": 0,
+            "costUsd": 1.03125
+          },
+          {
+            "key": "claude-cli",
+            "calls": 1,
+            "inputTokens": 5,
+            "outputTokens": 5,
+            "cacheReadTokens": 5,
+            "cacheCreationTokens": 5,
+            "costUsd": 0.333333
+          },
+          {
+            "key": "anthropic",
+            "calls": 1,
+            "inputTokens": 7,
+            "outputTokens": 3,
+            "cacheReadTokens": 0,
+            "cacheCreationTokens": 0,
+            "costUsd": 0
+          }
+        ]
+      },
+      "feed": [
+        {
+          "sessionId": "S2",
+          "model": "haiku",
+          "backend": "anthropic",
+          "calls": 1,
+          "inputTokens": 7,
+          "outputTokens": 3,
+          "cacheReadTokens": 0,
+          "cacheCreationTokens": 0,
+          "costUsd": 0
+        },
+        {
+          "sessionId": "S3長いセッション名でパディングを超えるかもしれないもの",
+          "calls": 1,
+          "inputTokens": 123456789,
+          "outputTokens": 1,
+          "cacheReadTokens": 0,
+          "cacheCreationTokens": 0,
+          "costUsd": 1.03125
+        },
+        {
+          "sessionId": "S4",
+          "model": "sonnet",
+          "backend": "claude-cli",
+          "calls": 1,
+          "inputTokens": 5,
+          "outputTokens": 5,
+          "cacheReadTokens": 5,
+          "cacheCreationTokens": 5,
+          "costUsd": 0.333333
+        }
+      ],
+      "text": "=== Discutere LLM cost report ===\nTOTAL  calls=3 in=123456801 out=9 cacheRead=5 cacheCreate=5 cost=$1.3646\n(cost_usd: claude-cli=等価API換算の推定 / anthropic従量=未取得でNULL=0)\n\nby backend:\n  (none)                       calls=    1 in=123456789 out=      1 cacheR=        0 cacheW=       0 cost=$1.0313\n  claude-cli                   calls=    1 in=       5 out=      5 cacheR=        5 cacheW=       5 cost=$0.3333\n  anthropic                    calls=    1 in=       7 out=      3 cacheR=        0 cacheW=       0 cost=$0.0000\n\nby flow:\n  discussion                   calls=    1 in=123456789 out=      1 cacheR=        0 cacheW=       0 cost=$1.0313\n  learning                     calls=    1 in=       5 out=      5 cacheR=        5 cacheW=       5 cost=$0.3333\n  improvement                  calls=    1 in=       7 out=      3 cacheR=        0 cacheW=       0 cost=$0.0000\n\nby session:\n  S3長いセッション名でパディングを超えるかもしれないもの calls=    1 in=123456789 out=      1 cacheR=        0 cacheW=       0 cost=$1.0313\n  S4                           calls=    1 in=       5 out=      5 cacheR=        5 cacheW=       5 cost=$0.3333\n  S2                           calls=    1 in=       7 out=      3 cacheR=        0 cacheW=       0 cost=$0.0000"
+    },
+    {
+      "filter": {
+        "activeSince": 1500
+      },
+      "report": {
+        "total": {
+          "key": "(total)",
+          "calls": 5,
+          "inputTokens": 123456821,
+          "outputTokens": 17,
+          "cacheReadTokens": 205,
+          "cacheCreationTokens": 45,
+          "costUsd": 1.394583
+        },
+        "bySession": [
+          {
+            "key": "S3長いセッション名でパディングを超えるかもしれないもの",
+            "calls": 1,
+            "inputTokens": 123456789,
+            "outputTokens": 1,
+            "cacheReadTokens": 0,
+            "cacheCreationTokens": 0,
+            "costUsd": 1.03125
+          },
+          {
+            "key": "S4",
+            "calls": 1,
+            "inputTokens": 5,
+            "outputTokens": 5,
+            "cacheReadTokens": 5,
+            "cacheCreationTokens": 5,
+            "costUsd": 0.333333
+          },
+          {
+            "key": "S1",
+            "calls": 2,
+            "inputTokens": 20,
+            "outputTokens": 8,
+            "cacheReadTokens": 200,
+            "cacheCreationTokens": 40,
+            "costUsd": 0.03
+          },
+          {
+            "key": "S2",
+            "calls": 1,
+            "inputTokens": 7,
+            "outputTokens": 3,
+            "cacheReadTokens": 0,
+            "cacheCreationTokens": 0,
+            "costUsd": 0
+          }
+        ],
+        "byFlow": [
+          {
+            "key": "discussion",
+            "calls": 3,
+            "inputTokens": 123456809,
+            "outputTokens": 9,
+            "cacheReadTokens": 200,
+            "cacheCreationTokens": 40,
+            "costUsd": 1.06125
+          },
+          {
+            "key": "learning",
+            "calls": 1,
+            "inputTokens": 5,
+            "outputTokens": 5,
+            "cacheReadTokens": 5,
+            "cacheCreationTokens": 5,
+            "costUsd": 0.333333
+          },
+          {
+            "key": "improvement",
+            "calls": 1,
+            "inputTokens": 7,
+            "outputTokens": 3,
+            "cacheReadTokens": 0,
+            "cacheCreationTokens": 0,
+            "costUsd": 0
+          }
+        ],
+        "byBackend": [
+          {
+            "key": "(none)",
+            "calls": 1,
+            "inputTokens": 123456789,
+            "outputTokens": 1,
+            "cacheReadTokens": 0,
+            "cacheCreationTokens": 0,
+            "costUsd": 1.03125
+          },
+          {
+            "key": "claude-cli",
+            "calls": 3,
+            "inputTokens": 25,
+            "outputTokens": 13,
+            "cacheReadTokens": 205,
+            "cacheCreationTokens": 45,
+            "costUsd": 0.363333
+          },
+          {
+            "key": "anthropic",
+            "calls": 1,
+            "inputTokens": 7,
+            "outputTokens": 3,
+            "cacheReadTokens": 0,
+            "cacheCreationTokens": 0,
+            "costUsd": 0
+          }
+        ]
+      },
+      "feed": [
+        {
+          "sessionId": "S1",
+          "model": "opus",
+          "backend": "claude-cli",
+          "calls": 2,
+          "inputTokens": 20,
+          "outputTokens": 8,
+          "cacheReadTokens": 200,
+          "cacheCreationTokens": 40,
+          "costUsd": 0.03
+        },
+        {
+          "sessionId": "S2",
+          "model": "haiku",
+          "backend": "anthropic",
+          "calls": 1,
+          "inputTokens": 7,
+          "outputTokens": 3,
+          "cacheReadTokens": 0,
+          "cacheCreationTokens": 0,
+          "costUsd": 0
+        },
+        {
+          "sessionId": "S3長いセッション名でパディングを超えるかもしれないもの",
+          "calls": 1,
+          "inputTokens": 123456789,
+          "outputTokens": 1,
+          "cacheReadTokens": 0,
+          "cacheCreationTokens": 0,
+          "costUsd": 1.03125
+        },
+        {
+          "sessionId": "S4",
+          "model": "sonnet",
+          "backend": "claude-cli",
+          "calls": 1,
+          "inputTokens": 5,
+          "outputTokens": 5,
+          "cacheReadTokens": 5,
+          "cacheCreationTokens": 5,
+          "costUsd": 0.333333
+        }
+      ],
+      "text": "=== Discutere LLM cost report ===\nTOTAL  calls=5 in=123456821 out=17 cacheRead=205 cacheCreate=45 cost=$1.3946\n(cost_usd: claude-cli=等価API換算の推定 / anthropic従量=未取得でNULL=0)\n\nby backend:\n  (none)                       calls=    1 in=123456789 out=      1 cacheR=        0 cacheW=       0 cost=$1.0313\n  claude-cli                   calls=    3 in=      25 out=     13 cacheR=      205 cacheW=      45 cost=$0.3633\n  anthropic                    calls=    1 in=       7 out=      3 cacheR=        0 cacheW=       0 cost=$0.0000\n\nby flow:\n  discussion                   calls=    3 in=123456809 out=      9 cacheR=      200 cacheW=      40 cost=$1.0613\n  learning                     calls=    1 in=       5 out=      5 cacheR=        5 cacheW=       5 cost=$0.3333\n  improvement                  calls=    1 in=       7 out=      3 cacheR=        0 cacheW=       0 cost=$0.0000\n\nby session:\n  S3長いセッション名でパディングを超えるかもしれないもの calls=    1 in=123456789 out=      1 cacheR=        0 cacheW=       0 cost=$1.0313\n  S4                           calls=    1 in=       5 out=      5 cacheR=        5 cacheW=       5 cost=$0.3333\n  S1                           calls=    2 in=      20 out=      8 cacheR=      200 cacheW=      40 cost=$0.0300\n  S2                           calls=    1 in=       7 out=      3 cacheR=        0 cacheW=       0 cost=$0.0000"
+    },
+    {
+      "filter": {
+        "activeSince": 99999
+      },
+      "report": {
+        "total": {
+          "key": "(total)",
+          "calls": 0,
+          "inputTokens": 0,
+          "outputTokens": 0,
+          "cacheReadTokens": 0,
+          "cacheCreationTokens": 0,
+          "costUsd": 0
+        },
+        "bySession": [],
+        "byFlow": [],
+        "byBackend": []
+      },
+      "feed": [],
+      "text": "=== Discutere LLM cost report ===\nTOTAL  calls=0 in=0 out=0 cacheRead=0 cacheCreate=0 cost=$0.0000\n(cost_usd: claude-cli=等価API換算の推定 / anthropic従量=未取得でNULL=0)\n\nby backend:\n\nby flow:\n\nby session:"
+    },
+    {
+      "filter": {
+        "sessionId": ""
+      },
+      "report": {
+        "total": {
+          "key": "(total)",
+          "calls": 5,
+          "inputTokens": 123456821,
+          "outputTokens": 17,
+          "cacheReadTokens": 205,
+          "cacheCreationTokens": 45,
+          "costUsd": 1.394583
+        },
+        "bySession": [
+          {
+            "key": "S3長いセッション名でパディングを超えるかもしれないもの",
+            "calls": 1,
+            "inputTokens": 123456789,
+            "outputTokens": 1,
+            "cacheReadTokens": 0,
+            "cacheCreationTokens": 0,
+            "costUsd": 1.03125
+          },
+          {
+            "key": "S4",
+            "calls": 1,
+            "inputTokens": 5,
+            "outputTokens": 5,
+            "cacheReadTokens": 5,
+            "cacheCreationTokens": 5,
+            "costUsd": 0.333333
+          },
+          {
+            "key": "S1",
+            "calls": 2,
+            "inputTokens": 20,
+            "outputTokens": 8,
+            "cacheReadTokens": 200,
+            "cacheCreationTokens": 40,
+            "costUsd": 0.03
+          },
+          {
+            "key": "S2",
+            "calls": 1,
+            "inputTokens": 7,
+            "outputTokens": 3,
+            "cacheReadTokens": 0,
+            "cacheCreationTokens": 0,
+            "costUsd": 0
+          }
+        ],
+        "byFlow": [
+          {
+            "key": "discussion",
+            "calls": 3,
+            "inputTokens": 123456809,
+            "outputTokens": 9,
+            "cacheReadTokens": 200,
+            "cacheCreationTokens": 40,
+            "costUsd": 1.06125
+          },
+          {
+            "key": "learning",
+            "calls": 1,
+            "inputTokens": 5,
+            "outputTokens": 5,
+            "cacheReadTokens": 5,
+            "cacheCreationTokens": 5,
+            "costUsd": 0.333333
+          },
+          {
+            "key": "improvement",
+            "calls": 1,
+            "inputTokens": 7,
+            "outputTokens": 3,
+            "cacheReadTokens": 0,
+            "cacheCreationTokens": 0,
+            "costUsd": 0
+          }
+        ],
+        "byBackend": [
+          {
+            "key": "(none)",
+            "calls": 1,
+            "inputTokens": 123456789,
+            "outputTokens": 1,
+            "cacheReadTokens": 0,
+            "cacheCreationTokens": 0,
+            "costUsd": 1.03125
+          },
+          {
+            "key": "claude-cli",
+            "calls": 3,
+            "inputTokens": 25,
+            "outputTokens": 13,
+            "cacheReadTokens": 205,
+            "cacheCreationTokens": 45,
+            "costUsd": 0.363333
+          },
+          {
+            "key": "anthropic",
+            "calls": 1,
+            "inputTokens": 7,
+            "outputTokens": 3,
+            "cacheReadTokens": 0,
+            "cacheCreationTokens": 0,
+            "costUsd": 0
+          }
+        ]
+      },
+      "feed": [
+        {
+          "sessionId": "S1",
+          "model": "opus",
+          "backend": "claude-cli",
+          "calls": 2,
+          "inputTokens": 20,
+          "outputTokens": 8,
+          "cacheReadTokens": 200,
+          "cacheCreationTokens": 40,
+          "costUsd": 0.03
+        },
+        {
+          "sessionId": "S2",
+          "model": "haiku",
+          "backend": "anthropic",
+          "calls": 1,
+          "inputTokens": 7,
+          "outputTokens": 3,
+          "cacheReadTokens": 0,
+          "cacheCreationTokens": 0,
+          "costUsd": 0
+        },
+        {
+          "sessionId": "S3長いセッション名でパディングを超えるかもしれないもの",
+          "calls": 1,
+          "inputTokens": 123456789,
+          "outputTokens": 1,
+          "cacheReadTokens": 0,
+          "cacheCreationTokens": 0,
+          "costUsd": 1.03125
+        },
+        {
+          "sessionId": "S4",
+          "model": "sonnet",
+          "backend": "claude-cli",
+          "calls": 1,
+          "inputTokens": 5,
+          "outputTokens": 5,
+          "cacheReadTokens": 5,
+          "cacheCreationTokens": 5,
+          "costUsd": 0.333333
+        }
+      ],
+      "text": "=== Discutere LLM cost report ===\nTOTAL  calls=5 in=123456821 out=17 cacheRead=205 cacheCreate=45 cost=$1.3946\n(cost_usd: claude-cli=等価API換算の推定 / anthropic従量=未取得でNULL=0)\n\nby backend:\n  (none)                       calls=    1 in=123456789 out=      1 cacheR=        0 cacheW=       0 cost=$1.0313\n  claude-cli                   calls=    3 in=      25 out=     13 cacheR=      205 cacheW=      45 cost=$0.3633\n  anthropic                    calls=    1 in=       7 out=      3 cacheR=        0 cacheW=       0 cost=$0.0000\n\nby flow:\n  discussion                   calls=    3 in=123456809 out=      9 cacheR=      200 cacheW=      40 cost=$1.0613\n  learning                     calls=    1 in=       5 out=      5 cacheR=        5 cacheW=       5 cost=$0.3333\n  improvement                  calls=    1 in=       7 out=      3 cacheR=        0 cacheW=       0 cost=$0.0000\n\nby session:\n  S3長いセッション名でパディングを超えるかもしれないもの calls=    1 in=123456789 out=      1 cacheR=        0 cacheW=       0 cost=$1.0313\n  S4                           calls=    1 in=       5 out=      5 cacheR=        5 cacheW=       5 cost=$0.3333\n  S1                           calls=    2 in=      20 out=      8 cacheR=      200 cacheW=      40 cost=$0.0300\n  S2                           calls=    1 in=       7 out=      3 cacheR=        0 cacheW=       0 cost=$0.0000"
+    }
+  ]
+}
