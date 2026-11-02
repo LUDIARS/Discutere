@@ -6,6 +6,7 @@ C++ に移さず Node のまま残す機能を、C++ サーバから別プロセ
 
 | スクリプト | 中身 | Node に残す理由 |
 |---|---|---|
+| `backup-archive.ts` | 学習データの tar.gz 作成 (`src/backup/archive.ts` の `createArchive` をそのまま呼ぶ)。C++ は `di::backup::create_archive` | tar 形式・gzip の作成を自作しない (`tar` パッケージ) |
 | (各担当が追加) | | |
 
 これらは npm 依存 (pdf-parse / mammoth / tar / @ludiars/canalis + playwright) を使う。

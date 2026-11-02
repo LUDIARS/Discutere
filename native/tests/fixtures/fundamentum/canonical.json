@@ -1,0 +1,159 @@
+[
+  {
+    "input": null,
+    "canonical": "null",
+    "id": "fm1:74234e98afe7498fb5daf1f36ac2d78acc339464f950703b8c019892f982b90b"
+  },
+  {
+    "input": true,
+    "canonical": "true",
+    "id": "fm1:b5bea41b6c623f7c09f1bf24dcae58ebab3c0cdd90ad966bc43a45b44867e12b"
+  },
+  {
+    "input": false,
+    "canonical": "false",
+    "id": "fm1:fcbcf165908dd18a9e49f7ff27810176db8e9f63b4352213741664245224f8aa"
+  },
+  {
+    "input": 0,
+    "canonical": "0",
+    "id": "fm1:5feceb66ffc86f38d952786c6d696c79c2dbc239dd4e91b46729d73a27fb57e9"
+  },
+  {
+    "input": 0,
+    "canonical": "0",
+    "id": "fm1:5feceb66ffc86f38d952786c6d696c79c2dbc239dd4e91b46729d73a27fb57e9"
+  },
+  {
+    "input": 1,
+    "canonical": "1",
+    "id": "fm1:6b86b273ff34fce19d6b804eff5a3f5747ada4eaa22f1d49c01e52ddb7875b4b"
+  },
+  {
+    "input": -1.5,
+    "canonical": "-1.5",
+    "id": "fm1:37c2b212b94e5372b33df924ea2a91182d90c237d0bf942c1768e794ebef2376"
+  },
+  {
+    "input": 0.1,
+    "canonical": "0.1",
+    "id": "fm1:14be4b45f18e0d8c67b4f719b5144eee88497e413709d11d85b096d8e2346310"
+  },
+  {
+    "input": 1e+21,
+    "canonical": "1e+21",
+    "id": "fm1:241c4643fa70b1dcde1205b71be4e3bebb17e9f880c8e1a33d0ead6c27271d3c"
+  },
+  {
+    "input": 1e-7,
+    "canonical": "1e-7",
+    "id": "fm1:5b33e02f2c5103a05d32f6ba9cb058294452bfbf393967f68bb30c1bdcbbab22"
+  },
+  {
+    "input": 123456789012,
+    "canonical": "123456789012",
+    "id": "fm1:2a33349e7e606a8ad2e30e3c84521f9377450cf09083e162e0a9b1480ce0f972"
+  },
+  {
+    "input": 9007199254740994,
+    "canonical": "9007199254740994",
+    "id": "fm1:25aa68783313802627958889943e895749ac4c0c7469b2a305cd450a12120768"
+  },
+  {
+    "input": "",
+    "canonical": "\"\"",
+    "id": "fm1:12ae32cb1ec02d01eda3581b127c1fee3b0dc53572ed6baf239721a03d82e126"
+  },
+  {
+    "input": "abc",
+    "canonical": "\"abc\"",
+    "id": "fm1:6cc43f858fbb763301637b5af970e2a46b46f461f27e5a0f41e009c59b827b25"
+  },
+  {
+    "input": "日本語\n\"q\"\t\\",
+    "canonical": "\"日本語\\n\\\"q\\\"\\t\\\\\"",
+    "id": "fm1:9ddc3a737ac99dbfc5aa26aef9b57d67c2b833b4d956b640f2650c662f97ea82"
+  },
+  {
+    "input": " \u0001",
+    "canonical": "\" \\u0001\"",
+    "id": "fm1:6f2fbac337b1659f0425b3c9abd5f8c2c46e1324759ae5041d1b107348f37cc7"
+  },
+  {
+    "input": [],
+    "canonical": "[]",
+    "id": "fm1:4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+  },
+  {
+    "input": {},
+    "canonical": "{}",
+    "id": "fm1:44136fa355b3678a1146ad16f7e8649e94fb4fc21fe77e8310c060f61caaff8a"
+  },
+  {
+    "input": [
+      1,
+      [
+        2,
+        [
+          3
+        ]
+      ]
+    ],
+    "canonical": "[1,[2,[3]]]",
+    "id": "fm1:515b8578d7e3f9401f4013b481191a4df6373a4b37fc3e565abd5085344c927f"
+  },
+  {
+    "input": {
+      "b": 1,
+      "a": 2
+    },
+    "canonical": "{\"a\":2,\"b\":1}",
+    "id": "fm1:d3626ac30a87e6f7a6428233b3c68299976865fa5508e4267c5415c76af7a772"
+  },
+  {
+    "input": {
+      "z": {
+        "y": 1,
+        "x": 2
+      },
+      "a": [
+        3,
+        {
+          "d": 4,
+          "c": 5
+        }
+      ]
+    },
+    "canonical": "{\"a\":[3,{\"c\":5,\"d\":4}],\"z\":{\"x\":2,\"y\":1}}",
+    "id": "fm1:e75e5ebe4c54a5526ab07a3dd516835def2dce6809374ddc0a9e061eca4cd7bd"
+  },
+  {
+    "input": {
+      "9": 6,
+      "10": 5,
+      "～": 1,
+      "😀": 2,
+      "A": 3,
+      "a": 4,
+      "": 7
+    },
+    "canonical": "{\"\":7,\"10\":5,\"9\":6,\"A\":3,\"a\":4,\"😀\":2,\"～\":1}",
+    "id": "fm1:bc8953428bca773e34dfa0cc17ecb67a78f1e2e83d3bf9be21bdd17b035b5be0"
+  },
+  {
+    "input": {
+      "nested": {
+        "list": [
+          {
+            "k": "v"
+          },
+          null,
+          true
+        ],
+        "num": 3.14159
+      }
+    },
+    "canonical": "{\"nested\":{\"list\":[{\"k\":\"v\"},null,true],\"num\":3.14159}}",
+    "id": "fm1:6b6a0b1c3cbb4d1c3fc1272b3df7ef1f9df3a8bbffca462825ec33e95ed7514c"
+  }
+]

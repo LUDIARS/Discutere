@@ -1,0 +1,2611 @@
+[
+  {
+    "name": "defaults",
+    "env": {
+      "DISCUTERE_CONFIG": "./discutere.golden.json"
+    },
+    "file": null,
+    "ok": true,
+    "config": {
+      "nodeEnv": "development",
+      "externalDiscussion": {
+        "sharedSecret": ""
+      },
+      "glabConclusions": {
+        "token": ""
+      },
+      "server": {
+        "port": 3110,
+        "host": "127.0.0.1",
+        "frontendUrl": "http://localhost:5174"
+      },
+      "flow": {
+        "rounds": 3,
+        "turnsPerRound": 6,
+        "personaCount": 4,
+        "roster": {
+          "facilitator": "",
+          "discussants": []
+        },
+        "voterCount": 3,
+        "voteLenses": [
+          {
+            "key": "logic",
+            "instruction": "論理の一貫性・飛躍のなさを最重視して選ぶ"
+          },
+          {
+            "key": "grounds",
+            "instruction": "根拠・具体例の裏付けを最重視して選ぶ"
+          },
+          {
+            "key": "relevance",
+            "instruction": "テーマへの適合・議論を前に進める度合いを最重視して選ぶ"
+          }
+        ],
+        "convergeShare": 0.6,
+        "engine": "dialectic",
+        "dialectic": {
+          "rebutTurns": 4,
+          "exchangeTurns": 16,
+          "argumentDepth": 4,
+          "staleTurns": 6,
+          "judgeModel": "claude-haiku-4-5-20251001",
+          "ruleCheck": true,
+          "finalJudgeModel": ""
+        },
+        "personaSetupModel": "",
+        "tags": [],
+        "sparringMaxTurns": 50,
+        "youtubeMaxComments": 200,
+        "autoAdoptOnCrawl": false,
+        "autoCrawl": {
+          "enabled": true,
+          "source": "niconico",
+          "sources": [
+            "niconico"
+          ],
+          "minVoices": 3,
+          "maxItems": 300
+        },
+        "informationGating": {
+          "enabled": true,
+          "minDensity": "moderate",
+          "maxLearnIterations": 2,
+          "maxGapsPerIteration": 2,
+          "model": ""
+        },
+        "debatability": {
+          "enabled": true,
+          "minArmableIssues": 2
+        },
+        "paperReview": {
+          "enabled": false,
+          "webCanonical": true,
+          "model": "",
+          "timeoutMs": 0
+        },
+        "paperRichness": {
+          "voices": 15,
+          "mechanicsTarget": 30,
+          "enrichMechanics": true,
+          "enrichModel": ""
+        },
+        "userVoices": {
+          "enabled": true,
+          "steamMaxReviews": 300,
+          "steamLanguages": [
+            "japanese",
+            "english"
+          ],
+          "glabMaxImpressions": 100,
+          "voluptasBaseUrl": ""
+        },
+        "notionLinks": {
+          "maxDepth": 2,
+          "maxPages": 50
+        },
+        "improvement": {
+          "effectModel": "claude-haiku-4-5-20251001"
+        },
+        "paperRefine": {
+          "enabled": false,
+          "model": ""
+        },
+        "foresight": {
+          "enabled": true,
+          "turns": 6,
+          "model": "",
+          "forecastModel": ""
+        },
+        "proxy": {
+          "enabled": false,
+          "budgetTokens": 3500,
+          "maxBudgetTokens": 10000,
+          "stanceModel": "",
+          "requireEvalPassed": true
+        },
+        "anatomia": {
+          "enabled": false,
+          "binPath": "",
+          "autoDraft": true,
+          "refineModel": "",
+          "timeoutMs": 180000
+        }
+      },
+      "workspace": "knowledge",
+      "discatier": {},
+      "personaEngine": {
+        "enabled": false,
+        "dbPath": "<CWD>/data/persona-engine.db",
+        "maxFiresPerSession": 20,
+        "maxFiresPerRule": 5,
+        "tickMs": 5000,
+        "bridgePollMs": 2000
+      },
+      "facilitator": {
+        "enabled": true,
+        "tickMs": 30000,
+        "idleGapMs": 120000,
+        "maxPersonas": 20,
+        "aufhebungTarget": 3
+      },
+      "autoSeed": {
+        "enabled": false,
+        "intervalMs": 1800000,
+        "maxConcurrent": 2,
+        "sources": [
+          "genre"
+        ]
+      },
+      "llm": {
+        "backend": "anthropic",
+        "tiers": {},
+        "claudeCliTimeoutMs": 120000,
+        "local": {
+          "baseUrl": "http://localhost:11434/v1",
+          "model": "gemma4:12b",
+          "timeoutMs": 120000
+        }
+      },
+      "embedding": {
+        "enabled": false,
+        "baseUrl": "http://localhost:11434/v1",
+        "model": "bge-m3",
+        "timeoutMs": 60000,
+        "batchSize": 32
+      },
+      "classifier": {
+        "backend": "claude-cli",
+        "model": "claude-haiku-4-5-20251001",
+        "timeoutMs": 30000
+      },
+      "discussion": {
+        "expectedUtterances": 20,
+        "keymanCount": 2,
+        "facilitatorModel": "claude-opus-5-5",
+        "keymanModel": "claude-opus-5-5",
+        "opinionModels": [
+          {
+            "model": "claude-sonnet-5",
+            "weight": 6
+          },
+          {
+            "model": "claude-haiku-4-5-20251001",
+            "weight": 4
+          }
+        ],
+        "minTotal": 4,
+        "turnDelayMs": 4000,
+        "continueTimeoutMs": 120000,
+        "maxRounds": 5
+      },
+      "workerPool": {
+        "enabled": false,
+        "workspace": "debate",
+        "callbackBaseUrl": "http://127.0.0.1:3110",
+        "injectDelayMs": 2500,
+        "turnTimeoutMs": 120000,
+        "registerTimeoutMs": 60000,
+        "registerSettleMs": 4000,
+        "workers": [],
+        "excludeProviders": []
+      },
+      "discord": {
+        "guildIds": [],
+        "adminIds": [],
+        "discussionChannelIds": [],
+        "crawlChannelIds": [],
+        "forum": {
+          "enabled": true,
+          "summaryChannelName": "まとめ投稿",
+          "dataLearningChannelName": "データ学習依頼",
+          "managedCategoryName": "システム",
+          "improvementTagNames": [
+            "改善提案",
+            "改善",
+            "提案",
+            "improvement"
+          ],
+          "funTagNames": [
+            "面白さ",
+            "面白い",
+            "おもしろさ",
+            "fun"
+          ],
+          "discussionForumName": "議論"
+        },
+        "gameFeedback": {
+          "enabled": true,
+          "categoryName": "ゲーム感想"
+        }
+      },
+      "slack": {
+        "enabled": false,
+        "appToken": "",
+        "botToken": "",
+        "channelIds": [],
+        "adminIds": []
+      },
+      "backup": {
+        "enabled": false,
+        "region": "ap-northeast-1",
+        "prefix": "discutere/",
+        "storageClass": "GLACIER",
+        "intervalDays": 30,
+        "stateFile": "<CWD>/data/backup-state.json"
+      },
+      "fundamentum": {
+        "enabled": true,
+        "dataDir": "<CWD>/data/fundamentum"
+      },
+      "kgSync": {
+        "auto": false,
+        "intervalHours": 6,
+        "stateFile": "<CWD>/data/kg-sync-state.json"
+      },
+      "cost": {
+        "relay": {
+          "enabled": false,
+          "intervalMs": 300000,
+          "service": "discutere"
+        }
+      }
+    }
+  },
+  {
+    "name": "env-overrides",
+    "env": {
+      "DISCUTERE_CONFIG": "./discutere.golden.json",
+      "NODE_ENV": "production",
+      "BACKEND_PORT": " 0x10 ",
+      "BACKEND_HOST": "",
+      "DISCUTERE_FLOW_ROUNDS": "1e1",
+      "DISCUTERE_FLOW_TURNS_PER_ROUND": "abc",
+      "DISCUTERE_FLOW_PERSONA_COUNT": "Infinity",
+      "DISCUTERE_FLOW_TAGS": "機密, 開発,, ",
+      "DISCUTERE_FLOW_ROSTER_DISCUSSANTS": "claude-a@high,gpt-b@low",
+      "DISCUTERE_FLOW_VOTE_LENSES": "[{\"key\":\"cost\",\"instruction\":\"コスト効率を最重視して選ぶ\"}]",
+      "DISCUTERE_FLOW_ENGINE": "Dialectic",
+      "DISCUTERE_FLOW_DIALECTIC_RULE_CHECK": " YES ",
+      "DISCUTERE_FLOW_PAPER_REVIEW_ENABLED": "On",
+      "DISCUTERE_FLOW_AUTOCRAWL_SOURCE": "youtube",
+      "DISCUTERE_FLOW_FORESIGHT_TURNS": "-4",
+      "DISCUTERE_FLOW_PROXY_MAX_BUDGET_TOKENS": "4000.9",
+      "DISCUTERE_FLOW_PROXY_BUDGET_TOKENS": "9999",
+      "LLM_BACKEND": "WORKER-POOL",
+      "ANTHROPIC_API_KEY": "sk-fake-not-a-key",
+      "LLM_TIER_STRONG": "strong-x",
+      "DISCUTERE_EMBEDDING_TIMEOUT_MS": " 5.0 ",
+      "VOLPUTAS_URL": "http://127.0.0.1:4500",
+      "DISCUTERE_BACKUP_REGION": "",
+      "AWS_REGION": "eu-west-1",
+      "AWS_ACCESS_KEY_ID": "AKIAFAKEFAKEFAKE",
+      "AWS_SECRET_ACCESS_KEY": "fake-secret",
+      "DISCUTERE_DISCORD_GUILD_IDS": "g1,g2,g1",
+      "DISCUTERE_DISCORD_GUILD_ID": "g3",
+      "DISCUTERE_DISCORD_ADMIN_IDS": " , ",
+      "DISCUTERE_WORKER_POOL_EXCLUDE_PROVIDERS": " , ",
+      "CLAUDE_CODE_GIT_BASH_PATH": "/usr/bin/bash",
+      "DISCUTERE_SLACK_BOT_TOKEN": "xoxb-fake",
+      "DISCUTERE_EXTERNAL_DISCUSSION_SECRET": "",
+      "DISCUTERE_GLAB_CONCLUSIONS_TOKEN": "fake-glab-token",
+      "LUDIARS_ONESHOT_MODEL_OPUS": "claude-opus-override",
+      "DISCUTERE_KG_SYNC_AUTO": "0"
+    },
+    "file": null,
+    "ok": true,
+    "config": {
+      "nodeEnv": "production",
+      "externalDiscussion": {
+        "sharedSecret": ""
+      },
+      "glabConclusions": {
+        "token": "fake-glab-token"
+      },
+      "server": {
+        "port": 16,
+        "host": "127.0.0.1",
+        "frontendUrl": "http://localhost:5174"
+      },
+      "flow": {
+        "rounds": 10,
+        "turnsPerRound": 6,
+        "personaCount": 4,
+        "roster": {
+          "facilitator": "",
+          "discussants": [
+            "claude-a@high",
+            "gpt-b@low"
+          ]
+        },
+        "voterCount": 3,
+        "voteLenses": [
+          {
+            "key": "cost",
+            "instruction": "コスト効率を最重視して選ぶ"
+          }
+        ],
+        "convergeShare": 0.6,
+        "engine": "rounds",
+        "dialectic": {
+          "rebutTurns": 4,
+          "exchangeTurns": 16,
+          "argumentDepth": 4,
+          "staleTurns": 6,
+          "judgeModel": "claude-haiku-4-5-20251001",
+          "ruleCheck": true,
+          "finalJudgeModel": ""
+        },
+        "personaSetupModel": "",
+        "tags": [
+          "機密",
+          "開発"
+        ],
+        "sparringMaxTurns": 50,
+        "youtubeMaxComments": 200,
+        "autoAdoptOnCrawl": false,
+        "autoCrawl": {
+          "enabled": true,
+          "source": "youtube",
+          "sources": [
+            "youtube"
+          ],
+          "minVoices": 3,
+          "maxItems": 300
+        },
+        "informationGating": {
+          "enabled": true,
+          "minDensity": "moderate",
+          "maxLearnIterations": 2,
+          "maxGapsPerIteration": 2,
+          "model": ""
+        },
+        "debatability": {
+          "enabled": true,
+          "minArmableIssues": 2
+        },
+        "paperReview": {
+          "enabled": true,
+          "webCanonical": true,
+          "model": "",
+          "timeoutMs": 0
+        },
+        "paperRichness": {
+          "voices": 15,
+          "mechanicsTarget": 30,
+          "enrichMechanics": true,
+          "enrichModel": ""
+        },
+        "userVoices": {
+          "enabled": true,
+          "steamMaxReviews": 300,
+          "steamLanguages": [
+            "japanese",
+            "english"
+          ],
+          "glabMaxImpressions": 100,
+          "voluptasBaseUrl": "http://127.0.0.1:4500"
+        },
+        "notionLinks": {
+          "maxDepth": 2,
+          "maxPages": 50
+        },
+        "improvement": {
+          "effectModel": "claude-haiku-4-5-20251001"
+        },
+        "paperRefine": {
+          "enabled": false,
+          "model": ""
+        },
+        "foresight": {
+          "enabled": true,
+          "turns": 1,
+          "model": "",
+          "forecastModel": ""
+        },
+        "proxy": {
+          "enabled": false,
+          "budgetTokens": 4000,
+          "maxBudgetTokens": 4000,
+          "stanceModel": "",
+          "requireEvalPassed": true
+        },
+        "anatomia": {
+          "enabled": false,
+          "binPath": "",
+          "autoDraft": true,
+          "refineModel": "",
+          "timeoutMs": 180000
+        }
+      },
+      "workspace": "knowledge",
+      "discatier": {},
+      "personaEngine": {
+        "enabled": false,
+        "dbPath": "<CWD>/data/persona-engine.db",
+        "maxFiresPerSession": 20,
+        "maxFiresPerRule": 5,
+        "tickMs": 5000,
+        "bridgePollMs": 2000
+      },
+      "facilitator": {
+        "enabled": true,
+        "tickMs": 30000,
+        "idleGapMs": 120000,
+        "maxPersonas": 20,
+        "aufhebungTarget": 3
+      },
+      "autoSeed": {
+        "enabled": false,
+        "intervalMs": 1800000,
+        "maxConcurrent": 2,
+        "sources": [
+          "genre"
+        ]
+      },
+      "llm": {
+        "backend": "worker-pool",
+        "anthropicApiKey": "sk-fake-not-a-key",
+        "tiers": {
+          "strong": "strong-x"
+        },
+        "claudeCliTimeoutMs": 120000,
+        "gitBashPath": "/usr/bin/bash",
+        "local": {
+          "baseUrl": "http://localhost:11434/v1",
+          "model": "gemma4:12b",
+          "timeoutMs": 120000
+        }
+      },
+      "embedding": {
+        "enabled": false,
+        "baseUrl": "http://localhost:11434/v1",
+        "model": "bge-m3",
+        "timeoutMs": 5,
+        "batchSize": 32
+      },
+      "classifier": {
+        "backend": "anthropic",
+        "model": "claude-haiku-4-5-20251001",
+        "timeoutMs": 30000
+      },
+      "discussion": {
+        "expectedUtterances": 20,
+        "keymanCount": 2,
+        "facilitatorModel": "claude-opus-override",
+        "keymanModel": "claude-opus-override",
+        "opinionModels": [
+          {
+            "model": "claude-sonnet-5",
+            "weight": 6
+          },
+          {
+            "model": "claude-haiku-4-5-20251001",
+            "weight": 4
+          }
+        ],
+        "minTotal": 4,
+        "turnDelayMs": 4000,
+        "continueTimeoutMs": 120000,
+        "maxRounds": 5
+      },
+      "workerPool": {
+        "enabled": false,
+        "workspace": "debate",
+        "callbackBaseUrl": "http://127.0.0.1:16",
+        "gitBashPath": "/usr/bin/bash",
+        "injectDelayMs": 2500,
+        "turnTimeoutMs": 120000,
+        "registerTimeoutMs": 60000,
+        "registerSettleMs": 4000,
+        "workers": [],
+        "excludeProviders": []
+      },
+      "discord": {
+        "guildIds": [
+          "g1",
+          "g2",
+          "g3"
+        ],
+        "adminIds": [],
+        "discussionChannelIds": [],
+        "crawlChannelIds": [],
+        "forum": {
+          "enabled": true,
+          "summaryChannelName": "まとめ投稿",
+          "dataLearningChannelName": "データ学習依頼",
+          "managedCategoryName": "システム",
+          "improvementTagNames": [
+            "改善提案",
+            "改善",
+            "提案",
+            "improvement"
+          ],
+          "funTagNames": [
+            "面白さ",
+            "面白い",
+            "おもしろさ",
+            "fun"
+          ],
+          "discussionForumName": "議論"
+        },
+        "gameFeedback": {
+          "enabled": true,
+          "categoryName": "ゲーム感想"
+        }
+      },
+      "slack": {
+        "enabled": false,
+        "appToken": "",
+        "botToken": "xoxb-fake",
+        "channelIds": [],
+        "adminIds": []
+      },
+      "backup": {
+        "enabled": false,
+        "region": "ap-northeast-1",
+        "prefix": "discutere/",
+        "storageClass": "GLACIER",
+        "accessKeyId": "AKIAFAKEFAKEFAKE",
+        "secretAccessKey": "fake-secret",
+        "intervalDays": 30,
+        "stateFile": "<CWD>/data/backup-state.json"
+      },
+      "fundamentum": {
+        "enabled": true,
+        "dataDir": "<CWD>/data/fundamentum"
+      },
+      "kgSync": {
+        "auto": false,
+        "intervalHours": 6,
+        "stateFile": "<CWD>/data/kg-sync-state.json"
+      },
+      "cost": {
+        "relay": {
+          "enabled": false,
+          "intervalMs": 300000,
+          "service": "discutere"
+        }
+      }
+    }
+  },
+  {
+    "name": "file",
+    "env": {
+      "DISCUTERE_CONFIG": "./discutere.golden.json"
+    },
+    "file": "{\n  \"server\": {\n    \"port\": \"4010\",\n    \"host\": \"0.0.0.0\",\n    \"frontendUrl\": \"\"\n  },\n  \"flow\": {\n    \"rounds\": 5,\n    \"turnsPerRound\": 2.5,\n    \"personaCount\": \"7\",\n    \"voterCount\": true,\n    \"roster\": {\n      \"facilitator\": \"claude-x@high\",\n      \"discussants\": [\n        \" a@low \",\n        \"\",\n        3,\n        \"b@high\"\n      ]\n    },\n    \"voteLenses\": [\n      {\n        \"key\": \"k1\",\n        \"instruction\": \"i1\"\n      },\n      {\n        \"key\": \" \",\n        \"instruction\": \"x\"\n      },\n      \"bad\",\n      {\n        \"key\": \"k2\",\n        \"instruction\": \"i2\"\n      }\n    ],\n    \"convergeShare\": 0.75,\n    \"engine\": \"rounds\",\n    \"dialectic\": {\n      \"rebutTurns\": 9,\n      \"judgeModel\": \"judge-x\",\n      \"ruleCheck\": false,\n      \"finalJudgeModel\": \"final-x\"\n    },\n    \"tags\": [\n      \"機密\",\n      \" 開発 \"\n    ],\n    \"autoCrawl\": {\n      \"enabled\": false,\n      \"source\": \"youtube\"\n    },\n    \"informationGating\": {\n      \"minDensity\": \"rich\",\n      \"maxLearnIterations\": \"3\"\n    },\n    \"paperReview\": {\n      \"enabled\": true,\n      \"timeoutMs\": 1000\n    },\n    \"userVoices\": {\n      \"steamLanguages\": \"japanese\",\n      \"voluptasBaseUrl\": \"https://voluptas.example\"\n    },\n    \"foresight\": {\n      \"turns\": 99.7\n    },\n    \"proxy\": {\n      \"maxBudgetTokens\": 100,\n      \"budgetTokens\": 50000\n    },\n    \"anatomia\": {\n      \"enabled\": true,\n      \"binPath\": \"/opt/anatomia.mjs\"\n    }\n  },\n  \"workspace\": \"ws-file\",\n  \"discatier\": {\n    \"kuzuPath\": \"/kg/default.db\",\n    \"knowledgeGraphs\": [\n      {\n        \"id\": \"a\",\n        \"label\": \"A\",\n        \"kuzuPath\": \"/kg/a.db\"\n      },\n      {\n        \"id\": 1,\n        \"kuzuPath\": \"/x\"\n      },\n      null,\n      {\n        \"id\": \"b\",\n        \"kuzuPath\": \"/kg/b.db\"\n      }\n    ]\n  },\n  \"personaEngine\": {\n    \"enabled\": true,\n    \"tickMs\": \"250\"\n  },\n  \"autoSeed\": {\n    \"sources\": []\n  },\n  \"llm\": {\n    \"backend\": \"Claude-CLI\",\n    \"gitBashPath\": \"C:/git/bash.exe\",\n    \"tiers\": {\n      \"cheap\": \"cheap-x\"\n    },\n    \"local\": {\n      \"apiKey\": \"fake-local-key\"\n    }\n  },\n  \"embedding\": {\n    \"timeoutMs\": \"90000\",\n    \"batchSize\": 8\n  },\n  \"classifier\": {\n    \"backend\": \"OFF\",\n    \"model\": \"cls-x\"\n  },\n  \"discussion\": {\n    \"opinionModels\": [\n      {\n        \"model\": \"m1\",\n        \"weight\": 3\n      }\n    ],\n    \"keymanModel\": \"keyman-x\"\n  },\n  \"workerPool\": {\n    \"gitBashPath\": null,\n    \"workers\": [\n      {\n        \"id\": \"w1\",\n        \"role\": \"pro\",\n        \"provider\": \"claude\",\n        \"model\": \"claude-a\"\n      }\n    ],\n    \"excludeProviders\": [\n      \"codex\",\n      \" \"\n    ]\n  },\n  \"discord\": {\n    \"botToken\": \"fake-discord-token\",\n    \"guildIds\": [\n      \"g1\",\n      \"g2\"\n    ],\n    \"guildId\": \"g1\",\n    \"adminIds\": [\n      \"u1\"\n    ],\n    \"forum\": {\n      \"enabled\": false,\n      \"improvementTagNames\": [\n        \"改善X\"\n      ]\n    },\n    \"gameFeedback\": {\n      \"categoryName\": \"感想\"\n    }\n  },\n  \"slack\": {\n    \"enabled\": true,\n    \"appToken\": \"xapp-fake\",\n    \"channelIds\": [\n      \"C1\"\n    ]\n  },\n  \"backup\": {\n    \"bucket\": \"bucket-file\",\n    \"region\": \"us-west-2\",\n    \"endpoint\": \"http://minio.local:9000\",\n    \"intervalDays\": \"7\"\n  },\n  \"fundamentum\": {\n    \"enabled\": false,\n    \"dataDir\": \"fm-data\"\n  },\n  \"kgSync\": {\n    \"sourceUrl\": \"https://kg.example/sync\",\n    \"auto\": true,\n    \"intervalHours\": 12\n  },\n  \"cost\": {\n    \"relay\": {\n      \"enabled\": true,\n      \"concordiaUrl\": \"http://localhost:17330\"\n    }\n  }\n}",
+    "ok": true,
+    "config": {
+      "nodeEnv": "development",
+      "externalDiscussion": {
+        "sharedSecret": ""
+      },
+      "glabConclusions": {
+        "token": ""
+      },
+      "server": {
+        "port": 4010,
+        "host": "0.0.0.0",
+        "frontendUrl": "http://localhost:5174"
+      },
+      "flow": {
+        "rounds": 5,
+        "turnsPerRound": 2.5,
+        "personaCount": 7,
+        "roster": {
+          "facilitator": "claude-x@high",
+          "discussants": [
+            "a@low",
+            "b@high"
+          ]
+        },
+        "voterCount": 3,
+        "voteLenses": [
+          {
+            "key": "k1",
+            "instruction": "i1"
+          },
+          {
+            "key": "k2",
+            "instruction": "i2"
+          }
+        ],
+        "convergeShare": 0.75,
+        "engine": "rounds",
+        "dialectic": {
+          "rebutTurns": 9,
+          "exchangeTurns": 16,
+          "argumentDepth": 4,
+          "staleTurns": 6,
+          "judgeModel": "judge-x",
+          "ruleCheck": false,
+          "finalJudgeModel": "final-x"
+        },
+        "personaSetupModel": "",
+        "tags": [
+          "機密",
+          "開発"
+        ],
+        "sparringMaxTurns": 50,
+        "youtubeMaxComments": 200,
+        "autoAdoptOnCrawl": false,
+        "autoCrawl": {
+          "enabled": false,
+          "source": "youtube",
+          "sources": [
+            "youtube"
+          ],
+          "minVoices": 3,
+          "maxItems": 300
+        },
+        "informationGating": {
+          "enabled": true,
+          "minDensity": "rich",
+          "maxLearnIterations": 3,
+          "maxGapsPerIteration": 2,
+          "model": ""
+        },
+        "debatability": {
+          "enabled": true,
+          "minArmableIssues": 2
+        },
+        "paperReview": {
+          "enabled": true,
+          "webCanonical": true,
+          "model": "",
+          "timeoutMs": 1000
+        },
+        "paperRichness": {
+          "voices": 15,
+          "mechanicsTarget": 30,
+          "enrichMechanics": true,
+          "enrichModel": ""
+        },
+        "userVoices": {
+          "enabled": true,
+          "steamMaxReviews": 300,
+          "steamLanguages": [],
+          "glabMaxImpressions": 100,
+          "voluptasBaseUrl": "https://voluptas.example"
+        },
+        "notionLinks": {
+          "maxDepth": 2,
+          "maxPages": 50
+        },
+        "improvement": {
+          "effectModel": "claude-haiku-4-5-20251001"
+        },
+        "paperRefine": {
+          "enabled": false,
+          "model": ""
+        },
+        "foresight": {
+          "enabled": true,
+          "turns": 20,
+          "model": "",
+          "forecastModel": ""
+        },
+        "proxy": {
+          "enabled": false,
+          "budgetTokens": 500,
+          "maxBudgetTokens": 500,
+          "stanceModel": "",
+          "requireEvalPassed": true
+        },
+        "anatomia": {
+          "enabled": true,
+          "binPath": "/opt/anatomia.mjs",
+          "autoDraft": true,
+          "refineModel": "",
+          "timeoutMs": 180000
+        }
+      },
+      "workspace": "ws-file",
+      "discatier": {
+        "kuzuPath": "/kg/default.db",
+        "knowledgeGraphs": [
+          {
+            "id": "a",
+            "label": "A",
+            "kuzuPath": "/kg/a.db"
+          },
+          {
+            "id": "b",
+            "kuzuPath": "/kg/b.db"
+          }
+        ]
+      },
+      "personaEngine": {
+        "enabled": true,
+        "dbPath": "<CWD>/data/persona-engine.db",
+        "maxFiresPerSession": 20,
+        "maxFiresPerRule": 5,
+        "tickMs": 250,
+        "bridgePollMs": 2000
+      },
+      "facilitator": {
+        "enabled": true,
+        "tickMs": 30000,
+        "idleGapMs": 120000,
+        "maxPersonas": 20,
+        "aufhebungTarget": 3
+      },
+      "autoSeed": {
+        "enabled": false,
+        "intervalMs": 1800000,
+        "maxConcurrent": 2,
+        "sources": [
+          "genre"
+        ]
+      },
+      "llm": {
+        "backend": "claude-cli",
+        "tiers": {
+          "cheap": "cheap-x"
+        },
+        "claudeCliTimeoutMs": 120000,
+        "gitBashPath": "C:/git/bash.exe",
+        "local": {
+          "baseUrl": "http://localhost:11434/v1",
+          "model": "gemma4:12b",
+          "apiKey": "fake-local-key",
+          "timeoutMs": 120000
+        }
+      },
+      "embedding": {
+        "enabled": false,
+        "baseUrl": "http://localhost:11434/v1",
+        "model": "bge-m3",
+        "timeoutMs": 90000,
+        "batchSize": 8
+      },
+      "classifier": {
+        "backend": "off",
+        "model": "cls-x",
+        "timeoutMs": 30000
+      },
+      "discussion": {
+        "expectedUtterances": 20,
+        "keymanCount": 2,
+        "facilitatorModel": "claude-opus-5-5",
+        "keymanModel": "keyman-x",
+        "opinionModels": [
+          {
+            "model": "m1",
+            "weight": 3
+          }
+        ],
+        "minTotal": 4,
+        "turnDelayMs": 4000,
+        "continueTimeoutMs": 120000,
+        "maxRounds": 5
+      },
+      "workerPool": {
+        "enabled": false,
+        "workspace": "debate",
+        "callbackBaseUrl": "http://127.0.0.1:4010",
+        "gitBashPath": "C:/git/bash.exe",
+        "injectDelayMs": 2500,
+        "turnTimeoutMs": 120000,
+        "registerTimeoutMs": 60000,
+        "registerSettleMs": 4000,
+        "workers": [
+          {
+            "id": "w1",
+            "role": "pro",
+            "provider": "claude",
+            "model": "claude-a"
+          }
+        ],
+        "excludeProviders": [
+          "codex"
+        ]
+      },
+      "discord": {
+        "botToken": "fake-discord-token",
+        "guildIds": [
+          "g1",
+          "g2"
+        ],
+        "adminIds": [
+          "u1"
+        ],
+        "discussionChannelIds": [],
+        "crawlChannelIds": [],
+        "forum": {
+          "enabled": false,
+          "summaryChannelName": "まとめ投稿",
+          "dataLearningChannelName": "データ学習依頼",
+          "managedCategoryName": "システム",
+          "improvementTagNames": [
+            "改善X"
+          ],
+          "funTagNames": [
+            "面白さ",
+            "面白い",
+            "おもしろさ",
+            "fun"
+          ],
+          "discussionForumName": "議論"
+        },
+        "gameFeedback": {
+          "enabled": true,
+          "categoryName": "感想"
+        }
+      },
+      "slack": {
+        "enabled": true,
+        "appToken": "xapp-fake",
+        "botToken": "",
+        "channelIds": [
+          "C1"
+        ],
+        "adminIds": []
+      },
+      "backup": {
+        "enabled": false,
+        "bucket": "bucket-file",
+        "region": "us-west-2",
+        "prefix": "discutere/",
+        "storageClass": "GLACIER",
+        "endpoint": "http://minio.local:9000",
+        "intervalDays": 7,
+        "stateFile": "<CWD>/data/backup-state.json"
+      },
+      "fundamentum": {
+        "enabled": false,
+        "dataDir": "fm-data"
+      },
+      "kgSync": {
+        "sourceUrl": "https://kg.example/sync",
+        "auto": true,
+        "intervalHours": 12,
+        "stateFile": "<CWD>/data/kg-sync-state.json"
+      },
+      "cost": {
+        "relay": {
+          "enabled": true,
+          "concordiaUrl": "http://localhost:17330",
+          "intervalMs": 300000,
+          "service": "discutere"
+        }
+      }
+    }
+  },
+  {
+    "name": "env-beats-file",
+    "env": {
+      "DISCUTERE_CONFIG": "./discutere.golden.json",
+      "BACKEND_PORT": "5000",
+      "DISCUTERE_FLOW_TAGS": "運用",
+      "DISCUTERE_BACKUP_REGION": "",
+      "LLM_BACKEND": "mock",
+      "DISCUTERE_CLASSIFIER_BACKEND": "nope",
+      "DISCUTERE_DISCORD_FORUM_ENABLED": "false",
+      "DISCUTERE_FLOW_VOTE_LENSES": "{broken",
+      "DISCUTERE_WORKER_POOL_GIT_BASH": "",
+      "DISCUTERE_FLOW_USER_VOICES_STEAM_LANGUAGES": "english",
+      "DISCUTERE_FUNDAMENTUM_DATA_DIR": "/abs/fm"
+    },
+    "file": "{\"server\":{\"port\":\"4010\",\"host\":\"0.0.0.0\",\"frontendUrl\":\"\"},\"flow\":{\"rounds\":5,\"turnsPerRound\":2.5,\"personaCount\":\"7\",\"voterCount\":true,\"roster\":{\"facilitator\":\"claude-x@high\",\"discussants\":[\" a@low \",\"\",3,\"b@high\"]},\"voteLenses\":[{\"key\":\"k1\",\"instruction\":\"i1\"},{\"key\":\" \",\"instruction\":\"x\"},\"bad\",{\"key\":\"k2\",\"instruction\":\"i2\"}],\"convergeShare\":0.75,\"engine\":\"rounds\",\"dialectic\":{\"rebutTurns\":9,\"judgeModel\":\"judge-x\",\"ruleCheck\":false,\"finalJudgeModel\":\"final-x\"},\"tags\":[\"機密\",\" 開発 \"],\"autoCrawl\":{\"enabled\":false,\"source\":\"youtube\"},\"informationGating\":{\"minDensity\":\"rich\",\"maxLearnIterations\":\"3\"},\"paperReview\":{\"enabled\":true,\"timeoutMs\":1000},\"userVoices\":{\"steamLanguages\":\"japanese\",\"voluptasBaseUrl\":\"https://voluptas.example\"},\"foresight\":{\"turns\":99.7},\"proxy\":{\"maxBudgetTokens\":100,\"budgetTokens\":50000},\"anatomia\":{\"enabled\":true,\"binPath\":\"/opt/anatomia.mjs\"}},\"workspace\":\"ws-file\",\"discatier\":{\"kuzuPath\":\"/kg/default.db\",\"knowledgeGraphs\":[{\"id\":\"a\",\"label\":\"A\",\"kuzuPath\":\"/kg/a.db\"},{\"id\":1,\"kuzuPath\":\"/x\"},null,{\"id\":\"b\",\"kuzuPath\":\"/kg/b.db\"}]},\"personaEngine\":{\"enabled\":true,\"tickMs\":\"250\"},\"autoSeed\":{\"sources\":[]},\"llm\":{\"backend\":\"Claude-CLI\",\"gitBashPath\":\"C:/git/bash.exe\",\"tiers\":{\"cheap\":\"cheap-x\"},\"local\":{\"apiKey\":\"fake-local-key\"}},\"embedding\":{\"timeoutMs\":\"90000\",\"batchSize\":8},\"classifier\":{\"backend\":\"OFF\",\"model\":\"cls-x\"},\"discussion\":{\"opinionModels\":[{\"model\":\"m1\",\"weight\":3}],\"keymanModel\":\"keyman-x\"},\"workerPool\":{\"gitBashPath\":null,\"workers\":[{\"id\":\"w1\",\"role\":\"pro\",\"provider\":\"claude\",\"model\":\"claude-a\"}],\"excludeProviders\":[\"codex\",\" \"]},\"discord\":{\"botToken\":\"fake-discord-token\",\"guildIds\":[\"g1\",\"g2\"],\"guildId\":\"g1\",\"adminIds\":[\"u1\"],\"forum\":{\"enabled\":false,\"improvementTagNames\":[\"改善X\"]},\"gameFeedback\":{\"categoryName\":\"感想\"}},\"slack\":{\"enabled\":true,\"appToken\":\"xapp-fake\",\"channelIds\":[\"C1\"]},\"backup\":{\"bucket\":\"bucket-file\",\"region\":\"us-west-2\",\"endpoint\":\"http://minio.local:9000\",\"intervalDays\":\"7\"},\"fundamentum\":{\"enabled\":false,\"dataDir\":\"fm-data\"},\"kgSync\":{\"sourceUrl\":\"https://kg.example/sync\",\"auto\":true,\"intervalHours\":12},\"cost\":{\"relay\":{\"enabled\":true,\"concordiaUrl\":\"http://localhost:17330\"}}}",
+    "ok": true,
+    "config": {
+      "nodeEnv": "development",
+      "externalDiscussion": {
+        "sharedSecret": ""
+      },
+      "glabConclusions": {
+        "token": ""
+      },
+      "server": {
+        "port": 5000,
+        "host": "0.0.0.0",
+        "frontendUrl": "http://localhost:5174"
+      },
+      "flow": {
+        "rounds": 5,
+        "turnsPerRound": 2.5,
+        "personaCount": 7,
+        "roster": {
+          "facilitator": "claude-x@high",
+          "discussants": [
+            "a@low",
+            "b@high"
+          ]
+        },
+        "voterCount": 3,
+        "voteLenses": [
+          {
+            "key": "k1",
+            "instruction": "i1"
+          },
+          {
+            "key": "k2",
+            "instruction": "i2"
+          }
+        ],
+        "convergeShare": 0.75,
+        "engine": "rounds",
+        "dialectic": {
+          "rebutTurns": 9,
+          "exchangeTurns": 16,
+          "argumentDepth": 4,
+          "staleTurns": 6,
+          "judgeModel": "judge-x",
+          "ruleCheck": false,
+          "finalJudgeModel": "final-x"
+        },
+        "personaSetupModel": "",
+        "tags": [
+          "運用"
+        ],
+        "sparringMaxTurns": 50,
+        "youtubeMaxComments": 200,
+        "autoAdoptOnCrawl": false,
+        "autoCrawl": {
+          "enabled": false,
+          "source": "youtube",
+          "sources": [
+            "youtube"
+          ],
+          "minVoices": 3,
+          "maxItems": 300
+        },
+        "informationGating": {
+          "enabled": true,
+          "minDensity": "rich",
+          "maxLearnIterations": 3,
+          "maxGapsPerIteration": 2,
+          "model": ""
+        },
+        "debatability": {
+          "enabled": true,
+          "minArmableIssues": 2
+        },
+        "paperReview": {
+          "enabled": true,
+          "webCanonical": true,
+          "model": "",
+          "timeoutMs": 1000
+        },
+        "paperRichness": {
+          "voices": 15,
+          "mechanicsTarget": 30,
+          "enrichMechanics": true,
+          "enrichModel": ""
+        },
+        "userVoices": {
+          "enabled": true,
+          "steamMaxReviews": 300,
+          "steamLanguages": [
+            "english"
+          ],
+          "glabMaxImpressions": 100,
+          "voluptasBaseUrl": "https://voluptas.example"
+        },
+        "notionLinks": {
+          "maxDepth": 2,
+          "maxPages": 50
+        },
+        "improvement": {
+          "effectModel": "claude-haiku-4-5-20251001"
+        },
+        "paperRefine": {
+          "enabled": false,
+          "model": ""
+        },
+        "foresight": {
+          "enabled": true,
+          "turns": 20,
+          "model": "",
+          "forecastModel": ""
+        },
+        "proxy": {
+          "enabled": false,
+          "budgetTokens": 500,
+          "maxBudgetTokens": 500,
+          "stanceModel": "",
+          "requireEvalPassed": true
+        },
+        "anatomia": {
+          "enabled": true,
+          "binPath": "/opt/anatomia.mjs",
+          "autoDraft": true,
+          "refineModel": "",
+          "timeoutMs": 180000
+        }
+      },
+      "workspace": "ws-file",
+      "discatier": {
+        "kuzuPath": "/kg/default.db",
+        "knowledgeGraphs": [
+          {
+            "id": "a",
+            "label": "A",
+            "kuzuPath": "/kg/a.db"
+          },
+          {
+            "id": "b",
+            "kuzuPath": "/kg/b.db"
+          }
+        ]
+      },
+      "personaEngine": {
+        "enabled": true,
+        "dbPath": "<CWD>/data/persona-engine.db",
+        "maxFiresPerSession": 20,
+        "maxFiresPerRule": 5,
+        "tickMs": 250,
+        "bridgePollMs": 2000
+      },
+      "facilitator": {
+        "enabled": true,
+        "tickMs": 30000,
+        "idleGapMs": 120000,
+        "maxPersonas": 20,
+        "aufhebungTarget": 3
+      },
+      "autoSeed": {
+        "enabled": false,
+        "intervalMs": 1800000,
+        "maxConcurrent": 2,
+        "sources": [
+          "genre"
+        ]
+      },
+      "llm": {
+        "backend": "mock",
+        "tiers": {
+          "cheap": "cheap-x"
+        },
+        "claudeCliTimeoutMs": 120000,
+        "gitBashPath": "C:/git/bash.exe",
+        "local": {
+          "baseUrl": "http://localhost:11434/v1",
+          "model": "gemma4:12b",
+          "apiKey": "fake-local-key",
+          "timeoutMs": 120000
+        }
+      },
+      "embedding": {
+        "enabled": false,
+        "baseUrl": "http://localhost:11434/v1",
+        "model": "bge-m3",
+        "timeoutMs": 90000,
+        "batchSize": 8
+      },
+      "classifier": {
+        "backend": "claude-cli",
+        "model": "cls-x",
+        "timeoutMs": 30000
+      },
+      "discussion": {
+        "expectedUtterances": 20,
+        "keymanCount": 2,
+        "facilitatorModel": "claude-opus-5-5",
+        "keymanModel": "keyman-x",
+        "opinionModels": [
+          {
+            "model": "m1",
+            "weight": 3
+          }
+        ],
+        "minTotal": 4,
+        "turnDelayMs": 4000,
+        "continueTimeoutMs": 120000,
+        "maxRounds": 5
+      },
+      "workerPool": {
+        "enabled": false,
+        "workspace": "debate",
+        "callbackBaseUrl": "http://127.0.0.1:5000",
+        "gitBashPath": "C:/git/bash.exe",
+        "injectDelayMs": 2500,
+        "turnTimeoutMs": 120000,
+        "registerTimeoutMs": 60000,
+        "registerSettleMs": 4000,
+        "workers": [
+          {
+            "id": "w1",
+            "role": "pro",
+            "provider": "claude",
+            "model": "claude-a"
+          }
+        ],
+        "excludeProviders": [
+          "codex"
+        ]
+      },
+      "discord": {
+        "botToken": "fake-discord-token",
+        "guildIds": [
+          "g1",
+          "g2"
+        ],
+        "adminIds": [
+          "u1"
+        ],
+        "discussionChannelIds": [],
+        "crawlChannelIds": [],
+        "forum": {
+          "enabled": false,
+          "summaryChannelName": "まとめ投稿",
+          "dataLearningChannelName": "データ学習依頼",
+          "managedCategoryName": "システム",
+          "improvementTagNames": [
+            "改善X"
+          ],
+          "funTagNames": [
+            "面白さ",
+            "面白い",
+            "おもしろさ",
+            "fun"
+          ],
+          "discussionForumName": "議論"
+        },
+        "gameFeedback": {
+          "enabled": true,
+          "categoryName": "感想"
+        }
+      },
+      "slack": {
+        "enabled": true,
+        "appToken": "xapp-fake",
+        "botToken": "",
+        "channelIds": [
+          "C1"
+        ],
+        "adminIds": []
+      },
+      "backup": {
+        "enabled": false,
+        "bucket": "bucket-file",
+        "region": "us-west-2",
+        "prefix": "discutere/",
+        "storageClass": "GLACIER",
+        "endpoint": "http://minio.local:9000",
+        "intervalDays": 7,
+        "stateFile": "<CWD>/data/backup-state.json"
+      },
+      "fundamentum": {
+        "enabled": false,
+        "dataDir": "/abs/fm"
+      },
+      "kgSync": {
+        "sourceUrl": "https://kg.example/sync",
+        "auto": true,
+        "intervalHours": 12,
+        "stateFile": "<CWD>/data/kg-sync-state.json"
+      },
+      "cost": {
+        "relay": {
+          "enabled": true,
+          "concordiaUrl": "http://localhost:17330",
+          "intervalMs": 300000,
+          "service": "discutere"
+        }
+      }
+    }
+  },
+  {
+    "name": "broken-file",
+    "env": {
+      "DISCUTERE_CONFIG": "./discutere.golden.json"
+    },
+    "file": "{ \"server\": { \"port\": 1 ",
+    "ok": true,
+    "config": {
+      "nodeEnv": "development",
+      "externalDiscussion": {
+        "sharedSecret": ""
+      },
+      "glabConclusions": {
+        "token": ""
+      },
+      "server": {
+        "port": 3110,
+        "host": "127.0.0.1",
+        "frontendUrl": "http://localhost:5174"
+      },
+      "flow": {
+        "rounds": 3,
+        "turnsPerRound": 6,
+        "personaCount": 4,
+        "roster": {
+          "facilitator": "",
+          "discussants": []
+        },
+        "voterCount": 3,
+        "voteLenses": [
+          {
+            "key": "logic",
+            "instruction": "論理の一貫性・飛躍のなさを最重視して選ぶ"
+          },
+          {
+            "key": "grounds",
+            "instruction": "根拠・具体例の裏付けを最重視して選ぶ"
+          },
+          {
+            "key": "relevance",
+            "instruction": "テーマへの適合・議論を前に進める度合いを最重視して選ぶ"
+          }
+        ],
+        "convergeShare": 0.6,
+        "engine": "dialectic",
+        "dialectic": {
+          "rebutTurns": 4,
+          "exchangeTurns": 16,
+          "argumentDepth": 4,
+          "staleTurns": 6,
+          "judgeModel": "claude-haiku-4-5-20251001",
+          "ruleCheck": true,
+          "finalJudgeModel": ""
+        },
+        "personaSetupModel": "",
+        "tags": [],
+        "sparringMaxTurns": 50,
+        "youtubeMaxComments": 200,
+        "autoAdoptOnCrawl": false,
+        "autoCrawl": {
+          "enabled": true,
+          "source": "niconico",
+          "sources": [
+            "niconico"
+          ],
+          "minVoices": 3,
+          "maxItems": 300
+        },
+        "informationGating": {
+          "enabled": true,
+          "minDensity": "moderate",
+          "maxLearnIterations": 2,
+          "maxGapsPerIteration": 2,
+          "model": ""
+        },
+        "debatability": {
+          "enabled": true,
+          "minArmableIssues": 2
+        },
+        "paperReview": {
+          "enabled": false,
+          "webCanonical": true,
+          "model": "",
+          "timeoutMs": 0
+        },
+        "paperRichness": {
+          "voices": 15,
+          "mechanicsTarget": 30,
+          "enrichMechanics": true,
+          "enrichModel": ""
+        },
+        "userVoices": {
+          "enabled": true,
+          "steamMaxReviews": 300,
+          "steamLanguages": [
+            "japanese",
+            "english"
+          ],
+          "glabMaxImpressions": 100,
+          "voluptasBaseUrl": ""
+        },
+        "notionLinks": {
+          "maxDepth": 2,
+          "maxPages": 50
+        },
+        "improvement": {
+          "effectModel": "claude-haiku-4-5-20251001"
+        },
+        "paperRefine": {
+          "enabled": false,
+          "model": ""
+        },
+        "foresight": {
+          "enabled": true,
+          "turns": 6,
+          "model": "",
+          "forecastModel": ""
+        },
+        "proxy": {
+          "enabled": false,
+          "budgetTokens": 3500,
+          "maxBudgetTokens": 10000,
+          "stanceModel": "",
+          "requireEvalPassed": true
+        },
+        "anatomia": {
+          "enabled": false,
+          "binPath": "",
+          "autoDraft": true,
+          "refineModel": "",
+          "timeoutMs": 180000
+        }
+      },
+      "workspace": "knowledge",
+      "discatier": {},
+      "personaEngine": {
+        "enabled": false,
+        "dbPath": "<CWD>/data/persona-engine.db",
+        "maxFiresPerSession": 20,
+        "maxFiresPerRule": 5,
+        "tickMs": 5000,
+        "bridgePollMs": 2000
+      },
+      "facilitator": {
+        "enabled": true,
+        "tickMs": 30000,
+        "idleGapMs": 120000,
+        "maxPersonas": 20,
+        "aufhebungTarget": 3
+      },
+      "autoSeed": {
+        "enabled": false,
+        "intervalMs": 1800000,
+        "maxConcurrent": 2,
+        "sources": [
+          "genre"
+        ]
+      },
+      "llm": {
+        "backend": "anthropic",
+        "tiers": {},
+        "claudeCliTimeoutMs": 120000,
+        "local": {
+          "baseUrl": "http://localhost:11434/v1",
+          "model": "gemma4:12b",
+          "timeoutMs": 120000
+        }
+      },
+      "embedding": {
+        "enabled": false,
+        "baseUrl": "http://localhost:11434/v1",
+        "model": "bge-m3",
+        "timeoutMs": 60000,
+        "batchSize": 32
+      },
+      "classifier": {
+        "backend": "claude-cli",
+        "model": "claude-haiku-4-5-20251001",
+        "timeoutMs": 30000
+      },
+      "discussion": {
+        "expectedUtterances": 20,
+        "keymanCount": 2,
+        "facilitatorModel": "claude-opus-5-5",
+        "keymanModel": "claude-opus-5-5",
+        "opinionModels": [
+          {
+            "model": "claude-sonnet-5",
+            "weight": 6
+          },
+          {
+            "model": "claude-haiku-4-5-20251001",
+            "weight": 4
+          }
+        ],
+        "minTotal": 4,
+        "turnDelayMs": 4000,
+        "continueTimeoutMs": 120000,
+        "maxRounds": 5
+      },
+      "workerPool": {
+        "enabled": false,
+        "workspace": "debate",
+        "callbackBaseUrl": "http://127.0.0.1:3110",
+        "injectDelayMs": 2500,
+        "turnTimeoutMs": 120000,
+        "registerTimeoutMs": 60000,
+        "registerSettleMs": 4000,
+        "workers": [],
+        "excludeProviders": []
+      },
+      "discord": {
+        "guildIds": [],
+        "adminIds": [],
+        "discussionChannelIds": [],
+        "crawlChannelIds": [],
+        "forum": {
+          "enabled": true,
+          "summaryChannelName": "まとめ投稿",
+          "dataLearningChannelName": "データ学習依頼",
+          "managedCategoryName": "システム",
+          "improvementTagNames": [
+            "改善提案",
+            "改善",
+            "提案",
+            "improvement"
+          ],
+          "funTagNames": [
+            "面白さ",
+            "面白い",
+            "おもしろさ",
+            "fun"
+          ],
+          "discussionForumName": "議論"
+        },
+        "gameFeedback": {
+          "enabled": true,
+          "categoryName": "ゲーム感想"
+        }
+      },
+      "slack": {
+        "enabled": false,
+        "appToken": "",
+        "botToken": "",
+        "channelIds": [],
+        "adminIds": []
+      },
+      "backup": {
+        "enabled": false,
+        "region": "ap-northeast-1",
+        "prefix": "discutere/",
+        "storageClass": "GLACIER",
+        "intervalDays": 30,
+        "stateFile": "<CWD>/data/backup-state.json"
+      },
+      "fundamentum": {
+        "enabled": true,
+        "dataDir": "<CWD>/data/fundamentum"
+      },
+      "kgSync": {
+        "auto": false,
+        "intervalHours": 6,
+        "stateFile": "<CWD>/data/kg-sync-state.json"
+      },
+      "cost": {
+        "relay": {
+          "enabled": false,
+          "intervalMs": 300000,
+          "service": "discutere"
+        }
+      }
+    }
+  },
+  {
+    "name": "array-file",
+    "env": {
+      "DISCUTERE_CONFIG": "./discutere.golden.json"
+    },
+    "file": "[1,2,3]",
+    "ok": true,
+    "config": {
+      "nodeEnv": "development",
+      "externalDiscussion": {
+        "sharedSecret": ""
+      },
+      "glabConclusions": {
+        "token": ""
+      },
+      "server": {
+        "port": 3110,
+        "host": "127.0.0.1",
+        "frontendUrl": "http://localhost:5174"
+      },
+      "flow": {
+        "rounds": 3,
+        "turnsPerRound": 6,
+        "personaCount": 4,
+        "roster": {
+          "facilitator": "",
+          "discussants": []
+        },
+        "voterCount": 3,
+        "voteLenses": [
+          {
+            "key": "logic",
+            "instruction": "論理の一貫性・飛躍のなさを最重視して選ぶ"
+          },
+          {
+            "key": "grounds",
+            "instruction": "根拠・具体例の裏付けを最重視して選ぶ"
+          },
+          {
+            "key": "relevance",
+            "instruction": "テーマへの適合・議論を前に進める度合いを最重視して選ぶ"
+          }
+        ],
+        "convergeShare": 0.6,
+        "engine": "dialectic",
+        "dialectic": {
+          "rebutTurns": 4,
+          "exchangeTurns": 16,
+          "argumentDepth": 4,
+          "staleTurns": 6,
+          "judgeModel": "claude-haiku-4-5-20251001",
+          "ruleCheck": true,
+          "finalJudgeModel": ""
+        },
+        "personaSetupModel": "",
+        "tags": [],
+        "sparringMaxTurns": 50,
+        "youtubeMaxComments": 200,
+        "autoAdoptOnCrawl": false,
+        "autoCrawl": {
+          "enabled": true,
+          "source": "niconico",
+          "sources": [
+            "niconico"
+          ],
+          "minVoices": 3,
+          "maxItems": 300
+        },
+        "informationGating": {
+          "enabled": true,
+          "minDensity": "moderate",
+          "maxLearnIterations": 2,
+          "maxGapsPerIteration": 2,
+          "model": ""
+        },
+        "debatability": {
+          "enabled": true,
+          "minArmableIssues": 2
+        },
+        "paperReview": {
+          "enabled": false,
+          "webCanonical": true,
+          "model": "",
+          "timeoutMs": 0
+        },
+        "paperRichness": {
+          "voices": 15,
+          "mechanicsTarget": 30,
+          "enrichMechanics": true,
+          "enrichModel": ""
+        },
+        "userVoices": {
+          "enabled": true,
+          "steamMaxReviews": 300,
+          "steamLanguages": [
+            "japanese",
+            "english"
+          ],
+          "glabMaxImpressions": 100,
+          "voluptasBaseUrl": ""
+        },
+        "notionLinks": {
+          "maxDepth": 2,
+          "maxPages": 50
+        },
+        "improvement": {
+          "effectModel": "claude-haiku-4-5-20251001"
+        },
+        "paperRefine": {
+          "enabled": false,
+          "model": ""
+        },
+        "foresight": {
+          "enabled": true,
+          "turns": 6,
+          "model": "",
+          "forecastModel": ""
+        },
+        "proxy": {
+          "enabled": false,
+          "budgetTokens": 3500,
+          "maxBudgetTokens": 10000,
+          "stanceModel": "",
+          "requireEvalPassed": true
+        },
+        "anatomia": {
+          "enabled": false,
+          "binPath": "",
+          "autoDraft": true,
+          "refineModel": "",
+          "timeoutMs": 180000
+        }
+      },
+      "workspace": "knowledge",
+      "discatier": {},
+      "personaEngine": {
+        "enabled": false,
+        "dbPath": "<CWD>/data/persona-engine.db",
+        "maxFiresPerSession": 20,
+        "maxFiresPerRule": 5,
+        "tickMs": 5000,
+        "bridgePollMs": 2000
+      },
+      "facilitator": {
+        "enabled": true,
+        "tickMs": 30000,
+        "idleGapMs": 120000,
+        "maxPersonas": 20,
+        "aufhebungTarget": 3
+      },
+      "autoSeed": {
+        "enabled": false,
+        "intervalMs": 1800000,
+        "maxConcurrent": 2,
+        "sources": [
+          "genre"
+        ]
+      },
+      "llm": {
+        "backend": "anthropic",
+        "tiers": {},
+        "claudeCliTimeoutMs": 120000,
+        "local": {
+          "baseUrl": "http://localhost:11434/v1",
+          "model": "gemma4:12b",
+          "timeoutMs": 120000
+        }
+      },
+      "embedding": {
+        "enabled": false,
+        "baseUrl": "http://localhost:11434/v1",
+        "model": "bge-m3",
+        "timeoutMs": 60000,
+        "batchSize": 32
+      },
+      "classifier": {
+        "backend": "claude-cli",
+        "model": "claude-haiku-4-5-20251001",
+        "timeoutMs": 30000
+      },
+      "discussion": {
+        "expectedUtterances": 20,
+        "keymanCount": 2,
+        "facilitatorModel": "claude-opus-5-5",
+        "keymanModel": "claude-opus-5-5",
+        "opinionModels": [
+          {
+            "model": "claude-sonnet-5",
+            "weight": 6
+          },
+          {
+            "model": "claude-haiku-4-5-20251001",
+            "weight": 4
+          }
+        ],
+        "minTotal": 4,
+        "turnDelayMs": 4000,
+        "continueTimeoutMs": 120000,
+        "maxRounds": 5
+      },
+      "workerPool": {
+        "enabled": false,
+        "workspace": "debate",
+        "callbackBaseUrl": "http://127.0.0.1:3110",
+        "injectDelayMs": 2500,
+        "turnTimeoutMs": 120000,
+        "registerTimeoutMs": 60000,
+        "registerSettleMs": 4000,
+        "workers": [],
+        "excludeProviders": []
+      },
+      "discord": {
+        "guildIds": [],
+        "adminIds": [],
+        "discussionChannelIds": [],
+        "crawlChannelIds": [],
+        "forum": {
+          "enabled": true,
+          "summaryChannelName": "まとめ投稿",
+          "dataLearningChannelName": "データ学習依頼",
+          "managedCategoryName": "システム",
+          "improvementTagNames": [
+            "改善提案",
+            "改善",
+            "提案",
+            "improvement"
+          ],
+          "funTagNames": [
+            "面白さ",
+            "面白い",
+            "おもしろさ",
+            "fun"
+          ],
+          "discussionForumName": "議論"
+        },
+        "gameFeedback": {
+          "enabled": true,
+          "categoryName": "ゲーム感想"
+        }
+      },
+      "slack": {
+        "enabled": false,
+        "appToken": "",
+        "botToken": "",
+        "channelIds": [],
+        "adminIds": []
+      },
+      "backup": {
+        "enabled": false,
+        "region": "ap-northeast-1",
+        "prefix": "discutere/",
+        "storageClass": "GLACIER",
+        "intervalDays": 30,
+        "stateFile": "<CWD>/data/backup-state.json"
+      },
+      "fundamentum": {
+        "enabled": true,
+        "dataDir": "<CWD>/data/fundamentum"
+      },
+      "kgSync": {
+        "auto": false,
+        "intervalHours": 6,
+        "stateFile": "<CWD>/data/kg-sync-state.json"
+      },
+      "cost": {
+        "relay": {
+          "enabled": false,
+          "intervalMs": 300000,
+          "service": "discutere"
+        }
+      }
+    }
+  },
+  {
+    "name": "null-file",
+    "env": {
+      "DISCUTERE_CONFIG": "./discutere.golden.json"
+    },
+    "file": "null",
+    "ok": true,
+    "config": {
+      "nodeEnv": "development",
+      "externalDiscussion": {
+        "sharedSecret": ""
+      },
+      "glabConclusions": {
+        "token": ""
+      },
+      "server": {
+        "port": 3110,
+        "host": "127.0.0.1",
+        "frontendUrl": "http://localhost:5174"
+      },
+      "flow": {
+        "rounds": 3,
+        "turnsPerRound": 6,
+        "personaCount": 4,
+        "roster": {
+          "facilitator": "",
+          "discussants": []
+        },
+        "voterCount": 3,
+        "voteLenses": [
+          {
+            "key": "logic",
+            "instruction": "論理の一貫性・飛躍のなさを最重視して選ぶ"
+          },
+          {
+            "key": "grounds",
+            "instruction": "根拠・具体例の裏付けを最重視して選ぶ"
+          },
+          {
+            "key": "relevance",
+            "instruction": "テーマへの適合・議論を前に進める度合いを最重視して選ぶ"
+          }
+        ],
+        "convergeShare": 0.6,
+        "engine": "dialectic",
+        "dialectic": {
+          "rebutTurns": 4,
+          "exchangeTurns": 16,
+          "argumentDepth": 4,
+          "staleTurns": 6,
+          "judgeModel": "claude-haiku-4-5-20251001",
+          "ruleCheck": true,
+          "finalJudgeModel": ""
+        },
+        "personaSetupModel": "",
+        "tags": [],
+        "sparringMaxTurns": 50,
+        "youtubeMaxComments": 200,
+        "autoAdoptOnCrawl": false,
+        "autoCrawl": {
+          "enabled": true,
+          "source": "niconico",
+          "sources": [
+            "niconico"
+          ],
+          "minVoices": 3,
+          "maxItems": 300
+        },
+        "informationGating": {
+          "enabled": true,
+          "minDensity": "moderate",
+          "maxLearnIterations": 2,
+          "maxGapsPerIteration": 2,
+          "model": ""
+        },
+        "debatability": {
+          "enabled": true,
+          "minArmableIssues": 2
+        },
+        "paperReview": {
+          "enabled": false,
+          "webCanonical": true,
+          "model": "",
+          "timeoutMs": 0
+        },
+        "paperRichness": {
+          "voices": 15,
+          "mechanicsTarget": 30,
+          "enrichMechanics": true,
+          "enrichModel": ""
+        },
+        "userVoices": {
+          "enabled": true,
+          "steamMaxReviews": 300,
+          "steamLanguages": [
+            "japanese",
+            "english"
+          ],
+          "glabMaxImpressions": 100,
+          "voluptasBaseUrl": ""
+        },
+        "notionLinks": {
+          "maxDepth": 2,
+          "maxPages": 50
+        },
+        "improvement": {
+          "effectModel": "claude-haiku-4-5-20251001"
+        },
+        "paperRefine": {
+          "enabled": false,
+          "model": ""
+        },
+        "foresight": {
+          "enabled": true,
+          "turns": 6,
+          "model": "",
+          "forecastModel": ""
+        },
+        "proxy": {
+          "enabled": false,
+          "budgetTokens": 3500,
+          "maxBudgetTokens": 10000,
+          "stanceModel": "",
+          "requireEvalPassed": true
+        },
+        "anatomia": {
+          "enabled": false,
+          "binPath": "",
+          "autoDraft": true,
+          "refineModel": "",
+          "timeoutMs": 180000
+        }
+      },
+      "workspace": "knowledge",
+      "discatier": {},
+      "personaEngine": {
+        "enabled": false,
+        "dbPath": "<CWD>/data/persona-engine.db",
+        "maxFiresPerSession": 20,
+        "maxFiresPerRule": 5,
+        "tickMs": 5000,
+        "bridgePollMs": 2000
+      },
+      "facilitator": {
+        "enabled": true,
+        "tickMs": 30000,
+        "idleGapMs": 120000,
+        "maxPersonas": 20,
+        "aufhebungTarget": 3
+      },
+      "autoSeed": {
+        "enabled": false,
+        "intervalMs": 1800000,
+        "maxConcurrent": 2,
+        "sources": [
+          "genre"
+        ]
+      },
+      "llm": {
+        "backend": "anthropic",
+        "tiers": {},
+        "claudeCliTimeoutMs": 120000,
+        "local": {
+          "baseUrl": "http://localhost:11434/v1",
+          "model": "gemma4:12b",
+          "timeoutMs": 120000
+        }
+      },
+      "embedding": {
+        "enabled": false,
+        "baseUrl": "http://localhost:11434/v1",
+        "model": "bge-m3",
+        "timeoutMs": 60000,
+        "batchSize": 32
+      },
+      "classifier": {
+        "backend": "claude-cli",
+        "model": "claude-haiku-4-5-20251001",
+        "timeoutMs": 30000
+      },
+      "discussion": {
+        "expectedUtterances": 20,
+        "keymanCount": 2,
+        "facilitatorModel": "claude-opus-5-5",
+        "keymanModel": "claude-opus-5-5",
+        "opinionModels": [
+          {
+            "model": "claude-sonnet-5",
+            "weight": 6
+          },
+          {
+            "model": "claude-haiku-4-5-20251001",
+            "weight": 4
+          }
+        ],
+        "minTotal": 4,
+        "turnDelayMs": 4000,
+        "continueTimeoutMs": 120000,
+        "maxRounds": 5
+      },
+      "workerPool": {
+        "enabled": false,
+        "workspace": "debate",
+        "callbackBaseUrl": "http://127.0.0.1:3110",
+        "injectDelayMs": 2500,
+        "turnTimeoutMs": 120000,
+        "registerTimeoutMs": 60000,
+        "registerSettleMs": 4000,
+        "workers": [],
+        "excludeProviders": []
+      },
+      "discord": {
+        "guildIds": [],
+        "adminIds": [],
+        "discussionChannelIds": [],
+        "crawlChannelIds": [],
+        "forum": {
+          "enabled": true,
+          "summaryChannelName": "まとめ投稿",
+          "dataLearningChannelName": "データ学習依頼",
+          "managedCategoryName": "システム",
+          "improvementTagNames": [
+            "改善提案",
+            "改善",
+            "提案",
+            "improvement"
+          ],
+          "funTagNames": [
+            "面白さ",
+            "面白い",
+            "おもしろさ",
+            "fun"
+          ],
+          "discussionForumName": "議論"
+        },
+        "gameFeedback": {
+          "enabled": true,
+          "categoryName": "ゲーム感想"
+        }
+      },
+      "slack": {
+        "enabled": false,
+        "appToken": "",
+        "botToken": "",
+        "channelIds": [],
+        "adminIds": []
+      },
+      "backup": {
+        "enabled": false,
+        "region": "ap-northeast-1",
+        "prefix": "discutere/",
+        "storageClass": "GLACIER",
+        "intervalDays": 30,
+        "stateFile": "<CWD>/data/backup-state.json"
+      },
+      "fundamentum": {
+        "enabled": true,
+        "dataDir": "<CWD>/data/fundamentum"
+      },
+      "kgSync": {
+        "auto": false,
+        "intervalHours": 6,
+        "stateFile": "<CWD>/data/kg-sync-state.json"
+      },
+      "cost": {
+        "relay": {
+          "enabled": false,
+          "intervalMs": 300000,
+          "service": "discutere"
+        }
+      }
+    }
+  },
+  {
+    "name": "string-sections",
+    "env": {
+      "DISCUTERE_CONFIG": "./discutere.golden.json"
+    },
+    "file": "{\"flow\":\"x\",\"server\":[1],\"llm\":null,\"discord\":{\"forum\":3}}",
+    "ok": true,
+    "config": {
+      "nodeEnv": "development",
+      "externalDiscussion": {
+        "sharedSecret": ""
+      },
+      "glabConclusions": {
+        "token": ""
+      },
+      "server": {
+        "port": 3110,
+        "host": "127.0.0.1",
+        "frontendUrl": "http://localhost:5174"
+      },
+      "flow": {
+        "rounds": 3,
+        "turnsPerRound": 6,
+        "personaCount": 4,
+        "roster": {
+          "facilitator": "",
+          "discussants": []
+        },
+        "voterCount": 3,
+        "voteLenses": [
+          {
+            "key": "logic",
+            "instruction": "論理の一貫性・飛躍のなさを最重視して選ぶ"
+          },
+          {
+            "key": "grounds",
+            "instruction": "根拠・具体例の裏付けを最重視して選ぶ"
+          },
+          {
+            "key": "relevance",
+            "instruction": "テーマへの適合・議論を前に進める度合いを最重視して選ぶ"
+          }
+        ],
+        "convergeShare": 0.6,
+        "engine": "dialectic",
+        "dialectic": {
+          "rebutTurns": 4,
+          "exchangeTurns": 16,
+          "argumentDepth": 4,
+          "staleTurns": 6,
+          "judgeModel": "claude-haiku-4-5-20251001",
+          "ruleCheck": true,
+          "finalJudgeModel": ""
+        },
+        "personaSetupModel": "",
+        "tags": [],
+        "sparringMaxTurns": 50,
+        "youtubeMaxComments": 200,
+        "autoAdoptOnCrawl": false,
+        "autoCrawl": {
+          "enabled": true,
+          "source": "niconico",
+          "sources": [
+            "niconico"
+          ],
+          "minVoices": 3,
+          "maxItems": 300
+        },
+        "informationGating": {
+          "enabled": true,
+          "minDensity": "moderate",
+          "maxLearnIterations": 2,
+          "maxGapsPerIteration": 2,
+          "model": ""
+        },
+        "debatability": {
+          "enabled": true,
+          "minArmableIssues": 2
+        },
+        "paperReview": {
+          "enabled": false,
+          "webCanonical": true,
+          "model": "",
+          "timeoutMs": 0
+        },
+        "paperRichness": {
+          "voices": 15,
+          "mechanicsTarget": 30,
+          "enrichMechanics": true,
+          "enrichModel": ""
+        },
+        "userVoices": {
+          "enabled": true,
+          "steamMaxReviews": 300,
+          "steamLanguages": [
+            "japanese",
+            "english"
+          ],
+          "glabMaxImpressions": 100,
+          "voluptasBaseUrl": ""
+        },
+        "notionLinks": {
+          "maxDepth": 2,
+          "maxPages": 50
+        },
+        "improvement": {
+          "effectModel": "claude-haiku-4-5-20251001"
+        },
+        "paperRefine": {
+          "enabled": false,
+          "model": ""
+        },
+        "foresight": {
+          "enabled": true,
+          "turns": 6,
+          "model": "",
+          "forecastModel": ""
+        },
+        "proxy": {
+          "enabled": false,
+          "budgetTokens": 3500,
+          "maxBudgetTokens": 10000,
+          "stanceModel": "",
+          "requireEvalPassed": true
+        },
+        "anatomia": {
+          "enabled": false,
+          "binPath": "",
+          "autoDraft": true,
+          "refineModel": "",
+          "timeoutMs": 180000
+        }
+      },
+      "workspace": "knowledge",
+      "discatier": {},
+      "personaEngine": {
+        "enabled": false,
+        "dbPath": "<CWD>/data/persona-engine.db",
+        "maxFiresPerSession": 20,
+        "maxFiresPerRule": 5,
+        "tickMs": 5000,
+        "bridgePollMs": 2000
+      },
+      "facilitator": {
+        "enabled": true,
+        "tickMs": 30000,
+        "idleGapMs": 120000,
+        "maxPersonas": 20,
+        "aufhebungTarget": 3
+      },
+      "autoSeed": {
+        "enabled": false,
+        "intervalMs": 1800000,
+        "maxConcurrent": 2,
+        "sources": [
+          "genre"
+        ]
+      },
+      "llm": {
+        "backend": "anthropic",
+        "tiers": {},
+        "claudeCliTimeoutMs": 120000,
+        "local": {
+          "baseUrl": "http://localhost:11434/v1",
+          "model": "gemma4:12b",
+          "timeoutMs": 120000
+        }
+      },
+      "embedding": {
+        "enabled": false,
+        "baseUrl": "http://localhost:11434/v1",
+        "model": "bge-m3",
+        "timeoutMs": 60000,
+        "batchSize": 32
+      },
+      "classifier": {
+        "backend": "claude-cli",
+        "model": "claude-haiku-4-5-20251001",
+        "timeoutMs": 30000
+      },
+      "discussion": {
+        "expectedUtterances": 20,
+        "keymanCount": 2,
+        "facilitatorModel": "claude-opus-5-5",
+        "keymanModel": "claude-opus-5-5",
+        "opinionModels": [
+          {
+            "model": "claude-sonnet-5",
+            "weight": 6
+          },
+          {
+            "model": "claude-haiku-4-5-20251001",
+            "weight": 4
+          }
+        ],
+        "minTotal": 4,
+        "turnDelayMs": 4000,
+        "continueTimeoutMs": 120000,
+        "maxRounds": 5
+      },
+      "workerPool": {
+        "enabled": false,
+        "workspace": "debate",
+        "callbackBaseUrl": "http://127.0.0.1:3110",
+        "injectDelayMs": 2500,
+        "turnTimeoutMs": 120000,
+        "registerTimeoutMs": 60000,
+        "registerSettleMs": 4000,
+        "workers": [],
+        "excludeProviders": []
+      },
+      "discord": {
+        "guildIds": [],
+        "adminIds": [],
+        "discussionChannelIds": [],
+        "crawlChannelIds": [],
+        "forum": {
+          "enabled": true,
+          "summaryChannelName": "まとめ投稿",
+          "dataLearningChannelName": "データ学習依頼",
+          "managedCategoryName": "システム",
+          "improvementTagNames": [
+            "改善提案",
+            "改善",
+            "提案",
+            "improvement"
+          ],
+          "funTagNames": [
+            "面白さ",
+            "面白い",
+            "おもしろさ",
+            "fun"
+          ],
+          "discussionForumName": "議論"
+        },
+        "gameFeedback": {
+          "enabled": true,
+          "categoryName": "ゲーム感想"
+        }
+      },
+      "slack": {
+        "enabled": false,
+        "appToken": "",
+        "botToken": "",
+        "channelIds": [],
+        "adminIds": []
+      },
+      "backup": {
+        "enabled": false,
+        "region": "ap-northeast-1",
+        "prefix": "discutere/",
+        "storageClass": "GLACIER",
+        "intervalDays": 30,
+        "stateFile": "<CWD>/data/backup-state.json"
+      },
+      "fundamentum": {
+        "enabled": true,
+        "dataDir": "<CWD>/data/fundamentum"
+      },
+      "kgSync": {
+        "auto": false,
+        "intervalHours": 6,
+        "stateFile": "<CWD>/data/kg-sync-state.json"
+      },
+      "cost": {
+        "relay": {
+          "enabled": false,
+          "intervalMs": 300000,
+          "service": "discutere"
+        }
+      }
+    }
+  },
+  {
+    "name": "batch-size-zero",
+    "env": {
+      "DISCUTERE_CONFIG": "./discutere.golden.json",
+      "DISCUTERE_EMBEDDING_BATCH_SIZE": "0"
+    },
+    "file": null,
+    "ok": false,
+    "error": "embedding.batchSize must be a positive integer"
+  },
+  {
+    "name": "timeout-not-integer",
+    "env": {
+      "DISCUTERE_CONFIG": "./discutere.golden.json"
+    },
+    "file": "{\"embedding\":{\"timeoutMs\":2.5}}",
+    "ok": false,
+    "error": "embedding.timeoutMs must be a positive integer"
+  },
+  {
+    "name": "timeout-bool",
+    "env": {
+      "DISCUTERE_CONFIG": "./discutere.golden.json"
+    },
+    "file": "{\"embedding\":{\"timeoutMs\":true}}",
+    "ok": false,
+    "error": "embedding.timeoutMs must be a positive integer"
+  },
+  {
+    "name": "timeout-empty-string",
+    "env": {
+      "DISCUTERE_CONFIG": "./discutere.golden.json"
+    },
+    "file": "{\"embedding\":{\"batchSize\":\"\"}}",
+    "ok": false,
+    "error": "embedding.batchSize must be a positive integer"
+  },
+  {
+    "name": "default-config-path",
+    "env": {},
+    "file": null,
+    "ok": true,
+    "config": {
+      "nodeEnv": "development",
+      "externalDiscussion": {
+        "sharedSecret": ""
+      },
+      "glabConclusions": {
+        "token": ""
+      },
+      "server": {
+        "port": 3110,
+        "host": "127.0.0.1",
+        "frontendUrl": "http://localhost:5174"
+      },
+      "flow": {
+        "rounds": 3,
+        "turnsPerRound": 6,
+        "personaCount": 4,
+        "roster": {
+          "facilitator": "",
+          "discussants": []
+        },
+        "voterCount": 3,
+        "voteLenses": [
+          {
+            "key": "logic",
+            "instruction": "論理の一貫性・飛躍のなさを最重視して選ぶ"
+          },
+          {
+            "key": "grounds",
+            "instruction": "根拠・具体例の裏付けを最重視して選ぶ"
+          },
+          {
+            "key": "relevance",
+            "instruction": "テーマへの適合・議論を前に進める度合いを最重視して選ぶ"
+          }
+        ],
+        "convergeShare": 0.6,
+        "engine": "dialectic",
+        "dialectic": {
+          "rebutTurns": 4,
+          "exchangeTurns": 16,
+          "argumentDepth": 4,
+          "staleTurns": 6,
+          "judgeModel": "claude-haiku-4-5-20251001",
+          "ruleCheck": true,
+          "finalJudgeModel": ""
+        },
+        "personaSetupModel": "",
+        "tags": [],
+        "sparringMaxTurns": 50,
+        "youtubeMaxComments": 200,
+        "autoAdoptOnCrawl": false,
+        "autoCrawl": {
+          "enabled": true,
+          "source": "niconico",
+          "sources": [
+            "niconico"
+          ],
+          "minVoices": 3,
+          "maxItems": 300
+        },
+        "informationGating": {
+          "enabled": true,
+          "minDensity": "moderate",
+          "maxLearnIterations": 2,
+          "maxGapsPerIteration": 2,
+          "model": ""
+        },
+        "debatability": {
+          "enabled": true,
+          "minArmableIssues": 2
+        },
+        "paperReview": {
+          "enabled": false,
+          "webCanonical": true,
+          "model": "",
+          "timeoutMs": 0
+        },
+        "paperRichness": {
+          "voices": 15,
+          "mechanicsTarget": 30,
+          "enrichMechanics": true,
+          "enrichModel": ""
+        },
+        "userVoices": {
+          "enabled": true,
+          "steamMaxReviews": 300,
+          "steamLanguages": [
+            "japanese",
+            "english"
+          ],
+          "glabMaxImpressions": 100,
+          "voluptasBaseUrl": ""
+        },
+        "notionLinks": {
+          "maxDepth": 2,
+          "maxPages": 50
+        },
+        "improvement": {
+          "effectModel": "claude-haiku-4-5-20251001"
+        },
+        "paperRefine": {
+          "enabled": false,
+          "model": ""
+        },
+        "foresight": {
+          "enabled": true,
+          "turns": 6,
+          "model": "",
+          "forecastModel": ""
+        },
+        "proxy": {
+          "enabled": false,
+          "budgetTokens": 3500,
+          "maxBudgetTokens": 10000,
+          "stanceModel": "",
+          "requireEvalPassed": true
+        },
+        "anatomia": {
+          "enabled": false,
+          "binPath": "",
+          "autoDraft": true,
+          "refineModel": "",
+          "timeoutMs": 180000
+        }
+      },
+      "workspace": "knowledge",
+      "discatier": {},
+      "personaEngine": {
+        "enabled": false,
+        "dbPath": "<CWD>/data/persona-engine.db",
+        "maxFiresPerSession": 20,
+        "maxFiresPerRule": 5,
+        "tickMs": 5000,
+        "bridgePollMs": 2000
+      },
+      "facilitator": {
+        "enabled": true,
+        "tickMs": 30000,
+        "idleGapMs": 120000,
+        "maxPersonas": 20,
+        "aufhebungTarget": 3
+      },
+      "autoSeed": {
+        "enabled": false,
+        "intervalMs": 1800000,
+        "maxConcurrent": 2,
+        "sources": [
+          "genre"
+        ]
+      },
+      "llm": {
+        "backend": "anthropic",
+        "tiers": {},
+        "claudeCliTimeoutMs": 120000,
+        "local": {
+          "baseUrl": "http://localhost:11434/v1",
+          "model": "gemma4:12b",
+          "timeoutMs": 120000
+        }
+      },
+      "embedding": {
+        "enabled": false,
+        "baseUrl": "http://localhost:11434/v1",
+        "model": "bge-m3",
+        "timeoutMs": 60000,
+        "batchSize": 32
+      },
+      "classifier": {
+        "backend": "claude-cli",
+        "model": "claude-haiku-4-5-20251001",
+        "timeoutMs": 30000
+      },
+      "discussion": {
+        "expectedUtterances": 20,
+        "keymanCount": 2,
+        "facilitatorModel": "claude-opus-5-5",
+        "keymanModel": "claude-opus-5-5",
+        "opinionModels": [
+          {
+            "model": "claude-sonnet-5",
+            "weight": 6
+          },
+          {
+            "model": "claude-haiku-4-5-20251001",
+            "weight": 4
+          }
+        ],
+        "minTotal": 4,
+        "turnDelayMs": 4000,
+        "continueTimeoutMs": 120000,
+        "maxRounds": 5
+      },
+      "workerPool": {
+        "enabled": false,
+        "workspace": "debate",
+        "callbackBaseUrl": "http://127.0.0.1:3110",
+        "injectDelayMs": 2500,
+        "turnTimeoutMs": 120000,
+        "registerTimeoutMs": 60000,
+        "registerSettleMs": 4000,
+        "workers": [],
+        "excludeProviders": []
+      },
+      "discord": {
+        "guildIds": [],
+        "adminIds": [],
+        "discussionChannelIds": [],
+        "crawlChannelIds": [],
+        "forum": {
+          "enabled": true,
+          "summaryChannelName": "まとめ投稿",
+          "dataLearningChannelName": "データ学習依頼",
+          "managedCategoryName": "システム",
+          "improvementTagNames": [
+            "改善提案",
+            "改善",
+            "提案",
+            "improvement"
+          ],
+          "funTagNames": [
+            "面白さ",
+            "面白い",
+            "おもしろさ",
+            "fun"
+          ],
+          "discussionForumName": "議論"
+        },
+        "gameFeedback": {
+          "enabled": true,
+          "categoryName": "ゲーム感想"
+        }
+      },
+      "slack": {
+        "enabled": false,
+        "appToken": "",
+        "botToken": "",
+        "channelIds": [],
+        "adminIds": []
+      },
+      "backup": {
+        "enabled": false,
+        "region": "ap-northeast-1",
+        "prefix": "discutere/",
+        "storageClass": "GLACIER",
+        "intervalDays": 30,
+        "stateFile": "<CWD>/data/backup-state.json"
+      },
+      "fundamentum": {
+        "enabled": true,
+        "dataDir": "<CWD>/data/fundamentum"
+      },
+      "kgSync": {
+        "auto": false,
+        "intervalHours": 6,
+        "stateFile": "<CWD>/data/kg-sync-state.json"
+      },
+      "cost": {
+        "relay": {
+          "enabled": false,
+          "intervalMs": 300000,
+          "service": "discutere"
+        }
+      }
+    }
+  }
+]
