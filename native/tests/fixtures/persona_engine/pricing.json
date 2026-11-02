@@ -1,0 +1,401 @@
+{
+  "families": [
+    {
+      "model": null,
+      "family": null
+    },
+    {
+      "model": "",
+      "family": null
+    },
+    {
+      "model": "claude-opus-4-8",
+      "family": "opus"
+    },
+    {
+      "model": "CLAUDE-SONNET-5@high",
+      "family": "sonnet"
+    },
+    {
+      "model": "claude-haiku-4-5-20251001",
+      "family": "haiku"
+    },
+    {
+      "model": "gpt-5.6-sol",
+      "family": null
+    },
+    {
+      "model": "x@opus",
+      "family": null
+    },
+    {
+      "model": "opus",
+      "family": "opus"
+    }
+  ],
+  "costs": [
+    {
+      "model": null,
+      "usage": null,
+      "cost": null
+    },
+    {
+      "model": null,
+      "usage": {},
+      "cost": null
+    },
+    {
+      "model": null,
+      "usage": {
+        "input_tokens": 1000,
+        "output_tokens": 500
+      },
+      "cost": null
+    },
+    {
+      "model": null,
+      "usage": {
+        "input_tokens": 1234,
+        "output_tokens": 567,
+        "cache_read_input_tokens": 8901,
+        "cache_creation_input_tokens": 2345
+      },
+      "cost": null
+    },
+    {
+      "model": null,
+      "usage": {
+        "input_tokens": 0,
+        "output_tokens": 0
+      },
+      "cost": null
+    },
+    {
+      "model": "",
+      "usage": null,
+      "cost": null
+    },
+    {
+      "model": "",
+      "usage": {},
+      "cost": null
+    },
+    {
+      "model": "",
+      "usage": {
+        "input_tokens": 1000,
+        "output_tokens": 500
+      },
+      "cost": null
+    },
+    {
+      "model": "",
+      "usage": {
+        "input_tokens": 1234,
+        "output_tokens": 567,
+        "cache_read_input_tokens": 8901,
+        "cache_creation_input_tokens": 2345
+      },
+      "cost": null
+    },
+    {
+      "model": "",
+      "usage": {
+        "input_tokens": 0,
+        "output_tokens": 0
+      },
+      "cost": null
+    },
+    {
+      "model": "claude-opus-4-8",
+      "usage": null,
+      "cost": null
+    },
+    {
+      "model": "claude-opus-4-8",
+      "usage": {},
+      "cost": null
+    },
+    {
+      "model": "claude-opus-4-8",
+      "usage": {
+        "input_tokens": 1000,
+        "output_tokens": 500
+      },
+      "cost": 0.0175
+    },
+    {
+      "model": "claude-opus-4-8",
+      "usage": {
+        "input_tokens": 1234,
+        "output_tokens": 567,
+        "cache_read_input_tokens": 8901,
+        "cache_creation_input_tokens": 2345
+      },
+      "cost": 0.03945175
+    },
+    {
+      "model": "claude-opus-4-8",
+      "usage": {
+        "input_tokens": 0,
+        "output_tokens": 0
+      },
+      "cost": null
+    },
+    {
+      "model": "CLAUDE-SONNET-5@high",
+      "usage": null,
+      "cost": null
+    },
+    {
+      "model": "CLAUDE-SONNET-5@high",
+      "usage": {},
+      "cost": null
+    },
+    {
+      "model": "CLAUDE-SONNET-5@high",
+      "usage": {
+        "input_tokens": 1000,
+        "output_tokens": 500
+      },
+      "cost": 0.0105
+    },
+    {
+      "model": "CLAUDE-SONNET-5@high",
+      "usage": {
+        "input_tokens": 1234,
+        "output_tokens": 567,
+        "cache_read_input_tokens": 8901,
+        "cache_creation_input_tokens": 2345
+      },
+      "cost": 0.02367105
+    },
+    {
+      "model": "CLAUDE-SONNET-5@high",
+      "usage": {
+        "input_tokens": 0,
+        "output_tokens": 0
+      },
+      "cost": null
+    },
+    {
+      "model": "claude-haiku-4-5-20251001",
+      "usage": null,
+      "cost": null
+    },
+    {
+      "model": "claude-haiku-4-5-20251001",
+      "usage": {},
+      "cost": null
+    },
+    {
+      "model": "claude-haiku-4-5-20251001",
+      "usage": {
+        "input_tokens": 1000,
+        "output_tokens": 500
+      },
+      "cost": 0.0035
+    },
+    {
+      "model": "claude-haiku-4-5-20251001",
+      "usage": {
+        "input_tokens": 1234,
+        "output_tokens": 567,
+        "cache_read_input_tokens": 8901,
+        "cache_creation_input_tokens": 2345
+      },
+      "cost": 0.00789035
+    },
+    {
+      "model": "claude-haiku-4-5-20251001",
+      "usage": {
+        "input_tokens": 0,
+        "output_tokens": 0
+      },
+      "cost": null
+    },
+    {
+      "model": "gpt-5.6-sol",
+      "usage": null,
+      "cost": null
+    },
+    {
+      "model": "gpt-5.6-sol",
+      "usage": {},
+      "cost": null
+    },
+    {
+      "model": "gpt-5.6-sol",
+      "usage": {
+        "input_tokens": 1000,
+        "output_tokens": 500
+      },
+      "cost": null
+    },
+    {
+      "model": "gpt-5.6-sol",
+      "usage": {
+        "input_tokens": 1234,
+        "output_tokens": 567,
+        "cache_read_input_tokens": 8901,
+        "cache_creation_input_tokens": 2345
+      },
+      "cost": null
+    },
+    {
+      "model": "gpt-5.6-sol",
+      "usage": {
+        "input_tokens": 0,
+        "output_tokens": 0
+      },
+      "cost": null
+    },
+    {
+      "model": "x@opus",
+      "usage": null,
+      "cost": null
+    },
+    {
+      "model": "x@opus",
+      "usage": {},
+      "cost": null
+    },
+    {
+      "model": "x@opus",
+      "usage": {
+        "input_tokens": 1000,
+        "output_tokens": 500
+      },
+      "cost": null
+    },
+    {
+      "model": "x@opus",
+      "usage": {
+        "input_tokens": 1234,
+        "output_tokens": 567,
+        "cache_read_input_tokens": 8901,
+        "cache_creation_input_tokens": 2345
+      },
+      "cost": null
+    },
+    {
+      "model": "x@opus",
+      "usage": {
+        "input_tokens": 0,
+        "output_tokens": 0
+      },
+      "cost": null
+    },
+    {
+      "model": "opus",
+      "usage": null,
+      "cost": null
+    },
+    {
+      "model": "opus",
+      "usage": {},
+      "cost": null
+    },
+    {
+      "model": "opus",
+      "usage": {
+        "input_tokens": 1000,
+        "output_tokens": 500
+      },
+      "cost": 0.0175
+    },
+    {
+      "model": "opus",
+      "usage": {
+        "input_tokens": 1234,
+        "output_tokens": 567,
+        "cache_read_input_tokens": 8901,
+        "cache_creation_input_tokens": 2345
+      },
+      "cost": 0.03945175
+    },
+    {
+      "model": "opus",
+      "usage": {
+        "input_tokens": 0,
+        "output_tokens": 0
+      },
+      "cost": null
+    }
+  ],
+  "tiers": [
+    {
+      "input": {
+        "kind": "converge"
+      },
+      "tiers": null,
+      "model": null
+    },
+    {
+      "input": {
+        "kind": "converge"
+      },
+      "tiers": {},
+      "model": null
+    },
+    {
+      "input": {
+        "kind": "converge"
+      },
+      "tiers": {
+        "cheap": "c",
+        "strong": "s"
+      },
+      "model": "s"
+    },
+    {
+      "input": {
+        "kind": "utterance"
+      },
+      "tiers": {
+        "cheap": "c",
+        "strong": "s"
+      },
+      "model": "c"
+    },
+    {
+      "input": {
+        "kind": "converge"
+      },
+      "tiers": {
+        "cheap": "c"
+      },
+      "model": "c"
+    },
+    {
+      "input": {
+        "kind": "utterance"
+      },
+      "tiers": {
+        "strong": "s"
+      },
+      "model": "s"
+    },
+    {
+      "input": {
+        "kind": "converge"
+      },
+      "tiers": {
+        "cheap": "c",
+        "strong": ""
+      },
+      "model": ""
+    },
+    {
+      "input": {
+        "kind": "utterance",
+        "inputTokens": 9000
+      },
+      "tiers": {
+        "cheap": "c",
+        "strong": "s"
+      },
+      "model": "s"
+    }
+  ]
+}
