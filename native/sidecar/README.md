@@ -7,6 +7,7 @@ C++ に移さず Node のまま残す機能を、C++ サーバから別プロセ
 | スクリプト | 中身 | Node に残す理由 |
 |---|---|---|
 | `backup-archive.ts` | 学習データの tar.gz 作成 (`src/backup/archive.ts` の `createArchive` をそのまま呼ぶ)。C++ は `di::backup::create_archive` | tar 形式・gzip の作成を自作しない (`tar` パッケージ) |
+| `spec-extract.ts` | 仕様書の本文抽出 (PDF = pdf-parse / DOCX = mammoth / PPTX・XLSX = ZIP 展開 + XML 抽出 (zlib) / 旧 DOC)。入力はバイト列 (base64) と方式名 (`spec.pdf` 等) と見出しだけで、ファイルパスは受け取らない。移植前の `src/flow/spec-source.ts` の `extractSpecTextFromBytes` をそのまま呼ぶので ZIP 展開の上限 (1 エントリ 64MiB・合計 128MiB、PR #3487) も同じ。呼び出し元 `native/src/flow/spec_source.cpp` (期限 120 秒・出力 32MiB・入力 64MiB) | 複雑な外部形式のパーサーを自作しない (pdf-parse / mammoth / zlib) |
 | (各担当が追加) | | |
 
 これらは npm 依存 (pdf-parse / mammoth / tar / @ludiars/canalis + playwright) を使う。

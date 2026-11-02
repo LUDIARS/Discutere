@@ -1,0 +1,5635 @@
+{
+  "blocks": [
+    {
+      "md": "",
+      "blocks": [],
+      "joined": "",
+      "replaced": [
+        "",
+        "",
+        ""
+      ],
+      "inserted": [
+        "挿入",
+        "末尾に",
+        ""
+      ],
+      "got": [
+        null,
+        null
+      ]
+    },
+    {
+      "md": "# 議題\n本文1\n本文2\n\n- a\n- b\n1. c\n2) d\n段落\n## 見出し2\n\n\n末尾  ",
+      "blocks": [
+        {
+          "id": "b0",
+          "type": "heading",
+          "text": "# 議題"
+        },
+        {
+          "id": "b1",
+          "type": "paragraph",
+          "text": "本文1\n本文2"
+        },
+        {
+          "id": "b2",
+          "type": "list",
+          "text": "- a\n- b\n1. c\n2) d"
+        },
+        {
+          "id": "b3",
+          "type": "paragraph",
+          "text": "段落"
+        },
+        {
+          "id": "b4",
+          "type": "heading",
+          "text": "## 見出し2"
+        },
+        {
+          "id": "b5",
+          "type": "paragraph",
+          "text": "末尾  "
+        }
+      ],
+      "joined": "# 議題\n\n本文1\n本文2\n\n- a\n- b\n1. c\n2) d\n\n段落\n\n## 見出し2\n\n末尾",
+      "replaced": [
+        "置換\n\n本文1\n本文2\n\n- a\n- b\n1. c\n2) d\n\n段落\n\n## 見出し2\n\n末尾",
+        "# 議題\n\n- a\n- b\n1. c\n2) d\n\n段落\n\n## 見出し2\n\n末尾",
+        "# 議題\n本文1\n本文2\n\n- a\n- b\n1. c\n2) d\n段落\n## 見出し2\n\n\n末尾  "
+      ],
+      "inserted": [
+        "# 議題\n\n挿入\n\n本文1\n本文2\n\n- a\n- b\n1. c\n2) d\n\n段落\n\n## 見出し2\n\n末尾",
+        "# 議題\n\n本文1\n本文2\n\n- a\n- b\n1. c\n2) d\n\n段落\n\n## 見出し2\n\n末尾\n\n末尾に",
+        "# 議題\n本文1\n本文2\n\n- a\n- b\n1. c\n2) d\n段落\n## 見出し2\n\n\n末尾  "
+      ],
+      "got": [
+        "本文1\n本文2",
+        null
+      ]
+    },
+    {
+      "md": "####### 7つ\n#タグ\n#\tタブ見出し\n  * 字下げ箇条\n+ plus\n-ダッシュだけ\n10. ten\n3.no-space\r\n\r\nwin\r\nlines   \n　\n全角空白行の後",
+      "blocks": [
+        {
+          "id": "b0",
+          "type": "paragraph",
+          "text": "####### 7つ\n#タグ"
+        },
+        {
+          "id": "b1",
+          "type": "heading",
+          "text": "#\tタブ見出し"
+        },
+        {
+          "id": "b2",
+          "type": "list",
+          "text": "  * 字下げ箇条\n+ plus"
+        },
+        {
+          "id": "b3",
+          "type": "paragraph",
+          "text": "-ダッシュだけ"
+        },
+        {
+          "id": "b4",
+          "type": "list",
+          "text": "10. ten"
+        },
+        {
+          "id": "b5",
+          "type": "paragraph",
+          "text": "3.no-space"
+        },
+        {
+          "id": "b6",
+          "type": "paragraph",
+          "text": "win\nlines   "
+        },
+        {
+          "id": "b7",
+          "type": "paragraph",
+          "text": "全角空白行の後"
+        }
+      ],
+      "joined": "####### 7つ\n#タグ\n\n#\tタブ見出し\n\n  * 字下げ箇条\n+ plus\n\n-ダッシュだけ\n\n10. ten\n\n3.no-space\n\nwin\nlines\n\n全角空白行の後",
+      "replaced": [
+        "置換\n\n#\tタブ見出し\n\n  * 字下げ箇条\n+ plus\n\n-ダッシュだけ\n\n10. ten\n\n3.no-space\n\nwin\nlines\n\n全角空白行の後",
+        "####### 7つ\n#タグ\n\n  * 字下げ箇条\n+ plus\n\n-ダッシュだけ\n\n10. ten\n\n3.no-space\n\nwin\nlines\n\n全角空白行の後",
+        "####### 7つ\n#タグ\n#\tタブ見出し\n  * 字下げ箇条\n+ plus\n-ダッシュだけ\n10. ten\n3.no-space\r\n\r\nwin\r\nlines   \n　\n全角空白行の後"
+      ],
+      "inserted": [
+        "####### 7つ\n#タグ\n\n挿入\n\n#\tタブ見出し\n\n  * 字下げ箇条\n+ plus\n\n-ダッシュだけ\n\n10. ten\n\n3.no-space\n\nwin\nlines\n\n全角空白行の後",
+        "####### 7つ\n#タグ\n\n#\tタブ見出し\n\n  * 字下げ箇条\n+ plus\n\n-ダッシュだけ\n\n10. ten\n\n3.no-space\n\nwin\nlines\n\n全角空白行の後\n\n末尾に",
+        "####### 7つ\n#タグ\n#\tタブ見出し\n  * 字下げ箇条\n+ plus\n-ダッシュだけ\n10. ten\n3.no-space\r\n\r\nwin\r\nlines   \n　\n全角空白行の後"
+      ],
+      "got": [
+        "#\tタブ見出し",
+        null
+      ]
+    },
+    {
+      "md": "line\rcr\nnext",
+      "blocks": [
+        {
+          "id": "b0",
+          "type": "paragraph",
+          "text": "line\rcr\nnext"
+        }
+      ],
+      "joined": "line\rcr\nnext",
+      "replaced": [
+        "置換",
+        "line\rcr\nnext",
+        "line\rcr\nnext"
+      ],
+      "inserted": [
+        "line\rcr\nnext\n\n挿入",
+        "line\rcr\nnext\n\n末尾に",
+        "line\rcr\nnext"
+      ],
+      "got": [
+        null,
+        null
+      ]
+    }
+  ],
+  "intents": [
+    {
+      "text": "メカニクスの代替として モンスト、パズドラ を参考に",
+      "result": {
+        "kind": "similar_games",
+        "text": "メカニクスの代替として モンスト、パズドラ を参考に",
+        "terms": [
+          "モンスト",
+          "パズドラ"
+        ]
+      }
+    },
+    {
+      "text": "ユーザーの感想を集めて",
+      "result": {
+        "kind": "voices",
+        "text": "ユーザーの感想を集めて",
+        "terms": []
+      }
+    },
+    {
+      "text": "口コミも入れて",
+      "result": {
+        "kind": "voices",
+        "text": "口コミも入れて",
+        "terms": []
+      }
+    },
+    {
+      "text": "外部の声を取り込んで「周回」",
+      "result": {
+        "kind": "voices",
+        "text": "外部の声を取り込んで「周回」",
+        "terms": [
+          "周回"
+        ]
+      }
+    },
+    {
+      "text": "外部の声を取り込んで「周回」「スタミナ」",
+      "result": {
+        "kind": "voices",
+        "text": "外部の声を取り込んで「周回」「スタミナ」",
+        "terms": [
+          "周回",
+          "スタミナ"
+        ]
+      }
+    },
+    {
+      "text": "観点補足を初心者向けに",
+      "result": {
+        "kind": "adjust",
+        "text": "観点補足を初心者向けに",
+        "terms": []
+      }
+    },
+    {
+      "text": "類似ゲーム: 「モンスト」「パズドラ」",
+      "result": {
+        "kind": "similar_games",
+        "text": "類似ゲーム: 「モンスト」「パズドラ」",
+        "terms": [
+          "モンスト",
+          "パズドラ"
+        ]
+      }
+    },
+    {
+      "text": "類似ゲームの外部の声を集めて",
+      "result": {
+        "kind": "voices",
+        "text": "類似ゲームの外部の声を集めて",
+        "terms": []
+      }
+    },
+    {
+      "text": "似たようなゲーム：スプラトゥーンとフォートナイト、Apex Legends!",
+      "result": {
+        "kind": "similar_games",
+        "text": "似たようなゲーム：スプラトゥーンとフォートナイト、Apex Legends!",
+        "terms": [
+          "スプラトゥーン",
+          "フォートナイト",
+          "Apex",
+          "Legends"
+        ]
+      }
+    },
+    {
+      "text": "参考になるゲームはポケモンとドラクエです。",
+      "result": {
+        "kind": "similar_games",
+        "text": "参考になるゲームはポケモンとドラクエです。",
+        "terms": [
+          "ポケモン",
+          "ドラクエ"
+        ]
+      }
+    },
+    {
+      "text": "代替メカニクスを追加してください",
+      "result": {
+        "kind": "similar_games",
+        "text": "代替メカニクスを追加してください",
+        "terms": []
+      }
+    },
+    {
+      "text": "  類似する作品 「」 『FF』 \"DQ\" “MH” ",
+      "result": {
+        "kind": "similar_games",
+        "text": "類似する作品 「」 『FF』 \"DQ\" “MH”",
+        "terms": [
+          "FF",
+          "DQ",
+          "MH"
+        ]
+      }
+    },
+    {
+      "text": "レビューを拾って",
+      "result": {
+        "kind": "voices",
+        "text": "レビューを拾って",
+        "terms": []
+      }
+    },
+    {
+      "text": "コメント追加",
+      "result": {
+        "kind": "voices",
+        "text": "コメント追加",
+        "terms": []
+      }
+    },
+    {
+      "text": "反応入れて",
+      "result": {
+        "kind": "voices",
+        "text": "反応入れて",
+        "terms": []
+      }
+    },
+    {
+      "text": "類似のタイトル:ゼルダ/マリオ／カービィ・メトロイド",
+      "result": {
+        "kind": "similar_games",
+        "text": "類似のタイトル:ゼルダ/マリオ／カービィ・メトロイド",
+        "terms": [
+          "ゼルダ",
+          "マリオ",
+          "カービィ",
+          "メトロイド"
+        ]
+      }
+    },
+    {
+      "text": "似ているゲーム として と ことと",
+      "result": {
+        "kind": "similar_games",
+        "text": "似ているゲーム として と ことと",
+        "terms": []
+      }
+    },
+    {
+      "text": "参考作品: とある魔術,abc",
+      "result": {
+        "kind": "similar_games",
+        "text": "参考作品: とある魔術,abc",
+        "terms": [
+          "ある魔術",
+          "abc"
+        ]
+      }
+    },
+    {
+      "text": "類似ゲーム",
+      "result": {
+        "kind": "similar_games",
+        "text": "類似ゲーム",
+        "terms": []
+      }
+    },
+    {
+      "text": "",
+      "result": {
+        "kind": "adjust",
+        "text": "",
+        "terms": []
+      }
+    },
+    {
+      "text": "類似ゲーム: 「ab",
+      "result": {
+        "kind": "similar_games",
+        "text": "類似ゲーム: 「ab",
+        "terms": [
+          "「ab"
+        ]
+      }
+    },
+    {
+      "text": "似たゲーム 「x」",
+      "result": {
+        "kind": "similar_games",
+        "text": "似たゲーム 「x」",
+        "terms": [
+          "x"
+        ]
+      }
+    }
+  ],
+  "replies": [
+    {
+      "text": "ない",
+      "result": true
+    },
+    {
+      "text": "ない。",
+      "result": true
+    },
+    {
+      "text": " 「ない」 ",
+      "result": true
+    },
+    {
+      "text": "なし!!",
+      "result": true
+    },
+    {
+      "text": "OK",
+      "result": false
+    },
+    {
+      "text": "Yes",
+      "result": true
+    },
+    {
+      "text": "了解ー",
+      "result": true
+    },
+    {
+      "text": "😀😀",
+      "result": true
+    },
+    {
+      "text": "!?",
+      "result": true
+    },
+    {
+      "text": "a",
+      "result": true
+    },
+    {
+      "text": "ab",
+      "result": false
+    },
+    {
+      "text": "はい〜",
+      "result": true
+    },
+    {
+      "text": "大丈夫です。",
+      "result": true
+    },
+    {
+      "text": "ないです",
+      "result": true
+    },
+    {
+      "text": "メカニクスを追加",
+      "result": false
+    },
+    {
+      "text": "特にない",
+      "result": true
+    },
+    {
+      "text": "ⅰⅱ",
+      "result": false
+    },
+    {
+      "text": "١٢",
+      "result": false
+    },
+    {
+      "text": "「」",
+      "result": true
+    },
+    {
+      "text": "』』",
+      "result": true
+    },
+    {
+      "text": "  ",
+      "result": true
+    },
+    {
+      "text": "ガチャ",
+      "result": false
+    },
+    {
+      "text": "ＮＯ",
+      "result": false
+    },
+    {
+      "text": "No.",
+      "result": true
+    }
+  ],
+  "sparring": [
+    {
+      "text": "おわり",
+      "result": "end"
+    },
+    {
+      "text": "このメカニクスはまとめて評価すると面白いが、難易度が高すぎて序盤で飽きると思う",
+      "result": "none"
+    },
+    {
+      "text": "そろそろまとめて。",
+      "result": "summarize"
+    },
+    {
+      "text": "まだ終わらないでほしい",
+      "result": "none"
+    },
+    {
+      "text": "まとめて",
+      "result": "summarize"
+    },
+    {
+      "text": "まとめてください",
+      "result": "summarize"
+    },
+    {
+      "text": "もう終了で",
+      "result": "end"
+    },
+    {
+      "text": "コンボが楽しい",
+      "result": "none"
+    },
+    {
+      "text": "終わりにして",
+      "result": "end"
+    },
+    {
+      "text": "",
+      "result": "none"
+    },
+    {
+      "text": "  。。 ",
+      "result": "none"
+    },
+    {
+      "text": "終わりたくない",
+      "result": "none"
+    },
+    {
+      "text": "おわれない",
+      "result": "none"
+    },
+    {
+      "text": "長い長い長い長い長い長い長い長い意見ですがここで終了します",
+      "result": "none"
+    },
+    {
+      "text": "まとめの観点から長い長い長い長い長い長い話をする",
+      "result": "summarize"
+    },
+    {
+      "text": "途中にまとめが入る長い長い長い長い文章です",
+      "result": "none"
+    },
+    {
+      "text": "「おしまい」",
+      "result": "end"
+    },
+    {
+      "text": "終了 ! ",
+      "result": "end"
+    },
+    {
+      "text": "まとめておわり",
+      "result": "end"
+    }
+  ],
+  "display": [
+    {
+      "input": {
+        "name": "陽介",
+        "stance": "opinion"
+      },
+      "result": "陽介 (意見屋)"
+    },
+    {
+      "input": {
+        "name": "凛",
+        "stance": "pro"
+      },
+      "result": "凛 (賛成派)"
+    },
+    {
+      "input": {
+        "name": "葵",
+        "role": "debater"
+      },
+      "result": "葵 (論者)"
+    },
+    {
+      "input": {
+        "name": "蓮",
+        "stance": "opinion",
+        "possessionName": "  "
+      },
+      "result": "蓮 (意見屋)"
+    },
+    {
+      "input": {
+        "name": "陽介",
+        "stance": "opinion",
+        "possessionName": "論者#a1b2c3"
+      },
+      "result": "陽介 (意見屋/論者#a1b2c3)"
+    },
+    {
+      "input": {
+        "name": "翔"
+      },
+      "result": "翔"
+    },
+    {
+      "input": {
+        "name": "改",
+        "stance": "reform",
+        "possessionName": " x "
+      },
+      "result": "改 (改革派/x)"
+    },
+    {
+      "input": {
+        "name": "保",
+        "stance": "conservative"
+      },
+      "result": "保 (保守派)"
+    },
+    {
+      "input": {
+        "name": "未知",
+        "stance": "weird",
+        "role": "debater"
+      },
+      "result": "未知"
+    },
+    {
+      "input": {
+        "name": "空",
+        "stance": "",
+        "role": "facilitator"
+      },
+      "result": "空 (進行役)"
+    }
+  ],
+  "convergence": [
+    {
+      "input": {
+        "unresolvedRebuttals": 0,
+        "winnerShare": 0.7,
+        "convergeShare": 0.6,
+        "newClaimsInWindow": 0,
+        "ratifiedAufhebenCount": 0,
+        "aufhebungTarget": 3
+      },
+      "result": {
+        "converged": true,
+        "signals": {
+          "rebuttalsSettled": true,
+          "voteConcentrated": true,
+          "claimsStale": true
+        },
+        "met": 3,
+        "capReached": false,
+        "note": "未応答反論=0 ✓ / 投票集中度=0.70 ✓ / 新規claim(窓内)=0 ✓ → 3/3 → 収束"
+      }
+    },
+    {
+      "input": {
+        "unresolvedRebuttals": 2,
+        "winnerShare": null,
+        "convergeShare": 0.6,
+        "newClaimsInWindow": 1,
+        "ratifiedAufhebenCount": 3,
+        "aufhebungTarget": 3
+      },
+      "result": {
+        "converged": true,
+        "signals": {
+          "rebuttalsSettled": false,
+          "voteConcentrated": false,
+          "claimsStale": false
+        },
+        "met": 0,
+        "capReached": true,
+        "note": "未応答反論=2 / 投票集中度=n/a / 新規claim(窓内)=1 → 0/3 / 批准済み止揚 3 件が上限キャップ 3 に到達 → 収束"
+      }
+    },
+    {
+      "input": {
+        "unresolvedRebuttals": 1,
+        "winnerShare": 0.555,
+        "convergeShare": 0.55,
+        "newClaimsInWindow": 0,
+        "ratifiedAufhebenCount": 1,
+        "aufhebungTarget": 0
+      },
+      "result": {
+        "converged": true,
+        "signals": {
+          "rebuttalsSettled": false,
+          "voteConcentrated": true,
+          "claimsStale": true
+        },
+        "met": 2,
+        "capReached": false,
+        "note": "未応答反論=1 / 投票集中度=0.56 ✓ / 新規claim(窓内)=0 ✓ → 2/3 → 収束"
+      }
+    },
+    {
+      "input": {
+        "unresolvedRebuttals": 0,
+        "winnerShare": 0.125,
+        "convergeShare": 0.6,
+        "newClaimsInWindow": 4,
+        "ratifiedAufhebenCount": 0,
+        "aufhebungTarget": 2
+      },
+      "result": {
+        "converged": false,
+        "signals": {
+          "rebuttalsSettled": true,
+          "voteConcentrated": false,
+          "claimsStale": false
+        },
+        "met": 1,
+        "capReached": false,
+        "note": "未応答反論=0 ✓ / 投票集中度=0.13 / 新規claim(窓内)=4 → 1/3"
+      }
+    },
+    {
+      "input": {
+        "unresolvedRebuttals": 3,
+        "winnerShare": 0.005,
+        "convergeShare": 0.9,
+        "newClaimsInWindow": 2,
+        "ratifiedAufhebenCount": 0,
+        "aufhebungTarget": 1
+      },
+      "result": {
+        "converged": false,
+        "signals": {
+          "rebuttalsSettled": false,
+          "voteConcentrated": false,
+          "claimsStale": false
+        },
+        "met": 0,
+        "capReached": false,
+        "note": "未応答反論=3 / 投票集中度=0.01 / 新規claim(窓内)=2 → 0/3"
+      }
+    }
+  ],
+  "premise": {
+    "text": "# 議論の前提ルール (厳守)\n次の 3 点について共通見解は取れている前提で議論する (すり合わせ直さない):\n- どんな体験をつくりたいか\n- どんな施策 (アイデア) を試したいか\n- 他のゲームではどうしているか、どうなっているか\n論拠をぶつけ合った結果、論点の結論は次のいずれかになる: 止揚 (両者の根拠を保ったまま一段上の結論に至る) / 論破 (一方の根拠がすべて崩れ、意見が出なくなる) / 結論なし (どちらにも至らない)。\n\n論拠は次の 3 種類のどれかで立てる:\n- 演繹 (deduction): この仕様を入れて、こういう人が遊ぶと、こういう体験になる\n- 帰納 (induction): この仕様を入れている他のゲームでは、こういう体験になっていた (同じ仕様であることを示す)\n- アブダクション (abduction): こういう体験を作りたいから、きっとこういう仕様にしたら良い\n\nトゥールミンの整理:\n- 主張とデータは別物。データ (事実・事例) と論拠 (データから主張へ橋渡しする理由) を混ぜない\n- データが正しくても論拠が間違っていれば主張は間違いになる。反論はデータ・論拠・限定のどれを突くか決めて行う\n- 主張の限定 (どのプレイヤー層・どの条件の話か) をはっきりさせる\n\n禁止 (前提の外から相手の主張を曲げる手):\n- 相手の限定の外側にある層・条件・事例を持ち出して主張全体を否定する\n- 相手が言っていない主張に置き換えて叩く\n- 根拠の中身に触れず「それって感想」「データあるの?」だけで退ける (足りないなら何が要るかを具体的に問う)\n- 論点をずらす、別の論点にすり替える\n- 何を論拠として認めるかという前提を途中で変える",
+    "inference": [
+      "deduction",
+      "induction",
+      "deduction",
+      "induction",
+      "abduction",
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "attack": [
+      null,
+      null,
+      null,
+      null,
+      null,
+      "data",
+      "warrant",
+      "qualifier",
+      null,
+      null,
+      null,
+      "warrant",
+      "qualifier"
+    ],
+    "inputs": [
+      "deduction",
+      " Induction ",
+      "演繹",
+      "帰納",
+      "アブダクション",
+      "DATA",
+      "論拠",
+      "限定",
+      "x",
+      3,
+      null,
+      "warrant",
+      "qualifier"
+    ]
+  },
+  "redo": {
+    "texts": [
+      {
+        "t": "再開",
+        "r": true
+      },
+      {
+        "t": "  やり直してください",
+        "r": true
+      },
+      {
+        "t": "もう一度",
+        "r": true
+      },
+      {
+        "t": "もういちど",
+        "r": true
+      },
+      {
+        "t": "再議論",
+        "r": true
+      },
+      {
+        "t": "やりなおし",
+        "r": true
+      },
+      {
+        "t": "いいえ再開",
+        "r": false
+      },
+      {
+        "t": "",
+        "r": false
+      }
+    ],
+    "decisions": [
+      {
+        "input": {
+          "paper": null,
+          "concluded": false,
+          "running": false
+        },
+        "result": {
+          "ok": false,
+          "reason": "no-paper"
+        }
+      },
+      {
+        "input": {
+          "paper": {
+            "status": "draft",
+            "flow": "discussion"
+          },
+          "concluded": false,
+          "running": false
+        },
+        "result": {
+          "ok": false,
+          "reason": "not-started"
+        }
+      },
+      {
+        "input": {
+          "paper": {
+            "status": "started",
+            "flow": "sparring"
+          },
+          "concluded": false,
+          "running": false
+        },
+        "result": {
+          "ok": false,
+          "reason": "unsupported-flow"
+        }
+      },
+      {
+        "input": {
+          "paper": {
+            "status": "started",
+            "flow": "improvement"
+          },
+          "concluded": true,
+          "running": false
+        },
+        "result": {
+          "ok": false,
+          "reason": "concluded"
+        }
+      },
+      {
+        "input": {
+          "paper": {
+            "status": "started",
+            "flow": "discussion"
+          },
+          "concluded": false,
+          "running": true
+        },
+        "result": {
+          "ok": false,
+          "reason": "running"
+        }
+      },
+      {
+        "input": {
+          "paper": {
+            "status": "started",
+            "flow": "discussion"
+          },
+          "concluded": false,
+          "running": false
+        },
+        "result": {
+          "ok": true
+        }
+      }
+    ]
+  },
+  "tags": [
+    {
+      "tags": [],
+      "can": true,
+      "supplement": "",
+      "foresight": false,
+      "proxy": false
+    },
+    {
+      "tags": [
+        "開発"
+      ],
+      "can": true,
+      "supplement": "【開発者観点】設計意図・実装コスト・技術的トレードオフを踏まえて議論してください。",
+      "foresight": false,
+      "proxy": false
+    },
+    {
+      "tags": [
+        "運用",
+        "開発",
+        "内部",
+        "機密"
+      ],
+      "can": false,
+      "supplement": "【開発者観点】設計意図・実装コスト・技術的トレードオフを踏まえて議論してください。\n【運用者観点】継続率・収益・サーバ負荷・運用コストを踏まえて議論してください。\n【内部情報】外部には非公開の社内情報・未発表の情報を前提に議論してください。\n【機密】実ユーザデータが使用できないため、メカニクス評価から合成した想定意見データを参考にしています。",
+      "foresight": false,
+      "proxy": false
+    },
+    {
+      "tags": [
+        "未来予測",
+        "代理"
+      ],
+      "can": true,
+      "supplement": "",
+      "foresight": true,
+      "proxy": true
+    },
+    {
+      "tags": [
+        "機密"
+      ],
+      "can": false,
+      "supplement": "【機密】実ユーザデータが使用できないため、メカニクス評価から合成した想定意見データを参考にしています。",
+      "foresight": false,
+      "proxy": false
+    },
+    {
+      "tags": [
+        "内部"
+      ],
+      "can": false,
+      "supplement": "【内部情報】外部には非公開の社内情報・未発表の情報を前提に議論してください。",
+      "foresight": false,
+      "proxy": false
+    },
+    {
+      "tags": [
+        "その他"
+      ],
+      "can": true,
+      "supplement": "",
+      "foresight": false,
+      "proxy": false
+    }
+  ],
+  "packs": [
+    {
+      "raw": {
+        "contractVersion": 1,
+        "personaKind": "observedSpeaker",
+        "speakerKey": "ext:steam:00000000000000a1",
+        "genre": "roguelike",
+        "genreSpecVersion": 1,
+        "profileVersion": "proxy-form-v1:a1",
+        "formation": {
+          "method": "rule",
+          "ruleVersion": "proxy-form-v1"
+        },
+        "window": {
+          "observedMonths": null,
+          "generatedAt": 1799913600000,
+          "expiresAt": 1802592000000
+        },
+        "sufficiency": {
+          "utterances": 12,
+          "positive": 7,
+          "negative": 5,
+          "games": 4,
+          "aspects": 4,
+          "confidence": "medium",
+          "reasons": []
+        },
+        "affect": {
+          "vector": [
+            0.6,
+            0.6,
+            0.6,
+            0.6,
+            0.6,
+            0.6,
+            0.6,
+            0.6,
+            0.6,
+            0.6,
+            0.6,
+            0.6,
+            0.6,
+            0.6,
+            0.6,
+            0.6,
+            0.6,
+            0.6,
+            0.6,
+            0.6
+          ],
+          "vectorSpecVersion": 1
+        },
+        "designGap": {
+          "vector": [
+            0.1,
+            0.1,
+            0.1,
+            0.1,
+            0.1,
+            0.1,
+            0.1,
+            0.1,
+            0.1,
+            0.1,
+            0.1,
+            0.1,
+            0.1,
+            0.1,
+            0.1,
+            0.1,
+            0.1,
+            0.1,
+            0.1,
+            0.1
+          ],
+          "method": "pos-minus-neg",
+          "wants": [
+            "asp.difficulty"
+          ],
+          "complaints": [
+            "asp.content"
+          ],
+          "reason": null
+        },
+        "conditionalGaps": [
+          {
+            "current": "今",
+            "desired": "望み",
+            "condition": null,
+            "evidenceIds": [
+              "E1"
+            ]
+          }
+        ],
+        "stanceCards": [
+          {
+            "id": "S1",
+            "claim": "毎日の周回を強いる作りは嫌だ",
+            "polarity": "neg",
+            "evidenceIds": [
+              "E1"
+            ],
+            "extractor": "rule"
+          },
+          {
+            "id": "S2",
+            "claim": "高難度に何時間でも挑みたい",
+            "polarity": "pos",
+            "evidenceIds": [
+              "E2"
+            ],
+            "extractor": "llm"
+          }
+        ],
+        "evidence": [
+          {
+            "id": "E1",
+            "revision": "r1",
+            "text": "  毎日の周回が義務になるのは本当に嫌だ。 ",
+            "sourceKind": "steam",
+            "gameTitle": "Game A",
+            "polarity": "neg",
+            "postedAt": null
+          },
+          {
+            "id": "E2",
+            "revision": "r2",
+            "text": "週末なら高難度に何時間でも挑みたい。",
+            "sourceKind": "steam",
+            "gameTitle": "Game B",
+            "polarity": "pos",
+            "postedAt": 1700000000000
+          }
+        ],
+        "styleNotes": [
+          "短く書く"
+        ],
+        "likedGames": [
+          "Game B"
+        ],
+        "heldOut": [
+          {
+            "game": "Game D",
+            "recommended": true
+          },
+          {
+            "game": "Game E",
+            "recommended": false
+          }
+        ],
+        "revoked": false
+      },
+      "result": {
+        "ok": true,
+        "pack": {
+          "contractVersion": 1,
+          "personaKind": "observedSpeaker",
+          "speakerKey": "ext:steam:00000000000000a1",
+          "genre": "roguelike",
+          "genreSpecVersion": 1,
+          "profileVersion": "proxy-form-v1:a1",
+          "formation": {
+            "method": "rule",
+            "ruleVersion": "proxy-form-v1"
+          },
+          "window": {
+            "observedMonths": null,
+            "generatedAt": 1799913600000,
+            "expiresAt": 1802592000000
+          },
+          "sufficiency": {
+            "utterances": 12,
+            "positive": 7,
+            "negative": 5,
+            "games": 4,
+            "aspects": 4,
+            "confidence": "medium",
+            "reasons": []
+          },
+          "affect": {
+            "vector": [
+              0.6,
+              0.6,
+              0.6,
+              0.6,
+              0.6,
+              0.6,
+              0.6,
+              0.6,
+              0.6,
+              0.6,
+              0.6,
+              0.6,
+              0.6,
+              0.6,
+              0.6,
+              0.6,
+              0.6,
+              0.6,
+              0.6,
+              0.6
+            ],
+            "vectorSpecVersion": 1
+          },
+          "designGap": {
+            "vector": [
+              0.1,
+              0.1,
+              0.1,
+              0.1,
+              0.1,
+              0.1,
+              0.1,
+              0.1,
+              0.1,
+              0.1,
+              0.1,
+              0.1,
+              0.1,
+              0.1,
+              0.1,
+              0.1,
+              0.1,
+              0.1,
+              0.1,
+              0.1
+            ],
+            "method": "pos-minus-neg",
+            "wants": [
+              "asp.difficulty"
+            ],
+            "complaints": [
+              "asp.content"
+            ],
+            "reason": null
+          },
+          "conditionalGaps": [
+            {
+              "current": "今",
+              "desired": "望み",
+              "condition": null,
+              "evidenceIds": [
+                "E1"
+              ]
+            }
+          ],
+          "stanceCards": [
+            {
+              "id": "S1",
+              "claim": "毎日の周回を強いる作りは嫌だ",
+              "polarity": "neg",
+              "evidenceIds": [
+                "E1"
+              ],
+              "extractor": "rule"
+            },
+            {
+              "id": "S2",
+              "claim": "高難度に何時間でも挑みたい",
+              "polarity": "pos",
+              "evidenceIds": [
+                "E2"
+              ],
+              "extractor": "llm"
+            }
+          ],
+          "evidence": [
+            {
+              "id": "E1",
+              "revision": "r1",
+              "text": "毎日の周回が義務になるのは本当に嫌だ。",
+              "sourceKind": "steam",
+              "gameTitle": "Game A",
+              "polarity": "neg",
+              "postedAt": null
+            },
+            {
+              "id": "E2",
+              "revision": "r2",
+              "text": "週末なら高難度に何時間でも挑みたい。",
+              "sourceKind": "steam",
+              "gameTitle": "Game B",
+              "polarity": "pos",
+              "postedAt": 1700000000000
+            }
+          ],
+          "styleNotes": [
+            "短く書く"
+          ],
+          "likedGames": [
+            "Game B"
+          ],
+          "heldOut": [
+            {
+              "game": "Game D",
+              "recommended": true
+            },
+            {
+              "game": "Game E",
+              "recommended": false
+            }
+          ],
+          "revoked": false
+        }
+      }
+    },
+    {
+      "raw": {
+        "contractVersion": 1,
+        "personaKind": "observedSpeaker",
+        "speakerKey": "ext:steam:76561198000000000",
+        "genre": "roguelike",
+        "genreSpecVersion": 1,
+        "profileVersion": "proxy-form-v1:a1",
+        "formation": {
+          "method": "rule",
+          "ruleVersion": "proxy-form-v1"
+        },
+        "window": {
+          "observedMonths": null,
+          "generatedAt": 1799913600000,
+          "expiresAt": 1802592000000
+        },
+        "sufficiency": {
+          "utterances": 12,
+          "positive": 7,
+          "negative": 5,
+          "games": 4,
+          "aspects": 4,
+          "confidence": "medium",
+          "reasons": []
+        },
+        "affect": {
+          "vector": [
+            0.6,
+            0.6,
+            0.6,
+            0.6,
+            0.6,
+            0.6,
+            0.6,
+            0.6,
+            0.6,
+            0.6,
+            0.6,
+            0.6,
+            0.6,
+            0.6,
+            0.6,
+            0.6,
+            0.6,
+            0.6,
+            0.6,
+            0.6
+          ],
+          "vectorSpecVersion": 1
+        },
+        "designGap": {
+          "vector": [
+            0.1,
+            0.1,
+            0.1,
+            0.1,
+            0.1,
+            0.1,
+            0.1,
+            0.1,
+            0.1,
+            0.1,
+            0.1,
+            0.1,
+            0.1,
+            0.1,
+            0.1,
+            0.1,
+            0.1,
+            0.1,
+            0.1,
+            0.1
+          ],
+          "method": "pos-minus-neg",
+          "wants": [
+            "asp.difficulty"
+          ],
+          "complaints": [
+            "asp.content"
+          ],
+          "reason": null
+        },
+        "conditionalGaps": [
+          {
+            "current": "今",
+            "desired": "望み",
+            "condition": null,
+            "evidenceIds": [
+              "E1"
+            ]
+          }
+        ],
+        "stanceCards": [
+          {
+            "id": "S1",
+            "claim": "毎日の周回を強いる作りは嫌だ",
+            "polarity": "neg",
+            "evidenceIds": [
+              "E1"
+            ],
+            "extractor": "rule"
+          },
+          {
+            "id": "S2",
+            "claim": "高難度に何時間でも挑みたい",
+            "polarity": "pos",
+            "evidenceIds": [
+              "E2"
+            ],
+            "extractor": "llm"
+          }
+        ],
+        "evidence": [
+          {
+            "id": "E1",
+            "revision": "r1",
+            "text": "  毎日の周回が義務になるのは本当に嫌だ。 ",
+            "sourceKind": "steam",
+            "gameTitle": "Game A",
+            "polarity": "neg",
+            "postedAt": null
+          },
+          {
+            "id": "E2",
+            "revision": "r2",
+            "text": "週末なら高難度に何時間でも挑みたい。",
+            "sourceKind": "steam",
+            "gameTitle": "Game B",
+            "polarity": "pos",
+            "postedAt": 1700000000000
+          }
+        ],
+        "styleNotes": [
+          "短く書く"
+        ],
+        "likedGames": [
+          "Game B"
+        ],
+        "heldOut": [
+          {
+            "game": "Game D",
+            "recommended": true
+          },
+          {
+            "game": "Game E",
+            "recommended": false
+          }
+        ],
+        "revoked": false
+      },
+      "result": {
+        "ok": false,
+        "errors": [
+          "speakerKey: ext:<source>:<hmac16> の仮名のみ受け取る"
+        ]
+      }
+    },
+    {
+      "raw": {
+        "contractVersion": 1,
+        "personaKind": "observedSpeaker",
+        "speakerKey": "ext:steam:00000000000000a1",
+        "genre": "roguelike",
+        "genreSpecVersion": 1,
+        "profileVersion": "proxy-form-v1:a1",
+        "formation": {
+          "method": "rule",
+          "ruleVersion": "proxy-form-v1"
+        },
+        "window": {
+          "observedMonths": null,
+          "generatedAt": 1799913600000,
+          "expiresAt": 1802592000000
+        },
+        "sufficiency": {
+          "utterances": 12,
+          "positive": 7,
+          "negative": 5,
+          "games": 4,
+          "aspects": 4,
+          "confidence": "medium",
+          "reasons": []
+        },
+        "affect": {
+          "vector": [
+            0.6,
+            0.6,
+            0.6,
+            0.6,
+            0.6,
+            0.6,
+            0.6,
+            0.6,
+            0.6,
+            0.6,
+            0.6,
+            0.6,
+            0.6,
+            0.6,
+            0.6,
+            0.6,
+            0.6,
+            0.6,
+            0.6,
+            0.6
+          ],
+          "vectorSpecVersion": 1
+        },
+        "designGap": {
+          "vector": [
+            0.1,
+            0.1,
+            0.1,
+            0.1,
+            0.1,
+            0.1,
+            0.1,
+            0.1,
+            0.1,
+            0.1,
+            0.1,
+            0.1,
+            0.1,
+            0.1,
+            0.1,
+            0.1,
+            0.1,
+            0.1,
+            0.1,
+            0.1
+          ],
+          "method": "pos-minus-neg",
+          "wants": [
+            "asp.difficulty"
+          ],
+          "complaints": [
+            "asp.content"
+          ],
+          "reason": null
+        },
+        "conditionalGaps": [
+          {
+            "current": "今",
+            "desired": "望み",
+            "condition": null,
+            "evidenceIds": [
+              "E1"
+            ]
+          }
+        ],
+        "stanceCards": [
+          {
+            "id": "S1",
+            "claim": "毎日の周回を強いる作りは嫌だ",
+            "polarity": "neg",
+            "evidenceIds": [
+              "E1"
+            ],
+            "extractor": "rule"
+          },
+          {
+            "id": "S2",
+            "claim": "高難度に何時間でも挑みたい",
+            "polarity": "pos",
+            "evidenceIds": [
+              "E2"
+            ],
+            "extractor": "llm"
+          }
+        ],
+        "evidence": [
+          {
+            "id": "E1",
+            "revision": "r",
+            "text": "see https://x",
+            "sourceKind": "s",
+            "gameTitle": "g",
+            "polarity": "neg",
+            "sourceUrl": "HTTP://y"
+          }
+        ],
+        "styleNotes": [
+          "短く書く"
+        ],
+        "likedGames": [
+          "Game B"
+        ],
+        "heldOut": [
+          {
+            "game": "Game D",
+            "recommended": true
+          },
+          {
+            "game": "Game E",
+            "recommended": false
+          }
+        ],
+        "revoked": false
+      },
+      "result": {
+        "ok": false,
+        "errors": [
+          "$.evidence[0].text: URL を含む値は受け取らない",
+          "$.evidence[0].sourceUrl: 個人を特定しうるフィールドは受け取らない",
+          "$.evidence[0].sourceUrl: URL を含む値は受け取らない",
+          "stanceCards[1].evidenceIds: E2 はこのパックの evidence に無い"
+        ]
+      }
+    },
+    {
+      "raw": {
+        "contractVersion": 1,
+        "personaKind": "observedSpeaker",
+        "speakerKey": "ext:steam:00000000000000a1",
+        "genre": "roguelike",
+        "genreSpecVersion": 1,
+        "profileVersion": "proxy-form-v1:a1",
+        "formation": {
+          "method": "rule",
+          "ruleVersion": "proxy-form-v1"
+        },
+        "window": {
+          "observedMonths": null,
+          "generatedAt": 1799913600000,
+          "expiresAt": 1802592000000
+        },
+        "sufficiency": {
+          "utterances": 12,
+          "positive": 7,
+          "negative": 5,
+          "games": 4,
+          "aspects": 4,
+          "confidence": "medium",
+          "reasons": []
+        },
+        "affect": {
+          "vector": [
+            0.6,
+            0.6,
+            0.6,
+            0.6,
+            0.6,
+            0.6,
+            0.6,
+            0.6,
+            0.6,
+            0.6,
+            0.6,
+            0.6,
+            0.6,
+            0.6,
+            0.6,
+            0.6,
+            0.6,
+            0.6,
+            0.6,
+            0.6
+          ],
+          "vectorSpecVersion": 1
+        },
+        "designGap": {
+          "vector": [
+            0.1,
+            0.1,
+            0.1,
+            0.1,
+            0.1,
+            0.1,
+            0.1,
+            0.1,
+            0.1,
+            0.1,
+            0.1,
+            0.1,
+            0.1,
+            0.1,
+            0.1,
+            0.1,
+            0.1,
+            0.1,
+            0.1,
+            0.1
+          ],
+          "method": "pos-minus-neg",
+          "wants": [
+            "asp.difficulty"
+          ],
+          "complaints": [
+            "asp.content"
+          ],
+          "reason": null
+        },
+        "conditionalGaps": [
+          {
+            "current": "今",
+            "desired": "望み",
+            "condition": null,
+            "evidenceIds": [
+              "E1"
+            ]
+          }
+        ],
+        "stanceCards": [
+          {
+            "id": "S1",
+            "claim": "x の主張です",
+            "polarity": "pos",
+            "evidenceIds": [
+              "E9"
+            ],
+            "extractor": "rule"
+          }
+        ],
+        "evidence": [
+          {
+            "id": "E1",
+            "revision": "r1",
+            "text": "  毎日の周回が義務になるのは本当に嫌だ。 ",
+            "sourceKind": "steam",
+            "gameTitle": "Game A",
+            "polarity": "neg",
+            "postedAt": null
+          },
+          {
+            "id": "E2",
+            "revision": "r2",
+            "text": "週末なら高難度に何時間でも挑みたい。",
+            "sourceKind": "steam",
+            "gameTitle": "Game B",
+            "polarity": "pos",
+            "postedAt": 1700000000000
+          }
+        ],
+        "styleNotes": [
+          "短く書く"
+        ],
+        "likedGames": [
+          "Game B"
+        ],
+        "heldOut": [
+          {
+            "game": "Game D",
+            "recommended": true
+          },
+          {
+            "game": "Game E",
+            "recommended": false
+          }
+        ],
+        "revoked": false
+      },
+      "result": {
+        "ok": false,
+        "errors": [
+          "stanceCards[0].evidenceIds: E9 はこのパックの evidence に無い"
+        ]
+      }
+    },
+    {
+      "raw": {
+        "contractVersion": 1,
+        "personaKind": "observedSpeaker",
+        "speakerKey": "ext:steam:00000000000000a1",
+        "genre": "roguelike",
+        "genreSpecVersion": 1,
+        "profileVersion": "proxy-form-v1:a1",
+        "formation": {
+          "method": "rule",
+          "ruleVersion": "proxy-form-v1"
+        },
+        "window": {
+          "observedMonths": null,
+          "generatedAt": 1799913600000,
+          "expiresAt": 1802592000000
+        },
+        "sufficiency": {
+          "utterances": 12,
+          "positive": 7,
+          "negative": 5,
+          "games": 4,
+          "aspects": 4,
+          "confidence": "medium",
+          "reasons": []
+        },
+        "affect": {
+          "vector": [
+            0.6,
+            0.6,
+            0.6,
+            0.6,
+            0.6,
+            0.6,
+            0.6,
+            0.6,
+            0.6,
+            0.6,
+            0.6,
+            0.6,
+            0.6,
+            0.6,
+            0.6,
+            0.6,
+            0.6,
+            0.6,
+            0.6,
+            0.6
+          ],
+          "vectorSpecVersion": 1
+        },
+        "designGap": {
+          "vector": [
+            0.1,
+            0.1,
+            0.1,
+            0.1,
+            0.1,
+            0.1,
+            0.1,
+            0.1,
+            0.1,
+            0.1,
+            0.1,
+            0.1,
+            0.1,
+            0.1,
+            0.1,
+            0.1,
+            0.1,
+            0.1,
+            0.1,
+            0.1
+          ],
+          "method": "pos-minus-neg",
+          "wants": [
+            "asp.difficulty"
+          ],
+          "complaints": [
+            "asp.content"
+          ],
+          "reason": null
+        },
+        "conditionalGaps": [
+          {
+            "current": "今",
+            "desired": "望み",
+            "condition": null,
+            "evidenceIds": [
+              "E1"
+            ]
+          }
+        ],
+        "stanceCards": [
+          {
+            "id": "T1",
+            "claim": "",
+            "polarity": "zz",
+            "evidenceIds": [],
+            "extractor": "x"
+          }
+        ],
+        "evidence": [
+          {
+            "id": "E1",
+            "revision": "r1",
+            "text": "  毎日の周回が義務になるのは本当に嫌だ。 ",
+            "sourceKind": "steam",
+            "gameTitle": "Game A",
+            "polarity": "neg",
+            "postedAt": null
+          },
+          {
+            "id": "E2",
+            "revision": "r2",
+            "text": "週末なら高難度に何時間でも挑みたい。",
+            "sourceKind": "steam",
+            "gameTitle": "Game B",
+            "polarity": "pos",
+            "postedAt": 1700000000000
+          }
+        ],
+        "styleNotes": [
+          "短く書く"
+        ],
+        "likedGames": [
+          "Game B"
+        ],
+        "heldOut": [
+          {
+            "game": "Game D",
+            "recommended": true
+          },
+          {
+            "game": "Game E",
+            "recommended": false
+          }
+        ],
+        "revoked": false
+      },
+      "result": {
+        "ok": false,
+        "errors": [
+          "stanceCards[0].id: S<数字>",
+          "stanceCards[0].evidenceIds: 根拠の無い立場カードは受け取らない",
+          "stanceCards[0].extractor: rule | llm",
+          "stanceCards[0].claim: 空でない文字列が必要",
+          "stanceCards[0].polarity: pos | neg"
+        ]
+      }
+    },
+    {
+      "raw": {
+        "contractVersion": 1,
+        "personaKind": "observedSpeaker",
+        "speakerKey": "ext:steam:00000000000000a1",
+        "genre": "roguelike",
+        "genreSpecVersion": 1,
+        "profileVersion": "proxy-form-v1:a1",
+        "formation": {
+          "method": "rule",
+          "ruleVersion": "proxy-form-v1"
+        },
+        "window": {
+          "observedMonths": null,
+          "generatedAt": 1799913600000,
+          "expiresAt": 1802592000000
+        },
+        "sufficiency": {
+          "utterances": 12,
+          "positive": 7,
+          "negative": 5,
+          "games": 4,
+          "aspects": 4,
+          "confidence": "medium",
+          "reasons": []
+        },
+        "affect": {
+          "vector": [
+            0.6,
+            0.6,
+            0.6,
+            0.6,
+            0.6,
+            0.6,
+            0.6,
+            0.6,
+            0.6,
+            0.6,
+            0.6,
+            0.6,
+            0.6,
+            0.6,
+            0.6,
+            0.6,
+            0.6,
+            0.6,
+            0.6,
+            0.6
+          ],
+          "vectorSpecVersion": 1
+        },
+        "designGap": {
+          "vector": [
+            0.1,
+            0.1,
+            0.1,
+            0.1,
+            0.1,
+            0.1,
+            0.1,
+            0.1,
+            0.1,
+            0.1,
+            0.1,
+            0.1,
+            0.1,
+            0.1,
+            0.1,
+            0.1,
+            0.1,
+            0.1,
+            0.1,
+            0.1
+          ],
+          "method": "pos-minus-neg",
+          "wants": [
+            "asp.difficulty"
+          ],
+          "complaints": [
+            "asp.content"
+          ],
+          "reason": null
+        },
+        "conditionalGaps": [
+          {
+            "current": "今",
+            "desired": "望み",
+            "condition": null,
+            "evidenceIds": [
+              "E1"
+            ]
+          }
+        ],
+        "stanceCards": [
+          {
+            "id": "S1",
+            "claim": "毎日の周回を強いる作りは嫌だ",
+            "polarity": "neg",
+            "evidenceIds": [
+              "E1"
+            ],
+            "extractor": "rule"
+          },
+          {
+            "id": "S2",
+            "claim": "高難度に何時間でも挑みたい",
+            "polarity": "pos",
+            "evidenceIds": [
+              "E2"
+            ],
+            "extractor": "llm"
+          }
+        ],
+        "evidence": [
+          {
+            "id": "E1",
+            "revision": "r1",
+            "text": "  毎日の周回が義務になるのは本当に嫌だ。 ",
+            "sourceKind": "steam",
+            "gameTitle": "Game A",
+            "polarity": "neg",
+            "postedAt": null
+          },
+          {
+            "id": "E2",
+            "revision": "r2",
+            "text": "週末なら高難度に何時間でも挑みたい。",
+            "sourceKind": "steam",
+            "gameTitle": "Game B",
+            "polarity": "pos",
+            "postedAt": 1700000000000
+          }
+        ],
+        "styleNotes": [
+          "短く書く"
+        ],
+        "likedGames": [
+          "Game B"
+        ],
+        "heldOut": [
+          {
+            "game": "Game D",
+            "recommended": true
+          },
+          {
+            "game": "Game E",
+            "recommended": false
+          }
+        ],
+        "revoked": false,
+        "authorName": "someone",
+        "nested": {
+          "user_id": 1,
+          "list": [
+            {
+              "url": "a"
+            }
+          ]
+        }
+      },
+      "result": {
+        "ok": false,
+        "errors": [
+          "$.authorName: 個人を特定しうるフィールドは受け取らない",
+          "$.nested.user_id: 個人を特定しうるフィールドは受け取らない",
+          "$.nested.list[0].url: 個人を特定しうるフィールドは受け取らない"
+        ]
+      }
+    },
+    {
+      "raw": {
+        "contractVersion": 2,
+        "personaKind": "x",
+        "speakerKey": "ext:steam:00000000000000a1",
+        "genre": "Bad Genre",
+        "genreSpecVersion": -1,
+        "profileVersion": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+        "formation": {
+          "method": "rule",
+          "ruleVersion": "proxy-form-v1"
+        },
+        "window": {
+          "observedMonths": null,
+          "generatedAt": 1799913600000,
+          "expiresAt": 1802592000000
+        },
+        "sufficiency": {
+          "utterances": 12,
+          "positive": 7,
+          "negative": 5,
+          "games": 4,
+          "aspects": 4,
+          "confidence": "medium",
+          "reasons": []
+        },
+        "affect": {
+          "vector": [
+            0.6,
+            0.6,
+            0.6,
+            0.6,
+            0.6,
+            0.6,
+            0.6,
+            0.6,
+            0.6,
+            0.6,
+            0.6,
+            0.6,
+            0.6,
+            0.6,
+            0.6,
+            0.6,
+            0.6,
+            0.6,
+            0.6,
+            0.6
+          ],
+          "vectorSpecVersion": 1
+        },
+        "designGap": {
+          "vector": [
+            0.1,
+            0.1,
+            0.1,
+            0.1,
+            0.1,
+            0.1,
+            0.1,
+            0.1,
+            0.1,
+            0.1,
+            0.1,
+            0.1,
+            0.1,
+            0.1,
+            0.1,
+            0.1,
+            0.1,
+            0.1,
+            0.1,
+            0.1
+          ],
+          "method": "pos-minus-neg",
+          "wants": [
+            "asp.difficulty"
+          ],
+          "complaints": [
+            "asp.content"
+          ],
+          "reason": null
+        },
+        "conditionalGaps": [
+          {
+            "current": "今",
+            "desired": "望み",
+            "condition": null,
+            "evidenceIds": [
+              "E1"
+            ]
+          }
+        ],
+        "stanceCards": [
+          {
+            "id": "S1",
+            "claim": "毎日の周回を強いる作りは嫌だ",
+            "polarity": "neg",
+            "evidenceIds": [
+              "E1"
+            ],
+            "extractor": "rule"
+          },
+          {
+            "id": "S2",
+            "claim": "高難度に何時間でも挑みたい",
+            "polarity": "pos",
+            "evidenceIds": [
+              "E2"
+            ],
+            "extractor": "llm"
+          }
+        ],
+        "evidence": [
+          {
+            "id": "E1",
+            "revision": "r1",
+            "text": "  毎日の周回が義務になるのは本当に嫌だ。 ",
+            "sourceKind": "steam",
+            "gameTitle": "Game A",
+            "polarity": "neg",
+            "postedAt": null
+          },
+          {
+            "id": "E2",
+            "revision": "r2",
+            "text": "週末なら高難度に何時間でも挑みたい。",
+            "sourceKind": "steam",
+            "gameTitle": "Game B",
+            "polarity": "pos",
+            "postedAt": 1700000000000
+          }
+        ],
+        "styleNotes": [
+          "短く書く"
+        ],
+        "likedGames": [
+          "Game B"
+        ],
+        "heldOut": [
+          {
+            "game": "Game D",
+            "recommended": true
+          },
+          {
+            "game": "Game E",
+            "recommended": false
+          }
+        ],
+        "revoked": false
+      },
+      "result": {
+        "ok": false,
+        "errors": [
+          "contractVersion: 1 のみ対応",
+          "personaKind: observedSpeaker のみ対応",
+          "genre: 辞書 id (英小文字・数字・-_)",
+          "genreSpecVersion: 0 以上の整数",
+          "profileVersion: 128 文字以内"
+        ]
+      }
+    },
+    {
+      "raw": {
+        "contractVersion": 1,
+        "personaKind": "observedSpeaker",
+        "speakerKey": "ext:steam:00000000000000a1",
+        "genre": "roguelike",
+        "genreSpecVersion": 1,
+        "profileVersion": "proxy-form-v1:a1",
+        "formation": {
+          "method": "rule",
+          "ruleVersion": "proxy-form-v1"
+        },
+        "window": {
+          "observedMonths": 1.5,
+          "generatedAt": 5,
+          "expiresAt": 5
+        },
+        "sufficiency": {
+          "utterances": 12,
+          "positive": 7,
+          "negative": 5,
+          "games": 4,
+          "aspects": 4,
+          "confidence": "medium",
+          "reasons": []
+        },
+        "affect": {
+          "vector": [
+            1,
+            2
+          ],
+          "vectorSpecVersion": 2
+        },
+        "designGap": {
+          "vector": [
+            0.1,
+            0.1,
+            0.1,
+            0.1,
+            0.1,
+            0.1,
+            0.1,
+            0.1,
+            0.1,
+            0.1,
+            0.1,
+            0.1,
+            0.1,
+            0.1,
+            0.1,
+            0.1,
+            0.1,
+            0.1,
+            0.1,
+            0.1
+          ],
+          "method": "pos-minus-neg",
+          "wants": [
+            "asp.difficulty"
+          ],
+          "complaints": [
+            "asp.content"
+          ],
+          "reason": null
+        },
+        "conditionalGaps": [
+          {
+            "current": "今",
+            "desired": "望み",
+            "condition": null,
+            "evidenceIds": [
+              "E1"
+            ]
+          }
+        ],
+        "stanceCards": [
+          {
+            "id": "S1",
+            "claim": "毎日の周回を強いる作りは嫌だ",
+            "polarity": "neg",
+            "evidenceIds": [
+              "E1"
+            ],
+            "extractor": "rule"
+          },
+          {
+            "id": "S2",
+            "claim": "高難度に何時間でも挑みたい",
+            "polarity": "pos",
+            "evidenceIds": [
+              "E2"
+            ],
+            "extractor": "llm"
+          }
+        ],
+        "evidence": [
+          {
+            "id": "E1",
+            "revision": "r1",
+            "text": "  毎日の周回が義務になるのは本当に嫌だ。 ",
+            "sourceKind": "steam",
+            "gameTitle": "Game A",
+            "polarity": "neg",
+            "postedAt": null
+          },
+          {
+            "id": "E2",
+            "revision": "r2",
+            "text": "週末なら高難度に何時間でも挑みたい。",
+            "sourceKind": "steam",
+            "gameTitle": "Game B",
+            "polarity": "pos",
+            "postedAt": 1700000000000
+          }
+        ],
+        "styleNotes": [
+          "短く書く"
+        ],
+        "likedGames": [
+          "Game B"
+        ],
+        "heldOut": [
+          {
+            "game": "Game D",
+            "recommended": true
+          },
+          {
+            "game": "Game E",
+            "recommended": false
+          }
+        ],
+        "revoked": "no"
+      },
+      "result": {
+        "ok": false,
+        "errors": [
+          "window.expiresAt: generatedAt より後",
+          "affect.vectorSpecVersion: 1 のみ対応",
+          "revoked: boolean が必要",
+          "window.observedMonths: 0 以上の整数",
+          "affect.vector: 20 次元の有限値ベクトルが必要"
+        ]
+      }
+    },
+    {
+      "raw": {
+        "contractVersion": 1,
+        "personaKind": "observedSpeaker",
+        "speakerKey": "ext:steam:00000000000000a1",
+        "genre": "roguelike",
+        "genreSpecVersion": 1,
+        "profileVersion": "proxy-form-v1:a1",
+        "formation": {
+          "method": "rule",
+          "ruleVersion": "proxy-form-v1"
+        },
+        "window": {
+          "observedMonths": null,
+          "generatedAt": 1799913600000,
+          "expiresAt": 1802592000000
+        },
+        "sufficiency": {
+          "utterances": 12,
+          "positive": 7,
+          "negative": 5,
+          "games": 4,
+          "aspects": 4,
+          "confidence": "medium",
+          "reasons": []
+        },
+        "affect": {
+          "vector": [
+            0.6,
+            0.6,
+            0.6,
+            0.6,
+            0.6,
+            0.6,
+            0.6,
+            0.6,
+            0.6,
+            0.6,
+            0.6,
+            0.6,
+            0.6,
+            0.6,
+            0.6,
+            0.6,
+            0.6,
+            0.6,
+            0.6,
+            0.6
+          ],
+          "vectorSpecVersion": 1
+        },
+        "designGap": {
+          "vector": null,
+          "method": "x",
+          "wants": "nope",
+          "complaints": [
+            "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+          ],
+          "reason": null
+        },
+        "conditionalGaps": [
+          {
+            "current": "今",
+            "desired": "望み",
+            "condition": null,
+            "evidenceIds": [
+              "E1"
+            ]
+          }
+        ],
+        "stanceCards": [
+          {
+            "id": "S1",
+            "claim": "毎日の周回を強いる作りは嫌だ",
+            "polarity": "neg",
+            "evidenceIds": [
+              "E1"
+            ],
+            "extractor": "rule"
+          },
+          {
+            "id": "S2",
+            "claim": "高難度に何時間でも挑みたい",
+            "polarity": "pos",
+            "evidenceIds": [
+              "E2"
+            ],
+            "extractor": "llm"
+          }
+        ],
+        "evidence": [
+          {
+            "id": "E1",
+            "revision": "r1",
+            "text": "  毎日の周回が義務になるのは本当に嫌だ。 ",
+            "sourceKind": "steam",
+            "gameTitle": "Game A",
+            "polarity": "neg",
+            "postedAt": null
+          },
+          {
+            "id": "E2",
+            "revision": "r2",
+            "text": "週末なら高難度に何時間でも挑みたい。",
+            "sourceKind": "steam",
+            "gameTitle": "Game B",
+            "polarity": "pos",
+            "postedAt": 1700000000000
+          }
+        ],
+        "styleNotes": [
+          "短く書く"
+        ],
+        "likedGames": [
+          "Game B"
+        ],
+        "heldOut": [
+          {
+            "game": "Game D",
+            "recommended": true
+          },
+          {
+            "game": "Game E",
+            "recommended": false
+          }
+        ],
+        "revoked": false
+      },
+      "result": {
+        "ok": false,
+        "errors": [
+          "designGap.method: pos-minus-neg",
+          "designGap.reason: vector が null なら理由が必要",
+          "designGap.wants: 配列が必要",
+          "designGap.complaints[0]: 40 文字以内"
+        ]
+      }
+    },
+    {
+      "raw": {
+        "contractVersion": 1,
+        "personaKind": "observedSpeaker",
+        "speakerKey": "ext:steam:00000000000000a1",
+        "genre": "roguelike",
+        "genreSpecVersion": 1,
+        "profileVersion": "proxy-form-v1:a1",
+        "formation": {
+          "method": "rule",
+          "ruleVersion": "proxy-form-v1"
+        },
+        "window": {
+          "observedMonths": null,
+          "generatedAt": 1799913600000,
+          "expiresAt": 1802592000000
+        },
+        "sufficiency": "x",
+        "affect": {
+          "vector": [
+            0.6,
+            0.6,
+            0.6,
+            0.6,
+            0.6,
+            0.6,
+            0.6,
+            0.6,
+            0.6,
+            0.6,
+            0.6,
+            0.6,
+            0.6,
+            0.6,
+            0.6,
+            0.6,
+            0.6,
+            0.6,
+            0.6,
+            0.6
+          ],
+          "vectorSpecVersion": 1
+        },
+        "designGap": {
+          "vector": null,
+          "method": "pos-minus-neg",
+          "reason": "データ不足"
+        },
+        "conditionalGaps": [
+          {
+            "current": "今",
+            "desired": "望み",
+            "condition": null,
+            "evidenceIds": [
+              "E1"
+            ]
+          }
+        ],
+        "stanceCards": [
+          {
+            "id": "S1",
+            "claim": "毎日の周回を強いる作りは嫌だ",
+            "polarity": "neg",
+            "evidenceIds": [
+              "E1"
+            ],
+            "extractor": "rule"
+          },
+          {
+            "id": "S2",
+            "claim": "高難度に何時間でも挑みたい",
+            "polarity": "pos",
+            "evidenceIds": [
+              "E2"
+            ],
+            "extractor": "llm"
+          }
+        ],
+        "evidence": [
+          {
+            "id": "E1",
+            "revision": "r1",
+            "text": "  毎日の周回が義務になるのは本当に嫌だ。 ",
+            "sourceKind": "steam",
+            "gameTitle": "Game A",
+            "polarity": "neg",
+            "postedAt": null
+          },
+          {
+            "id": "E2",
+            "revision": "r2",
+            "text": "週末なら高難度に何時間でも挑みたい。",
+            "sourceKind": "steam",
+            "gameTitle": "Game B",
+            "polarity": "pos",
+            "postedAt": 1700000000000
+          }
+        ],
+        "styleNotes": [
+          "短く書く"
+        ],
+        "likedGames": [
+          "Game B"
+        ],
+        "heldOut": [
+          {
+            "game": "Game D",
+            "recommended": true
+          },
+          {
+            "game": "Game E",
+            "recommended": false
+          }
+        ],
+        "revoked": false
+      },
+      "result": {
+        "ok": false,
+        "errors": [
+          "sufficiency: オブジェクトが必要",
+          "sufficiency.confidence: high | medium | low",
+          "sufficiency.utterances: 有限の数値が必要",
+          "sufficiency.positive: 有限の数値が必要",
+          "sufficiency.negative: 有限の数値が必要",
+          "sufficiency.games: 有限の数値が必要",
+          "sufficiency.aspects: 有限の数値が必要"
+        ]
+      }
+    },
+    {
+      "raw": {
+        "contractVersion": 1,
+        "personaKind": "observedSpeaker",
+        "speakerKey": "ext:steam:00000000000000a1",
+        "genre": "roguelike",
+        "genreSpecVersion": 1,
+        "profileVersion": "proxy-form-v1:a1",
+        "formation": {
+          "method": "rule",
+          "ruleVersion": "proxy-form-v1"
+        },
+        "window": {
+          "observedMonths": null,
+          "generatedAt": 1799913600000,
+          "expiresAt": 1802592000000
+        },
+        "sufficiency": {
+          "utterances": 12,
+          "positive": 7,
+          "negative": 5,
+          "games": 4,
+          "aspects": 4,
+          "confidence": "medium",
+          "reasons": []
+        },
+        "affect": {
+          "vector": [
+            0.6,
+            0.6,
+            0.6,
+            0.6,
+            0.6,
+            0.6,
+            0.6,
+            0.6,
+            0.6,
+            0.6,
+            0.6,
+            0.6,
+            0.6,
+            0.6,
+            0.6,
+            0.6,
+            0.6,
+            0.6,
+            0.6,
+            0.6
+          ],
+          "vectorSpecVersion": 1
+        },
+        "designGap": {
+          "vector": [
+            0.1,
+            0.1,
+            0.1,
+            0.1,
+            0.1,
+            0.1,
+            0.1,
+            0.1,
+            0.1,
+            0.1,
+            0.1,
+            0.1,
+            0.1,
+            0.1,
+            0.1,
+            0.1,
+            0.1,
+            0.1,
+            0.1,
+            0.1
+          ],
+          "method": "pos-minus-neg",
+          "wants": [
+            "asp.difficulty"
+          ],
+          "complaints": [
+            "asp.content"
+          ],
+          "reason": null
+        },
+        "conditionalGaps": [
+          {
+            "current": "今",
+            "desired": "望み",
+            "condition": null,
+            "evidenceIds": [
+              "E1"
+            ]
+          }
+        ],
+        "stanceCards": [
+          {
+            "id": "S1",
+            "claim": "毎日の周回を強いる作りは嫌だ",
+            "polarity": "neg",
+            "evidenceIds": [
+              "E1"
+            ],
+            "extractor": "rule"
+          },
+          {
+            "id": "S2",
+            "claim": "高難度に何時間でも挑みたい",
+            "polarity": "pos",
+            "evidenceIds": [
+              "E2"
+            ],
+            "extractor": "llm"
+          }
+        ],
+        "evidence": [
+          {
+            "id": "E0",
+            "revision": "r",
+            "text": "t",
+            "sourceKind": "s",
+            "gameTitle": "g",
+            "polarity": "pos",
+            "postedAt": "x"
+          },
+          {
+            "id": "E1",
+            "revision": "r",
+            "text": "t",
+            "sourceKind": "s",
+            "gameTitle": "g",
+            "polarity": "pos",
+            "postedAt": "x"
+          },
+          {
+            "id": "E2",
+            "revision": "r",
+            "text": "t",
+            "sourceKind": "s",
+            "gameTitle": "g",
+            "polarity": "pos",
+            "postedAt": "x"
+          },
+          {
+            "id": "E0",
+            "revision": "r",
+            "text": "t",
+            "sourceKind": "s",
+            "gameTitle": "g",
+            "polarity": "pos",
+            "postedAt": "x"
+          },
+          {
+            "id": "E1",
+            "revision": "r",
+            "text": "t",
+            "sourceKind": "s",
+            "gameTitle": "g",
+            "polarity": "pos",
+            "postedAt": "x"
+          },
+          {
+            "id": "E2",
+            "revision": "r",
+            "text": "t",
+            "sourceKind": "s",
+            "gameTitle": "g",
+            "polarity": "pos",
+            "postedAt": "x"
+          },
+          {
+            "id": "E0",
+            "revision": "r",
+            "text": "t",
+            "sourceKind": "s",
+            "gameTitle": "g",
+            "polarity": "pos",
+            "postedAt": "x"
+          },
+          {
+            "id": "E1",
+            "revision": "r",
+            "text": "t",
+            "sourceKind": "s",
+            "gameTitle": "g",
+            "polarity": "pos",
+            "postedAt": "x"
+          },
+          {
+            "id": "E2",
+            "revision": "r",
+            "text": "t",
+            "sourceKind": "s",
+            "gameTitle": "g",
+            "polarity": "pos",
+            "postedAt": "x"
+          },
+          {
+            "id": "E0",
+            "revision": "r",
+            "text": "t",
+            "sourceKind": "s",
+            "gameTitle": "g",
+            "polarity": "pos",
+            "postedAt": "x"
+          },
+          {
+            "id": "E1",
+            "revision": "r",
+            "text": "t",
+            "sourceKind": "s",
+            "gameTitle": "g",
+            "polarity": "pos",
+            "postedAt": "x"
+          },
+          {
+            "id": "E2",
+            "revision": "r",
+            "text": "t",
+            "sourceKind": "s",
+            "gameTitle": "g",
+            "polarity": "pos",
+            "postedAt": "x"
+          },
+          {
+            "id": "E0",
+            "revision": "r",
+            "text": "t",
+            "sourceKind": "s",
+            "gameTitle": "g",
+            "polarity": "pos",
+            "postedAt": "x"
+          }
+        ],
+        "styleNotes": [
+          "短く書く"
+        ],
+        "likedGames": [
+          "Game B"
+        ],
+        "heldOut": [
+          {
+            "game": "Game D",
+            "recommended": true
+          },
+          {
+            "game": "Game E",
+            "recommended": false
+          }
+        ],
+        "revoked": false
+      },
+      "result": {
+        "ok": false,
+        "errors": [
+          "evidence: 12 件以内",
+          "evidence[0].postedAt: 有限の数値が必要",
+          "evidence[1].postedAt: 有限の数値が必要",
+          "evidence[2].postedAt: 有限の数値が必要",
+          "evidence[3].id: E0 が重複",
+          "evidence[3].postedAt: 有限の数値が必要",
+          "evidence[4].id: E1 が重複",
+          "evidence[4].postedAt: 有限の数値が必要",
+          "evidence[5].id: E2 が重複",
+          "evidence[5].postedAt: 有限の数値が必要",
+          "evidence[6].id: E0 が重複",
+          "evidence[6].postedAt: 有限の数値が必要",
+          "evidence[7].id: E1 が重複",
+          "evidence[7].postedAt: 有限の数値が必要",
+          "evidence[8].id: E2 が重複",
+          "evidence[8].postedAt: 有限の数値が必要",
+          "evidence[9].id: E0 が重複",
+          "evidence[9].postedAt: 有限の数値が必要",
+          "evidence[10].id: E1 が重複",
+          "evidence[10].postedAt: 有限の数値が必要",
+          "evidence[11].id: E2 が重複",
+          "evidence[11].postedAt: 有限の数値が必要"
+        ]
+      }
+    },
+    {
+      "raw": {
+        "contractVersion": 1,
+        "personaKind": "observedSpeaker",
+        "speakerKey": "ext:steam:00000000000000a1",
+        "genre": "roguelike",
+        "genreSpecVersion": 1,
+        "profileVersion": "proxy-form-v1:a1",
+        "formation": {
+          "method": "rule",
+          "ruleVersion": "proxy-form-v1"
+        },
+        "window": {
+          "observedMonths": null,
+          "generatedAt": 1799913600000,
+          "expiresAt": 1802592000000
+        },
+        "sufficiency": {
+          "utterances": 12,
+          "positive": 7,
+          "negative": 5,
+          "games": 4,
+          "aspects": 4,
+          "confidence": "medium",
+          "reasons": []
+        },
+        "affect": {
+          "vector": [
+            0.6,
+            0.6,
+            0.6,
+            0.6,
+            0.6,
+            0.6,
+            0.6,
+            0.6,
+            0.6,
+            0.6,
+            0.6,
+            0.6,
+            0.6,
+            0.6,
+            0.6,
+            0.6,
+            0.6,
+            0.6,
+            0.6,
+            0.6
+          ],
+          "vectorSpecVersion": 1
+        },
+        "designGap": {
+          "vector": [
+            0.1,
+            0.1,
+            0.1,
+            0.1,
+            0.1,
+            0.1,
+            0.1,
+            0.1,
+            0.1,
+            0.1,
+            0.1,
+            0.1,
+            0.1,
+            0.1,
+            0.1,
+            0.1,
+            0.1,
+            0.1,
+            0.1,
+            0.1
+          ],
+          "method": "pos-minus-neg",
+          "wants": [
+            "asp.difficulty"
+          ],
+          "complaints": [
+            "asp.content"
+          ],
+          "reason": null
+        },
+        "conditionalGaps": 3,
+        "stanceCards": "x",
+        "evidence": [],
+        "styleNotes": [
+          "a",
+          "b",
+          "c",
+          "d",
+          "e"
+        ],
+        "likedGames": [
+          1
+        ],
+        "heldOut": [
+          {
+            "game": "g"
+          },
+          5
+        ],
+        "revoked": false
+      },
+      "result": {
+        "ok": false,
+        "errors": [
+          "evidence: 1 件以上の配列が必要",
+          "conditionalGaps: 配列が必要",
+          "stanceCards: 配列が必要",
+          "styleNotes: 4 件以内",
+          "likedGames[0]: 空でない文字列が必要",
+          "heldOut[0].recommended: boolean が必要",
+          "heldOut[1].recommended: boolean が必要",
+          "heldOut[1].game: 空でない文字列が必要"
+        ]
+      }
+    },
+    {
+      "raw": {
+        "contractVersion": 1,
+        "personaKind": "observedSpeaker",
+        "speakerKey": "ext:steam:00000000000000a1",
+        "genre": "roguelike",
+        "genreSpecVersion": 1,
+        "profileVersion": "proxy-form-v1:a1",
+        "formation": "rule",
+        "window": null,
+        "sufficiency": {
+          "utterances": 1,
+          "positive": "2",
+          "negative": -1,
+          "games": 0.5,
+          "aspects": 0,
+          "confidence": "low",
+          "reasons": [
+            "r",
+            ""
+          ]
+        },
+        "affect": {
+          "vector": [
+            0.6,
+            0.6,
+            0.6,
+            0.6,
+            0.6,
+            0.6,
+            0.6,
+            0.6,
+            0.6,
+            0.6,
+            0.6,
+            0.6,
+            0.6,
+            0.6,
+            0.6,
+            0.6,
+            0.6,
+            0.6,
+            0.6,
+            0.6
+          ],
+          "vectorSpecVersion": 1
+        },
+        "designGap": {
+          "vector": [
+            0.1,
+            0.1,
+            0.1,
+            0.1,
+            0.1,
+            0.1,
+            0.1,
+            0.1,
+            0.1,
+            0.1,
+            0.1,
+            0.1,
+            0.1,
+            0.1,
+            0.1,
+            0.1,
+            0.1,
+            0.1,
+            0.1,
+            0.1
+          ],
+          "method": "pos-minus-neg",
+          "wants": [
+            "asp.difficulty"
+          ],
+          "complaints": [
+            "asp.content"
+          ],
+          "reason": null
+        },
+        "conditionalGaps": [
+          {
+            "current": "今",
+            "desired": "望み",
+            "condition": null,
+            "evidenceIds": [
+              "E1"
+            ]
+          }
+        ],
+        "stanceCards": [
+          {
+            "id": "S1",
+            "claim": "毎日の周回を強いる作りは嫌だ",
+            "polarity": "neg",
+            "evidenceIds": [
+              "E1"
+            ],
+            "extractor": "rule"
+          },
+          {
+            "id": "S2",
+            "claim": "高難度に何時間でも挑みたい",
+            "polarity": "pos",
+            "evidenceIds": [
+              "E2"
+            ],
+            "extractor": "llm"
+          }
+        ],
+        "evidence": [
+          {
+            "id": "E1",
+            "revision": "r1",
+            "text": "  毎日の周回が義務になるのは本当に嫌だ。 ",
+            "sourceKind": "steam",
+            "gameTitle": "Game A",
+            "polarity": "neg",
+            "postedAt": null
+          },
+          {
+            "id": "E2",
+            "revision": "r2",
+            "text": "週末なら高難度に何時間でも挑みたい。",
+            "sourceKind": "steam",
+            "gameTitle": "Game B",
+            "polarity": "pos",
+            "postedAt": 1700000000000
+          }
+        ],
+        "styleNotes": [
+          "短く書く"
+        ],
+        "likedGames": [
+          "Game B"
+        ],
+        "heldOut": [
+          {
+            "game": "Game D",
+            "recommended": true
+          },
+          {
+            "game": "Game E",
+            "recommended": false
+          }
+        ],
+        "revoked": false
+      },
+      "result": {
+        "ok": false,
+        "errors": [
+          "formation.method: rule | llm",
+          "window.generatedAt: 有限の数値が必要",
+          "window.expiresAt: 有限の数値が必要",
+          "window.expiresAt: generatedAt より後",
+          "formation.ruleVersion: 空でない文字列が必要",
+          "sufficiency.positive: 有限の数値が必要",
+          "sufficiency.negative: 0 以上の整数",
+          "sufficiency.games: 0 以上の整数",
+          "sufficiency.reasons[1]: 空でない文字列が必要"
+        ]
+      }
+    },
+    {
+      "raw": {
+        "contractVersion": 1,
+        "personaKind": "observedSpeaker",
+        "speakerKey": "ext:Steam:00000000000000a1",
+        "genre": "roguelike",
+        "genreSpecVersion": 1,
+        "profileVersion": "proxy-form-v1:a1",
+        "formation": {
+          "method": "rule",
+          "ruleVersion": "proxy-form-v1"
+        },
+        "window": {
+          "observedMonths": null,
+          "generatedAt": 1799913600000,
+          "expiresAt": 1802592000000
+        },
+        "sufficiency": {
+          "utterances": 12,
+          "positive": 7,
+          "negative": 5,
+          "games": 4,
+          "aspects": 4,
+          "confidence": "medium",
+          "reasons": []
+        },
+        "affect": {
+          "vector": [
+            0.6,
+            0.6,
+            0.6,
+            0.6,
+            0.6,
+            0.6,
+            0.6,
+            0.6,
+            0.6,
+            0.6,
+            0.6,
+            0.6,
+            0.6,
+            0.6,
+            0.6,
+            0.6,
+            0.6,
+            0.6,
+            0.6,
+            0.6
+          ],
+          "vectorSpecVersion": 1
+        },
+        "designGap": {
+          "vector": [
+            0.1,
+            0.1,
+            0.1,
+            0.1,
+            0.1,
+            0.1,
+            0.1,
+            0.1,
+            0.1,
+            0.1,
+            0.1,
+            0.1,
+            0.1,
+            0.1,
+            0.1,
+            0.1,
+            0.1,
+            0.1,
+            0.1,
+            0.1
+          ],
+          "method": "pos-minus-neg",
+          "wants": [
+            "asp.difficulty"
+          ],
+          "complaints": [
+            "asp.content"
+          ],
+          "reason": null
+        },
+        "conditionalGaps": [
+          {
+            "current": "今",
+            "desired": "望み",
+            "condition": null,
+            "evidenceIds": [
+              "E1"
+            ]
+          }
+        ],
+        "stanceCards": [
+          {
+            "id": "S1",
+            "claim": "毎日の周回を強いる作りは嫌だ",
+            "polarity": "neg",
+            "evidenceIds": [
+              "E1"
+            ],
+            "extractor": "rule"
+          },
+          {
+            "id": "S2",
+            "claim": "高難度に何時間でも挑みたい",
+            "polarity": "pos",
+            "evidenceIds": [
+              "E2"
+            ],
+            "extractor": "llm"
+          }
+        ],
+        "evidence": [
+          {
+            "id": "E1",
+            "revision": "r1",
+            "text": "  毎日の周回が義務になるのは本当に嫌だ。 ",
+            "sourceKind": "steam",
+            "gameTitle": "Game A",
+            "polarity": "neg",
+            "postedAt": null
+          },
+          {
+            "id": "E2",
+            "revision": "r2",
+            "text": "週末なら高難度に何時間でも挑みたい。",
+            "sourceKind": "steam",
+            "gameTitle": "Game B",
+            "polarity": "pos",
+            "postedAt": 1700000000000
+          }
+        ],
+        "styleNotes": [
+          "短く書く"
+        ],
+        "likedGames": [
+          "Game B"
+        ],
+        "heldOut": [
+          {
+            "game": "Game D",
+            "recommended": true
+          },
+          {
+            "game": "Game E",
+            "recommended": false
+          }
+        ],
+        "revoked": false
+      },
+      "result": {
+        "ok": false,
+        "errors": [
+          "speakerKey: ext:<source>:<hmac16> の仮名のみ受け取る"
+        ]
+      }
+    },
+    {
+      "raw": {
+        "contractVersion": 1,
+        "personaKind": "observedSpeaker",
+        "speakerKey": "ext:s-t_e:0123456789abcdef",
+        "genre": "roguelike",
+        "genreSpecVersion": 1,
+        "profileVersion": "proxy-form-v1:a1",
+        "formation": {
+          "method": "rule",
+          "ruleVersion": "proxy-form-v1"
+        },
+        "window": {
+          "observedMonths": null,
+          "generatedAt": 1799913600000,
+          "expiresAt": 1802592000000
+        },
+        "sufficiency": {
+          "utterances": 12,
+          "positive": 7,
+          "negative": 5,
+          "games": 4,
+          "aspects": 4,
+          "confidence": "medium",
+          "reasons": []
+        },
+        "affect": {
+          "vector": [
+            0.6,
+            0.6,
+            0.6,
+            0.6,
+            0.6,
+            0.6,
+            0.6,
+            0.6,
+            0.6,
+            0.6,
+            0.6,
+            0.6,
+            0.6,
+            0.6,
+            0.6,
+            0.6,
+            0.6,
+            0.6,
+            0.6,
+            0.6
+          ],
+          "vectorSpecVersion": 1
+        },
+        "designGap": {
+          "vector": [
+            0.1,
+            0.1,
+            0.1,
+            0.1,
+            0.1,
+            0.1,
+            0.1,
+            0.1,
+            0.1,
+            0.1,
+            0.1,
+            0.1,
+            0.1,
+            0.1,
+            0.1,
+            0.1,
+            0.1,
+            0.1,
+            0.1,
+            0.1
+          ],
+          "method": "pos-minus-neg",
+          "wants": [
+            "asp.difficulty"
+          ],
+          "complaints": [
+            "asp.content"
+          ],
+          "reason": null
+        },
+        "conditionalGaps": [
+          {
+            "current": "今",
+            "desired": "望み",
+            "condition": null,
+            "evidenceIds": [
+              "E1"
+            ]
+          }
+        ],
+        "stanceCards": [
+          {
+            "id": "S1",
+            "claim": "毎日の周回を強いる作りは嫌だ",
+            "polarity": "neg",
+            "evidenceIds": [
+              "E1"
+            ],
+            "extractor": "rule"
+          },
+          {
+            "id": "S2",
+            "claim": "高難度に何時間でも挑みたい",
+            "polarity": "pos",
+            "evidenceIds": [
+              "E2"
+            ],
+            "extractor": "llm"
+          }
+        ],
+        "evidence": [
+          {
+            "id": "E1",
+            "revision": "r1",
+            "text": "  毎日の周回が義務になるのは本当に嫌だ。 ",
+            "sourceKind": "steam",
+            "gameTitle": "Game A",
+            "polarity": "neg",
+            "postedAt": null
+          },
+          {
+            "id": "E2",
+            "revision": "r2",
+            "text": "週末なら高難度に何時間でも挑みたい。",
+            "sourceKind": "steam",
+            "gameTitle": "Game B",
+            "polarity": "pos",
+            "postedAt": 1700000000000
+          }
+        ],
+        "styleNotes": [
+          "短く書く"
+        ],
+        "likedGames": [
+          "Game B"
+        ],
+        "heldOut": [
+          {
+            "game": "Game D",
+            "recommended": true
+          },
+          {
+            "game": "Game E",
+            "recommended": false
+          }
+        ],
+        "revoked": false
+      },
+      "result": {
+        "ok": true,
+        "pack": {
+          "contractVersion": 1,
+          "personaKind": "observedSpeaker",
+          "speakerKey": "ext:s-t_e:0123456789abcdef",
+          "genre": "roguelike",
+          "genreSpecVersion": 1,
+          "profileVersion": "proxy-form-v1:a1",
+          "formation": {
+            "method": "rule",
+            "ruleVersion": "proxy-form-v1"
+          },
+          "window": {
+            "observedMonths": null,
+            "generatedAt": 1799913600000,
+            "expiresAt": 1802592000000
+          },
+          "sufficiency": {
+            "utterances": 12,
+            "positive": 7,
+            "negative": 5,
+            "games": 4,
+            "aspects": 4,
+            "confidence": "medium",
+            "reasons": []
+          },
+          "affect": {
+            "vector": [
+              0.6,
+              0.6,
+              0.6,
+              0.6,
+              0.6,
+              0.6,
+              0.6,
+              0.6,
+              0.6,
+              0.6,
+              0.6,
+              0.6,
+              0.6,
+              0.6,
+              0.6,
+              0.6,
+              0.6,
+              0.6,
+              0.6,
+              0.6
+            ],
+            "vectorSpecVersion": 1
+          },
+          "designGap": {
+            "vector": [
+              0.1,
+              0.1,
+              0.1,
+              0.1,
+              0.1,
+              0.1,
+              0.1,
+              0.1,
+              0.1,
+              0.1,
+              0.1,
+              0.1,
+              0.1,
+              0.1,
+              0.1,
+              0.1,
+              0.1,
+              0.1,
+              0.1,
+              0.1
+            ],
+            "method": "pos-minus-neg",
+            "wants": [
+              "asp.difficulty"
+            ],
+            "complaints": [
+              "asp.content"
+            ],
+            "reason": null
+          },
+          "conditionalGaps": [
+            {
+              "current": "今",
+              "desired": "望み",
+              "condition": null,
+              "evidenceIds": [
+                "E1"
+              ]
+            }
+          ],
+          "stanceCards": [
+            {
+              "id": "S1",
+              "claim": "毎日の周回を強いる作りは嫌だ",
+              "polarity": "neg",
+              "evidenceIds": [
+                "E1"
+              ],
+              "extractor": "rule"
+            },
+            {
+              "id": "S2",
+              "claim": "高難度に何時間でも挑みたい",
+              "polarity": "pos",
+              "evidenceIds": [
+                "E2"
+              ],
+              "extractor": "llm"
+            }
+          ],
+          "evidence": [
+            {
+              "id": "E1",
+              "revision": "r1",
+              "text": "毎日の周回が義務になるのは本当に嫌だ。",
+              "sourceKind": "steam",
+              "gameTitle": "Game A",
+              "polarity": "neg",
+              "postedAt": null
+            },
+            {
+              "id": "E2",
+              "revision": "r2",
+              "text": "週末なら高難度に何時間でも挑みたい。",
+              "sourceKind": "steam",
+              "gameTitle": "Game B",
+              "polarity": "pos",
+              "postedAt": 1700000000000
+            }
+          ],
+          "styleNotes": [
+            "短く書く"
+          ],
+          "likedGames": [
+            "Game B"
+          ],
+          "heldOut": [
+            {
+              "game": "Game D",
+              "recommended": true
+            },
+            {
+              "game": "Game E",
+              "recommended": false
+            }
+          ],
+          "revoked": false
+        }
+      }
+    },
+    {
+      "raw": {
+        "contractVersion": 1,
+        "personaKind": "observedSpeaker",
+        "speakerKey": "ext:steam:00000000000000a1",
+        "genre": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+        "genreSpecVersion": 1,
+        "profileVersion": "proxy-form-v1:a1",
+        "formation": {
+          "method": "rule",
+          "ruleVersion": "proxy-form-v1"
+        },
+        "window": {
+          "observedMonths": null,
+          "generatedAt": 1799913600000,
+          "expiresAt": 1802592000000
+        },
+        "sufficiency": {
+          "utterances": 12,
+          "positive": 7,
+          "negative": 5,
+          "games": 4,
+          "aspects": 4,
+          "confidence": "medium",
+          "reasons": []
+        },
+        "affect": {
+          "vector": [
+            0.6,
+            0.6,
+            0.6,
+            0.6,
+            0.6,
+            0.6,
+            0.6,
+            0.6,
+            0.6,
+            0.6,
+            0.6,
+            0.6,
+            0.6,
+            0.6,
+            0.6,
+            0.6,
+            0.6,
+            0.6,
+            0.6,
+            0.6
+          ],
+          "vectorSpecVersion": 1
+        },
+        "designGap": {
+          "vector": [
+            0.1,
+            0.1,
+            0.1,
+            0.1,
+            0.1,
+            0.1,
+            0.1,
+            0.1,
+            0.1,
+            0.1,
+            0.1,
+            0.1,
+            0.1,
+            0.1,
+            0.1,
+            0.1,
+            0.1,
+            0.1,
+            0.1,
+            0.1
+          ],
+          "method": "pos-minus-neg",
+          "wants": [
+            "asp.difficulty"
+          ],
+          "complaints": [
+            "asp.content"
+          ],
+          "reason": null
+        },
+        "conditionalGaps": [
+          {
+            "current": "今",
+            "desired": "望み",
+            "condition": null,
+            "evidenceIds": [
+              "E1"
+            ]
+          }
+        ],
+        "stanceCards": [
+          {
+            "id": "S1",
+            "claim": "毎日の周回を強いる作りは嫌だ",
+            "polarity": "neg",
+            "evidenceIds": [
+              "E1"
+            ],
+            "extractor": "rule"
+          },
+          {
+            "id": "S2",
+            "claim": "高難度に何時間でも挑みたい",
+            "polarity": "pos",
+            "evidenceIds": [
+              "E2"
+            ],
+            "extractor": "llm"
+          }
+        ],
+        "evidence": [
+          {
+            "id": "E1",
+            "revision": "r1",
+            "text": "  毎日の周回が義務になるのは本当に嫌だ。 ",
+            "sourceKind": "steam",
+            "gameTitle": "Game A",
+            "polarity": "neg",
+            "postedAt": null
+          },
+          {
+            "id": "E2",
+            "revision": "r2",
+            "text": "週末なら高難度に何時間でも挑みたい。",
+            "sourceKind": "steam",
+            "gameTitle": "Game B",
+            "polarity": "pos",
+            "postedAt": 1700000000000
+          }
+        ],
+        "styleNotes": [
+          "短く書く"
+        ],
+        "likedGames": [
+          "Game B"
+        ],
+        "heldOut": [
+          {
+            "game": "Game D",
+            "recommended": true
+          },
+          {
+            "game": "Game E",
+            "recommended": false
+          }
+        ],
+        "revoked": false
+      },
+      "result": {
+        "ok": true,
+        "pack": {
+          "contractVersion": 1,
+          "personaKind": "observedSpeaker",
+          "speakerKey": "ext:steam:00000000000000a1",
+          "genre": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+          "genreSpecVersion": 1,
+          "profileVersion": "proxy-form-v1:a1",
+          "formation": {
+            "method": "rule",
+            "ruleVersion": "proxy-form-v1"
+          },
+          "window": {
+            "observedMonths": null,
+            "generatedAt": 1799913600000,
+            "expiresAt": 1802592000000
+          },
+          "sufficiency": {
+            "utterances": 12,
+            "positive": 7,
+            "negative": 5,
+            "games": 4,
+            "aspects": 4,
+            "confidence": "medium",
+            "reasons": []
+          },
+          "affect": {
+            "vector": [
+              0.6,
+              0.6,
+              0.6,
+              0.6,
+              0.6,
+              0.6,
+              0.6,
+              0.6,
+              0.6,
+              0.6,
+              0.6,
+              0.6,
+              0.6,
+              0.6,
+              0.6,
+              0.6,
+              0.6,
+              0.6,
+              0.6,
+              0.6
+            ],
+            "vectorSpecVersion": 1
+          },
+          "designGap": {
+            "vector": [
+              0.1,
+              0.1,
+              0.1,
+              0.1,
+              0.1,
+              0.1,
+              0.1,
+              0.1,
+              0.1,
+              0.1,
+              0.1,
+              0.1,
+              0.1,
+              0.1,
+              0.1,
+              0.1,
+              0.1,
+              0.1,
+              0.1,
+              0.1
+            ],
+            "method": "pos-minus-neg",
+            "wants": [
+              "asp.difficulty"
+            ],
+            "complaints": [
+              "asp.content"
+            ],
+            "reason": null
+          },
+          "conditionalGaps": [
+            {
+              "current": "今",
+              "desired": "望み",
+              "condition": null,
+              "evidenceIds": [
+                "E1"
+              ]
+            }
+          ],
+          "stanceCards": [
+            {
+              "id": "S1",
+              "claim": "毎日の周回を強いる作りは嫌だ",
+              "polarity": "neg",
+              "evidenceIds": [
+                "E1"
+              ],
+              "extractor": "rule"
+            },
+            {
+              "id": "S2",
+              "claim": "高難度に何時間でも挑みたい",
+              "polarity": "pos",
+              "evidenceIds": [
+                "E2"
+              ],
+              "extractor": "llm"
+            }
+          ],
+          "evidence": [
+            {
+              "id": "E1",
+              "revision": "r1",
+              "text": "毎日の周回が義務になるのは本当に嫌だ。",
+              "sourceKind": "steam",
+              "gameTitle": "Game A",
+              "polarity": "neg",
+              "postedAt": null
+            },
+            {
+              "id": "E2",
+              "revision": "r2",
+              "text": "週末なら高難度に何時間でも挑みたい。",
+              "sourceKind": "steam",
+              "gameTitle": "Game B",
+              "polarity": "pos",
+              "postedAt": 1700000000000
+            }
+          ],
+          "styleNotes": [
+            "短く書く"
+          ],
+          "likedGames": [
+            "Game B"
+          ],
+          "heldOut": [
+            {
+              "game": "Game D",
+              "recommended": true
+            },
+            {
+              "game": "Game E",
+              "recommended": false
+            }
+          ],
+          "revoked": false
+        }
+      }
+    },
+    {
+      "raw": {
+        "contractVersion": 1,
+        "personaKind": "observedSpeaker",
+        "speakerKey": "ext:steam:00000000000000a1",
+        "genre": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+        "genreSpecVersion": 1,
+        "profileVersion": "proxy-form-v1:a1",
+        "formation": {
+          "method": "rule",
+          "ruleVersion": "proxy-form-v1"
+        },
+        "window": {
+          "observedMonths": null,
+          "generatedAt": 1799913600000,
+          "expiresAt": 1802592000000
+        },
+        "sufficiency": {
+          "utterances": 12,
+          "positive": 7,
+          "negative": 5,
+          "games": 4,
+          "aspects": 4,
+          "confidence": "medium",
+          "reasons": []
+        },
+        "affect": {
+          "vector": [
+            0.6,
+            0.6,
+            0.6,
+            0.6,
+            0.6,
+            0.6,
+            0.6,
+            0.6,
+            0.6,
+            0.6,
+            0.6,
+            0.6,
+            0.6,
+            0.6,
+            0.6,
+            0.6,
+            0.6,
+            0.6,
+            0.6,
+            0.6
+          ],
+          "vectorSpecVersion": 1
+        },
+        "designGap": {
+          "vector": [
+            0.1,
+            0.1,
+            0.1,
+            0.1,
+            0.1,
+            0.1,
+            0.1,
+            0.1,
+            0.1,
+            0.1,
+            0.1,
+            0.1,
+            0.1,
+            0.1,
+            0.1,
+            0.1,
+            0.1,
+            0.1,
+            0.1,
+            0.1
+          ],
+          "method": "pos-minus-neg",
+          "wants": [
+            "asp.difficulty"
+          ],
+          "complaints": [
+            "asp.content"
+          ],
+          "reason": null
+        },
+        "conditionalGaps": [
+          {
+            "current": "今",
+            "desired": "望み",
+            "condition": null,
+            "evidenceIds": [
+              "E1"
+            ]
+          }
+        ],
+        "stanceCards": [
+          {
+            "id": "S1",
+            "claim": "毎日の周回を強いる作りは嫌だ",
+            "polarity": "neg",
+            "evidenceIds": [
+              "E1"
+            ],
+            "extractor": "rule"
+          },
+          {
+            "id": "S2",
+            "claim": "高難度に何時間でも挑みたい",
+            "polarity": "pos",
+            "evidenceIds": [
+              "E2"
+            ],
+            "extractor": "llm"
+          }
+        ],
+        "evidence": [
+          {
+            "id": "E1",
+            "revision": "r1",
+            "text": "  毎日の周回が義務になるのは本当に嫌だ。 ",
+            "sourceKind": "steam",
+            "gameTitle": "Game A",
+            "polarity": "neg",
+            "postedAt": null
+          },
+          {
+            "id": "E2",
+            "revision": "r2",
+            "text": "週末なら高難度に何時間でも挑みたい。",
+            "sourceKind": "steam",
+            "gameTitle": "Game B",
+            "polarity": "pos",
+            "postedAt": 1700000000000
+          }
+        ],
+        "styleNotes": [
+          "短く書く"
+        ],
+        "likedGames": [
+          "Game B"
+        ],
+        "heldOut": [
+          {
+            "game": "Game D",
+            "recommended": true
+          },
+          {
+            "game": "Game E",
+            "recommended": false
+          }
+        ],
+        "revoked": false
+      },
+      "result": {
+        "ok": false,
+        "errors": [
+          "genre: 64 文字以内",
+          "genre: 辞書 id (英小文字・数字・-_)"
+        ]
+      }
+    },
+    {
+      "raw": [
+        1,
+        2
+      ],
+      "result": {
+        "ok": false,
+        "errors": [
+          "パックはオブジェクトでなければならない"
+        ]
+      }
+    },
+    {
+      "raw": "str",
+      "result": {
+        "ok": false,
+        "errors": [
+          "パックはオブジェクトでなければならない"
+        ]
+      }
+    }
+  ],
+  "attribution": {
+    "scope": {
+      "evidenceIds": [
+        "E1",
+        "E2"
+      ],
+      "evidenceTexts": {
+        "E1": "毎日の周回が 義務になるのは本当に嫌だ。",
+        "E2": "週末なら高難度に挑みたい。"
+      }
+    },
+    "cases": [
+      {
+        "args": {
+          "claimKind": "groundedParaphrase",
+          "evidenceIds": [
+            "E1"
+          ],
+          "data": "日課の義務は嫌"
+        },
+        "result": {
+          "ok": true,
+          "claimKind": "groundedParaphrase",
+          "evidenceIds": [
+            "E1"
+          ]
+        }
+      },
+      {
+        "args": {
+          "claimKind": "groundedParaphrase",
+          "evidenceIds": [
+            "E7"
+          ],
+          "data": "x"
+        },
+        "result": {
+          "ok": false,
+          "foul": "unsupported_attribution",
+          "claimKind": "groundedParaphrase",
+          "evidenceIds": []
+        }
+      },
+      {
+        "args": {
+          "claimKind": "sourceQuote",
+          "evidenceIds": [],
+          "data": "x"
+        },
+        "result": {
+          "ok": false,
+          "foul": "unsupported_attribution",
+          "claimKind": "sourceQuote",
+          "evidenceIds": []
+        }
+      },
+      {
+        "args": {
+          "claimKind": "sourceQuote",
+          "evidenceIds": [
+            "E1"
+          ],
+          "data": "本人は「毎日の周回が義務になる」と言っている"
+        },
+        "result": {
+          "ok": true,
+          "claimKind": "sourceQuote",
+          "evidenceIds": [
+            "E1"
+          ]
+        }
+      },
+      {
+        "args": {
+          "claimKind": "sourceQuote",
+          "evidenceIds": [
+            "E1"
+          ],
+          "data": "本人は「課金は悪だ」と言っている"
+        },
+        "result": {
+          "ok": false,
+          "foul": "quote_mismatch",
+          "claimKind": "sourceQuote",
+          "evidenceIds": [
+            "E1"
+          ]
+        }
+      },
+      {
+        "args": {
+          "claimKind": null,
+          "evidenceIds": [
+            "E9",
+            "E2"
+          ],
+          "data": "たぶん好き"
+        },
+        "result": {
+          "ok": true,
+          "claimKind": "simulationInference",
+          "evidenceIds": [
+            "E2"
+          ]
+        }
+      },
+      {
+        "args": {
+          "claimKind": "unknown",
+          "evidenceIds": [],
+          "data": "?"
+        },
+        "result": {
+          "ok": true,
+          "claimKind": "unknown",
+          "evidenceIds": []
+        }
+      },
+      {
+        "args": {
+          "claimKind": "sourceQuote",
+          "evidenceIds": [
+            "E1",
+            "E2"
+          ],
+          "data": "毎日の周回が義務"
+        },
+        "result": {
+          "ok": true,
+          "claimKind": "sourceQuote",
+          "evidenceIds": [
+            "E1",
+            "E2"
+          ]
+        }
+      },
+      {
+        "args": {
+          "claimKind": "sourceQuote",
+          "evidenceIds": [
+            "E2"
+          ],
+          "data": "「ab」「週末なら 高難度」"
+        },
+        "result": {
+          "ok": true,
+          "claimKind": "sourceQuote",
+          "evidenceIds": [
+            "E2"
+          ]
+        }
+      }
+    ]
+  },
+  "evidenceIds": [
+    {
+      "v": [
+        "E1",
+        " [E2] ",
+        "E1",
+        "E1000",
+        "e3",
+        "[E4",
+        "E5]",
+        7,
+        "E",
+        "E999"
+      ],
+      "r": [
+        "E1",
+        "E2",
+        "E4",
+        "E5",
+        "E999"
+      ]
+    },
+    {
+      "v": "x",
+      "r": []
+    },
+    {
+      "v": null,
+      "r": []
+    }
+  ],
+  "claimKinds": [
+    {
+      "v": "sourceQuote",
+      "r": "sourceQuote"
+    },
+    {
+      "v": "unknown",
+      "r": "unknown"
+    },
+    {
+      "v": "x",
+      "r": null
+    },
+    {
+      "v": 1,
+      "r": null
+    }
+  ],
+  "quotes": [
+    {
+      "d": "「ab」",
+      "c": [
+        "abc"
+      ],
+      "r": false
+    },
+    {
+      "d": "「abcd」",
+      "c": [
+        "xxabcdxx"
+      ],
+      "r": true
+    },
+    {
+      "d": "\"a b c d\"",
+      "c": [
+        "abcd"
+      ],
+      "r": true
+    },
+    {
+      "d": "no quote here",
+      "c": [
+        "no quote here!"
+      ],
+      "r": true
+    },
+    {
+      "d": "「abc」と『defg』",
+      "c": [
+        "defgh"
+      ],
+      "r": true
+    },
+    {
+      "d": "“1234”",
+      "c": [
+        "12 34"
+      ],
+      "r": true
+    }
+  ],
+  "suffix": [
+    {
+      "k": "groundedParaphrase",
+      "ids": [
+        "E1",
+        "E2"
+      ],
+      "r": " [E1,E2]"
+    },
+    {
+      "k": "sourceQuote",
+      "ids": [],
+      "r": ""
+    },
+    {
+      "k": "simulationInference",
+      "ids": [],
+      "r": "（推測）"
+    },
+    {
+      "k": "unknown",
+      "ids": [
+        "E1"
+      ],
+      "r": "（材料不足）"
+    }
+  ],
+  "proxyPrompt": {
+    "persona": {
+      "id": "p",
+      "name": "n",
+      "role": "debater",
+      "stance": "pro",
+      "speechStyle": "",
+      "traits": [],
+      "model": "m",
+      "isLocal": false,
+      "proxy": {
+        "label": "論者#aaaaaa",
+        "speakerKey": "ext:steam:0000000000000001",
+        "genre": "g",
+        "bundleText": "# 束\n本文",
+        "evidenceIds": [
+          "E1"
+        ],
+        "evidenceTexts": {
+          "E1": "t"
+        }
+      }
+    },
+    "lines": [
+      "# 束\n本文",
+      "",
+      "# 論拠ごとに申告すること (代理の決まり)",
+      "- claimKind: 本人の発言との関係を次の 1 つで書く",
+      "  - sourceQuote: 本人の発言をそのまま引く (引く部分を「」で囲み data に入れる)",
+      "  - groundedParaphrase: 本人の発言に基づいて言い換える",
+      "  - simulationInference: 本人の傾向からの推測 (本人はそう言っていない)",
+      "  - unknown: 材料が無くて分からない",
+      "- evidenceIds: 根拠にした本人の発言の id の配列 (例 [\"E2\",\"E5\"])。sourceQuote / groundedParaphrase では必須。",
+      "  上に無い id を書かない。推測を本人の発言として書かない。",
+      ""
+    ],
+    "fields": ", \"claimKind\": \"<sourceQuote | groundedParaphrase | simulationInference | unknown>\", \"evidenceIds\": [\"<E番号>\"]",
+    "plainLines": [],
+    "plainFields": ""
+  },
+  "docs": [
+    {
+      "d": "",
+      "r": {
+        "personas": [],
+        "invalidJsonLines": 0
+      }
+    },
+    {
+      "d": "  [1, {\"a\":2}]  ",
+      "r": {
+        "personas": [
+          1,
+          {
+            "a": 2
+          }
+        ],
+        "invalidJsonLines": 0
+      }
+    },
+    {
+      "d": "{\"personas\":[{\"x\":1}]}",
+      "r": {
+        "personas": [
+          {
+            "x": 1
+          }
+        ],
+        "invalidJsonLines": 0
+      }
+    },
+    {
+      "d": "{\"single\":true}",
+      "r": {
+        "personas": [
+          {
+            "single": true
+          }
+        ],
+        "invalidJsonLines": 0
+      }
+    },
+    {
+      "d": "\"str\"",
+      "r": {
+        "personas": [
+          "str"
+        ],
+        "invalidJsonLines": 0
+      }
+    },
+    {
+      "d": "{\"a\":1}\n{bad}\r\n\n{\"b\":2}\n[3]",
+      "r": {
+        "personas": [
+          {
+            "a": 1
+          },
+          {
+            "b": 2
+          },
+          [
+            3
+          ]
+        ],
+        "invalidJsonLines": 1
+      }
+    },
+    {
+      "d": "x\ny",
+      "r": {
+        "personas": [],
+        "invalidJsonLines": 2
+      }
+    }
+  ],
+  "personas": [
+    {
+      "args": {
+        "count": 1,
+        "rngSeed": 1
+      },
+      "personas": [
+        {
+          "name": "藤堂 翔",
+          "role": "facilitator",
+          "stance": "neutral",
+          "speechStyle": "穏やかな進行役口調",
+          "traits": [
+            "中立",
+            "俯瞰",
+            "巻き込み上手"
+          ],
+          "model": "def",
+          "isLocal": false
+        }
+      ],
+      "stances": [
+        "neutral"
+      ]
+    },
+    {
+      "args": {
+        "count": 2,
+        "rngSeed": 2
+      },
+      "personas": [
+        {
+          "name": "藤堂 翔",
+          "role": "facilitator",
+          "stance": "neutral",
+          "speechStyle": "穏やかな進行役口調",
+          "traits": [
+            "中立",
+            "俯瞰",
+            "巻き込み上手"
+          ],
+          "model": "def",
+          "isLocal": true
+        },
+        {
+          "name": "朝倉 彩",
+          "role": "opinion",
+          "stance": "opinion",
+          "speechStyle": "自然な雑談口調",
+          "traits": [
+            "独自の角度",
+            "素直",
+            "発想が柔らかい"
+          ],
+          "model": "def",
+          "isLocal": true
+        }
+      ],
+      "stances": [
+        "neutral",
+        "opinion"
+      ]
+    },
+    {
+      "args": {
+        "count": 5,
+        "rngSeed": 42
+      },
+      "personas": [
+        {
+          "name": "水野 葵",
+          "role": "facilitator",
+          "stance": "neutral",
+          "speechStyle": "穏やかな進行役口調",
+          "traits": [
+            "中立",
+            "俯瞰",
+            "巻き込み上手"
+          ],
+          "model": "def",
+          "isLocal": false
+        },
+        {
+          "name": "三上 凛",
+          "role": "opinion",
+          "stance": "opinion",
+          "speechStyle": "自然な雑談口調",
+          "traits": [
+            "独自の角度",
+            "素直",
+            "発想が柔らかい"
+          ],
+          "model": "def",
+          "isLocal": false
+        },
+        {
+          "name": "神谷 蓮",
+          "role": "debater",
+          "stance": "pro",
+          "speechStyle": "芯のある主張口調",
+          "traits": [
+            "論点を掴む",
+            "具体例豊富",
+            "対立を恐れない"
+          ],
+          "model": "def",
+          "isLocal": false
+        },
+        {
+          "name": "朝倉 彩",
+          "role": "debater",
+          "stance": "con",
+          "speechStyle": "芯のある主張口調",
+          "traits": [
+            "論点を掴む",
+            "具体例豊富",
+            "対立を恐れない"
+          ],
+          "model": "def",
+          "isLocal": false
+        },
+        {
+          "name": "佐伯 陽介",
+          "role": "debater",
+          "stance": "con",
+          "speechStyle": "芯のある主張口調",
+          "traits": [
+            "論点を掴む",
+            "具体例豊富",
+            "対立を恐れない"
+          ],
+          "model": "def",
+          "isLocal": false
+        }
+      ],
+      "stances": [
+        "neutral",
+        "opinion",
+        "pro",
+        "con",
+        "con"
+      ]
+    },
+    {
+      "args": {
+        "count": 6,
+        "rngSeed": 7
+      },
+      "personas": [
+        {
+          "name": "藤堂 翔",
+          "role": "facilitator",
+          "stance": "neutral",
+          "speechStyle": "穏やかな進行役口調",
+          "traits": [
+            "中立",
+            "俯瞰",
+            "巻き込み上手"
+          ],
+          "model": "def",
+          "isLocal": true
+        },
+        {
+          "name": "二宮 亮",
+          "role": "opinion",
+          "stance": "opinion",
+          "speechStyle": "自然な雑談口調",
+          "traits": [
+            "独自の角度",
+            "素直",
+            "発想が柔らかい"
+          ],
+          "model": "def",
+          "isLocal": true
+        },
+        {
+          "name": "桐生 大樹",
+          "role": "debater",
+          "stance": "pro",
+          "speechStyle": "芯のある主張口調",
+          "traits": [
+            "論点を掴む",
+            "具体例豊富",
+            "対立を恐れない"
+          ],
+          "model": "def",
+          "isLocal": true
+        },
+        {
+          "name": "有馬 杏奈",
+          "role": "debater",
+          "stance": "pro",
+          "speechStyle": "芯のある主張口調",
+          "traits": [
+            "論点を掴む",
+            "具体例豊富",
+            "対立を恐れない"
+          ],
+          "model": "def",
+          "isLocal": true
+        },
+        {
+          "name": "佐伯 陽介",
+          "role": "debater",
+          "stance": "con",
+          "speechStyle": "芯のある主張口調",
+          "traits": [
+            "論点を掴む",
+            "具体例豊富",
+            "対立を恐れない"
+          ],
+          "model": "def",
+          "isLocal": true
+        },
+        {
+          "name": "相馬 真央",
+          "role": "debater",
+          "stance": "con",
+          "speechStyle": "芯のある主張口調",
+          "traits": [
+            "論点を掴む",
+            "具体例豊富",
+            "対立を恐れない"
+          ],
+          "model": "def",
+          "isLocal": true
+        }
+      ],
+      "stances": [
+        "neutral",
+        "opinion",
+        "pro",
+        "pro",
+        "con",
+        "con"
+      ]
+    },
+    {
+      "args": {
+        "count": 9,
+        "rngSeed": 3
+      },
+      "personas": [
+        {
+          "name": "藤堂 翔",
+          "role": "facilitator",
+          "stance": "neutral",
+          "speechStyle": "穏やかな進行役口調",
+          "traits": [
+            "中立",
+            "俯瞰",
+            "巻き込み上手"
+          ],
+          "model": "def",
+          "isLocal": false
+        },
+        {
+          "name": "白石 詩織",
+          "role": "opinion",
+          "stance": "opinion",
+          "speechStyle": "自然な雑談口調",
+          "traits": [
+            "独自の角度",
+            "素直",
+            "発想が柔らかい"
+          ],
+          "model": "def",
+          "isLocal": false
+        },
+        {
+          "name": "有馬 杏奈",
+          "role": "opinion",
+          "stance": "opinion",
+          "speechStyle": "自然な雑談口調",
+          "traits": [
+            "独自の角度",
+            "素直",
+            "発想が柔らかい"
+          ],
+          "model": "def",
+          "isLocal": false
+        },
+        {
+          "name": "相馬 真央",
+          "role": "debater",
+          "stance": "pro",
+          "speechStyle": "芯のある主張口調",
+          "traits": [
+            "論点を掴む",
+            "具体例豊富",
+            "対立を恐れない"
+          ],
+          "model": "def",
+          "isLocal": false
+        },
+        {
+          "name": "篠原 結衣",
+          "role": "debater",
+          "stance": "pro",
+          "speechStyle": "芯のある主張口調",
+          "traits": [
+            "論点を掴む",
+            "具体例豊富",
+            "対立を恐れない"
+          ],
+          "model": "def",
+          "isLocal": false
+        },
+        {
+          "name": "黒川 啓介",
+          "role": "debater",
+          "stance": "pro",
+          "speechStyle": "芯のある主張口調",
+          "traits": [
+            "論点を掴む",
+            "具体例豊富",
+            "対立を恐れない"
+          ],
+          "model": "def",
+          "isLocal": false
+        },
+        {
+          "name": "一条 悠真",
+          "role": "debater",
+          "stance": "con",
+          "speechStyle": "芯のある主張口調",
+          "traits": [
+            "論点を掴む",
+            "具体例豊富",
+            "対立を恐れない"
+          ],
+          "model": "def",
+          "isLocal": false
+        },
+        {
+          "name": "神谷 蓮",
+          "role": "debater",
+          "stance": "con",
+          "speechStyle": "芯のある主張口調",
+          "traits": [
+            "論点を掴む",
+            "具体例豊富",
+            "対立を恐れない"
+          ],
+          "model": "def",
+          "isLocal": false
+        },
+        {
+          "name": "佐伯 陽介",
+          "role": "debater",
+          "stance": "con",
+          "speechStyle": "芯のある主張口調",
+          "traits": [
+            "論点を掴む",
+            "具体例豊富",
+            "対立を恐れない"
+          ],
+          "model": "def",
+          "isLocal": false
+        }
+      ],
+      "stances": [
+        "neutral",
+        "opinion",
+        "opinion",
+        "pro",
+        "pro",
+        "pro",
+        "con",
+        "con",
+        "con"
+      ]
+    },
+    {
+      "args": {
+        "count": 25,
+        "rngSeed": 11
+      },
+      "personas": [
+        {
+          "name": "藤堂 翔",
+          "role": "facilitator",
+          "stance": "neutral",
+          "speechStyle": "穏やかな進行役口調",
+          "traits": [
+            "中立",
+            "俯瞰",
+            "巻き込み上手"
+          ],
+          "model": "def",
+          "isLocal": false
+        },
+        {
+          "name": "神谷 蓮",
+          "role": "opinion",
+          "stance": "opinion",
+          "speechStyle": "自然な雑談口調",
+          "traits": [
+            "独自の角度",
+            "素直",
+            "発想が柔らかい"
+          ],
+          "model": "def",
+          "isLocal": false
+        },
+        {
+          "name": "久我 拓海",
+          "role": "opinion",
+          "stance": "opinion",
+          "speechStyle": "自然な雑談口調",
+          "traits": [
+            "独自の角度",
+            "素直",
+            "発想が柔らかい"
+          ],
+          "model": "def",
+          "isLocal": false
+        },
+        {
+          "name": "三上 凛",
+          "role": "opinion",
+          "stance": "opinion",
+          "speechStyle": "自然な雑談口調",
+          "traits": [
+            "独自の角度",
+            "素直",
+            "発想が柔らかい"
+          ],
+          "model": "def",
+          "isLocal": false
+        },
+        {
+          "name": "相馬 真央",
+          "role": "opinion",
+          "stance": "opinion",
+          "speechStyle": "自然な雑談口調",
+          "traits": [
+            "独自の角度",
+            "素直",
+            "発想が柔らかい"
+          ],
+          "model": "def",
+          "isLocal": false
+        },
+        {
+          "name": "有馬 杏奈",
+          "role": "opinion",
+          "stance": "opinion",
+          "speechStyle": "自然な雑談口調",
+          "traits": [
+            "独自の角度",
+            "素直",
+            "発想が柔らかい"
+          ],
+          "model": "def",
+          "isLocal": false
+        },
+        {
+          "name": "高瀬 ハル",
+          "role": "opinion",
+          "stance": "opinion",
+          "speechStyle": "自然な雑談口調",
+          "traits": [
+            "独自の角度",
+            "素直",
+            "発想が柔らかい"
+          ],
+          "model": "def",
+          "isLocal": false
+        },
+        {
+          "name": "榊 颯太",
+          "role": "opinion",
+          "stance": "opinion",
+          "speechStyle": "自然な雑談口調",
+          "traits": [
+            "独自の角度",
+            "素直",
+            "発想が柔らかい"
+          ],
+          "model": "def",
+          "isLocal": false
+        },
+        {
+          "name": "橘 美咲",
+          "role": "opinion",
+          "stance": "opinion",
+          "speechStyle": "自然な雑談口調",
+          "traits": [
+            "独自の角度",
+            "素直",
+            "発想が柔らかい"
+          ],
+          "model": "def",
+          "isLocal": false
+        },
+        {
+          "name": "篠原 結衣",
+          "role": "debater",
+          "stance": "pro",
+          "speechStyle": "芯のある主張口調",
+          "traits": [
+            "論点を掴む",
+            "具体例豊富",
+            "対立を恐れない"
+          ],
+          "model": "def",
+          "isLocal": false
+        },
+        {
+          "name": "黒川 啓介",
+          "role": "debater",
+          "stance": "pro",
+          "speechStyle": "芯のある主張口調",
+          "traits": [
+            "論点を掴む",
+            "具体例豊富",
+            "対立を恐れない"
+          ],
+          "model": "def",
+          "isLocal": false
+        },
+        {
+          "name": "朝倉 彩",
+          "role": "debater",
+          "stance": "pro",
+          "speechStyle": "芯のある主張口調",
+          "traits": [
+            "論点を掴む",
+            "具体例豊富",
+            "対立を恐れない"
+          ],
+          "model": "def",
+          "isLocal": false
+        },
+        {
+          "name": "一条 悠真",
+          "role": "debater",
+          "stance": "pro",
+          "speechStyle": "芯のある主張口調",
+          "traits": [
+            "論点を掴む",
+            "具体例豊富",
+            "対立を恐れない"
+          ],
+          "model": "def",
+          "isLocal": false
+        },
+        {
+          "name": "白石 詩織",
+          "role": "debater",
+          "stance": "pro",
+          "speechStyle": "芯のある主張口調",
+          "traits": [
+            "論点を掴む",
+            "具体例豊富",
+            "対立を恐れない"
+          ],
+          "model": "def",
+          "isLocal": false
+        },
+        {
+          "name": "成瀬 舞",
+          "role": "debater",
+          "stance": "pro",
+          "speechStyle": "芯のある主張口調",
+          "traits": [
+            "論点を掴む",
+            "具体例豊富",
+            "対立を恐れない"
+          ],
+          "model": "def",
+          "isLocal": false
+        },
+        {
+          "name": "二宮 亮",
+          "role": "debater",
+          "stance": "pro",
+          "speechStyle": "芯のある主張口調",
+          "traits": [
+            "論点を掴む",
+            "具体例豊富",
+            "対立を恐れない"
+          ],
+          "model": "def",
+          "isLocal": false
+        },
+        {
+          "name": "水野 葵",
+          "role": "debater",
+          "stance": "pro",
+          "speechStyle": "芯のある主張口調",
+          "traits": [
+            "論点を掴む",
+            "具体例豊富",
+            "対立を恐れない"
+          ],
+          "model": "def",
+          "isLocal": false
+        },
+        {
+          "name": "桐生 大樹",
+          "role": "debater",
+          "stance": "con",
+          "speechStyle": "芯のある主張口調",
+          "traits": [
+            "論点を掴む",
+            "具体例豊富",
+            "対立を恐れない"
+          ],
+          "model": "def",
+          "isLocal": false
+        },
+        {
+          "name": "望月 千夏",
+          "role": "debater",
+          "stance": "con",
+          "speechStyle": "芯のある主張口調",
+          "traits": [
+            "論点を掴む",
+            "具体例豊富",
+            "対立を恐れない"
+          ],
+          "model": "def",
+          "isLocal": false
+        },
+        {
+          "name": "佐伯 陽介",
+          "role": "debater",
+          "stance": "con",
+          "speechStyle": "芯のある主張口調",
+          "traits": [
+            "論点を掴む",
+            "具体例豊富",
+            "対立を恐れない"
+          ],
+          "model": "def",
+          "isLocal": false
+        },
+        {
+          "name": "高瀬 ハル20",
+          "role": "debater",
+          "stance": "con",
+          "speechStyle": "芯のある主張口調",
+          "traits": [
+            "論点を掴む",
+            "具体例豊富",
+            "対立を恐れない"
+          ],
+          "model": "def",
+          "isLocal": false
+        },
+        {
+          "name": "榊 颯太21",
+          "role": "debater",
+          "stance": "con",
+          "speechStyle": "芯のある主張口調",
+          "traits": [
+            "論点を掴む",
+            "具体例豊富",
+            "対立を恐れない"
+          ],
+          "model": "def",
+          "isLocal": false
+        },
+        {
+          "name": "相馬 真央22",
+          "role": "debater",
+          "stance": "con",
+          "speechStyle": "芯のある主張口調",
+          "traits": [
+            "論点を掴む",
+            "具体例豊富",
+            "対立を恐れない"
+          ],
+          "model": "def",
+          "isLocal": false
+        },
+        {
+          "name": "佐伯 陽介23",
+          "role": "debater",
+          "stance": "con",
+          "speechStyle": "芯のある主張口調",
+          "traits": [
+            "論点を掴む",
+            "具体例豊富",
+            "対立を恐れない"
+          ],
+          "model": "def",
+          "isLocal": false
+        },
+        {
+          "name": "神谷 蓮24",
+          "role": "debater",
+          "stance": "con",
+          "speechStyle": "芯のある主張口調",
+          "traits": [
+            "論点を掴む",
+            "具体例豊富",
+            "対立を恐れない"
+          ],
+          "model": "def",
+          "isLocal": false
+        }
+      ],
+      "stances": [
+        "neutral",
+        "opinion",
+        "opinion",
+        "opinion",
+        "opinion",
+        "opinion",
+        "opinion",
+        "opinion",
+        "opinion",
+        "pro",
+        "pro",
+        "pro",
+        "pro",
+        "pro",
+        "pro",
+        "pro",
+        "pro",
+        "con",
+        "con",
+        "con",
+        "con",
+        "con",
+        "con",
+        "con",
+        "con"
+      ]
+    },
+    {
+      "args": {
+        "count": 4,
+        "rngSeed": 5,
+        "roster": {
+          "facilitator": "fac",
+          "discussants": [
+            "a",
+            "b"
+          ]
+        }
+      },
+      "personas": [
+        {
+          "name": "藤堂 翔",
+          "role": "facilitator",
+          "stance": "neutral",
+          "speechStyle": "穏やかな進行役口調",
+          "traits": [
+            "中立",
+            "俯瞰",
+            "巻き込み上手"
+          ],
+          "model": "fac",
+          "isLocal": true
+        },
+        {
+          "name": "榊 颯太",
+          "role": "opinion",
+          "stance": "opinion",
+          "speechStyle": "自然な雑談口調",
+          "traits": [
+            "独自の角度",
+            "素直",
+            "発想が柔らかい"
+          ],
+          "model": "a",
+          "isLocal": true
+        },
+        {
+          "name": "水野 葵",
+          "role": "debater",
+          "stance": "pro",
+          "speechStyle": "芯のある主張口調",
+          "traits": [
+            "論点を掴む",
+            "具体例豊富",
+            "対立を恐れない"
+          ],
+          "model": "b",
+          "isLocal": true
+        },
+        {
+          "name": "有馬 杏奈",
+          "role": "debater",
+          "stance": "con",
+          "speechStyle": "芯のある主張口調",
+          "traits": [
+            "論点を掴む",
+            "具体例豊富",
+            "対立を恐れない"
+          ],
+          "model": "a",
+          "isLocal": true
+        }
+      ],
+      "stances": [
+        "neutral",
+        "opinion",
+        "pro",
+        "con"
+      ]
+    },
+    {
+      "args": {
+        "count": 3,
+        "rngSeed": 5,
+        "roster": {
+          "facilitator": "",
+          "discussants": []
+        }
+      },
+      "personas": [
+        {
+          "name": "藤堂 翔",
+          "role": "facilitator",
+          "stance": "neutral",
+          "speechStyle": "穏やかな進行役口調",
+          "traits": [
+            "中立",
+            "俯瞰",
+            "巻き込み上手"
+          ],
+          "model": "def",
+          "isLocal": false
+        },
+        {
+          "name": "榊 颯太",
+          "role": "opinion",
+          "stance": "opinion",
+          "speechStyle": "自然な雑談口調",
+          "traits": [
+            "独自の角度",
+            "素直",
+            "発想が柔らかい"
+          ],
+          "model": "def",
+          "isLocal": false
+        },
+        {
+          "name": "有馬 杏奈",
+          "role": "debater",
+          "stance": "pro",
+          "speechStyle": "芯のある主張口調",
+          "traits": [
+            "論点を掴む",
+            "具体例豊富",
+            "対立を恐れない"
+          ],
+          "model": "def",
+          "isLocal": false
+        }
+      ],
+      "stances": [
+        "neutral",
+        "opinion",
+        "pro"
+      ]
+    }
+  ],
+  "rosterCounts": [
+    4,
+    9,
+    9
+  ],
+  "order": [
+    {
+      "turns": 0,
+      "ids": []
+    },
+    {
+      "turns": 1,
+      "ids": [
+        "p4"
+      ]
+    },
+    {
+      "turns": 3,
+      "ids": [
+        "p4",
+        "p1",
+        "p5"
+      ]
+    },
+    {
+      "turns": 5,
+      "ids": [
+        "p1",
+        "p5",
+        "p3",
+        "p4",
+        "p2"
+      ]
+    },
+    {
+      "turns": 12,
+      "ids": [
+        "p1",
+        "p3",
+        "p4",
+        "p5",
+        "p2",
+        "p3",
+        "p5",
+        "p4",
+        "p2",
+        "p1",
+        "p5",
+        "p4"
+      ]
+    }
+  ],
+  "shuffled": [
+    6,
+    1,
+    4,
+    5,
+    3,
+    7,
+    2
+  ],
+  "graph": {
+    "ops": [
+      [
+        "c1",
+        "pro",
+        "claim",
+        null,
+        1
+      ],
+      [
+        "c2",
+        "con",
+        "claim",
+        null,
+        2
+      ],
+      [
+        "r1",
+        "con",
+        "rebut",
+        "c1",
+        3
+      ],
+      [
+        "r2",
+        "op",
+        "rebut",
+        "c1",
+        4
+      ],
+      [
+        "rr",
+        "pro",
+        "rebut",
+        "r1",
+        5
+      ],
+      [
+        "s1",
+        "pro",
+        "support",
+        "r2",
+        6
+      ],
+      [
+        "s2",
+        "con",
+        "support",
+        "c2",
+        7
+      ],
+      [
+        "q1",
+        "op",
+        "question",
+        "c2",
+        8
+      ],
+      [
+        "x1",
+        "pro",
+        "concede",
+        "rr",
+        9
+      ],
+      [
+        "c3",
+        "op",
+        "synthesize",
+        "c1",
+        10
+      ],
+      [
+        "r3",
+        "pro",
+        "rebut",
+        "c3",
+        11
+      ],
+      [
+        "x2",
+        "op",
+        "concede",
+        "c3",
+        12
+      ],
+      [
+        "r4",
+        "x",
+        "rebut",
+        null,
+        13
+      ],
+      [
+        "r5",
+        "x",
+        "rebut",
+        "nowhere",
+        14
+      ],
+      [
+        "c4",
+        "x",
+        "claim",
+        null,
+        15
+      ]
+    ],
+    "unresolved": [
+      {
+        "rebutId": "r5",
+        "targetId": "nowhere",
+        "byPersonaId": "x",
+        "targetPersonaId": null,
+        "state": "challenged"
+      }
+    ],
+    "unanswered": [
+      "c4"
+    ],
+    "concessions": [
+      {
+        "concedeId": "x1",
+        "rebutId": "rr",
+        "targetId": "r1"
+      },
+      {
+        "concedeId": "x2",
+        "rebutId": "r3",
+        "targetId": "c3"
+      }
+    ],
+    "since": [
+      4,
+      2,
+      1,
+      0
+    ],
+    "nodes": [
+      {
+        "id": "c1",
+        "personaId": "pro",
+        "turn": 1
+      },
+      {
+        "id": "c2",
+        "personaId": "con",
+        "turn": 2
+      },
+      {
+        "id": "c3",
+        "personaId": "op",
+        "turn": 10
+      },
+      {
+        "id": "c4",
+        "personaId": "x",
+        "turn": 15
+      }
+    ],
+    "edgeCounts": [
+      2,
+      0,
+      1,
+      1
+    ],
+    "targeting": [
+      {
+        "rebutId": "r1",
+        "targetId": "c1",
+        "byPersonaId": "con",
+        "targetPersonaId": "pro",
+        "state": "defended"
+      },
+      {
+        "rebutId": "r2",
+        "targetId": "c1",
+        "byPersonaId": "op",
+        "targetPersonaId": "pro",
+        "state": "defended"
+      }
+    ],
+    "byId": [
+      {
+        "rebutId": "rr",
+        "targetId": "r1",
+        "byPersonaId": "pro",
+        "targetPersonaId": "con",
+        "state": "conceded"
+      },
+      null
+    ]
+  }
+}

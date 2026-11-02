@@ -1,0 +1,298 @@
+{
+  "files": {
+    "death-stranding.md": "---\nid: death-stranding\ntitle: \"DEATH STRANDING\"\ngenre: action\nmechanics:\n  - name: 積荷のバランス管理\n    description: 総重量と積み付けがサムの歩行安定に影響する\n    intended_affect: 重荷感\n---",
+    "journey.md": "---\nid: journey\ntitle: \"Journey (風ノ旅ビト)\"\nmechanics:\n  - name: スカーフと飛行\n    description: スカーフが浮遊の燃料になる\n    intended_affect: 高揚\n    intended_aspects: [fun, graphics, 3]\n    intended_emotions: [joy]\n    source: crawl\n  - name: ''\n  - description: 名前なし\n  - name: 協力\n    source: weird\n    intended_valence: positive\n---\n本文",
+    "monster-strike.md": "---\nid: monster-strike\ntitle: モンスターストライク\ngenre: パズル・RPG\nmechanics:\n  - name: メカ0\n    description: 説明0\n  - name: メカ1\n    description: 説明1\n  - name: メカ2\n    description: 説明2\n  - name: メカ3\n    description: 説明3\n  - name: メカ4\n    description: 説明4\n  - name: メカ5\n    description: 説明5\n  - name: メカ6\n    description: 説明6\n  - name: メカ7\n    description: 説明7\n  - name: メカ8\n    description: 説明8\n  - name: メカ9\n    description: 説明9\n  - name: メカ10\n    description: 説明10\n  - name: メカ11\n    description: 説明11\n---",
+    "no-mech.md": "---\ntitle: 飛行機\n---\n",
+    "plain.md": "メカニクスなし",
+    "x.sentiment.md": "---\nmechanics:\n  - name: 飛行\n---\n",
+    "journey.sentiment.json": "[1,2,3]",
+    "monster-strike.sentiment.json": "{\"comments\":[\"a\",\"b\"]}",
+    "broken.sentiment.json": "{",
+    "notes.txt": "mechanics"
+  },
+  "cases": [
+    {
+      "theme": "Journey の飛行",
+      "mechanics": [
+        {
+          "name": "スカーフと飛行",
+          "description": "スカーフが浮遊の燃料になる",
+          "source": "crawl",
+          "intended_affect": "高揚",
+          "intended_aspects": [
+            "fun",
+            "graphics"
+          ],
+          "intended_emotions": [
+            "joy"
+          ]
+        },
+        {
+          "name": "協力",
+          "description": "",
+          "source": "curated",
+          "intended_valence": "positive"
+        }
+      ],
+      "sentimentCount": 3
+    },
+    {
+      "theme": "ローグライトの報酬設計",
+      "mechanics": [],
+      "sentimentCount": 0
+    },
+    {
+      "theme": "飛行",
+      "mechanics": [
+        {
+          "name": "スカーフと飛行",
+          "description": "スカーフが浮遊の燃料になる",
+          "source": "crawl",
+          "intended_affect": "高揚",
+          "intended_aspects": [
+            "fun",
+            "graphics"
+          ],
+          "intended_emotions": [
+            "joy"
+          ]
+        },
+        {
+          "name": "協力",
+          "description": "",
+          "source": "curated",
+          "intended_valence": "positive"
+        }
+      ],
+      "sentimentCount": 0
+    },
+    {
+      "theme": "モンスターストライク",
+      "mechanics": [
+        {
+          "name": "メカ0",
+          "description": "説明0",
+          "source": "curated"
+        },
+        {
+          "name": "メカ1",
+          "description": "説明1",
+          "source": "curated"
+        },
+        {
+          "name": "メカ2",
+          "description": "説明2",
+          "source": "curated"
+        },
+        {
+          "name": "メカ3",
+          "description": "説明3",
+          "source": "curated"
+        },
+        {
+          "name": "メカ4",
+          "description": "説明4",
+          "source": "curated"
+        },
+        {
+          "name": "メカ5",
+          "description": "説明5",
+          "source": "curated"
+        },
+        {
+          "name": "メカ6",
+          "description": "説明6",
+          "source": "curated"
+        },
+        {
+          "name": "メカ7",
+          "description": "説明7",
+          "source": "curated"
+        },
+        {
+          "name": "メカ8",
+          "description": "説明8",
+          "source": "curated"
+        },
+        {
+          "name": "メカ9",
+          "description": "説明9",
+          "source": "curated"
+        }
+      ],
+      "sentimentCount": 0
+    },
+    {
+      "theme": "monster",
+      "mechanics": [
+        {
+          "name": "メカ0",
+          "description": "説明0",
+          "source": "curated"
+        },
+        {
+          "name": "メカ1",
+          "description": "説明1",
+          "source": "curated"
+        },
+        {
+          "name": "メカ2",
+          "description": "説明2",
+          "source": "curated"
+        },
+        {
+          "name": "メカ3",
+          "description": "説明3",
+          "source": "curated"
+        },
+        {
+          "name": "メカ4",
+          "description": "説明4",
+          "source": "curated"
+        },
+        {
+          "name": "メカ5",
+          "description": "説明5",
+          "source": "curated"
+        },
+        {
+          "name": "メカ6",
+          "description": "説明6",
+          "source": "curated"
+        },
+        {
+          "name": "メカ7",
+          "description": "説明7",
+          "source": "curated"
+        },
+        {
+          "name": "メカ8",
+          "description": "説明8",
+          "source": "curated"
+        },
+        {
+          "name": "メカ9",
+          "description": "説明9",
+          "source": "curated"
+        }
+      ],
+      "sentimentCount": 2
+    },
+    {
+      "theme": "death_stranding",
+      "mechanics": [
+        {
+          "name": "積荷のバランス管理",
+          "description": "総重量と積み付けがサムの歩行安定に影響する",
+          "source": "curated",
+          "intended_affect": "重荷感"
+        }
+      ],
+      "sentimentCount": 0
+    },
+    {
+      "theme": "  ",
+      "mechanics": [],
+      "sentimentCount": 0
+    },
+    {
+      "theme": "風ノ旅ビト",
+      "mechanics": [
+        {
+          "name": "スカーフと飛行",
+          "description": "スカーフが浮遊の燃料になる",
+          "source": "crawl",
+          "intended_affect": "高揚",
+          "intended_aspects": [
+            "fun",
+            "graphics"
+          ],
+          "intended_emotions": [
+            "joy"
+          ]
+        },
+        {
+          "name": "協力",
+          "description": "",
+          "source": "curated",
+          "intended_valence": "positive"
+        }
+      ],
+      "sentimentCount": 0
+    },
+    {
+      "theme": "(積荷)",
+      "mechanics": [
+        {
+          "name": "積荷のバランス管理",
+          "description": "総重量と積み付けがサムの歩行安定に影響する",
+          "source": "curated",
+          "intended_affect": "重荷感"
+        }
+      ],
+      "sentimentCount": 0
+    },
+    {
+      "theme": "a",
+      "mechanics": [],
+      "sentimentCount": 0
+    },
+    {
+      "theme": "パズル",
+      "mechanics": [
+        {
+          "name": "メカ0",
+          "description": "説明0",
+          "source": "curated"
+        },
+        {
+          "name": "メカ1",
+          "description": "説明1",
+          "source": "curated"
+        },
+        {
+          "name": "メカ2",
+          "description": "説明2",
+          "source": "curated"
+        },
+        {
+          "name": "メカ3",
+          "description": "説明3",
+          "source": "curated"
+        },
+        {
+          "name": "メカ4",
+          "description": "説明4",
+          "source": "curated"
+        },
+        {
+          "name": "メカ5",
+          "description": "説明5",
+          "source": "curated"
+        },
+        {
+          "name": "メカ6",
+          "description": "説明6",
+          "source": "curated"
+        },
+        {
+          "name": "メカ7",
+          "description": "説明7",
+          "source": "curated"
+        },
+        {
+          "name": "メカ8",
+          "description": "説明8",
+          "source": "curated"
+        },
+        {
+          "name": "メカ9",
+          "description": "説明9",
+          "source": "curated"
+        }
+      ],
+      "sentimentCount": 0
+    }
+  ]
+}
