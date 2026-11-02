@@ -1,0 +1,14 @@
+[
+  {
+    "active": 0,
+    "pending": 0,
+    "at": 1700000000000,
+    "json": "{\"embeds\":[{\"title\":\"🟢 Discutere Monitor\",\"color\":10070709,\"fields\":[{\"name\":\"状態\",\"value\":\"アイドル\",\"inline\":true},{\"name\":\"進行中セッション数\",\"value\":\"0\",\"inline\":true},{\"name\":\"未処理仮説数\",\"value\":\"0\",\"inline\":true}],\"footer\":{\"text\":\"最終更新\"},\"timestamp\":\"2023-11-14T22:13:20.000Z\"}]}"
+  },
+  {
+    "active": 3,
+    "pending": 12,
+    "at": 1762000000123,
+    "json": "{\"embeds\":[{\"title\":\"🟢 Discutere Monitor\",\"color\":5763719,\"fields\":[{\"name\":\"状態\",\"value\":\"アクティブ\",\"inline\":true},{\"name\":\"進行中セッション数\",\"value\":\"3\",\"inline\":true},{\"name\":\"未処理仮説数\",\"value\":\"12\",\"inline\":true}],\"footer\":{\"text\":\"最終更新\"},\"timestamp\":\"2025-11-01T12:26:40.123Z\"}]}"
+  }
+]
