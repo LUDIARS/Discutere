@@ -21,6 +21,7 @@
 
 using namespace di;
 using namespace di::flow::user_voices;
+using di::flow::ContextVoice;
 namespace cs = di::crawler::sources;
 
 namespace {
@@ -103,8 +104,8 @@ TEST_CASE("golden: theme_game_ref / parse_similar_games / describe_voice_report"
         r.embedded = j["embedded"].get<int>();
         if (j.contains("voluptasDown")) r.voluptasDown = j["voluptasDown"].get<bool>();
         CHECK_EQ(describe_voice_report(r), c["text"].get<std::string>());
-        // to_json のキー順も TS の spread と同じ
-        CHECK_EQ(json_stringify(to_json(r)), json_stringify(j));
+        // to_json の値 (キー順は TS の spread に合わせてあるが、fixture は手書きの入力なので順序は問わない)
+        CHECK_EQ(nlohmann::json::parse(json_stringify(to_json(r))), nlohmann::json::parse(json_stringify(j)));
     }
 }
 

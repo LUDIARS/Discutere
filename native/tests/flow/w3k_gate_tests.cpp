@@ -1,5 +1,6 @@
 // w3-K: 情報ゲート (tests/flow/information-gate.test.ts)・密度のブラックボックス (density-blackbox.test.ts)・
 // 自動学習クロール (learning-autocrawl.test.ts)・学習フロー (learning.test.ts)・slug の golden。
+#include <algorithm>
 #include <atomic>
 #include <filesystem>
 #include <mutex>
@@ -61,6 +62,7 @@ struct Growing {
 };
 
 struct FakeCollect {
+    explicit FakeCollect(Growing* v, int p = 5) : voices(v), per(p) {}
     Growing* voices;
     int per = 5;
     std::vector<std::pair<std::string, std::string>> calls;  // source, query

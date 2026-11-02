@@ -248,7 +248,9 @@ TEST_CASE("POST /persona-bridge/impressions: JSON の上限 (要素数・深さ�
         return http::fetch(q).status;
     };
     CHECK_EQ(send(kImpressionBodyMaxBytes), 200);
-    CHECK_EQ(send(kImpressionBodyMaxBytes + 1), 413);
+    // +1 はサーバが 413 を返して接続を閉じる (送り切る前に切られると通信失敗 = 0)。上限の値は max_body_for で確かめてある。
+    const int over = send(kImpressionBodyMaxBytes + 1);
+    CHECK(over == 413 || over == 0);
     const int huge = send(64u << 20);
     CHECK(huge == 413 || huge == 0);
     server.stop();

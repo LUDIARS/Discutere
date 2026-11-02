@@ -1,5 +1,7 @@
 // w3-K: 経済グラフ (src/ludus/economy-analyzer.ts / src/api/economy-graph-routes.ts)。TS テストは無いので
 // 純関数 (toSlug / extractJson)・画面の golden・LLM (claude -p 相当) に DB の情報を載せる分析・キャッシュ・ルートを確かめる。
+#include <atomic>
+#include <chrono>
 #include <future>
 #include <thread>
 
@@ -93,10 +95,10 @@ TEST_CASE("golden: 経済グラフの画面 (Node の出力と 1 バイト単位
         CHECK_EQ(res.status, c["status"].get<int>());
         CHECK_EQ(res.body, c["html"].get<std::string>());
     }
-    const std::string html = api::build_economy_graph_html("</script><script>alert(1)</script>", "http://h \"&<x>");
+    const std::string html = api::build_economy_graph_html("</script><script>alert(1)</script>", "http://h\u2028\"&<x>");
     CHECK(!str::contains(html, "</script><script>alert"));
-    CHECK(str::contains(html, R"(const SLUG = "</script><script>alert(1)</script>";)"));
-    CHECK(str::contains(html, R"(const API_BASE = "http://h \"&<x>";)"));
+    CHECK(str::contains(html, "const SLUG = \"\\u003c/script\\u003e\\u003cscript\\u003ealert(1)\\u003c/script\\u003e\";"));
+    CHECK(str::contains(html, "const API_BASE = \"http://h\\u2028\\\"\\u0026\\u003cx\\u003e\";"));
     // 置き換えた値の中の {{...}} は再走査しない
     CHECK(str::contains(api::build_economy_graph_html("{{apiBaseJson}}", "b"), R"(const SLUG = "{{apiBaseJson}}";)"));
 }

@@ -1,5 +1,7 @@
 #include "discord_hook/crawl_channel.hpp"
 
+#include <algorithm>
+
 #include "base/strings.hpp"
 #include "base/url.hpp"
 #include "crawler/sources/importer.hpp"
