@@ -1,0 +1,727 @@
+{
+  "kgSetup": [
+    "CREATE TABLE IF NOT EXISTS consensus_scores (utterance_id TEXT PRIMARY KEY, agree INTEGER NOT NULL, score INTEGER NOT NULL, reasoning TEXT, created_at INTEGER NOT NULL)",
+    "CREATE TABLE IF NOT EXISTS opinion_scores (target_id TEXT PRIMARY KEY, target_kind TEXT NOT NULL, score INTEGER NOT NULL DEFAULT 0, updated_at INTEGER NOT NULL)",
+    "INSERT INTO opinion_scores (target_id, target_kind, score, updated_at) VALUES ('u6', 'utterance', 3, 1)",
+    "CREATE TABLE IF NOT EXISTS aufhebung_stock (id TEXT PRIMARY KEY, gap_id TEXT NOT NULL, summary TEXT NOT NULL, created_at INTEGER NOT NULL)",
+    "INSERT INTO aufhebung_stock (id, gap_id, summary, created_at) VALUES ('a1', 'g1', '止揚A\n\n\nつづき', 10)",
+    "INSERT INTO design_gaps (id, workspace_id, title, status, created_at, updated_at) VALUES ('g1', 'ws', 'ローグライトの周回', 'converged', 1, 300)",
+    "INSERT INTO design_gaps (id, workspace_id, title, status, created_at, updated_at) VALUES ('g2', 'ws', '進行中の議論', NULL, 1, 200)",
+    "INSERT INTO design_gaps (id, workspace_id, title, status, created_at, updated_at) VALUES ('g3', 'other', '別WS', 'closed', 1, 400)",
+    "INSERT INTO design_gaps (id, workspace_id, title, status, created_at, updated_at) VALUES ('g4', 'ws', 'フォーラム議論', 'open', 1, 100)",
+    "INSERT INTO sessions (id, workspace_id, title, started_at, scene, created_at, updated_at) VALUES ('s1', 'ws', 'discussion-of-gap:g1', 10, 'discord:G1/T1', 1, 1)",
+    "INSERT INTO sessions (id, workspace_id, title, started_at, scene, created_at, updated_at) VALUES ('s2', 'ws', 'discussion-of-gap:g2', 20, 'web:lobby', 1, 1)",
+    "INSERT INTO sessions (id, workspace_id, title, started_at, scene, created_at, updated_at) VALUES ('s3', 'other', 'discussion-of-gap:g3', 30, NULL, 1, 1)",
+    "INSERT INTO sessions (id, workspace_id, title, started_at, scene, created_at, updated_at) VALUES ('s4', 'ws', 'discussion-of-gap:g4', 40, 'discord:G1/T4', 1, 1)",
+    "INSERT INTO sessions (id, workspace_id, title, started_at, scene, created_at, updated_at) VALUES ('w1', 'ws', 'web-session:lobby', 5, 'web:lobby', 1, 1)",
+    "INSERT INTO utterances (id, workspace_id, session_id, speaker_id, raw_content, posted_at, created_at, updated_at) VALUES ('u1', 'ws', 's1', 'persona:陽介', '周回前提なら飽きが課題', 100, 1, 1)",
+    "INSERT INTO utterances (id, workspace_id, session_id, speaker_id, raw_content, posted_at, created_at, updated_at) VALUES ('u2', 'ws', 's1', 'discord:123', 'ビルド分岐で多様性を出せる', 110, 1, 1)",
+    "INSERT INTO utterances (id, workspace_id, session_id, speaker_id, raw_content, posted_at, created_at, updated_at) VALUES ('u3', 'ws', 's1', 'ext:youtube:abc', '外部の声', 120, 1, 1)",
+    "INSERT INTO utterances (id, workspace_id, session_id, speaker_id, raw_content, posted_at, created_at, updated_at) VALUES ('u4', 'ws', 's1', 'persona:facilitator', '進行役', 130, 1, 1)",
+    "INSERT INTO utterances (id, workspace_id, session_id, speaker_id, raw_content, posted_at, created_at, updated_at) VALUES ('u5', 'ws', 's1', 'persona:ミナ', '【収束】周回はビルド多様性で飽きを防ぐ\n\n\n詳細', 140, 1, 1)",
+    "INSERT INTO utterances (id, workspace_id, session_id, speaker_id, raw_content, posted_at, created_at, updated_at) VALUES ('u6', 'ws', 's1', 'persona:ミナ', '報酬設計も\n\n\n大事', 150, 1, 1)",
+    "INSERT INTO utterances (id, workspace_id, session_id, speaker_id, raw_content, posted_at, created_at, updated_at) VALUES ('u7', 'ws', 's1', NULL, '匿名', 160, 1, 1)",
+    "INSERT INTO utterances (id, workspace_id, session_id, speaker_id, raw_content, posted_at, created_at, updated_at) VALUES ('wu1', 'ws', 'w1', '太郎', 'ローグライトの面白さの核は何か', 1000, 1, 1)",
+    "INSERT INTO utterances (id, workspace_id, session_id, speaker_id, raw_content, posted_at, created_at, updated_at) VALUES ('wu2', 'ws', 's2', 'persona:p-a', '探索の手触りが核', 2000, 1, 1)",
+    "INSERT INTO utterances (id, workspace_id, session_id, speaker_id, raw_content, posted_at, created_at, updated_at) VALUES ('wu3', 'ws', 's2', 'persona:facilitator', '論点を整理します', 3000, 1, 1)",
+    "INSERT INTO consensus_scores (utterance_id, agree, score, reasoning, created_at) VALUES ('u1', 1, 80, '多くが同意', 1)",
+    "INSERT INTO consensus_scores (utterance_id, agree, score, reasoning, created_at) VALUES ('u2', 0, 30, NULL, 1)"
+  ],
+  "flowSetup": [
+    "INSERT INTO discussion_paper (id, flow, session_id, theme, tags_json, mechanics_json, supplement, created_at, updated_at, status, discussion_no) VALUES ('p1', 'discussion', 'fs-1', 'ローグライトの周回設計', '[\"開発\"]', '[{\"name\":\"ビルド選択\",\"description\":\"周回ごとに構成を変える\"}]', '', 1700000000000, 1700000000000, 'started', 1)",
+    "INSERT INTO discussion_paper (id, flow, session_id, theme, tags_json, mechanics_json, supplement, created_at, updated_at, status, discussion_no) VALUES ('p2', 'sparring', 'fs-2', '壁打ちの議題', '[]', '[]', '', 1700000100000, 1700000100000, 'started', 2)",
+    "INSERT INTO discussion_paper (id, flow, session_id, theme, tags_json, mechanics_json, supplement, created_at, updated_at, status, discussion_no) VALUES ('p3', 'discussion', 'fs-3', '', '[]', '[]', '', 1700000200000, 1700000200000, 'draft', NULL)",
+    "INSERT INTO discussion_paper (id, flow, session_id, theme, tags_json, mechanics_json, supplement, created_at, updated_at, status, discussion_no) VALUES ('p4', 'improvement', 'fs-4', 'とても長い議題とても長い議題とても長い議題とても長い議題とても長い議題とても長い議題とても長い議題とても長い議題とても長い議題とても長い議題とても長い議題とても長い議題', '[]', '[]', '', 1700000300000, 1700000300000, 'started', 4)",
+    "INSERT INTO flow_conclusion (session_id, paper_id, summary, aufhebung_json, top_utterance_ids_json, concluded, created_at) VALUES ('fs-1', 'p1', '【収束】周回はビルド多様性で飽きを防ぐ', '[\"難度と報酬の対応を保つ\"]', '[\"fu1\"]', 1, 1700000050000)",
+    "INSERT INTO flow_utterance (id, session_id, paper_id, round, turn, persona_id, persona_name, role, stance, text, is_error, possession_name, created_at) VALUES ('fu1', 'fs-1', 'p1', 1, 1, 'a', '陽介', 'debater', 'pro', 'ビルド分岐で飽きを防ぐ', 0, NULL, 1700000010000)",
+    "INSERT INTO flow_utterance (id, session_id, paper_id, round, turn, persona_id, persona_name, role, stance, text, is_error, possession_name, created_at) VALUES ('fu2', 'fs-2', 'p2', 1, 1, 'b', 'ミナ', 'opinion', 'opinion', '壁打ち', 0, NULL, 1700000110000)"
+  ],
+  "routes": [
+    {
+      "name": "consensus gaps (admin)",
+      "method": "GET",
+      "target": "/api/admin/consensus/gaps",
+      "headers": {
+        "X-User-Id": "golden",
+        "X-User-Role": "admin"
+      },
+      "app": "api",
+      "status": 200,
+      "contentType": "application/json",
+      "contentDisposition": null,
+      "body": {
+        "gaps": [
+          {
+            "gapId": "g1",
+            "sessionId": "s1",
+            "title": "ローグライトの周回",
+            "status": "converged",
+            "scoredCount": 2
+          },
+          {
+            "gapId": "g2",
+            "sessionId": "s2",
+            "title": "進行中の議論",
+            "status": null,
+            "scoredCount": 0
+          },
+          {
+            "gapId": "g4",
+            "sessionId": "s4",
+            "title": "フォーラム議論",
+            "status": "open",
+            "scoredCount": 0
+          }
+        ]
+      }
+    },
+    {
+      "name": "consensus opinions g1",
+      "method": "GET",
+      "target": "/api/admin/consensus/g1",
+      "headers": {
+        "X-User-Id": "golden",
+        "X-User-Role": "admin"
+      },
+      "app": "api",
+      "status": 200,
+      "contentType": "application/json",
+      "contentDisposition": null,
+      "body": {
+        "gapId": "g1",
+        "opinions": [
+          {
+            "utteranceId": "u1",
+            "speaker": "陽介",
+            "human": false,
+            "content": "周回前提なら飽きが課題",
+            "agree": true,
+            "score": 80,
+            "reasoning": "多くが同意"
+          },
+          {
+            "utteranceId": "u2",
+            "speaker": "人間",
+            "human": true,
+            "content": "ビルド分岐で多様性を出せる",
+            "agree": false,
+            "score": 30,
+            "reasoning": null
+          },
+          {
+            "utteranceId": "u6",
+            "speaker": "ミナ",
+            "human": false,
+            "content": "報酬設計も\n\n\n大事",
+            "agree": null,
+            "score": null,
+            "reasoning": null
+          }
+        ]
+      }
+    },
+    {
+      "name": "consensus opinions missing",
+      "method": "GET",
+      "target": "/api/admin/consensus/none",
+      "headers": {
+        "X-User-Id": "golden",
+        "X-User-Role": "admin"
+      },
+      "app": "api",
+      "status": 200,
+      "contentType": "application/json",
+      "contentDisposition": null,
+      "body": {
+        "gapId": "none",
+        "opinions": []
+      }
+    },
+    {
+      "name": "consensus html non-admin",
+      "method": "GET",
+      "target": "/api/admin/consensus",
+      "headers": {
+        "X-User-Id": "u",
+        "X-User-Role": "general"
+      },
+      "app": "api",
+      "status": 403,
+      "contentType": "application/json",
+      "contentDisposition": null,
+      "body": {
+        "error": "admin role required"
+      }
+    },
+    {
+      "name": "consensus gaps no user",
+      "method": "GET",
+      "target": "/api/admin/consensus/gaps",
+      "headers": {
+        "X-User-Role": "admin",
+        "X-User-Id": ""
+      },
+      "app": "api",
+      "status": 403,
+      "contentType": "application/json",
+      "contentDisposition": null,
+      "body": {
+        "error": "admin role required"
+      }
+    },
+    {
+      "name": "chat messages lobby",
+      "method": "GET",
+      "target": "/api/chat/lobby/messages",
+      "app": "root",
+      "status": 200,
+      "contentType": "application/json",
+      "contentDisposition": null,
+      "body": {
+        "ok": true,
+        "room": "lobby",
+        "discussing": true,
+        "messages": [
+          {
+            "id": "wu1",
+            "role": "human",
+            "speaker": "太郎",
+            "content": "ローグライトの面白さの核は何か",
+            "postedAt": 1000
+          },
+          {
+            "id": "wu2",
+            "role": "persona",
+            "speaker": "p-a",
+            "content": "探索の手触りが核",
+            "postedAt": 2000
+          },
+          {
+            "id": "wu3",
+            "role": "persona",
+            "speaker": "facilitator",
+            "content": "論点を整理します",
+            "postedAt": 3000
+          }
+        ]
+      }
+    },
+    {
+      "name": "chat messages since",
+      "method": "GET",
+      "target": "/api/chat/lobby/messages?since=1500",
+      "app": "root",
+      "status": 200,
+      "contentType": "application/json",
+      "contentDisposition": null,
+      "body": {
+        "ok": true,
+        "room": "lobby",
+        "discussing": true,
+        "messages": [
+          {
+            "id": "wu2",
+            "role": "persona",
+            "speaker": "p-a",
+            "content": "探索の手触りが核",
+            "postedAt": 2000
+          },
+          {
+            "id": "wu3",
+            "role": "persona",
+            "speaker": "facilitator",
+            "content": "論点を整理します",
+            "postedAt": 3000
+          }
+        ]
+      }
+    },
+    {
+      "name": "chat messages sanitized room",
+      "method": "GET",
+      "target": "/api/chat/lo%20bby!!/messages?since=abc",
+      "app": "root",
+      "status": 200,
+      "contentType": "application/json",
+      "contentDisposition": null,
+      "body": {
+        "ok": true,
+        "room": "lobby",
+        "discussing": true,
+        "messages": [
+          {
+            "id": "wu1",
+            "role": "human",
+            "speaker": "太郎",
+            "content": "ローグライトの面白さの核は何か",
+            "postedAt": 1000
+          },
+          {
+            "id": "wu2",
+            "role": "persona",
+            "speaker": "p-a",
+            "content": "探索の手触りが核",
+            "postedAt": 2000
+          },
+          {
+            "id": "wu3",
+            "role": "persona",
+            "speaker": "facilitator",
+            "content": "論点を整理します",
+            "postedAt": 3000
+          }
+        ]
+      }
+    },
+    {
+      "name": "chat sessions",
+      "method": "GET",
+      "target": "/api/chat/sessions",
+      "app": "root",
+      "status": 200,
+      "contentType": "application/json",
+      "contentDisposition": null,
+      "body": {
+        "ok": true,
+        "total": 1,
+        "limit": 50,
+        "offset": 0,
+        "hasMore": false,
+        "sessions": [
+          {
+            "discussionNo": 2,
+            "sessionId": "fs-2",
+            "title": "壁打ちの議題",
+            "theme": "壁打ちの議題",
+            "flow": "sparring",
+            "status": "started",
+            "discussionType": "sparring",
+            "originUi": "chat",
+            "createdAt": 1700000100000,
+            "updatedAt": 1700000100000,
+            "utterances": 1,
+            "concluded": false,
+            "state": "live"
+          }
+        ]
+      }
+    },
+    {
+      "name": "chat sessions paged",
+      "method": "GET",
+      "target": "/api/chat/sessions?state=live&limit=0&offset=-3",
+      "app": "root",
+      "status": 200,
+      "contentType": "application/json",
+      "contentDisposition": null,
+      "body": {
+        "ok": true,
+        "total": 1,
+        "limit": 1,
+        "offset": 0,
+        "hasMore": false,
+        "sessions": [
+          {
+            "discussionNo": 2,
+            "sessionId": "fs-2",
+            "title": "壁打ちの議題",
+            "theme": "壁打ちの議題",
+            "flow": "sparring",
+            "status": "started",
+            "discussionType": "sparring",
+            "originUi": "chat",
+            "createdAt": 1700000100000,
+            "updatedAt": 1700000100000,
+            "utterances": 1,
+            "concluded": false,
+            "state": "live"
+          }
+        ]
+      }
+    },
+    {
+      "name": "chat sessions bad state",
+      "method": "GET",
+      "target": "/api/chat/sessions?state=weird&limit=500",
+      "app": "root",
+      "status": 200,
+      "contentType": "application/json",
+      "contentDisposition": null,
+      "body": {
+        "ok": true,
+        "total": 1,
+        "limit": 100,
+        "offset": 0,
+        "hasMore": false,
+        "sessions": [
+          {
+            "discussionNo": 2,
+            "sessionId": "fs-2",
+            "title": "壁打ちの議題",
+            "theme": "壁打ちの議題",
+            "flow": "sparring",
+            "status": "started",
+            "discussionType": "sparring",
+            "originUi": "chat",
+            "createdAt": 1700000100000,
+            "updatedAt": 1700000100000,
+            "utterances": 1,
+            "concluded": false,
+            "state": "live"
+          }
+        ]
+      }
+    },
+    {
+      "name": "learning gap (no cache)",
+      "method": "GET",
+      "target": "/learning/gap",
+      "app": "root",
+      "status": 200,
+      "contentType": "application/json",
+      "contentDisposition": null,
+      "body": {
+        "games": []
+      }
+    },
+    {
+      "name": "learning gap detail (no cache)",
+      "method": "GET",
+      "target": "/learning/gap/detail?slug=x",
+      "app": "root",
+      "status": 404,
+      "contentType": "application/json",
+      "contentDisposition": null,
+      "body": {
+        "error": "no cache"
+      }
+    },
+    {
+      "name": "learning sources (no cache)",
+      "method": "GET",
+      "target": "/learning/sources",
+      "app": "root",
+      "status": 200,
+      "contentType": "application/json",
+      "contentDisposition": null,
+      "body": {
+        "totals": {
+          "sources": 0
+        },
+        "sources": [],
+        "byGame": []
+      }
+    },
+    {
+      "name": "learning conclusion flow",
+      "method": "GET",
+      "target": "/learning/conclusion?gap=flow:fs-1",
+      "app": "root",
+      "status": 200,
+      "contentType": "application/json",
+      "contentDisposition": null,
+      "body": {
+        "gapId": "flow:fs-1",
+        "kind": "flow",
+        "sessionId": "fs-1",
+        "title": "ローグライトの周回設計",
+        "conclusion": "周回はビルド多様性で飽きを防ぐ",
+        "utteranceCount": 1,
+        "aufhebungCount": 1,
+        "updatedAt": 1700000050000,
+        "paper": {
+          "theme": "ローグライトの周回設計",
+          "tags": [
+            "開発"
+          ],
+          "supplement": "",
+          "mechanics": [
+            {
+              "name": "ビルド選択",
+              "description": "周回ごとに構成を変える"
+            }
+          ]
+        },
+        "aufhebungen": [
+          "難度と報酬の対応を保つ"
+        ],
+        "topOpinions": [
+          {
+            "speaker": "陽介 (賛成派)",
+            "content": "ビルド分岐で飽きを防ぐ",
+            "score": 0,
+            "source": null,
+            "sourceUrl": null
+          }
+        ],
+        "transcript": [
+          {
+            "speaker": "陽介 (賛成派)",
+            "content": "ビルド分岐で飽きを防ぐ",
+            "source": null,
+            "sourceUrl": null
+          }
+        ]
+      }
+    },
+    {
+      "name": "learning conclusion gap",
+      "method": "GET",
+      "target": "/learning/conclusion?gap=g1",
+      "app": "root",
+      "status": 200,
+      "contentType": "application/json",
+      "contentDisposition": null,
+      "body": {
+        "gapId": "g1",
+        "kind": "gap",
+        "sessionId": "s1",
+        "title": "ローグライトの周回",
+        "conclusion": "周回はビルド多様性で飽きを防ぐ\n\n\n詳細",
+        "utteranceCount": 7,
+        "aufhebungCount": 1,
+        "updatedAt": 300,
+        "paper": null,
+        "aufhebungen": [
+          "止揚A\n\n\nつづき"
+        ],
+        "topOpinions": [
+          {
+            "speaker": "ミナ",
+            "content": "報酬設計も\n\n\n大事",
+            "score": 3,
+            "source": null,
+            "sourceUrl": null
+          }
+        ],
+        "transcript": [
+          {
+            "speaker": "陽介",
+            "content": "周回前提なら飽きが課題",
+            "source": null,
+            "sourceUrl": null
+          },
+          {
+            "speaker": "人間",
+            "content": "ビルド分岐で多様性を出せる",
+            "source": null,
+            "sourceUrl": null
+          },
+          {
+            "speaker": "論者#63751c",
+            "content": "外部の声",
+            "source": null,
+            "sourceUrl": null
+          },
+          {
+            "speaker": "facilitator",
+            "content": "進行役",
+            "source": null,
+            "sourceUrl": null
+          },
+          {
+            "speaker": "ミナ",
+            "content": "【収束】周回はビルド多様性で飽きを防ぐ\n\n\n詳細",
+            "source": null,
+            "sourceUrl": null
+          },
+          {
+            "speaker": "ミナ",
+            "content": "報酬設計も\n\n\n大事",
+            "source": null,
+            "sourceUrl": null
+          },
+          {
+            "speaker": "参加者",
+            "content": "匿名",
+            "source": null,
+            "sourceUrl": null
+          }
+        ]
+      }
+    },
+    {
+      "name": "learning conclusion missing",
+      "method": "GET",
+      "target": "/learning/conclusion?gap=nope",
+      "app": "root",
+      "status": 404,
+      "contentType": "application/json",
+      "contentDisposition": null,
+      "body": {
+        "error": "not found"
+      }
+    },
+    {
+      "name": "learning export flow md",
+      "method": "GET",
+      "target": "/learning/conclusion/export?gap=flow:fs-1",
+      "app": "root",
+      "status": 200,
+      "contentType": "text/markdown; charset=utf-8",
+      "contentDisposition": "attachment; filename=\"discussion.md\"; filename*=UTF-8''%E3%83%AD%E3%83%BC%E3%82%B0%E3%83%A9%E3%82%A4%E3%83%88%E3%81%AE%E5%91%A8%E5%9B%9E%E8%A8%AD%E8%A8%88.md",
+      "body": "---\ntype: discussion-conclusion\nkind: flow\nid: 'flow:fs-1'\nsession: fs-1\ntitle: ローグライトの周回設計\nconcluded: true\nutterances: 1\naufhebungen: 1\nupdated_at: '2023-11-14T22:14:10.000Z'\n---\n\n# ローグライトの周回設計\n\n## 結論\n\n周回はビルド多様性で飽きを防ぐ\n\n## ディスカッションペーパー\n\n観点タグ: 開発\n\n### ゲームのメカニクス\n\n- **ビルド選択**: 周回ごとに構成を変える\n\n## 止揚ストック\n\n- 難度と報酬の対応を保つ\n\n## 高評価意見\n\n- **+0 陽介 (賛成派)**: ビルド分岐で飽きを防ぐ\n\n## 議論ログ (1 発話)\n\n- **陽介 (賛成派)**: ビルド分岐で飽きを防ぐ\n"
+    },
+    {
+      "name": "learning export missing",
+      "method": "GET",
+      "target": "/learning/conclusion/export?gap=flow:nope",
+      "app": "root",
+      "status": 404,
+      "contentType": "application/json",
+      "contentDisposition": null,
+      "body": {
+        "error": "not found"
+      }
+    },
+    {
+      "name": "learning data knowledge",
+      "method": "GET",
+      "target": "/learning/data?layer=opinions&limit=5",
+      "app": "root",
+      "status": 200,
+      "contentType": "application/json",
+      "contentDisposition": null,
+      "body": {
+        "layer": "opinions",
+        "workspaceId": "ws",
+        "generatedAt": "<now>",
+        "topics": [
+          {
+            "id": "g1",
+            "title": "ローグライトの周回",
+            "description": null,
+            "status": "converged",
+            "gapIn": null,
+            "expectedAffect": null,
+            "observedAffect": null,
+            "opinionCount": 0,
+            "utteranceCount": 7,
+            "size": 7,
+            "updatedAt": 300,
+            "opinions": []
+          },
+          {
+            "id": "g2",
+            "title": "進行中の議論",
+            "description": null,
+            "status": null,
+            "gapIn": null,
+            "expectedAffect": null,
+            "observedAffect": null,
+            "opinionCount": 0,
+            "utteranceCount": 2,
+            "size": 2,
+            "updatedAt": 200,
+            "opinions": []
+          },
+          {
+            "id": "g4",
+            "title": "フォーラム議論",
+            "description": null,
+            "status": "open",
+            "gapIn": null,
+            "expectedAffect": null,
+            "observedAffect": null,
+            "opinionCount": 0,
+            "utteranceCount": 0,
+            "size": 0,
+            "updatedAt": 100,
+            "opinions": []
+          }
+        ],
+        "totals": {
+          "topics": 3,
+          "opinions": 0,
+          "utterances": 9
+        }
+      }
+    },
+    {
+      "name": "learning conclusions",
+      "method": "GET",
+      "target": "/learning/conclusions",
+      "app": "root",
+      "status": 200,
+      "contentType": "application/json",
+      "contentDisposition": null,
+      "body": {
+        "conclusions": [
+          {
+            "gapId": "flow:fs-1",
+            "kind": "flow",
+            "sessionId": "fs-1",
+            "title": "ローグライトの周回設計",
+            "conclusion": "周回はビルド多様性で飽きを防ぐ",
+            "utteranceCount": 1,
+            "aufhebungCount": 1,
+            "updatedAt": 1700000050000,
+            "discussionVolume": 1,
+            "materialCount": -1
+          }
+        ],
+        "cached": true
+      }
+    },
+    {
+      "name": "learning conclusions limit 1",
+      "method": "GET",
+      "target": "/learning/conclusions?limit=1",
+      "app": "root",
+      "status": 200,
+      "contentType": "application/json",
+      "contentDisposition": null,
+      "body": {
+        "conclusions": [
+          {
+            "gapId": "flow:fs-1",
+            "kind": "flow",
+            "sessionId": "fs-1",
+            "title": "ローグライトの周回設計",
+            "conclusion": "周回はビルド多様性で飽きを防ぐ",
+            "utteranceCount": 1,
+            "aufhebungCount": 1,
+            "updatedAt": 1700000050000,
+            "discussionVolume": 1,
+            "materialCount": -1
+          }
+        ],
+        "cached": true
+      }
+    }
+  ],
+  "fallback": [
+    {
+      "target": "/learning/conclusions",
+      "status": 200,
+      "body": {
+        "conclusions": [
+          {
+            "gapId": "g1",
+            "kind": "gap",
+            "sessionId": "s1",
+            "title": "ローグライトの周回",
+            "conclusion": "周回はビルド多様性で飽きを防ぐ\n\n\n詳細",
+            "utteranceCount": 7,
+            "aufhebungCount": 1,
+            "updatedAt": 300
+          }
+        ],
+        "cached": false
+      }
+    },
+    {
+      "target": "/learning/conclusions?limit=-1",
+      "status": 200,
+      "body": {
+        "conclusions": [],
+        "cached": false
+      }
+    },
+    {
+      "target": "/learning/conclusions?limit=abc",
+      "status": 500,
+      "body": "Internal Server Error"
+    }
+  ]
+}
