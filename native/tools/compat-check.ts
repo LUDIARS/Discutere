@@ -13,7 +13,7 @@
 //   --cpp-bin  C++ 版の実行ファイル (既定 env DI_SERVER_BIN、無ければ /home/user/build-w6-main/bin/discutere-server)
 //   --data     サーバの cwd に data/ として複写するディレクトリ (既定: 空 = 合成データだけ)
 //   --config   discutere.config.json (秘密・外部接続の項目は消して使う)
-// 終了コード: 差分なし 0 / 差分あり 1 / 起動失敗 2。
+// 終了コード: 差分なし 0 / 差分あり 1 / 起動失敗 2 (KNOWN = port-notes に理由を書いた仕様上の差は数えない)。
 import { spawn, type ChildProcess } from "node:child_process";
 import { cpSync, existsSync, mkdirSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from "node:fs";
 import { createServer } from "node:net";
@@ -216,6 +216,32 @@ const ROUTES: { path: string; headers?: Record<string, string> }[] = [
   { path: "/api/no/such/route" },
 ];
 
+/**
+ * 仕様上の差 (port-notes に理由を書いたもの)。when が true のときだけ KNOWN と表示し、終了コードに数えない。
+ */
+const KNOWN: { path: string; when: (n: Observed, c: Observed) => boolean; reason: string }[] = [
+  {
+    path: "/api/ludus/economy-graph/no-such-game",
+    when: (n) => n.status === 500 && n.body.includes("Internal Server Error"),
+    reason: "空の DB だけで出る: Node は ludus_economy_graphs を drizzle-kit push で作る前提 (無いと 500)、C++ の get_main_db は無い表を作る (w1-C)",
+  },
+  {
+    path: "/api/ludus/economy-graphs",
+    when: (n) => n.status === 500 && n.body.includes("Internal Server Error"),
+    reason: "同上 (表が無い空の DB だけ)",
+  },
+  {
+    path: "/api/admin/errors",
+    when: (n) => n.body.includes("no such table: ludus_economy_graphs"),
+    reason: "上の 500 を Node が error-buffer に積んだもの (空の DB だけ)",
+  },
+  {
+    path: "/api/admin/datasources/youtube/utterances?limit=abc",
+    when: (n, c) => n.status === 500 && c.status === 200,
+    reason: "limit が数でないとき Node は NaN を SQL に渡して 500、C++ は既定 200 件 (w3-O §4)",
+  },
+];
+
 /** 時刻・UUID・ポートを正規化する。 */
 function normalizeText(s: string, ports: number[]): string {
   let t = s;
@@ -230,7 +256,11 @@ function normalizeJson(v: unknown, ports: number[]): unknown {
   if (Array.isArray(v)) return v.map((x) => normalizeJson(x, ports));
   if (v && typeof v === "object") {
     const out: Record<string, unknown> = {};
-    for (const [k, x] of Object.entries(v as Record<string, unknown>)) out[k] = normalizeJson(x, ports);
+    for (const [k, x] of Object.entries(v as Record<string, unknown>)) {
+      // epoch 秒の時刻列 (added_at 等)。起動時刻に依存するので正規化する。
+      if (/(_at|At)$/.test(k) && typeof x === "number" && Number.isInteger(x) && x >= 1.6e9 && x < 2e9) out[k] = "<sec>";
+      else out[k] = normalizeJson(x, ports);
+    }
     return out;
   }
   if (typeof v === "number" && Number.isInteger(v) && v >= 1.6e12 && v < 2e12) return "<ms>";
@@ -317,24 +347,28 @@ async function main(): Promise<number> {
 
     const rows: string[] = [];
     let diffs = 0;
+    let knownCount = 0;
     for (const r of ROUTES) {
       const [n, c] = [await observe(nodePort, r.path, r.headers, ports), await observe(cppPort, r.path, r.headers, ports)];
       const statusOk = n.status === c.status;
       const ctOk = n.contentType === c.contentType;
       const bodyOk = n.body === c.body;
       const ok = statusOk && ctOk && bodyOk;
-      if (!ok) diffs++;
+      const known = ok ? undefined : KNOWN.find((k) => k.path === r.path && !r.headers && k.when(n, c));
+      if (!ok && !known) diffs++;
       const label = r.headers ? `${r.path} (${Object.entries(r.headers).map(([k, v]) => `${k}: ${v}`).join(", ")})` : r.path;
       const note = ok ? "" : [!statusOk ? "status" : "", !ctOk ? `ct node=${n.contentType} cpp=${c.contentType}` : "", !bodyOk ? `body ${firstDiff(n.body, c.body)}` : ""]
         .filter(Boolean)
         .join("; ");
-      rows.push(`| ${ok ? "OK" : "DIFF"} | \`${label}\` | ${n.status} | ${c.status} | ${n.isJson ? "json" : n.contentType.split(";")[0]} | ${note.replace(/\|/g, "\\|")} |`);
+      if (known) knownCount++;
+      const detail = known ? `${known.reason} (${note})` : note;
+      rows.push(`| ${ok ? "OK" : known ? "KNOWN" : "DIFF"} | \`${label}\` | ${n.status} | ${c.status} | ${n.isJson ? "json" : n.contentType.split(";")[0]} | ${detail.replace(/\|/g, "\\|")} |`);
       if (args.verbose && !ok) console.error(`--- ${label}\nnode: ${n.body.slice(0, 2000)}\ncpp:  ${c.body.slice(0, 2000)}`);
     }
     const report = [
       `# compat-check (${new Date().toISOString()})`,
       "",
-      `経路 ${ROUTES.length} 件 / 差分 ${diffs} 件 (data=${args.data ?? "合成 (空 + チャット投稿 3 件)"}, config=${args.config ? "sanitized" : "なし"})`,
+      `経路 ${ROUTES.length} 件 / 差分 ${diffs} 件 / 仕様上の差 ${knownCount} 件 (data=${args.data ?? "合成 (空 + チャット投稿 3 件)"}, config=${args.config ? "sanitized" : "なし"})`,
       "",
       "| 結果 | 経路 | Node | C++ | 種類 | 差分 |",
       "|---|---|---|---|---|---|",

@@ -70,6 +70,8 @@ index.ts に TS テストは無い。新規:
 
 互換性 (golden の代わりに Node と C++ を並べて実際に比べる): `native/tools/compat-check.ts` (§6)。
 
+ctest 全体: 142/142 通過 (`ctest -j2`、`/home/user/build-w6-main`。うち担当は main.main の 3 ケース)。
+
 ## 3. 安全の対応表
 
 | 防御 | main.cpp |
@@ -113,4 +115,51 @@ index.ts に TS テストは無い。新規:
 
 ## 6. 互換性の検査 (compat-check)
 
-(結果は下に追記)
+`native/tools/compat-check.ts` (tsx で実行)。Node 版 (`node --import tsx src/index.ts`) と C++ 版を、同じ内容のデータディレクトリ
+(既定は空 → 両方に同じチャット投稿 3 件を API で入れる / `--data` で渡したディレクトリを両方に複写) と同じ env で別ポートに起動し、
+副作用の無い GET 63 要求 (index.ts と各 routes から列挙。`/api/spec/github/auth` は gh CLI が GitHub に問い合わせるので除外) を投げ、
+status・Content-Type・本文 (JSON は JSON.stringify でキー順込み) を比べて表にする。正規化: UUID・ISO 時刻・epoch ms・
+`*_at` / `*At` の epoch 秒・ポート番号。最後に両方へ SIGTERM を送り終了コードも出す。
+
+外部に繋がない設定: env で Discord token 無し・Slack / backup / kg-sync / cost-relay / embedding / worker-pool を無効、LLM は claude-cli
+(GET では呼ばれない)、classifier off。`--config` で渡した設定も botToken / applicationId / slack / backup / kgSync / cost /
+externalDiscussion / anthropicApiKey / local.apiKey / embedding.apiKey を消し、llm.backend=claude-cli にしてから使う。
+
+### クラウドでの結果 (2026-11-03、ブランチ wt/w6-main、build `/home/user/build-w6-main`)
+
+| 実行 | 結果 |
+|---|---|
+| 合成データ (空 + チャット投稿 3 件) | 63 要求中 一致 59・差分 0・仕様上の差 4。SIGTERM 後の終了コード node=0 / cpp=0 |
+| 偽の秘密を入れた config (`--config`、bot token・Slack・backup・anthropicApiKey 入り) | 同じ (sanitize が効き、どちらも外へ繋がずに起動) |
+
+初回の実行で出た差分は `/api/admin/rules` の `added_at` (seed の時刻 = 起動時刻の epoch 秒) だけで、移植の誤りではなかった
+(正規化を足した)。残る仕様上の差 (表では KNOWN、終了コードに数えない):
+
+| 経路 | Node | C++ | 理由 |
+|---|---|---|---|
+| `/api/ludus/economy-graph/:slug`・`/api/ludus/economy-graphs` | 500 | 404 / 200 `[]` | 空の DB だけ。Node は `ludus_economy_graphs` を drizzle-kit push で作る前提で、無いと "no such table"。C++ の `get_main_db` は無い表を同じ DDL で作る (w1-C)。本番 DB では表があるので一致するはず |
+| `/api/admin/errors` | 上の "no such table" を 2 件 | `[]` | 上の 500 の副作用 (空の DB だけ) |
+| `/api/admin/datasources/:source/utterances?limit=abc` | 500 | 200 (既定 200 件) | w3-O §4 (Node は NaN を SQL に渡して失敗) |
+
+### 本社で本番相当のデータで走らせる手順
+
+前提: Node 22 + `npm install --include=dev` 済みのチェックアウト (lib/* の submodule を build 済み)、C++ 版をビルド済み
+(`native/tools/build.sh <build-dir>`)、本番の `data/` のスナップショット (コピーを使う。元のディレクトリはそのまま)、本番の
+`discutere.config.json` (秘密・外部接続の項目はスクリプトが消すが、念のためコピーを渡す)。Discord / Slack / S3 / LLM には繋がらない。
+
+```
+cd <Discutere のチェックアウト>
+cp -a <本番 data のスナップショット> /tmp/di-data-snapshot      # KG (discatier.kuzu)・discutere.db・flow DB・games 等
+npx tsx native/tools/compat-check.ts \
+  --cpp-bin <build-dir>/bin/discutere-server \
+  --data /tmp/di-data-snapshot \
+  --config ./discutere.config.json \
+  --out /tmp/compat-report.md --verbose
+```
+
+- 期待結果: 終了コード 0 (差分 0)。`KNOWN` は `?limit=abc` の 1 件だけ (本番 DB には ludus_economy_graphs があるので経済グラフの 2 件と
+  errors は一致するはず)。`exit codes after SIGTERM: node=0 cpp=0`。
+- 起動待ちは各 120 秒 (KG が大きいと Node の起動が遅い)。データは両方のサーバに別々に複写するので、ディスクに 2 倍の空きが要る。
+- 差分が出たら `--verbose` の本文 (先頭 2000 文字) と表の「差分」列 (最初に違う位置の前後) を担当の port-notes と突き合わせる。
+  時刻・ID 以外の値 (並び順・件数・キー順) の違いは移植の誤りの可能性が高い。
+- 結果の表 (`/tmp/compat-report.md`) には本番データの値は出ない (差分の前後 80 文字だけ)。共有する前に中身を確認すること。
