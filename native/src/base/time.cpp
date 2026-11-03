@@ -94,7 +94,7 @@ std::string sqlite_datetime_utc(std::int64_t ms) {
 
 std::optional<std::int64_t> parse_iso(std::string_view s) {
     std::size_t i = 0;
-    int y, mo, d, h = 0, mi = 0, se = 0, ms = 0;
+    int y = 0, mo = 0, d = 0, h = 0, mi = 0, se = 0, ms = 0;
     if (!read_digits(s, i, 4, y) || i >= s.size() || s[i++] != '-') return std::nullopt;
     if (!read_digits(s, i, 2, mo) || i >= s.size() || s[i++] != '-') return std::nullopt;
     if (!read_digits(s, i, 2, d)) return std::nullopt;

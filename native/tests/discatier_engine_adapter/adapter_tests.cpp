@@ -312,10 +312,14 @@ TEST_CASE("event-bridge.test.ts: DesignGapDetected → propose、gap session の
 
     Json payload{{"id", hyps[0].str("id")}, {"workspaceId", ws}, {"statement", "first proposal"}, {"status", "integrated"},
                  {"integrated", true}, {"validatedByEmotion", true}, {"designGapId", gap_id}, {"refs", Json::array()}};
+    // TS と同じく created_at (ms) > lastSeen で拾うので、直前の event と同じ ms に書くと拾われない
+    // (TS からの既知の制約)。Release ビルドは速く同じ ms に入りうるので、ここでも時刻を進める。
+    tick();
     core->eventLog.append_event({std::nullopt, "HypothesisIntegrated", payload, std::nullopt});
     CHECK(bridge->poll_once() >= 1);
 
     const auto before = core->raw().get("SELECT COUNT(*) AS n FROM hypotheses WHERE workspace_id = ?", {ws})->i64("n");
+    tick();
     make_gap(*core, "別 workspace gap", std::string("open"), "other-ws");
     bridge->poll_once();
     CHECK_EQ(core->raw().get("SELECT COUNT(*) AS n FROM hypotheses WHERE workspace_id = ?", {ws})->i64("n"), before);

@@ -955,7 +955,9 @@ TEST_CASE("DB を使う経路 (投票・価値軸・ラウンドまとめ・リ�
         W2G_SAME(Json::array({gen.calls, gate.calls, rat.calls, gen2.calls, gate2.calls, rat2.calls}), Y["calls"]);
         W2G_SAME(w.json(), Y["warns"]);
         // 修正ループは 1 行を上書きする
-        const auto syn = list_syntheses(t0.id);
+        // list_syntheses は TS と同じく created_at (ms)・id (UUID) の順。同じ ms に書いた 2 行の順は決まらないので revision で並べて見る。
+        auto syn = list_syntheses(t0.id);
+        std::sort(syn.begin(), syn.end(), [](const auto& x, const auto& y) { return x.revision < y.revision; });
         CHECK_EQ(syn.size(), std::size_t(2));
         CHECK_EQ(syn[0].revision, 1);
         CHECK_EQ(syn[1].revision, 2);

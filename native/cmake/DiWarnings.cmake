@@ -9,6 +9,12 @@ function(di_target_warnings target)
     endif()
   else()
     target_compile_options(${target} PRIVATE -Wall -Wextra -Wpedantic)
+    if(CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
+      # GCC 13 の -O2/-O3 は std::variant / std::optional の move をインライン展開した後に
+      # -Wmaybe-uninitialized の誤検知を出す (GCC PR 80635 系。sql::Value や optional<vector> で多数)。
+      # この診断だけを GCC で外す。未初期化の読みは Debug の -Wall / Clang / MSVC (/W4) と ASan で見る。
+      target_compile_options(${target} PRIVATE -Wno-maybe-uninitialized)
+    endif()
     if(DI_WARNINGS_AS_ERRORS)
       target_compile_options(${target} PRIVATE -Werror)
     endif()
