@@ -1,0 +1,129 @@
+{
+  "cases": [
+    {
+      "label": "disabled",
+      "kind": "discussion",
+      "tags": [],
+      "withCore": true,
+      "env": {
+        "DISCUTERE_FLOW_INFOGATE_ENABLED": "false"
+      },
+      "result": null,
+      "calls": [],
+      "voiceCalls": [],
+      "logs": []
+    },
+    {
+      "label": "learning-kind",
+      "kind": "learning",
+      "tags": [],
+      "withCore": true,
+      "env": {},
+      "result": null,
+      "calls": [],
+      "voiceCalls": [],
+      "logs": []
+    },
+    {
+      "label": "no-core",
+      "kind": "discussion",
+      "tags": [],
+      "withCore": false,
+      "env": {},
+      "result": null,
+      "calls": [],
+      "voiceCalls": [],
+      "logs": []
+    },
+    {
+      "label": "no-sources",
+      "kind": "improvement",
+      "tags": [],
+      "withCore": true,
+      "env": {
+        "DISCUTERE_FLOW_AUTOCRAWL_SOURCES": "website,steam"
+      },
+      "result": null,
+      "calls": [],
+      "voiceCalls": [],
+      "logs": []
+    },
+    {
+      "label": "rich",
+      "kind": "discussion",
+      "tags": [
+        "運用"
+      ],
+      "withCore": true,
+      "env": {
+        "DISCUTERE_FLOW_INFOGATE_MODEL": "gate-model",
+        "DISCUTERE_FLOW_INFOGATE_MIN_DENSITY": "bogus"
+      },
+      "result": {
+        "ran": true,
+        "sufficient": true,
+        "initialDensity": "rich",
+        "finalDensity": "rich",
+        "crawls": 0,
+        "importedTotal": 0,
+        "crawledQueries": [],
+        "message": "情報充分 (密度 rich→rich ≥ moderate / 学習 0 回・取込 0 件)"
+      },
+      "calls": [
+        {
+          "prompt": "議題: 周回ゲームの報酬\n観点タグ: 運用\n\n収集済みの外部の声 (3 件):\n1. [youtube] 周回が楽しい。報酬も十分。\n2. [steam] 課金しないと厳しい。長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長\n3. [niconico] テンポが良い\n\n次の JSON だけを返してください (前後に説明文を付けない):\n{\n  \"density\": \"sparse\" | \"moderate\" | \"rich\",\n  \"covered\": [\"既にカバーできている観点\", ...],\n  \"gaps\": [\n    { \"aspect\": \"不足している観点\", \"reason\": \"なぜ必要か\", \"query\": \"それを集める検索クエリ(日本語可)\", \"source\": \"niconico|youtube|steam|website|reddit\" }\n  ],\n  \"proposedRule\": { \"description\": \"…\", \"when\": { \"op\": \"and\", \"clauses\": [ { \"op\": \"cmp\", \"feature\": \"voiceCount\", \"cmp\": \">=\", \"value\": 8 }, { \"op\": \"cmp\", \"feature\": \"sourceKinds\", \"cmp\": \">=\", \"value\": 2 } ] } }\n}\n声が少ない / 観点が偏る (例: 肯定だけ・具体例なし) なら density=sparse とし、 gaps に不足観点と検索クエリを 1〜3 個挙げてください。 十分多様で厚いなら rich とし gaps は空配列で構いません。\nproposedRule は任意です: この密度判定が単純な閾値で再現できるなら、 feature 名 voiceCount (件数) / sourceKinds (ソース種類数) / avgLen (平均文字数) / tagCount を使った Condition を書いてください。自信が無ければ省略してください。",
+          "system": "あなたは議論の準備担当です。 与えられた議題と、 収集済みの『外部の声』(プレイヤー/視聴者の生の感想) を見て、 この議題で深い議論をするのに情報が足りているかを評価します。 量だけでなく、 観点の多様性 (肯定/否定/具体例/異なる立場) も評価軸にしてください。 返答は JSON のみ。",
+          "model": "gate-model"
+        }
+      ],
+      "voiceCalls": [
+        {
+          "terms": [
+            "周回ゲームの報酬"
+          ],
+          "limit": 50
+        }
+      ],
+      "logs": [
+        "log:情報充分 (密度 rich→rich ≥ moderate / 学習 0 回・取込 0 件)"
+      ]
+    }
+  ],
+  "costRows": [
+    {
+      "flow": "discussion",
+      "session_id": "gate-sess",
+      "location": "information-gate"
+    }
+  ],
+  "debatabilityGate": [
+    {
+      "kind": "discussion",
+      "env": {},
+      "out": {
+        "minArmableIssues": 2
+      }
+    },
+    {
+      "kind": "improvement",
+      "env": {
+        "DISCUTERE_FLOW_DEBATABILITY_MIN_ARMABLE_ISSUES": "4"
+      },
+      "out": {
+        "minArmableIssues": 4
+      }
+    },
+    {
+      "kind": "learning",
+      "env": {},
+      "out": null
+    },
+    {
+      "kind": "discussion",
+      "env": {
+        "DISCUTERE_FLOW_DEBATABILITY_ENABLED": "false"
+      },
+      "out": null
+    }
+  ]
+}
