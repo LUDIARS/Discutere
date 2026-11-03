@@ -393,6 +393,8 @@ TEST_CASE("hello, identify, heartbeat/ack, server heartbeat request, dispatch an
         CHECK(c->send(Json{{"op", 11}}));
     }
     CHECK(hb.has_value());
+    // 送信の数え上げは送った後なので、偽サーバが先に受け取ることがある。少し待って確かめる。
+    for (int i = 0; i < 100 && client.stats().heartbeats_sent <= before; ++i) std::this_thread::sleep_for(10ms);
     CHECK(client.stats().heartbeats_sent > before);
     const auto t0 = Clock::now();
     client.stop();

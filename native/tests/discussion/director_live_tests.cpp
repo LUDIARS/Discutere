@@ -148,6 +148,15 @@ TEST_CASE("director-live: スレッドで議論 → 続ける → 別チャン�
     runner->start("thread", "テーマ");
     CHECK_EQ(runner->active_count(), 0);
     CHECK_EQ(asked.load(), 2);
+    // ボタンへの応答 (interaction callback) は議論の終わりと並行して送られるので、届くまで待つ。
+    d.drain();
+    for (int i = 0; i < 200; ++i) {
+        {
+            std::lock_guard lock(d.m);
+            if (d.callbacks.size() >= 2) break;
+        }
+        std::this_thread::sleep_for(10ms);
+    }
     std::lock_guard lock(d.m);
     // スレッドは親 (forum) の webhook に thread_id を付けて投稿する
     for (const auto& c : d.webhook_channels) CHECK_EQ(c, std::string("forum"));
