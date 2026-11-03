@@ -1,0 +1,338 @@
+{
+  "forum": [
+    {
+      "names": [
+        "改善",
+        "機密"
+      ],
+      "out": {
+        "flow": "improvement",
+        "tags": [
+          "機密"
+        ]
+      }
+    },
+    {
+      "names": [
+        "壁打ち",
+        "運用"
+      ],
+      "out": {
+        "flow": null,
+        "tags": [
+          "運用"
+        ]
+      }
+    },
+    {
+      "names": [
+        "旧相談"
+      ],
+      "mapping": {
+        "flowKindTagNames": {
+          "sparring": [
+            "旧相談"
+          ]
+        }
+      },
+      "out": {
+        "flow": null,
+        "tags": []
+      }
+    },
+    {
+      "names": [
+        "議論"
+      ],
+      "out": {
+        "flow": "discussion",
+        "tags": []
+      }
+    },
+    {
+      "names": [
+        "面白さ"
+      ],
+      "out": {
+        "flow": null,
+        "tags": []
+      }
+    },
+    {
+      "names": [],
+      "out": {
+        "flow": null,
+        "tags": []
+      }
+    },
+    {
+      "names": [
+        "  🔧 改善／議論 ",
+        "内部",
+        "内部タグ",
+        "未来予測",
+        "代理"
+      ],
+      "out": {
+        "flow": "improvement",
+        "tags": [
+          "内部",
+          "未来予測",
+          "代理"
+        ]
+      }
+    },
+    {
+      "names": [
+        "企画/議論",
+        "開発"
+      ],
+      "out": {
+        "flow": "discussion",
+        "tags": [
+          "開発"
+        ]
+      }
+    },
+    {
+      "names": [
+        "相談A",
+        "議論"
+      ],
+      "mapping": {
+        "flowKindTagNames": {
+          "improvement": [
+            "相談"
+          ],
+          "discussion": [
+            "雑談"
+          ]
+        }
+      },
+      "out": {
+        "flow": "improvement",
+        "tags": []
+      }
+    },
+    {
+      "names": [
+        "雑談",
+        "改善"
+      ],
+      "mapping": {
+        "flowKindTagNames": {
+          "discussion": [
+            "雑談"
+          ]
+        },
+        "flowTagNames": [
+          "改善",
+          "x"
+        ]
+      },
+      "out": {
+        "flow": "discussion",
+        "tags": [
+          "改善"
+        ]
+      }
+    },
+    {
+      "names": [
+        "学習",
+        "sparring",
+        "discussion"
+      ],
+      "out": {
+        "flow": "discussion",
+        "tags": []
+      }
+    },
+    {
+      "names": [
+        "[機密] 運用"
+      ],
+      "mapping": {
+        "flowTagNames": [
+          "運用",
+          "機密"
+        ]
+      },
+      "out": {
+        "flow": null,
+        "tags": [
+          "運用"
+        ]
+      }
+    },
+    {
+      "names": [
+        "何か"
+      ],
+      "mapping": {
+        "flowTagNames": [
+          ""
+        ]
+      },
+      "out": {
+        "flow": null,
+        "tags": []
+      }
+    }
+  ],
+  "roundsTurns": [
+    {
+      "text": "ラウンド:5 ターン:8",
+      "out": {
+        "rounds": 5,
+        "turnsPerRound": 8
+      }
+    },
+    {
+      "text": "rounds=3 turns=6",
+      "out": {
+        "rounds": 3,
+        "turnsPerRound": 6
+      }
+    },
+    {
+      "text": "Round：4\nTurn = 2",
+      "out": {
+        "rounds": 4,
+        "turnsPerRound": 2
+      }
+    },
+    {
+      "text": "ラウンド ： 7",
+      "out": {
+        "rounds": 7
+      }
+    },
+    {
+      "text": "xrounds=3 ターン:9",
+      "out": {
+        "turnsPerRound": 9
+      }
+    },
+    {
+      "text": "rounds=x round=4",
+      "out": {
+        "rounds": 4
+      }
+    },
+    {
+      "text": "ラウンド:abc ラウンド:6",
+      "out": {
+        "rounds": 6
+      }
+    },
+    {
+      "text": "ラウンド:9999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999 rounds=2",
+      "out": {
+        "rounds": 2
+      }
+    },
+    {
+      "text": "ROUNDS =12 TURNS= 01",
+      "out": {
+        "rounds": 12,
+        "turnsPerRound": 1
+      }
+    },
+    {
+      "text": "ラウンド　:　3",
+      "out": {
+        "rounds": 3
+      }
+    },
+    {
+      "text": "rounds:3.5",
+      "out": {
+        "rounds": 3
+      }
+    },
+    {
+      "text": "turn_s=3 turn=5",
+      "out": {
+        "turnsPerRound": 5
+      }
+    },
+    {
+      "text": "",
+      "out": {}
+    },
+    {
+      "text": "ターン:111111111111111111111111111111",
+      "out": {
+        "turnsPerRound": 1.111111111111111e+29
+      }
+    }
+  ],
+  "opponents": [
+    {
+      "text": "相手:ローグ好き太郎,ソシャゲ花子",
+      "out": [
+        "ローグ好き太郎",
+        "ソシャゲ花子"
+      ]
+    },
+    {
+      "text": "opponent=花子",
+      "out": [
+        "花子"
+      ]
+    },
+    {
+      "text": "Opponent : A、B , ,C\n次の行",
+      "out": [
+        "A",
+        "B",
+        "C"
+      ]
+    },
+    {
+      "text": "相手:   ",
+      "out": null
+    },
+    {
+      "text": "相手:\n次の行の名前",
+      "out": [
+        "次の行の名前"
+      ]
+    },
+    {
+      "text": "相手: \n",
+      "out": null
+    },
+    {
+      "text": "相手=,,、",
+      "out": null
+    },
+    {
+      "text": "テーマ 相手なし",
+      "out": null
+    },
+    {
+      "text": "相手ではない 相手：X",
+      "out": [
+        "X"
+      ]
+    },
+    {
+      "text": "OPPONENT: Y",
+      "out": [
+        "Y"
+      ]
+    },
+    {
+      "text": "相手:　Z　",
+      "out": [
+        "Z"
+      ]
+    },
+    {
+      "text": "",
+      "out": null
+    }
+  ]
+}

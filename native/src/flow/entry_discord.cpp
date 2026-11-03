@@ -159,6 +159,8 @@ ParsedForumEntry parse_forum_entry(const std::vector<std::string>& applied_tag_n
         const std::string trimmed = str::trim(name);
         for (const auto& t : flow_tag_names) {
             if (!name_hits(trimmed, t)) continue;
+            // TS の `if (hit && ...)`: 空文字のタグ名に当たったら何も足さない
+            if (t.empty()) break;
             if (std::find(out.tags.begin(), out.tags.end(), t) == out.tags.end()) out.tags.push_back(t);
             break;
         }

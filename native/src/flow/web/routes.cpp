@@ -925,6 +925,23 @@ std::int64_t latest_revision_rev(const std::string& session_id) {
     }
 }
 
+/**
+ * PaperDraft の JSON。TS の固定欄つきドラフトは markdownToPaperDraft の spread の順で issues が固定欄の後ろ
+ * (bodyMd の直前) に来るので、固定欄があるときはその順に並べ直す (キーの集合は同じ)。
+ */
+Json paper_json(const PaperDraft& draft) {
+    Json j = to_json(draft);
+    if (!j.contains("gameTitle") || !j.contains("issues")) return j;
+    Json out = Json::object();
+    for (auto it = j.begin(); it != j.end(); ++it) {
+        if (it.key() == "issues") continue;
+        if (it.key() == "bodyMd") out["issues"] = j["issues"];
+        out[it.key()] = it.value();
+    }
+    if (!out.contains("issues")) out["issues"] = j["issues"];
+    return out;
+}
+
 /** ドラフト + ブロック分解 + 版履歴状態を 1 つの JSON にまとめる (Notion 風 UI 用)。 */
 Json paper_payload_locked(const std::string& session_id, const PaperDraft& draft, const WebPaperReview* entry) {
     std::optional<Json> info = entry && entry->info ? entry->info : stored_paper_review_info(session_id);
@@ -939,7 +956,7 @@ Json paper_payload_locked(const std::string& session_id, const PaperDraft& draft
     const auto no = get_discussion_number_by_session(session_id);
     j["discussionNo"] = no ? Json(*no) : Json(nullptr);
     if (entry) j["flow"] = entry->flow;
-    j["paper"] = to_json(draft);
+    j["paper"] = paper_json(draft);
     j["info"] = display_info;
     j["fixedFields"] = to_json(paper_fixed_fields_from_markdown(draft.bodyMd, content_of(draft)));
     j["settings"] = Json{{"rounds", entry && entry->rounds ? Json(*entry->rounds) : Json(nullptr)},

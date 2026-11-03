@@ -1,0 +1,5071 @@
+{
+  "setup": [
+    {
+      "op": "persistPaper",
+      "flow": "discussion",
+      "paper": {
+        "sessionId": "list-sess-1",
+        "theme": "一覧テスト議題",
+        "tags": [],
+        "mechanics": [],
+        "supplement": "",
+        "bodyMd": "# 議題\n一覧テスト議題"
+      }
+    },
+    {
+      "op": "persistPaper",
+      "flow": "discussion",
+      "paper": {
+        "sessionId": "done-sess-1",
+        "theme": "収束前の議題",
+        "tags": [],
+        "mechanics": [],
+        "supplement": "",
+        "bodyMd": "# 議題\n収束前の議題"
+      }
+    },
+    {
+      "op": "sql",
+      "sql": "INSERT INTO flow_conclusion (session_id, paper_id, summary, aufhebung_json, top_utterance_ids_json, concluded, created_at) VALUES ('done-sess-1', 'done-sess-1', '【収束】収束時のタイトル\n詳細本文', '[]', '[\"u-top\", 3]', 1, 5000)"
+    },
+    {
+      "op": "titleCache",
+      "sessionId": "done-sess-1",
+      "raw": "【収束】収束時のタイトル\n詳細本文",
+      "source": "conclusion"
+    },
+    {
+      "op": "persistDraftPaper",
+      "flow": "discussion",
+      "paper": {
+        "sessionId": "draft-sess-1",
+        "theme": "下書き議題",
+        "tags": [
+          "運用"
+        ],
+        "mechanics": [
+          {
+            "name": "周回",
+            "description": "繰り返し遊ぶ"
+          }
+        ],
+        "supplement": "",
+        "bodyMd": "# ゲームタイトル（または主目的）\n下書きゲーム\n\n# 議論したいテーマ\n下書き議題\n\n# 議論内容\n周回の報酬を見直したい。\n\n# システム/メカニクスの説明\n## 抽出されたメカニクス\n- **周回**: 繰り返し遊ぶ （出所: curated）\n\n# テーマについての補足情報\n"
+      }
+    },
+    {
+      "op": "reviewInfo",
+      "sessionId": "draft-sess-1",
+      "info": {
+        "voiceCount": 0,
+        "countCapped": false,
+        "samples": [],
+        "fixSuggestions": [
+          {
+            "title": "論点補強",
+            "reason": "対立軸が弱い",
+            "suggestedChange": "{{具体例}} をもとに、賛成側と反対側の争点を追記する。"
+          },
+          {
+            "title": "  ",
+            "reason": "r",
+            "suggestedChange": "二つ目の提案"
+          }
+        ]
+      }
+    },
+    {
+      "op": "persistDraftPaper",
+      "flow": "discussion",
+      "paper": {
+        "sessionId": "sim-sess-1",
+        "theme": "仮想ユーザ補填テーマ",
+        "tags": [],
+        "mechanics": [
+          {
+            "name": "周回",
+            "description": "報酬獲得と強化を繰り返す"
+          }
+        ],
+        "supplement": "",
+        "bodyMd": "# ゲームタイトル（または主目的）\nTest Game\n\n# 議論したいテーマ\n仮想ユーザ補填テーマ\n\n# 議論内容\n既存の実ユーザ声は肯定に偏っている。\n\n# システム/メカニクスの説明\n基本ループはステージ周回、報酬獲得、強化、再挑戦で構成される。失敗時の損失、報酬密度、待ち時間、課金圧がユーザ反応を左右する。\n\n## 抽出されたメカニクス\n- **周回**: 報酬獲得と強化を繰り返す （出所: curated）\n\n# テーマについての補足情報\n"
+      }
+    },
+    {
+      "op": "reviewInfo",
+      "sessionId": "sim-sess-1",
+      "info": {
+        "voiceCount": 50,
+        "countCapped": true,
+        "samples": [],
+        "debatability": {
+          "issues": [
+            "争点A",
+            "争点B",
+            "争点C"
+          ],
+          "armability": [
+            {
+              "issue": "争点A",
+              "armable": "pro-only"
+            },
+            {
+              "issue": "争点B",
+              "armable": "pro-only"
+            },
+            {
+              "issue": "争点C",
+              "armable": "neither"
+            }
+          ],
+          "armableBothCount": 0,
+          "minArmableIssues": 2,
+          "evidence": {
+            "voiceCount": 50,
+            "positive": 50,
+            "negative": 0,
+            "neutral": 0,
+            "polaritySkew": 1,
+            "dominantSource": {
+              "name": "learning",
+              "share": 1
+            }
+          },
+          "debatable": false,
+          "degraded": false,
+          "recommendation": {
+            "flow": "learning",
+            "reason": "材料不足"
+          },
+          "message": "議論適性: 低"
+        }
+      }
+    },
+    {
+      "op": "persistDraftPaper",
+      "flow": "improvement",
+      "paper": {
+        "sessionId": "conf-sess-1",
+        "theme": "機密の議題",
+        "tags": [
+          "機密"
+        ],
+        "mechanics": [],
+        "supplement": "",
+        "bodyMd": "# 議題\n機密の議題\n\n本文の段落"
+      }
+    },
+    {
+      "op": "reviewInfo",
+      "sessionId": "conf-sess-1",
+      "info": {
+        "voiceCount": 2,
+        "countCapped": false,
+        "samples": [],
+        "understanding": {
+          "ok": false,
+          "rationale": "不足",
+          "missingQuestions": [
+            "基本ループ"
+          ]
+        }
+      }
+    },
+    {
+      "op": "persistPaper",
+      "flow": "discussion",
+      "paper": {
+        "sessionId": "mark-sess-1",
+        "theme": "マーク議題",
+        "tags": [],
+        "mechanics": [],
+        "supplement": "",
+        "bodyMd": "# 議題\nマーク議題"
+      }
+    },
+    {
+      "op": "sql",
+      "sql": "INSERT INTO flow_utterance (id, session_id, paper_id, round, turn, persona_id, persona_name, role, stance, possession_name, text, is_error, created_at) VALUES ('u-voted', 'mark-sess-1', (SELECT id FROM discussion_paper WHERE session_id='mark-sess-1'), 1, 1, 'p1', '論者A', 'opinion', 'opinion', NULL, '意見A', 0, 100), ('u-other', 'mark-sess-1', (SELECT id FROM discussion_paper WHERE session_id='mark-sess-1'), 1, 2, 'p2', '論者B', 'debater', 'pro', '憑依X', '意見B', 1, 101), ('u-r2', 'mark-sess-1', (SELECT id FROM discussion_paper WHERE session_id='mark-sess-1'), 2, 1, 'p3', '論者C', 'facilitator', 'neutral', NULL, '意見C', 0, 102)"
+    },
+    {
+      "op": "sql",
+      "sql": "INSERT INTO vote (session_id, round, voter_index, chosen_utterance_id, created_at) VALUES ('mark-sess-1', 1, 0, 'u-voted', 200), ('mark-sess-1', 1, 1, 'u-voted', 201), ('mark-sess-1', 1, 2, 'u-other', 202), ('mark-sess-1', 2, 0, NULL, 203)"
+    },
+    {
+      "op": "sql",
+      "sql": "INSERT INTO discussion_paper_round (paper_id, round, summary, aufhebung_json, created_at) VALUES ((SELECT id FROM discussion_paper WHERE session_id='mark-sess-1'), 1, 'まとめ', '[\"止揚案\", 7]', 202), ((SELECT id FROM discussion_paper WHERE session_id='mark-sess-1'), 2, 'まとめ2', 'not json', 203)"
+    },
+    {
+      "op": "sql",
+      "sql": "INSERT INTO flow_conclusion (session_id, paper_id, summary, aufhebung_json, top_utterance_ids_json, concluded, created_at) VALUES ('mark-sess-1', 'p', '結論です', '[]', '[\"u-r2\"]', 0, 300)"
+    },
+    {
+      "op": "sql",
+      "sql": "UPDATE discussion_paper SET created_at = CASE session_id WHEN 'list-sess-1' THEN 1001 WHEN 'done-sess-1' THEN 1002 WHEN 'draft-sess-1' THEN 1003 WHEN 'sim-sess-1' THEN 1004 WHEN 'conf-sess-1' THEN 1005 WHEN 'mark-sess-1' THEN 1006 ELSE created_at END, updated_at = 2000"
+    }
+  ],
+  "requests": [
+    {
+      "req": {
+        "method": "POST",
+        "url": "/api/flow/start",
+        "body": {
+          "theme": "テーマ"
+        }
+      },
+      "status": 400,
+      "body": {
+        "ok": false,
+        "error": "議論タイプ (必須) を選択してください"
+      },
+      "calls": [],
+      "voiceCalls": []
+    },
+    {
+      "req": {
+        "method": "POST",
+        "url": "/api/flow/nope/paper/edit",
+        "body": {
+          "instruction": "全体を調整して"
+        }
+      },
+      "status": 410,
+      "body": {
+        "ok": false,
+        "error": "全体調整は廃止しました。議論可能か確認する、メカニクス知識を確認、参考情報の取得を使ってください。"
+      },
+      "calls": [],
+      "voiceCalls": []
+    },
+    {
+      "req": {
+        "method": "POST",
+        "url": "/api/flow/start",
+        "body": {
+          "theme": "",
+          "flow": "discussion"
+        }
+      },
+      "status": 400,
+      "body": {
+        "ok": false,
+        "error": "テーマは必須です"
+      },
+      "calls": [],
+      "voiceCalls": []
+    },
+    {
+      "req": {
+        "method": "POST",
+        "url": "/api/flow/start",
+        "body": {
+          "theme": "  ",
+          "flow": "議論",
+          "gameTitle": "",
+          "discussionTheme": "",
+          "discussionContent": "内容だけ"
+        }
+      },
+      "status": 400,
+      "body": {
+        "ok": false,
+        "error": "テーマは必須です"
+      },
+      "calls": [],
+      "voiceCalls": []
+    },
+    {
+      "req": {
+        "method": "POST",
+        "url": "/api/flow/start",
+        "body": {
+          "flow": "改善",
+          "discussionTheme": "テーマ"
+        }
+      },
+      "status": 400,
+      "body": {
+        "ok": false,
+        "error": "議論テーマは必須です。改善/議論には対象プロジェクト名も必要です"
+      },
+      "calls": [],
+      "voiceCalls": []
+    },
+    {
+      "req": {
+        "method": "POST",
+        "url": "/api/flow/start",
+        "body": {
+          "theme": "壁打ちテーマ",
+          "flow": "壁打ち",
+          "tags": []
+        }
+      },
+      "status": 400,
+      "body": {
+        "ok": false,
+        "error": "議論タイプ (必須) を選択してください"
+      },
+      "calls": [],
+      "voiceCalls": []
+    },
+    {
+      "req": {
+        "method": "POST",
+        "url": "/api/flow/start",
+        "rawBody": "{broken"
+      },
+      "status": 400,
+      "body": {
+        "ok": false,
+        "error": "テーマは必須です"
+      },
+      "calls": [],
+      "voiceCalls": []
+    },
+    {
+      "req": {
+        "method": "POST",
+        "url": "/api/flow/nope/say",
+        "body": {
+          "text": "x"
+        }
+      },
+      "status": 404,
+      "body": {
+        "ok": false,
+        "error": "セッションが見つかりません"
+      },
+      "calls": [],
+      "voiceCalls": []
+    },
+    {
+      "req": {
+        "method": "GET",
+        "url": "/api/flow/sessions"
+      },
+      "status": 200,
+      "body": {
+        "ok": true,
+        "total": 6,
+        "limit": 100,
+        "offset": 0,
+        "scope": "all",
+        "hasMore": false,
+        "sessions": [
+          {
+            "discussionNo": 6,
+            "sessionId": "mark-sess-1",
+            "title": "マーク議題",
+            "theme": "マーク議題",
+            "flow": "discussion",
+            "status": "started",
+            "discussionType": "discussion",
+            "originUi": "ai",
+            "createdAt": 1006,
+            "updatedAt": 2000,
+            "utterances": 3,
+            "concluded": false,
+            "state": "live"
+          },
+          {
+            "discussionNo": 5,
+            "sessionId": "conf-sess-1",
+            "title": "機密の議題",
+            "theme": "機密の議題",
+            "flow": "improvement",
+            "status": "draft",
+            "discussionType": "improvement",
+            "originUi": "ai",
+            "createdAt": 1005,
+            "updatedAt": 2000,
+            "utterances": 0,
+            "concluded": false,
+            "state": "draft"
+          },
+          {
+            "discussionNo": 4,
+            "sessionId": "sim-sess-1",
+            "title": "仮想ユーザ補填テーマ",
+            "theme": "仮想ユーザ補填テーマ",
+            "flow": "discussion",
+            "status": "draft",
+            "discussionType": "discussion",
+            "originUi": "ai",
+            "createdAt": 1004,
+            "updatedAt": 2000,
+            "utterances": 0,
+            "concluded": false,
+            "state": "draft"
+          },
+          {
+            "discussionNo": 3,
+            "sessionId": "draft-sess-1",
+            "title": "下書き議題",
+            "theme": "下書き議題",
+            "flow": "discussion",
+            "status": "draft",
+            "discussionType": "discussion",
+            "originUi": "ai",
+            "createdAt": 1003,
+            "updatedAt": 2000,
+            "utterances": 0,
+            "concluded": false,
+            "state": "draft"
+          },
+          {
+            "discussionNo": 2,
+            "sessionId": "done-sess-1",
+            "title": "収束時のタイトル",
+            "theme": "収束前の議題",
+            "flow": "discussion",
+            "status": "started",
+            "discussionType": "discussion",
+            "originUi": "ai",
+            "createdAt": 1002,
+            "updatedAt": 2000,
+            "utterances": 0,
+            "concluded": true,
+            "state": "concluded"
+          },
+          {
+            "discussionNo": 1,
+            "sessionId": "list-sess-1",
+            "title": "一覧テスト議題",
+            "theme": "一覧テスト議題",
+            "flow": "discussion",
+            "status": "started",
+            "discussionType": "discussion",
+            "originUi": "ai",
+            "createdAt": 1001,
+            "updatedAt": 2000,
+            "utterances": 0,
+            "concluded": false,
+            "state": "live"
+          }
+        ]
+      },
+      "calls": [],
+      "voiceCalls": []
+    },
+    {
+      "req": {
+        "method": "GET",
+        "url": "/api/flow/sessions?state=draft"
+      },
+      "status": 200,
+      "body": {
+        "ok": true,
+        "total": 3,
+        "limit": 100,
+        "offset": 0,
+        "scope": "all",
+        "hasMore": false,
+        "sessions": [
+          {
+            "discussionNo": 5,
+            "sessionId": "conf-sess-1",
+            "title": "機密の議題",
+            "theme": "機密の議題",
+            "flow": "improvement",
+            "status": "draft",
+            "discussionType": "improvement",
+            "originUi": "ai",
+            "createdAt": 1005,
+            "updatedAt": 2000,
+            "utterances": 0,
+            "concluded": false,
+            "state": "draft"
+          },
+          {
+            "discussionNo": 4,
+            "sessionId": "sim-sess-1",
+            "title": "仮想ユーザ補填テーマ",
+            "theme": "仮想ユーザ補填テーマ",
+            "flow": "discussion",
+            "status": "draft",
+            "discussionType": "discussion",
+            "originUi": "ai",
+            "createdAt": 1004,
+            "updatedAt": 2000,
+            "utterances": 0,
+            "concluded": false,
+            "state": "draft"
+          },
+          {
+            "discussionNo": 3,
+            "sessionId": "draft-sess-1",
+            "title": "下書き議題",
+            "theme": "下書き議題",
+            "flow": "discussion",
+            "status": "draft",
+            "discussionType": "discussion",
+            "originUi": "ai",
+            "createdAt": 1003,
+            "updatedAt": 2000,
+            "utterances": 0,
+            "concluded": false,
+            "state": "draft"
+          }
+        ]
+      },
+      "calls": [],
+      "voiceCalls": []
+    },
+    {
+      "req": {
+        "method": "GET",
+        "url": "/api/flow/sessions?state=live&scope=ai"
+      },
+      "status": 200,
+      "body": {
+        "ok": true,
+        "total": 2,
+        "limit": 100,
+        "offset": 0,
+        "scope": "ai",
+        "hasMore": false,
+        "sessions": [
+          {
+            "discussionNo": 6,
+            "sessionId": "mark-sess-1",
+            "title": "マーク議題",
+            "theme": "マーク議題",
+            "flow": "discussion",
+            "status": "started",
+            "discussionType": "discussion",
+            "originUi": "ai",
+            "createdAt": 1006,
+            "updatedAt": 2000,
+            "utterances": 3,
+            "concluded": false,
+            "state": "live"
+          },
+          {
+            "discussionNo": 1,
+            "sessionId": "list-sess-1",
+            "title": "一覧テスト議題",
+            "theme": "一覧テスト議題",
+            "flow": "discussion",
+            "status": "started",
+            "discussionType": "discussion",
+            "originUi": "ai",
+            "createdAt": 1001,
+            "updatedAt": 2000,
+            "utterances": 0,
+            "concluded": false,
+            "state": "live"
+          }
+        ]
+      },
+      "calls": [],
+      "voiceCalls": []
+    },
+    {
+      "req": {
+        "method": "GET",
+        "url": "/api/flow/sessions?state=concluded"
+      },
+      "status": 200,
+      "body": {
+        "ok": true,
+        "total": 1,
+        "limit": 100,
+        "offset": 0,
+        "scope": "all",
+        "hasMore": false,
+        "sessions": [
+          {
+            "discussionNo": 2,
+            "sessionId": "done-sess-1",
+            "title": "収束時のタイトル",
+            "theme": "収束前の議題",
+            "flow": "discussion",
+            "status": "started",
+            "discussionType": "discussion",
+            "originUi": "ai",
+            "createdAt": 1002,
+            "updatedAt": 2000,
+            "utterances": 0,
+            "concluded": true,
+            "state": "concluded"
+          }
+        ]
+      },
+      "calls": [],
+      "voiceCalls": []
+    },
+    {
+      "req": {
+        "method": "GET",
+        "url": "/api/flow/sessions?scope=chat"
+      },
+      "status": 200,
+      "body": {
+        "ok": true,
+        "total": 0,
+        "limit": 100,
+        "offset": 0,
+        "scope": "chat",
+        "hasMore": false,
+        "sessions": []
+      },
+      "calls": [],
+      "voiceCalls": []
+    },
+    {
+      "req": {
+        "method": "GET",
+        "url": "/api/flow/sessions?limit=1&offset=0"
+      },
+      "status": 200,
+      "body": {
+        "ok": true,
+        "total": 6,
+        "limit": 1,
+        "offset": 0,
+        "scope": "all",
+        "hasMore": true,
+        "sessions": [
+          {
+            "discussionNo": 6,
+            "sessionId": "mark-sess-1",
+            "title": "マーク議題",
+            "theme": "マーク議題",
+            "flow": "discussion",
+            "status": "started",
+            "discussionType": "discussion",
+            "originUi": "ai",
+            "createdAt": 1006,
+            "updatedAt": 2000,
+            "utterances": 3,
+            "concluded": false,
+            "state": "live"
+          }
+        ]
+      },
+      "calls": [],
+      "voiceCalls": []
+    },
+    {
+      "req": {
+        "method": "GET",
+        "url": "/api/flow/sessions?limit=1&offset=1"
+      },
+      "status": 200,
+      "body": {
+        "ok": true,
+        "total": 6,
+        "limit": 1,
+        "offset": 1,
+        "scope": "all",
+        "hasMore": true,
+        "sessions": [
+          {
+            "discussionNo": 5,
+            "sessionId": "conf-sess-1",
+            "title": "機密の議題",
+            "theme": "機密の議題",
+            "flow": "improvement",
+            "status": "draft",
+            "discussionType": "improvement",
+            "originUi": "ai",
+            "createdAt": 1005,
+            "updatedAt": 2000,
+            "utterances": 0,
+            "concluded": false,
+            "state": "draft"
+          }
+        ]
+      },
+      "calls": [],
+      "voiceCalls": []
+    },
+    {
+      "req": {
+        "method": "GET",
+        "url": "/api/flow/sessions?limit=0&offset=-5&state=bogus"
+      },
+      "status": 200,
+      "body": {
+        "ok": true,
+        "total": 6,
+        "limit": 1,
+        "offset": 0,
+        "scope": "all",
+        "hasMore": true,
+        "sessions": [
+          {
+            "discussionNo": 6,
+            "sessionId": "mark-sess-1",
+            "title": "マーク議題",
+            "theme": "マーク議題",
+            "flow": "discussion",
+            "status": "started",
+            "discussionType": "discussion",
+            "originUi": "ai",
+            "createdAt": 1006,
+            "updatedAt": 2000,
+            "utterances": 3,
+            "concluded": false,
+            "state": "live"
+          }
+        ]
+      },
+      "calls": [],
+      "voiceCalls": []
+    },
+    {
+      "req": {
+        "method": "GET",
+        "url": "/api/flow/sessions?limit=999&offset=abc"
+      },
+      "status": 200,
+      "body": {
+        "ok": true,
+        "total": 6,
+        "limit": 200,
+        "offset": 0,
+        "scope": "all",
+        "hasMore": false,
+        "sessions": [
+          {
+            "discussionNo": 6,
+            "sessionId": "mark-sess-1",
+            "title": "マーク議題",
+            "theme": "マーク議題",
+            "flow": "discussion",
+            "status": "started",
+            "discussionType": "discussion",
+            "originUi": "ai",
+            "createdAt": 1006,
+            "updatedAt": 2000,
+            "utterances": 3,
+            "concluded": false,
+            "state": "live"
+          },
+          {
+            "discussionNo": 5,
+            "sessionId": "conf-sess-1",
+            "title": "機密の議題",
+            "theme": "機密の議題",
+            "flow": "improvement",
+            "status": "draft",
+            "discussionType": "improvement",
+            "originUi": "ai",
+            "createdAt": 1005,
+            "updatedAt": 2000,
+            "utterances": 0,
+            "concluded": false,
+            "state": "draft"
+          },
+          {
+            "discussionNo": 4,
+            "sessionId": "sim-sess-1",
+            "title": "仮想ユーザ補填テーマ",
+            "theme": "仮想ユーザ補填テーマ",
+            "flow": "discussion",
+            "status": "draft",
+            "discussionType": "discussion",
+            "originUi": "ai",
+            "createdAt": 1004,
+            "updatedAt": 2000,
+            "utterances": 0,
+            "concluded": false,
+            "state": "draft"
+          },
+          {
+            "discussionNo": 3,
+            "sessionId": "draft-sess-1",
+            "title": "下書き議題",
+            "theme": "下書き議題",
+            "flow": "discussion",
+            "status": "draft",
+            "discussionType": "discussion",
+            "originUi": "ai",
+            "createdAt": 1003,
+            "updatedAt": 2000,
+            "utterances": 0,
+            "concluded": false,
+            "state": "draft"
+          },
+          {
+            "discussionNo": 2,
+            "sessionId": "done-sess-1",
+            "title": "収束時のタイトル",
+            "theme": "収束前の議題",
+            "flow": "discussion",
+            "status": "started",
+            "discussionType": "discussion",
+            "originUi": "ai",
+            "createdAt": 1002,
+            "updatedAt": 2000,
+            "utterances": 0,
+            "concluded": true,
+            "state": "concluded"
+          },
+          {
+            "discussionNo": 1,
+            "sessionId": "list-sess-1",
+            "title": "一覧テスト議題",
+            "theme": "一覧テスト議題",
+            "flow": "discussion",
+            "status": "started",
+            "discussionType": "discussion",
+            "originUi": "ai",
+            "createdAt": 1001,
+            "updatedAt": 2000,
+            "utterances": 0,
+            "concluded": false,
+            "state": "live"
+          }
+        ]
+      },
+      "calls": [],
+      "voiceCalls": []
+    },
+    {
+      "req": {
+        "method": "GET",
+        "url": "/api/flow/sessions?limit=2.9x&offset=+1"
+      },
+      "status": 200,
+      "body": {
+        "ok": true,
+        "total": 6,
+        "limit": 2,
+        "offset": 1,
+        "scope": "all",
+        "hasMore": true,
+        "sessions": [
+          {
+            "discussionNo": 5,
+            "sessionId": "conf-sess-1",
+            "title": "機密の議題",
+            "theme": "機密の議題",
+            "flow": "improvement",
+            "status": "draft",
+            "discussionType": "improvement",
+            "originUi": "ai",
+            "createdAt": 1005,
+            "updatedAt": 2000,
+            "utterances": 0,
+            "concluded": false,
+            "state": "draft"
+          },
+          {
+            "discussionNo": 4,
+            "sessionId": "sim-sess-1",
+            "title": "仮想ユーザ補填テーマ",
+            "theme": "仮想ユーザ補填テーマ",
+            "flow": "discussion",
+            "status": "draft",
+            "discussionType": "discussion",
+            "originUi": "ai",
+            "createdAt": 1004,
+            "updatedAt": 2000,
+            "utterances": 0,
+            "concluded": false,
+            "state": "draft"
+          }
+        ]
+      },
+      "calls": [],
+      "voiceCalls": []
+    },
+    {
+      "req": {
+        "method": "POST",
+        "url": "/api/flow/draft-sess-1/paper/form/apply",
+        "body": {
+          "discussionTheme": "x"
+        }
+      },
+      "status": 409,
+      "body": {
+        "ok": false,
+        "error": "編集準備中です"
+      },
+      "calls": [],
+      "voiceCalls": []
+    },
+    {
+      "req": {
+        "method": "GET",
+        "url": "/api/flow/draft-sess-1/paper"
+      },
+      "status": 200,
+      "body": {
+        "ok": true,
+        "ready": true,
+        "started": false,
+        "missing": false,
+        "error": null,
+        "discussionNo": 3,
+        "flow": "discussion",
+        "paper": {
+          "theme": "下書き議題",
+          "tags": [
+            "運用"
+          ],
+          "supplement": "",
+          "mechanics": [
+            {
+              "name": "周回",
+              "description": "繰り返し遊ぶ",
+              "source": "curated"
+            }
+          ],
+          "gameTitle": "下書きゲーム",
+          "discussionTheme": "下書き議題",
+          "discussionContent": "周回の報酬を見直したい。",
+          "mechanicsContext": "",
+          "themeSupplement": "",
+          "bodyMd": "# ゲームタイトル（または主目的）\n下書きゲーム\n\n# 議論したいテーマ\n下書き議題\n\n# 議論内容\n周回の報酬を見直したい。\n\n# システム/メカニクスの説明\n## 抽出されたメカニクス\n- **周回**: 繰り返し遊ぶ （出所: curated）\n\n# テーマについての補足情報\n"
+        },
+        "info": {
+          "voiceCount": 0,
+          "countCapped": false,
+          "samples": [],
+          "fixSuggestions": [
+            {
+              "title": "論点補強",
+              "reason": "対立軸が弱い",
+              "suggestedChange": "{{具体例}} をもとに、賛成側と反対側の争点を追記する。"
+            },
+            {
+              "title": "  ",
+              "reason": "r",
+              "suggestedChange": "二つ目の提案"
+            }
+          ],
+          "voiceSimulation": {
+            "possible": true,
+            "confidence": "low",
+            "summary": "実ユーザの声は不足していますが、メカニクス文脈をもとに粗い仮想ユーザ反応は生成できます。",
+            "caveat": "LLM生成のユーザの声は実ユーザの代替ではなく、仮説として扱ってください。",
+            "nextAction": "議論開始前に、生成結果を仮説として扱うか、参考情報の取得で実ユーザの声を補ってください。"
+          }
+        },
+        "fixedFields": {
+          "gameTitle": "下書きゲーム",
+          "discussionTheme": "下書き議題",
+          "discussionContent": "周回の報酬を見直したい。",
+          "mechanicsContext": "",
+          "themeSupplement": ""
+        },
+        "settings": {
+          "rounds": null,
+          "turnsPerRound": null
+        },
+        "blocks": [
+          {
+            "id": "b0",
+            "type": "heading",
+            "text": "# ゲームタイトル（または主目的）"
+          },
+          {
+            "id": "b1",
+            "type": "paragraph",
+            "text": "下書きゲーム"
+          },
+          {
+            "id": "b2",
+            "type": "heading",
+            "text": "# 議論したいテーマ"
+          },
+          {
+            "id": "b3",
+            "type": "paragraph",
+            "text": "下書き議題"
+          },
+          {
+            "id": "b4",
+            "type": "heading",
+            "text": "# 議論内容"
+          },
+          {
+            "id": "b5",
+            "type": "paragraph",
+            "text": "周回の報酬を見直したい。"
+          },
+          {
+            "id": "b6",
+            "type": "heading",
+            "text": "# システム/メカニクスの説明"
+          },
+          {
+            "id": "b7",
+            "type": "heading",
+            "text": "## 抽出されたメカニクス"
+          },
+          {
+            "id": "b8",
+            "type": "list",
+            "text": "- **周回**: 繰り返し遊ぶ （出所: curated）"
+          },
+          {
+            "id": "b9",
+            "type": "heading",
+            "text": "# テーマについての補足情報"
+          }
+        ],
+        "canRevert": false,
+        "rev": 0
+      },
+      "calls": [],
+      "voiceCalls": []
+    },
+    {
+      "req": {
+        "method": "GET",
+        "url": "/api/flow/list-sess-1/paper"
+      },
+      "status": 200,
+      "body": {
+        "ok": true,
+        "ready": false,
+        "started": true,
+        "status": "started",
+        "error": null,
+        "info": null,
+        "paper": null,
+        "blocks": [],
+        "paperMd": "# 議題\n一覧テスト議題"
+      },
+      "calls": [],
+      "voiceCalls": []
+    },
+    {
+      "req": {
+        "method": "GET",
+        "url": "/api/flow/nope-sess/paper"
+      },
+      "status": 200,
+      "body": {
+        "ok": true,
+        "ready": false,
+        "missing": true,
+        "error": null,
+        "info": null,
+        "paper": null,
+        "blocks": []
+      },
+      "calls": [],
+      "voiceCalls": []
+    },
+    {
+      "req": {
+        "method": "GET",
+        "url": "/api/flow/sim-sess-1/paper"
+      },
+      "status": 200,
+      "body": {
+        "ok": true,
+        "ready": true,
+        "started": false,
+        "missing": false,
+        "error": null,
+        "discussionNo": 4,
+        "flow": "discussion",
+        "paper": {
+          "theme": "仮想ユーザ補填テーマ",
+          "tags": [],
+          "supplement": "",
+          "mechanics": [
+            {
+              "name": "周回",
+              "description": "報酬獲得と強化を繰り返す",
+              "source": "curated"
+            }
+          ],
+          "gameTitle": "Test Game",
+          "discussionTheme": "仮想ユーザ補填テーマ",
+          "discussionContent": "既存の実ユーザ声は肯定に偏っている。",
+          "mechanicsContext": "基本ループはステージ周回、報酬獲得、強化、再挑戦で構成される。失敗時の損失、報酬密度、待ち時間、課金圧がユーザ反応を左右する。",
+          "themeSupplement": "",
+          "bodyMd": "# ゲームタイトル（または主目的）\nTest Game\n\n# 議論したいテーマ\n仮想ユーザ補填テーマ\n\n# 議論内容\n既存の実ユーザ声は肯定に偏っている。\n\n# システム/メカニクスの説明\n基本ループはステージ周回、報酬獲得、強化、再挑戦で構成される。失敗時の損失、報酬密度、待ち時間、課金圧がユーザ反応を左右する。\n\n## 抽出されたメカニクス\n- **周回**: 報酬獲得と強化を繰り返す （出所: curated）\n\n# テーマについての補足情報\n"
+        },
+        "info": {
+          "voiceCount": 50,
+          "countCapped": true,
+          "samples": [],
+          "debatability": {
+            "issues": [
+              "争点A",
+              "争点B",
+              "争点C"
+            ],
+            "armability": [
+              {
+                "issue": "争点A",
+                "armable": "pro-only"
+              },
+              {
+                "issue": "争点B",
+                "armable": "pro-only"
+              },
+              {
+                "issue": "争点C",
+                "armable": "neither"
+              }
+            ],
+            "armableBothCount": 0,
+            "minArmableIssues": 2,
+            "evidence": {
+              "voiceCount": 50,
+              "positive": 50,
+              "negative": 0,
+              "neutral": 0,
+              "polaritySkew": 1,
+              "dominantSource": {
+                "name": "learning",
+                "share": 1
+              }
+            },
+            "debatable": false,
+            "degraded": false,
+            "recommendation": {
+              "flow": "learning",
+              "reason": "材料不足"
+            },
+            "message": "議論適性: 低"
+          },
+          "voiceSimulation": {
+            "possible": true,
+            "confidence": "high",
+            "summary": "外部のユーザの声を種に、LLMで不足セグメントの反応を補助シミュレーションできます。",
+            "caveat": "LLM生成のユーザの声は実ユーザの代替ではなく、仮説として扱ってください。",
+            "nextAction": "生成した声は仮説ラベルを付け、実ユーザの声と分けて議論材料にしてください。"
+          }
+        },
+        "fixedFields": {
+          "gameTitle": "Test Game",
+          "discussionTheme": "仮想ユーザ補填テーマ",
+          "discussionContent": "既存の実ユーザ声は肯定に偏っている。",
+          "mechanicsContext": "基本ループはステージ周回、報酬獲得、強化、再挑戦で構成される。失敗時の損失、報酬密度、待ち時間、課金圧がユーザ反応を左右する。",
+          "themeSupplement": ""
+        },
+        "settings": {
+          "rounds": null,
+          "turnsPerRound": null
+        },
+        "blocks": [
+          {
+            "id": "b0",
+            "type": "heading",
+            "text": "# ゲームタイトル（または主目的）"
+          },
+          {
+            "id": "b1",
+            "type": "paragraph",
+            "text": "Test Game"
+          },
+          {
+            "id": "b2",
+            "type": "heading",
+            "text": "# 議論したいテーマ"
+          },
+          {
+            "id": "b3",
+            "type": "paragraph",
+            "text": "仮想ユーザ補填テーマ"
+          },
+          {
+            "id": "b4",
+            "type": "heading",
+            "text": "# 議論内容"
+          },
+          {
+            "id": "b5",
+            "type": "paragraph",
+            "text": "既存の実ユーザ声は肯定に偏っている。"
+          },
+          {
+            "id": "b6",
+            "type": "heading",
+            "text": "# システム/メカニクスの説明"
+          },
+          {
+            "id": "b7",
+            "type": "paragraph",
+            "text": "基本ループはステージ周回、報酬獲得、強化、再挑戦で構成される。失敗時の損失、報酬密度、待ち時間、課金圧がユーザ反応を左右する。"
+          },
+          {
+            "id": "b8",
+            "type": "heading",
+            "text": "## 抽出されたメカニクス"
+          },
+          {
+            "id": "b9",
+            "type": "list",
+            "text": "- **周回**: 報酬獲得と強化を繰り返す （出所: curated）"
+          },
+          {
+            "id": "b10",
+            "type": "heading",
+            "text": "# テーマについての補足情報"
+          }
+        ],
+        "canRevert": false,
+        "rev": 0
+      },
+      "calls": [],
+      "voiceCalls": []
+    },
+    {
+      "req": {
+        "method": "POST",
+        "url": "/api/flow/draft-sess-1/paper/fix-suggestion/apply",
+        "body": {
+          "suggestionIndex": 5
+        }
+      },
+      "status": 404,
+      "body": {
+        "ok": false,
+        "error": "修正提案が見つかりません"
+      },
+      "calls": [],
+      "voiceCalls": []
+    },
+    {
+      "req": {
+        "method": "POST",
+        "url": "/api/flow/draft-sess-1/paper/fix-suggestion/apply",
+        "body": {
+          "suggestionIndex": "0"
+        }
+      },
+      "status": 404,
+      "body": {
+        "ok": false,
+        "error": "修正提案が見つかりません"
+      },
+      "calls": [],
+      "voiceCalls": []
+    },
+    {
+      "req": {
+        "method": "POST",
+        "url": "/api/flow/draft-sess-1/paper/fix-suggestion/apply",
+        "body": {
+          "suggestionIndex": 1,
+          "text": "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"
+        }
+      },
+      "status": 400,
+      "body": {
+        "ok": false,
+        "error": "追記内容が長すぎます"
+      },
+      "calls": [],
+      "voiceCalls": []
+    },
+    {
+      "req": {
+        "method": "POST",
+        "url": "/api/flow/draft-sess-1/paper/fix-suggestion/apply",
+        "body": {
+          "suggestionIndex": 0,
+          "text": "周回報酬の緩和案をもとに、賛成側と反対側の争点を追記する。"
+        }
+      },
+      "status": 200,
+      "body": {
+        "ok": true,
+        "discussionNo": 3,
+        "flow": "discussion",
+        "paper": {
+          "theme": "下書き議題",
+          "tags": [
+            "運用"
+          ],
+          "supplement": "",
+          "mechanics": [
+            {
+              "name": "周回",
+              "description": "繰り返し遊ぶ",
+              "source": "curated"
+            }
+          ],
+          "gameTitle": "下書きゲーム",
+          "discussionTheme": "下書き議題",
+          "discussionContent": "周回の報酬を見直したい。\n\n## 修正追記: 論点補強\n周回報酬の緩和案をもとに、賛成側と反対側の争点を追記する。",
+          "mechanicsContext": "",
+          "themeSupplement": "",
+          "bodyMd": "# ゲームタイトル（または主目的）\n下書きゲーム\n\n# 議論したいテーマ\n下書き議題\n\n# 議論内容\n周回の報酬を見直したい。\n\n## 修正追記: 論点補強\n周回報酬の緩和案をもとに、賛成側と反対側の争点を追記する。\n\n# システム/メカニクスの説明\n## 抽出されたメカニクス\n- **周回**: 繰り返し遊ぶ （出所: curated）\n\n# テーマについての補足情報\n"
+        },
+        "info": {
+          "voiceCount": 0,
+          "countCapped": false,
+          "samples": [],
+          "fixSuggestions": [
+            {
+              "title": "論点補強",
+              "reason": "対立軸が弱い",
+              "suggestedChange": "{{具体例}} をもとに、賛成側と反対側の争点を追記する。",
+              "appliedAt": 1793694849471,
+              "appliedText": "周回報酬の緩和案をもとに、賛成側と反対側の争点を追記する。"
+            },
+            {
+              "title": "  ",
+              "reason": "r",
+              "suggestedChange": "二つ目の提案"
+            }
+          ],
+          "voiceSimulation": {
+            "possible": true,
+            "confidence": "low",
+            "summary": "実ユーザの声は不足していますが、メカニクス文脈をもとに粗い仮想ユーザ反応は生成できます。",
+            "caveat": "LLM生成のユーザの声は実ユーザの代替ではなく、仮説として扱ってください。",
+            "nextAction": "議論開始前に、生成結果を仮説として扱うか、参考情報の取得で実ユーザの声を補ってください。"
+          }
+        },
+        "fixedFields": {
+          "gameTitle": "下書きゲーム",
+          "discussionTheme": "下書き議題",
+          "discussionContent": "周回の報酬を見直したい。\n\n## 修正追記: 論点補強\n周回報酬の緩和案をもとに、賛成側と反対側の争点を追記する。",
+          "mechanicsContext": "",
+          "themeSupplement": ""
+        },
+        "settings": {
+          "rounds": null,
+          "turnsPerRound": null
+        },
+        "blocks": [
+          {
+            "id": "b0",
+            "type": "heading",
+            "text": "# ゲームタイトル（または主目的）"
+          },
+          {
+            "id": "b1",
+            "type": "paragraph",
+            "text": "下書きゲーム"
+          },
+          {
+            "id": "b2",
+            "type": "heading",
+            "text": "# 議論したいテーマ"
+          },
+          {
+            "id": "b3",
+            "type": "paragraph",
+            "text": "下書き議題"
+          },
+          {
+            "id": "b4",
+            "type": "heading",
+            "text": "# 議論内容"
+          },
+          {
+            "id": "b5",
+            "type": "paragraph",
+            "text": "周回の報酬を見直したい。"
+          },
+          {
+            "id": "b6",
+            "type": "heading",
+            "text": "## 修正追記: 論点補強"
+          },
+          {
+            "id": "b7",
+            "type": "paragraph",
+            "text": "周回報酬の緩和案をもとに、賛成側と反対側の争点を追記する。"
+          },
+          {
+            "id": "b8",
+            "type": "heading",
+            "text": "# システム/メカニクスの説明"
+          },
+          {
+            "id": "b9",
+            "type": "heading",
+            "text": "## 抽出されたメカニクス"
+          },
+          {
+            "id": "b10",
+            "type": "list",
+            "text": "- **周回**: 繰り返し遊ぶ （出所: curated）"
+          },
+          {
+            "id": "b11",
+            "type": "heading",
+            "text": "# テーマについての補足情報"
+          }
+        ],
+        "canRevert": false,
+        "rev": 1
+      },
+      "calls": [],
+      "voiceCalls": []
+    },
+    {
+      "req": {
+        "method": "POST",
+        "url": "/api/flow/draft-sess-1/paper/fix-suggestion/apply",
+        "body": {
+          "suggestionIndex": 0
+        }
+      },
+      "status": 409,
+      "body": {
+        "ok": false,
+        "error": "この修正提案は反映済みです"
+      },
+      "calls": [],
+      "voiceCalls": []
+    },
+    {
+      "req": {
+        "method": "POST",
+        "url": "/api/flow/draft-sess-1/paper/fix-suggestion/apply",
+        "body": {
+          "suggestionIndex": 1
+        }
+      },
+      "status": 200,
+      "body": {
+        "ok": true,
+        "discussionNo": 3,
+        "flow": "discussion",
+        "paper": {
+          "theme": "下書き議題",
+          "tags": [
+            "運用"
+          ],
+          "supplement": "",
+          "mechanics": [
+            {
+              "name": "周回",
+              "description": "繰り返し遊ぶ",
+              "source": "curated"
+            }
+          ],
+          "gameTitle": "下書きゲーム",
+          "discussionTheme": "下書き議題",
+          "discussionContent": "周回の報酬を見直したい。\n\n## 修正追記: 論点補強\n周回報酬の緩和案をもとに、賛成側と反対側の争点を追記する。\n\n## 修正追記: 修正提案\n二つ目の提案",
+          "mechanicsContext": "",
+          "themeSupplement": "",
+          "bodyMd": "# ゲームタイトル（または主目的）\n下書きゲーム\n\n# 議論したいテーマ\n下書き議題\n\n# 議論内容\n周回の報酬を見直したい。\n\n## 修正追記: 論点補強\n周回報酬の緩和案をもとに、賛成側と反対側の争点を追記する。\n\n## 修正追記: 修正提案\n二つ目の提案\n\n# システム/メカニクスの説明\n## 抽出されたメカニクス\n- **周回**: 繰り返し遊ぶ （出所: curated）\n\n# テーマについての補足情報\n"
+        },
+        "info": {
+          "voiceCount": 0,
+          "countCapped": false,
+          "samples": [],
+          "fixSuggestions": [
+            {
+              "title": "論点補強",
+              "reason": "対立軸が弱い",
+              "suggestedChange": "{{具体例}} をもとに、賛成側と反対側の争点を追記する。",
+              "appliedAt": 1793694849471,
+              "appliedText": "周回報酬の緩和案をもとに、賛成側と反対側の争点を追記する。"
+            },
+            {
+              "title": "  ",
+              "reason": "r",
+              "suggestedChange": "二つ目の提案",
+              "appliedAt": 1793694849474,
+              "appliedText": "二つ目の提案"
+            }
+          ],
+          "voiceSimulation": {
+            "possible": true,
+            "confidence": "low",
+            "summary": "実ユーザの声は不足していますが、メカニクス文脈をもとに粗い仮想ユーザ反応は生成できます。",
+            "caveat": "LLM生成のユーザの声は実ユーザの代替ではなく、仮説として扱ってください。",
+            "nextAction": "議論開始前に、生成結果を仮説として扱うか、参考情報の取得で実ユーザの声を補ってください。"
+          }
+        },
+        "fixedFields": {
+          "gameTitle": "下書きゲーム",
+          "discussionTheme": "下書き議題",
+          "discussionContent": "周回の報酬を見直したい。\n\n## 修正追記: 論点補強\n周回報酬の緩和案をもとに、賛成側と反対側の争点を追記する。\n\n## 修正追記: 修正提案\n二つ目の提案",
+          "mechanicsContext": "",
+          "themeSupplement": ""
+        },
+        "settings": {
+          "rounds": null,
+          "turnsPerRound": null
+        },
+        "blocks": [
+          {
+            "id": "b0",
+            "type": "heading",
+            "text": "# ゲームタイトル（または主目的）"
+          },
+          {
+            "id": "b1",
+            "type": "paragraph",
+            "text": "下書きゲーム"
+          },
+          {
+            "id": "b2",
+            "type": "heading",
+            "text": "# 議論したいテーマ"
+          },
+          {
+            "id": "b3",
+            "type": "paragraph",
+            "text": "下書き議題"
+          },
+          {
+            "id": "b4",
+            "type": "heading",
+            "text": "# 議論内容"
+          },
+          {
+            "id": "b5",
+            "type": "paragraph",
+            "text": "周回の報酬を見直したい。"
+          },
+          {
+            "id": "b6",
+            "type": "heading",
+            "text": "## 修正追記: 論点補強"
+          },
+          {
+            "id": "b7",
+            "type": "paragraph",
+            "text": "周回報酬の緩和案をもとに、賛成側と反対側の争点を追記する。"
+          },
+          {
+            "id": "b8",
+            "type": "heading",
+            "text": "## 修正追記: 修正提案"
+          },
+          {
+            "id": "b9",
+            "type": "paragraph",
+            "text": "二つ目の提案"
+          },
+          {
+            "id": "b10",
+            "type": "heading",
+            "text": "# システム/メカニクスの説明"
+          },
+          {
+            "id": "b11",
+            "type": "heading",
+            "text": "## 抽出されたメカニクス"
+          },
+          {
+            "id": "b12",
+            "type": "list",
+            "text": "- **周回**: 繰り返し遊ぶ （出所: curated）"
+          },
+          {
+            "id": "b13",
+            "type": "heading",
+            "text": "# テーマについての補足情報"
+          }
+        ],
+        "canRevert": true,
+        "rev": 2
+      },
+      "calls": [],
+      "voiceCalls": []
+    },
+    {
+      "req": {
+        "method": "POST",
+        "url": "/api/flow/draft-sess-1/paper/form/apply",
+        "body": {
+          "gameTitle": "",
+          "discussionTheme": "新テーマ"
+        }
+      },
+      "status": 200,
+      "body": {
+        "ok": true,
+        "discussionNo": 3,
+        "flow": "discussion",
+        "paper": {
+          "theme": "新テーマ",
+          "tags": [
+            "運用"
+          ],
+          "supplement": "",
+          "mechanics": [
+            {
+              "name": "周回",
+              "description": "繰り返し遊ぶ",
+              "source": "curated"
+            }
+          ],
+          "gameTitle": "下書きゲーム",
+          "discussionTheme": "新テーマ",
+          "discussionContent": "周回の報酬を見直したい。\n\n## 修正追記: 論点補強\n周回報酬の緩和案をもとに、賛成側と反対側の争点を追記する。\n\n## 修正追記: 修正提案\n二つ目の提案",
+          "mechanicsContext": "",
+          "themeSupplement": "",
+          "bodyMd": "# ゲームタイトル（または主目的）\n\n\n# 議論したいテーマ\n新テーマ\n\n# 議論内容\n周回の報酬を見直したい。\n\n## 修正追記: 論点補強\n周回報酬の緩和案をもとに、賛成側と反対側の争点を追記する。\n\n## 修正追記: 修正提案\n二つ目の提案\n\n# システム/メカニクスの説明\n## 抽出されたメカニクス\n- **周回**: 繰り返し遊ぶ （出所: curated）\n\n# テーマについての補足情報\n"
+        },
+        "info": {
+          "voiceCount": 0,
+          "countCapped": false,
+          "samples": [],
+          "fixSuggestions": [
+            {
+              "title": "論点補強",
+              "reason": "対立軸が弱い",
+              "suggestedChange": "{{具体例}} をもとに、賛成側と反対側の争点を追記する。",
+              "appliedAt": 1793694849471,
+              "appliedText": "周回報酬の緩和案をもとに、賛成側と反対側の争点を追記する。"
+            },
+            {
+              "title": "  ",
+              "reason": "r",
+              "suggestedChange": "二つ目の提案",
+              "appliedAt": 1793694849474,
+              "appliedText": "二つ目の提案"
+            }
+          ],
+          "voiceSimulation": {
+            "possible": true,
+            "confidence": "low",
+            "summary": "実ユーザの声は不足していますが、メカニクス文脈をもとに粗い仮想ユーザ反応は生成できます。",
+            "caveat": "LLM生成のユーザの声は実ユーザの代替ではなく、仮説として扱ってください。",
+            "nextAction": "議論開始前に、生成結果を仮説として扱うか、参考情報の取得で実ユーザの声を補ってください。"
+          }
+        },
+        "fixedFields": {
+          "gameTitle": "下書きゲーム",
+          "discussionTheme": "新テーマ",
+          "discussionContent": "周回の報酬を見直したい。\n\n## 修正追記: 論点補強\n周回報酬の緩和案をもとに、賛成側と反対側の争点を追記する。\n\n## 修正追記: 修正提案\n二つ目の提案",
+          "mechanicsContext": "",
+          "themeSupplement": ""
+        },
+        "settings": {
+          "rounds": null,
+          "turnsPerRound": null
+        },
+        "blocks": [
+          {
+            "id": "b0",
+            "type": "heading",
+            "text": "# ゲームタイトル（または主目的）"
+          },
+          {
+            "id": "b1",
+            "type": "heading",
+            "text": "# 議論したいテーマ"
+          },
+          {
+            "id": "b2",
+            "type": "paragraph",
+            "text": "新テーマ"
+          },
+          {
+            "id": "b3",
+            "type": "heading",
+            "text": "# 議論内容"
+          },
+          {
+            "id": "b4",
+            "type": "paragraph",
+            "text": "周回の報酬を見直したい。"
+          },
+          {
+            "id": "b5",
+            "type": "heading",
+            "text": "## 修正追記: 論点補強"
+          },
+          {
+            "id": "b6",
+            "type": "paragraph",
+            "text": "周回報酬の緩和案をもとに、賛成側と反対側の争点を追記する。"
+          },
+          {
+            "id": "b7",
+            "type": "heading",
+            "text": "## 修正追記: 修正提案"
+          },
+          {
+            "id": "b8",
+            "type": "paragraph",
+            "text": "二つ目の提案"
+          },
+          {
+            "id": "b9",
+            "type": "heading",
+            "text": "# システム/メカニクスの説明"
+          },
+          {
+            "id": "b10",
+            "type": "heading",
+            "text": "## 抽出されたメカニクス"
+          },
+          {
+            "id": "b11",
+            "type": "list",
+            "text": "- **周回**: 繰り返し遊ぶ （出所: curated）"
+          },
+          {
+            "id": "b12",
+            "type": "heading",
+            "text": "# テーマについての補足情報"
+          }
+        ],
+        "canRevert": true,
+        "rev": 3
+      },
+      "calls": [],
+      "voiceCalls": []
+    },
+    {
+      "req": {
+        "method": "POST",
+        "url": "/api/flow/draft-sess-1/paper/form/apply",
+        "body": {
+          "gameTitle": " 新ゲーム ",
+          "discussionTheme": " 新テーマ ",
+          "themeSupplement": "補足",
+          "tags": [
+            "機密",
+            "bogus",
+            "運用",
+            "機密",
+            3
+          ],
+          "rounds": "4",
+          "turnsPerRound": 99,
+          "issues": "1. 論点一\r\n- 論点二\n\n*  論点三\n12)論点四\n  "
+        }
+      },
+      "status": 200,
+      "body": {
+        "ok": true,
+        "discussionNo": 3,
+        "flow": "discussion",
+        "paper": {
+          "theme": "新テーマ",
+          "tags": [
+            "運用"
+          ],
+          "supplement": "補足",
+          "mechanics": [
+            {
+              "name": "周回",
+              "description": "繰り返し遊ぶ",
+              "source": "curated"
+            }
+          ],
+          "gameTitle": "新ゲーム",
+          "discussionTheme": "新テーマ",
+          "discussionContent": "周回の報酬を見直したい。\n\n## 修正追記: 論点補強\n周回報酬の緩和案をもとに、賛成側と反対側の争点を追記する。\n\n## 修正追記: 修正提案\n二つ目の提案",
+          "mechanicsContext": "",
+          "themeSupplement": "補足",
+          "issues": [
+            "論点一",
+            "論点二",
+            "論点三",
+            "12)論点四"
+          ],
+          "bodyMd": "# ゲームタイトル（または主目的）\n新ゲーム\n\n# 議論したいテーマ\n新テーマ\n\n# 議論内容\n周回の報酬を見直したい。\n\n## 修正追記: 論点補強\n周回報酬の緩和案をもとに、賛成側と反対側の争点を追記する。\n\n## 修正追記: 修正提案\n二つ目の提案\n\n# 論点\n1. 論点一\n2. 論点二\n3. 論点三\n4. 12)論点四\n\n# システム/メカニクスの説明\n## 抽出されたメカニクス\n- **周回**: 繰り返し遊ぶ （出所: curated）\n\n# テーマについての補足情報\n補足"
+        },
+        "info": {
+          "voiceCount": 0,
+          "countCapped": false,
+          "samples": [],
+          "fixSuggestions": [
+            {
+              "title": "論点補強",
+              "reason": "対立軸が弱い",
+              "suggestedChange": "{{具体例}} をもとに、賛成側と反対側の争点を追記する。",
+              "appliedAt": 1793694849471,
+              "appliedText": "周回報酬の緩和案をもとに、賛成側と反対側の争点を追記する。"
+            },
+            {
+              "title": "  ",
+              "reason": "r",
+              "suggestedChange": "二つ目の提案",
+              "appliedAt": 1793694849474,
+              "appliedText": "二つ目の提案"
+            }
+          ],
+          "voiceSimulation": {
+            "possible": true,
+            "confidence": "low",
+            "summary": "実ユーザの声は不足していますが、メカニクス文脈をもとに粗い仮想ユーザ反応は生成できます。",
+            "caveat": "LLM生成のユーザの声は実ユーザの代替ではなく、仮説として扱ってください。",
+            "nextAction": "議論開始前に、生成結果を仮説として扱うか、参考情報の取得で実ユーザの声を補ってください。"
+          }
+        },
+        "fixedFields": {
+          "gameTitle": "新ゲーム",
+          "discussionTheme": "新テーマ",
+          "discussionContent": "周回の報酬を見直したい。\n\n## 修正追記: 論点補強\n周回報酬の緩和案をもとに、賛成側と反対側の争点を追記する。\n\n## 修正追記: 修正提案\n二つ目の提案",
+          "mechanicsContext": "",
+          "themeSupplement": "補足"
+        },
+        "settings": {
+          "rounds": 4,
+          "turnsPerRound": 20
+        },
+        "blocks": [
+          {
+            "id": "b0",
+            "type": "heading",
+            "text": "# ゲームタイトル（または主目的）"
+          },
+          {
+            "id": "b1",
+            "type": "paragraph",
+            "text": "新ゲーム"
+          },
+          {
+            "id": "b2",
+            "type": "heading",
+            "text": "# 議論したいテーマ"
+          },
+          {
+            "id": "b3",
+            "type": "paragraph",
+            "text": "新テーマ"
+          },
+          {
+            "id": "b4",
+            "type": "heading",
+            "text": "# 議論内容"
+          },
+          {
+            "id": "b5",
+            "type": "paragraph",
+            "text": "周回の報酬を見直したい。"
+          },
+          {
+            "id": "b6",
+            "type": "heading",
+            "text": "## 修正追記: 論点補強"
+          },
+          {
+            "id": "b7",
+            "type": "paragraph",
+            "text": "周回報酬の緩和案をもとに、賛成側と反対側の争点を追記する。"
+          },
+          {
+            "id": "b8",
+            "type": "heading",
+            "text": "## 修正追記: 修正提案"
+          },
+          {
+            "id": "b9",
+            "type": "paragraph",
+            "text": "二つ目の提案"
+          },
+          {
+            "id": "b10",
+            "type": "heading",
+            "text": "# 論点"
+          },
+          {
+            "id": "b11",
+            "type": "list",
+            "text": "1. 論点一\n2. 論点二\n3. 論点三\n4. 12)論点四"
+          },
+          {
+            "id": "b12",
+            "type": "heading",
+            "text": "# システム/メカニクスの説明"
+          },
+          {
+            "id": "b13",
+            "type": "heading",
+            "text": "## 抽出されたメカニクス"
+          },
+          {
+            "id": "b14",
+            "type": "list",
+            "text": "- **周回**: 繰り返し遊ぶ （出所: curated）"
+          },
+          {
+            "id": "b15",
+            "type": "heading",
+            "text": "# テーマについての補足情報"
+          },
+          {
+            "id": "b16",
+            "type": "paragraph",
+            "text": "補足"
+          }
+        ],
+        "canRevert": true,
+        "rev": 4
+      },
+      "calls": [],
+      "voiceCalls": []
+    },
+    {
+      "req": {
+        "method": "POST",
+        "url": "/api/flow/draft-sess-1/paper/form/apply",
+        "body": {
+          "tags": "notarray",
+          "issues": [
+            "  - 配列の論点 ",
+            5,
+            ""
+          ],
+          "rounds": null
+        }
+      },
+      "status": 200,
+      "body": {
+        "ok": true,
+        "discussionNo": 3,
+        "flow": "discussion",
+        "paper": {
+          "theme": "新テーマ",
+          "tags": [
+            "運用"
+          ],
+          "supplement": "補足",
+          "mechanics": [
+            {
+              "name": "周回",
+              "description": "繰り返し遊ぶ",
+              "source": "curated"
+            }
+          ],
+          "gameTitle": "新ゲーム",
+          "discussionTheme": "新テーマ",
+          "discussionContent": "周回の報酬を見直したい。\n\n## 修正追記: 論点補強\n周回報酬の緩和案をもとに、賛成側と反対側の争点を追記する。\n\n## 修正追記: 修正提案\n二つ目の提案",
+          "mechanicsContext": "",
+          "themeSupplement": "補足",
+          "issues": [
+            "- 配列の論点"
+          ],
+          "bodyMd": "# ゲームタイトル（または主目的）\n新ゲーム\n\n# 議論したいテーマ\n新テーマ\n\n# 議論内容\n周回の報酬を見直したい。\n\n## 修正追記: 論点補強\n周回報酬の緩和案をもとに、賛成側と反対側の争点を追記する。\n\n## 修正追記: 修正提案\n二つ目の提案\n\n# 論点\n1. - 配列の論点\n\n# システム/メカニクスの説明\n## 抽出されたメカニクス\n- **周回**: 繰り返し遊ぶ （出所: curated）\n\n# テーマについての補足情報\n補足"
+        },
+        "info": {
+          "voiceCount": 0,
+          "countCapped": false,
+          "samples": [],
+          "fixSuggestions": [
+            {
+              "title": "論点補強",
+              "reason": "対立軸が弱い",
+              "suggestedChange": "{{具体例}} をもとに、賛成側と反対側の争点を追記する。",
+              "appliedAt": 1793694849471,
+              "appliedText": "周回報酬の緩和案をもとに、賛成側と反対側の争点を追記する。"
+            },
+            {
+              "title": "  ",
+              "reason": "r",
+              "suggestedChange": "二つ目の提案",
+              "appliedAt": 1793694849474,
+              "appliedText": "二つ目の提案"
+            }
+          ],
+          "voiceSimulation": {
+            "possible": true,
+            "confidence": "low",
+            "summary": "実ユーザの声は不足していますが、メカニクス文脈をもとに粗い仮想ユーザ反応は生成できます。",
+            "caveat": "LLM生成のユーザの声は実ユーザの代替ではなく、仮説として扱ってください。",
+            "nextAction": "議論開始前に、生成結果を仮説として扱うか、参考情報の取得で実ユーザの声を補ってください。"
+          }
+        },
+        "fixedFields": {
+          "gameTitle": "新ゲーム",
+          "discussionTheme": "新テーマ",
+          "discussionContent": "周回の報酬を見直したい。\n\n## 修正追記: 論点補強\n周回報酬の緩和案をもとに、賛成側と反対側の争点を追記する。\n\n## 修正追記: 修正提案\n二つ目の提案",
+          "mechanicsContext": "",
+          "themeSupplement": "補足"
+        },
+        "settings": {
+          "rounds": null,
+          "turnsPerRound": 20
+        },
+        "blocks": [
+          {
+            "id": "b0",
+            "type": "heading",
+            "text": "# ゲームタイトル（または主目的）"
+          },
+          {
+            "id": "b1",
+            "type": "paragraph",
+            "text": "新ゲーム"
+          },
+          {
+            "id": "b2",
+            "type": "heading",
+            "text": "# 議論したいテーマ"
+          },
+          {
+            "id": "b3",
+            "type": "paragraph",
+            "text": "新テーマ"
+          },
+          {
+            "id": "b4",
+            "type": "heading",
+            "text": "# 議論内容"
+          },
+          {
+            "id": "b5",
+            "type": "paragraph",
+            "text": "周回の報酬を見直したい。"
+          },
+          {
+            "id": "b6",
+            "type": "heading",
+            "text": "## 修正追記: 論点補強"
+          },
+          {
+            "id": "b7",
+            "type": "paragraph",
+            "text": "周回報酬の緩和案をもとに、賛成側と反対側の争点を追記する。"
+          },
+          {
+            "id": "b8",
+            "type": "heading",
+            "text": "## 修正追記: 修正提案"
+          },
+          {
+            "id": "b9",
+            "type": "paragraph",
+            "text": "二つ目の提案"
+          },
+          {
+            "id": "b10",
+            "type": "heading",
+            "text": "# 論点"
+          },
+          {
+            "id": "b11",
+            "type": "list",
+            "text": "1. - 配列の論点"
+          },
+          {
+            "id": "b12",
+            "type": "heading",
+            "text": "# システム/メカニクスの説明"
+          },
+          {
+            "id": "b13",
+            "type": "heading",
+            "text": "## 抽出されたメカニクス"
+          },
+          {
+            "id": "b14",
+            "type": "list",
+            "text": "- **周回**: 繰り返し遊ぶ （出所: curated）"
+          },
+          {
+            "id": "b15",
+            "type": "heading",
+            "text": "# テーマについての補足情報"
+          },
+          {
+            "id": "b16",
+            "type": "paragraph",
+            "text": "補足"
+          }
+        ],
+        "canRevert": true,
+        "rev": 5
+      },
+      "calls": [],
+      "voiceCalls": []
+    },
+    {
+      "req": {
+        "method": "POST",
+        "url": "/api/flow/draft-sess-1/paper/mechanics/check",
+        "body": {}
+      },
+      "status": 200,
+      "body": {
+        "ok": true,
+        "discussionNo": 3,
+        "flow": "discussion",
+        "paper": {
+          "theme": "新テーマ",
+          "tags": [
+            "運用"
+          ],
+          "supplement": "補足",
+          "mechanics": [
+            {
+              "name": "周回",
+              "description": "繰り返し遊ぶ",
+              "source": "curated"
+            }
+          ],
+          "gameTitle": "新ゲーム",
+          "discussionTheme": "新テーマ",
+          "discussionContent": "周回の報酬を見直したい。\n\n## 修正追記: 論点補強\n周回報酬の緩和案をもとに、賛成側と反対側の争点を追記する。\n\n## 修正追記: 修正提案\n二つ目の提案",
+          "mechanicsContext": "",
+          "themeSupplement": "補足",
+          "issues": [
+            "- 配列の論点"
+          ],
+          "bodyMd": "# ゲームタイトル（または主目的）\n新ゲーム\n\n# 議論したいテーマ\n新テーマ\n\n# 議論内容\n周回の報酬を見直したい。\n\n## 修正追記: 論点補強\n周回報酬の緩和案をもとに、賛成側と反対側の争点を追記する。\n\n## 修正追記: 修正提案\n二つ目の提案\n\n# 論点\n1. - 配列の論点\n\n# システム/メカニクスの説明\n## 抽出されたメカニクス\n- **周回**: 繰り返し遊ぶ （出所: curated）\n\n# テーマについての補足情報\n補足"
+        },
+        "info": {
+          "voiceCount": 0,
+          "countCapped": false,
+          "samples": [],
+          "fixSuggestions": [
+            {
+              "title": "論点補強",
+              "reason": "対立軸が弱い",
+              "suggestedChange": "{{具体例}} をもとに、賛成側と反対側の争点を追記する。",
+              "appliedAt": 1793694849471,
+              "appliedText": "周回報酬の緩和案をもとに、賛成側と反対側の争点を追記する。"
+            },
+            {
+              "title": "  ",
+              "reason": "r",
+              "suggestedChange": "二つ目の提案",
+              "appliedAt": 1793694849474,
+              "appliedText": "二つ目の提案"
+            }
+          ],
+          "mechanicsKnowledge": {
+            "ok": false,
+            "confidence": "medium",
+            "summary": "概ね把握",
+            "knownMechanics": [
+              "周回",
+              "強化"
+            ],
+            "missingQuestions": [
+              "報酬量は?"
+            ]
+          },
+          "voiceSimulation": {
+            "possible": true,
+            "confidence": "low",
+            "summary": "実ユーザの声は不足していますが、メカニクス文脈をもとに粗い仮想ユーザ反応は生成できます。",
+            "caveat": "LLM生成のユーザの声は実ユーザの代替ではなく、仮説として扱ってください。",
+            "nextAction": "議論開始前に、生成結果を仮説として扱うか、参考情報の取得で実ユーザの声を補ってください。"
+          }
+        },
+        "fixedFields": {
+          "gameTitle": "新ゲーム",
+          "discussionTheme": "新テーマ",
+          "discussionContent": "周回の報酬を見直したい。\n\n## 修正追記: 論点補強\n周回報酬の緩和案をもとに、賛成側と反対側の争点を追記する。\n\n## 修正追記: 修正提案\n二つ目の提案",
+          "mechanicsContext": "",
+          "themeSupplement": "補足"
+        },
+        "settings": {
+          "rounds": null,
+          "turnsPerRound": 20
+        },
+        "blocks": [
+          {
+            "id": "b0",
+            "type": "heading",
+            "text": "# ゲームタイトル（または主目的）"
+          },
+          {
+            "id": "b1",
+            "type": "paragraph",
+            "text": "新ゲーム"
+          },
+          {
+            "id": "b2",
+            "type": "heading",
+            "text": "# 議論したいテーマ"
+          },
+          {
+            "id": "b3",
+            "type": "paragraph",
+            "text": "新テーマ"
+          },
+          {
+            "id": "b4",
+            "type": "heading",
+            "text": "# 議論内容"
+          },
+          {
+            "id": "b5",
+            "type": "paragraph",
+            "text": "周回の報酬を見直したい。"
+          },
+          {
+            "id": "b6",
+            "type": "heading",
+            "text": "## 修正追記: 論点補強"
+          },
+          {
+            "id": "b7",
+            "type": "paragraph",
+            "text": "周回報酬の緩和案をもとに、賛成側と反対側の争点を追記する。"
+          },
+          {
+            "id": "b8",
+            "type": "heading",
+            "text": "## 修正追記: 修正提案"
+          },
+          {
+            "id": "b9",
+            "type": "paragraph",
+            "text": "二つ目の提案"
+          },
+          {
+            "id": "b10",
+            "type": "heading",
+            "text": "# 論点"
+          },
+          {
+            "id": "b11",
+            "type": "list",
+            "text": "1. - 配列の論点"
+          },
+          {
+            "id": "b12",
+            "type": "heading",
+            "text": "# システム/メカニクスの説明"
+          },
+          {
+            "id": "b13",
+            "type": "heading",
+            "text": "## 抽出されたメカニクス"
+          },
+          {
+            "id": "b14",
+            "type": "list",
+            "text": "- **周回**: 繰り返し遊ぶ （出所: curated）"
+          },
+          {
+            "id": "b15",
+            "type": "heading",
+            "text": "# テーマについての補足情報"
+          },
+          {
+            "id": "b16",
+            "type": "paragraph",
+            "text": "補足"
+          }
+        ],
+        "canRevert": true,
+        "rev": 5
+      },
+      "calls": [
+        {
+          "prompt": "{\n  \"gameTitle\": \"新ゲーム\",\n  \"discussionTheme\": \"新テーマ\",\n  \"providedMechanicsContext\": \"\",\n  \"extractedMechanics\": [\n    {\n      \"name\": \"周回\",\n      \"description\": \"繰り返し遊ぶ\",\n      \"source\": \"curated\"\n    }\n  ],\n  \"expectedShape\": {\n    \"ok\": true,\n    \"confidence\": \"low|medium|high\",\n    \"summary\": \"理解状況の短い説明\",\n    \"knownMechanics\": [\n      \"把握しているメカニクス\"\n    ],\n    \"missingQuestions\": [\n      \"不足している確認事項\"\n    ]\n  }\n}",
+          "system": "You check whether you have enough game mechanics knowledge to support a debate. Return JSON only. Do not invent certainty; mark low confidence when details are missing.",
+          "maxTokens": 1800
+        }
+      ],
+      "voiceCalls": []
+    },
+    {
+      "req": {
+        "method": "POST",
+        "url": "/api/flow/draft-sess-1/paper/form/apply",
+        "body": {
+          "tags": []
+        }
+      },
+      "status": 200,
+      "body": {
+        "ok": true,
+        "discussionNo": 3,
+        "flow": "discussion",
+        "paper": {
+          "theme": "新テーマ",
+          "tags": [
+            "運用"
+          ],
+          "supplement": "補足",
+          "mechanics": [
+            {
+              "name": "周回",
+              "description": "繰り返し遊ぶ",
+              "source": "curated"
+            }
+          ],
+          "gameTitle": "新ゲーム",
+          "discussionTheme": "新テーマ",
+          "discussionContent": "周回の報酬を見直したい。\n\n## 修正追記: 論点補強\n周回報酬の緩和案をもとに、賛成側と反対側の争点を追記する。\n\n## 修正追記: 修正提案\n二つ目の提案",
+          "mechanicsContext": "",
+          "themeSupplement": "補足",
+          "issues": [
+            "- 配列の論点"
+          ],
+          "bodyMd": "# ゲームタイトル（または主目的）\n新ゲーム\n\n# 議論したいテーマ\n新テーマ\n\n# 議論内容\n周回の報酬を見直したい。\n\n## 修正追記: 論点補強\n周回報酬の緩和案をもとに、賛成側と反対側の争点を追記する。\n\n## 修正追記: 修正提案\n二つ目の提案\n\n# 論点\n1. - 配列の論点\n\n# システム/メカニクスの説明\n## 抽出されたメカニクス\n- **周回**: 繰り返し遊ぶ （出所: curated）\n\n# テーマについての補足情報\n補足"
+        },
+        "info": {
+          "voiceCount": 0,
+          "countCapped": false,
+          "samples": [],
+          "fixSuggestions": [
+            {
+              "title": "論点補強",
+              "reason": "対立軸が弱い",
+              "suggestedChange": "{{具体例}} をもとに、賛成側と反対側の争点を追記する。",
+              "appliedAt": 1793694849471,
+              "appliedText": "周回報酬の緩和案をもとに、賛成側と反対側の争点を追記する。"
+            },
+            {
+              "title": "  ",
+              "reason": "r",
+              "suggestedChange": "二つ目の提案",
+              "appliedAt": 1793694849474,
+              "appliedText": "二つ目の提案"
+            }
+          ],
+          "mechanicsKnowledge": {
+            "ok": false,
+            "confidence": "medium",
+            "summary": "概ね把握",
+            "knownMechanics": [
+              "周回",
+              "強化"
+            ],
+            "missingQuestions": [
+              "報酬量は?"
+            ]
+          },
+          "voiceSimulation": {
+            "possible": true,
+            "confidence": "low",
+            "summary": "実ユーザの声は不足していますが、メカニクス文脈をもとに粗い仮想ユーザ反応は生成できます。",
+            "caveat": "LLM生成のユーザの声は実ユーザの代替ではなく、仮説として扱ってください。",
+            "nextAction": "議論開始前に、生成結果を仮説として扱うか、参考情報の取得で実ユーザの声を補ってください。"
+          }
+        },
+        "fixedFields": {
+          "gameTitle": "新ゲーム",
+          "discussionTheme": "新テーマ",
+          "discussionContent": "周回の報酬を見直したい。\n\n## 修正追記: 論点補強\n周回報酬の緩和案をもとに、賛成側と反対側の争点を追記する。\n\n## 修正追記: 修正提案\n二つ目の提案",
+          "mechanicsContext": "",
+          "themeSupplement": "補足"
+        },
+        "settings": {
+          "rounds": null,
+          "turnsPerRound": 20
+        },
+        "blocks": [
+          {
+            "id": "b0",
+            "type": "heading",
+            "text": "# ゲームタイトル（または主目的）"
+          },
+          {
+            "id": "b1",
+            "type": "paragraph",
+            "text": "新ゲーム"
+          },
+          {
+            "id": "b2",
+            "type": "heading",
+            "text": "# 議論したいテーマ"
+          },
+          {
+            "id": "b3",
+            "type": "paragraph",
+            "text": "新テーマ"
+          },
+          {
+            "id": "b4",
+            "type": "heading",
+            "text": "# 議論内容"
+          },
+          {
+            "id": "b5",
+            "type": "paragraph",
+            "text": "周回の報酬を見直したい。"
+          },
+          {
+            "id": "b6",
+            "type": "heading",
+            "text": "## 修正追記: 論点補強"
+          },
+          {
+            "id": "b7",
+            "type": "paragraph",
+            "text": "周回報酬の緩和案をもとに、賛成側と反対側の争点を追記する。"
+          },
+          {
+            "id": "b8",
+            "type": "heading",
+            "text": "## 修正追記: 修正提案"
+          },
+          {
+            "id": "b9",
+            "type": "paragraph",
+            "text": "二つ目の提案"
+          },
+          {
+            "id": "b10",
+            "type": "heading",
+            "text": "# 論点"
+          },
+          {
+            "id": "b11",
+            "type": "list",
+            "text": "1. - 配列の論点"
+          },
+          {
+            "id": "b12",
+            "type": "heading",
+            "text": "# システム/メカニクスの説明"
+          },
+          {
+            "id": "b13",
+            "type": "heading",
+            "text": "## 抽出されたメカニクス"
+          },
+          {
+            "id": "b14",
+            "type": "list",
+            "text": "- **周回**: 繰り返し遊ぶ （出所: curated）"
+          },
+          {
+            "id": "b15",
+            "type": "heading",
+            "text": "# テーマについての補足情報"
+          },
+          {
+            "id": "b16",
+            "type": "paragraph",
+            "text": "補足"
+          }
+        ],
+        "canRevert": true,
+        "rev": 5
+      },
+      "calls": [],
+      "voiceCalls": []
+    },
+    {
+      "req": {
+        "method": "POST",
+        "url": "/api/flow/draft-sess-1/paper/debatability/check",
+        "body": {}
+      },
+      "status": 200,
+      "body": {
+        "ok": true,
+        "discussionNo": 3,
+        "flow": "discussion",
+        "paper": {
+          "theme": "新テーマ",
+          "tags": [
+            "運用"
+          ],
+          "supplement": "補足",
+          "mechanics": [
+            {
+              "name": "周回",
+              "description": "繰り返し遊ぶ",
+              "source": "curated"
+            }
+          ],
+          "gameTitle": "新ゲーム",
+          "discussionTheme": "新テーマ",
+          "discussionContent": "周回の報酬を見直したい。\n\n## 修正追記: 論点補強\n周回報酬の緩和案をもとに、賛成側と反対側の争点を追記する。\n\n## 修正追記: 修正提案\n二つ目の提案",
+          "mechanicsContext": "",
+          "themeSupplement": "補足",
+          "issues": [
+            "周回報酬の是非",
+            "課金圧の影響"
+          ],
+          "bodyMd": "# ゲームタイトル（または主目的）\n新ゲーム\n\n# 議論したいテーマ\n新テーマ\n\n# 議論内容\n周回の報酬を見直したい。\n\n## 修正追記: 論点補強\n周回報酬の緩和案をもとに、賛成側と反対側の争点を追記する。\n\n## 修正追記: 修正提案\n二つ目の提案\n\n# 論点\n1. 周回報酬の是非 (両論: ○)\n2. 課金圧の影響 (両論: 賛成側のみ)\n\n# システム/メカニクスの説明\n## 抽出されたメカニクス\n- **周回**: 繰り返し遊ぶ （出所: curated）\n\n# テーマについての補足情報\n補足"
+        },
+        "info": {
+          "voiceCount": 3,
+          "countCapped": false,
+          "samples": [
+            {
+              "content": "周回が楽しい。報酬も十分。",
+              "source": "youtube"
+            },
+            {
+              "content": "課金しないと厳しい。長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長...",
+              "source": "steam"
+            },
+            {
+              "content": "テンポが良い",
+              "source": "niconico"
+            }
+          ],
+          "fixSuggestions": [],
+          "mechanicsKnowledge": {
+            "ok": false,
+            "confidence": "medium",
+            "summary": "概ね把握",
+            "knownMechanics": [
+              "周回",
+              "強化"
+            ],
+            "missingQuestions": [
+              "報酬量は?"
+            ]
+          },
+          "voiceSimulation": {
+            "possible": true,
+            "confidence": "medium",
+            "summary": "少数のユーザの声とメカニクス文脈を種に、LLMで仮想ユーザ反応を試作できます。",
+            "caveat": "LLM生成のユーザの声は実ユーザの代替ではなく、仮説として扱ってください。",
+            "nextAction": "不足しているユーザ層を指定して生成し、可能なら参考情報の取得で検証してください。"
+          },
+          "debatability": {
+            "issues": [
+              "周回報酬の是非",
+              "課金圧の影響"
+            ],
+            "armability": [
+              {
+                "issue": "周回報酬の是非",
+                "armable": "both"
+              },
+              {
+                "issue": "課金圧の影響",
+                "armable": "pro-only"
+              }
+            ],
+            "armableBothCount": 1,
+            "minArmableIssues": 2,
+            "evidence": {
+              "voiceCount": 3,
+              "positive": 2,
+              "negative": 0,
+              "neutral": 1,
+              "polaritySkew": 1,
+              "dominantSource": {
+                "name": "youtube",
+                "share": 0.3333
+              }
+            },
+            "debatable": true,
+            "degraded": false,
+            "recommendation": null,
+            "message": "議論可能（外部の声は任意の参考値） (両論の参考根拠がある争点 1/2 件 / 極性偏り 1.00)"
+          }
+        },
+        "fixedFields": {
+          "gameTitle": "新ゲーム",
+          "discussionTheme": "新テーマ",
+          "discussionContent": "周回の報酬を見直したい。\n\n## 修正追記: 論点補強\n周回報酬の緩和案をもとに、賛成側と反対側の争点を追記する。\n\n## 修正追記: 修正提案\n二つ目の提案",
+          "mechanicsContext": "",
+          "themeSupplement": "補足"
+        },
+        "settings": {
+          "rounds": null,
+          "turnsPerRound": 20
+        },
+        "blocks": [
+          {
+            "id": "b0",
+            "type": "heading",
+            "text": "# ゲームタイトル（または主目的）"
+          },
+          {
+            "id": "b1",
+            "type": "paragraph",
+            "text": "新ゲーム"
+          },
+          {
+            "id": "b2",
+            "type": "heading",
+            "text": "# 議論したいテーマ"
+          },
+          {
+            "id": "b3",
+            "type": "paragraph",
+            "text": "新テーマ"
+          },
+          {
+            "id": "b4",
+            "type": "heading",
+            "text": "# 議論内容"
+          },
+          {
+            "id": "b5",
+            "type": "paragraph",
+            "text": "周回の報酬を見直したい。"
+          },
+          {
+            "id": "b6",
+            "type": "heading",
+            "text": "## 修正追記: 論点補強"
+          },
+          {
+            "id": "b7",
+            "type": "paragraph",
+            "text": "周回報酬の緩和案をもとに、賛成側と反対側の争点を追記する。"
+          },
+          {
+            "id": "b8",
+            "type": "heading",
+            "text": "## 修正追記: 修正提案"
+          },
+          {
+            "id": "b9",
+            "type": "paragraph",
+            "text": "二つ目の提案"
+          },
+          {
+            "id": "b10",
+            "type": "heading",
+            "text": "# 論点"
+          },
+          {
+            "id": "b11",
+            "type": "list",
+            "text": "1. 周回報酬の是非 (両論: ○)\n2. 課金圧の影響 (両論: 賛成側のみ)"
+          },
+          {
+            "id": "b12",
+            "type": "heading",
+            "text": "# システム/メカニクスの説明"
+          },
+          {
+            "id": "b13",
+            "type": "heading",
+            "text": "## 抽出されたメカニクス"
+          },
+          {
+            "id": "b14",
+            "type": "list",
+            "text": "- **周回**: 繰り返し遊ぶ （出所: curated）"
+          },
+          {
+            "id": "b15",
+            "type": "heading",
+            "text": "# テーマについての補足情報"
+          },
+          {
+            "id": "b16",
+            "type": "paragraph",
+            "text": "補足"
+          }
+        ],
+        "canRevert": true,
+        "rev": 6
+      },
+      "calls": [
+        {
+          "prompt": "# 議題\n新テーマ\n\n# ディスカッションペーパー\n# 議論の前提\n企画/議論: 既存プロジェクトがない企画段階として議論する。目的・アイデア・比較案から検討し、未定の仕様や現状を既存の事実として作らない。既存作品や外部の声は参考事例として区別する。プロジェクト名や既存実装の提出を開始条件にしない。\n\n# ゲームタイトル（または主目的）\n新ゲーム\n\n# 議論したいテーマ\n新テーマ\n\n# 議論内容\n周回の報酬を見直したい。\n\n## 修正追記: 論点補強\n周回報酬の緩和案をもとに、賛成側と反対側の争点を追記する。\n\n## 修正追記: 修正提案\n二つ目の提案\n\n# 論点\n1. - 配列の論点\n\n# システム/メカニクスの説明\n## 抽出されたメカニクス\n- **周回**: 繰り返し遊ぶ （出所: curated）\n\n# テーマについての補足情報\n補足\n\n賛否が本気で割れる論点を 3〜5 個を目安に、各 1 文の疑問文で挙げてください。 本当に争点が無い場合は空配列を返して構いません。\n次の JSON 配列だけを返してください (前後に説明やコードフェンスを付けない):\n[\"論点1\", \"論点2\", ...]",
+          "system": "あなたは議論設計者です。 与えられた議題とディスカッションペーパーから、「賛成側と反対側が本気で対立できる論点 (争点)」だけを分解します。 単なる確認事項や、誰も反対しない自明な項目は含めません。 返答は JSON 配列のみ。"
+        },
+        {
+          "prompt": "# 議題\n新テーマ\n\n# 論点\n1. 周回報酬の是非\n2. 課金圧の影響\n\n# 手元の材料 (外部の声)\n1. 周回が楽しい。報酬も十分。\n2. 課金しないと厳しい。長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長\n3. テンポが良い\n\n各論点について、この材料で pro / con のどちら側が根拠を持てるかを判定し、次の JSON 配列だけを返してください (index は論点番号 1 始まり):\n[{\"index\":1,\"armable\":\"both\"|\"pro-only\"|\"con-only\"|\"neither\"}]",
+          "system": "外部の声は参考値であり、結論を決める投票や必須条件ではありません。外部の声がなくても、提示された内容と事前知識を用いて議論します。事前知識・推測・仮説を実ユーザーの意見として数えたり捏造したりせず、不確実性と出所を明示してください。後から意見や内容を修正して再議論できます。\nあなたは議論の準備担当です。 各論点について、手元の材料と前提・事前知識で 賛成側 (pro) と反対側 (con) の両方が根拠を張れるかを判定します。 返答は JSON 配列のみ。"
+        }
+      ],
+      "voiceCalls": [
+        {
+          "terms": [
+            "新テーマ"
+          ],
+          "limit": 50
+        }
+      ]
+    },
+    {
+      "req": {
+        "method": "POST",
+        "url": "/api/flow/draft-sess-1/paper/block/review",
+        "body": {}
+      },
+      "status": 400,
+      "body": {
+        "ok": false,
+        "error": "blockId が必要です"
+      },
+      "calls": [],
+      "voiceCalls": []
+    },
+    {
+      "req": {
+        "method": "POST",
+        "url": "/api/flow/draft-sess-1/paper/block/review",
+        "body": {
+          "blockId": "b0",
+          "instruction": "短く"
+        }
+      },
+      "status": 200,
+      "body": {
+        "ok": true,
+        "reviewed": true,
+        "blockId": "b0",
+        "original": "# ゲームタイトル（または主目的）",
+        "proposed": "# 議題\n改稿後の議題",
+        "rationale": "整えた"
+      },
+      "calls": [
+        {
+          "prompt": "# 調整方針\n短く\n\n# 対象ブロック (現行)\n# ゲームタイトル（または主目的）\n\n# 参考: ブリーフ全文\n# ゲームタイトル（または主目的）\n新ゲーム\n\n# 議論したいテーマ\n新テーマ\n\n# 議論内容\n周回の報酬を見直したい。\n\n## 修正追記: 論点補強\n周回報酬の緩和案をもとに、賛成側と反対側の争点を追記する。\n\n## 修正追記: 修正提案\n二つ目の提案\n\n# 論点\n1. 周回報酬の是非 (両論: ○)\n2. 課金圧の影響 (両論: 賛成側のみ)\n\n# システム/メカニクスの説明\n## 抽出されたメカニクス\n- **周回**: 繰り返し遊ぶ （出所: curated）\n\n# テーマについての補足情報\n補足\n\n上記ブロックの改稿案を JSON で返してください。",
+          "system": "あなたは議論ブリーフ (ディスカッションペーパー) の編集補佐です。渡された markdown ブロック 1 つを、議題ブリーフとして読みやすく改稿します。見出し記号 (#) や箇条書き記号 (-) のブロック種別は保ち、意味を勝手に増やさない。**JSON のみ** で返す。スキーマ: {\"proposed\":string,\"rationale\":string}。proposed は改稿後のブロック本文 (markdown)、rationale は変更点を 1 文 (日本語)。前置きやコードフェンスは付けない。"
+        }
+      ],
+      "voiceCalls": []
+    },
+    {
+      "req": {
+        "method": "POST",
+        "url": "/api/flow/draft-sess-1/paper/block/review",
+        "body": {
+          "blockId": "b999"
+        }
+      },
+      "status": 200,
+      "body": {
+        "ok": true,
+        "reviewed": false,
+        "blockId": "b999",
+        "original": "",
+        "proposed": "",
+        "rationale": "対象ブロックが見つかりません。"
+      },
+      "calls": [],
+      "voiceCalls": []
+    },
+    {
+      "req": {
+        "method": "POST",
+        "url": "/api/flow/draft-sess-1/paper/block/apply",
+        "body": {
+          "blockId": "b1",
+          "newText": "手で直した段落",
+          "summary": "  "
+        }
+      },
+      "status": 200,
+      "body": {
+        "ok": true,
+        "discussionNo": 3,
+        "flow": "discussion",
+        "paper": {
+          "theme": "新テーマ",
+          "tags": [
+            "運用"
+          ],
+          "supplement": "補足",
+          "mechanics": [
+            {
+              "name": "周回",
+              "description": "繰り返し遊ぶ",
+              "source": "curated"
+            }
+          ],
+          "gameTitle": "手で直した段落",
+          "discussionTheme": "新テーマ",
+          "discussionContent": "周回の報酬を見直したい。\n\n## 修正追記: 論点補強\n\n周回報酬の緩和案をもとに、賛成側と反対側の争点を追記する。\n\n## 修正追記: 修正提案\n\n二つ目の提案",
+          "mechanicsContext": "",
+          "themeSupplement": "補足",
+          "issues": [
+            "周回報酬の是非",
+            "課金圧の影響"
+          ],
+          "bodyMd": "# ゲームタイトル（または主目的）\n\n手で直した段落\n\n# 議論したいテーマ\n\n新テーマ\n\n# 議論内容\n\n周回の報酬を見直したい。\n\n## 修正追記: 論点補強\n\n周回報酬の緩和案をもとに、賛成側と反対側の争点を追記する。\n\n## 修正追記: 修正提案\n\n二つ目の提案\n\n# 論点\n\n1. 周回報酬の是非 (両論: ○)\n2. 課金圧の影響 (両論: 賛成側のみ)\n\n# システム/メカニクスの説明\n\n## 抽出されたメカニクス\n\n- **周回**: 繰り返し遊ぶ （出所: curated）\n\n# テーマについての補足情報\n\n補足"
+        },
+        "info": {
+          "voiceCount": 3,
+          "countCapped": false,
+          "samples": [
+            {
+              "content": "周回が楽しい。報酬も十分。",
+              "source": "youtube"
+            },
+            {
+              "content": "課金しないと厳しい。長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長...",
+              "source": "steam"
+            },
+            {
+              "content": "テンポが良い",
+              "source": "niconico"
+            }
+          ],
+          "fixSuggestions": [],
+          "mechanicsKnowledge": {
+            "ok": false,
+            "confidence": "medium",
+            "summary": "概ね把握",
+            "knownMechanics": [
+              "周回",
+              "強化"
+            ],
+            "missingQuestions": [
+              "報酬量は?"
+            ]
+          },
+          "voiceSimulation": {
+            "possible": true,
+            "confidence": "medium",
+            "summary": "少数のユーザの声とメカニクス文脈を種に、LLMで仮想ユーザ反応を試作できます。",
+            "caveat": "LLM生成のユーザの声は実ユーザの代替ではなく、仮説として扱ってください。",
+            "nextAction": "不足しているユーザ層を指定して生成し、可能なら参考情報の取得で検証してください。"
+          },
+          "debatability": {
+            "issues": [
+              "周回報酬の是非",
+              "課金圧の影響"
+            ],
+            "armability": [
+              {
+                "issue": "周回報酬の是非",
+                "armable": "both"
+              },
+              {
+                "issue": "課金圧の影響",
+                "armable": "pro-only"
+              }
+            ],
+            "armableBothCount": 1,
+            "minArmableIssues": 2,
+            "evidence": {
+              "voiceCount": 3,
+              "positive": 2,
+              "negative": 0,
+              "neutral": 1,
+              "polaritySkew": 1,
+              "dominantSource": {
+                "name": "youtube",
+                "share": 0.3333
+              }
+            },
+            "debatable": true,
+            "degraded": false,
+            "recommendation": null,
+            "message": "議論可能（外部の声は任意の参考値） (両論の参考根拠がある争点 1/2 件 / 極性偏り 1.00)"
+          }
+        },
+        "fixedFields": {
+          "gameTitle": "手で直した段落",
+          "discussionTheme": "新テーマ",
+          "discussionContent": "周回の報酬を見直したい。\n\n## 修正追記: 論点補強\n\n周回報酬の緩和案をもとに、賛成側と反対側の争点を追記する。\n\n## 修正追記: 修正提案\n\n二つ目の提案",
+          "mechanicsContext": "",
+          "themeSupplement": "補足"
+        },
+        "settings": {
+          "rounds": null,
+          "turnsPerRound": 20
+        },
+        "blocks": [
+          {
+            "id": "b0",
+            "type": "heading",
+            "text": "# ゲームタイトル（または主目的）"
+          },
+          {
+            "id": "b1",
+            "type": "paragraph",
+            "text": "手で直した段落"
+          },
+          {
+            "id": "b2",
+            "type": "heading",
+            "text": "# 議論したいテーマ"
+          },
+          {
+            "id": "b3",
+            "type": "paragraph",
+            "text": "新テーマ"
+          },
+          {
+            "id": "b4",
+            "type": "heading",
+            "text": "# 議論内容"
+          },
+          {
+            "id": "b5",
+            "type": "paragraph",
+            "text": "周回の報酬を見直したい。"
+          },
+          {
+            "id": "b6",
+            "type": "heading",
+            "text": "## 修正追記: 論点補強"
+          },
+          {
+            "id": "b7",
+            "type": "paragraph",
+            "text": "周回報酬の緩和案をもとに、賛成側と反対側の争点を追記する。"
+          },
+          {
+            "id": "b8",
+            "type": "heading",
+            "text": "## 修正追記: 修正提案"
+          },
+          {
+            "id": "b9",
+            "type": "paragraph",
+            "text": "二つ目の提案"
+          },
+          {
+            "id": "b10",
+            "type": "heading",
+            "text": "# 論点"
+          },
+          {
+            "id": "b11",
+            "type": "list",
+            "text": "1. 周回報酬の是非 (両論: ○)\n2. 課金圧の影響 (両論: 賛成側のみ)"
+          },
+          {
+            "id": "b12",
+            "type": "heading",
+            "text": "# システム/メカニクスの説明"
+          },
+          {
+            "id": "b13",
+            "type": "heading",
+            "text": "## 抽出されたメカニクス"
+          },
+          {
+            "id": "b14",
+            "type": "list",
+            "text": "- **周回**: 繰り返し遊ぶ （出所: curated）"
+          },
+          {
+            "id": "b15",
+            "type": "heading",
+            "text": "# テーマについての補足情報"
+          },
+          {
+            "id": "b16",
+            "type": "paragraph",
+            "text": "補足"
+          }
+        ],
+        "canRevert": true,
+        "rev": 7
+      },
+      "calls": [],
+      "voiceCalls": []
+    },
+    {
+      "req": {
+        "method": "POST",
+        "url": "/api/flow/draft-sess-1/paper/block/apply",
+        "body": {
+          "newText": "x"
+        }
+      },
+      "status": 400,
+      "body": {
+        "ok": false,
+        "error": "blockId が必要です"
+      },
+      "calls": [],
+      "voiceCalls": []
+    },
+    {
+      "req": {
+        "method": "POST",
+        "url": "/api/flow/draft-sess-1/paper/crawl",
+        "body": {
+          "blockId": "b0"
+        }
+      },
+      "status": 200,
+      "body": {
+        "ok": true,
+        "inserted": false,
+        "evidence": {
+          "voices": [
+            {
+              "content": "周回が楽しい。報酬も十分。",
+              "source": "youtube"
+            },
+            {
+              "content": "課金しないと厳しい。長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長",
+              "source": "steam"
+            },
+            {
+              "content": "テンポが良い",
+              "source": "niconico"
+            }
+          ],
+          "suggestion": "集めた声によると周回は好評。"
+        }
+      },
+      "calls": [
+        {
+          "prompt": "# 観点\nゲームタイトル（または主目的）\n\n# 集めた外部の声\n- 「周回が楽しい。報酬も十分。」（出所: youtube）\n- 「課金しないと厳しい。長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長」（出所: steam）\n- 「テンポが良い」（出所: niconico）\n\n根拠段落をまとめてください。",
+          "system": "あなたは議論ブリーフの編集補佐です。集めた外部の声を踏まえ、議題に関する観点の根拠段落を中立的にまとめます。markdown の段落 (箇条書き可) のみを返す (前置き不要)。"
+        }
+      ],
+      "voiceCalls": [
+        {
+          "terms": [
+            "ゲームタイトル（または主目的）"
+          ],
+          "limit": 12
+        }
+      ]
+    },
+    {
+      "req": {
+        "method": "POST",
+        "url": "/api/flow/draft-sess-1/paper/crawl",
+        "body": {
+          "query": " 明示クエリ ",
+          "insert": true
+        }
+      },
+      "status": 200,
+      "body": {
+        "ok": true,
+        "inserted": true,
+        "evidence": {
+          "voices": [
+            {
+              "content": "周回が楽しい。報酬も十分。",
+              "source": "youtube"
+            },
+            {
+              "content": "課金しないと厳しい。長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長",
+              "source": "steam"
+            },
+            {
+              "content": "テンポが良い",
+              "source": "niconico"
+            }
+          ],
+          "suggestion": "集めた声によると周回は好評。"
+        },
+        "discussionNo": 3,
+        "flow": "discussion",
+        "paper": {
+          "theme": "新テーマ",
+          "tags": [
+            "運用"
+          ],
+          "supplement": "補足\n\n集めた声によると周回は好評。",
+          "mechanics": [
+            {
+              "name": "周回",
+              "description": "繰り返し遊ぶ",
+              "source": "curated"
+            }
+          ],
+          "gameTitle": "手で直した段落",
+          "discussionTheme": "新テーマ",
+          "discussionContent": "周回の報酬を見直したい。\n\n## 修正追記: 論点補強\n\n周回報酬の緩和案をもとに、賛成側と反対側の争点を追記する。\n\n## 修正追記: 修正提案\n\n二つ目の提案",
+          "mechanicsContext": "",
+          "themeSupplement": "補足\n\n集めた声によると周回は好評。",
+          "issues": [
+            "周回報酬の是非",
+            "課金圧の影響"
+          ],
+          "bodyMd": "# ゲームタイトル（または主目的）\n\n手で直した段落\n\n# 議論したいテーマ\n\n新テーマ\n\n# 議論内容\n\n周回の報酬を見直したい。\n\n## 修正追記: 論点補強\n\n周回報酬の緩和案をもとに、賛成側と反対側の争点を追記する。\n\n## 修正追記: 修正提案\n\n二つ目の提案\n\n# 論点\n\n1. 周回報酬の是非 (両論: ○)\n2. 課金圧の影響 (両論: 賛成側のみ)\n\n# システム/メカニクスの説明\n\n## 抽出されたメカニクス\n\n- **周回**: 繰り返し遊ぶ （出所: curated）\n\n# テーマについての補足情報\n\n補足\n\n集めた声によると周回は好評。"
+        },
+        "info": {
+          "voiceCount": 3,
+          "countCapped": false,
+          "samples": [
+            {
+              "content": "周回が楽しい。報酬も十分。",
+              "source": "youtube"
+            },
+            {
+              "content": "課金しないと厳しい。長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長...",
+              "source": "steam"
+            },
+            {
+              "content": "テンポが良い",
+              "source": "niconico"
+            }
+          ],
+          "fixSuggestions": [],
+          "mechanicsKnowledge": {
+            "ok": false,
+            "confidence": "medium",
+            "summary": "概ね把握",
+            "knownMechanics": [
+              "周回",
+              "強化"
+            ],
+            "missingQuestions": [
+              "報酬量は?"
+            ]
+          },
+          "voiceSimulation": {
+            "possible": true,
+            "confidence": "medium",
+            "summary": "少数のユーザの声とメカニクス文脈を種に、LLMで仮想ユーザ反応を試作できます。",
+            "caveat": "LLM生成のユーザの声は実ユーザの代替ではなく、仮説として扱ってください。",
+            "nextAction": "不足しているユーザ層を指定して生成し、可能なら参考情報の取得で検証してください。"
+          },
+          "debatability": {
+            "issues": [
+              "周回報酬の是非",
+              "課金圧の影響"
+            ],
+            "armability": [
+              {
+                "issue": "周回報酬の是非",
+                "armable": "both"
+              },
+              {
+                "issue": "課金圧の影響",
+                "armable": "pro-only"
+              }
+            ],
+            "armableBothCount": 1,
+            "minArmableIssues": 2,
+            "evidence": {
+              "voiceCount": 3,
+              "positive": 2,
+              "negative": 0,
+              "neutral": 1,
+              "polaritySkew": 1,
+              "dominantSource": {
+                "name": "youtube",
+                "share": 0.3333
+              }
+            },
+            "debatable": true,
+            "degraded": false,
+            "recommendation": null,
+            "message": "議論可能（外部の声は任意の参考値） (両論の参考根拠がある争点 1/2 件 / 極性偏り 1.00)"
+          }
+        },
+        "fixedFields": {
+          "gameTitle": "手で直した段落",
+          "discussionTheme": "新テーマ",
+          "discussionContent": "周回の報酬を見直したい。\n\n## 修正追記: 論点補強\n\n周回報酬の緩和案をもとに、賛成側と反対側の争点を追記する。\n\n## 修正追記: 修正提案\n\n二つ目の提案",
+          "mechanicsContext": "",
+          "themeSupplement": "補足\n\n集めた声によると周回は好評。"
+        },
+        "settings": {
+          "rounds": null,
+          "turnsPerRound": 20
+        },
+        "blocks": [
+          {
+            "id": "b0",
+            "type": "heading",
+            "text": "# ゲームタイトル（または主目的）"
+          },
+          {
+            "id": "b1",
+            "type": "paragraph",
+            "text": "手で直した段落"
+          },
+          {
+            "id": "b2",
+            "type": "heading",
+            "text": "# 議論したいテーマ"
+          },
+          {
+            "id": "b3",
+            "type": "paragraph",
+            "text": "新テーマ"
+          },
+          {
+            "id": "b4",
+            "type": "heading",
+            "text": "# 議論内容"
+          },
+          {
+            "id": "b5",
+            "type": "paragraph",
+            "text": "周回の報酬を見直したい。"
+          },
+          {
+            "id": "b6",
+            "type": "heading",
+            "text": "## 修正追記: 論点補強"
+          },
+          {
+            "id": "b7",
+            "type": "paragraph",
+            "text": "周回報酬の緩和案をもとに、賛成側と反対側の争点を追記する。"
+          },
+          {
+            "id": "b8",
+            "type": "heading",
+            "text": "## 修正追記: 修正提案"
+          },
+          {
+            "id": "b9",
+            "type": "paragraph",
+            "text": "二つ目の提案"
+          },
+          {
+            "id": "b10",
+            "type": "heading",
+            "text": "# 論点"
+          },
+          {
+            "id": "b11",
+            "type": "list",
+            "text": "1. 周回報酬の是非 (両論: ○)\n2. 課金圧の影響 (両論: 賛成側のみ)"
+          },
+          {
+            "id": "b12",
+            "type": "heading",
+            "text": "# システム/メカニクスの説明"
+          },
+          {
+            "id": "b13",
+            "type": "heading",
+            "text": "## 抽出されたメカニクス"
+          },
+          {
+            "id": "b14",
+            "type": "list",
+            "text": "- **周回**: 繰り返し遊ぶ （出所: curated）"
+          },
+          {
+            "id": "b15",
+            "type": "heading",
+            "text": "# テーマについての補足情報"
+          },
+          {
+            "id": "b16",
+            "type": "paragraph",
+            "text": "補足"
+          },
+          {
+            "id": "b17",
+            "type": "paragraph",
+            "text": "集めた声によると周回は好評。"
+          }
+        ],
+        "canRevert": true,
+        "rev": 8
+      },
+      "calls": [
+        {
+          "prompt": "# 観点\n明示クエリ\n\n# 集めた外部の声\n- 「周回が楽しい。報酬も十分。」（出所: youtube）\n- 「課金しないと厳しい。長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長」（出所: steam）\n- 「テンポが良い」（出所: niconico）\n\n根拠段落をまとめてください。",
+          "system": "あなたは議論ブリーフの編集補佐です。集めた外部の声を踏まえ、議題に関する観点の根拠段落を中立的にまとめます。markdown の段落 (箇条書き可) のみを返す (前置き不要)。"
+        }
+      ],
+      "voiceCalls": [
+        {
+          "terms": [
+            "明示クエリ"
+          ],
+          "limit": 12
+        }
+      ]
+    },
+    {
+      "req": {
+        "method": "POST",
+        "url": "/api/flow/draft-sess-1/paper/crawl",
+        "body": {
+          "blockId": "b1",
+          "insert": true
+        }
+      },
+      "status": 200,
+      "body": {
+        "ok": true,
+        "inserted": true,
+        "evidence": {
+          "voices": [
+            {
+              "content": "周回が楽しい。報酬も十分。",
+              "source": "youtube"
+            },
+            {
+              "content": "課金しないと厳しい。長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長",
+              "source": "steam"
+            },
+            {
+              "content": "テンポが良い",
+              "source": "niconico"
+            }
+          ],
+          "suggestion": "集めた声によると周回は好評。"
+        },
+        "discussionNo": 3,
+        "flow": "discussion",
+        "paper": {
+          "theme": "新テーマ",
+          "tags": [
+            "運用"
+          ],
+          "supplement": "補足\n\n集めた声によると周回は好評。",
+          "mechanics": [
+            {
+              "name": "周回",
+              "description": "繰り返し遊ぶ",
+              "source": "curated"
+            }
+          ],
+          "gameTitle": "手で直した段落\n\n集めた声によると周回は好評。",
+          "discussionTheme": "新テーマ",
+          "discussionContent": "周回の報酬を見直したい。\n\n## 修正追記: 論点補強\n\n周回報酬の緩和案をもとに、賛成側と反対側の争点を追記する。\n\n## 修正追記: 修正提案\n\n二つ目の提案",
+          "mechanicsContext": "",
+          "themeSupplement": "補足\n\n集めた声によると周回は好評。",
+          "issues": [
+            "周回報酬の是非",
+            "課金圧の影響"
+          ],
+          "bodyMd": "# ゲームタイトル（または主目的）\n\n手で直した段落\n\n集めた声によると周回は好評。\n\n# 議論したいテーマ\n\n新テーマ\n\n# 議論内容\n\n周回の報酬を見直したい。\n\n## 修正追記: 論点補強\n\n周回報酬の緩和案をもとに、賛成側と反対側の争点を追記する。\n\n## 修正追記: 修正提案\n\n二つ目の提案\n\n# 論点\n\n1. 周回報酬の是非 (両論: ○)\n2. 課金圧の影響 (両論: 賛成側のみ)\n\n# システム/メカニクスの説明\n\n## 抽出されたメカニクス\n\n- **周回**: 繰り返し遊ぶ （出所: curated）\n\n# テーマについての補足情報\n\n補足\n\n集めた声によると周回は好評。"
+        },
+        "info": {
+          "voiceCount": 3,
+          "countCapped": false,
+          "samples": [
+            {
+              "content": "周回が楽しい。報酬も十分。",
+              "source": "youtube"
+            },
+            {
+              "content": "課金しないと厳しい。長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長...",
+              "source": "steam"
+            },
+            {
+              "content": "テンポが良い",
+              "source": "niconico"
+            }
+          ],
+          "fixSuggestions": [],
+          "mechanicsKnowledge": {
+            "ok": false,
+            "confidence": "medium",
+            "summary": "概ね把握",
+            "knownMechanics": [
+              "周回",
+              "強化"
+            ],
+            "missingQuestions": [
+              "報酬量は?"
+            ]
+          },
+          "voiceSimulation": {
+            "possible": true,
+            "confidence": "medium",
+            "summary": "少数のユーザの声とメカニクス文脈を種に、LLMで仮想ユーザ反応を試作できます。",
+            "caveat": "LLM生成のユーザの声は実ユーザの代替ではなく、仮説として扱ってください。",
+            "nextAction": "不足しているユーザ層を指定して生成し、可能なら参考情報の取得で検証してください。"
+          },
+          "debatability": {
+            "issues": [
+              "周回報酬の是非",
+              "課金圧の影響"
+            ],
+            "armability": [
+              {
+                "issue": "周回報酬の是非",
+                "armable": "both"
+              },
+              {
+                "issue": "課金圧の影響",
+                "armable": "pro-only"
+              }
+            ],
+            "armableBothCount": 1,
+            "minArmableIssues": 2,
+            "evidence": {
+              "voiceCount": 3,
+              "positive": 2,
+              "negative": 0,
+              "neutral": 1,
+              "polaritySkew": 1,
+              "dominantSource": {
+                "name": "youtube",
+                "share": 0.3333
+              }
+            },
+            "debatable": true,
+            "degraded": false,
+            "recommendation": null,
+            "message": "議論可能（外部の声は任意の参考値） (両論の参考根拠がある争点 1/2 件 / 極性偏り 1.00)"
+          }
+        },
+        "fixedFields": {
+          "gameTitle": "手で直した段落\n\n集めた声によると周回は好評。",
+          "discussionTheme": "新テーマ",
+          "discussionContent": "周回の報酬を見直したい。\n\n## 修正追記: 論点補強\n\n周回報酬の緩和案をもとに、賛成側と反対側の争点を追記する。\n\n## 修正追記: 修正提案\n\n二つ目の提案",
+          "mechanicsContext": "",
+          "themeSupplement": "補足\n\n集めた声によると周回は好評。"
+        },
+        "settings": {
+          "rounds": null,
+          "turnsPerRound": 20
+        },
+        "blocks": [
+          {
+            "id": "b0",
+            "type": "heading",
+            "text": "# ゲームタイトル（または主目的）"
+          },
+          {
+            "id": "b1",
+            "type": "paragraph",
+            "text": "手で直した段落"
+          },
+          {
+            "id": "b2",
+            "type": "paragraph",
+            "text": "集めた声によると周回は好評。"
+          },
+          {
+            "id": "b3",
+            "type": "heading",
+            "text": "# 議論したいテーマ"
+          },
+          {
+            "id": "b4",
+            "type": "paragraph",
+            "text": "新テーマ"
+          },
+          {
+            "id": "b5",
+            "type": "heading",
+            "text": "# 議論内容"
+          },
+          {
+            "id": "b6",
+            "type": "paragraph",
+            "text": "周回の報酬を見直したい。"
+          },
+          {
+            "id": "b7",
+            "type": "heading",
+            "text": "## 修正追記: 論点補強"
+          },
+          {
+            "id": "b8",
+            "type": "paragraph",
+            "text": "周回報酬の緩和案をもとに、賛成側と反対側の争点を追記する。"
+          },
+          {
+            "id": "b9",
+            "type": "heading",
+            "text": "## 修正追記: 修正提案"
+          },
+          {
+            "id": "b10",
+            "type": "paragraph",
+            "text": "二つ目の提案"
+          },
+          {
+            "id": "b11",
+            "type": "heading",
+            "text": "# 論点"
+          },
+          {
+            "id": "b12",
+            "type": "list",
+            "text": "1. 周回報酬の是非 (両論: ○)\n2. 課金圧の影響 (両論: 賛成側のみ)"
+          },
+          {
+            "id": "b13",
+            "type": "heading",
+            "text": "# システム/メカニクスの説明"
+          },
+          {
+            "id": "b14",
+            "type": "heading",
+            "text": "## 抽出されたメカニクス"
+          },
+          {
+            "id": "b15",
+            "type": "list",
+            "text": "- **周回**: 繰り返し遊ぶ （出所: curated）"
+          },
+          {
+            "id": "b16",
+            "type": "heading",
+            "text": "# テーマについての補足情報"
+          },
+          {
+            "id": "b17",
+            "type": "paragraph",
+            "text": "補足"
+          },
+          {
+            "id": "b18",
+            "type": "paragraph",
+            "text": "集めた声によると周回は好評。"
+          }
+        ],
+        "canRevert": true,
+        "rev": 9
+      },
+      "calls": [
+        {
+          "prompt": "# 観点\n手で直した段落\n\n# 集めた外部の声\n- 「周回が楽しい。報酬も十分。」（出所: youtube）\n- 「課金しないと厳しい。長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長」（出所: steam）\n- 「テンポが良い」（出所: niconico）\n\n根拠段落をまとめてください。",
+          "system": "あなたは議論ブリーフの編集補佐です。集めた外部の声を踏まえ、議題に関する観点の根拠段落を中立的にまとめます。markdown の段落 (箇条書き可) のみを返す (前置き不要)。"
+        }
+      ],
+      "voiceCalls": [
+        {
+          "terms": [
+            "手で直した段落"
+          ],
+          "limit": 12
+        }
+      ]
+    },
+    {
+      "req": {
+        "method": "POST",
+        "url": "/api/flow/draft-sess-1/paper/revert",
+        "body": {}
+      },
+      "status": 200,
+      "body": {
+        "ok": true,
+        "changeSummary": "1 手前 (rev 8) に戻しました",
+        "discussionNo": 3,
+        "flow": "discussion",
+        "paper": {
+          "theme": "新テーマ",
+          "tags": [
+            "運用"
+          ],
+          "supplement": "補足\n\n集めた声によると周回は好評。",
+          "mechanics": [
+            {
+              "name": "周回",
+              "description": "繰り返し遊ぶ",
+              "source": "curated"
+            }
+          ],
+          "gameTitle": "手で直した段落",
+          "discussionTheme": "新テーマ",
+          "discussionContent": "周回の報酬を見直したい。\n\n## 修正追記: 論点補強\n\n周回報酬の緩和案をもとに、賛成側と反対側の争点を追記する。\n\n## 修正追記: 修正提案\n\n二つ目の提案",
+          "mechanicsContext": "",
+          "themeSupplement": "補足\n\n集めた声によると周回は好評。",
+          "issues": [
+            "周回報酬の是非",
+            "課金圧の影響"
+          ],
+          "bodyMd": "# ゲームタイトル（または主目的）\n\n手で直した段落\n\n# 議論したいテーマ\n\n新テーマ\n\n# 議論内容\n\n周回の報酬を見直したい。\n\n## 修正追記: 論点補強\n\n周回報酬の緩和案をもとに、賛成側と反対側の争点を追記する。\n\n## 修正追記: 修正提案\n\n二つ目の提案\n\n# 論点\n\n1. 周回報酬の是非 (両論: ○)\n2. 課金圧の影響 (両論: 賛成側のみ)\n\n# システム/メカニクスの説明\n\n## 抽出されたメカニクス\n\n- **周回**: 繰り返し遊ぶ （出所: curated）\n\n# テーマについての補足情報\n\n補足\n\n集めた声によると周回は好評。"
+        },
+        "info": {
+          "voiceCount": 3,
+          "countCapped": false,
+          "samples": [
+            {
+              "content": "周回が楽しい。報酬も十分。",
+              "source": "youtube"
+            },
+            {
+              "content": "課金しないと厳しい。長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長...",
+              "source": "steam"
+            },
+            {
+              "content": "テンポが良い",
+              "source": "niconico"
+            }
+          ],
+          "fixSuggestions": [],
+          "mechanicsKnowledge": {
+            "ok": false,
+            "confidence": "medium",
+            "summary": "概ね把握",
+            "knownMechanics": [
+              "周回",
+              "強化"
+            ],
+            "missingQuestions": [
+              "報酬量は?"
+            ]
+          },
+          "voiceSimulation": {
+            "possible": true,
+            "confidence": "medium",
+            "summary": "少数のユーザの声とメカニクス文脈を種に、LLMで仮想ユーザ反応を試作できます。",
+            "caveat": "LLM生成のユーザの声は実ユーザの代替ではなく、仮説として扱ってください。",
+            "nextAction": "不足しているユーザ層を指定して生成し、可能なら参考情報の取得で検証してください。"
+          },
+          "debatability": {
+            "issues": [
+              "周回報酬の是非",
+              "課金圧の影響"
+            ],
+            "armability": [
+              {
+                "issue": "周回報酬の是非",
+                "armable": "both"
+              },
+              {
+                "issue": "課金圧の影響",
+                "armable": "pro-only"
+              }
+            ],
+            "armableBothCount": 1,
+            "minArmableIssues": 2,
+            "evidence": {
+              "voiceCount": 3,
+              "positive": 2,
+              "negative": 0,
+              "neutral": 1,
+              "polaritySkew": 1,
+              "dominantSource": {
+                "name": "youtube",
+                "share": 0.3333
+              }
+            },
+            "debatable": true,
+            "degraded": false,
+            "recommendation": null,
+            "message": "議論可能（外部の声は任意の参考値） (両論の参考根拠がある争点 1/2 件 / 極性偏り 1.00)"
+          }
+        },
+        "fixedFields": {
+          "gameTitle": "手で直した段落",
+          "discussionTheme": "新テーマ",
+          "discussionContent": "周回の報酬を見直したい。\n\n## 修正追記: 論点補強\n\n周回報酬の緩和案をもとに、賛成側と反対側の争点を追記する。\n\n## 修正追記: 修正提案\n\n二つ目の提案",
+          "mechanicsContext": "",
+          "themeSupplement": "補足\n\n集めた声によると周回は好評。"
+        },
+        "settings": {
+          "rounds": null,
+          "turnsPerRound": 20
+        },
+        "blocks": [
+          {
+            "id": "b0",
+            "type": "heading",
+            "text": "# ゲームタイトル（または主目的）"
+          },
+          {
+            "id": "b1",
+            "type": "paragraph",
+            "text": "手で直した段落"
+          },
+          {
+            "id": "b2",
+            "type": "heading",
+            "text": "# 議論したいテーマ"
+          },
+          {
+            "id": "b3",
+            "type": "paragraph",
+            "text": "新テーマ"
+          },
+          {
+            "id": "b4",
+            "type": "heading",
+            "text": "# 議論内容"
+          },
+          {
+            "id": "b5",
+            "type": "paragraph",
+            "text": "周回の報酬を見直したい。"
+          },
+          {
+            "id": "b6",
+            "type": "heading",
+            "text": "## 修正追記: 論点補強"
+          },
+          {
+            "id": "b7",
+            "type": "paragraph",
+            "text": "周回報酬の緩和案をもとに、賛成側と反対側の争点を追記する。"
+          },
+          {
+            "id": "b8",
+            "type": "heading",
+            "text": "## 修正追記: 修正提案"
+          },
+          {
+            "id": "b9",
+            "type": "paragraph",
+            "text": "二つ目の提案"
+          },
+          {
+            "id": "b10",
+            "type": "heading",
+            "text": "# 論点"
+          },
+          {
+            "id": "b11",
+            "type": "list",
+            "text": "1. 周回報酬の是非 (両論: ○)\n2. 課金圧の影響 (両論: 賛成側のみ)"
+          },
+          {
+            "id": "b12",
+            "type": "heading",
+            "text": "# システム/メカニクスの説明"
+          },
+          {
+            "id": "b13",
+            "type": "heading",
+            "text": "## 抽出されたメカニクス"
+          },
+          {
+            "id": "b14",
+            "type": "list",
+            "text": "- **周回**: 繰り返し遊ぶ （出所: curated）"
+          },
+          {
+            "id": "b15",
+            "type": "heading",
+            "text": "# テーマについての補足情報"
+          },
+          {
+            "id": "b16",
+            "type": "paragraph",
+            "text": "補足"
+          },
+          {
+            "id": "b17",
+            "type": "paragraph",
+            "text": "集めた声によると周回は好評。"
+          }
+        ],
+        "canRevert": true,
+        "rev": 10
+      },
+      "calls": [],
+      "voiceCalls": []
+    },
+    {
+      "req": {
+        "method": "POST",
+        "url": "/api/flow/draft-sess-1/paper/revert",
+        "body": {}
+      },
+      "status": 200,
+      "body": {
+        "ok": true,
+        "changeSummary": "1 手前 (rev 9) に戻しました",
+        "discussionNo": 3,
+        "flow": "discussion",
+        "paper": {
+          "theme": "新テーマ",
+          "tags": [
+            "運用"
+          ],
+          "supplement": "補足\n\n集めた声によると周回は好評。",
+          "mechanics": [
+            {
+              "name": "周回",
+              "description": "繰り返し遊ぶ",
+              "source": "curated"
+            }
+          ],
+          "gameTitle": "手で直した段落\n\n集めた声によると周回は好評。",
+          "discussionTheme": "新テーマ",
+          "discussionContent": "周回の報酬を見直したい。\n\n## 修正追記: 論点補強\n\n周回報酬の緩和案をもとに、賛成側と反対側の争点を追記する。\n\n## 修正追記: 修正提案\n\n二つ目の提案",
+          "mechanicsContext": "",
+          "themeSupplement": "補足\n\n集めた声によると周回は好評。",
+          "issues": [
+            "周回報酬の是非",
+            "課金圧の影響"
+          ],
+          "bodyMd": "# ゲームタイトル（または主目的）\n\n手で直した段落\n\n集めた声によると周回は好評。\n\n# 議論したいテーマ\n\n新テーマ\n\n# 議論内容\n\n周回の報酬を見直したい。\n\n## 修正追記: 論点補強\n\n周回報酬の緩和案をもとに、賛成側と反対側の争点を追記する。\n\n## 修正追記: 修正提案\n\n二つ目の提案\n\n# 論点\n\n1. 周回報酬の是非 (両論: ○)\n2. 課金圧の影響 (両論: 賛成側のみ)\n\n# システム/メカニクスの説明\n\n## 抽出されたメカニクス\n\n- **周回**: 繰り返し遊ぶ （出所: curated）\n\n# テーマについての補足情報\n\n補足\n\n集めた声によると周回は好評。"
+        },
+        "info": {
+          "voiceCount": 3,
+          "countCapped": false,
+          "samples": [
+            {
+              "content": "周回が楽しい。報酬も十分。",
+              "source": "youtube"
+            },
+            {
+              "content": "課金しないと厳しい。長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長...",
+              "source": "steam"
+            },
+            {
+              "content": "テンポが良い",
+              "source": "niconico"
+            }
+          ],
+          "fixSuggestions": [],
+          "mechanicsKnowledge": {
+            "ok": false,
+            "confidence": "medium",
+            "summary": "概ね把握",
+            "knownMechanics": [
+              "周回",
+              "強化"
+            ],
+            "missingQuestions": [
+              "報酬量は?"
+            ]
+          },
+          "voiceSimulation": {
+            "possible": true,
+            "confidence": "medium",
+            "summary": "少数のユーザの声とメカニクス文脈を種に、LLMで仮想ユーザ反応を試作できます。",
+            "caveat": "LLM生成のユーザの声は実ユーザの代替ではなく、仮説として扱ってください。",
+            "nextAction": "不足しているユーザ層を指定して生成し、可能なら参考情報の取得で検証してください。"
+          },
+          "debatability": {
+            "issues": [
+              "周回報酬の是非",
+              "課金圧の影響"
+            ],
+            "armability": [
+              {
+                "issue": "周回報酬の是非",
+                "armable": "both"
+              },
+              {
+                "issue": "課金圧の影響",
+                "armable": "pro-only"
+              }
+            ],
+            "armableBothCount": 1,
+            "minArmableIssues": 2,
+            "evidence": {
+              "voiceCount": 3,
+              "positive": 2,
+              "negative": 0,
+              "neutral": 1,
+              "polaritySkew": 1,
+              "dominantSource": {
+                "name": "youtube",
+                "share": 0.3333
+              }
+            },
+            "debatable": true,
+            "degraded": false,
+            "recommendation": null,
+            "message": "議論可能（外部の声は任意の参考値） (両論の参考根拠がある争点 1/2 件 / 極性偏り 1.00)"
+          }
+        },
+        "fixedFields": {
+          "gameTitle": "手で直した段落\n\n集めた声によると周回は好評。",
+          "discussionTheme": "新テーマ",
+          "discussionContent": "周回の報酬を見直したい。\n\n## 修正追記: 論点補強\n\n周回報酬の緩和案をもとに、賛成側と反対側の争点を追記する。\n\n## 修正追記: 修正提案\n\n二つ目の提案",
+          "mechanicsContext": "",
+          "themeSupplement": "補足\n\n集めた声によると周回は好評。"
+        },
+        "settings": {
+          "rounds": null,
+          "turnsPerRound": 20
+        },
+        "blocks": [
+          {
+            "id": "b0",
+            "type": "heading",
+            "text": "# ゲームタイトル（または主目的）"
+          },
+          {
+            "id": "b1",
+            "type": "paragraph",
+            "text": "手で直した段落"
+          },
+          {
+            "id": "b2",
+            "type": "paragraph",
+            "text": "集めた声によると周回は好評。"
+          },
+          {
+            "id": "b3",
+            "type": "heading",
+            "text": "# 議論したいテーマ"
+          },
+          {
+            "id": "b4",
+            "type": "paragraph",
+            "text": "新テーマ"
+          },
+          {
+            "id": "b5",
+            "type": "heading",
+            "text": "# 議論内容"
+          },
+          {
+            "id": "b6",
+            "type": "paragraph",
+            "text": "周回の報酬を見直したい。"
+          },
+          {
+            "id": "b7",
+            "type": "heading",
+            "text": "## 修正追記: 論点補強"
+          },
+          {
+            "id": "b8",
+            "type": "paragraph",
+            "text": "周回報酬の緩和案をもとに、賛成側と反対側の争点を追記する。"
+          },
+          {
+            "id": "b9",
+            "type": "heading",
+            "text": "## 修正追記: 修正提案"
+          },
+          {
+            "id": "b10",
+            "type": "paragraph",
+            "text": "二つ目の提案"
+          },
+          {
+            "id": "b11",
+            "type": "heading",
+            "text": "# 論点"
+          },
+          {
+            "id": "b12",
+            "type": "list",
+            "text": "1. 周回報酬の是非 (両論: ○)\n2. 課金圧の影響 (両論: 賛成側のみ)"
+          },
+          {
+            "id": "b13",
+            "type": "heading",
+            "text": "# システム/メカニクスの説明"
+          },
+          {
+            "id": "b14",
+            "type": "heading",
+            "text": "## 抽出されたメカニクス"
+          },
+          {
+            "id": "b15",
+            "type": "list",
+            "text": "- **周回**: 繰り返し遊ぶ （出所: curated）"
+          },
+          {
+            "id": "b16",
+            "type": "heading",
+            "text": "# テーマについての補足情報"
+          },
+          {
+            "id": "b17",
+            "type": "paragraph",
+            "text": "補足"
+          },
+          {
+            "id": "b18",
+            "type": "paragraph",
+            "text": "集めた声によると周回は好評。"
+          }
+        ],
+        "canRevert": true,
+        "rev": 11
+      },
+      "calls": [],
+      "voiceCalls": []
+    },
+    {
+      "req": {
+        "method": "GET",
+        "url": "/api/flow/draft-sess-1/paper"
+      },
+      "status": 200,
+      "body": {
+        "ok": true,
+        "ready": true,
+        "started": false,
+        "missing": false,
+        "error": null,
+        "discussionNo": 3,
+        "flow": "discussion",
+        "paper": {
+          "theme": "新テーマ",
+          "tags": [
+            "運用"
+          ],
+          "supplement": "補足\n\n集めた声によると周回は好評。",
+          "mechanics": [
+            {
+              "name": "周回",
+              "description": "繰り返し遊ぶ",
+              "source": "curated"
+            }
+          ],
+          "gameTitle": "手で直した段落\n\n集めた声によると周回は好評。",
+          "discussionTheme": "新テーマ",
+          "discussionContent": "周回の報酬を見直したい。\n\n## 修正追記: 論点補強\n\n周回報酬の緩和案をもとに、賛成側と反対側の争点を追記する。\n\n## 修正追記: 修正提案\n\n二つ目の提案",
+          "mechanicsContext": "",
+          "themeSupplement": "補足\n\n集めた声によると周回は好評。",
+          "issues": [
+            "周回報酬の是非",
+            "課金圧の影響"
+          ],
+          "bodyMd": "# ゲームタイトル（または主目的）\n\n手で直した段落\n\n集めた声によると周回は好評。\n\n# 議論したいテーマ\n\n新テーマ\n\n# 議論内容\n\n周回の報酬を見直したい。\n\n## 修正追記: 論点補強\n\n周回報酬の緩和案をもとに、賛成側と反対側の争点を追記する。\n\n## 修正追記: 修正提案\n\n二つ目の提案\n\n# 論点\n\n1. 周回報酬の是非 (両論: ○)\n2. 課金圧の影響 (両論: 賛成側のみ)\n\n# システム/メカニクスの説明\n\n## 抽出されたメカニクス\n\n- **周回**: 繰り返し遊ぶ （出所: curated）\n\n# テーマについての補足情報\n\n補足\n\n集めた声によると周回は好評。"
+        },
+        "info": {
+          "voiceCount": 3,
+          "countCapped": false,
+          "samples": [
+            {
+              "content": "周回が楽しい。報酬も十分。",
+              "source": "youtube"
+            },
+            {
+              "content": "課金しないと厳しい。長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長...",
+              "source": "steam"
+            },
+            {
+              "content": "テンポが良い",
+              "source": "niconico"
+            }
+          ],
+          "fixSuggestions": [],
+          "mechanicsKnowledge": {
+            "ok": false,
+            "confidence": "medium",
+            "summary": "概ね把握",
+            "knownMechanics": [
+              "周回",
+              "強化"
+            ],
+            "missingQuestions": [
+              "報酬量は?"
+            ]
+          },
+          "voiceSimulation": {
+            "possible": true,
+            "confidence": "medium",
+            "summary": "少数のユーザの声とメカニクス文脈を種に、LLMで仮想ユーザ反応を試作できます。",
+            "caveat": "LLM生成のユーザの声は実ユーザの代替ではなく、仮説として扱ってください。",
+            "nextAction": "不足しているユーザ層を指定して生成し、可能なら参考情報の取得で検証してください。"
+          },
+          "debatability": {
+            "issues": [
+              "周回報酬の是非",
+              "課金圧の影響"
+            ],
+            "armability": [
+              {
+                "issue": "周回報酬の是非",
+                "armable": "both"
+              },
+              {
+                "issue": "課金圧の影響",
+                "armable": "pro-only"
+              }
+            ],
+            "armableBothCount": 1,
+            "minArmableIssues": 2,
+            "evidence": {
+              "voiceCount": 3,
+              "positive": 2,
+              "negative": 0,
+              "neutral": 1,
+              "polaritySkew": 1,
+              "dominantSource": {
+                "name": "youtube",
+                "share": 0.3333
+              }
+            },
+            "debatable": true,
+            "degraded": false,
+            "recommendation": null,
+            "message": "議論可能（外部の声は任意の参考値） (両論の参考根拠がある争点 1/2 件 / 極性偏り 1.00)"
+          }
+        },
+        "fixedFields": {
+          "gameTitle": "手で直した段落\n\n集めた声によると周回は好評。",
+          "discussionTheme": "新テーマ",
+          "discussionContent": "周回の報酬を見直したい。\n\n## 修正追記: 論点補強\n\n周回報酬の緩和案をもとに、賛成側と反対側の争点を追記する。\n\n## 修正追記: 修正提案\n\n二つ目の提案",
+          "mechanicsContext": "",
+          "themeSupplement": "補足\n\n集めた声によると周回は好評。"
+        },
+        "settings": {
+          "rounds": null,
+          "turnsPerRound": 20
+        },
+        "blocks": [
+          {
+            "id": "b0",
+            "type": "heading",
+            "text": "# ゲームタイトル（または主目的）"
+          },
+          {
+            "id": "b1",
+            "type": "paragraph",
+            "text": "手で直した段落"
+          },
+          {
+            "id": "b2",
+            "type": "paragraph",
+            "text": "集めた声によると周回は好評。"
+          },
+          {
+            "id": "b3",
+            "type": "heading",
+            "text": "# 議論したいテーマ"
+          },
+          {
+            "id": "b4",
+            "type": "paragraph",
+            "text": "新テーマ"
+          },
+          {
+            "id": "b5",
+            "type": "heading",
+            "text": "# 議論内容"
+          },
+          {
+            "id": "b6",
+            "type": "paragraph",
+            "text": "周回の報酬を見直したい。"
+          },
+          {
+            "id": "b7",
+            "type": "heading",
+            "text": "## 修正追記: 論点補強"
+          },
+          {
+            "id": "b8",
+            "type": "paragraph",
+            "text": "周回報酬の緩和案をもとに、賛成側と反対側の争点を追記する。"
+          },
+          {
+            "id": "b9",
+            "type": "heading",
+            "text": "## 修正追記: 修正提案"
+          },
+          {
+            "id": "b10",
+            "type": "paragraph",
+            "text": "二つ目の提案"
+          },
+          {
+            "id": "b11",
+            "type": "heading",
+            "text": "# 論点"
+          },
+          {
+            "id": "b12",
+            "type": "list",
+            "text": "1. 周回報酬の是非 (両論: ○)\n2. 課金圧の影響 (両論: 賛成側のみ)"
+          },
+          {
+            "id": "b13",
+            "type": "heading",
+            "text": "# システム/メカニクスの説明"
+          },
+          {
+            "id": "b14",
+            "type": "heading",
+            "text": "## 抽出されたメカニクス"
+          },
+          {
+            "id": "b15",
+            "type": "list",
+            "text": "- **周回**: 繰り返し遊ぶ （出所: curated）"
+          },
+          {
+            "id": "b16",
+            "type": "heading",
+            "text": "# テーマについての補足情報"
+          },
+          {
+            "id": "b17",
+            "type": "paragraph",
+            "text": "補足"
+          },
+          {
+            "id": "b18",
+            "type": "paragraph",
+            "text": "集めた声によると周回は好評。"
+          }
+        ],
+        "canRevert": true,
+        "rev": 11
+      },
+      "calls": [],
+      "voiceCalls": []
+    },
+    {
+      "req": {
+        "method": "GET",
+        "url": "/api/flow/conf-sess-1/paper"
+      },
+      "status": 200,
+      "body": {
+        "ok": true,
+        "ready": true,
+        "started": false,
+        "missing": false,
+        "error": null,
+        "discussionNo": 5,
+        "flow": "improvement",
+        "paper": {
+          "theme": "機密の議題\n\n本文の段落",
+          "tags": [
+            "機密"
+          ],
+          "supplement": "",
+          "mechanics": [],
+          "bodyMd": "# 議題\n機密の議題\n\n本文の段落"
+        },
+        "info": {
+          "voiceCount": 2,
+          "countCapped": false,
+          "samples": [],
+          "understanding": {
+            "ok": false,
+            "rationale": "不足",
+            "missingQuestions": [
+              "基本ループ"
+            ]
+          },
+          "voiceSimulation": {
+            "possible": false,
+            "confidence": "low",
+            "summary": "ゲームタイトルと議論テーマが不足しているため、ユーザの声の生成シミュレーションはまだ不安定です。",
+            "caveat": "LLM生成のユーザの声は実ユーザの代替ではなく、仮説として扱ってください。",
+            "nextAction": "先にペーパーの基本項目を埋めてから、議論可能性を確認してください。"
+          }
+        },
+        "fixedFields": {
+          "gameTitle": "",
+          "discussionTheme": "機密の議題\n\n本文の段落",
+          "discussionContent": "",
+          "mechanicsContext": "",
+          "themeSupplement": ""
+        },
+        "settings": {
+          "rounds": null,
+          "turnsPerRound": null
+        },
+        "blocks": [
+          {
+            "id": "b0",
+            "type": "heading",
+            "text": "# 議題"
+          },
+          {
+            "id": "b1",
+            "type": "paragraph",
+            "text": "機密の議題"
+          },
+          {
+            "id": "b2",
+            "type": "paragraph",
+            "text": "本文の段落"
+          }
+        ],
+        "canRevert": false,
+        "rev": 0
+      },
+      "calls": [],
+      "voiceCalls": []
+    },
+    {
+      "req": {
+        "method": "POST",
+        "url": "/api/flow/conf-sess-1/paper/crawl",
+        "body": {}
+      },
+      "status": 400,
+      "body": {
+        "ok": false,
+        "error": "機密/内部タグの議論では外部の声を参照しません"
+      },
+      "calls": [],
+      "voiceCalls": []
+    },
+    {
+      "req": {
+        "method": "POST",
+        "url": "/api/flow/conf-sess-1/paper/debatability/check",
+        "body": {}
+      },
+      "status": 200,
+      "body": {
+        "ok": true,
+        "discussionNo": 5,
+        "flow": "improvement",
+        "paper": {
+          "theme": "機密の議題\n\n本文の段落",
+          "tags": [
+            "機密"
+          ],
+          "supplement": "",
+          "mechanics": [],
+          "issues": [
+            "周回報酬の是非",
+            "課金圧の影響"
+          ],
+          "bodyMd": "# 議題\n機密の議題\n\n本文の段落\n\n# 論点\n1. 周回報酬の是非 (両論: ○)\n2. 課金圧の影響 (両論: 賛成側のみ)\n\n# ゲームのメカニクス\n(メカニクスデータなし)"
+        },
+        "info": {
+          "voiceCount": 0,
+          "countCapped": false,
+          "samples": [],
+          "understanding": {
+            "ok": false,
+            "rationale": "不足",
+            "missingQuestions": [
+              "基本ループ"
+            ]
+          },
+          "debatability": {
+            "issues": [
+              "周回報酬の是非",
+              "課金圧の影響"
+            ],
+            "armability": [
+              {
+                "issue": "周回報酬の是非",
+                "armable": "both"
+              },
+              {
+                "issue": "課金圧の影響",
+                "armable": "pro-only"
+              }
+            ],
+            "armableBothCount": 1,
+            "minArmableIssues": 2,
+            "evidence": {
+              "voiceCount": 0,
+              "positive": 0,
+              "negative": 0,
+              "neutral": 0,
+              "polaritySkew": 0,
+              "dominantSource": null
+            },
+            "debatable": true,
+            "degraded": false,
+            "recommendation": null,
+            "message": "議論可能（外部の声は任意の参考値） (両論の参考根拠がある争点 1/2 件)"
+          },
+          "voiceSimulation": {
+            "possible": false,
+            "confidence": "low",
+            "summary": "ゲームタイトルと議論テーマが不足しているため、ユーザの声の生成シミュレーションはまだ不安定です。",
+            "caveat": "LLM生成のユーザの声は実ユーザの代替ではなく、仮説として扱ってください。",
+            "nextAction": "先にペーパーの基本項目を埋めてから、議論可能性を確認してください。"
+          },
+          "fixSuggestions": [
+            {
+              "title": "論点補強",
+              "reason": "弱い",
+              "suggestedChange": "{{具体例}} を追記"
+            },
+            {
+              "title": "t2",
+              "reason": "",
+              "suggestedChange": "s2"
+            }
+          ]
+        },
+        "fixedFields": {
+          "gameTitle": "",
+          "discussionTheme": "機密の議題\n\n本文の段落",
+          "discussionContent": "",
+          "mechanicsContext": "",
+          "themeSupplement": ""
+        },
+        "settings": {
+          "rounds": null,
+          "turnsPerRound": null
+        },
+        "blocks": [
+          {
+            "id": "b0",
+            "type": "heading",
+            "text": "# 議題"
+          },
+          {
+            "id": "b1",
+            "type": "paragraph",
+            "text": "機密の議題"
+          },
+          {
+            "id": "b2",
+            "type": "paragraph",
+            "text": "本文の段落"
+          },
+          {
+            "id": "b3",
+            "type": "heading",
+            "text": "# 論点"
+          },
+          {
+            "id": "b4",
+            "type": "list",
+            "text": "1. 周回報酬の是非 (両論: ○)\n2. 課金圧の影響 (両論: 賛成側のみ)"
+          },
+          {
+            "id": "b5",
+            "type": "heading",
+            "text": "# ゲームのメカニクス"
+          },
+          {
+            "id": "b6",
+            "type": "paragraph",
+            "text": "(メカニクスデータなし)"
+          }
+        ],
+        "canRevert": false,
+        "rev": 1
+      },
+      "calls": [
+        {
+          "prompt": "# 議題\n機密の議題\n\n本文の段落\n\n# ディスカッションペーパー\n# 議論の前提\n改善/議論: 対象の既存プロジェクトがある前提で議論する。対象・現状・課題・制約を確認し、現状に対する変更案と効果を比較する。不明な現状は推測で埋めず、必要な情報を質問する。\n\n# 議題\n機密の議題\n\n本文の段落\n\n賛否が本気で割れる論点を 3〜5 個を目安に、各 1 文の疑問文で挙げてください。 本当に争点が無い場合は空配列を返して構いません。\n次の JSON 配列だけを返してください (前後に説明やコードフェンスを付けない):\n[\"論点1\", \"論点2\", ...]",
+          "system": "あなたは議論設計者です。 与えられた議題とディスカッションペーパーから、「賛成側と反対側が本気で対立できる論点 (争点)」だけを分解します。 単なる確認事項や、誰も反対しない自明な項目は含めません。 返答は JSON 配列のみ。"
+        },
+        {
+          "prompt": "# 議題\n機密の議題\n\n本文の段落\n\n# 論点\n1. 周回報酬の是非\n2. 課金圧の影響\n\n# 手元の材料 (外部の声)\n(材料なし)\n\n各論点について、この材料で pro / con のどちら側が根拠を持てるかを判定し、次の JSON 配列だけを返してください (index は論点番号 1 始まり):\n[{\"index\":1,\"armable\":\"both\"|\"pro-only\"|\"con-only\"|\"neither\"}]",
+          "system": "外部の声は参考値であり、結論を決める投票や必須条件ではありません。外部の声がなくても、提示された内容と事前知識を用いて議論します。事前知識・推測・仮説を実ユーザーの意見として数えたり捏造したりせず、不確実性と出所を明示してください。後から意見や内容を修正して再議論できます。\nあなたは議論の準備担当です。 各論点について、手元の材料と前提・事前知識で 賛成側 (pro) と反対側 (con) の両方が根拠を張れるかを判定します。 返答は JSON 配列のみ。"
+        },
+        {
+          "prompt": "{\n  \"paperMd\": \"# 議論の前提\\n改善/議論: 対象の既存プロジェクトがある前提で議論する。対象・現状・課題・制約を確認し、現状に対する変更案と効果を比較する。不明な現状は推測で埋めず、必要な情報を質問する。\\n\\n# 議題\\n機密の議題\\n\\n本文の段落\",\n  \"understanding\": {\n    \"ok\": false,\n    \"rationale\": \"不足\",\n    \"missingQuestions\": [\n      \"基本ループ\"\n    ]\n  },\n  \"debatability\": {\n    \"issues\": [\n      \"周回報酬の是非\",\n      \"課金圧の影響\"\n    ],\n    \"armability\": [\n      {\n        \"issue\": \"周回報酬の是非\",\n        \"armable\": \"both\"\n      },\n      {\n        \"issue\": \"課金圧の影響\",\n        \"armable\": \"pro-only\"\n      }\n    ],\n    \"armableBothCount\": 1,\n    \"minArmableIssues\": 2,\n    \"evidence\": {\n      \"voiceCount\": 0,\n      \"positive\": 0,\n      \"negative\": 0,\n      \"neutral\": 0,\n      \"polaritySkew\": 0,\n      \"dominantSource\": null\n    },\n    \"debatable\": true,\n    \"degraded\": false,\n    \"recommendation\": null,\n    \"message\": \"議論可能（外部の声は任意の参考値） (両論の参考根拠がある争点 1/2 件)\"\n  },\n  \"expectedShape\": [\n    {\n      \"title\": \"短い見出し\",\n      \"reason\": \"指摘理由\",\n      \"suggestedChange\": \"そのまま追記できる修正文。必要なら {{具体例}} のようなプレースホルダを含める。\"\n    }\n  ]\n}",
+          "system": "You review a Japanese discussion paper before debate. Return JSON only. Create concrete fix suggestions from the provided check findings. Do not rewrite the whole paper. Make suggestedChange directly appendable. Use {{placeholder}} only when the editor must provide missing specifics.",
+          "maxTokens": 1800
+        }
+      ],
+      "voiceCalls": []
+    },
+    {
+      "req": {
+        "method": "POST",
+        "url": "/api/flow/conf-sess-1/paper/mechanics/check",
+        "body": {}
+      },
+      "status": 200,
+      "body": {
+        "ok": true,
+        "discussionNo": 5,
+        "flow": "improvement",
+        "paper": {
+          "theme": "機密の議題\n\n本文の段落",
+          "tags": [
+            "機密"
+          ],
+          "supplement": "",
+          "mechanics": [],
+          "issues": [
+            "周回報酬の是非",
+            "課金圧の影響"
+          ],
+          "bodyMd": "# 議題\n機密の議題\n\n本文の段落\n\n# 論点\n1. 周回報酬の是非 (両論: ○)\n2. 課金圧の影響 (両論: 賛成側のみ)\n\n# ゲームのメカニクス\n(メカニクスデータなし)"
+        },
+        "info": {
+          "voiceCount": 0,
+          "countCapped": false,
+          "samples": [],
+          "understanding": {
+            "ok": false,
+            "rationale": "不足",
+            "missingQuestions": [
+              "基本ループ"
+            ]
+          },
+          "debatability": {
+            "issues": [
+              "周回報酬の是非",
+              "課金圧の影響"
+            ],
+            "armability": [
+              {
+                "issue": "周回報酬の是非",
+                "armable": "both"
+              },
+              {
+                "issue": "課金圧の影響",
+                "armable": "pro-only"
+              }
+            ],
+            "armableBothCount": 1,
+            "minArmableIssues": 2,
+            "evidence": {
+              "voiceCount": 0,
+              "positive": 0,
+              "negative": 0,
+              "neutral": 0,
+              "polaritySkew": 0,
+              "dominantSource": null
+            },
+            "debatable": true,
+            "degraded": false,
+            "recommendation": null,
+            "message": "議論可能（外部の声は任意の参考値） (両論の参考根拠がある争点 1/2 件)"
+          },
+          "voiceSimulation": {
+            "possible": false,
+            "confidence": "low",
+            "summary": "ゲームタイトルと議論テーマが不足しているため、ユーザの声の生成シミュレーションはまだ不安定です。",
+            "caveat": "LLM生成のユーザの声は実ユーザの代替ではなく、仮説として扱ってください。",
+            "nextAction": "先にペーパーの基本項目を埋めてから、議論可能性を確認してください。"
+          },
+          "fixSuggestions": [
+            {
+              "title": "論点補強",
+              "reason": "弱い",
+              "suggestedChange": "{{具体例}} を追記"
+            },
+            {
+              "title": "t2",
+              "reason": "",
+              "suggestedChange": "s2"
+            }
+          ],
+          "mechanicsKnowledge": {
+            "ok": false,
+            "confidence": "medium",
+            "summary": "概ね把握",
+            "knownMechanics": [
+              "周回",
+              "強化"
+            ],
+            "missingQuestions": [
+              "報酬量は?"
+            ]
+          }
+        },
+        "fixedFields": {
+          "gameTitle": "",
+          "discussionTheme": "機密の議題\n\n本文の段落",
+          "discussionContent": "",
+          "mechanicsContext": "",
+          "themeSupplement": ""
+        },
+        "settings": {
+          "rounds": null,
+          "turnsPerRound": null
+        },
+        "blocks": [
+          {
+            "id": "b0",
+            "type": "heading",
+            "text": "# 議題"
+          },
+          {
+            "id": "b1",
+            "type": "paragraph",
+            "text": "機密の議題"
+          },
+          {
+            "id": "b2",
+            "type": "paragraph",
+            "text": "本文の段落"
+          },
+          {
+            "id": "b3",
+            "type": "heading",
+            "text": "# 論点"
+          },
+          {
+            "id": "b4",
+            "type": "list",
+            "text": "1. 周回報酬の是非 (両論: ○)\n2. 課金圧の影響 (両論: 賛成側のみ)"
+          },
+          {
+            "id": "b5",
+            "type": "heading",
+            "text": "# ゲームのメカニクス"
+          },
+          {
+            "id": "b6",
+            "type": "paragraph",
+            "text": "(メカニクスデータなし)"
+          }
+        ],
+        "canRevert": false,
+        "rev": 1
+      },
+      "calls": [
+        {
+          "prompt": "{\n  \"gameTitle\": \"\",\n  \"discussionTheme\": \"機密の議題\\n\\n本文の段落\",\n  \"providedMechanicsContext\": \"\",\n  \"extractedMechanics\": [],\n  \"expectedShape\": {\n    \"ok\": true,\n    \"confidence\": \"low|medium|high\",\n    \"summary\": \"理解状況の短い説明\",\n    \"knownMechanics\": [\n      \"把握しているメカニクス\"\n    ],\n    \"missingQuestions\": [\n      \"不足している確認事項\"\n    ]\n  }\n}",
+          "system": "You check whether you have enough game mechanics knowledge to support a debate. Return JSON only. Do not invent certainty; mark low confidence when details are missing.",
+          "maxTokens": 1800
+        }
+      ],
+      "voiceCalls": []
+    },
+    {
+      "req": {
+        "method": "POST",
+        "url": "/api/flow/nope/paper/approve",
+        "body": {}
+      },
+      "status": 409,
+      "body": {
+        "ok": false,
+        "error": "レビュー準備中です"
+      },
+      "calls": [],
+      "voiceCalls": []
+    },
+    {
+      "req": {
+        "method": "POST",
+        "url": "/api/flow/nope/paper/revert",
+        "body": {}
+      },
+      "status": 409,
+      "body": {
+        "ok": false,
+        "error": "編集準備中です"
+      },
+      "calls": [],
+      "voiceCalls": []
+    },
+    {
+      "req": {
+        "method": "GET",
+        "url": "/api/flow/mark-sess-1/status?since=0"
+      },
+      "status": 200,
+      "body": {
+        "ok": true,
+        "utterances": [
+          {
+            "id": "u-voted",
+            "round": 1,
+            "turn": 1,
+            "personaName": "論者A",
+            "displayName": "論者A (意見屋)",
+            "role": "opinion",
+            "stance": "opinion",
+            "possessionName": null,
+            "text": "意見A",
+            "isError": false,
+            "votes": 2,
+            "isWinner": true,
+            "roundAufhebung": [
+              "止揚案"
+            ],
+            "createdAt": 100
+          },
+          {
+            "id": "u-other",
+            "round": 1,
+            "turn": 2,
+            "personaName": "論者B",
+            "displayName": "論者B (賛成派/憑依X)",
+            "role": "debater",
+            "stance": "pro",
+            "possessionName": "憑依X",
+            "text": "意見B",
+            "isError": true,
+            "votes": 1,
+            "isWinner": false,
+            "roundAufhebung": [],
+            "createdAt": 101
+          },
+          {
+            "id": "u-r2",
+            "round": 2,
+            "turn": 1,
+            "personaName": "論者C",
+            "displayName": "論者C (進行役)",
+            "role": "facilitator",
+            "stance": "neutral",
+            "possessionName": null,
+            "text": "意見C",
+            "isError": false,
+            "votes": 0,
+            "isWinner": true,
+            "roundAufhebung": [],
+            "createdAt": 102
+          }
+        ],
+        "marks": [
+          {
+            "id": "u-voted",
+            "votes": 2,
+            "isWinner": true,
+            "roundAufhebung": [
+              "止揚案"
+            ]
+          },
+          {
+            "id": "u-other",
+            "votes": 1,
+            "isWinner": false,
+            "roundAufhebung": []
+          },
+          {
+            "id": "u-r2",
+            "votes": 0,
+            "isWinner": true,
+            "roundAufhebung": []
+          }
+        ],
+        "conclusion": "結論です",
+        "concluded": false,
+        "paperMd": "# 議題\nマーク議題",
+        "foresight": null,
+        "done": true
+      },
+      "calls": [],
+      "voiceCalls": []
+    },
+    {
+      "req": {
+        "method": "GET",
+        "url": "/api/flow/mark-sess-1/status?since=100"
+      },
+      "status": 200,
+      "body": {
+        "ok": true,
+        "utterances": [
+          {
+            "id": "u-other",
+            "round": 1,
+            "turn": 2,
+            "personaName": "論者B",
+            "displayName": "論者B (賛成派/憑依X)",
+            "role": "debater",
+            "stance": "pro",
+            "possessionName": "憑依X",
+            "text": "意見B",
+            "isError": true,
+            "votes": 1,
+            "isWinner": false,
+            "roundAufhebung": [],
+            "createdAt": 101
+          },
+          {
+            "id": "u-r2",
+            "round": 2,
+            "turn": 1,
+            "personaName": "論者C",
+            "displayName": "論者C (進行役)",
+            "role": "facilitator",
+            "stance": "neutral",
+            "possessionName": null,
+            "text": "意見C",
+            "isError": false,
+            "votes": 0,
+            "isWinner": true,
+            "roundAufhebung": [],
+            "createdAt": 102
+          }
+        ],
+        "marks": [
+          {
+            "id": "u-voted",
+            "votes": 2,
+            "isWinner": true,
+            "roundAufhebung": [
+              "止揚案"
+            ]
+          },
+          {
+            "id": "u-other",
+            "votes": 1,
+            "isWinner": false,
+            "roundAufhebung": []
+          },
+          {
+            "id": "u-r2",
+            "votes": 0,
+            "isWinner": true,
+            "roundAufhebung": []
+          }
+        ],
+        "conclusion": "結論です",
+        "concluded": false,
+        "paperMd": "# 議題\nマーク議題",
+        "foresight": null,
+        "done": true
+      },
+      "calls": [],
+      "voiceCalls": []
+    },
+    {
+      "req": {
+        "method": "GET",
+        "url": "/api/flow/nope/status"
+      },
+      "status": 200,
+      "body": {
+        "ok": true,
+        "utterances": [],
+        "marks": [],
+        "conclusion": null,
+        "concluded": false,
+        "paperMd": null,
+        "foresight": null,
+        "done": false
+      },
+      "calls": [],
+      "voiceCalls": []
+    },
+    {
+      "req": {
+        "method": "DELETE",
+        "url": "/api/flow/draft-sess-1"
+      },
+      "status": 200,
+      "body": {
+        "ok": true,
+        "sessionId": "draft-sess-1"
+      },
+      "calls": [],
+      "voiceCalls": []
+    },
+    {
+      "req": {
+        "method": "DELETE",
+        "url": "/api/flow/draft-sess-1"
+      },
+      "status": 404,
+      "body": {
+        "ok": false,
+        "error": "対象の議論が見つかりません"
+      },
+      "calls": [],
+      "voiceCalls": []
+    },
+    {
+      "req": {
+        "method": "GET",
+        "url": "/api/flow/sessions"
+      },
+      "status": 200,
+      "body": {
+        "ok": true,
+        "total": 5,
+        "limit": 100,
+        "offset": 0,
+        "scope": "all",
+        "hasMore": false,
+        "sessions": [
+          {
+            "discussionNo": 6,
+            "sessionId": "mark-sess-1",
+            "title": "マーク議題",
+            "theme": "マーク議題",
+            "flow": "discussion",
+            "status": "started",
+            "discussionType": "discussion",
+            "originUi": "ai",
+            "createdAt": 1006,
+            "updatedAt": 2000,
+            "utterances": 3,
+            "concluded": false,
+            "state": "live"
+          },
+          {
+            "discussionNo": 5,
+            "sessionId": "conf-sess-1",
+            "title": "機密の議題",
+            "theme": "機密の議題\n\n本文の段落",
+            "flow": "improvement",
+            "status": "draft",
+            "discussionType": "improvement",
+            "originUi": "ai",
+            "createdAt": 1005,
+            "updatedAt": 1793694849508,
+            "utterances": 0,
+            "concluded": false,
+            "state": "draft"
+          },
+          {
+            "discussionNo": 4,
+            "sessionId": "sim-sess-1",
+            "title": "仮想ユーザ補填テーマ",
+            "theme": "仮想ユーザ補填テーマ",
+            "flow": "discussion",
+            "status": "draft",
+            "discussionType": "discussion",
+            "originUi": "ai",
+            "createdAt": 1004,
+            "updatedAt": 2000,
+            "utterances": 0,
+            "concluded": false,
+            "state": "draft"
+          },
+          {
+            "discussionNo": 2,
+            "sessionId": "done-sess-1",
+            "title": "収束時のタイトル",
+            "theme": "収束前の議題",
+            "flow": "discussion",
+            "status": "started",
+            "discussionType": "discussion",
+            "originUi": "ai",
+            "createdAt": 1002,
+            "updatedAt": 2000,
+            "utterances": 0,
+            "concluded": true,
+            "state": "concluded"
+          },
+          {
+            "discussionNo": 1,
+            "sessionId": "list-sess-1",
+            "title": "一覧テスト議題",
+            "theme": "一覧テスト議題",
+            "flow": "discussion",
+            "status": "started",
+            "discussionType": "discussion",
+            "originUi": "ai",
+            "createdAt": 1001,
+            "updatedAt": 2000,
+            "utterances": 0,
+            "concluded": false,
+            "state": "live"
+          }
+        ]
+      },
+      "calls": [],
+      "voiceCalls": []
+    },
+    {
+      "req": {
+        "method": "GET",
+        "url": "/api/flow/draft-sess-1/paper"
+      },
+      "status": 200,
+      "body": {
+        "ok": true,
+        "ready": false,
+        "missing": true,
+        "error": null,
+        "info": null,
+        "paper": null,
+        "blocks": []
+      },
+      "calls": [],
+      "voiceCalls": []
+    }
+  ],
+  "page": {
+    "status": 200,
+    "contentType": "text/html; charset=UTF-8",
+    "sha256": "77758fa407877822b28db51a0fb1d16d56a15c3730fda2257c73765726a4681d"
+  },
+  "revisions": [
+    {
+      "session_id": "conf-sess-1",
+      "rev": 1,
+      "body_md": "# 議題\n機密の議題\n\n本文の段落\n\n# 論点\n1. 周回報酬の是非 (両論: ○)\n2. 課金圧の影響 (両論: 賛成側のみ)\n\n# ゲームのメカニクス\n(メカニクスデータなし)",
+      "change_summary": "議論可能性チェック",
+      "origin": "manual"
+    },
+    {
+      "session_id": "draft-sess-1",
+      "rev": 1,
+      "body_md": "# ゲームタイトル（または主目的）\n下書きゲーム\n\n# 議論したいテーマ\n下書き議題\n\n# 議論内容\n周回の報酬を見直したい。\n\n## 修正追記: 論点補強\n周回報酬の緩和案をもとに、賛成側と反対側の争点を追記する。\n\n# システム/メカニクスの説明\n## 抽出されたメカニクス\n- **周回**: 繰り返し遊ぶ （出所: curated）\n\n# テーマについての補足情報\n",
+      "change_summary": "修正提案を追記: 論点補強",
+      "origin": "manual"
+    },
+    {
+      "session_id": "draft-sess-1",
+      "rev": 2,
+      "body_md": "# ゲームタイトル（または主目的）\n下書きゲーム\n\n# 議論したいテーマ\n下書き議題\n\n# 議論内容\n周回の報酬を見直したい。\n\n## 修正追記: 論点補強\n周回報酬の緩和案をもとに、賛成側と反対側の争点を追記する。\n\n## 修正追記: 修正提案\n二つ目の提案\n\n# システム/メカニクスの説明\n## 抽出されたメカニクス\n- **周回**: 繰り返し遊ぶ （出所: curated）\n\n# テーマについての補足情報\n",
+      "change_summary": "修正提案を追記:   ",
+      "origin": "manual"
+    },
+    {
+      "session_id": "draft-sess-1",
+      "rev": 3,
+      "body_md": "# ゲームタイトル（または主目的）\n\n\n# 議論したいテーマ\n新テーマ\n\n# 議論内容\n周回の報酬を見直したい。\n\n## 修正追記: 論点補強\n周回報酬の緩和案をもとに、賛成側と反対側の争点を追記する。\n\n## 修正追記: 修正提案\n二つ目の提案\n\n# システム/メカニクスの説明\n## 抽出されたメカニクス\n- **周回**: 繰り返し遊ぶ （出所: curated）\n\n# テーマについての補足情報\n",
+      "change_summary": "固定フォーム保存",
+      "origin": "manual"
+    },
+    {
+      "session_id": "draft-sess-1",
+      "rev": 4,
+      "body_md": "# ゲームタイトル（または主目的）\n新ゲーム\n\n# 議論したいテーマ\n新テーマ\n\n# 議論内容\n周回の報酬を見直したい。\n\n## 修正追記: 論点補強\n周回報酬の緩和案をもとに、賛成側と反対側の争点を追記する。\n\n## 修正追記: 修正提案\n二つ目の提案\n\n# 論点\n1. 論点一\n2. 論点二\n3. 論点三\n4. 12)論点四\n\n# システム/メカニクスの説明\n## 抽出されたメカニクス\n- **周回**: 繰り返し遊ぶ （出所: curated）\n\n# テーマについての補足情報\n補足",
+      "change_summary": "固定フォーム保存",
+      "origin": "manual"
+    },
+    {
+      "session_id": "draft-sess-1",
+      "rev": 5,
+      "body_md": "# ゲームタイトル（または主目的）\n新ゲーム\n\n# 議論したいテーマ\n新テーマ\n\n# 議論内容\n周回の報酬を見直したい。\n\n## 修正追記: 論点補強\n周回報酬の緩和案をもとに、賛成側と反対側の争点を追記する。\n\n## 修正追記: 修正提案\n二つ目の提案\n\n# 論点\n1. - 配列の論点\n\n# システム/メカニクスの説明\n## 抽出されたメカニクス\n- **周回**: 繰り返し遊ぶ （出所: curated）\n\n# テーマについての補足情報\n補足",
+      "change_summary": "固定フォーム保存",
+      "origin": "manual"
+    },
+    {
+      "session_id": "draft-sess-1",
+      "rev": 6,
+      "body_md": "# ゲームタイトル（または主目的）\n新ゲーム\n\n# 議論したいテーマ\n新テーマ\n\n# 議論内容\n周回の報酬を見直したい。\n\n## 修正追記: 論点補強\n周回報酬の緩和案をもとに、賛成側と反対側の争点を追記する。\n\n## 修正追記: 修正提案\n二つ目の提案\n\n# 論点\n1. 周回報酬の是非 (両論: ○)\n2. 課金圧の影響 (両論: 賛成側のみ)\n\n# システム/メカニクスの説明\n## 抽出されたメカニクス\n- **周回**: 繰り返し遊ぶ （出所: curated）\n\n# テーマについての補足情報\n補足",
+      "change_summary": "議論可能性チェック",
+      "origin": "manual"
+    },
+    {
+      "session_id": "draft-sess-1",
+      "rev": 7,
+      "body_md": "# ゲームタイトル（または主目的）\n\n手で直した段落\n\n# 議論したいテーマ\n\n新テーマ\n\n# 議論内容\n\n周回の報酬を見直したい。\n\n## 修正追記: 論点補強\n\n周回報酬の緩和案をもとに、賛成側と反対側の争点を追記する。\n\n## 修正追記: 修正提案\n\n二つ目の提案\n\n# 論点\n\n1. 周回報酬の是非 (両論: ○)\n2. 課金圧の影響 (両論: 賛成側のみ)\n\n# システム/メカニクスの説明\n\n## 抽出されたメカニクス\n\n- **周回**: 繰り返し遊ぶ （出所: curated）\n\n# テーマについての補足情報\n\n補足",
+      "change_summary": "ブロックを編集",
+      "origin": "manual"
+    },
+    {
+      "session_id": "draft-sess-1",
+      "rev": 8,
+      "body_md": "# ゲームタイトル（または主目的）\n\n手で直した段落\n\n# 議論したいテーマ\n\n新テーマ\n\n# 議論内容\n\n周回の報酬を見直したい。\n\n## 修正追記: 論点補強\n\n周回報酬の緩和案をもとに、賛成側と反対側の争点を追記する。\n\n## 修正追記: 修正提案\n\n二つ目の提案\n\n# 論点\n\n1. 周回報酬の是非 (両論: ○)\n2. 課金圧の影響 (両論: 賛成側のみ)\n\n# システム/メカニクスの説明\n\n## 抽出されたメカニクス\n\n- **周回**: 繰り返し遊ぶ （出所: curated）\n\n# テーマについての補足情報\n\n補足\n\n集めた声によると周回は好評。",
+      "change_summary": "根拠を追記 (3 件)",
+      "origin": "crawl"
+    },
+    {
+      "session_id": "draft-sess-1",
+      "rev": 9,
+      "body_md": "# ゲームタイトル（または主目的）\n\n手で直した段落\n\n集めた声によると周回は好評。\n\n# 議論したいテーマ\n\n新テーマ\n\n# 議論内容\n\n周回の報酬を見直したい。\n\n## 修正追記: 論点補強\n\n周回報酬の緩和案をもとに、賛成側と反対側の争点を追記する。\n\n## 修正追記: 修正提案\n\n二つ目の提案\n\n# 論点\n\n1. 周回報酬の是非 (両論: ○)\n2. 課金圧の影響 (両論: 賛成側のみ)\n\n# システム/メカニクスの説明\n\n## 抽出されたメカニクス\n\n- **周回**: 繰り返し遊ぶ （出所: curated）\n\n# テーマについての補足情報\n\n補足\n\n集めた声によると周回は好評。",
+      "change_summary": "根拠を追記 (3 件)",
+      "origin": "crawl"
+    },
+    {
+      "session_id": "draft-sess-1",
+      "rev": 10,
+      "body_md": "# ゲームタイトル（または主目的）\n\n手で直した段落\n\n# 議論したいテーマ\n\n新テーマ\n\n# 議論内容\n\n周回の報酬を見直したい。\n\n## 修正追記: 論点補強\n\n周回報酬の緩和案をもとに、賛成側と反対側の争点を追記する。\n\n## 修正追記: 修正提案\n\n二つ目の提案\n\n# 論点\n\n1. 周回報酬の是非 (両論: ○)\n2. 課金圧の影響 (両論: 賛成側のみ)\n\n# システム/メカニクスの説明\n\n## 抽出されたメカニクス\n\n- **周回**: 繰り返し遊ぶ （出所: curated）\n\n# テーマについての補足情報\n\n補足\n\n集めた声によると周回は好評。",
+      "change_summary": "1 手前 (rev 8) に戻しました",
+      "origin": "revert"
+    },
+    {
+      "session_id": "draft-sess-1",
+      "rev": 11,
+      "body_md": "# ゲームタイトル（または主目的）\n\n手で直した段落\n\n集めた声によると周回は好評。\n\n# 議論したいテーマ\n\n新テーマ\n\n# 議論内容\n\n周回の報酬を見直したい。\n\n## 修正追記: 論点補強\n\n周回報酬の緩和案をもとに、賛成側と反対側の争点を追記する。\n\n## 修正追記: 修正提案\n\n二つ目の提案\n\n# 論点\n\n1. 周回報酬の是非 (両論: ○)\n2. 課金圧の影響 (両論: 賛成側のみ)\n\n# システム/メカニクスの説明\n\n## 抽出されたメカニクス\n\n- **周回**: 繰り返し遊ぶ （出所: curated）\n\n# テーマについての補足情報\n\n補足\n\n集めた声によると周回は好評。",
+      "change_summary": "1 手前 (rev 9) に戻しました",
+      "origin": "revert"
+    }
+  ],
+  "reviewInfoAfter": {
+    "voiceCount": 3,
+    "countCapped": false,
+    "samples": [
+      {
+        "content": "周回が楽しい。報酬も十分。",
+        "source": "youtube"
+      },
+      {
+        "content": "課金しないと厳しい。長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長...",
+        "source": "steam"
+      },
+      {
+        "content": "テンポが良い",
+        "source": "niconico"
+      }
+    ],
+    "fixSuggestions": [],
+    "mechanicsKnowledge": {
+      "ok": false,
+      "confidence": "medium",
+      "summary": "概ね把握",
+      "knownMechanics": [
+        "周回",
+        "強化"
+      ],
+      "missingQuestions": [
+        "報酬量は?"
+      ]
+    },
+    "voiceSimulation": {
+      "possible": true,
+      "confidence": "medium",
+      "summary": "少数のユーザの声とメカニクス文脈を種に、LLMで仮想ユーザ反応を試作できます。",
+      "caveat": "LLM生成のユーザの声は実ユーザの代替ではなく、仮説として扱ってください。",
+      "nextAction": "不足しているユーザ層を指定して生成し、可能なら参考情報の取得で検証してください。"
+    },
+    "debatability": {
+      "issues": [
+        "周回報酬の是非",
+        "課金圧の影響"
+      ],
+      "armability": [
+        {
+          "issue": "周回報酬の是非",
+          "armable": "both"
+        },
+        {
+          "issue": "課金圧の影響",
+          "armable": "pro-only"
+        }
+      ],
+      "armableBothCount": 1,
+      "minArmableIssues": 2,
+      "evidence": {
+        "voiceCount": 3,
+        "positive": 2,
+        "negative": 0,
+        "neutral": 1,
+        "polaritySkew": 1,
+        "dominantSource": {
+          "name": "youtube",
+          "share": 0.3333
+        }
+      },
+      "debatable": true,
+      "degraded": false,
+      "recommendation": null,
+      "message": "議論可能（外部の声は任意の参考値） (両論の参考根拠がある争点 1/2 件 / 極性偏り 1.00)"
+    }
+  }
+}
