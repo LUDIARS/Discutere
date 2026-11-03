@@ -496,8 +496,7 @@ TEST_CASE("golden: 未来予測の話者割当・往復・段階・投稿の分�
     }
     for (const auto& c : golden()["normalizeTurns"]) CHECK_EQ(foresight::normalize_camp_turns(c["n"].get<double>()), c["v"].get<int>());
     CHECK_EQ(foresight::normalize_camp_turns(std::nan("")), golden()["normalizeTurnsSpecial"]["nan"].get<int>());
-    // JS は Infinity をそのまま返す (無限ループ)。C++ は MAX_CAMP_TURNS で止める (暴走ガード)。
-    CHECK_EQ(foresight::normalize_camp_turns(INFINITY), foresight::MAX_CAMP_TURNS);
+    CHECK_EQ(foresight::normalize_camp_turns(INFINITY), golden()["normalizeTurnsSpecial"]["inf"].get<int>());
     for (const auto& c : golden()["stages"]) CHECK_EQ(foresight::camp_stage_at(c["i"].get<int>()), c["stage"].get<std::string>());
     std::vector<FlowUtteranceRecord> main_utterances;
     for (const auto& u : golden()["casts"][0]["utterances"]) main_utterances.push_back(record_from(u));
@@ -779,7 +778,7 @@ TEST_CASE("壁打ち: 同じセッションへの並行の submit_user は直列
 TEST_CASE("境界: split_for_post の上限ちょうど / +1 / 0 / 巨大な入力") {
     CHECK_EQ(foresight::split_for_post(std::string(1780, 'a')).size(), 1u);
     CHECK_EQ(foresight::split_for_post(std::string(1781, 'a')).size(), 2u);
-    CHECK_EQ(foresight::split_for_post(std::string(1779, 'a') + "\nb").size(), 1u);  // 1779 + 1 + 1 = 1781 > 1780
+    CHECK_EQ(foresight::split_for_post(std::string(1779, 'a') + "\nb").size(), 2u);  // 1779 + 1 + 1 = 1781 > 1780
     CHECK_EQ(foresight::split_for_post(std::string(1778, 'a') + "\nb").size(), 1u);
     CHECK_EQ(foresight::split_for_post(std::string(1779, 'a') + "\nbb").size(), 2u);
     CHECK_EQ(foresight::split_for_post("abc", 0).size(), 3u);  // 0 は 1 として扱う
@@ -847,3 +846,5 @@ TEST_CASE("run_ground_exchange: 必須の引数が無ければ拒否 / ensure_de
     f.role = "facilitator";
     CHECK_THROWS(dialectic::ensure_debaters({f}, nullptr));
 }
+
+int main() { return di::test::run_all(); }

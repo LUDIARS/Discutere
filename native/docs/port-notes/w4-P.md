@@ -63,6 +63,8 @@ engine=rounds の改善 + 未来予測 + 機密 (外部の声を一度も引か�
 | w2-G・w3-L が「担当外の driver を通す」として移さなかった結合 (dialectic-driver.test.ts / entrypoints.test.ts / discussion.test.ts の dispatch 部分) | flow.w4p_flow (上と同じ) |
 | (無し) ensureDebaters・進行状態と停止・境界 | flow.w4p_flow |
 
+ctest 全体: 130/130 通過 (ビルドディレクトリ `/home/user/build-w4-P`、このうち w4-P は flow.w4p_flow の 1 本・16 ケース)。
+
 entrypoints.test.ts の parseForumEntry / handleForumFlowPost (entry-discord) と Web ルート部分は担当外 (Web / Discord の担当)。
 
 ## 3. 安全の対応表
@@ -86,7 +88,7 @@ lorica の課金を新たに入れた入力経路は無い (外部入力の受�
 - 全ファイル移した (Node に残すものは無い)。
 - **追加**: dialectic でも `FlowRunOptions::state` を読む (w3-L の rounds と同じ仕組み)。停止の区切りに「発話の永続 + onUtterance の直後」を
   含むので、応酬の途中でも止まる (TS には停止が無い)。
-- `normalize_camp_turns`: 非有限 (NaN) は TS と同じく 2。Infinity は TS では無限ループになるところ、C++ は `MAX_CAMP_TURNS` (1000) で止める。
+- `normalize_camp_turns`: 非有限 (NaN / Infinity) は TS と同じく 2。有限の巨大な値 (1e18 等) は TS では巨大な配列を作るところ、C++ は `MAX_CAMP_TURNS` (1000) で止める (config は 1..20 に丸めているので通常は差が出ない)。
 - `camp_stage_at` の負の index は先頭の段 (TS は undefined)。
 - `split_for_post` の limit 0 は 1 として扱う (TS は無限ループ)。
 - `build_vote_ranking_lines` の並びは tally の挿入順を安定に保つ (JS の Object.entries は整数に見えるキーを先に並べる。w2-G と同じ差)。
@@ -106,4 +108,4 @@ lorica の課金を新たに入れた入力経路は無い (外部入力の受�
   - golden fixture が 4.5MB ある (system / prompt の全文と DB 全行を 23 シナリオ分)。fixture のサイズ方針が要るなら決めてほしい。
 - 人間の判断が要ること
   - `FlowRunState` の停止を Web / Discord の「止める」操作に配線するか (後続の担当)。
-  - 未来予測の発言回数の上限 (1000) と limit 0 の扱いを受け入れてよいか (TS では無限ループになる入力への安全側の差)。
+  - 未来予測の発言回数の上限 (1000) と split_for_post の limit 0 の扱いを受け入れてよいか (TS では巨大な確保・無限ループになる入力への安全側の差)。
