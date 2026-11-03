@@ -1000,7 +1000,8 @@ int run_server() {
     log::info("  Tasks:    /api/groups/:id/tasks");
     log::info("  Monitors: /api/groups/:id/monitors");
     log::info("  Webhooks: /api/webhook/slack, /api/webhook/discord");
-    log::info("  Discord:  Gateway (WS) — slash + message via bot token");
+    // TS の文字列のまま (元のソースの文字化け "\u2001E" も同じバイト列で出す)。
+    log::info("  Discord:  Gateway (WS) \xE2\x80\x81" "Eslash + message via bot token");
     log::info("  Admin:    /api/admin/{rules/enabled,session/reset,status}");
     log::info("  Dashboard: /api/admin/dashboard (HTML, admin role)");
     log::info("  Learning:  /learning (local read-only view)");
