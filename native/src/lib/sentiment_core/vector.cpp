@@ -5,6 +5,7 @@
 #include <stdexcept>
 
 #include "base/strings.hpp"
+#include "lib/sentiment_core/js_math.hpp"
 #include "lib/sentiment_core/js_number.hpp"
 #include "lib/sentiment_core/lexicon.hpp"
 
@@ -138,7 +139,7 @@ Vector build_vector(const std::vector<TextFeatures>& features) {
     for (const auto& f : features)
         if (f.valence > 0.05) positive_count += 1;
     out.push_back(positive_count / divisor);
-    out.push_back(clamp01(std::log10(static_cast<double>(features.size()) + 1) / 4));
+    out.push_back(clamp01(js_log10(static_cast<double>(features.size()) + 1) / 4));
     for (auto& v : out) v = round4(v);
     return out;
 }

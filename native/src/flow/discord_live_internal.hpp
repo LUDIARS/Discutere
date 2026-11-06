@@ -52,9 +52,8 @@ struct PendingPaperReview {
 
 using PendingPtr = std::shared_ptr<PendingPaperReview>;
 
-inline 
 // モジュール内の状態 (TS の module-level Map / Set)。
-std::mutex g_mu;
+inline std::mutex g_mu;
 
 /** 進行中の壁打ちセッション (threadId → session)。 */
 inline std::map<std::string, std::shared_ptr<SparringSession>> g_sparring;
@@ -128,7 +127,6 @@ PaperDraftBuild build_forum_paper_draft(const StartForumFlowInput& input, const 
 
 PaperIntentDeps build_intent_deps(const StartForumFlowInput& input, const FlowDiscordDeps& deps);
 
-inline 
 /** 無操作の自動開始タイマーを (張り直して) 仕掛ける。timeoutMs<=0 なら何もしない。 */
 void schedule_review_auto_start(const std::string& thread_id, const FlowDiscordDeps& deps);
 

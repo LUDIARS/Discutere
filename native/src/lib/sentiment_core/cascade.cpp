@@ -4,6 +4,7 @@
 #include <cmath>
 
 #include "base/strings.hpp"
+#include "lib/sentiment_core/js_math.hpp"
 #include "lib/sentiment_core/js_number.hpp"
 #include "lib/sentiment_core/lexicon.hpp"
 
@@ -41,7 +42,7 @@ double tier_zero_score(std::string_view text, const std::optional<Signal>& signa
     }
     // signal?.upvotes && signal.upvotes > 0 (NaN・0 は偽)
     if (signal && signal->upvotes && *signal->upvotes > 0) {
-        const double boost = std::min(1.0, std::log10(*signal->upvotes + 1) / 3);
+        const double boost = std::min(1.0, js_log10(*signal->upvotes + 1) / 3);
         polarity += boost * (hits > 0 ? js_sign(polarity) : 0);
     }
     return hits > 0 ? std::max(-1.0, std::min(1.0, polarity / std::max(2.0, hits))) : 0;

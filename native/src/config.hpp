@@ -218,7 +218,7 @@ struct DiscutereConfig {
         std::string model;
         double timeoutMs = 0;
     } classifier;
-    struct {
+    struct Discussion {
         double expectedUtterances = 0;
         double keymanCount = 0;
         std::string facilitatorModel;
@@ -241,7 +241,7 @@ struct DiscutereConfig {
         std::vector<WorkerPoolWorker> workers;
         std::vector<std::string> excludeProviders;
     } workerPool;
-    struct {
+    struct Discord {
         std::optional<std::string> botToken;
         std::optional<std::string> applicationId;
         std::vector<std::string> guildIds;
@@ -249,7 +249,7 @@ struct DiscutereConfig {
         std::vector<std::string> adminIds;
         std::vector<std::string> discussionChannelIds;
         std::vector<std::string> crawlChannelIds;
-        struct {
+        struct Forum {
             bool enabled = true;
             std::string summaryChannelName;
             std::string dataLearningChannelName;
@@ -258,7 +258,7 @@ struct DiscutereConfig {
             std::vector<std::string> funTagNames;
             std::string discussionForumName;
         } forum;
-        struct {
+        struct GameFeedback {
             bool enabled = true;
             std::string categoryName;
         } gameFeedback;

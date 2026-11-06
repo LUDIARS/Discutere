@@ -1,0 +1,4 @@
+# native/web は実行ファイルへそのまま埋め込み、tests/fixtures は Node の出力と 1 バイト単位で比べる。
+# Windows の autocrlf で CRLF に変わると出力が変わるので、改行は常に LF にする。
+native/web/** text eol=lf
+native/tests/fixtures/** text eol=lf
