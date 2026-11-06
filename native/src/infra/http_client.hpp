@@ -29,11 +29,17 @@ struct ClientRequest {
     int max_redirects = 5;
 };
 
+/** 通信の失敗の種類 (再試行の判断用)。 */
+enum class FetchErrorKind { none, timeout, blocked, too_large, busy, dns, invalid_url, too_many_redirects, network };
+
 struct ClientResponse {
     /** 通信自体が成立したか (false なら error に理由、status は 0)。 */
     bool transport_ok = false;
     std::string error;
+    FetchErrorKind error_kind = FetchErrorKind::none;
     int status = 0;
+    /** 応答の理由句 (例 "Not Found")。 */
+    std::string reason;
     Headers headers;
     std::string body;
     std::string final_url;

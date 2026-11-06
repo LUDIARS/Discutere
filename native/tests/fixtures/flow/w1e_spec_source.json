@@ -1,0 +1,347 @@
+{
+  "github": [
+    {
+      "u": "git@github.com:owner/repo.git",
+      "r": {
+        "owner": "owner",
+        "repo": "repo"
+      }
+    },
+    {
+      "u": " GIT@GitHub.com:o/r ",
+      "r": {
+        "owner": "o",
+        "repo": "r"
+      }
+    },
+    {
+      "u": "git@github.com:o/r.git.git",
+      "r": {
+        "owner": "o",
+        "repo": "r"
+      }
+    },
+    {
+      "u": "git@github.com:o/.git",
+      "r": {
+        "owner": "o",
+        "repo": ""
+      }
+    },
+    {
+      "u": "git@github.com:o/a b",
+      "r": null
+    },
+    {
+      "u": "https://github.com/owner/repo",
+      "r": {
+        "owner": "owner",
+        "repo": "repo"
+      }
+    },
+    {
+      "u": "https://github.com/owner/repo.git/blob/main/docs/spec.md",
+      "r": {
+        "owner": "owner",
+        "repo": "repo",
+        "ref": "main",
+        "path": "docs/spec.md"
+      }
+    },
+    {
+      "u": "https://github.com/o/r/raw/v1/a/b/c.pdf",
+      "r": {
+        "owner": "o",
+        "repo": "r",
+        "ref": "v1",
+        "path": "a/b/c.pdf"
+      }
+    },
+    {
+      "u": "https://github.com/o/r/tree/dev",
+      "r": {
+        "owner": "o",
+        "repo": "r",
+        "ref": "dev"
+      }
+    },
+    {
+      "u": "https://github.com/o/r/tree/dev/sub/dir",
+      "r": {
+        "owner": "o",
+        "repo": "r",
+        "ref": "dev",
+        "path": "sub/dir"
+      }
+    },
+    {
+      "u": "https://github.com/o/r?ref=x&path=y/z.md",
+      "r": {
+        "owner": "o",
+        "repo": "r",
+        "ref": "x",
+        "path": "y/z.md"
+      }
+    },
+    {
+      "u": "https://GitHub.com/o/r/blob/main",
+      "r": {
+        "owner": "o",
+        "repo": "r"
+      }
+    },
+    {
+      "u": "https://raw.githubusercontent.com/o/r/main/spec.md",
+      "r": {
+        "owner": "o",
+        "repo": "r",
+        "ref": "main",
+        "path": "spec.md"
+      }
+    },
+    {
+      "u": "https://raw.githubusercontent.com/o/r/main",
+      "r": null
+    },
+    {
+      "u": "https://api.github.com/repos/o/r/contents/docs/a.md?ref=feat%2Fx",
+      "r": {
+        "owner": "o",
+        "repo": "r",
+        "path": "docs/a.md",
+        "ref": "feat/x"
+      }
+    },
+    {
+      "u": "https://api.github.com/repos/o/r",
+      "r": null
+    },
+    {
+      "u": "https://api.github.com/repos/o/r/contents",
+      "r": {
+        "owner": "o",
+        "repo": "r",
+        "path": ""
+      }
+    },
+    {
+      "u": "https://github.com/o",
+      "r": null
+    },
+    {
+      "u": "https://gitlab.com/o/r",
+      "r": null
+    },
+    {
+      "u": "not a url",
+      "r": null
+    },
+    {
+      "u": "",
+      "r": null
+    }
+  ],
+  "build": [
+    {
+      "owner": "o",
+      "repo": "r",
+      "ref": "v2",
+      "path": "docs/x.md"
+    },
+    {
+      "owner": "o",
+      "repo": "r",
+      "ref": "m",
+      "path": "a.md"
+    },
+    null
+  ],
+  "textual": [
+    {
+      "b": "",
+      "r": false
+    },
+    {
+      "b": "YWJj",
+      "r": true
+    },
+    {
+      "b": "YQBi",
+      "r": false
+    },
+    {
+      "b": "AQIDYWJjZGVmZ2hpamtsbW5vcHFyc3R1dnd4eXo=",
+      "r": false
+    },
+    {
+      "b": "AWFiY2RlZmdoaWo=",
+      "r": true
+    },
+    {
+      "b": "5SyeCQ0K",
+      "r": true
+    }
+  ],
+  "isHttp": [
+    {
+      "s": "https://a",
+      "r": true
+    },
+    {
+      "s": " HTTP://b",
+      "r": true
+    },
+    {
+      "s": "ftp://c",
+      "r": false
+    },
+    {
+      "s": "httpx://",
+      "r": false
+    },
+    {
+      "s": "http:/x",
+      "r": false
+    }
+  ],
+  "extract": [
+    {
+      "name": "a.html",
+      "bytes": "PGh0bWw+PGhlYWQ+PHRpdGxlPlQ8L3RpdGxlPjxzdHlsZT5we2NvbG9yOnJlZH08L3N0eWxlPjxzY3JpcHQ+dmFyIGEgPSAnPGI+Jzs8L3NjcmlwdD48L2hlYWQ+PGJvZHk+PGgxPuS7leanmCAmYW1wOyDoqK3oqIg8L2gxPjxwPuacrOaWhyZuYnNwO+OBp+OBmSAmbHQ7dGFnJmd0OyAmI3gzMDQyOyYjMTIzNTQ7ICZxdW90O3EmcXVvdDsgJmFwb3M7YSZhcG9zOyAmIzM5OzwvcD48L2JvZHk+PC9odG1sPg==",
+      "result": "T 仕様 & 設計 本文 です <tag> ああ \"q\" 'a' '"
+    },
+    {
+      "name": "a.html",
+      "bytes": "PFNDUklQVCB0eXBlPXg+YWxlcnQoMSk8L1NDUklQVD5hZnRlcjxzY3JpcHRzPng8L3NjcmlwdHM+IDxzdHlsZT5uZXZlciBjbG9zZWQ=",
+      "result": "after x never closed"
+    },
+    {
+      "name": "a.html",
+      "bytes": "YSA8IGIgPiBjIDw+IGQgPA==",
+      "result": "a c <> d <"
+    },
+    {
+      "name": "a.html",
+      "bytes": "ICAKCSA=",
+      "result": ""
+    },
+    {
+      "name": "a.html",
+      "bytes": "77u/PHA+Qk9NPC9wPg==",
+      "result": "BOM"
+    },
+    {
+      "name": "a.md",
+      "bytes": "IyBzcGVjIMatucg=",
+      "result": "# spec ƭ��"
+    },
+    {
+      "name": "a.md",
+      "bytes": "/0JPTSDYTQ==",
+      "result": "�BOM �M"
+    },
+    {
+      "name": "a.md",
+      "bytes": "YmFkIP8gdXRmOA==",
+      "result": "bad � utf8"
+    },
+    {
+      "name": "b.txt",
+      "bytes": "YeOBYg==",
+      "result": "a�b"
+    },
+    {
+      "name": "b.txt",
+      "bytes": "8J+Y",
+      "result": "�"
+    },
+    {
+      "name": "b.txt",
+      "bytes": "7aCAQQ==",
+      "result": "���A"
+    },
+    {
+      "name": "b.txt",
+      "bytes": "wK/ggEE=",
+      "result": "����A"
+    },
+    {
+      "name": "b.txt",
+      "bytes": "9JCAgA==",
+      "result": "����"
+    }
+  ],
+  "errors": [
+    {
+      "name": "a.exe",
+      "bytes": "eA==",
+      "error": "ファイル a.exe: unsupported spec file format. Supported: .doc, .docx, .htm, .html, .json, .md, .markdown, .pdf, .pptx, .text, .txt, .xlsx, .xslx, .yaml, .yml"
+    },
+    {
+      "name": "noext",
+      "bytes": "eA==",
+      "error": "ファイル noext: unsupported spec file format. Supported: .doc, .docx, .htm, .html, .json, .md, .markdown, .pdf, .pptx, .text, .txt, .xlsx, .xslx, .yaml, .yml"
+    },
+    {
+      "name": "a.md",
+      "bytes": "AAE=",
+      "error": "ファイル a.md はテキストとして読めません (バイナリ形式の可能性。PDF は .pdf, DOCX は .docx を使用してください)"
+    },
+    {
+      "name": "a.txt",
+      "bytes": "",
+      "error": "ファイル a.txt はテキストとして読めません (バイナリ形式の可能性。PDF は .pdf, DOCX は .docx を使用してください)"
+    }
+  ],
+  "fetches": [
+    {
+      "u": "https://x/spec.md",
+      "body": "# 仕様",
+      "ct": "",
+      "status": 200,
+      "result": "# 仕様"
+    },
+    {
+      "u": "https://x/page",
+      "body": "<p>a&amp;b</p>",
+      "ct": "text/html; charset=utf-8",
+      "status": 200,
+      "result": "a&b"
+    },
+    {
+      "u": "https://x/p.HTM?q=1",
+      "body": "<b>x</b>",
+      "ct": "",
+      "status": 200,
+      "result": "x"
+    },
+    {
+      "u": "https://x/y",
+      "body": "nope",
+      "ct": "",
+      "status": 404,
+      "error": "仕様書 URL の取得に失敗 (HTTP 404): https://x/y"
+    },
+    {
+      "u": "https://x/a.exe",
+      "body": "x",
+      "ct": "",
+      "status": 200,
+      "error": "URL https://x/a.exe: unsupported spec file format. Supported: .doc, .docx, .htm, .html, .json, .md, .markdown, .pdf, .pptx, .text, .txt, .xlsx, .xslx, .yaml, .yml"
+    },
+    {
+      "u": "https://x/bin",
+      "body": "\u0000\u0001",
+      "ct": "",
+      "status": 200,
+      "error": "URL https://x/bin はテキストとして読めません (バイナリ形式の可能性。PDF は .pdf, DOCX は .docx を使用してください)"
+    },
+    {
+      "u": "https://x/dir/",
+      "body": "plain",
+      "ct": "text/plain",
+      "status": 200,
+      "result": "plain"
+    }
+  ]
+}

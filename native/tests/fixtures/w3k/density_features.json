@@ -1,0 +1,210 @@
+[
+  {
+    "voices": [],
+    "tags": [
+      "機密"
+    ],
+    "features": {
+      "voiceCount": 0,
+      "sourceKinds": 0,
+      "avgLen": 0,
+      "tagCount": 1
+    }
+  },
+  {
+    "voices": [
+      {
+        "content": "楽しい",
+        "source": "niconico"
+      }
+    ],
+    "tags": [
+      "機密"
+    ],
+    "features": {
+      "voiceCount": 1,
+      "sourceKinds": 1,
+      "avgLen": 3,
+      "tagCount": 1
+    }
+  },
+  {
+    "voices": [
+      {
+        "content": "長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長長",
+        "source": "steam"
+      },
+      {
+        "content": "😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀",
+        "source": "youtube"
+      },
+      {
+        "content": "short",
+        "source": "steam",
+        "sourceUrl": "https://example.invalid/a"
+      }
+    ],
+    "tags": [
+      "機密"
+    ],
+    "features": {
+      "voiceCount": 3,
+      "sourceKinds": 2,
+      "avgLen": 118,
+      "tagCount": 1
+    }
+  },
+  {
+    "voices": [
+      {
+        "content": "声0",
+        "source": "youtube"
+      },
+      {
+        "content": "声1",
+        "source": "niconico"
+      },
+      {
+        "content": "声2",
+        "source": "youtube"
+      },
+      {
+        "content": "声3",
+        "source": "niconico"
+      },
+      {
+        "content": "声4",
+        "source": "youtube"
+      },
+      {
+        "content": "声5",
+        "source": "niconico"
+      },
+      {
+        "content": "声6",
+        "source": "youtube"
+      },
+      {
+        "content": "声7",
+        "source": "niconico"
+      },
+      {
+        "content": "声8",
+        "source": "youtube"
+      },
+      {
+        "content": "声9",
+        "source": "niconico"
+      },
+      {
+        "content": "声10",
+        "source": "youtube"
+      },
+      {
+        "content": "声11",
+        "source": "niconico"
+      },
+      {
+        "content": "声12",
+        "source": "youtube"
+      },
+      {
+        "content": "声13",
+        "source": "niconico"
+      },
+      {
+        "content": "声14",
+        "source": "youtube"
+      },
+      {
+        "content": "声15",
+        "source": "niconico"
+      },
+      {
+        "content": "声16",
+        "source": "youtube"
+      },
+      {
+        "content": "声17",
+        "source": "niconico"
+      },
+      {
+        "content": "声18",
+        "source": "youtube"
+      },
+      {
+        "content": "声19",
+        "source": "niconico"
+      },
+      {
+        "content": "声20",
+        "source": "youtube"
+      },
+      {
+        "content": "声21",
+        "source": "niconico"
+      },
+      {
+        "content": "声22",
+        "source": "youtube"
+      },
+      {
+        "content": "声23",
+        "source": "niconico"
+      },
+      {
+        "content": "声24",
+        "source": "youtube"
+      },
+      {
+        "content": "声25",
+        "source": "niconico"
+      },
+      {
+        "content": "声26",
+        "source": "youtube"
+      },
+      {
+        "content": "声27",
+        "source": "niconico"
+      },
+      {
+        "content": "声28",
+        "source": "youtube"
+      },
+      {
+        "content": "声29",
+        "source": "niconico"
+      },
+      {
+        "content": "声30",
+        "source": "youtube"
+      },
+      {
+        "content": "声31",
+        "source": "niconico"
+      },
+      {
+        "content": "声32",
+        "source": "youtube"
+      },
+      {
+        "content": "声33",
+        "source": "niconico"
+      },
+      {
+        "content": "声34",
+        "source": "youtube"
+      }
+    ],
+    "tags": [
+      "機密"
+    ],
+    "features": {
+      "voiceCount": 35,
+      "sourceKinds": 2,
+      "avgLen": 3,
+      "tagCount": 1
+    }
+  }
+]

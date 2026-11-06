@@ -1,0 +1,77 @@
+{
+  "isAutoCrawlSource": [
+    [
+      "niconico",
+      true
+    ],
+    [
+      "youtube",
+      true
+    ],
+    [
+      "steam",
+      true
+    ],
+    [
+      "website",
+      true
+    ],
+    [
+      "reddit",
+      true
+    ],
+    [
+      "x",
+      false
+    ],
+    [
+      "NICONICO",
+      false
+    ]
+  ],
+  "resolve": [
+    {
+      "sources": [
+        "niconico",
+        "steam",
+        "website"
+      ],
+      "key": null,
+      "out": [
+        "niconico"
+      ]
+    },
+    {
+      "sources": [
+        "niconico"
+      ],
+      "key": "k",
+      "out": [
+        "niconico",
+        "youtube"
+      ]
+    },
+    {
+      "sources": [
+        "youtube",
+        "niconico",
+        "youtube"
+      ],
+      "key": null,
+      "out": [
+        "niconico"
+      ]
+    },
+    {
+      "sources": [
+        "bogus",
+        "niconico"
+      ],
+      "key": "k",
+      "out": [
+        "niconico",
+        "youtube"
+      ]
+    }
+  ]
+}

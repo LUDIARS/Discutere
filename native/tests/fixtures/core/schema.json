@@ -1,0 +1,332 @@
+{
+  "migrations": [
+    {
+      "id": "0001_core_schema",
+      "sql": [
+        "CREATE TABLE IF NOT EXISTS _migrations (\n        id TEXT PRIMARY KEY,\n        applied_at INTEGER NOT NULL\n      )",
+        "CREATE TABLE IF NOT EXISTS events (\n        id TEXT PRIMARY KEY,\n        event_type TEXT NOT NULL,\n        payload_json TEXT NOT NULL,\n        created_at INTEGER NOT NULL\n      )",
+        "CREATE TABLE IF NOT EXISTS people (id TEXT PRIMARY KEY,workspace_id TEXT NOT NULL,name TEXT NOT NULL,role TEXT,created_at INTEGER NOT NULL,updated_at INTEGER NOT NULL)",
+        "CREATE TABLE IF NOT EXISTS games (id TEXT PRIMARY KEY,workspace_id TEXT NOT NULL,title TEXT NOT NULL,genre TEXT,created_at INTEGER NOT NULL,updated_at INTEGER NOT NULL)",
+        "CREATE TABLE IF NOT EXISTS mechanics (id TEXT PRIMARY KEY,workspace_id TEXT NOT NULL,game_id TEXT,name TEXT NOT NULL,description TEXT,created_at INTEGER NOT NULL,updated_at INTEGER NOT NULL)",
+        "CREATE TABLE IF NOT EXISTS aesthetics (id TEXT PRIMARY KEY,workspace_id TEXT NOT NULL,game_id TEXT,name TEXT NOT NULL,description TEXT,created_at INTEGER NOT NULL,updated_at INTEGER NOT NULL)",
+        "CREATE TABLE IF NOT EXISTS affects (id TEXT PRIMARY KEY,workspace_id TEXT NOT NULL,session_id TEXT,subject_id TEXT,mood TEXT NOT NULL,score REAL,created_at INTEGER NOT NULL,updated_at INTEGER NOT NULL)",
+        "CREATE TABLE IF NOT EXISTS play_contexts (id TEXT PRIMARY KEY,workspace_id TEXT NOT NULL,game_id TEXT,platform TEXT,mode TEXT,created_at INTEGER NOT NULL,updated_at INTEGER NOT NULL)",
+        "CREATE TABLE IF NOT EXISTS sessions (id TEXT PRIMARY KEY,workspace_id TEXT NOT NULL,title TEXT NOT NULL,started_at INTEGER NOT NULL,ended_at INTEGER,created_at INTEGER NOT NULL,updated_at INTEGER NOT NULL)",
+        "CREATE TABLE IF NOT EXISTS utterances (id TEXT PRIMARY KEY,workspace_id TEXT NOT NULL,session_id TEXT NOT NULL,speaker_id TEXT,raw_content TEXT NOT NULL,normalized_content TEXT,posted_at INTEGER NOT NULL,created_at INTEGER NOT NULL,updated_at INTEGER NOT NULL)",
+        "CREATE TABLE IF NOT EXISTS reactions (id TEXT PRIMARY KEY,workspace_id TEXT NOT NULL,utterance_id TEXT NOT NULL,actor_id TEXT,reaction_type TEXT NOT NULL,intensity REAL,created_at INTEGER NOT NULL,updated_at INTEGER NOT NULL)",
+        "CREATE TABLE IF NOT EXISTS design_gaps (id TEXT PRIMARY KEY,workspace_id TEXT NOT NULL,game_id TEXT,title TEXT NOT NULL,description TEXT,status TEXT,created_at INTEGER NOT NULL,updated_at INTEGER NOT NULL)",
+        "CREATE TABLE IF NOT EXISTS hypotheses (id TEXT PRIMARY KEY,workspace_id TEXT NOT NULL,design_gap_id TEXT,statement TEXT NOT NULL,status TEXT,integrated INTEGER NOT NULL DEFAULT 0,created_at INTEGER NOT NULL,updated_at INTEGER NOT NULL)",
+        "CREATE TABLE IF NOT EXISTS embeddings (id TEXT PRIMARY KEY,workspace_id TEXT NOT NULL,node_type TEXT NOT NULL,node_id TEXT NOT NULL,vector_json TEXT NOT NULL,created_at INTEGER NOT NULL)",
+        "CREATE INDEX IF NOT EXISTS idx_events_created_at ON events(created_at)",
+        "CREATE INDEX IF NOT EXISTS idx_embeddings_ws_type ON embeddings(workspace_id, node_type)",
+        "CREATE UNIQUE INDEX IF NOT EXISTS idx_embeddings_node ON embeddings(workspace_id, node_type, node_id)"
+      ]
+    },
+    {
+      "id": "0002_phase2_message_projection",
+      "sql": [
+        "ALTER TABLE sessions ADD COLUMN mode TEXT",
+        "ALTER TABLE sessions ADD COLUMN scene TEXT",
+        "ALTER TABLE utterances ADD COLUMN responds_to TEXT",
+        "ALTER TABLE hypotheses ADD COLUMN validated_by_emotion INTEGER NOT NULL DEFAULT 0",
+        "ALTER TABLE hypotheses ADD COLUMN refs_json TEXT",
+        "ALTER TABLE mechanics ADD COLUMN intends TEXT"
+      ]
+    },
+    {
+      "id": "0003_phase3_translation_bridge",
+      "sql": [
+        "CREATE TABLE IF NOT EXISTS translation_proposals (\n        id TEXT PRIMARY KEY,\n        workspace_id TEXT NOT NULL,\n        utterance_id TEXT NOT NULL,\n        proposal_type TEXT NOT NULL,\n        target_id TEXT,\n        target_name TEXT,\n        confidence REAL NOT NULL,\n        pending_review INTEGER NOT NULL DEFAULT 1,\n        status TEXT NOT NULL DEFAULT 'pending',\n        payload_json TEXT NOT NULL,\n        created_at INTEGER NOT NULL,\n        updated_at INTEGER NOT NULL\n      )",
+        "CREATE INDEX IF NOT EXISTS idx_translation_pending ON translation_proposals(workspace_id, pending_review, created_at)",
+        "ALTER TABLE affects ADD COLUMN vocabulary_status TEXT"
+      ]
+    },
+    {
+      "id": "0004_phase4_gap_detection",
+      "sql": [
+        "ALTER TABLE mechanics ADD COLUMN intended_affect TEXT",
+        "ALTER TABLE affects ADD COLUMN valence TEXT",
+        "ALTER TABLE design_gaps ADD COLUMN gap_in TEXT",
+        "ALTER TABLE design_gaps ADD COLUMN expected_affect TEXT",
+        "ALTER TABLE design_gaps ADD COLUMN observed_affect TEXT",
+        "ALTER TABLE design_gaps ADD COLUMN evidence_json TEXT",
+        "CREATE UNIQUE INDEX IF NOT EXISTS idx_gap_dedup_key ON design_gaps(workspace_id, gap_in, expected_affect, observed_affect)"
+      ]
+    },
+    {
+      "id": "0005_phase5_hypothesis_lifecycle",
+      "sql": [
+        "ALTER TABLE hypotheses ADD COLUMN stale_flagged INTEGER NOT NULL DEFAULT 0",
+        "CREATE TABLE IF NOT EXISTS hypothesis_validations (\n        id TEXT PRIMARY KEY,\n        workspace_id TEXT NOT NULL,\n        session_id TEXT NOT NULL,\n        hypothesis_id TEXT NOT NULL,\n        mode TEXT NOT NULL,\n        created_at INTEGER NOT NULL\n      )",
+        "CREATE INDEX IF NOT EXISTS idx_hv_session ON hypothesis_validations(workspace_id, session_id, created_at)"
+      ]
+    },
+    {
+      "id": "0006_kg_sharing",
+      "sql": [
+        "ALTER TABLE games ADD COLUMN shared INTEGER NOT NULL DEFAULT 0",
+        "ALTER TABLE mechanics ADD COLUMN shared INTEGER NOT NULL DEFAULT 0",
+        "ALTER TABLE aesthetics ADD COLUMN shared INTEGER NOT NULL DEFAULT 0",
+        "ALTER TABLE affects ADD COLUMN shared INTEGER NOT NULL DEFAULT 0",
+        "CREATE INDEX IF NOT EXISTS idx_games_shared ON games(shared, updated_at)",
+        "CREATE INDEX IF NOT EXISTS idx_mechanics_shared ON mechanics(shared, updated_at)",
+        "CREATE INDEX IF NOT EXISTS idx_aesthetics_shared ON aesthetics(shared, updated_at)",
+        "CREATE INDEX IF NOT EXISTS idx_affects_shared ON affects(shared, updated_at)"
+      ]
+    }
+  ],
+  "sqlite_master": [
+    {
+      "type": "index",
+      "name": "idx_aesthetics_shared",
+      "tbl_name": "aesthetics",
+      "sql": "CREATE INDEX idx_aesthetics_shared ON aesthetics(shared, updated_at)"
+    },
+    {
+      "type": "index",
+      "name": "idx_affects_shared",
+      "tbl_name": "affects",
+      "sql": "CREATE INDEX idx_affects_shared ON affects(shared, updated_at)"
+    },
+    {
+      "type": "index",
+      "name": "idx_embeddings_node",
+      "tbl_name": "embeddings",
+      "sql": "CREATE UNIQUE INDEX idx_embeddings_node ON embeddings(workspace_id, node_type, node_id)"
+    },
+    {
+      "type": "index",
+      "name": "idx_embeddings_ws_type",
+      "tbl_name": "embeddings",
+      "sql": "CREATE INDEX idx_embeddings_ws_type ON embeddings(workspace_id, node_type)"
+    },
+    {
+      "type": "index",
+      "name": "idx_events_created_at",
+      "tbl_name": "events",
+      "sql": "CREATE INDEX idx_events_created_at ON events(created_at)"
+    },
+    {
+      "type": "index",
+      "name": "idx_games_shared",
+      "tbl_name": "games",
+      "sql": "CREATE INDEX idx_games_shared ON games(shared, updated_at)"
+    },
+    {
+      "type": "index",
+      "name": "idx_gap_dedup_key",
+      "tbl_name": "design_gaps",
+      "sql": "CREATE UNIQUE INDEX idx_gap_dedup_key ON design_gaps(workspace_id, gap_in, expected_affect, observed_affect)"
+    },
+    {
+      "type": "index",
+      "name": "idx_hv_session",
+      "tbl_name": "hypothesis_validations",
+      "sql": "CREATE INDEX idx_hv_session ON hypothesis_validations(workspace_id, session_id, created_at)"
+    },
+    {
+      "type": "index",
+      "name": "idx_mechanics_shared",
+      "tbl_name": "mechanics",
+      "sql": "CREATE INDEX idx_mechanics_shared ON mechanics(shared, updated_at)"
+    },
+    {
+      "type": "index",
+      "name": "idx_translation_pending",
+      "tbl_name": "translation_proposals",
+      "sql": "CREATE INDEX idx_translation_pending ON translation_proposals(workspace_id, pending_review, created_at)"
+    },
+    {
+      "type": "index",
+      "name": "sqlite_autoindex__migrations_1",
+      "tbl_name": "_migrations",
+      "sql": null
+    },
+    {
+      "type": "index",
+      "name": "sqlite_autoindex_aesthetics_1",
+      "tbl_name": "aesthetics",
+      "sql": null
+    },
+    {
+      "type": "index",
+      "name": "sqlite_autoindex_affects_1",
+      "tbl_name": "affects",
+      "sql": null
+    },
+    {
+      "type": "index",
+      "name": "sqlite_autoindex_design_gaps_1",
+      "tbl_name": "design_gaps",
+      "sql": null
+    },
+    {
+      "type": "index",
+      "name": "sqlite_autoindex_embeddings_1",
+      "tbl_name": "embeddings",
+      "sql": null
+    },
+    {
+      "type": "index",
+      "name": "sqlite_autoindex_events_1",
+      "tbl_name": "events",
+      "sql": null
+    },
+    {
+      "type": "index",
+      "name": "sqlite_autoindex_games_1",
+      "tbl_name": "games",
+      "sql": null
+    },
+    {
+      "type": "index",
+      "name": "sqlite_autoindex_hypotheses_1",
+      "tbl_name": "hypotheses",
+      "sql": null
+    },
+    {
+      "type": "index",
+      "name": "sqlite_autoindex_hypothesis_validations_1",
+      "tbl_name": "hypothesis_validations",
+      "sql": null
+    },
+    {
+      "type": "index",
+      "name": "sqlite_autoindex_mechanics_1",
+      "tbl_name": "mechanics",
+      "sql": null
+    },
+    {
+      "type": "index",
+      "name": "sqlite_autoindex_people_1",
+      "tbl_name": "people",
+      "sql": null
+    },
+    {
+      "type": "index",
+      "name": "sqlite_autoindex_play_contexts_1",
+      "tbl_name": "play_contexts",
+      "sql": null
+    },
+    {
+      "type": "index",
+      "name": "sqlite_autoindex_reactions_1",
+      "tbl_name": "reactions",
+      "sql": null
+    },
+    {
+      "type": "index",
+      "name": "sqlite_autoindex_sessions_1",
+      "tbl_name": "sessions",
+      "sql": null
+    },
+    {
+      "type": "index",
+      "name": "sqlite_autoindex_translation_proposals_1",
+      "tbl_name": "translation_proposals",
+      "sql": null
+    },
+    {
+      "type": "index",
+      "name": "sqlite_autoindex_utterances_1",
+      "tbl_name": "utterances",
+      "sql": null
+    },
+    {
+      "type": "table",
+      "name": "_migrations",
+      "tbl_name": "_migrations",
+      "sql": "CREATE TABLE _migrations (id TEXT PRIMARY KEY, applied_at INTEGER NOT NULL)"
+    },
+    {
+      "type": "table",
+      "name": "aesthetics",
+      "tbl_name": "aesthetics",
+      "sql": "CREATE TABLE aesthetics (id TEXT PRIMARY KEY,workspace_id TEXT NOT NULL,game_id TEXT,name TEXT NOT NULL,description TEXT,created_at INTEGER NOT NULL,updated_at INTEGER NOT NULL, shared INTEGER NOT NULL DEFAULT 0)"
+    },
+    {
+      "type": "table",
+      "name": "affects",
+      "tbl_name": "affects",
+      "sql": "CREATE TABLE affects (id TEXT PRIMARY KEY,workspace_id TEXT NOT NULL,session_id TEXT,subject_id TEXT,mood TEXT NOT NULL,score REAL,created_at INTEGER NOT NULL,updated_at INTEGER NOT NULL, vocabulary_status TEXT, valence TEXT, shared INTEGER NOT NULL DEFAULT 0)"
+    },
+    {
+      "type": "table",
+      "name": "design_gaps",
+      "tbl_name": "design_gaps",
+      "sql": "CREATE TABLE design_gaps (id TEXT PRIMARY KEY,workspace_id TEXT NOT NULL,game_id TEXT,title TEXT NOT NULL,description TEXT,status TEXT,created_at INTEGER NOT NULL,updated_at INTEGER NOT NULL, gap_in TEXT, expected_affect TEXT, observed_affect TEXT, evidence_json TEXT)"
+    },
+    {
+      "type": "table",
+      "name": "embeddings",
+      "tbl_name": "embeddings",
+      "sql": "CREATE TABLE embeddings (id TEXT PRIMARY KEY,workspace_id TEXT NOT NULL,node_type TEXT NOT NULL,node_id TEXT NOT NULL,vector_json TEXT NOT NULL,created_at INTEGER NOT NULL)"
+    },
+    {
+      "type": "table",
+      "name": "events",
+      "tbl_name": "events",
+      "sql": "CREATE TABLE events (\n        id TEXT PRIMARY KEY,\n        event_type TEXT NOT NULL,\n        payload_json TEXT NOT NULL,\n        created_at INTEGER NOT NULL\n      )"
+    },
+    {
+      "type": "table",
+      "name": "games",
+      "tbl_name": "games",
+      "sql": "CREATE TABLE games (id TEXT PRIMARY KEY,workspace_id TEXT NOT NULL,title TEXT NOT NULL,genre TEXT,created_at INTEGER NOT NULL,updated_at INTEGER NOT NULL, shared INTEGER NOT NULL DEFAULT 0)"
+    },
+    {
+      "type": "table",
+      "name": "hypotheses",
+      "tbl_name": "hypotheses",
+      "sql": "CREATE TABLE hypotheses (id TEXT PRIMARY KEY,workspace_id TEXT NOT NULL,design_gap_id TEXT,statement TEXT NOT NULL,status TEXT,integrated INTEGER NOT NULL DEFAULT 0,created_at INTEGER NOT NULL,updated_at INTEGER NOT NULL, validated_by_emotion INTEGER NOT NULL DEFAULT 0, refs_json TEXT, stale_flagged INTEGER NOT NULL DEFAULT 0)"
+    },
+    {
+      "type": "table",
+      "name": "hypothesis_validations",
+      "tbl_name": "hypothesis_validations",
+      "sql": "CREATE TABLE hypothesis_validations (\n        id TEXT PRIMARY KEY,\n        workspace_id TEXT NOT NULL,\n        session_id TEXT NOT NULL,\n        hypothesis_id TEXT NOT NULL,\n        mode TEXT NOT NULL,\n        created_at INTEGER NOT NULL\n      )"
+    },
+    {
+      "type": "table",
+      "name": "mechanics",
+      "tbl_name": "mechanics",
+      "sql": "CREATE TABLE mechanics (id TEXT PRIMARY KEY,workspace_id TEXT NOT NULL,game_id TEXT,name TEXT NOT NULL,description TEXT,created_at INTEGER NOT NULL,updated_at INTEGER NOT NULL, intends TEXT, intended_affect TEXT, shared INTEGER NOT NULL DEFAULT 0)"
+    },
+    {
+      "type": "table",
+      "name": "people",
+      "tbl_name": "people",
+      "sql": "CREATE TABLE people (id TEXT PRIMARY KEY,workspace_id TEXT NOT NULL,name TEXT NOT NULL,role TEXT,created_at INTEGER NOT NULL,updated_at INTEGER NOT NULL)"
+    },
+    {
+      "type": "table",
+      "name": "play_contexts",
+      "tbl_name": "play_contexts",
+      "sql": "CREATE TABLE play_contexts (id TEXT PRIMARY KEY,workspace_id TEXT NOT NULL,game_id TEXT,platform TEXT,mode TEXT,created_at INTEGER NOT NULL,updated_at INTEGER NOT NULL)"
+    },
+    {
+      "type": "table",
+      "name": "reactions",
+      "tbl_name": "reactions",
+      "sql": "CREATE TABLE reactions (id TEXT PRIMARY KEY,workspace_id TEXT NOT NULL,utterance_id TEXT NOT NULL,actor_id TEXT,reaction_type TEXT NOT NULL,intensity REAL,created_at INTEGER NOT NULL,updated_at INTEGER NOT NULL)"
+    },
+    {
+      "type": "table",
+      "name": "sessions",
+      "tbl_name": "sessions",
+      "sql": "CREATE TABLE sessions (id TEXT PRIMARY KEY,workspace_id TEXT NOT NULL,title TEXT NOT NULL,started_at INTEGER NOT NULL,ended_at INTEGER,created_at INTEGER NOT NULL,updated_at INTEGER NOT NULL, mode TEXT, scene TEXT)"
+    },
+    {
+      "type": "table",
+      "name": "translation_proposals",
+      "tbl_name": "translation_proposals",
+      "sql": "CREATE TABLE translation_proposals (\n        id TEXT PRIMARY KEY,\n        workspace_id TEXT NOT NULL,\n        utterance_id TEXT NOT NULL,\n        proposal_type TEXT NOT NULL,\n        target_id TEXT,\n        target_name TEXT,\n        confidence REAL NOT NULL,\n        pending_review INTEGER NOT NULL DEFAULT 1,\n        status TEXT NOT NULL DEFAULT 'pending',\n        payload_json TEXT NOT NULL,\n        created_at INTEGER NOT NULL,\n        updated_at INTEGER NOT NULL\n      )"
+    },
+    {
+      "type": "table",
+      "name": "utterances",
+      "tbl_name": "utterances",
+      "sql": "CREATE TABLE utterances (id TEXT PRIMARY KEY,workspace_id TEXT NOT NULL,session_id TEXT NOT NULL,speaker_id TEXT,raw_content TEXT NOT NULL,normalized_content TEXT,posted_at INTEGER NOT NULL,created_at INTEGER NOT NULL,updated_at INTEGER NOT NULL, responds_to TEXT)"
+    }
+  ]
+}

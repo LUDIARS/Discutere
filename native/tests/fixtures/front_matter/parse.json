@@ -1,0 +1,187 @@
+[
+  {
+    "input": "",
+    "ok": true,
+    "data": {},
+    "content": ""
+  },
+  {
+    "input": "no front matter\n",
+    "ok": true,
+    "data": {},
+    "content": "no front matter\n"
+  },
+  {
+    "input": "---\ntitle: Hello\n---\nbody\n",
+    "ok": true,
+    "data": {
+      "title": "Hello"
+    },
+    "content": "body\n"
+  },
+  {
+    "input": "---\nid: my-game\ntitle: \"Quoted: title\"\ngenre: action\ncount: 3\nratio: 0.5\nflag: true\nnothing: ~\nempty:\n---\n\n# Body\n",
+    "ok": true,
+    "data": {
+      "id": "my-game",
+      "title": "Quoted: title",
+      "genre": "action",
+      "count": 3,
+      "ratio": 0.5,
+      "flag": true,
+      "nothing": null,
+      "empty": null
+    },
+    "content": "\n# Body\n"
+  },
+  {
+    "input": "---\nmechanics:\n  - name: ガチャ\n    description: 確率で入手\n    intended_aspects: [luck, collect]\n  - name: 協力\n    source: data\n---\ntext",
+    "ok": true,
+    "data": {
+      "mechanics": [
+        {
+          "name": "ガチャ",
+          "description": "確率で入手",
+          "intended_aspects": [
+            "luck",
+            "collect"
+          ]
+        },
+        {
+          "name": "協力",
+          "source": "data"
+        }
+      ]
+    },
+    "content": "text"
+  },
+  {
+    "input": "---\nlist:\n- a\n- b\n- 'c d'\nnested:\n  deep:\n    k: v\n---\n",
+    "ok": true,
+    "data": {
+      "list": [
+        "a",
+        "b",
+        "c d"
+      ],
+      "nested": {
+        "deep": {
+          "k": "v"
+        }
+      }
+    },
+    "content": ""
+  },
+  {
+    "input": "---\nlit: |\n  line1\n  line2\n\nfold: >-\n  a\n  b\n\n  c\nkeep: |+\n  x\n\n---\n",
+    "ok": true,
+    "data": {
+      "lit": "line1\nline2\n",
+      "fold": "a b\nc",
+      "keep": "x\n"
+    },
+    "content": ""
+  },
+  {
+    "input": "---\nplain: this is\n  folded text\nhex: 0x1F\noct: 017\nneg: -12\nflt: 1e3\ninf: .inf\ndate: 2026-10-29\nts: 2026-10-29T12:00:00Z\nbool2: False\nyes: yes\n---\n",
+    "ok": true,
+    "data": {
+      "plain": "this is folded text",
+      "hex": 31,
+      "oct": 15,
+      "neg": -12,
+      "flt": 1000,
+      "inf": null,
+      "date": "2026-10-29T00:00:00.000Z",
+      "ts": "2026-10-29T12:00:00.000Z",
+      "bool2": false,
+      "yes": "yes"
+    },
+    "content": ""
+  },
+  {
+    "input": "---\nsingle: 'it''s'\ndouble: \"tab\\tnl\\nuni\\u3042\"\nhash: a #comment\nurl: http://example.com/a#b\ncolon: a:b\n---\n",
+    "ok": true,
+    "data": {
+      "single": "it's",
+      "double": "tab\tnl\nuniあ",
+      "hash": "a",
+      "url": "http://example.com/a#b",
+      "colon": "a:b"
+    },
+    "content": ""
+  },
+  {
+    "input": "---\nflow: {a: 1, b: [x, y], c: \"q\"}\nemptyl: []\nemptym: {}\n---\n",
+    "ok": true,
+    "data": {
+      "flow": {
+        "a": 1,
+        "b": [
+          "x",
+          "y"
+        ],
+        "c": "q"
+      },
+      "emptyl": [],
+      "emptym": {}
+    },
+    "content": ""
+  },
+  {
+    "input": "---\n# only comment\n---\nbody",
+    "ok": true,
+    "data": {},
+    "content": "body"
+  },
+  {
+    "input": "---\ntitle: x\n",
+    "ok": true,
+    "data": {
+      "title": "x"
+    },
+    "content": ""
+  },
+  {
+    "input": "﻿---\ntitle: bom\n---\nB",
+    "ok": true,
+    "data": {
+      "title": "bom"
+    },
+    "content": "B"
+  },
+  {
+    "input": "---\nkey: [1,\n  2, 3]\n---\n",
+    "ok": true,
+    "data": {
+      "key": [
+        1,
+        2,
+        3
+      ]
+    },
+    "content": ""
+  },
+  {
+    "input": "----\nnot: matter\n----\n",
+    "ok": true,
+    "data": {},
+    "content": "----\nnot: matter\n----\n"
+  },
+  {
+    "input": "---\nseq_of_seq:\n  - - a\n    - b\n  - - c\n---\n",
+    "ok": true,
+    "data": {
+      "seq_of_seq": [
+        [
+          "a",
+          "b"
+        ],
+        [
+          "c"
+        ]
+      ]
+    },
+    "content": ""
+  }
+]

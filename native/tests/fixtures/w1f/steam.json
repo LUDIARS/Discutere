@@ -1,0 +1,180 @@
+{
+  "normalized": [
+    {
+      "input": "モンスターストライク",
+      "output": "モンスターストライク"
+    },
+    {
+      "input": "Monster Strike",
+      "output": "monsterstrike"
+    },
+    {
+      "input": "monster-strike",
+      "output": "monsterstrike"
+    },
+    {
+      "input": "ＭＯＮＳＴＥＲ　ＳＴＲＩＫＥ",
+      "output": "monsterstrike"
+    },
+    {
+      "input": "ﾓﾝｽﾀｰｽﾄﾗｲｸ",
+      "output": "モンスターストライク"
+    },
+    {
+      "input": "ﾊﾟｽﾞﾙ&ﾄﾞﾗｺﾞﾝｽﾞ",
+      "output": "パズル&ドラゴンズ"
+    },
+    {
+      "input": "ファイナルファンタジーⅦ",
+      "output": "ファイナルファンタジーvii"
+    },
+    {
+      "input": "①②③",
+      "output": "123"
+    },
+    {
+      "input": "Pokémon",
+      "output": "pokémon"
+    },
+    {
+      "input": "Pokémon",
+      "output": "pokémon"
+    },
+    {
+      "input": "が",
+      "output": "が"
+    },
+    {
+      "input": "が",
+      "output": "が"
+    },
+    {
+      "input": "ドラゴンクエスト・ウォーク",
+      "output": "ドラゴンクエストウォーク"
+    },
+    {
+      "input": "「スプラトゥーン」",
+      "output": "スプラトゥーン"
+    },
+    {
+      "input": "『ゼルダ』【新作】",
+      "output": "ゼルダ新作"
+    },
+    {
+      "input": "Hello, World!",
+      "output": "hello,world"
+    },
+    {
+      "input": "TEST？！",
+      "output": "test"
+    },
+    {
+      "input": "ＡＢＣ（ｄｅｆ）",
+      "output": "abcdef"
+    },
+    {
+      "input": "㈱ゲーム",
+      "output": "株ゲーム"
+    },
+    {
+      "input": "™Game™",
+      "output": "tmgametm"
+    },
+    {
+      "input": "ﬁnal",
+      "output": "final"
+    },
+    {
+      "input": "Ⅻ",
+      "output": "xii"
+    },
+    {
+      "input": "ÀÉÎÕÜ",
+      "output": "àéîõü"
+    },
+    {
+      "input": "A_B-C–D—E",
+      "output": "abcde"
+    },
+    {
+      "input": "  空白  あり  ",
+      "output": "空白あり"
+    },
+    {
+      "input": "x:y：z",
+      "output": "xyz"
+    },
+    {
+      "input": "'quote\"",
+      "output": "quote"
+    },
+    {
+      "input": "[bracket]",
+      "output": "bracket"
+    },
+    {
+      "input": "İstanbul",
+      "output": "i̇stanbul"
+    },
+    {
+      "input": "ΣΑΣ",
+      "output": "σας"
+    },
+    {
+      "input": "Straße",
+      "output": "straße"
+    }
+  ],
+  "same": [
+    {
+      "candidate": "モンスターストライク",
+      "query": "モンスターストライクのガチャ天井を下げるか",
+      "same": true
+    },
+    {
+      "candidate": "Monster Strike",
+      "query": "monster-strike",
+      "same": true
+    },
+    {
+      "candidate": "パズル&ドラゴンズ",
+      "query": "モンスターストライクの天井",
+      "same": false
+    },
+    {
+      "candidate": "A",
+      "query": "A の話",
+      "same": false
+    },
+    {
+      "candidate": "AB",
+      "query": "ab",
+      "same": true
+    },
+    {
+      "candidate": "ﾓﾝｽﾄ",
+      "query": "モンスト",
+      "same": true
+    },
+    {
+      "candidate": "",
+      "query": "",
+      "same": false
+    },
+    {
+      "candidate": "😀😀",
+      "query": "😀😀の話",
+      "same": true
+    },
+    {
+      "candidate": "・・",
+      "query": "ab",
+      "same": false
+    },
+    {
+      "candidate": "ab",
+      "query": "・・",
+      "same": false
+    }
+  ]
+}

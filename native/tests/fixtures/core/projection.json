@@ -1,0 +1,309 @@
+{
+  "events": [
+    {
+      "id": "e1",
+      "eventType": "PersonCreated",
+      "payload": {
+        "workspaceId": "ws",
+        "id": "p1",
+        "name": "alice"
+      },
+      "createdAt": 1000
+    },
+    {
+      "id": "e2",
+      "eventType": "PersonUpdated",
+      "payload": {
+        "workspaceId": "ws",
+        "id": "p1",
+        "name": "alice2",
+        "role": "gm",
+        "at": 2000
+      },
+      "createdAt": 1000
+    },
+    {
+      "id": "e3",
+      "eventType": "SessionCreated",
+      "payload": {
+        "workspaceId": "ws",
+        "id": "s1",
+        "title": "t",
+        "startedAt": 5,
+        "mode": "discussion",
+        "scene": "web:r"
+      },
+      "createdAt": 1000
+    },
+    {
+      "id": "e4",
+      "eventType": "SessionEnded",
+      "payload": {
+        "workspaceId": "ws",
+        "id": "s1",
+        "endedAt": 99
+      },
+      "createdAt": 3000
+    },
+    {
+      "id": "e5",
+      "eventType": "UtteranceCreated",
+      "payload": {
+        "workspaceId": "ws",
+        "id": "u1",
+        "sessionId": "s1",
+        "rawContent": "hello",
+        "postedAt": 7,
+        "respondsTo": "u0"
+      },
+      "createdAt": 1000
+    },
+    {
+      "id": "e6",
+      "eventType": "UtteranceNormalized",
+      "payload": {
+        "workspaceId": "ws",
+        "id": "u1",
+        "normalizedContent": "hello!"
+      },
+      "createdAt": 4000
+    },
+    {
+      "id": "e7",
+      "eventType": "ReactionAdded",
+      "payload": {
+        "workspaceId": "ws",
+        "id": "r1",
+        "utteranceId": "u1",
+        "reactionType": "like",
+        "intensity": 0.5
+      },
+      "createdAt": 1000
+    },
+    {
+      "id": "e8",
+      "eventType": "MechanicProposed",
+      "payload": {
+        "workspaceId": "ws",
+        "id": "m1",
+        "name": "gacha",
+        "intends": "fun"
+      },
+      "createdAt": 1000
+    },
+    {
+      "id": "e9",
+      "eventType": "AffectMeasured",
+      "payload": {
+        "workspaceId": "ws",
+        "id": "a1",
+        "mood": "happy",
+        "score": 1.25
+      },
+      "createdAt": 1000
+    },
+    {
+      "id": "e10",
+      "eventType": "PlayContextCaptured",
+      "payload": {
+        "workspaceId": "ws",
+        "id": "c1",
+        "platform": "pc"
+      },
+      "createdAt": 1000
+    },
+    {
+      "id": "e11",
+      "eventType": "DesignGapDetected",
+      "payload": {
+        "workspaceId": "ws",
+        "id": "g1",
+        "title": "gap",
+        "status": "open"
+      },
+      "createdAt": 1000
+    },
+    {
+      "id": "e12",
+      "eventType": "HypothesisProposed",
+      "payload": {
+        "workspaceId": "ws",
+        "id": "h1",
+        "statement": "st",
+        "refs": [
+          "a",
+          "b"
+        ],
+        "integrated": true
+      },
+      "createdAt": 1000
+    },
+    {
+      "id": "e13",
+      "eventType": "HypothesisDebated",
+      "payload": {
+        "workspaceId": "ws",
+        "id": "h1",
+        "statement": "st2",
+        "sessionId": "s1",
+        "status": "debating",
+        "staleFlagged": true,
+        "validatedByEmotion": 1
+      },
+      "createdAt": 1000
+    },
+    {
+      "id": "e14",
+      "eventType": "HypothesisStaleFlagged",
+      "payload": {
+        "workspaceId": "ws",
+        "id": "h1",
+        "statement": "st3",
+        "staleFlagged": false
+      },
+      "createdAt": 1000
+    },
+    {
+      "id": "e15",
+      "eventType": "AffectAdded",
+      "payload": {
+        "workspaceId": "ws",
+        "id": "ignored",
+        "mood": "x"
+      },
+      "createdAt": 1000
+    }
+  ],
+  "rows": {
+    "people": [
+      {
+        "id": "p1",
+        "workspace_id": "ws",
+        "name": "alice2",
+        "role": "gm",
+        "created_at": 1000,
+        "updated_at": 2000
+      }
+    ],
+    "sessions": [
+      {
+        "id": "s1",
+        "workspace_id": "ws",
+        "title": "session",
+        "started_at": 3000,
+        "ended_at": 99,
+        "created_at": 1000,
+        "updated_at": 3000,
+        "mode": null,
+        "scene": null
+      }
+    ],
+    "utterances": [
+      {
+        "id": "u1",
+        "workspace_id": "ws",
+        "session_id": "s1",
+        "speaker_id": null,
+        "raw_content": "hello",
+        "normalized_content": "hello!",
+        "posted_at": 7,
+        "created_at": 1000,
+        "updated_at": 4000,
+        "responds_to": "u0"
+      }
+    ],
+    "reactions": [
+      {
+        "id": "r1",
+        "workspace_id": "ws",
+        "utterance_id": "u1",
+        "actor_id": null,
+        "reaction_type": "like",
+        "intensity": 0.5,
+        "created_at": 1000,
+        "updated_at": 1000
+      }
+    ],
+    "mechanics": [
+      {
+        "id": "m1",
+        "workspace_id": "ws",
+        "game_id": null,
+        "name": "gacha",
+        "description": null,
+        "created_at": 1000,
+        "updated_at": 1000,
+        "intends": "fun",
+        "intended_affect": null,
+        "shared": 0
+      }
+    ],
+    "affects": [
+      {
+        "id": "a1",
+        "workspace_id": "ws",
+        "session_id": null,
+        "subject_id": null,
+        "mood": "happy",
+        "score": 1.25,
+        "created_at": 1000,
+        "updated_at": 1000,
+        "vocabulary_status": null,
+        "valence": null,
+        "shared": 0
+      }
+    ],
+    "play_contexts": [
+      {
+        "id": "c1",
+        "workspace_id": "ws",
+        "game_id": null,
+        "platform": "pc",
+        "mode": null,
+        "created_at": 1000,
+        "updated_at": 1000
+      }
+    ],
+    "design_gaps": [
+      {
+        "id": "g1",
+        "workspace_id": "ws",
+        "game_id": null,
+        "title": "gap",
+        "description": null,
+        "status": "open",
+        "created_at": 1000,
+        "updated_at": 1000,
+        "gap_in": null,
+        "expected_affect": null,
+        "observed_affect": null,
+        "evidence_json": null
+      }
+    ],
+    "hypotheses": [
+      {
+        "id": "h1",
+        "workspace_id": "ws",
+        "design_gap_id": null,
+        "statement": "st3",
+        "status": null,
+        "integrated": 0,
+        "created_at": 1000,
+        "updated_at": 1000,
+        "validated_by_emotion": 0,
+        "refs_json": "[]",
+        "stale_flagged": 0
+      }
+    ],
+    "hypothesis_validations": [
+      {
+        "id": "e13",
+        "workspace_id": "ws",
+        "session_id": "s1",
+        "hypothesis_id": "h1",
+        "mode": "debating",
+        "created_at": 1000
+      }
+    ]
+  }
+}

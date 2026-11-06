@@ -1,0 +1,85 @@
+[
+  {
+    "report": {
+      "title": "T",
+      "channel": "di",
+      "gameSlug": null,
+      "collected": 4,
+      "imported": 0,
+      "embedded": 0
+    },
+    "text": "「T」: Di の収集済みデータ 4 件を参考として使用"
+  },
+  {
+    "report": {
+      "title": "T",
+      "channel": "youtube",
+      "gameSlug": "youtube-glab-t",
+      "collected": 5,
+      "imported": 5,
+      "embedded": 0
+    },
+    "text": "「T」: YouTube コメント 5 件を参考として使用"
+  },
+  {
+    "report": {
+      "title": "T",
+      "channel": "steam",
+      "gameSlug": "steam-7",
+      "appId": 7,
+      "appName": "新作",
+      "collected": 3,
+      "imported": 2,
+      "embedded": 1
+    },
+    "text": "「新作」: Steam レビュー 3 件 (取込 2 / ベクトル化 1)"
+  },
+  {
+    "report": {
+      "title": "T",
+      "channel": "glab",
+      "gameSlug": "glab-t",
+      "unreleased": true,
+      "appId": 7,
+      "appName": "新作",
+      "collected": 3,
+      "imported": 3,
+      "embedded": 0
+    },
+    "text": "「新作」は Steam で未リリース。Voluptas の遊んだ感想 3 件 (取込 3 / ベクトル化 0)"
+  },
+  {
+    "report": {
+      "title": "T",
+      "channel": "glab",
+      "gameSlug": "glab-t",
+      "collected": 2,
+      "imported": 2,
+      "embedded": 2
+    },
+    "text": "「T」は Steam で見つからず。Voluptas の遊んだ感想 2 件 (取込 2 / ベクトル化 2)"
+  },
+  {
+    "report": {
+      "title": "T",
+      "channel": "none",
+      "gameSlug": null,
+      "collected": 0,
+      "imported": 0,
+      "embedded": 0,
+      "voluptasDown": true
+    },
+    "text": "「T」: Voluptas（Vo）が停止中、または接続できません。外部の声なしでも議論できます。"
+  },
+  {
+    "report": {
+      "title": "T",
+      "channel": "none",
+      "gameSlug": null,
+      "collected": 0,
+      "imported": 0,
+      "embedded": 0
+    },
+    "text": "「T」: 今回の取得先から外部の声を取得できませんでした。0 件でも議論できます（通信失敗・未設定の場合も含みます）"
+  }
+]

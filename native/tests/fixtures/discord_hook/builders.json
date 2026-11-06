@@ -1,0 +1,386 @@
+{
+  "flowPickMenu": {
+    "type": 1,
+    "components": [
+      {
+        "type": 3,
+        "custom_id": "flow-pick:999",
+        "placeholder": "議論タイプを選択 (必須)",
+        "min_values": 1,
+        "max_values": 1,
+        "options": [
+          {
+            "value": "議論",
+            "label": "企画/議論",
+            "description": "プロジェクトなし。目的やアイデアから企画を検討する"
+          },
+          {
+            "value": "改善",
+            "label": "改善/議論",
+            "description": "プロジェクトあり。現状と課題を踏まえて改善を検討する"
+          }
+        ]
+      }
+    ]
+  },
+  "flowSettings": [
+    {
+      "type": 1,
+      "components": [
+        {
+          "type": 3,
+          "custom_id": "flow-settings:t1",
+          "placeholder": "進行量を選んで開始 (ラウンド数 × ターン数)",
+          "min_values": 1,
+          "max_values": 1,
+          "options": [
+            {
+              "value": "default",
+              "label": "標準で開始",
+              "description": "設定ファイルの既定ラウンド/ターン数で開始"
+            },
+            {
+              "value": "2x4",
+              "label": "さくっと (2R×4T)",
+              "description": "短時間・低コスト"
+            },
+            {
+              "value": "3x6",
+              "label": "標準量 (3R×6T)",
+              "description": "バランス型"
+            },
+            {
+              "value": "5x8",
+              "label": "じっくり (5R×8T)",
+              "description": "論点を深掘り"
+            },
+            {
+              "value": "8x12",
+              "label": "とことん (8R×12T)",
+              "description": "大ボリューム (高コスト)"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "type": 1,
+      "components": [
+        {
+          "type": 2,
+          "emoji": {
+            "name": "⚙️",
+            "animated": false
+          },
+          "custom_id": "flow-custom:t1",
+          "label": "数値を指定して開始",
+          "style": 2
+        }
+      ]
+    }
+  ],
+  "flowSettingsModal": {
+    "custom_id": "flow-modal:t2",
+    "title": "進行量を指定",
+    "components": [
+      {
+        "type": 1,
+        "components": [
+          {
+            "type": 4,
+            "custom_id": "rounds",
+            "label": "ラウンド数 (1〜10)",
+            "placeholder": "例: 3",
+            "required": false,
+            "style": 1
+          }
+        ]
+      },
+      {
+        "type": 1,
+        "components": [
+          {
+            "type": 4,
+            "custom_id": "turns",
+            "label": "1ラウンドのターン数 (1〜20)",
+            "placeholder": "例: 6",
+            "required": false,
+            "style": 1
+          }
+        ]
+      }
+    ]
+  },
+  "paperGapModals": [
+    {
+      "custom_id": "paper-gap:game_content:ch9",
+      "title": "不足情報: ゲーム内容",
+      "components": [
+        {
+          "type": 1,
+          "components": [
+            {
+              "type": 4,
+              "custom_id": "target",
+              "label": "対象・見出し",
+              "placeholder": "例: バトルテンポ / 成長曲線 / 想定ユーザ",
+              "required": false,
+              "style": 1
+            }
+          ]
+        },
+        {
+          "type": 1,
+          "components": [
+            {
+              "type": 4,
+              "custom_id": "detail",
+              "label": "追加・修正したい内容",
+              "placeholder": "ペーパーに反映したい不足情報を具体的に入力してください",
+              "required": true,
+              "style": 2
+            }
+          ]
+        },
+        {
+          "type": 1,
+          "components": [
+            {
+              "type": 4,
+              "custom_id": "source",
+              "label": "根拠・情報ソース",
+              "placeholder": "URL、ファイル名、発言元など。なければ空欄",
+              "required": false,
+              "style": 1
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "custom_id": "paper-gap:user_reaction:ch9",
+      "title": "不足情報: ユーザの反応",
+      "components": [
+        {
+          "type": 1,
+          "components": [
+            {
+              "type": 4,
+              "custom_id": "target",
+              "label": "対象・見出し",
+              "placeholder": "例: バトルテンポ / 成長曲線 / 想定ユーザ",
+              "required": false,
+              "style": 1
+            }
+          ]
+        },
+        {
+          "type": 1,
+          "components": [
+            {
+              "type": 4,
+              "custom_id": "detail",
+              "label": "追加・修正したい内容",
+              "placeholder": "ペーパーに反映したい不足情報を具体的に入力してください",
+              "required": true,
+              "style": 2
+            }
+          ]
+        },
+        {
+          "type": 1,
+          "components": [
+            {
+              "type": 4,
+              "custom_id": "source",
+              "label": "根拠・情報ソース",
+              "placeholder": "URL、ファイル名、発言元など。なければ空欄",
+              "required": false,
+              "style": 1
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "custom_id": "paper-gap:spec:ch9",
+      "title": "不足情報: 仕様書",
+      "components": [
+        {
+          "type": 1,
+          "components": [
+            {
+              "type": 4,
+              "custom_id": "target",
+              "label": "対象・見出し",
+              "placeholder": "例: バトルテンポ / 成長曲線 / 想定ユーザ",
+              "required": false,
+              "style": 1
+            }
+          ]
+        },
+        {
+          "type": 1,
+          "components": [
+            {
+              "type": 4,
+              "custom_id": "detail",
+              "label": "追加・修正したい内容",
+              "placeholder": "ペーパーに反映したい不足情報を具体的に入力してください",
+              "required": true,
+              "style": 2
+            }
+          ]
+        },
+        {
+          "type": 1,
+          "components": [
+            {
+              "type": 4,
+              "custom_id": "source",
+              "label": "根拠・情報ソース",
+              "placeholder": "URL、ファイル名、発言元など。なければ空欄",
+              "required": false,
+              "style": 1
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "custom_id": "paper-gap:mechanics:ch9",
+      "title": "不足情報: システム/メカニクス",
+      "components": [
+        {
+          "type": 1,
+          "components": [
+            {
+              "type": 4,
+              "custom_id": "target",
+              "label": "対象・見出し",
+              "placeholder": "例: バトルテンポ / 成長曲線 / 想定ユーザ",
+              "required": false,
+              "style": 1
+            }
+          ]
+        },
+        {
+          "type": 1,
+          "components": [
+            {
+              "type": 4,
+              "custom_id": "detail",
+              "label": "追加・修正したい内容",
+              "placeholder": "ペーパーに反映したい不足情報を具体的に入力してください",
+              "required": true,
+              "style": 2
+            }
+          ]
+        },
+        {
+          "type": 1,
+          "components": [
+            {
+              "type": 4,
+              "custom_id": "source",
+              "label": "根拠・情報ソース",
+              "placeholder": "URL、ファイル名、発言元など。なければ空欄",
+              "required": false,
+              "style": 1
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "custom_id": "paper-gap:project_code:ch9",
+      "title": "不足情報: Anatomiaコード",
+      "components": [
+        {
+          "type": 1,
+          "components": [
+            {
+              "type": 4,
+              "custom_id": "target",
+              "label": "対象・見出し",
+              "placeholder": "例: バトルテンポ / 成長曲線 / 想定ユーザ",
+              "required": false,
+              "style": 1
+            }
+          ]
+        },
+        {
+          "type": 1,
+          "components": [
+            {
+              "type": 4,
+              "custom_id": "detail",
+              "label": "追加・修正したい内容",
+              "placeholder": "ペーパーに反映したい不足情報を具体的に入力してください",
+              "required": true,
+              "style": 2
+            }
+          ]
+        },
+        {
+          "type": 1,
+          "components": [
+            {
+              "type": 4,
+              "custom_id": "source",
+              "label": "根拠・情報ソース",
+              "placeholder": "URL、ファイル名、発言元など。なければ空欄",
+              "required": false,
+              "style": 1
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "custom_id": "paper-gap:other:ch9",
+      "title": "不足情報: その他",
+      "components": [
+        {
+          "type": 1,
+          "components": [
+            {
+              "type": 4,
+              "custom_id": "target",
+              "label": "対象・見出し",
+              "placeholder": "例: バトルテンポ / 成長曲線 / 想定ユーザ",
+              "required": false,
+              "style": 1
+            }
+          ]
+        },
+        {
+          "type": 1,
+          "components": [
+            {
+              "type": 4,
+              "custom_id": "detail",
+              "label": "追加・修正したい内容",
+              "placeholder": "ペーパーに反映したい不足情報を具体的に入力してください",
+              "required": true,
+              "style": 2
+            }
+          ]
+        },
+        {
+          "type": 1,
+          "components": [
+            {
+              "type": 4,
+              "custom_id": "source",
+              "label": "根拠・情報ソース",
+              "placeholder": "URL、ファイル名、発言元など。なければ空欄",
+              "required": false,
+              "style": 1
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,112 @@
+{
+  "directions": [
+    {
+      "tags": [],
+      "direction": "fun"
+    },
+    {
+      "tags": [
+        "面白さ"
+      ],
+      "direction": "fun"
+    },
+    {
+      "tags": [
+        "改善提案"
+      ],
+      "direction": "improvement"
+    },
+    {
+      "tags": [
+        "改善"
+      ],
+      "direction": "improvement"
+    },
+    {
+      "tags": [
+        "雑談"
+      ],
+      "direction": "fun"
+    },
+    {
+      "tags": [
+        "面白さ",
+        "改善提案"
+      ],
+      "direction": "improvement"
+    },
+    {
+      "tags": [
+        "  IMPROVEMENT "
+      ],
+      "direction": "improvement"
+    },
+    {
+      "tags": [
+        "FUN"
+      ],
+      "direction": "fun"
+    },
+    {
+      "tags": [
+        "",
+        " "
+      ],
+      "direction": "fun"
+    }
+  ],
+  "custom": "improvement",
+  "scenes": [
+    {
+      "scene": "discord:111/222",
+      "parsed": {
+        "guildId": "111",
+        "channelId": "222"
+      }
+    },
+    {
+      "scene": "gap:abc",
+      "parsed": null
+    },
+    {
+      "scene": "discord:111",
+      "parsed": null
+    },
+    {
+      "scene": "discord:/222",
+      "parsed": null
+    },
+    {
+      "scene": "discord:111/",
+      "parsed": null
+    },
+    {
+      "scene": "discord:a/b/c",
+      "parsed": {
+        "guildId": "a",
+        "channelId": "b/c"
+      }
+    },
+    {
+      "scene": "discord:",
+      "parsed": null
+    }
+  ],
+  "summaries": [
+    {
+      "title": "ヴァンサバの面白さ",
+      "summary": "結論本文です",
+      "out": "✅ **収束**: ヴァンサバの面白さ\n結論本文です"
+    },
+    {
+      "title": "題",
+      "summary": "  ",
+      "out": "✅ **収束**: 題\n(まとめ未生成)"
+    },
+    {
+      "title": "題",
+      "summary": "  前後の空白  \n",
+      "out": "✅ **収束**: 題\n前後の空白"
+    }
+  ]
+}

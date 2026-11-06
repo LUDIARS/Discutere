@@ -1,0 +1,67 @@
+[
+  {
+    "detail": "persona advocate proposed hypothesis h-001",
+    "match": {
+      "personaId": "advocate",
+      "hypothesisId": "h-001"
+    }
+  },
+  {
+    "detail": "PERSONA Advocate Proposed Hypothesis H-1",
+    "match": {
+      "personaId": "Advocate",
+      "hypothesisId": "H-1"
+    }
+  },
+  {
+    "detail": "persona  sceptic\tproposed\nhypothesis   h-002 extra",
+    "match": {
+      "personaId": "sceptic",
+      "hypothesisId": "h-002"
+    }
+  },
+  {
+    "detail": "xx persona a proposed hypothesis b",
+    "match": {
+      "personaId": "a",
+      "hypothesisId": "b"
+    }
+  },
+  {
+    "detail": "persona proposed hypothesis h",
+    "match": null
+  },
+  {
+    "detail": "personapersona a proposed hypothesis b",
+    "match": {
+      "personaId": "a",
+      "hypothesisId": "b"
+    }
+  },
+  {
+    "detail": "persona a proposed hypothesis",
+    "match": null
+  },
+  {
+    "detail": "persona a  proposed  hypothesis　日本語ID 後ろ",
+    "match": {
+      "personaId": "a",
+      "hypothesisId": "日本語ID"
+    }
+  },
+  {
+    "detail": "persona advocate posted utterance u-1",
+    "match": null
+  },
+  {
+    "detail": "persona a proposed hypothesis b; persona c proposed hypothesis d",
+    "match": {
+      "personaId": "a",
+      "hypothesisId": "b;"
+    }
+  },
+  {
+    "detail": "",
+    "match": null
+  }
+]

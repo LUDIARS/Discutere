@@ -1,0 +1,2390 @@
+[
+  {
+    "env": {},
+    "webPaperGateEnabled": true,
+    "cases": [
+      {
+        "body": {},
+        "autoCrawl": {
+          "source": "niconico"
+        },
+        "learning": {
+          "sources": [
+            "niconico"
+          ],
+          "maxItems": 300
+        },
+        "learningWithKey": {
+          "sources": [
+            "niconico",
+            "youtube"
+          ],
+          "maxItems": 300,
+          "youtubeApiKey": "fake-key"
+        }
+      },
+      {
+        "body": {
+          "learningSource": "youtube",
+          "learningQuery": "  クエリ  "
+        },
+        "autoCrawl": {
+          "source": "youtube",
+          "query": "クエリ"
+        },
+        "learning": {
+          "sources": [
+            "youtube"
+          ],
+          "query": "クエリ",
+          "maxItems": 300,
+          "specBySource": {
+            "youtube": {}
+          }
+        },
+        "learningWithKey": {
+          "sources": [
+            "youtube"
+          ],
+          "query": "クエリ",
+          "maxItems": 300,
+          "youtubeApiKey": "fake-key",
+          "specBySource": {
+            "youtube": {}
+          }
+        }
+      },
+      {
+        "body": {
+          "learningSource": "steam",
+          "learningAppId": "  12345 "
+        },
+        "autoCrawl": {
+          "source": "steam",
+          "appId": 12345
+        },
+        "learning": {
+          "sources": [
+            "steam"
+          ],
+          "maxItems": 300,
+          "specBySource": {
+            "steam": {
+              "appId": 12345
+            }
+          }
+        },
+        "learningWithKey": {
+          "sources": [
+            "steam"
+          ],
+          "maxItems": 300,
+          "youtubeApiKey": "fake-key",
+          "specBySource": {
+            "steam": {
+              "appId": 12345
+            }
+          }
+        }
+      },
+      {
+        "body": {
+          "learningSource": "steam",
+          "learningAppId": 678
+        },
+        "autoCrawl": {
+          "source": "steam",
+          "appId": 678
+        },
+        "learning": {
+          "sources": [
+            "steam"
+          ],
+          "maxItems": 300,
+          "specBySource": {
+            "steam": {
+              "appId": 678
+            }
+          }
+        },
+        "learningWithKey": {
+          "sources": [
+            "steam"
+          ],
+          "maxItems": 300,
+          "youtubeApiKey": "fake-key",
+          "specBySource": {
+            "steam": {
+              "appId": 678
+            }
+          }
+        }
+      },
+      {
+        "body": {
+          "learningSource": "steam",
+          "learningAppId": "abc"
+        },
+        "autoCrawl": {
+          "source": "steam"
+        },
+        "learning": {
+          "sources": [
+            "steam"
+          ],
+          "maxItems": 300,
+          "specBySource": {
+            "steam": {}
+          }
+        },
+        "learningWithKey": {
+          "sources": [
+            "steam"
+          ],
+          "maxItems": 300,
+          "youtubeApiKey": "fake-key",
+          "specBySource": {
+            "steam": {}
+          }
+        }
+      },
+      {
+        "body": {
+          "learningSource": "steam",
+          "learningAppId": "1e3"
+        },
+        "autoCrawl": {
+          "source": "steam",
+          "appId": 1000
+        },
+        "learning": {
+          "sources": [
+            "steam"
+          ],
+          "maxItems": 300,
+          "specBySource": {
+            "steam": {
+              "appId": 1000
+            }
+          }
+        },
+        "learningWithKey": {
+          "sources": [
+            "steam"
+          ],
+          "maxItems": 300,
+          "youtubeApiKey": "fake-key",
+          "specBySource": {
+            "steam": {
+              "appId": 1000
+            }
+          }
+        }
+      },
+      {
+        "body": {
+          "learningSource": "website",
+          "learningUrls": "https://a.example/x, https://b.example/y　https://c.example"
+        },
+        "autoCrawl": {
+          "source": "website",
+          "urls": [
+            "https://a.example/x",
+            "https://b.example/y",
+            "https://c.example"
+          ]
+        },
+        "learning": {
+          "sources": [
+            "website"
+          ],
+          "maxItems": 300,
+          "specBySource": {
+            "website": {
+              "urls": [
+                "https://a.example/x",
+                "https://b.example/y",
+                "https://c.example"
+              ]
+            }
+          }
+        },
+        "learningWithKey": {
+          "sources": [
+            "website"
+          ],
+          "maxItems": 300,
+          "youtubeApiKey": "fake-key",
+          "specBySource": {
+            "website": {
+              "urls": [
+                "https://a.example/x",
+                "https://b.example/y",
+                "https://c.example"
+              ]
+            }
+          }
+        }
+      },
+      {
+        "body": {
+          "learningSource": "website",
+          "learningUrls": [
+            "https://a.example",
+            "",
+            "  ",
+            3,
+            "https://b.example"
+          ]
+        },
+        "autoCrawl": {
+          "source": "website",
+          "urls": [
+            "https://a.example",
+            "https://b.example"
+          ]
+        },
+        "learning": {
+          "sources": [
+            "website"
+          ],
+          "maxItems": 300,
+          "specBySource": {
+            "website": {
+              "urls": [
+                "https://a.example",
+                "https://b.example"
+              ]
+            }
+          }
+        },
+        "learningWithKey": {
+          "sources": [
+            "website"
+          ],
+          "maxItems": 300,
+          "youtubeApiKey": "fake-key",
+          "specBySource": {
+            "website": {
+              "urls": [
+                "https://a.example",
+                "https://b.example"
+              ]
+            }
+          }
+        }
+      },
+      {
+        "body": {
+          "learningSource": "reddit",
+          "learningSubreddit": "  gamedev ",
+          "learningQuery": ""
+        },
+        "autoCrawl": {
+          "source": "reddit",
+          "query": "",
+          "subreddit": "gamedev"
+        },
+        "learning": {
+          "sources": [
+            "reddit"
+          ],
+          "query": "",
+          "maxItems": 300,
+          "specBySource": {
+            "reddit": {
+              "subreddit": "gamedev"
+            }
+          }
+        },
+        "learningWithKey": {
+          "sources": [
+            "reddit"
+          ],
+          "query": "",
+          "maxItems": 300,
+          "youtubeApiKey": "fake-key",
+          "specBySource": {
+            "reddit": {
+              "subreddit": "gamedev"
+            }
+          }
+        }
+      },
+      {
+        "body": {
+          "learningSource": "unknown"
+        },
+        "autoCrawl": null,
+        "learning": null,
+        "learningWithKey": null
+      },
+      {
+        "body": {
+          "learningSource": "balanced",
+          "learningAppId": "42",
+          "learningSubreddit": "x",
+          "learningQuery": " q "
+        },
+        "autoCrawl": null,
+        "learning": {
+          "sources": [
+            "steam",
+            "youtube",
+            "reddit",
+            "niconico"
+          ],
+          "query": "q",
+          "maxItems": 75,
+          "specBySource": {
+            "steam": {
+              "appId": 42
+            },
+            "reddit": {
+              "subreddit": "x"
+            }
+          }
+        },
+        "learningWithKey": {
+          "sources": [
+            "steam",
+            "youtube",
+            "reddit",
+            "niconico"
+          ],
+          "query": "q",
+          "maxItems": 75,
+          "youtubeApiKey": "fake-key",
+          "specBySource": {
+            "steam": {
+              "appId": 42
+            },
+            "reddit": {
+              "subreddit": "x"
+            }
+          }
+        }
+      },
+      {
+        "body": {
+          "learningBalanced": true
+        },
+        "autoCrawl": {
+          "source": "niconico"
+        },
+        "learning": {
+          "sources": [
+            "steam",
+            "youtube",
+            "reddit",
+            "niconico"
+          ],
+          "maxItems": 75,
+          "specBySource": {
+            "steam": {},
+            "reddit": {}
+          }
+        },
+        "learningWithKey": {
+          "sources": [
+            "steam",
+            "youtube",
+            "reddit",
+            "niconico"
+          ],
+          "maxItems": 75,
+          "youtubeApiKey": "fake-key",
+          "specBySource": {
+            "steam": {},
+            "reddit": {}
+          }
+        }
+      },
+      {
+        "body": {
+          "learningBalanced": "true",
+          "learningQuery": "   "
+        },
+        "autoCrawl": {
+          "source": "niconico",
+          "query": ""
+        },
+        "learning": {
+          "sources": [
+            "niconico"
+          ],
+          "maxItems": 300
+        },
+        "learningWithKey": {
+          "sources": [
+            "niconico",
+            "youtube"
+          ],
+          "maxItems": 300,
+          "youtubeApiKey": "fake-key"
+        }
+      },
+      {
+        "body": {
+          "learningSource": 3,
+          "learningQuery": 4,
+          "learningUrls": "   "
+        },
+        "autoCrawl": {
+          "source": "niconico"
+        },
+        "learning": {
+          "sources": [
+            "niconico"
+          ],
+          "maxItems": 300
+        },
+        "learningWithKey": {
+          "sources": [
+            "niconico",
+            "youtube"
+          ],
+          "maxItems": 300,
+          "youtubeApiKey": "fake-key"
+        }
+      }
+    ]
+  },
+  {
+    "env": {
+      "DISCUTERE_FLOW_AUTOCRAWL_ENABLED": "false"
+    },
+    "webPaperGateEnabled": true,
+    "cases": [
+      {
+        "body": {},
+        "autoCrawl": null,
+        "learning": null,
+        "learningWithKey": null
+      },
+      {
+        "body": {
+          "learningSource": "youtube",
+          "learningQuery": "  クエリ  "
+        },
+        "autoCrawl": null,
+        "learning": null,
+        "learningWithKey": null
+      },
+      {
+        "body": {
+          "learningSource": "steam",
+          "learningAppId": "  12345 "
+        },
+        "autoCrawl": null,
+        "learning": null,
+        "learningWithKey": null
+      },
+      {
+        "body": {
+          "learningSource": "steam",
+          "learningAppId": 678
+        },
+        "autoCrawl": null,
+        "learning": null,
+        "learningWithKey": null
+      },
+      {
+        "body": {
+          "learningSource": "steam",
+          "learningAppId": "abc"
+        },
+        "autoCrawl": null,
+        "learning": null,
+        "learningWithKey": null
+      },
+      {
+        "body": {
+          "learningSource": "steam",
+          "learningAppId": "1e3"
+        },
+        "autoCrawl": null,
+        "learning": null,
+        "learningWithKey": null
+      },
+      {
+        "body": {
+          "learningSource": "website",
+          "learningUrls": "https://a.example/x, https://b.example/y　https://c.example"
+        },
+        "autoCrawl": null,
+        "learning": null,
+        "learningWithKey": null
+      },
+      {
+        "body": {
+          "learningSource": "website",
+          "learningUrls": [
+            "https://a.example",
+            "",
+            "  ",
+            3,
+            "https://b.example"
+          ]
+        },
+        "autoCrawl": null,
+        "learning": null,
+        "learningWithKey": null
+      },
+      {
+        "body": {
+          "learningSource": "reddit",
+          "learningSubreddit": "  gamedev ",
+          "learningQuery": ""
+        },
+        "autoCrawl": null,
+        "learning": null,
+        "learningWithKey": null
+      },
+      {
+        "body": {
+          "learningSource": "unknown"
+        },
+        "autoCrawl": null,
+        "learning": null,
+        "learningWithKey": null
+      },
+      {
+        "body": {
+          "learningSource": "balanced",
+          "learningAppId": "42",
+          "learningSubreddit": "x",
+          "learningQuery": " q "
+        },
+        "autoCrawl": null,
+        "learning": null,
+        "learningWithKey": null
+      },
+      {
+        "body": {
+          "learningBalanced": true
+        },
+        "autoCrawl": null,
+        "learning": null,
+        "learningWithKey": null
+      },
+      {
+        "body": {
+          "learningBalanced": "true",
+          "learningQuery": "   "
+        },
+        "autoCrawl": null,
+        "learning": null,
+        "learningWithKey": null
+      },
+      {
+        "body": {
+          "learningSource": 3,
+          "learningQuery": 4,
+          "learningUrls": "   "
+        },
+        "autoCrawl": null,
+        "learning": null,
+        "learningWithKey": null
+      }
+    ]
+  },
+  {
+    "env": {
+      "DISCUTERE_FLOW_AUTOCRAWL_SOURCE": "website",
+      "DISCUTERE_FLOW_AUTOCRAWL_SOURCES": "website,steam",
+      "DISCUTERE_FLOW_AUTOCRAWL_MAX_ITEMS": "35"
+    },
+    "webPaperGateEnabled": true,
+    "cases": [
+      {
+        "body": {},
+        "autoCrawl": {
+          "source": "website"
+        },
+        "learning": null,
+        "learningWithKey": {
+          "sources": [
+            "youtube"
+          ],
+          "maxItems": 35,
+          "youtubeApiKey": "fake-key"
+        }
+      },
+      {
+        "body": {
+          "learningSource": "youtube",
+          "learningQuery": "  クエリ  "
+        },
+        "autoCrawl": {
+          "source": "youtube",
+          "query": "クエリ"
+        },
+        "learning": {
+          "sources": [
+            "youtube"
+          ],
+          "query": "クエリ",
+          "maxItems": 35,
+          "specBySource": {
+            "youtube": {}
+          }
+        },
+        "learningWithKey": {
+          "sources": [
+            "youtube"
+          ],
+          "query": "クエリ",
+          "maxItems": 35,
+          "youtubeApiKey": "fake-key",
+          "specBySource": {
+            "youtube": {}
+          }
+        }
+      },
+      {
+        "body": {
+          "learningSource": "steam",
+          "learningAppId": "  12345 "
+        },
+        "autoCrawl": {
+          "source": "steam",
+          "appId": 12345
+        },
+        "learning": {
+          "sources": [
+            "steam"
+          ],
+          "maxItems": 35,
+          "specBySource": {
+            "steam": {
+              "appId": 12345
+            }
+          }
+        },
+        "learningWithKey": {
+          "sources": [
+            "steam"
+          ],
+          "maxItems": 35,
+          "youtubeApiKey": "fake-key",
+          "specBySource": {
+            "steam": {
+              "appId": 12345
+            }
+          }
+        }
+      },
+      {
+        "body": {
+          "learningSource": "steam",
+          "learningAppId": 678
+        },
+        "autoCrawl": {
+          "source": "steam",
+          "appId": 678
+        },
+        "learning": {
+          "sources": [
+            "steam"
+          ],
+          "maxItems": 35,
+          "specBySource": {
+            "steam": {
+              "appId": 678
+            }
+          }
+        },
+        "learningWithKey": {
+          "sources": [
+            "steam"
+          ],
+          "maxItems": 35,
+          "youtubeApiKey": "fake-key",
+          "specBySource": {
+            "steam": {
+              "appId": 678
+            }
+          }
+        }
+      },
+      {
+        "body": {
+          "learningSource": "steam",
+          "learningAppId": "abc"
+        },
+        "autoCrawl": {
+          "source": "steam"
+        },
+        "learning": {
+          "sources": [
+            "steam"
+          ],
+          "maxItems": 35,
+          "specBySource": {
+            "steam": {}
+          }
+        },
+        "learningWithKey": {
+          "sources": [
+            "steam"
+          ],
+          "maxItems": 35,
+          "youtubeApiKey": "fake-key",
+          "specBySource": {
+            "steam": {}
+          }
+        }
+      },
+      {
+        "body": {
+          "learningSource": "steam",
+          "learningAppId": "1e3"
+        },
+        "autoCrawl": {
+          "source": "steam",
+          "appId": 1000
+        },
+        "learning": {
+          "sources": [
+            "steam"
+          ],
+          "maxItems": 35,
+          "specBySource": {
+            "steam": {
+              "appId": 1000
+            }
+          }
+        },
+        "learningWithKey": {
+          "sources": [
+            "steam"
+          ],
+          "maxItems": 35,
+          "youtubeApiKey": "fake-key",
+          "specBySource": {
+            "steam": {
+              "appId": 1000
+            }
+          }
+        }
+      },
+      {
+        "body": {
+          "learningSource": "website",
+          "learningUrls": "https://a.example/x, https://b.example/y　https://c.example"
+        },
+        "autoCrawl": {
+          "source": "website",
+          "urls": [
+            "https://a.example/x",
+            "https://b.example/y",
+            "https://c.example"
+          ]
+        },
+        "learning": {
+          "sources": [
+            "website"
+          ],
+          "maxItems": 35,
+          "specBySource": {
+            "website": {
+              "urls": [
+                "https://a.example/x",
+                "https://b.example/y",
+                "https://c.example"
+              ]
+            }
+          }
+        },
+        "learningWithKey": {
+          "sources": [
+            "website"
+          ],
+          "maxItems": 35,
+          "youtubeApiKey": "fake-key",
+          "specBySource": {
+            "website": {
+              "urls": [
+                "https://a.example/x",
+                "https://b.example/y",
+                "https://c.example"
+              ]
+            }
+          }
+        }
+      },
+      {
+        "body": {
+          "learningSource": "website",
+          "learningUrls": [
+            "https://a.example",
+            "",
+            "  ",
+            3,
+            "https://b.example"
+          ]
+        },
+        "autoCrawl": {
+          "source": "website",
+          "urls": [
+            "https://a.example",
+            "https://b.example"
+          ]
+        },
+        "learning": {
+          "sources": [
+            "website"
+          ],
+          "maxItems": 35,
+          "specBySource": {
+            "website": {
+              "urls": [
+                "https://a.example",
+                "https://b.example"
+              ]
+            }
+          }
+        },
+        "learningWithKey": {
+          "sources": [
+            "website"
+          ],
+          "maxItems": 35,
+          "youtubeApiKey": "fake-key",
+          "specBySource": {
+            "website": {
+              "urls": [
+                "https://a.example",
+                "https://b.example"
+              ]
+            }
+          }
+        }
+      },
+      {
+        "body": {
+          "learningSource": "reddit",
+          "learningSubreddit": "  gamedev ",
+          "learningQuery": ""
+        },
+        "autoCrawl": {
+          "source": "reddit",
+          "query": "",
+          "subreddit": "gamedev"
+        },
+        "learning": {
+          "sources": [
+            "reddit"
+          ],
+          "query": "",
+          "maxItems": 35,
+          "specBySource": {
+            "reddit": {
+              "subreddit": "gamedev"
+            }
+          }
+        },
+        "learningWithKey": {
+          "sources": [
+            "reddit"
+          ],
+          "query": "",
+          "maxItems": 35,
+          "youtubeApiKey": "fake-key",
+          "specBySource": {
+            "reddit": {
+              "subreddit": "gamedev"
+            }
+          }
+        }
+      },
+      {
+        "body": {
+          "learningSource": "unknown"
+        },
+        "autoCrawl": null,
+        "learning": null,
+        "learningWithKey": null
+      },
+      {
+        "body": {
+          "learningSource": "balanced",
+          "learningAppId": "42",
+          "learningSubreddit": "x",
+          "learningQuery": " q "
+        },
+        "autoCrawl": null,
+        "learning": {
+          "sources": [
+            "steam",
+            "youtube",
+            "reddit",
+            "niconico"
+          ],
+          "query": "q",
+          "maxItems": 10,
+          "specBySource": {
+            "steam": {
+              "appId": 42
+            },
+            "reddit": {
+              "subreddit": "x"
+            }
+          }
+        },
+        "learningWithKey": {
+          "sources": [
+            "steam",
+            "youtube",
+            "reddit",
+            "niconico"
+          ],
+          "query": "q",
+          "maxItems": 10,
+          "youtubeApiKey": "fake-key",
+          "specBySource": {
+            "steam": {
+              "appId": 42
+            },
+            "reddit": {
+              "subreddit": "x"
+            }
+          }
+        }
+      },
+      {
+        "body": {
+          "learningBalanced": true
+        },
+        "autoCrawl": {
+          "source": "website"
+        },
+        "learning": {
+          "sources": [
+            "steam",
+            "youtube",
+            "reddit",
+            "niconico"
+          ],
+          "maxItems": 10,
+          "specBySource": {
+            "steam": {},
+            "reddit": {}
+          }
+        },
+        "learningWithKey": {
+          "sources": [
+            "steam",
+            "youtube",
+            "reddit",
+            "niconico"
+          ],
+          "maxItems": 10,
+          "youtubeApiKey": "fake-key",
+          "specBySource": {
+            "steam": {},
+            "reddit": {}
+          }
+        }
+      },
+      {
+        "body": {
+          "learningBalanced": "true",
+          "learningQuery": "   "
+        },
+        "autoCrawl": {
+          "source": "website",
+          "query": ""
+        },
+        "learning": null,
+        "learningWithKey": {
+          "sources": [
+            "youtube"
+          ],
+          "maxItems": 35,
+          "youtubeApiKey": "fake-key"
+        }
+      },
+      {
+        "body": {
+          "learningSource": 3,
+          "learningQuery": 4,
+          "learningUrls": "   "
+        },
+        "autoCrawl": {
+          "source": "website"
+        },
+        "learning": null,
+        "learningWithKey": {
+          "sources": [
+            "youtube"
+          ],
+          "maxItems": 35,
+          "youtubeApiKey": "fake-key"
+        }
+      }
+    ]
+  },
+  {
+    "env": {
+      "DISCUTERE_FLOW_AUTOCRAWL_SOURCES": "niconico,youtube",
+      "DISCUTERE_FLOW_AUTOCRAWL_MAX_ITEMS": "7"
+    },
+    "webPaperGateEnabled": true,
+    "cases": [
+      {
+        "body": {},
+        "autoCrawl": {
+          "source": "niconico"
+        },
+        "learning": {
+          "sources": [
+            "niconico"
+          ],
+          "maxItems": 7
+        },
+        "learningWithKey": {
+          "sources": [
+            "niconico",
+            "youtube"
+          ],
+          "maxItems": 7,
+          "youtubeApiKey": "fake-key"
+        }
+      },
+      {
+        "body": {
+          "learningSource": "youtube",
+          "learningQuery": "  クエリ  "
+        },
+        "autoCrawl": {
+          "source": "youtube",
+          "query": "クエリ"
+        },
+        "learning": {
+          "sources": [
+            "youtube"
+          ],
+          "query": "クエリ",
+          "maxItems": 7,
+          "specBySource": {
+            "youtube": {}
+          }
+        },
+        "learningWithKey": {
+          "sources": [
+            "youtube"
+          ],
+          "query": "クエリ",
+          "maxItems": 7,
+          "youtubeApiKey": "fake-key",
+          "specBySource": {
+            "youtube": {}
+          }
+        }
+      },
+      {
+        "body": {
+          "learningSource": "steam",
+          "learningAppId": "  12345 "
+        },
+        "autoCrawl": {
+          "source": "steam",
+          "appId": 12345
+        },
+        "learning": {
+          "sources": [
+            "steam"
+          ],
+          "maxItems": 7,
+          "specBySource": {
+            "steam": {
+              "appId": 12345
+            }
+          }
+        },
+        "learningWithKey": {
+          "sources": [
+            "steam"
+          ],
+          "maxItems": 7,
+          "youtubeApiKey": "fake-key",
+          "specBySource": {
+            "steam": {
+              "appId": 12345
+            }
+          }
+        }
+      },
+      {
+        "body": {
+          "learningSource": "steam",
+          "learningAppId": 678
+        },
+        "autoCrawl": {
+          "source": "steam",
+          "appId": 678
+        },
+        "learning": {
+          "sources": [
+            "steam"
+          ],
+          "maxItems": 7,
+          "specBySource": {
+            "steam": {
+              "appId": 678
+            }
+          }
+        },
+        "learningWithKey": {
+          "sources": [
+            "steam"
+          ],
+          "maxItems": 7,
+          "youtubeApiKey": "fake-key",
+          "specBySource": {
+            "steam": {
+              "appId": 678
+            }
+          }
+        }
+      },
+      {
+        "body": {
+          "learningSource": "steam",
+          "learningAppId": "abc"
+        },
+        "autoCrawl": {
+          "source": "steam"
+        },
+        "learning": {
+          "sources": [
+            "steam"
+          ],
+          "maxItems": 7,
+          "specBySource": {
+            "steam": {}
+          }
+        },
+        "learningWithKey": {
+          "sources": [
+            "steam"
+          ],
+          "maxItems": 7,
+          "youtubeApiKey": "fake-key",
+          "specBySource": {
+            "steam": {}
+          }
+        }
+      },
+      {
+        "body": {
+          "learningSource": "steam",
+          "learningAppId": "1e3"
+        },
+        "autoCrawl": {
+          "source": "steam",
+          "appId": 1000
+        },
+        "learning": {
+          "sources": [
+            "steam"
+          ],
+          "maxItems": 7,
+          "specBySource": {
+            "steam": {
+              "appId": 1000
+            }
+          }
+        },
+        "learningWithKey": {
+          "sources": [
+            "steam"
+          ],
+          "maxItems": 7,
+          "youtubeApiKey": "fake-key",
+          "specBySource": {
+            "steam": {
+              "appId": 1000
+            }
+          }
+        }
+      },
+      {
+        "body": {
+          "learningSource": "website",
+          "learningUrls": "https://a.example/x, https://b.example/y　https://c.example"
+        },
+        "autoCrawl": {
+          "source": "website",
+          "urls": [
+            "https://a.example/x",
+            "https://b.example/y",
+            "https://c.example"
+          ]
+        },
+        "learning": {
+          "sources": [
+            "website"
+          ],
+          "maxItems": 7,
+          "specBySource": {
+            "website": {
+              "urls": [
+                "https://a.example/x",
+                "https://b.example/y",
+                "https://c.example"
+              ]
+            }
+          }
+        },
+        "learningWithKey": {
+          "sources": [
+            "website"
+          ],
+          "maxItems": 7,
+          "youtubeApiKey": "fake-key",
+          "specBySource": {
+            "website": {
+              "urls": [
+                "https://a.example/x",
+                "https://b.example/y",
+                "https://c.example"
+              ]
+            }
+          }
+        }
+      },
+      {
+        "body": {
+          "learningSource": "website",
+          "learningUrls": [
+            "https://a.example",
+            "",
+            "  ",
+            3,
+            "https://b.example"
+          ]
+        },
+        "autoCrawl": {
+          "source": "website",
+          "urls": [
+            "https://a.example",
+            "https://b.example"
+          ]
+        },
+        "learning": {
+          "sources": [
+            "website"
+          ],
+          "maxItems": 7,
+          "specBySource": {
+            "website": {
+              "urls": [
+                "https://a.example",
+                "https://b.example"
+              ]
+            }
+          }
+        },
+        "learningWithKey": {
+          "sources": [
+            "website"
+          ],
+          "maxItems": 7,
+          "youtubeApiKey": "fake-key",
+          "specBySource": {
+            "website": {
+              "urls": [
+                "https://a.example",
+                "https://b.example"
+              ]
+            }
+          }
+        }
+      },
+      {
+        "body": {
+          "learningSource": "reddit",
+          "learningSubreddit": "  gamedev ",
+          "learningQuery": ""
+        },
+        "autoCrawl": {
+          "source": "reddit",
+          "query": "",
+          "subreddit": "gamedev"
+        },
+        "learning": {
+          "sources": [
+            "reddit"
+          ],
+          "query": "",
+          "maxItems": 7,
+          "specBySource": {
+            "reddit": {
+              "subreddit": "gamedev"
+            }
+          }
+        },
+        "learningWithKey": {
+          "sources": [
+            "reddit"
+          ],
+          "query": "",
+          "maxItems": 7,
+          "youtubeApiKey": "fake-key",
+          "specBySource": {
+            "reddit": {
+              "subreddit": "gamedev"
+            }
+          }
+        }
+      },
+      {
+        "body": {
+          "learningSource": "unknown"
+        },
+        "autoCrawl": null,
+        "learning": null,
+        "learningWithKey": null
+      },
+      {
+        "body": {
+          "learningSource": "balanced",
+          "learningAppId": "42",
+          "learningSubreddit": "x",
+          "learningQuery": " q "
+        },
+        "autoCrawl": null,
+        "learning": {
+          "sources": [
+            "steam",
+            "youtube",
+            "reddit",
+            "niconico"
+          ],
+          "query": "q",
+          "maxItems": 10,
+          "specBySource": {
+            "steam": {
+              "appId": 42
+            },
+            "reddit": {
+              "subreddit": "x"
+            }
+          }
+        },
+        "learningWithKey": {
+          "sources": [
+            "steam",
+            "youtube",
+            "reddit",
+            "niconico"
+          ],
+          "query": "q",
+          "maxItems": 10,
+          "youtubeApiKey": "fake-key",
+          "specBySource": {
+            "steam": {
+              "appId": 42
+            },
+            "reddit": {
+              "subreddit": "x"
+            }
+          }
+        }
+      },
+      {
+        "body": {
+          "learningBalanced": true
+        },
+        "autoCrawl": {
+          "source": "niconico"
+        },
+        "learning": {
+          "sources": [
+            "steam",
+            "youtube",
+            "reddit",
+            "niconico"
+          ],
+          "maxItems": 10,
+          "specBySource": {
+            "steam": {},
+            "reddit": {}
+          }
+        },
+        "learningWithKey": {
+          "sources": [
+            "steam",
+            "youtube",
+            "reddit",
+            "niconico"
+          ],
+          "maxItems": 10,
+          "youtubeApiKey": "fake-key",
+          "specBySource": {
+            "steam": {},
+            "reddit": {}
+          }
+        }
+      },
+      {
+        "body": {
+          "learningBalanced": "true",
+          "learningQuery": "   "
+        },
+        "autoCrawl": {
+          "source": "niconico",
+          "query": ""
+        },
+        "learning": {
+          "sources": [
+            "niconico"
+          ],
+          "maxItems": 7
+        },
+        "learningWithKey": {
+          "sources": [
+            "niconico",
+            "youtube"
+          ],
+          "maxItems": 7,
+          "youtubeApiKey": "fake-key"
+        }
+      },
+      {
+        "body": {
+          "learningSource": 3,
+          "learningQuery": 4,
+          "learningUrls": "   "
+        },
+        "autoCrawl": {
+          "source": "niconico"
+        },
+        "learning": {
+          "sources": [
+            "niconico"
+          ],
+          "maxItems": 7
+        },
+        "learningWithKey": {
+          "sources": [
+            "niconico",
+            "youtube"
+          ],
+          "maxItems": 7,
+          "youtubeApiKey": "fake-key"
+        }
+      }
+    ]
+  },
+  {
+    "env": {
+      "DISCUTERE_FLOW_PAPER_REVIEW_ENABLED": "true",
+      "DISCUTERE_FLOW_PAPER_REVIEW_WEB_CANONICAL": "false"
+    },
+    "webPaperGateEnabled": true,
+    "cases": [
+      {
+        "body": {},
+        "autoCrawl": {
+          "source": "niconico"
+        },
+        "learning": {
+          "sources": [
+            "niconico"
+          ],
+          "maxItems": 300
+        },
+        "learningWithKey": {
+          "sources": [
+            "niconico",
+            "youtube"
+          ],
+          "maxItems": 300,
+          "youtubeApiKey": "fake-key"
+        }
+      },
+      {
+        "body": {
+          "learningSource": "youtube",
+          "learningQuery": "  クエリ  "
+        },
+        "autoCrawl": {
+          "source": "youtube",
+          "query": "クエリ"
+        },
+        "learning": {
+          "sources": [
+            "youtube"
+          ],
+          "query": "クエリ",
+          "maxItems": 300,
+          "specBySource": {
+            "youtube": {}
+          }
+        },
+        "learningWithKey": {
+          "sources": [
+            "youtube"
+          ],
+          "query": "クエリ",
+          "maxItems": 300,
+          "youtubeApiKey": "fake-key",
+          "specBySource": {
+            "youtube": {}
+          }
+        }
+      },
+      {
+        "body": {
+          "learningSource": "steam",
+          "learningAppId": "  12345 "
+        },
+        "autoCrawl": {
+          "source": "steam",
+          "appId": 12345
+        },
+        "learning": {
+          "sources": [
+            "steam"
+          ],
+          "maxItems": 300,
+          "specBySource": {
+            "steam": {
+              "appId": 12345
+            }
+          }
+        },
+        "learningWithKey": {
+          "sources": [
+            "steam"
+          ],
+          "maxItems": 300,
+          "youtubeApiKey": "fake-key",
+          "specBySource": {
+            "steam": {
+              "appId": 12345
+            }
+          }
+        }
+      },
+      {
+        "body": {
+          "learningSource": "steam",
+          "learningAppId": 678
+        },
+        "autoCrawl": {
+          "source": "steam",
+          "appId": 678
+        },
+        "learning": {
+          "sources": [
+            "steam"
+          ],
+          "maxItems": 300,
+          "specBySource": {
+            "steam": {
+              "appId": 678
+            }
+          }
+        },
+        "learningWithKey": {
+          "sources": [
+            "steam"
+          ],
+          "maxItems": 300,
+          "youtubeApiKey": "fake-key",
+          "specBySource": {
+            "steam": {
+              "appId": 678
+            }
+          }
+        }
+      },
+      {
+        "body": {
+          "learningSource": "steam",
+          "learningAppId": "abc"
+        },
+        "autoCrawl": {
+          "source": "steam"
+        },
+        "learning": {
+          "sources": [
+            "steam"
+          ],
+          "maxItems": 300,
+          "specBySource": {
+            "steam": {}
+          }
+        },
+        "learningWithKey": {
+          "sources": [
+            "steam"
+          ],
+          "maxItems": 300,
+          "youtubeApiKey": "fake-key",
+          "specBySource": {
+            "steam": {}
+          }
+        }
+      },
+      {
+        "body": {
+          "learningSource": "steam",
+          "learningAppId": "1e3"
+        },
+        "autoCrawl": {
+          "source": "steam",
+          "appId": 1000
+        },
+        "learning": {
+          "sources": [
+            "steam"
+          ],
+          "maxItems": 300,
+          "specBySource": {
+            "steam": {
+              "appId": 1000
+            }
+          }
+        },
+        "learningWithKey": {
+          "sources": [
+            "steam"
+          ],
+          "maxItems": 300,
+          "youtubeApiKey": "fake-key",
+          "specBySource": {
+            "steam": {
+              "appId": 1000
+            }
+          }
+        }
+      },
+      {
+        "body": {
+          "learningSource": "website",
+          "learningUrls": "https://a.example/x, https://b.example/y　https://c.example"
+        },
+        "autoCrawl": {
+          "source": "website",
+          "urls": [
+            "https://a.example/x",
+            "https://b.example/y",
+            "https://c.example"
+          ]
+        },
+        "learning": {
+          "sources": [
+            "website"
+          ],
+          "maxItems": 300,
+          "specBySource": {
+            "website": {
+              "urls": [
+                "https://a.example/x",
+                "https://b.example/y",
+                "https://c.example"
+              ]
+            }
+          }
+        },
+        "learningWithKey": {
+          "sources": [
+            "website"
+          ],
+          "maxItems": 300,
+          "youtubeApiKey": "fake-key",
+          "specBySource": {
+            "website": {
+              "urls": [
+                "https://a.example/x",
+                "https://b.example/y",
+                "https://c.example"
+              ]
+            }
+          }
+        }
+      },
+      {
+        "body": {
+          "learningSource": "website",
+          "learningUrls": [
+            "https://a.example",
+            "",
+            "  ",
+            3,
+            "https://b.example"
+          ]
+        },
+        "autoCrawl": {
+          "source": "website",
+          "urls": [
+            "https://a.example",
+            "https://b.example"
+          ]
+        },
+        "learning": {
+          "sources": [
+            "website"
+          ],
+          "maxItems": 300,
+          "specBySource": {
+            "website": {
+              "urls": [
+                "https://a.example",
+                "https://b.example"
+              ]
+            }
+          }
+        },
+        "learningWithKey": {
+          "sources": [
+            "website"
+          ],
+          "maxItems": 300,
+          "youtubeApiKey": "fake-key",
+          "specBySource": {
+            "website": {
+              "urls": [
+                "https://a.example",
+                "https://b.example"
+              ]
+            }
+          }
+        }
+      },
+      {
+        "body": {
+          "learningSource": "reddit",
+          "learningSubreddit": "  gamedev ",
+          "learningQuery": ""
+        },
+        "autoCrawl": {
+          "source": "reddit",
+          "query": "",
+          "subreddit": "gamedev"
+        },
+        "learning": {
+          "sources": [
+            "reddit"
+          ],
+          "query": "",
+          "maxItems": 300,
+          "specBySource": {
+            "reddit": {
+              "subreddit": "gamedev"
+            }
+          }
+        },
+        "learningWithKey": {
+          "sources": [
+            "reddit"
+          ],
+          "query": "",
+          "maxItems": 300,
+          "youtubeApiKey": "fake-key",
+          "specBySource": {
+            "reddit": {
+              "subreddit": "gamedev"
+            }
+          }
+        }
+      },
+      {
+        "body": {
+          "learningSource": "unknown"
+        },
+        "autoCrawl": null,
+        "learning": null,
+        "learningWithKey": null
+      },
+      {
+        "body": {
+          "learningSource": "balanced",
+          "learningAppId": "42",
+          "learningSubreddit": "x",
+          "learningQuery": " q "
+        },
+        "autoCrawl": null,
+        "learning": {
+          "sources": [
+            "steam",
+            "youtube",
+            "reddit",
+            "niconico"
+          ],
+          "query": "q",
+          "maxItems": 75,
+          "specBySource": {
+            "steam": {
+              "appId": 42
+            },
+            "reddit": {
+              "subreddit": "x"
+            }
+          }
+        },
+        "learningWithKey": {
+          "sources": [
+            "steam",
+            "youtube",
+            "reddit",
+            "niconico"
+          ],
+          "query": "q",
+          "maxItems": 75,
+          "youtubeApiKey": "fake-key",
+          "specBySource": {
+            "steam": {
+              "appId": 42
+            },
+            "reddit": {
+              "subreddit": "x"
+            }
+          }
+        }
+      },
+      {
+        "body": {
+          "learningBalanced": true
+        },
+        "autoCrawl": {
+          "source": "niconico"
+        },
+        "learning": {
+          "sources": [
+            "steam",
+            "youtube",
+            "reddit",
+            "niconico"
+          ],
+          "maxItems": 75,
+          "specBySource": {
+            "steam": {},
+            "reddit": {}
+          }
+        },
+        "learningWithKey": {
+          "sources": [
+            "steam",
+            "youtube",
+            "reddit",
+            "niconico"
+          ],
+          "maxItems": 75,
+          "youtubeApiKey": "fake-key",
+          "specBySource": {
+            "steam": {},
+            "reddit": {}
+          }
+        }
+      },
+      {
+        "body": {
+          "learningBalanced": "true",
+          "learningQuery": "   "
+        },
+        "autoCrawl": {
+          "source": "niconico",
+          "query": ""
+        },
+        "learning": {
+          "sources": [
+            "niconico"
+          ],
+          "maxItems": 300
+        },
+        "learningWithKey": {
+          "sources": [
+            "niconico",
+            "youtube"
+          ],
+          "maxItems": 300,
+          "youtubeApiKey": "fake-key"
+        }
+      },
+      {
+        "body": {
+          "learningSource": 3,
+          "learningQuery": 4,
+          "learningUrls": "   "
+        },
+        "autoCrawl": {
+          "source": "niconico"
+        },
+        "learning": {
+          "sources": [
+            "niconico"
+          ],
+          "maxItems": 300
+        },
+        "learningWithKey": {
+          "sources": [
+            "niconico",
+            "youtube"
+          ],
+          "maxItems": 300,
+          "youtubeApiKey": "fake-key"
+        }
+      }
+    ]
+  },
+  {
+    "env": {
+      "DISCUTERE_FLOW_PAPER_REVIEW_WEB_CANONICAL": "false"
+    },
+    "webPaperGateEnabled": false,
+    "cases": [
+      {
+        "body": {},
+        "autoCrawl": {
+          "source": "niconico"
+        },
+        "learning": {
+          "sources": [
+            "niconico"
+          ],
+          "maxItems": 300
+        },
+        "learningWithKey": {
+          "sources": [
+            "niconico",
+            "youtube"
+          ],
+          "maxItems": 300,
+          "youtubeApiKey": "fake-key"
+        }
+      },
+      {
+        "body": {
+          "learningSource": "youtube",
+          "learningQuery": "  クエリ  "
+        },
+        "autoCrawl": {
+          "source": "youtube",
+          "query": "クエリ"
+        },
+        "learning": {
+          "sources": [
+            "youtube"
+          ],
+          "query": "クエリ",
+          "maxItems": 300,
+          "specBySource": {
+            "youtube": {}
+          }
+        },
+        "learningWithKey": {
+          "sources": [
+            "youtube"
+          ],
+          "query": "クエリ",
+          "maxItems": 300,
+          "youtubeApiKey": "fake-key",
+          "specBySource": {
+            "youtube": {}
+          }
+        }
+      },
+      {
+        "body": {
+          "learningSource": "steam",
+          "learningAppId": "  12345 "
+        },
+        "autoCrawl": {
+          "source": "steam",
+          "appId": 12345
+        },
+        "learning": {
+          "sources": [
+            "steam"
+          ],
+          "maxItems": 300,
+          "specBySource": {
+            "steam": {
+              "appId": 12345
+            }
+          }
+        },
+        "learningWithKey": {
+          "sources": [
+            "steam"
+          ],
+          "maxItems": 300,
+          "youtubeApiKey": "fake-key",
+          "specBySource": {
+            "steam": {
+              "appId": 12345
+            }
+          }
+        }
+      },
+      {
+        "body": {
+          "learningSource": "steam",
+          "learningAppId": 678
+        },
+        "autoCrawl": {
+          "source": "steam",
+          "appId": 678
+        },
+        "learning": {
+          "sources": [
+            "steam"
+          ],
+          "maxItems": 300,
+          "specBySource": {
+            "steam": {
+              "appId": 678
+            }
+          }
+        },
+        "learningWithKey": {
+          "sources": [
+            "steam"
+          ],
+          "maxItems": 300,
+          "youtubeApiKey": "fake-key",
+          "specBySource": {
+            "steam": {
+              "appId": 678
+            }
+          }
+        }
+      },
+      {
+        "body": {
+          "learningSource": "steam",
+          "learningAppId": "abc"
+        },
+        "autoCrawl": {
+          "source": "steam"
+        },
+        "learning": {
+          "sources": [
+            "steam"
+          ],
+          "maxItems": 300,
+          "specBySource": {
+            "steam": {}
+          }
+        },
+        "learningWithKey": {
+          "sources": [
+            "steam"
+          ],
+          "maxItems": 300,
+          "youtubeApiKey": "fake-key",
+          "specBySource": {
+            "steam": {}
+          }
+        }
+      },
+      {
+        "body": {
+          "learningSource": "steam",
+          "learningAppId": "1e3"
+        },
+        "autoCrawl": {
+          "source": "steam",
+          "appId": 1000
+        },
+        "learning": {
+          "sources": [
+            "steam"
+          ],
+          "maxItems": 300,
+          "specBySource": {
+            "steam": {
+              "appId": 1000
+            }
+          }
+        },
+        "learningWithKey": {
+          "sources": [
+            "steam"
+          ],
+          "maxItems": 300,
+          "youtubeApiKey": "fake-key",
+          "specBySource": {
+            "steam": {
+              "appId": 1000
+            }
+          }
+        }
+      },
+      {
+        "body": {
+          "learningSource": "website",
+          "learningUrls": "https://a.example/x, https://b.example/y　https://c.example"
+        },
+        "autoCrawl": {
+          "source": "website",
+          "urls": [
+            "https://a.example/x",
+            "https://b.example/y",
+            "https://c.example"
+          ]
+        },
+        "learning": {
+          "sources": [
+            "website"
+          ],
+          "maxItems": 300,
+          "specBySource": {
+            "website": {
+              "urls": [
+                "https://a.example/x",
+                "https://b.example/y",
+                "https://c.example"
+              ]
+            }
+          }
+        },
+        "learningWithKey": {
+          "sources": [
+            "website"
+          ],
+          "maxItems": 300,
+          "youtubeApiKey": "fake-key",
+          "specBySource": {
+            "website": {
+              "urls": [
+                "https://a.example/x",
+                "https://b.example/y",
+                "https://c.example"
+              ]
+            }
+          }
+        }
+      },
+      {
+        "body": {
+          "learningSource": "website",
+          "learningUrls": [
+            "https://a.example",
+            "",
+            "  ",
+            3,
+            "https://b.example"
+          ]
+        },
+        "autoCrawl": {
+          "source": "website",
+          "urls": [
+            "https://a.example",
+            "https://b.example"
+          ]
+        },
+        "learning": {
+          "sources": [
+            "website"
+          ],
+          "maxItems": 300,
+          "specBySource": {
+            "website": {
+              "urls": [
+                "https://a.example",
+                "https://b.example"
+              ]
+            }
+          }
+        },
+        "learningWithKey": {
+          "sources": [
+            "website"
+          ],
+          "maxItems": 300,
+          "youtubeApiKey": "fake-key",
+          "specBySource": {
+            "website": {
+              "urls": [
+                "https://a.example",
+                "https://b.example"
+              ]
+            }
+          }
+        }
+      },
+      {
+        "body": {
+          "learningSource": "reddit",
+          "learningSubreddit": "  gamedev ",
+          "learningQuery": ""
+        },
+        "autoCrawl": {
+          "source": "reddit",
+          "query": "",
+          "subreddit": "gamedev"
+        },
+        "learning": {
+          "sources": [
+            "reddit"
+          ],
+          "query": "",
+          "maxItems": 300,
+          "specBySource": {
+            "reddit": {
+              "subreddit": "gamedev"
+            }
+          }
+        },
+        "learningWithKey": {
+          "sources": [
+            "reddit"
+          ],
+          "query": "",
+          "maxItems": 300,
+          "youtubeApiKey": "fake-key",
+          "specBySource": {
+            "reddit": {
+              "subreddit": "gamedev"
+            }
+          }
+        }
+      },
+      {
+        "body": {
+          "learningSource": "unknown"
+        },
+        "autoCrawl": null,
+        "learning": null,
+        "learningWithKey": null
+      },
+      {
+        "body": {
+          "learningSource": "balanced",
+          "learningAppId": "42",
+          "learningSubreddit": "x",
+          "learningQuery": " q "
+        },
+        "autoCrawl": null,
+        "learning": {
+          "sources": [
+            "steam",
+            "youtube",
+            "reddit",
+            "niconico"
+          ],
+          "query": "q",
+          "maxItems": 75,
+          "specBySource": {
+            "steam": {
+              "appId": 42
+            },
+            "reddit": {
+              "subreddit": "x"
+            }
+          }
+        },
+        "learningWithKey": {
+          "sources": [
+            "steam",
+            "youtube",
+            "reddit",
+            "niconico"
+          ],
+          "query": "q",
+          "maxItems": 75,
+          "youtubeApiKey": "fake-key",
+          "specBySource": {
+            "steam": {
+              "appId": 42
+            },
+            "reddit": {
+              "subreddit": "x"
+            }
+          }
+        }
+      },
+      {
+        "body": {
+          "learningBalanced": true
+        },
+        "autoCrawl": {
+          "source": "niconico"
+        },
+        "learning": {
+          "sources": [
+            "steam",
+            "youtube",
+            "reddit",
+            "niconico"
+          ],
+          "maxItems": 75,
+          "specBySource": {
+            "steam": {},
+            "reddit": {}
+          }
+        },
+        "learningWithKey": {
+          "sources": [
+            "steam",
+            "youtube",
+            "reddit",
+            "niconico"
+          ],
+          "maxItems": 75,
+          "youtubeApiKey": "fake-key",
+          "specBySource": {
+            "steam": {},
+            "reddit": {}
+          }
+        }
+      },
+      {
+        "body": {
+          "learningBalanced": "true",
+          "learningQuery": "   "
+        },
+        "autoCrawl": {
+          "source": "niconico",
+          "query": ""
+        },
+        "learning": {
+          "sources": [
+            "niconico"
+          ],
+          "maxItems": 300
+        },
+        "learningWithKey": {
+          "sources": [
+            "niconico",
+            "youtube"
+          ],
+          "maxItems": 300,
+          "youtubeApiKey": "fake-key"
+        }
+      },
+      {
+        "body": {
+          "learningSource": 3,
+          "learningQuery": 4,
+          "learningUrls": "   "
+        },
+        "autoCrawl": {
+          "source": "niconico"
+        },
+        "learning": {
+          "sources": [
+            "niconico"
+          ],
+          "maxItems": 300
+        },
+        "learningWithKey": {
+          "sources": [
+            "niconico",
+            "youtube"
+          ],
+          "maxItems": 300,
+          "youtubeApiKey": "fake-key"
+        }
+      }
+    ]
+  }
+]

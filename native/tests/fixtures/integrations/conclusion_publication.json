@@ -1,0 +1,251 @@
+{
+  "sql": [
+    "CREATE TABLE conclusion_cache (gap_id TEXT PRIMARY KEY, kind TEXT NOT NULL, session_id TEXT NOT NULL, title TEXT NOT NULL DEFAULT '', conclusion TEXT, utterance_count INTEGER NOT NULL DEFAULT 0, aufhebung_count INTEGER NOT NULL DEFAULT 0, discussion_volume INTEGER NOT NULL DEFAULT 0, material_count INTEGER NOT NULL DEFAULT -1, updated_at INTEGER NOT NULL, cached_at INTEGER NOT NULL)",
+    "CREATE TABLE conclusion_publication (conclusion_id TEXT PRIMARY KEY, publishable INTEGER NOT NULL DEFAULT 0 CHECK(publishable IN (0,1)), scope TEXT NOT NULL DEFAULT 'private' CHECK(scope IN ('private','public','glab')), content_hash TEXT NOT NULL, updated_at INTEGER NOT NULL)",
+    "INSERT INTO conclusion_cache (gap_id,kind,session_id,title,conclusion,updated_at,cached_at) VALUES ('public','gap','s','議題 \"公開\"','結論です',5,0)",
+    "INSERT INTO conclusion_cache (gap_id,kind,session_id,title,conclusion,updated_at,cached_at) VALUES ('glab','gap','s','glab','approved',7,0)",
+    "INSERT INTO conclusion_cache (gap_id,kind,session_id,title,conclusion,updated_at,cached_at) VALUES ('private','gap','s','private','approved',3,0)",
+    "INSERT INTO conclusion_cache (gap_id,kind,session_id,title,conclusion,updated_at,cached_at) VALUES ('blank','gap','s','blank','   ',9,0)",
+    "INSERT INTO conclusion_cache (gap_id,kind,session_id,title,conclusion,updated_at,cached_at) VALUES ('null','gap','s','null',NULL,9,0)"
+  ],
+  "steps": [
+    {
+      "op": "state",
+      "args": {
+        "id": "public"
+      },
+      "result": {
+        "publishable": false,
+        "scope": "private",
+        "revision": "b4fe74b6cc24b6b348b596a74c251dd2195f671ef03ba5f2fb7d058871f4e766",
+        "title": "議題 \"公開\"",
+        "conclusion": "結論です"
+      }
+    },
+    {
+      "op": "state",
+      "args": {
+        "id": "glab"
+      },
+      "result": {
+        "publishable": false,
+        "scope": "private",
+        "revision": "b7403e853f2c08623c3d0106984b8a6b34359df8bd64dc6b237efa1efe30a7be",
+        "title": "glab",
+        "conclusion": "approved"
+      }
+    },
+    {
+      "op": "state",
+      "args": {
+        "id": "private"
+      },
+      "result": {
+        "publishable": false,
+        "scope": "private",
+        "revision": "339ee93f5dda527fe95a42d626084c511473965b6bdecbb418e4dbbbf3b97520",
+        "title": "private",
+        "conclusion": "approved"
+      }
+    },
+    {
+      "op": "state",
+      "args": {
+        "id": "blank"
+      },
+      "result": {
+        "publishable": false,
+        "scope": "private",
+        "revision": "1049eb6c5f68300b1b9d1d1b97f40942d601744742797a304dd92b0add7c80e3",
+        "title": "blank",
+        "conclusion": "   "
+      }
+    },
+    {
+      "op": "state",
+      "args": {
+        "id": "null"
+      },
+      "result": {
+        "publishable": false,
+        "scope": "private",
+        "revision": "fd90dbc17041dc94043920b94dbafb193e8c57496112efb5eea455159f0e8ba1",
+        "title": "null",
+        "conclusion": ""
+      }
+    },
+    {
+      "op": "state",
+      "args": {
+        "id": "missing"
+      },
+      "result": null
+    },
+    {
+      "op": "published",
+      "args": {},
+      "result": []
+    },
+    {
+      "op": "set",
+      "args": {
+        "id": "public",
+        "publishable": true,
+        "scope": "public",
+        "revision": "b4fe74b6cc24b6b348b596a74c251dd2195f671ef03ba5f2fb7d058871f4e766",
+        "now": 11
+      },
+      "result": true
+    },
+    {
+      "op": "set",
+      "args": {
+        "id": "glab",
+        "publishable": true,
+        "scope": "glab",
+        "revision": "b7403e853f2c08623c3d0106984b8a6b34359df8bd64dc6b237efa1efe30a7be",
+        "now": 11
+      },
+      "result": true
+    },
+    {
+      "op": "set",
+      "args": {
+        "id": "private",
+        "publishable": true,
+        "scope": "private",
+        "revision": "339ee93f5dda527fe95a42d626084c511473965b6bdecbb418e4dbbbf3b97520",
+        "now": 11
+      },
+      "result": true
+    },
+    {
+      "op": "set",
+      "args": {
+        "id": "blank",
+        "publishable": true,
+        "scope": "public",
+        "revision": "1049eb6c5f68300b1b9d1d1b97f40942d601744742797a304dd92b0add7c80e3",
+        "now": 11
+      },
+      "result": false
+    },
+    {
+      "op": "set",
+      "args": {
+        "id": "null",
+        "publishable": true,
+        "scope": "public",
+        "revision": "fd90dbc17041dc94043920b94dbafb193e8c57496112efb5eea455159f0e8ba1",
+        "now": 11
+      },
+      "result": false
+    },
+    {
+      "op": "set",
+      "args": {
+        "id": "glab",
+        "publishable": true,
+        "scope": "glab",
+        "revision": "wrong",
+        "now": 12
+      },
+      "result": false
+    },
+    {
+      "op": "set",
+      "args": {
+        "id": "blank",
+        "publishable": false,
+        "scope": "public",
+        "revision": "1049eb6c5f68300b1b9d1d1b97f40942d601744742797a304dd92b0add7c80e3",
+        "now": 12
+      },
+      "result": true
+    },
+    {
+      "op": "published",
+      "args": {},
+      "result": [
+        {
+          "id": "glab",
+          "title": "glab",
+          "conclusion": "approved",
+          "updatedAt": 7,
+          "scope": "glab"
+        },
+        {
+          "id": "public",
+          "title": "議題 \"公開\"",
+          "conclusion": "結論です",
+          "updatedAt": 5,
+          "scope": "public"
+        }
+      ]
+    },
+    {
+      "op": "published",
+      "args": {
+        "id": "public"
+      },
+      "result": [
+        {
+          "id": "public",
+          "title": "議題 \"公開\"",
+          "conclusion": "結論です",
+          "updatedAt": 5,
+          "scope": "public"
+        }
+      ]
+    },
+    {
+      "op": "exec",
+      "args": {
+        "sql": "UPDATE conclusion_cache SET conclusion='changed' WHERE gap_id='public'"
+      },
+      "result": 1
+    },
+    {
+      "op": "state",
+      "args": {
+        "id": "public"
+      },
+      "result": {
+        "publishable": false,
+        "scope": "public",
+        "revision": "a8b08a1224eeeea487375db0e58a28dca7b200fcc93b194aab22f038ab276499",
+        "title": "議題 \"公開\"",
+        "conclusion": "changed"
+      }
+    },
+    {
+      "op": "published",
+      "args": {},
+      "result": [
+        {
+          "id": "glab",
+          "title": "glab",
+          "conclusion": "approved",
+          "updatedAt": 7,
+          "scope": "glab"
+        }
+      ]
+    },
+    {
+      "op": "set",
+      "args": {
+        "id": "glab",
+        "publishable": false,
+        "scope": "glab",
+        "revision": "b7403e853f2c08623c3d0106984b8a6b34359df8bd64dc6b237efa1efe30a7be",
+        "now": 13
+      },
+      "result": true
+    },
+    {
+      "op": "published",
+      "args": {},
+      "result": []
+    }
+  ]
+}

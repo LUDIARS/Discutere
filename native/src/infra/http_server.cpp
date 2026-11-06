@@ -1,5 +1,6 @@
 #include "infra/http_server.hpp"
 
+#include <array>
 #include <atomic>
 #include <limits>
 #include <optional>
@@ -26,6 +27,8 @@ namespace {
 constexpr auto kHeaderTimeout = std::chrono::seconds(30);
 constexpr auto kBodyTimeout = std::chrono::seconds(60);
 constexpr auto kWriteTimeout = std::chrono::seconds(60);
+constexpr auto kLingerTimeout = std::chrono::seconds(3);
+constexpr std::size_t kLingerMaxBytes = 8u << 20;
 } // namespace
 
 struct Server::Impl {
@@ -147,8 +150,29 @@ private:
         res->keep_alive(keep_alive_);
         stream_.expires_after(kWriteTimeout);
         bhttp::async_write(stream_, *res, [self = shared_from_this(), res](beast::error_code ec, std::size_t) {
-            if (ec || !self->keep_alive_ || !self->server_.running) return self->close();
+            if (ec || !self->server_.running) return self->close();
+            if (!self->keep_alive_) return self->linger_close();
             self->read_header();
+        });
+    }
+
+    // 応答を送った後の閉じ方: 送信側だけ閉じ、相手がまだ送っている本文 (例: 上限超過で 413 を返した後の残り) を
+    // 短い期限・上限つきで読み捨ててから閉じる。すぐ閉じると、相手はまだ書いている途中で RST を受け、
+    // 先に送った 413 を読めないことがある。
+    void linger_close() {
+        beast::error_code ec;
+        stream_.socket().shutdown(tcp::socket::shutdown_send, ec);
+        if (ec) return close();
+        stream_.expires_after(kLingerTimeout);
+        linger_read();
+    }
+
+    void linger_read() {
+        auto buf = std::make_shared<std::array<char, 16 * 1024>>();
+        stream_.async_read_some(asio::buffer(*buf), [self = shared_from_this(), buf](beast::error_code ec, std::size_t n) {
+            self->lingered_ += n;
+            if (ec || self->lingered_ > kLingerMaxBytes || !self->server_.running) return self->close();
+            self->linger_read();
         });
     }
 
@@ -164,6 +188,7 @@ private:
     std::optional<bhttp::request_parser<bhttp::string_body>> parser_;
     std::string remote_;
     bool keep_alive_ = false;
+    std::size_t lingered_ = 0;
 };
 
 } // namespace

@@ -29,7 +29,7 @@ lorica_harden_target(di_base)
 
 # infra: Boost.Beast を含む翻訳単位はここだけに閉じ込める (重いので)。
 file(GLOB_RECURSE DI_INFRA_SOURCES CONFIGURE_DEPENDS ${CMAKE_CURRENT_SOURCE_DIR}/src/infra/*.cpp)
-add_library(di_infra STATIC ${DI_INFRA_SOURCES})
+add_library(di_infra STATIC ${DI_INFRA_SOURCES} ${CMAKE_BINARY_DIR}/generated/beast_src.cpp)
 target_link_libraries(di_infra PUBLIC di_base PRIVATE di_boost)
 if(WIN32)
   target_link_libraries(di_infra PRIVATE crypt32)

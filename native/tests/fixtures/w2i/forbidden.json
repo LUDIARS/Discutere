@@ -1,0 +1,355 @@
+[
+  {
+    "input": {
+      "id": "ok-rule",
+      "description": null,
+      "instructions": "議論の論点を整理して提案する"
+    },
+    "output": {
+      "ok": true
+    }
+  },
+  {
+    "input": {
+      "id": "silent-check",
+      "description": null,
+      "instructions": "沈黙確認用"
+    },
+    "output": {
+      "ok": false,
+      "reason": "無音 / 沈黙確認系 rule は禁止 (rule_log で見えるため不要)"
+    }
+  },
+  {
+    "input": {
+      "id": "x",
+      "description": "無音の時に動く",
+      "instructions": "abc"
+    },
+    "output": {
+      "ok": false,
+      "reason": "無音 / 沈黙確認系 rule は禁止 (rule_log で見えるため不要)"
+    }
+  },
+  {
+    "input": {
+      "id": "x",
+      "description": null,
+      "instructions": "SILENCE detector"
+    },
+    "output": {
+      "ok": false,
+      "reason": "無音 / 沈黙確認系 rule は禁止 (rule_log で見えるため不要)"
+    }
+  },
+  {
+    "input": {
+      "id": "x",
+      "description": null,
+      "instructions": "Quiet-Check every minute"
+    },
+    "output": {
+      "ok": false,
+      "reason": "無音 / 沈黙確認系 rule は禁止 (rule_log で見えるため不要)"
+    }
+  },
+  {
+    "input": {
+      "id": "x",
+      "description": null,
+      "instructions": "quiet_check"
+    },
+    "output": {
+      "ok": false,
+      "reason": "無音 / 沈黙確認系 rule は禁止 (rule_log で見えるため不要)"
+    }
+  },
+  {
+    "input": {
+      "id": "x",
+      "description": null,
+      "instructions": "quiet check"
+    },
+    "output": {
+      "ok": false,
+      "reason": "無音 / 沈黙確認系 rule は禁止 (rule_log で見えるため不要)"
+    }
+  },
+  {
+    "input": {
+      "id": "x",
+      "description": null,
+      "instructions": "quiet  check"
+    },
+    "output": {
+      "ok": true
+    }
+  },
+  {
+    "input": {
+      "id": "x",
+      "description": null,
+      "instructions": "quietcheck"
+    },
+    "output": {
+      "ok": false,
+      "reason": "無音 / 沈黙確認系 rule は禁止 (rule_log で見えるため不要)"
+    }
+  },
+  {
+    "input": {
+      "id": "x",
+      "description": null,
+      "instructions": "進捗どうですか"
+    },
+    "output": {
+      "ok": false,
+      "reason": "進捗確認系 rule は禁止 (status endpoint で取得可)"
+    }
+  },
+  {
+    "input": {
+      "id": "x",
+      "description": null,
+      "instructions": "進捗を聞く"
+    },
+    "output": {
+      "ok": false,
+      "reason": "進捗確認系 rule は禁止 (status endpoint で取得可)"
+    }
+  },
+  {
+    "input": {
+      "id": "x",
+      "description": null,
+      "instructions": "進捗PING"
+    },
+    "output": {
+      "ok": false,
+      "reason": "進捗確認系 rule は禁止 (status endpoint で取得可)"
+    }
+  },
+  {
+    "input": {
+      "id": "x",
+      "description": null,
+      "instructions": "進捗報告"
+    },
+    "output": {
+      "ok": true
+    }
+  },
+  {
+    "input": {
+      "id": "x",
+      "description": null,
+      "instructions": "progress-ping"
+    },
+    "output": {
+      "ok": false,
+      "reason": "進捗確認系 rule は禁止 (status endpoint で取得可)"
+    }
+  },
+  {
+    "input": {
+      "id": "x",
+      "description": null,
+      "instructions": "Progress Check"
+    },
+    "output": {
+      "ok": false,
+      "reason": "進捗確認系 rule は禁止 (status endpoint で取得可)"
+    }
+  },
+  {
+    "input": {
+      "id": "x",
+      "description": null,
+      "instructions": "progress__check"
+    },
+    "output": {
+      "ok": true
+    }
+  },
+  {
+    "input": {
+      "id": "x",
+      "description": null,
+      "instructions": "汎用雑談をする"
+    },
+    "output": {
+      "ok": false,
+      "reason": "ロール無関係な汎用雑談 rule は禁止 (persona の役割に紐づけること)"
+    }
+  },
+  {
+    "input": {
+      "id": "x",
+      "description": null,
+      "instructions": "general_chitchat"
+    },
+    "output": {
+      "ok": false,
+      "reason": "ロール無関係な汎用雑談 rule は禁止 (persona の役割に紐づけること)"
+    }
+  },
+  {
+    "input": {
+      "id": "x",
+      "description": null,
+      "instructions": "small-talk-random"
+    },
+    "output": {
+      "ok": false,
+      "reason": "ロール無関係な汎用雑談 rule は禁止 (persona の役割に紐づけること)"
+    }
+  },
+  {
+    "input": {
+      "id": "x",
+      "description": null,
+      "instructions": "smalltalkrandom"
+    },
+    "output": {
+      "ok": false,
+      "reason": "ロール無関係な汎用雑談 rule は禁止 (persona の役割に紐づけること)"
+    }
+  },
+  {
+    "input": {
+      "id": "x",
+      "description": null,
+      "instructions": "small talk"
+    },
+    "output": {
+      "ok": true
+    }
+  },
+  {
+    "input": {
+      "id": "x",
+      "description": null,
+      "instructions": "全 persona を起こす"
+    },
+    "output": {
+      "ok": false,
+      "reason": "全 persona 一括動員 rule は禁止 (LLM コスト暴騰防止)"
+    }
+  },
+  {
+    "input": {
+      "id": "x",
+      "description": null,
+      "instructions": "全　　Persona"
+    },
+    "output": {
+      "ok": false,
+      "reason": "全 persona 一括動員 rule は禁止 (LLM コスト暴騰防止)"
+    }
+  },
+  {
+    "input": {
+      "id": "x",
+      "description": null,
+      "instructions": "全\npersona"
+    },
+    "output": {
+      "ok": false,
+      "reason": "全 persona 一括動員 rule は禁止 (LLM コスト暴騰防止)"
+    }
+  },
+  {
+    "input": {
+      "id": "x",
+      "description": null,
+      "instructions": "全員 persona"
+    },
+    "output": {
+      "ok": true
+    }
+  },
+  {
+    "input": {
+      "id": "x",
+      "description": null,
+      "instructions": "all-personas-fire"
+    },
+    "output": {
+      "ok": false,
+      "reason": "全 persona 一括動員 rule は禁止 (LLM コスト暴騰防止)"
+    }
+  },
+  {
+    "input": {
+      "id": "x",
+      "description": null,
+      "instructions": "all personas act"
+    },
+    "output": {
+      "ok": false,
+      "reason": "全 persona 一括動員 rule は禁止 (LLM コスト暴騰防止)"
+    }
+  },
+  {
+    "input": {
+      "id": "x",
+      "description": null,
+      "instructions": "allpersonainvoke"
+    },
+    "output": {
+      "ok": false,
+      "reason": "全 persona 一括動員 rule は禁止 (LLM コスト暴騰防止)"
+    }
+  },
+  {
+    "input": {
+      "id": "x",
+      "description": null,
+      "instructions": "all-personassfire"
+    },
+    "output": {
+      "ok": true
+    }
+  },
+  {
+    "input": {
+      "id": "x",
+      "description": null,
+      "instructions": "ALL_PERSONA_ACTION"
+    },
+    "output": {
+      "ok": false,
+      "reason": "全 persona 一括動員 rule は禁止 (LLM コスト暴騰防止)"
+    }
+  },
+  {
+    "input": {
+      "id": "all-personas",
+      "description": null,
+      "instructions": "fire"
+    },
+    "output": {
+      "ok": true
+    }
+  },
+  {
+    "input": {
+      "id": "x",
+      "description": "progress",
+      "instructions": "check"
+    },
+    "output": {
+      "ok": true
+    }
+  },
+  {
+    "input": {
+      "id": "x",
+      "description": null,
+      "instructions": "ſilence"
+    },
+    "output": {
+      "ok": true
+    }
+  }
+]

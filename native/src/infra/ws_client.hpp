@@ -5,6 +5,8 @@
 // - 1 メッセージの上限 max_message_bytes (Beast の read_message_max + lorica::input_budget)。
 // - 送信はキュー (最大 send_queue_limit 件)。満杯なら send() は false。
 // - 圧縮 (permessage-deflate) は使わない。
+// - コールバック (OnMessage / OnClose) の中で、その Client の最後の shared_ptr を手放して壊さないこと
+//   (I/O スレッドの中で自分を壊すことになる)。手放すのは別スレッドで行う。
 #include <chrono>
 #include <cstddef>
 #include <functional>

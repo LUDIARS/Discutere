@@ -1,0 +1,259 @@
+{
+  "messages": [
+    [
+      "error",
+      "[flow] 失敗しました"
+    ],
+    [
+      "warn",
+      "auth: 拒否"
+    ],
+    [
+      "error",
+      "plain message"
+    ],
+    [
+      "warn",
+      "  [persona-engine] tick 遅延  "
+    ],
+    [
+      "error",
+      "[] 空の括弧"
+    ],
+    [
+      "error",
+      "[a]b] 入れ子"
+    ],
+    [
+      "warn",
+      "Mixed-Case_9: x"
+    ],
+    [
+      "error",
+      "日本語: コロン"
+    ],
+    [
+      "error",
+      "no colon here: but later"
+    ],
+    [
+      "warn",
+      "-dash: y"
+    ],
+    [
+      "error",
+      ":leading"
+    ],
+    [
+      "error",
+      ""
+    ],
+    [
+      "warn",
+      "[[nested]]"
+    ]
+  ],
+  "recorded": [
+    {
+      "level": "warn",
+      "source": "[nested",
+      "message": "[[nested]]"
+    },
+    {
+      "level": "error",
+      "source": "console",
+      "message": ""
+    },
+    {
+      "level": "error",
+      "source": "console",
+      "message": ":leading"
+    },
+    {
+      "level": "warn",
+      "source": "-dash",
+      "message": "-dash: y"
+    },
+    {
+      "level": "error",
+      "source": "console",
+      "message": "no colon here: but later"
+    },
+    {
+      "level": "error",
+      "source": "console",
+      "message": "日本語: コロン"
+    },
+    {
+      "level": "warn",
+      "source": "Mixed-Case_9",
+      "message": "Mixed-Case_9: x"
+    },
+    {
+      "level": "error",
+      "source": "a",
+      "message": "[a]b] 入れ子"
+    },
+    {
+      "level": "error",
+      "source": "console",
+      "message": "[] 空の括弧"
+    },
+    {
+      "level": "warn",
+      "source": "persona-engine",
+      "message": "[persona-engine] tick 遅延"
+    },
+    {
+      "level": "error",
+      "source": "console",
+      "message": "plain message"
+    },
+    {
+      "level": "warn",
+      "source": "auth",
+      "message": "auth: 拒否"
+    },
+    {
+      "level": "error",
+      "source": "flow",
+      "message": "[flow] 失敗しました"
+    }
+  ],
+  "limits": [
+    {
+      "query": "",
+      "status": 200,
+      "messages": [
+        "[[nested]]",
+        "",
+        ":leading",
+        "-dash: y",
+        "no colon here: but later",
+        "日本語: コロン",
+        "Mixed-Case_9: x",
+        "[a]b] 入れ子",
+        "[] 空の括弧",
+        "[persona-engine] tick 遅延",
+        "plain message",
+        "auth: 拒否",
+        "[flow] 失敗しました"
+      ]
+    },
+    {
+      "query": "?limit=1",
+      "status": 200,
+      "messages": [
+        "[[nested]]"
+      ]
+    },
+    {
+      "query": "?limit=0",
+      "status": 200,
+      "messages": [
+        "[[nested]]"
+      ]
+    },
+    {
+      "query": "?limit=",
+      "status": 200,
+      "messages": [
+        "[[nested]]"
+      ]
+    },
+    {
+      "query": "?limit=abc",
+      "status": 200,
+      "messages": [
+        "[[nested]]",
+        "",
+        ":leading",
+        "-dash: y",
+        "no colon here: but later",
+        "日本語: コロン",
+        "Mixed-Case_9: x",
+        "[a]b] 入れ子",
+        "[] 空の括弧",
+        "[persona-engine] tick 遅延",
+        "plain message",
+        "auth: 拒否",
+        "[flow] 失敗しました"
+      ]
+    },
+    {
+      "query": "?limit=1.5",
+      "status": 200,
+      "messages": [
+        "[[nested]]",
+        ""
+      ]
+    },
+    {
+      "query": "?limit=300",
+      "status": 200,
+      "messages": [
+        "[[nested]]",
+        "",
+        ":leading",
+        "-dash: y",
+        "no colon here: but later",
+        "日本語: コロン",
+        "Mixed-Case_9: x",
+        "[a]b] 入れ子",
+        "[] 空の括弧",
+        "[persona-engine] tick 遅延",
+        "plain message",
+        "auth: 拒否",
+        "[flow] 失敗しました"
+      ]
+    },
+    {
+      "query": "?limit=-5",
+      "status": 200,
+      "messages": [
+        "[[nested]]"
+      ]
+    },
+    {
+      "query": "?limit=2.7",
+      "status": 200,
+      "messages": [
+        "[[nested]]",
+        "",
+        ":leading"
+      ]
+    },
+    {
+      "query": "?limit=Infinity",
+      "status": 200,
+      "messages": [
+        "[[nested]]",
+        "",
+        ":leading",
+        "-dash: y",
+        "no colon here: but later",
+        "日本語: コロン",
+        "Mixed-Case_9: x",
+        "[a]b] 入れ子",
+        "[] 空の括弧",
+        "[persona-engine] tick 遅延",
+        "plain message",
+        "auth: 拒否",
+        "[flow] 失敗しました"
+      ]
+    },
+    {
+      "query": "?limit=%201%20",
+      "status": 200,
+      "messages": [
+        "[[nested]]"
+      ]
+    }
+  ],
+  "clear": {
+    "status": 200,
+    "json": {
+      "ok": true
+    }
+  }
+}

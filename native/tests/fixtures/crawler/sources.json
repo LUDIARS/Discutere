@@ -1,0 +1,237 @@
+{
+  "nv": [
+    {
+      "input": "<html><meta name=\"server-response\" content=\"{&quot;data&quot;:{&quot;response&quot;:{&quot;comment&quot;:{&quot;nvComment&quot;:{&quot;threadKey&quot;:&quot;tk&quot;,&quot;server&quot;:&quot;https://nv.example&quot;,&quot;params&quot;:{&quot;targets&quot;:[{&quot;id&quot;:&quot;1&quot;,&quot;fork&quot;:&quot;main&quot;}],&quot;language&quot;:&quot;ja-jp&quot;}}}}}}\"></html>",
+      "output": {
+        "threadKey": "tk",
+        "server": "https://nv.example",
+        "params": {
+          "targets": [
+            {
+              "id": "1",
+              "fork": "main"
+            }
+          ],
+          "language": "ja-jp"
+        }
+      }
+    },
+    {
+      "input": "<meta name=\"server-response\" content=\"\"><meta name=\"server-response\" content=\"{&quot;data&quot;:{&quot;response&quot;:{&quot;comment&quot;:{&quot;nvComment&quot;:{&quot;threadKey&quot;:&quot;tk&quot;,&quot;server&quot;:&quot;https://nv.example&quot;,&quot;params&quot;:{&quot;targets&quot;:[{&quot;id&quot;:&quot;1&quot;,&quot;fork&quot;:&quot;main&quot;}],&quot;language&quot;:&quot;ja-jp&quot;}}}}}}\">",
+      "output": {
+        "threadKey": "tk",
+        "server": "https://nv.example",
+        "params": {
+          "targets": [
+            {
+              "id": "1",
+              "fork": "main"
+            }
+          ],
+          "language": "ja-jp"
+        }
+      }
+    },
+    {
+      "input": "<meta name=\"server-response\" content=\"{broken\">",
+      "output": null
+    },
+    {
+      "input": "<meta name=\"server-response\" content=\"{&quot;data&quot;:{}}\">",
+      "output": null
+    },
+    {
+      "input": "<html></html>",
+      "output": null
+    }
+  ],
+  "nico": [
+    {
+      "source": "niconico",
+      "nativeId": "sm9:c1",
+      "gameSlug": "g",
+      "threadKey": "sm9",
+      "content": "888",
+      "lang": "ja",
+      "postedAt": 1783814400000,
+      "videoOffsetMs": 45678,
+      "authorId": "nico:u",
+      "sourceUrl": "https://www.nicovideo.jp/watch/sm9"
+    },
+    {
+      "source": "niconico",
+      "nativeId": "sm9:12",
+      "gameSlug": "g",
+      "threadKey": "sm9",
+      "content": "x",
+      "lang": "ja",
+      "postedAt": 0,
+      "authorId": "nico-anon:sm9:12",
+      "sourceUrl": "https://www.nicovideo.jp/watch/sm9"
+    },
+    {
+      "source": "niconico",
+      "nativeId": "sm9:",
+      "gameSlug": "g",
+      "threadKey": "sm9",
+      "content": "x",
+      "lang": "ja",
+      "postedAt": 0,
+      "authorId": "nico-anon:sm9:",
+      "sourceUrl": "https://www.nicovideo.jp/watch/sm9"
+    }
+  ],
+  "steam": [
+    {
+      "source": "steam",
+      "nativeId": "1",
+      "gameSlug": "vs",
+      "threadKey": "1794680",
+      "content": "r",
+      "lang": "japanese",
+      "postedAt": 1779333194000,
+      "authorId": "765",
+      "signal": {
+        "votedUp": true,
+        "upvotes": 3
+      },
+      "sourceUrl": "https://steamcommunity.com/profiles/765/recommended/1794680/"
+    },
+    {
+      "source": "steam",
+      "nativeId": "2",
+      "gameSlug": "x",
+      "threadKey": "1",
+      "content": "r",
+      "postedAt": 1000,
+      "authorId": "unknown",
+      "signal": {
+        "votedUp": false
+      },
+      "sourceUrl": "https://steamcommunity.com/profiles/unknown/recommended/1/"
+    }
+  ],
+  "reddit": [
+    {
+      "source": "reddit",
+      "nativeId": "t1_c1",
+      "gameSlug": "g",
+      "threadKey": "a",
+      "content": "b",
+      "postedAt": 1700000000000,
+      "authorId": "w",
+      "authorName": "w",
+      "signal": {
+        "upvotes": 42
+      },
+      "sourceUrl": "https://www.reddit.com/r/x/comments/a/t/c1/"
+    },
+    {
+      "source": "reddit",
+      "nativeId": "t1_t1_c2",
+      "gameSlug": "g",
+      "threadKey": "a",
+      "content": "b",
+      "postedAt": 0,
+      "authorId": "anonymous",
+      "authorName": "anonymous",
+      "parentNativeId": "t1_c1",
+      "signal": {},
+      "sourceUrl": "https://www.reddit.com/comments/a/"
+    },
+    null
+  ],
+  "redditFlatten": [
+    {
+      "source": "reddit",
+      "nativeId": "t1_a",
+      "gameSlug": "g",
+      "threadKey": "s",
+      "content": "p",
+      "postedAt": 1000,
+      "authorId": "u1",
+      "authorName": "u1",
+      "signal": {},
+      "sourceUrl": "https://www.reddit.com/comments/s/"
+    },
+    {
+      "source": "reddit",
+      "nativeId": "t1_c",
+      "gameSlug": "g",
+      "threadKey": "s",
+      "content": "q",
+      "postedAt": 3000,
+      "authorId": "anonymous",
+      "authorName": "anonymous",
+      "signal": {},
+      "sourceUrl": "https://www.reddit.com/comments/s/"
+    },
+    {
+      "source": "reddit",
+      "nativeId": "t1_b",
+      "gameSlug": "g",
+      "threadKey": "s",
+      "content": "c",
+      "postedAt": 2000,
+      "authorId": "anonymous",
+      "authorName": "anonymous",
+      "parentNativeId": "t1_a",
+      "signal": {},
+      "sourceUrl": "https://www.reddit.com/comments/s/"
+    }
+  ],
+  "youtube": [
+    {
+      "source": "youtube",
+      "nativeId": "top",
+      "gameSlug": "g",
+      "threadKey": "VID",
+      "content": "d",
+      "postedAt": 1706745600000,
+      "authorId": "UC1",
+      "authorName": "t",
+      "signal": {
+        "upvotes": 12
+      },
+      "sourceUrl": "https://www.youtube.com/watch?v=VID&lc=top"
+    },
+    {
+      "source": "youtube",
+      "nativeId": "r1",
+      "gameSlug": "g",
+      "threadKey": "VID",
+      "content": "o",
+      "postedAt": 0,
+      "authorId": "unknown",
+      "parentNativeId": "top",
+      "signal": {},
+      "sourceUrl": "https://www.youtube.com/watch?v=VID&lc=r1"
+    }
+  ],
+  "videos": [
+    {
+      "videoId": "abc",
+      "title": "t",
+      "channelId": "UC",
+      "publishedAt": 1704164645000
+    },
+    null,
+    {
+      "videoId": "v9",
+      "title": ""
+    }
+  ],
+  "impression": {
+    "source": "glab",
+    "nativeId": "v 1",
+    "gameSlug": "glab-x",
+    "threadKey": "新作",
+    "content": "c",
+    "postedAt": 1790812800000,
+    "authorId": "anonymous",
+    "signal": {
+      "votedUp": false
+    },
+    "sourceUrl": "glab://impressions/v%201"
+  }
+}

@@ -1,0 +1,27 @@
+[
+  {
+    "name": "flow/page.html",
+    "bytes": 67997,
+    "sha256": "77758fa407877822b28db51a0fb1d16d56a15c3730fda2257c73765726a4681d"
+  },
+  {
+    "name": "api/conclusion-publication-editor.html",
+    "bytes": 2129,
+    "sha256": "3ed4f7f5ed8ba9258c5fcbe91ead2c13f5f31d02c5a7ccd92c029781b1fa5c6b"
+  },
+  {
+    "name": "api/dashboard.html",
+    "bytes": 27876,
+    "sha256": "fc94bb6d751f03ebf4fee8b050c772565c2c0205edc186d901d51c5664516c49"
+  },
+  {
+    "name": "api/top-page.html",
+    "bytes": 4680,
+    "sha256": "2d1daf8e4a7711e072a39f13214967a48825fce7ca9d7305985e88fabd0bcda1"
+  },
+  {
+    "name": "api/tuning.html",
+    "bytes": 9061,
+    "sha256": "f9678e17c21aff4096e6bb911a6d18e89d13afb001f473b084094041711c8447"
+  }
+]

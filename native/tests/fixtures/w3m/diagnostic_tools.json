@@ -1,0 +1,172 @@
+[
+  {
+    "name": "level",
+    "input": {
+      "levelText": "狙いは技能で予測可能な得点。成功で得点を得る。ボーナスはランダム。",
+      "baselineText": "狙いは技能で予測可能な得点。ボーナスはない。",
+      "references": [
+        {
+          "id": "criterion",
+          "source": "Elegantia fictional supplied criterion",
+          "revision": "fictional-v1",
+          "text": "仕様、観測、模型仮定を区別する。",
+          "evidenceKind": "specification"
+        }
+      ],
+      "playModel": {
+        "metric": {
+          "id": "score",
+          "name": "得点",
+          "unit": "points",
+          "direction": "higher"
+        },
+        "events": [
+          {
+            "id": "success",
+            "description": "技能による成功",
+            "determinant": "player_skill",
+            "evidenceRefs": [
+              "level"
+            ]
+          },
+          {
+            "id": "bonus",
+            "description": "ランダムボーナス",
+            "determinant": "random",
+            "evidenceRefs": [
+              "level"
+            ]
+          }
+        ],
+        "scenarios": [
+          {
+            "id": "novice",
+            "description": "初級者の一回の挑戦",
+            "skillBand": "初級者",
+            "assumptions": {
+              "ruleset": "成功で得点、ボーナス規則は同じ",
+              "placement": "一本道の固定配置",
+              "information": "ルール既知",
+              "initialState": "得点0",
+              "trialCount": 1
+            },
+            "predictedBaseline": {
+              "value": 60,
+              "unit": "points"
+            },
+            "exhaustive": true,
+            "outcomes": [
+              {
+                "id": "low",
+                "eventIds": [],
+                "value": 20,
+                "unit": "points",
+                "probability": 0.25
+              },
+              {
+                "id": "middle",
+                "eventIds": [
+                  "success"
+                ],
+                "value": 60,
+                "unit": "points",
+                "probability": 0.5
+              },
+              {
+                "id": "high",
+                "eventIds": [
+                  "success",
+                  "bonus"
+                ],
+                "value": 100,
+                "unit": "points",
+                "probability": 0.25
+              }
+            ]
+          }
+        ]
+      }
+    },
+    "response": "{\"logic_differences\":[{\"kind\":\"revision\",\"target\":\"bonus\",\"left\":{\"text\":\"旧版にボーナスはない。\",\"evidence\":[{\"referenceId\":\"baseline\",\"quote\":\"ボーナスはない。\"}]},\"right\":{\"text\":\"新版にランダムボーナスがある。\",\"evidence\":[{\"referenceId\":\"level\",\"quote\":\"ボーナスはランダム。\"}]},\"status\":\"inconsistent\",\"causeDomain\":\"level\",\"conditions\":[\"入力された旧版と新版のルールの比較。\"],\"unknowns\":[]}],\"design_gap\":[]}",
+    "result": "{\"logic_differences\":[{\"target\":\"bonus\",\"left\":{\"text\":\"旧版にボーナスはない。\",\"evidence\":[{\"referenceId\":\"baseline\",\"quote\":\"ボーナスはない。\"}]},\"right\":{\"text\":\"新版にランダムボーナスがある。\",\"evidence\":[{\"referenceId\":\"level\",\"quote\":\"ボーナスはランダム。\"}]},\"status\":\"inconsistent\",\"causeDomain\":\"level\",\"conditions\":[\"入力された旧版と新版のルールの比較。\"],\"unknowns\":[],\"kind\":\"revision\"},{\"kind\":\"play_envelope\",\"target\":\"novice\",\"left\":{\"text\":\"本人の予測基準値: 60 points\",\"evidence\":[{\"referenceId\":\"playModel\",\"quote\":\"{\\\"value\\\":60,\\\"unit\\\":\\\"points\\\"}\"}]},\"right\":{\"text\":\"列挙した同時結果の幅: 20..100 points (enumerated_complete)\",\"evidence\":[{\"referenceId\":\"playModel\",\"quote\":\"\\\"id\\\":\\\"novice\\\"\"}]},\"status\":\"unknown\",\"causeDomain\":\"unknown\",\"conditions\":[\"入力模型に対する条件付き計算。実プレイや面白さの証明ではない。\",\"適用ルール: 成功で得点、ボーナス規則は同じ\",\"配置・遭遇・出現: 一本道の固定配置\",\"技能帯: 初級者\",\"情報: ルール既知\",\"開始状態: 得点0\",\"試行回数: 1\"],\"unknowns\":[\"入力模型の条件付き計算であり、実プレイでこの到達幅が生じるかは未確認。\"],\"envelope\":{\"scenarioId\":\"novice\",\"metric\":{\"id\":\"score\",\"name\":\"得点\",\"unit\":\"points\",\"direction\":\"higher\"},\"skillBand\":\"初級者\",\"determinant\":\"mixed\",\"rangeScope\":\"enumerated_complete\",\"min\":20,\"max\":100,\"predictedBaseline\":60,\"upside\":40,\"downside\":40,\"expectedValue\":60,\"variance\":800,\"probabilityStatus\":\"complete\"}}],\"design_gap\":[{\"kind\":\"missing_evidence\",\"target\":\"actual_level_experience\",\"left\":{\"text\":\"場面資料と条件付き模型の比較。\",\"evidence\":[{\"referenceId\":\"level\",\"quote\":\"狙いは技能で予測可能な得点。成功で得点を得る。ボーナスはランダム。\"}]},\"right\":{\"text\":\"実プレイの観測資料は未提示。\",\"evidence\":[]},\"status\":\"unknown\",\"causeDomain\":\"unknown\",\"conditions\":[\"入力された場面・技能・配置・適用ルールの前提に限定。\"],\"unknowns\":[\"実プレイの到達幅や体験は未確認。数値幅だけでは原因の所在を特定できない。\"]}]}",
+    "reply": {
+      "content": "logic_differences / design_gap",
+      "files": [
+        {
+          "name": "level-check.json",
+          "data": "{\n  \"logic_differences\": [\n    {\n      \"target\": \"bonus\",\n      \"left\": {\n        \"text\": \"旧版にボーナスはない。\",\n        \"evidence\": [\n          {\n            \"referenceId\": \"baseline\",\n            \"quote\": \"ボーナスはない。\"\n          }\n        ]\n      },\n      \"right\": {\n        \"text\": \"新版にランダムボーナスがある。\",\n        \"evidence\": [\n          {\n            \"referenceId\": \"level\",\n            \"quote\": \"ボーナスはランダム。\"\n          }\n        ]\n      },\n      \"status\": \"inconsistent\",\n      \"causeDomain\": \"level\",\n      \"conditions\": [\n        \"入力された旧版と新版のルールの比較。\"\n      ],\n      \"unknowns\": [],\n      \"kind\": \"revision\"\n    },\n    {\n      \"kind\": \"play_envelope\",\n      \"target\": \"novice\",\n      \"left\": {\n        \"text\": \"本人の予測基準値: 60 points\",\n        \"evidence\": [\n          {\n            \"referenceId\": \"playModel\",\n            \"quote\": \"{\\\"value\\\":60,\\\"unit\\\":\\\"points\\\"}\"\n          }\n        ]\n      },\n      \"right\": {\n        \"text\": \"列挙した同時結果の幅: 20..100 points (enumerated_complete)\",\n        \"evidence\": [\n          {\n            \"referenceId\": \"playModel\",\n            \"quote\": \"\\\"id\\\":\\\"novice\\\"\"\n          }\n        ]\n      },\n      \"status\": \"unknown\",\n      \"causeDomain\": \"unknown\",\n      \"conditions\": [\n        \"入力模型に対する条件付き計算。実プレイや面白さの証明ではない。\",\n        \"適用ルール: 成功で得点、ボーナス規則は同じ\",\n        \"配置・遭遇・出現: 一本道の固定配置\",\n        \"技能帯: 初級者\",\n        \"情報: ルール既知\",\n        \"開始状態: 得点0\",\n        \"試行回数: 1\"\n      ],\n      \"unknowns\": [\n        \"入力模型の条件付き計算であり、実プレイでこの到達幅が生じるかは未確認。\"\n      ],\n      \"envelope\": {\n        \"scenarioId\": \"novice\",\n        \"metric\": {\n          \"id\": \"score\",\n          \"name\": \"得点\",\n          \"unit\": \"points\",\n          \"direction\": \"higher\"\n        },\n        \"skillBand\": \"初級者\",\n        \"determinant\": \"mixed\",\n        \"rangeScope\": \"enumerated_complete\",\n        \"min\": 20,\n        \"max\": 100,\n        \"predictedBaseline\": 60,\n        \"upside\": 40,\n        \"downside\": 40,\n        \"expectedValue\": 60,\n        \"variance\": 800,\n        \"probabilityStatus\": \"complete\"\n      }\n    }\n  ],\n  \"design_gap\": [\n    {\n      \"kind\": \"missing_evidence\",\n      \"target\": \"actual_level_experience\",\n      \"left\": {\n        \"text\": \"場面資料と条件付き模型の比較。\",\n        \"evidence\": [\n          {\n            \"referenceId\": \"level\",\n            \"quote\": \"狙いは技能で予測可能な得点。成功で得点を得る。ボーナスはランダム。\"\n          }\n        ]\n      },\n      \"right\": {\n        \"text\": \"実プレイの観測資料は未提示。\",\n        \"evidence\": []\n      },\n      \"status\": \"unknown\",\n      \"causeDomain\": \"unknown\",\n      \"conditions\": [\n        \"入力された場面・技能・配置・適用ルールの前提に限定。\"\n      ],\n      \"unknowns\": [\n        \"実プレイの到達幅や体験は未確認。数値幅だけでは原因の所在を特定できない。\"\n      ]\n    }\n  ]\n}"
+        }
+      ]
+    }
+  },
+  {
+    "name": "level-no-model",
+    "input": {
+      "levelText": "狙いは技能で予測可能な得点。成功で得点を得る。ボーナスはランダム。",
+      "baselineText": "狙いは技能で予測可能な得点。ボーナスはない。"
+    },
+    "response": "{\"logic_differences\":[{\"kind\":\"revision\",\"target\":\"bonus\",\"left\":{\"text\":\"旧版にボーナスはない。\",\"evidence\":[{\"referenceId\":\"baseline\",\"quote\":\"ボーナスはない。\"}]},\"right\":{\"text\":\"新版にランダムボーナスがある。\",\"evidence\":[{\"referenceId\":\"level\",\"quote\":\"ボーナスはランダム。\"}]},\"status\":\"inconsistent\",\"causeDomain\":\"level\",\"conditions\":[\"入力された旧版と新版のルールの比較。\"],\"unknowns\":[]}],\"design_gap\":[]}",
+    "result": "{\"logic_differences\":[{\"target\":\"bonus\",\"left\":{\"text\":\"旧版にボーナスはない。\",\"evidence\":[{\"referenceId\":\"baseline\",\"quote\":\"ボーナスはない。\"}]},\"right\":{\"text\":\"新版にランダムボーナスがある。\",\"evidence\":[{\"referenceId\":\"level\",\"quote\":\"ボーナスはランダム。\"}]},\"status\":\"inconsistent\",\"causeDomain\":\"level\",\"conditions\":[\"入力された旧版と新版のルールの比較。\"],\"unknowns\":[],\"kind\":\"revision\"}],\"design_gap\":[{\"kind\":\"missing_evidence\",\"target\":\"actual_level_experience\",\"left\":{\"text\":\"場面資料と条件付き模型の比較。\",\"evidence\":[{\"referenceId\":\"level\",\"quote\":\"狙いは技能で予測可能な得点。成功で得点を得る。ボーナスはランダム。\"}]},\"right\":{\"text\":\"実プレイの観測資料は未提示。\",\"evidence\":[]},\"status\":\"unknown\",\"causeDomain\":\"unknown\",\"conditions\":[\"入力された場面・技能・配置・適用ルールの前提に限定。\"],\"unknowns\":[\"実プレイの到達幅や体験は未確認。数値幅だけでは原因の所在を特定できない。\"]}]}",
+    "reply": {
+      "content": "```json\n{\n  \"logic_differences\": [\n    {\n      \"target\": \"bonus\",\n      \"left\": {\n        \"text\": \"旧版にボーナスはない。\",\n        \"evidence\": [\n          {\n            \"referenceId\": \"baseline\",\n            \"quote\": \"ボーナスはない。\"\n          }\n        ]\n      },\n      \"right\": {\n        \"text\": \"新版にランダムボーナスがある。\",\n        \"evidence\": [\n          {\n            \"referenceId\": \"level\",\n            \"quote\": \"ボーナスはランダム。\"\n          }\n        ]\n      },\n      \"status\": \"inconsistent\",\n      \"causeDomain\": \"level\",\n      \"conditions\": [\n        \"入力された旧版と新版のルールの比較。\"\n      ],\n      \"unknowns\": [],\n      \"kind\": \"revision\"\n    }\n  ],\n  \"design_gap\": [\n    {\n      \"kind\": \"missing_evidence\",\n      \"target\": \"actual_level_experience\",\n      \"left\": {\n        \"text\": \"場面資料と条件付き模型の比較。\",\n        \"evidence\": [\n          {\n            \"referenceId\": \"level\",\n            \"quote\": \"狙いは技能で予測可能な得点。成功で得点を得る。ボーナスはランダム。\"\n          }\n        ]\n      },\n      \"right\": {\n        \"text\": \"実プレイの観測資料は未提示。\",\n        \"evidence\": []\n      },\n      \"status\": \"unknown\",\n      \"causeDomain\": \"unknown\",\n      \"conditions\": [\n        \"入力された場面・技能・配置・適用ルールの前提に限定。\"\n      ],\n      \"unknowns\": [\n        \"実プレイの到達幅や体験は未確認。数値幅だけでは原因の所在を特定できない。\"\n      ]\n    }\n  ]\n}\n```",
+      "files": []
+    }
+  },
+  {
+    "name": "mechanics",
+    "input": {
+      "specText": "狙いは技能で予測可能な得点。成功で得点を得る。ボーナスはランダム。",
+      "baselineText": "狙いは技能で予測可能な得点。ボーナスはない。",
+      "references": [
+        {
+          "id": "criterion",
+          "source": "Elegantia fictional supplied criterion",
+          "revision": "fictional-v1",
+          "text": "仕様、観測、模型仮定を区別する。",
+          "evidenceKind": "specification"
+        }
+      ]
+    },
+    "response": "{\"logic_differences\":[{\"kind\":\"revision\",\"target\":\"bonus\",\"left\":{\"text\":\"旧版にボーナスはない。\",\"evidence\":[{\"referenceId\":\"baseline\",\"quote\":\"ボーナスはない。\"}]},\"right\":{\"text\":\"新版にランダムボーナスがある。\",\"evidence\":[{\"referenceId\":\"spec\",\"quote\":\"ボーナスはランダム。\"}]},\"status\":\"inconsistent\",\"causeDomain\":\"mechanics\",\"conditions\":[\"入力された旧版と新版のルールの比較。\"],\"unknowns\":[]}],\"design_gap\":[]}",
+    "result": "{\"logic_differences\":[{\"target\":\"bonus\",\"left\":{\"text\":\"旧版にボーナスはない。\",\"evidence\":[{\"referenceId\":\"baseline\",\"quote\":\"ボーナスはない。\"}]},\"right\":{\"text\":\"新版にランダムボーナスがある。\",\"evidence\":[{\"referenceId\":\"spec\",\"quote\":\"ボーナスはランダム。\"}]},\"status\":\"inconsistent\",\"causeDomain\":\"mechanics\",\"conditions\":[\"入力された旧版と新版のルールの比較。\"],\"unknowns\":[],\"kind\":\"revision\"}],\"design_gap\":[{\"kind\":\"missing_evidence\",\"target\":\"actual_play_experience\",\"left\":{\"text\":\"入力仕様に対する意図・因果の比較。\",\"evidence\":[{\"referenceId\":\"spec\",\"quote\":\"狙いは技能で予測可能な得点。成功で得点を得る。ボーナスはランダム。\"}]},\"right\":{\"text\":\"実プレイの観測資料は未提示。\",\"evidence\":[]},\"status\":\"unknown\",\"causeDomain\":\"unknown\",\"conditions\":[\"ルール・資源・MDAの条件付き論理比較。\"],\"unknowns\":[\"実際の体験や面白さの証明は unknown。模型仮定・原因仮説を観測に置き換えない。\"]}]}",
+    "reply": {
+      "content": "```json\n{\n  \"logic_differences\": [\n    {\n      \"target\": \"bonus\",\n      \"left\": {\n        \"text\": \"旧版にボーナスはない。\",\n        \"evidence\": [\n          {\n            \"referenceId\": \"baseline\",\n            \"quote\": \"ボーナスはない。\"\n          }\n        ]\n      },\n      \"right\": {\n        \"text\": \"新版にランダムボーナスがある。\",\n        \"evidence\": [\n          {\n            \"referenceId\": \"spec\",\n            \"quote\": \"ボーナスはランダム。\"\n          }\n        ]\n      },\n      \"status\": \"inconsistent\",\n      \"causeDomain\": \"mechanics\",\n      \"conditions\": [\n        \"入力された旧版と新版のルールの比較。\"\n      ],\n      \"unknowns\": [],\n      \"kind\": \"revision\"\n    }\n  ],\n  \"design_gap\": [\n    {\n      \"kind\": \"missing_evidence\",\n      \"target\": \"actual_play_experience\",\n      \"left\": {\n        \"text\": \"入力仕様に対する意図・因果の比較。\",\n        \"evidence\": [\n          {\n            \"referenceId\": \"spec\",\n            \"quote\": \"狙いは技能で予測可能な得点。成功で得点を得る。ボーナスはランダム。\"\n          }\n        ]\n      },\n      \"right\": {\n        \"text\": \"実プレイの観測資料は未提示。\",\n        \"evidence\": []\n      },\n      \"status\": \"unknown\",\n      \"causeDomain\": \"unknown\",\n      \"conditions\": [\n        \"ルール・資源・MDAの条件付き論理比較。\"\n      ],\n      \"unknowns\": [\n        \"実際の体験や面白さの証明は unknown。模型仮定・原因仮説を観測に置き換えない。\"\n      ]\n    }\n  ]\n}\n```",
+      "files": []
+    }
+  },
+  {
+    "name": "mechanics-observed",
+    "input": {
+      "specText": "狙いは技能で予測可能な得点。成功で得点を得る。ボーナスはランダム。",
+      "baselineText": "狙いは技能で予測可能な得点。ボーナスはない。",
+      "references": [
+        {
+          "id": "criterion",
+          "source": "Elegantia fictional supplied criterion",
+          "revision": "fictional-v1",
+          "text": "仕様、観測、模型仮定を区別する。",
+          "evidenceKind": "specification"
+        },
+        {
+          "id": "obs",
+          "source": "playtest",
+          "text": "観測した。",
+          "evidenceKind": "observation"
+        }
+      ]
+    },
+    "response": "{\"logic_differences\":[{\"kind\":\"revision\",\"target\":\"bonus\",\"left\":{\"text\":\"旧版にボーナスはない。\",\"evidence\":[{\"referenceId\":\"baseline\",\"quote\":\"ボーナスはない。\"}]},\"right\":{\"text\":\"新版にランダムボーナスがある。\",\"evidence\":[{\"referenceId\":\"spec\",\"quote\":\"ボーナスはランダム。\"}]},\"status\":\"inconsistent\",\"causeDomain\":\"mechanics\",\"conditions\":[\"入力された旧版と新版のルールの比較。\"],\"unknowns\":[]}],\"design_gap\":[]}",
+    "result": "{\"logic_differences\":[{\"target\":\"bonus\",\"left\":{\"text\":\"旧版にボーナスはない。\",\"evidence\":[{\"referenceId\":\"baseline\",\"quote\":\"ボーナスはない。\"}]},\"right\":{\"text\":\"新版にランダムボーナスがある。\",\"evidence\":[{\"referenceId\":\"spec\",\"quote\":\"ボーナスはランダム。\"}]},\"status\":\"inconsistent\",\"causeDomain\":\"mechanics\",\"conditions\":[\"入力された旧版と新版のルールの比較。\"],\"unknowns\":[],\"kind\":\"revision\"}],\"design_gap\":[]}",
+    "reply": {
+      "content": "```json\n{\n  \"logic_differences\": [\n    {\n      \"target\": \"bonus\",\n      \"left\": {\n        \"text\": \"旧版にボーナスはない。\",\n        \"evidence\": [\n          {\n            \"referenceId\": \"baseline\",\n            \"quote\": \"ボーナスはない。\"\n          }\n        ]\n      },\n      \"right\": {\n        \"text\": \"新版にランダムボーナスがある。\",\n        \"evidence\": [\n          {\n            \"referenceId\": \"spec\",\n            \"quote\": \"ボーナスはランダム。\"\n          }\n        ]\n      },\n      \"status\": \"inconsistent\",\n      \"causeDomain\": \"mechanics\",\n      \"conditions\": [\n        \"入力された旧版と新版のルールの比較。\"\n      ],\n      \"unknowns\": [],\n      \"kind\": \"revision\"\n    }\n  ],\n  \"design_gap\": []\n}\n```",
+      "files": []
+    }
+  },
+  {
+    "name": "short-reply",
+    "reply": {
+      "content": "```json\n{\n  \"logic_differences\": [],\n  \"design_gap\": []\n}\n```",
+      "files": []
+    }
+  }
+]

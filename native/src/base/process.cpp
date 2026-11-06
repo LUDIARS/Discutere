@@ -1,3 +1,4 @@
+#include "base/sort_by_index.hpp"
 #include "base/process.hpp"
 
 #include <algorithm>
@@ -334,7 +335,7 @@ Result run(const Options& options) {
     // 環境ブロック: 名前の大文字小文字を無視した昇順 (CreateProcess の要件)。
     std::vector<std::pair<std::wstring, std::wstring>> pairs;
     for (const auto& [k, v] : env_map) pairs.emplace_back(widen(k), widen(v));
-    std::sort(pairs.begin(), pairs.end(), [](const auto& a, const auto& b) { return _wcsicmp(a.first.c_str(), b.first.c_str()) < 0; });
+    di::stable_sort_by_index(pairs, [](const auto& a, const auto& b) { return _wcsicmp(a.first.c_str(), b.first.c_str()) < 0; });
     std::wstring env_block;
     for (const auto& [k, v] : pairs) {
         env_block += k + L"=" + v;

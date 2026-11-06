@@ -1,0 +1,125 @@
+{
+  "results": {
+    "puts": [
+      "fm1:8579af15b2576893781fb86e3a6e449a14d44eab857b96a0e88f54fac08d84e3",
+      "fm1:1ce88349de03186863716e6d71a8b79a098096c5c186828adb7ae34bda4de508",
+      "fm1:8579af15b2576893781fb86e3a6e449a14d44eab857b96a0e88f54fac08d84e3"
+    ],
+    "catalogs": [
+      {
+        "id": "fm1:8b39481e0f62b27edd98a6e21bc3d82beb23189034a3dede75578b47ab23321a",
+        "name": "discutere/discussions",
+        "version": 1,
+        "entries": {
+          "flow:s1": "fm1:8579af15b2576893781fb86e3a6e449a14d44eab857b96a0e88f54fac08d84e3",
+          "gap-2": "fm1:1ce88349de03186863716e6d71a8b79a098096c5c186828adb7ae34bda4de508"
+        },
+        "parent": null
+      },
+      {
+        "id": "fm1:8b39481e0f62b27edd98a6e21bc3d82beb23189034a3dede75578b47ab23321a",
+        "name": "discutere/discussions",
+        "version": 1,
+        "entries": {
+          "flow:s1": "fm1:8579af15b2576893781fb86e3a6e449a14d44eab857b96a0e88f54fac08d84e3",
+          "gap-2": "fm1:1ce88349de03186863716e6d71a8b79a098096c5c186828adb7ae34bda4de508"
+        },
+        "parent": null
+      },
+      {
+        "id": "fm1:a5f90b11f04b925ed6f3f4524949802ffd0f548d1bfef513bcdae48b5c017714",
+        "name": "discutere/discussions",
+        "version": 2,
+        "entries": {
+          "flow:s1": "fm1:6036abc3e0fd51d89175f98679df797c681b6ca2df02de1efd27fbee35b5c01a",
+          "新規": "fm1:1ce88349de03186863716e6d71a8b79a098096c5c186828adb7ae34bda4de508"
+        },
+        "parent": "fm1:8b39481e0f62b27edd98a6e21bc3d82beb23189034a3dede75578b47ab23321a"
+      }
+    ],
+    "diff": {
+      "added": [
+        "新規"
+      ],
+      "removed": [
+        "gap-2"
+      ],
+      "changed": [
+        "flow:s1"
+      ],
+      "unchanged": []
+    },
+    "history": [
+      "fm1:a5f90b11f04b925ed6f3f4524949802ffd0f548d1bfef513bcdae48b5c017714",
+      "fm1:8b39481e0f62b27edd98a6e21bc3d82beb23189034a3dede75578b47ab23321a"
+    ],
+    "version1": "fm1:8b39481e0f62b27edd98a6e21bc3d82beb23189034a3dede75578b47ab23321a",
+    "names": [
+      "discutere/discussions"
+    ],
+    "userSet1": {
+      "scope": "proj-1",
+      "key": "flow:s1",
+      "value": {
+        "note": "上書き"
+      },
+      "revision": 1,
+      "deleted": false
+    },
+    "userSet2": {
+      "scope": "proj-1",
+      "key": "flow:s1",
+      "value": {
+        "note": "二回目"
+      },
+      "revision": 2,
+      "deleted": false
+    },
+    "userDel": {
+      "scope": "proj-1",
+      "key": "gap-x",
+      "value": null,
+      "revision": 1,
+      "deleted": true
+    },
+    "userList": [
+      "flow:s1"
+    ],
+    "resolveAll": [
+      {
+        "key": "flow:s1",
+        "value": {
+          "note": "二回目"
+        },
+        "source": "user",
+        "id": null
+      },
+      {
+        "key": "新規",
+        "value": {
+          "title": "議論B"
+        },
+        "source": "master",
+        "id": "fm1:1ce88349de03186863716e6d71a8b79a098096c5c186828adb7ae34bda4de508"
+      }
+    ],
+    "resolveNone": {
+      "key": "missing",
+      "value": null,
+      "source": "none",
+      "id": null
+    }
+  },
+  "files": {
+    "content/1c/1ce88349de03186863716e6d71a8b79a098096c5c186828adb7ae34bda4de508.json": "{\"title\":\"議論B\"}",
+    "content/60/6036abc3e0fd51d89175f98679df797c681b6ca2df02de1efd27fbee35b5c01a.json": "{\"title\":\"議論A2\"}",
+    "content/85/8579af15b2576893781fb86e3a6e449a14d44eab857b96a0e88f54fac08d84e3.json": "{\"title\":\"議論A\",\"utterances\":[{\"text\":\"x\"}]}",
+    "content/8b/8b39481e0f62b27edd98a6e21bc3d82beb23189034a3dede75578b47ab23321a.json": "{\"entries\":{\"flow:s1\":\"fm1:8579af15b2576893781fb86e3a6e449a14d44eab857b96a0e88f54fac08d84e3\",\"gap-2\":\"fm1:1ce88349de03186863716e6d71a8b79a098096c5c186828adb7ae34bda4de508\"},\"name\":\"discutere/discussions\",\"parent\":null,\"version\":1}",
+    "content/a5/a5f90b11f04b925ed6f3f4524949802ffd0f548d1bfef513bcdae48b5c017714.json": "{\"entries\":{\"flow:s1\":\"fm1:6036abc3e0fd51d89175f98679df797c681b6ca2df02de1efd27fbee35b5c01a\",\"新規\":\"fm1:1ce88349de03186863716e6d71a8b79a098096c5c186828adb7ae34bda4de508\"},\"name\":\"discutere/discussions\",\"parent\":\"fm1:8b39481e0f62b27edd98a6e21bc3d82beb23189034a3dede75578b47ab23321a\",\"version\":2}",
+    "keyed/Y2F0YWxvZzp2ZXJzaW9u/ZGlzY3V0ZXJlL2Rpc2N1c3Npb25zQDE.json": "fm1:8b39481e0f62b27edd98a6e21bc3d82beb23189034a3dede75578b47ab23321a",
+    "keyed/Y2F0YWxvZzp2ZXJzaW9u/ZGlzY3V0ZXJlL2Rpc2N1c3Npb25zQDI.json": "fm1:a5f90b11f04b925ed6f3f4524949802ffd0f548d1bfef513bcdae48b5c017714",
+    "keyed/Y2F0YWxvZzpoZWFk/ZGlzY3V0ZXJlL2Rpc2N1c3Npb25z.json": "fm1:a5f90b11f04b925ed6f3f4524949802ffd0f548d1bfef513bcdae48b5c017714",
+    "keyed/dXNlcjpwcm9qLTE/Z2FwLXg.json": "[{\"scope\":\"proj-1\",\"key\":\"gap-x\",\"value\":null,\"revision\":1,\"deleted\":true}]",
+    "keyed/dXNlcjpwcm9qLTE/ZmxvdzpzMQ.json": "[{\"scope\":\"proj-1\",\"key\":\"flow:s1\",\"value\":{\"note\":\"上書き\"},\"revision\":1,\"deleted\":false},{\"scope\":\"proj-1\",\"key\":\"flow:s1\",\"value\":{\"note\":\"二回目\"},\"revision\":2,\"deleted\":false}]"
+  }
+}

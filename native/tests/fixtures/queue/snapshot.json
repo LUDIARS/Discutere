@@ -1,0 +1,404 @@
+{
+  "coreSql": [
+    "CREATE TABLE sessions (id TEXT PRIMARY KEY,workspace_id TEXT NOT NULL,title TEXT NOT NULL,started_at INTEGER NOT NULL,ended_at INTEGER,created_at INTEGER NOT NULL,updated_at INTEGER NOT NULL, scene TEXT)",
+    "CREATE TABLE utterances (id TEXT PRIMARY KEY,workspace_id TEXT NOT NULL,session_id TEXT NOT NULL,speaker_id TEXT,raw_content TEXT NOT NULL,normalized_content TEXT,posted_at INTEGER NOT NULL,created_at INTEGER NOT NULL,updated_at INTEGER NOT NULL)",
+    "CREATE TABLE design_gaps (id TEXT PRIMARY KEY,workspace_id TEXT NOT NULL,game_id TEXT,title TEXT NOT NULL,description TEXT,status TEXT,created_at INTEGER NOT NULL,updated_at INTEGER NOT NULL)",
+    "CREATE TABLE hypotheses (id TEXT PRIMARY KEY,workspace_id TEXT NOT NULL,design_gap_id TEXT,statement TEXT NOT NULL,status TEXT,integrated INTEGER NOT NULL DEFAULT 0,created_at INTEGER NOT NULL,updated_at INTEGER NOT NULL)",
+    "INSERT INTO sessions VALUES ('s0','ws','title0',100,NULL,0,0,'discord:g1/')",
+    "INSERT INTO sessions VALUES ('s1','ws','title1',101,NULL,0,0,'discord:/c1')",
+    "INSERT INTO utterances VALUES ('u1-0','ws','s1',NULL,'x',NULL,1010,0,0)",
+    "INSERT INTO sessions VALUES ('s2','ws','title2',102,NULL,0,0,'web:room')",
+    "INSERT INTO utterances VALUES ('u2-0','ws','s2',NULL,'x',NULL,1020,0,0)",
+    "INSERT INTO utterances VALUES ('u2-1','ws','s2',NULL,'x',NULL,1021,0,0)",
+    "INSERT INTO sessions VALUES ('s3','ws','title3',103,5,0,0,'discord:g3/c3')",
+    "INSERT INTO utterances VALUES ('u3-0','ws','s3',NULL,'x',NULL,1030,0,0)",
+    "INSERT INTO utterances VALUES ('u3-1','ws','s3',NULL,'x',NULL,1031,0,0)",
+    "INSERT INTO utterances VALUES ('u3-2','ws','s3',NULL,'x',NULL,1032,0,0)",
+    "INSERT INTO sessions VALUES ('s4','ws','title4',104,NULL,0,0,'discord:g4/c4')",
+    "INSERT INTO sessions VALUES ('s5','ws','title5',105,NULL,0,0,'discord:g5/c5')",
+    "INSERT INTO utterances VALUES ('u5-0','ws','s5',NULL,'x',NULL,1050,0,0)",
+    "INSERT INTO sessions VALUES ('s6','ws','title6',106,NULL,0,0,'discord:g6/c6')",
+    "INSERT INTO utterances VALUES ('u6-0','ws','s6',NULL,'x',NULL,1060,0,0)",
+    "INSERT INTO utterances VALUES ('u6-1','ws','s6',NULL,'x',NULL,1061,0,0)",
+    "INSERT INTO sessions VALUES ('s7','ws','title7',107,NULL,0,0,'discord:g7/c7')",
+    "INSERT INTO utterances VALUES ('u7-0','ws','s7',NULL,'x',NULL,1070,0,0)",
+    "INSERT INTO utterances VALUES ('u7-1','ws','s7',NULL,'x',NULL,1071,0,0)",
+    "INSERT INTO utterances VALUES ('u7-2','ws','s7',NULL,'x',NULL,1072,0,0)",
+    "INSERT INTO sessions VALUES ('s8','ws','title8',108,NULL,0,0,'discord:g8/c8')",
+    "INSERT INTO sessions VALUES ('s9','ws','title9',109,NULL,0,0,'discord:g9/c9')",
+    "INSERT INTO utterances VALUES ('u9-0','ws','s9',NULL,'x',NULL,1090,0,0)",
+    "INSERT INTO sessions VALUES ('s10','ws','title10',110,NULL,0,0,'discord:g10/c10')",
+    "INSERT INTO utterances VALUES ('u10-0','ws','s10',NULL,'x',NULL,1100,0,0)",
+    "INSERT INTO utterances VALUES ('u10-1','ws','s10',NULL,'x',NULL,1101,0,0)",
+    "INSERT INTO sessions VALUES ('s11','ws','title11',111,NULL,0,0,'discord:g11/c11')",
+    "INSERT INTO utterances VALUES ('u11-0','ws','s11',NULL,'x',NULL,1110,0,0)",
+    "INSERT INTO utterances VALUES ('u11-1','ws','s11',NULL,'x',NULL,1111,0,0)",
+    "INSERT INTO utterances VALUES ('u11-2','ws','s11',NULL,'x',NULL,1112,0,0)",
+    "INSERT INTO sessions VALUES ('other','ws2','t',1,NULL,0,0,'discord:g/c')",
+    "INSERT INTO design_gaps VALUES ('g0','ws',NULL,'DG0',NULL,'open',0,0)",
+    "INSERT INTO design_gaps VALUES ('g1','ws',NULL,'長いタイトル長いタイトル長いタイトルDG1',NULL,NULL,1,0)",
+    "INSERT INTO design_gaps VALUES ('g2','ws',NULL,'長いタイトル長いタイトル長いタイトル長いタイトル長いタイトル長いタイトルDG2',NULL,'resolved',2,0)",
+    "INSERT INTO design_gaps VALUES ('g3','ws',NULL,'長いタイトル長いタイトル長いタイトル長いタイトル長いタイトル長いタイトル長いタイトル長いタイトル長いタイトルDG3',NULL,'closed',3,0)",
+    "INSERT INTO design_gaps VALUES ('g4','ws',NULL,'長いタイトル長いタイトル長いタイトル長いタイトル長いタイトル長いタイトル長いタイトル長いタイトル長いタイトル長いタイトル長いタイトル長いタイトルDG4',NULL,'rejected',4,0)",
+    "INSERT INTO design_gaps VALUES ('g5','ws',NULL,'長いタイトル長いタイトル長いタイトル長いタイトル長いタイトル長いタイトル長いタイトル長いタイトル長いタイトル長いタイトル長いタイトル長いタイトル長いタイトル長いタイトル長いタイトルDG5',NULL,'converged',5,0)",
+    "INSERT INTO design_gaps VALUES ('g6','ws',NULL,'長いタイトル長いタイトル長いタイトル長いタイトル長いタイトル長いタイトル長いタイトル長いタイトル長いタイトル長いタイトル長いタイトル長いタイトル長いタイトル長いタイトル長いタイトル長いタイトル長いタイトル長いタイトルDG6',NULL,'dismissed',6,0)",
+    "INSERT INTO design_gaps VALUES ('g7','ws',NULL,'長いタイトル長いタイトル長いタイトル長いタイトル長いタイトル長いタイトル長いタイトル長いタイトル長いタイトル長いタイトル長いタイトル長いタイトル長いタイトル長いタイトル長いタイトル長いタイトル長いタイトル長いタイトル長いタイトル長いタイトル長いタイトルDG7',NULL,'proposed',7,0)",
+    "INSERT INTO hypotheses VALUES ('h0','ws',NULL,'仮説','open',0,0,0)",
+    "INSERT INTO hypotheses VALUES ('h1','ws','g1','仮説ああああああああああああああああああああ',NULL,0,1,0)",
+    "INSERT INTO hypotheses VALUES ('h2','ws',NULL,'仮説ああああああああああああああああああああああああああああああああああああああああ','rejected',0,2,0)",
+    "INSERT INTO hypotheses VALUES ('h3','ws','g1','仮説ああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああ','integrated',0,3,0)",
+    "INSERT INTO hypotheses VALUES ('h4','ws',NULL,'仮説ああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああ','testing',1,4,0)",
+    "INSERT INTO hypotheses VALUES ('h5','ws','g1','仮説ああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああ','pending',0,5,0)"
+  ],
+  "peSql": [
+    "CREATE TABLE session_rule_fires (session_id TEXT NOT NULL, rule_id TEXT NOT NULL, count INTEGER NOT NULL DEFAULT 0, PRIMARY KEY (session_id, rule_id))",
+    "INSERT INTO session_rule_fires VALUES ('s5','r1',2)",
+    "INSERT INTO session_rule_fires VALUES ('s5','r2',3)",
+    "INSERT INTO session_rule_fires VALUES ('s6','r1',1)"
+  ],
+  "cases": [
+    {
+      "withPe": true,
+      "workspace": "ws",
+      "snapshot": {
+        "workspaceId": "ws",
+        "generatedAt": 0,
+        "activeSessions": [
+          {
+            "sessionId": "s11",
+            "title": "title11",
+            "scene": "discord:g11/c11",
+            "guildId": "g11",
+            "channelId": "c11",
+            "startedAt": 111,
+            "utteranceCount": 3,
+            "lastUtteranceAt": 1112,
+            "fireCount": 0
+          },
+          {
+            "sessionId": "s10",
+            "title": "title10",
+            "scene": "discord:g10/c10",
+            "guildId": "g10",
+            "channelId": "c10",
+            "startedAt": 110,
+            "utteranceCount": 2,
+            "lastUtteranceAt": 1101,
+            "fireCount": 0
+          },
+          {
+            "sessionId": "s9",
+            "title": "title9",
+            "scene": "discord:g9/c9",
+            "guildId": "g9",
+            "channelId": "c9",
+            "startedAt": 109,
+            "utteranceCount": 1,
+            "lastUtteranceAt": 1090,
+            "fireCount": 0
+          },
+          {
+            "sessionId": "s8",
+            "title": "title8",
+            "scene": "discord:g8/c8",
+            "guildId": "g8",
+            "channelId": "c8",
+            "startedAt": 108,
+            "utteranceCount": 0,
+            "lastUtteranceAt": null,
+            "fireCount": 0
+          },
+          {
+            "sessionId": "s7",
+            "title": "title7",
+            "scene": "discord:g7/c7",
+            "guildId": "g7",
+            "channelId": "c7",
+            "startedAt": 107,
+            "utteranceCount": 3,
+            "lastUtteranceAt": 1072,
+            "fireCount": 0
+          },
+          {
+            "sessionId": "s6",
+            "title": "title6",
+            "scene": "discord:g6/c6",
+            "guildId": "g6",
+            "channelId": "c6",
+            "startedAt": 106,
+            "utteranceCount": 2,
+            "lastUtteranceAt": 1061,
+            "fireCount": 1
+          },
+          {
+            "sessionId": "s5",
+            "title": "title5",
+            "scene": "discord:g5/c5",
+            "guildId": "g5",
+            "channelId": "c5",
+            "startedAt": 105,
+            "utteranceCount": 1,
+            "lastUtteranceAt": 1050,
+            "fireCount": 5
+          },
+          {
+            "sessionId": "s4",
+            "title": "title4",
+            "scene": "discord:g4/c4",
+            "guildId": "g4",
+            "channelId": "c4",
+            "startedAt": 104,
+            "utteranceCount": 0,
+            "lastUtteranceAt": null,
+            "fireCount": 0
+          },
+          {
+            "sessionId": "s1",
+            "title": "title1",
+            "scene": "discord:/c1",
+            "guildId": null,
+            "channelId": "c1",
+            "startedAt": 101,
+            "utteranceCount": 1,
+            "lastUtteranceAt": 1010,
+            "fireCount": 0
+          },
+          {
+            "sessionId": "s0",
+            "title": "title0",
+            "scene": "discord:g1/",
+            "guildId": "g1",
+            "channelId": null,
+            "startedAt": 100,
+            "utteranceCount": 0,
+            "lastUtteranceAt": null,
+            "fireCount": 0
+          }
+        ],
+        "openGaps": [
+          {
+            "id": "g7",
+            "title": "長いタイトル長いタイトル長いタイトル長いタイトル長いタイトル長いタイトル長いタイトル長いタイトル長いタイトル長いタイトル長いタイトル長いタイトル長いタイトル長いタイトル長いタイトル長いタイトル長いタイトル長いタイトル長いタイトル長いタイトル長いタイトルDG7",
+            "status": "proposed"
+          },
+          {
+            "id": "g1",
+            "title": "長いタイトル長いタイトル長いタイトルDG1",
+            "status": null
+          },
+          {
+            "id": "g0",
+            "title": "DG0",
+            "status": "open"
+          }
+        ],
+        "pendingHypotheses": [
+          {
+            "id": "h5",
+            "statement": "仮説ああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああ",
+            "status": "pending",
+            "designGapId": "g1"
+          },
+          {
+            "id": "h1",
+            "statement": "仮説ああああああああああああああああああああ",
+            "status": null,
+            "designGapId": "g1"
+          },
+          {
+            "id": "h0",
+            "statement": "仮説",
+            "status": "open",
+            "designGapId": null
+          }
+        ],
+        "totals": {
+          "activeSessions": 10,
+          "openGaps": 3,
+          "pendingHypotheses": 3
+        }
+      },
+      "text": "🧭 **議論キュー** (ws=`ws`) — session 10 / gap 3 / 仮説 3\n\n**進行中の議論**\n• `c11` — 発話 3 / 発火 0\n• `c10` — 発話 2 / 発火 0\n• `c9` — 発話 1 / 発火 0\n• `c8` — 発話 0 / 発火 0\n• `c7` — 発話 3 / 発火 0\n• `c6` — 発話 2 / 発火 1\n• `c5` — 発話 1 / 発火 5\n• `c4` — 発話 0 / 発火 0\n\n**未処理の DesignGap (仮説待ち)**\n• 長いタイトル長いタイトル長いタイトル長いタイトル長いタイトル長いタイトル長いタイトル長いタイトル長いタイトル長いタイトル長いタイトル長いタイトル長いタイトル長…\n• 長いタイトル長いタイトル長いタイトルDG1\n• DG0\n\n**検証待ちの仮説**\n• 仮説あああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああ… (pending)\n• 仮説ああああああああああああああああああああ (open)\n• 仮説 (open)"
+    },
+    {
+      "withPe": false,
+      "workspace": "ws",
+      "snapshot": {
+        "workspaceId": "ws",
+        "generatedAt": 0,
+        "activeSessions": [
+          {
+            "sessionId": "s11",
+            "title": "title11",
+            "scene": "discord:g11/c11",
+            "guildId": "g11",
+            "channelId": "c11",
+            "startedAt": 111,
+            "utteranceCount": 3,
+            "lastUtteranceAt": 1112,
+            "fireCount": 0
+          },
+          {
+            "sessionId": "s10",
+            "title": "title10",
+            "scene": "discord:g10/c10",
+            "guildId": "g10",
+            "channelId": "c10",
+            "startedAt": 110,
+            "utteranceCount": 2,
+            "lastUtteranceAt": 1101,
+            "fireCount": 0
+          },
+          {
+            "sessionId": "s9",
+            "title": "title9",
+            "scene": "discord:g9/c9",
+            "guildId": "g9",
+            "channelId": "c9",
+            "startedAt": 109,
+            "utteranceCount": 1,
+            "lastUtteranceAt": 1090,
+            "fireCount": 0
+          },
+          {
+            "sessionId": "s8",
+            "title": "title8",
+            "scene": "discord:g8/c8",
+            "guildId": "g8",
+            "channelId": "c8",
+            "startedAt": 108,
+            "utteranceCount": 0,
+            "lastUtteranceAt": null,
+            "fireCount": 0
+          },
+          {
+            "sessionId": "s7",
+            "title": "title7",
+            "scene": "discord:g7/c7",
+            "guildId": "g7",
+            "channelId": "c7",
+            "startedAt": 107,
+            "utteranceCount": 3,
+            "lastUtteranceAt": 1072,
+            "fireCount": 0
+          },
+          {
+            "sessionId": "s6",
+            "title": "title6",
+            "scene": "discord:g6/c6",
+            "guildId": "g6",
+            "channelId": "c6",
+            "startedAt": 106,
+            "utteranceCount": 2,
+            "lastUtteranceAt": 1061,
+            "fireCount": 0
+          },
+          {
+            "sessionId": "s5",
+            "title": "title5",
+            "scene": "discord:g5/c5",
+            "guildId": "g5",
+            "channelId": "c5",
+            "startedAt": 105,
+            "utteranceCount": 1,
+            "lastUtteranceAt": 1050,
+            "fireCount": 0
+          },
+          {
+            "sessionId": "s4",
+            "title": "title4",
+            "scene": "discord:g4/c4",
+            "guildId": "g4",
+            "channelId": "c4",
+            "startedAt": 104,
+            "utteranceCount": 0,
+            "lastUtteranceAt": null,
+            "fireCount": 0
+          },
+          {
+            "sessionId": "s1",
+            "title": "title1",
+            "scene": "discord:/c1",
+            "guildId": null,
+            "channelId": "c1",
+            "startedAt": 101,
+            "utteranceCount": 1,
+            "lastUtteranceAt": 1010,
+            "fireCount": 0
+          },
+          {
+            "sessionId": "s0",
+            "title": "title0",
+            "scene": "discord:g1/",
+            "guildId": "g1",
+            "channelId": null,
+            "startedAt": 100,
+            "utteranceCount": 0,
+            "lastUtteranceAt": null,
+            "fireCount": 0
+          }
+        ],
+        "openGaps": [
+          {
+            "id": "g7",
+            "title": "長いタイトル長いタイトル長いタイトル長いタイトル長いタイトル長いタイトル長いタイトル長いタイトル長いタイトル長いタイトル長いタイトル長いタイトル長いタイトル長いタイトル長いタイトル長いタイトル長いタイトル長いタイトル長いタイトル長いタイトル長いタイトルDG7",
+            "status": "proposed"
+          },
+          {
+            "id": "g1",
+            "title": "長いタイトル長いタイトル長いタイトルDG1",
+            "status": null
+          },
+          {
+            "id": "g0",
+            "title": "DG0",
+            "status": "open"
+          }
+        ],
+        "pendingHypotheses": [
+          {
+            "id": "h5",
+            "statement": "仮説ああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああ",
+            "status": "pending",
+            "designGapId": "g1"
+          },
+          {
+            "id": "h1",
+            "statement": "仮説ああああああああああああああああああああ",
+            "status": null,
+            "designGapId": "g1"
+          },
+          {
+            "id": "h0",
+            "statement": "仮説",
+            "status": "open",
+            "designGapId": null
+          }
+        ],
+        "totals": {
+          "activeSessions": 10,
+          "openGaps": 3,
+          "pendingHypotheses": 3
+        }
+      },
+      "text": "🧭 **議論キュー** (ws=`ws`) — session 10 / gap 3 / 仮説 3\n\n**進行中の議論**\n• `c11` — 発話 3 / 発火 0\n• `c10` — 発話 2 / 発火 0\n• `c9` — 発話 1 / 発火 0\n• `c8` — 発話 0 / 発火 0\n• `c7` — 発話 3 / 発火 0\n• `c6` — 発話 2 / 発火 0\n• `c5` — 発話 1 / 発火 0\n• `c4` — 発話 0 / 発火 0\n\n**未処理の DesignGap (仮説待ち)**\n• 長いタイトル長いタイトル長いタイトル長いタイトル長いタイトル長いタイトル長いタイトル長いタイトル長いタイトル長いタイトル長いタイトル長いタイトル長いタイトル長…\n• 長いタイトル長いタイトル長いタイトルDG1\n• DG0\n\n**検証待ちの仮説**\n• 仮説あああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああ… (pending)\n• 仮説ああああああああああああああああああああ (open)\n• 仮説 (open)"
+    },
+    {
+      "withPe": true,
+      "workspace": "empty",
+      "snapshot": {
+        "workspaceId": "empty",
+        "generatedAt": 0,
+        "activeSessions": [],
+        "openGaps": [],
+        "pendingHypotheses": [],
+        "totals": {
+          "activeSessions": 0,
+          "openGaps": 0,
+          "pendingHypotheses": 0
+        }
+      },
+      "text": "🧭 **議論キュー** (ws=`empty`) — session 0 / gap 0 / 仮説 0\n\n_キューは空です_"
+    }
+  ]
+}

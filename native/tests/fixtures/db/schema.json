@@ -1,0 +1,284 @@
+{
+  "statements": [
+    "CREATE TABLE `channel_monitors` (\n\t`id` text PRIMARY KEY NOT NULL,\n\t`workspace_id` text NOT NULL,\n\t`platform` text NOT NULL,\n\t`channel_id` text NOT NULL,\n\t`channel_name` text NOT NULL,\n\t`webhook_endpoint_id` text,\n\t`bot_token` text,\n\t`bot_workspace_id` text,\n\t`bot_signing_secret` text,\n\t`capture_messages` integer DEFAULT true NOT NULL,\n\t`mode` text DEFAULT 'task' NOT NULL,\n\t`discussion_delay_minutes` integer DEFAULT 5 NOT NULL,\n\t`github_repo` text,\n\t`github_discussion_category_id` text,\n\t`is_active` integer DEFAULT true NOT NULL,\n\t`created_by` text NOT NULL,\n\t`created_at` integer NOT NULL,\n\t`updated_at` integer NOT NULL\n);\n",
+    "CREATE INDEX `idx_monitor_workspace` ON `channel_monitors` (`workspace_id`);",
+    "CREATE UNIQUE INDEX `unique_monitor_channel` ON `channel_monitors` (`workspace_id`,`platform`,`channel_id`);",
+    "CREATE TABLE `chat_messages` (\n\t`id` text PRIMARY KEY NOT NULL,\n\t`monitor_id` text NOT NULL,\n\t`workspace_id` text NOT NULL,\n\t`platform` text NOT NULL,\n\t`channel_id` text NOT NULL,\n\t`message_id` text NOT NULL,\n\t`author_id` text NOT NULL,\n\t`author_name` text NOT NULL,\n\t`text` text NOT NULL,\n\t`meta` text,\n\t`posted_at` integer NOT NULL,\n\t`created_at` integer NOT NULL,\n\tFOREIGN KEY (`monitor_id`) REFERENCES `channel_monitors`(`id`) ON UPDATE no action ON DELETE cascade\n);\n",
+    "CREATE INDEX `idx_chat_monitor` ON `chat_messages` (`monitor_id`);",
+    "CREATE INDEX `idx_chat_workspace` ON `chat_messages` (`workspace_id`);",
+    "CREATE INDEX `idx_chat_posted` ON `chat_messages` (`posted_at`);",
+    "CREATE UNIQUE INDEX `unique_chat_msg` ON `chat_messages` (`monitor_id`,`message_id`);",
+    "CREATE TABLE `chat_summaries` (\n\t`id` text PRIMARY KEY NOT NULL,\n\t`monitor_id` text NOT NULL,\n\t`workspace_id` text NOT NULL,\n\t`period_start` integer NOT NULL,\n\t`period_end` integer NOT NULL,\n\t`summary` text NOT NULL,\n\t`highlights` text,\n\t`message_count` integer DEFAULT 0 NOT NULL,\n\t`created_by` text NOT NULL,\n\t`created_at` integer NOT NULL,\n\tFOREIGN KEY (`monitor_id`) REFERENCES `channel_monitors`(`id`) ON UPDATE no action ON DELETE cascade\n);\n",
+    "CREATE INDEX `idx_summary_monitor` ON `chat_summaries` (`monitor_id`);",
+    "CREATE INDEX `idx_summary_workspace` ON `chat_summaries` (`workspace_id`);",
+    "CREATE TABLE `ludus_economy_graphs` (\n\t`id` text PRIMARY KEY NOT NULL,\n\t`workspace_id` text NOT NULL,\n\t`game_title` text NOT NULL,\n\t`graph_json` text NOT NULL,\n\t`mechanic_count` integer DEFAULT 0 NOT NULL,\n\t`created_at` integer NOT NULL,\n\t`updated_at` integer NOT NULL\n);\n",
+    "CREATE INDEX `idx_eco_graph_workspace` ON `ludus_economy_graphs` (`workspace_id`);",
+    "CREATE INDEX `idx_eco_graph_game` ON `ludus_economy_graphs` (`game_title`);",
+    "CREATE UNIQUE INDEX `unique_eco_graph_game` ON `ludus_economy_graphs` (`workspace_id`,`game_title`);",
+    "CREATE TABLE `ludus_learning_jobs` (\n\t`id` text PRIMARY KEY NOT NULL,\n\t`workspace_id` text NOT NULL,\n\t`game_title` text NOT NULL,\n\t`query` text NOT NULL,\n\t`status` text DEFAULT 'queued' NOT NULL,\n\t`fetched_count` integer DEFAULT 0 NOT NULL,\n\t`learned_count` integer DEFAULT 0 NOT NULL,\n\t`error` text,\n\t`created_at` integer NOT NULL,\n\t`updated_at` integer NOT NULL\n);\n",
+    "CREATE INDEX `idx_ludus_jobs_workspace` ON `ludus_learning_jobs` (`workspace_id`);",
+    "CREATE INDEX `idx_ludus_jobs_status` ON `ludus_learning_jobs` (`status`);",
+    "CREATE TABLE `ludus_mechanics` (\n\t`id` text PRIMARY KEY NOT NULL,\n\t`workspace_id` text NOT NULL,\n\t`game_title` text NOT NULL,\n\t`mechanic` text NOT NULL,\n\t`confidence` integer DEFAULT 0 NOT NULL,\n\t`source_url` text NOT NULL,\n\t`source_title` text,\n\t`source_snippet` text,\n\t`tags_json` text,\n\t`created_at` integer NOT NULL\n);\n",
+    "CREATE INDEX `idx_ludus_workspace` ON `ludus_mechanics` (`workspace_id`);",
+    "CREATE INDEX `idx_ludus_game` ON `ludus_mechanics` (`game_title`);",
+    "CREATE INDEX `idx_ludus_mechanic` ON `ludus_mechanics` (`mechanic`);",
+    "CREATE UNIQUE INDEX `unique_ludus_source_mechanic` ON `ludus_mechanics` (`workspace_id`,`source_url`,`mechanic`);",
+    "CREATE TABLE `task_logs` (\n\t`id` text PRIMARY KEY NOT NULL,\n\t`task_id` text NOT NULL,\n\t`action` text NOT NULL,\n\t`previous_value` text,\n\t`new_value` text,\n\t`reason` text,\n\t`trigger_message_id` text,\n\t`performed_by` text NOT NULL,\n\t`created_at` integer NOT NULL,\n\tFOREIGN KEY (`task_id`) REFERENCES `tasks`(`id`) ON UPDATE no action ON DELETE no action\n);\n",
+    "CREATE INDEX `idx_log_task` ON `task_logs` (`task_id`);",
+    "CREATE TABLE `tasks` (\n\t`id` text PRIMARY KEY NOT NULL,\n\t`workspace_id` text NOT NULL,\n\t`title` text NOT NULL,\n\t`description` text,\n\t`status` text DEFAULT 'pending' NOT NULL,\n\t`priority` text DEFAULT 'medium' NOT NULL,\n\t`assignee_id` text,\n\t`due_date` text,\n\t`source` text DEFAULT 'auto' NOT NULL,\n\t`source_platform` text,\n\t`source_message_id` text,\n\t`source_channel_id` text,\n\t`source_text` text,\n\t`confidence` integer DEFAULT 0 NOT NULL,\n\t`is_critical_path` integer DEFAULT false NOT NULL,\n\t`relayed_to_external` integer DEFAULT false NOT NULL,\n\t`external_task_id` text,\n\t`created_by` text NOT NULL,\n\t`created_at` integer NOT NULL,\n\t`updated_at` integer NOT NULL\n);\n",
+    "CREATE INDEX `idx_task_workspace` ON `tasks` (`workspace_id`);",
+    "CREATE INDEX `idx_task_status` ON `tasks` (`status`);",
+    "CREATE INDEX `idx_task_assignee` ON `tasks` (`assignee_id`);",
+    "CREATE INDEX `idx_task_due` ON `tasks` (`due_date`);",
+    "CREATE INDEX `idx_task_priority` ON `tasks` (`priority`);",
+    "CREATE TABLE `users` (\n\t`id` text PRIMARY KEY NOT NULL,\n\t`login` text NOT NULL,\n\t`display_name` text NOT NULL,\n\t`email` text,\n\t`avatar_url` text DEFAULT '' NOT NULL,\n\t`role` text DEFAULT 'general' NOT NULL,\n\t`created_at` integer NOT NULL,\n\t`updated_at` integer NOT NULL\n);\n"
+  ],
+  "sqlite_master": [
+    {
+      "type": "index",
+      "name": "idx_chat_monitor",
+      "tbl_name": "chat_messages",
+      "sql": "CREATE INDEX `idx_chat_monitor` ON `chat_messages` (`monitor_id`)"
+    },
+    {
+      "type": "index",
+      "name": "idx_chat_posted",
+      "tbl_name": "chat_messages",
+      "sql": "CREATE INDEX `idx_chat_posted` ON `chat_messages` (`posted_at`)"
+    },
+    {
+      "type": "index",
+      "name": "idx_chat_workspace",
+      "tbl_name": "chat_messages",
+      "sql": "CREATE INDEX `idx_chat_workspace` ON `chat_messages` (`workspace_id`)"
+    },
+    {
+      "type": "index",
+      "name": "idx_eco_graph_game",
+      "tbl_name": "ludus_economy_graphs",
+      "sql": "CREATE INDEX `idx_eco_graph_game` ON `ludus_economy_graphs` (`game_title`)"
+    },
+    {
+      "type": "index",
+      "name": "idx_eco_graph_workspace",
+      "tbl_name": "ludus_economy_graphs",
+      "sql": "CREATE INDEX `idx_eco_graph_workspace` ON `ludus_economy_graphs` (`workspace_id`)"
+    },
+    {
+      "type": "index",
+      "name": "idx_log_task",
+      "tbl_name": "task_logs",
+      "sql": "CREATE INDEX `idx_log_task` ON `task_logs` (`task_id`)"
+    },
+    {
+      "type": "index",
+      "name": "idx_ludus_game",
+      "tbl_name": "ludus_mechanics",
+      "sql": "CREATE INDEX `idx_ludus_game` ON `ludus_mechanics` (`game_title`)"
+    },
+    {
+      "type": "index",
+      "name": "idx_ludus_jobs_status",
+      "tbl_name": "ludus_learning_jobs",
+      "sql": "CREATE INDEX `idx_ludus_jobs_status` ON `ludus_learning_jobs` (`status`)"
+    },
+    {
+      "type": "index",
+      "name": "idx_ludus_jobs_workspace",
+      "tbl_name": "ludus_learning_jobs",
+      "sql": "CREATE INDEX `idx_ludus_jobs_workspace` ON `ludus_learning_jobs` (`workspace_id`)"
+    },
+    {
+      "type": "index",
+      "name": "idx_ludus_mechanic",
+      "tbl_name": "ludus_mechanics",
+      "sql": "CREATE INDEX `idx_ludus_mechanic` ON `ludus_mechanics` (`mechanic`)"
+    },
+    {
+      "type": "index",
+      "name": "idx_ludus_workspace",
+      "tbl_name": "ludus_mechanics",
+      "sql": "CREATE INDEX `idx_ludus_workspace` ON `ludus_mechanics` (`workspace_id`)"
+    },
+    {
+      "type": "index",
+      "name": "idx_monitor_workspace",
+      "tbl_name": "channel_monitors",
+      "sql": "CREATE INDEX `idx_monitor_workspace` ON `channel_monitors` (`workspace_id`)"
+    },
+    {
+      "type": "index",
+      "name": "idx_summary_monitor",
+      "tbl_name": "chat_summaries",
+      "sql": "CREATE INDEX `idx_summary_monitor` ON `chat_summaries` (`monitor_id`)"
+    },
+    {
+      "type": "index",
+      "name": "idx_summary_workspace",
+      "tbl_name": "chat_summaries",
+      "sql": "CREATE INDEX `idx_summary_workspace` ON `chat_summaries` (`workspace_id`)"
+    },
+    {
+      "type": "index",
+      "name": "idx_task_assignee",
+      "tbl_name": "tasks",
+      "sql": "CREATE INDEX `idx_task_assignee` ON `tasks` (`assignee_id`)"
+    },
+    {
+      "type": "index",
+      "name": "idx_task_due",
+      "tbl_name": "tasks",
+      "sql": "CREATE INDEX `idx_task_due` ON `tasks` (`due_date`)"
+    },
+    {
+      "type": "index",
+      "name": "idx_task_priority",
+      "tbl_name": "tasks",
+      "sql": "CREATE INDEX `idx_task_priority` ON `tasks` (`priority`)"
+    },
+    {
+      "type": "index",
+      "name": "idx_task_status",
+      "tbl_name": "tasks",
+      "sql": "CREATE INDEX `idx_task_status` ON `tasks` (`status`)"
+    },
+    {
+      "type": "index",
+      "name": "idx_task_workspace",
+      "tbl_name": "tasks",
+      "sql": "CREATE INDEX `idx_task_workspace` ON `tasks` (`workspace_id`)"
+    },
+    {
+      "type": "index",
+      "name": "sqlite_autoindex_channel_monitors_1",
+      "tbl_name": "channel_monitors",
+      "sql": null
+    },
+    {
+      "type": "index",
+      "name": "sqlite_autoindex_chat_messages_1",
+      "tbl_name": "chat_messages",
+      "sql": null
+    },
+    {
+      "type": "index",
+      "name": "sqlite_autoindex_chat_summaries_1",
+      "tbl_name": "chat_summaries",
+      "sql": null
+    },
+    {
+      "type": "index",
+      "name": "sqlite_autoindex_ludus_economy_graphs_1",
+      "tbl_name": "ludus_economy_graphs",
+      "sql": null
+    },
+    {
+      "type": "index",
+      "name": "sqlite_autoindex_ludus_learning_jobs_1",
+      "tbl_name": "ludus_learning_jobs",
+      "sql": null
+    },
+    {
+      "type": "index",
+      "name": "sqlite_autoindex_ludus_mechanics_1",
+      "tbl_name": "ludus_mechanics",
+      "sql": null
+    },
+    {
+      "type": "index",
+      "name": "sqlite_autoindex_task_logs_1",
+      "tbl_name": "task_logs",
+      "sql": null
+    },
+    {
+      "type": "index",
+      "name": "sqlite_autoindex_tasks_1",
+      "tbl_name": "tasks",
+      "sql": null
+    },
+    {
+      "type": "index",
+      "name": "sqlite_autoindex_users_1",
+      "tbl_name": "users",
+      "sql": null
+    },
+    {
+      "type": "index",
+      "name": "unique_chat_msg",
+      "tbl_name": "chat_messages",
+      "sql": "CREATE UNIQUE INDEX `unique_chat_msg` ON `chat_messages` (`monitor_id`,`message_id`)"
+    },
+    {
+      "type": "index",
+      "name": "unique_eco_graph_game",
+      "tbl_name": "ludus_economy_graphs",
+      "sql": "CREATE UNIQUE INDEX `unique_eco_graph_game` ON `ludus_economy_graphs` (`workspace_id`,`game_title`)"
+    },
+    {
+      "type": "index",
+      "name": "unique_ludus_source_mechanic",
+      "tbl_name": "ludus_mechanics",
+      "sql": "CREATE UNIQUE INDEX `unique_ludus_source_mechanic` ON `ludus_mechanics` (`workspace_id`,`source_url`,`mechanic`)"
+    },
+    {
+      "type": "index",
+      "name": "unique_monitor_channel",
+      "tbl_name": "channel_monitors",
+      "sql": "CREATE UNIQUE INDEX `unique_monitor_channel` ON `channel_monitors` (`workspace_id`,`platform`,`channel_id`)"
+    },
+    {
+      "type": "table",
+      "name": "channel_monitors",
+      "tbl_name": "channel_monitors",
+      "sql": "CREATE TABLE `channel_monitors` (\n\t`id` text PRIMARY KEY NOT NULL,\n\t`workspace_id` text NOT NULL,\n\t`platform` text NOT NULL,\n\t`channel_id` text NOT NULL,\n\t`channel_name` text NOT NULL,\n\t`webhook_endpoint_id` text,\n\t`bot_token` text,\n\t`bot_workspace_id` text,\n\t`bot_signing_secret` text,\n\t`capture_messages` integer DEFAULT true NOT NULL,\n\t`mode` text DEFAULT 'task' NOT NULL,\n\t`discussion_delay_minutes` integer DEFAULT 5 NOT NULL,\n\t`github_repo` text,\n\t`github_discussion_category_id` text,\n\t`is_active` integer DEFAULT true NOT NULL,\n\t`created_by` text NOT NULL,\n\t`created_at` integer NOT NULL,\n\t`updated_at` integer NOT NULL\n)"
+    },
+    {
+      "type": "table",
+      "name": "chat_messages",
+      "tbl_name": "chat_messages",
+      "sql": "CREATE TABLE `chat_messages` (\n\t`id` text PRIMARY KEY NOT NULL,\n\t`monitor_id` text NOT NULL,\n\t`workspace_id` text NOT NULL,\n\t`platform` text NOT NULL,\n\t`channel_id` text NOT NULL,\n\t`message_id` text NOT NULL,\n\t`author_id` text NOT NULL,\n\t`author_name` text NOT NULL,\n\t`text` text NOT NULL,\n\t`meta` text,\n\t`posted_at` integer NOT NULL,\n\t`created_at` integer NOT NULL,\n\tFOREIGN KEY (`monitor_id`) REFERENCES `channel_monitors`(`id`) ON UPDATE no action ON DELETE cascade\n)"
+    },
+    {
+      "type": "table",
+      "name": "chat_summaries",
+      "tbl_name": "chat_summaries",
+      "sql": "CREATE TABLE `chat_summaries` (\n\t`id` text PRIMARY KEY NOT NULL,\n\t`monitor_id` text NOT NULL,\n\t`workspace_id` text NOT NULL,\n\t`period_start` integer NOT NULL,\n\t`period_end` integer NOT NULL,\n\t`summary` text NOT NULL,\n\t`highlights` text,\n\t`message_count` integer DEFAULT 0 NOT NULL,\n\t`created_by` text NOT NULL,\n\t`created_at` integer NOT NULL,\n\tFOREIGN KEY (`monitor_id`) REFERENCES `channel_monitors`(`id`) ON UPDATE no action ON DELETE cascade\n)"
+    },
+    {
+      "type": "table",
+      "name": "ludus_economy_graphs",
+      "tbl_name": "ludus_economy_graphs",
+      "sql": "CREATE TABLE `ludus_economy_graphs` (\n\t`id` text PRIMARY KEY NOT NULL,\n\t`workspace_id` text NOT NULL,\n\t`game_title` text NOT NULL,\n\t`graph_json` text NOT NULL,\n\t`mechanic_count` integer DEFAULT 0 NOT NULL,\n\t`created_at` integer NOT NULL,\n\t`updated_at` integer NOT NULL\n)"
+    },
+    {
+      "type": "table",
+      "name": "ludus_learning_jobs",
+      "tbl_name": "ludus_learning_jobs",
+      "sql": "CREATE TABLE `ludus_learning_jobs` (\n\t`id` text PRIMARY KEY NOT NULL,\n\t`workspace_id` text NOT NULL,\n\t`game_title` text NOT NULL,\n\t`query` text NOT NULL,\n\t`status` text DEFAULT 'queued' NOT NULL,\n\t`fetched_count` integer DEFAULT 0 NOT NULL,\n\t`learned_count` integer DEFAULT 0 NOT NULL,\n\t`error` text,\n\t`created_at` integer NOT NULL,\n\t`updated_at` integer NOT NULL\n)"
+    },
+    {
+      "type": "table",
+      "name": "ludus_mechanics",
+      "tbl_name": "ludus_mechanics",
+      "sql": "CREATE TABLE `ludus_mechanics` (\n\t`id` text PRIMARY KEY NOT NULL,\n\t`workspace_id` text NOT NULL,\n\t`game_title` text NOT NULL,\n\t`mechanic` text NOT NULL,\n\t`confidence` integer DEFAULT 0 NOT NULL,\n\t`source_url` text NOT NULL,\n\t`source_title` text,\n\t`source_snippet` text,\n\t`tags_json` text,\n\t`created_at` integer NOT NULL\n)"
+    },
+    {
+      "type": "table",
+      "name": "task_logs",
+      "tbl_name": "task_logs",
+      "sql": "CREATE TABLE `task_logs` (\n\t`id` text PRIMARY KEY NOT NULL,\n\t`task_id` text NOT NULL,\n\t`action` text NOT NULL,\n\t`previous_value` text,\n\t`new_value` text,\n\t`reason` text,\n\t`trigger_message_id` text,\n\t`performed_by` text NOT NULL,\n\t`created_at` integer NOT NULL,\n\tFOREIGN KEY (`task_id`) REFERENCES `tasks`(`id`) ON UPDATE no action ON DELETE no action\n)"
+    },
+    {
+      "type": "table",
+      "name": "tasks",
+      "tbl_name": "tasks",
+      "sql": "CREATE TABLE `tasks` (\n\t`id` text PRIMARY KEY NOT NULL,\n\t`workspace_id` text NOT NULL,\n\t`title` text NOT NULL,\n\t`description` text,\n\t`status` text DEFAULT 'pending' NOT NULL,\n\t`priority` text DEFAULT 'medium' NOT NULL,\n\t`assignee_id` text,\n\t`due_date` text,\n\t`source` text DEFAULT 'auto' NOT NULL,\n\t`source_platform` text,\n\t`source_message_id` text,\n\t`source_channel_id` text,\n\t`source_text` text,\n\t`confidence` integer DEFAULT 0 NOT NULL,\n\t`is_critical_path` integer DEFAULT false NOT NULL,\n\t`relayed_to_external` integer DEFAULT false NOT NULL,\n\t`external_task_id` text,\n\t`created_by` text NOT NULL,\n\t`created_at` integer NOT NULL,\n\t`updated_at` integer NOT NULL\n)"
+    },
+    {
+      "type": "table",
+      "name": "users",
+      "tbl_name": "users",
+      "sql": "CREATE TABLE `users` (\n\t`id` text PRIMARY KEY NOT NULL,\n\t`login` text NOT NULL,\n\t`display_name` text NOT NULL,\n\t`email` text,\n\t`avatar_url` text DEFAULT '' NOT NULL,\n\t`role` text DEFAULT 'general' NOT NULL,\n\t`created_at` integer NOT NULL,\n\t`updated_at` integer NOT NULL\n)"
+    }
+  ]
+}

@@ -1,0 +1,297 @@
+{
+  "parses": [
+    {
+      "input": "[[hyp:abc123]]",
+      "output": {
+        "type": "hyp",
+        "id": "abc123"
+      }
+    },
+    {
+      "input": "  [[utt:550e8400]]  ",
+      "output": {
+        "type": "utt",
+        "id": "550e8400"
+      }
+    },
+    {
+      "input": "[[unknown:foo]]",
+      "output": null
+    },
+    {
+      "input": "text [[hyp:x]] tail",
+      "output": null
+    },
+    {
+      "input": "[[hyp:]]",
+      "output": null
+    },
+    {
+      "input": "[[HYP:x]]",
+      "output": null
+    },
+    {
+      "input": "[[hyp:a:b]]",
+      "output": {
+        "type": "hyp",
+        "id": "a:b"
+      }
+    },
+    {
+      "input": "[[hyp:a b]]",
+      "output": null
+    },
+    {
+      "input": "[[hyp:a]b]]",
+      "output": null
+    },
+    {
+      "input": "[[game:モンスト]]",
+      "output": {
+        "type": "game",
+        "id": "モンスト"
+      }
+    },
+    {
+      "input": "[[persona:p-1]]",
+      "output": {
+        "type": "persona",
+        "id": "p-1"
+      }
+    },
+    {
+      "input": "[[hyp:x]]]",
+      "output": null
+    },
+    {
+      "input": "[[[hyp:x]]",
+      "output": null
+    },
+    {
+      "input": "\t[[ses:s]]\n",
+      "output": {
+        "type": "ses",
+        "id": "s"
+      }
+    }
+  ],
+  "extracts": [
+    {
+      "input": "# h\n- [[hyp:a1]]\n- [[utt:b2]]\nrandom [[bad: x]] [[hyp:c3]] tail",
+      "output": [
+        {
+          "type": "hyp",
+          "id": "a1"
+        },
+        {
+          "type": "utt",
+          "id": "b2"
+        },
+        {
+          "type": "hyp",
+          "id": "c3"
+        }
+      ]
+    },
+    {
+      "input": "[[[hyp:a]]] [[hyp:b]][[mch:c]] [[hyp:d e]] [[Hyp:f]] [[hyp:g]",
+      "output": [
+        {
+          "type": "hyp",
+          "id": "a"
+        },
+        {
+          "type": "hyp",
+          "id": "b"
+        },
+        {
+          "type": "mch",
+          "id": "c"
+        }
+      ]
+    },
+    {
+      "input": "[[x[[hyp:h]]",
+      "output": [
+        {
+          "type": "hyp",
+          "id": "h"
+        }
+      ]
+    },
+    {
+      "input": "[[aaa[[hyp:i]]",
+      "output": [
+        {
+          "type": "hyp",
+          "id": "i"
+        }
+      ]
+    },
+    {
+      "input": "[[hyp:j]]x]]",
+      "output": [
+        {
+          "type": "hyp",
+          "id": "j"
+        }
+      ]
+    },
+    {
+      "input": "[[gap:日本語]] [[aes:😀]]",
+      "output": [
+        {
+          "type": "gap",
+          "id": "日本語"
+        },
+        {
+          "type": "aes",
+          "id": "😀"
+        }
+      ]
+    }
+  ],
+  "formats": [
+    {
+      "link": {
+        "type": "mch",
+        "id": "ghi789"
+      },
+      "output": "[[mch:ghi789]]"
+    },
+    {
+      "link": {
+        "type": "xxx",
+        "id": "a"
+      },
+      "error": "unknown node type: xxx"
+    },
+    {
+      "link": {
+        "type": "hyp",
+        "id": "has space"
+      },
+      "error": "invalid id (must not contain whitespace or brackets): has space"
+    },
+    {
+      "link": {
+        "type": "hyp",
+        "id": ""
+      },
+      "error": "invalid id (must not contain whitespace or brackets): "
+    },
+    {
+      "link": {
+        "type": "hyp",
+        "id": "a]"
+      },
+      "error": "invalid id (must not contain whitespace or brackets): a]"
+    },
+    {
+      "link": {
+        "type": "game",
+        "id": "モンスト"
+      },
+      "output": "[[game:モンスト]]"
+    }
+  ],
+  "normalizes": [
+    {
+      "input": "hypothesis",
+      "output": "hyp"
+    },
+    {
+      "input": "HYP",
+      "output": "hyp"
+    },
+    {
+      "input": "design-gap",
+      "output": "gap"
+    },
+    {
+      "input": "designgap",
+      "output": "gap"
+    },
+    {
+      "input": "gap",
+      "output": "gap"
+    },
+    {
+      "input": "session",
+      "output": "ses"
+    },
+    {
+      "input": "ses",
+      "output": "ses"
+    },
+    {
+      "input": "nope",
+      "output": null
+    },
+    {
+      "input": "Persona",
+      "output": "persona"
+    },
+    {
+      "input": "UTTERANCE",
+      "output": "utt"
+    },
+    {
+      "input": "constructor"
+    },
+    {
+      "input": "toString",
+      "output": null
+    },
+    {
+      "input": "",
+      "output": null
+    }
+  ],
+  "TYPE_TO_TABLE": {
+    "utt": "utterances",
+    "hyp": "hypotheses",
+    "gap": "design_gaps",
+    "mch": "mechanics",
+    "aes": "aesthetics",
+    "aff": "affects",
+    "ses": "sessions",
+    "game": "games",
+    "persona": "personas"
+  },
+  "TYPE_TO_DIR": {
+    "utt": "utterance",
+    "hyp": "hypothesis",
+    "gap": "gap",
+    "mch": "mechanic",
+    "aes": "aesthetic",
+    "aff": "affect",
+    "ses": "session",
+    "game": "game",
+    "persona": "persona"
+  },
+  "FULL_TO_PREFIX": {
+    "utterance": "utt",
+    "hypothesis": "hyp",
+    "gap": "gap",
+    "designgap": "gap",
+    "design-gap": "gap",
+    "mechanic": "mch",
+    "aesthetic": "aes",
+    "affect": "aff",
+    "session": "ses",
+    "game": "game",
+    "persona": "persona"
+  },
+  "NODE_TYPES": [
+    "utt",
+    "hyp",
+    "gap",
+    "mch",
+    "aes",
+    "aff",
+    "ses",
+    "game",
+    "persona"
+  ]
+}

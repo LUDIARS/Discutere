@@ -1,0 +1,259 @@
+{
+  "kgSetup": [
+    "CREATE TABLE IF NOT EXISTS consensus_scores (utterance_id TEXT PRIMARY KEY, agree INTEGER NOT NULL, score INTEGER NOT NULL, reasoning TEXT, created_at INTEGER NOT NULL)",
+    "CREATE TABLE IF NOT EXISTS opinion_scores (target_id TEXT PRIMARY KEY, target_kind TEXT NOT NULL, score INTEGER NOT NULL DEFAULT 0, updated_at INTEGER NOT NULL)",
+    "INSERT INTO opinion_scores (target_id, target_kind, score, updated_at) VALUES ('u6', 'utterance', 3, 1)",
+    "CREATE TABLE IF NOT EXISTS aufhebung_stock (id TEXT PRIMARY KEY, gap_id TEXT NOT NULL, summary TEXT NOT NULL, created_at INTEGER NOT NULL)",
+    "INSERT INTO aufhebung_stock (id, gap_id, summary, created_at) VALUES ('a1', 'g1', '止揚A\n\n\nつづき', 10)",
+    "INSERT INTO design_gaps (id, workspace_id, title, status, created_at, updated_at) VALUES ('g1', 'ws', 'ローグライトの周回', 'converged', 1, 300)",
+    "INSERT INTO design_gaps (id, workspace_id, title, status, created_at, updated_at) VALUES ('g2', 'ws', '進行中の議論', NULL, 1, 200)",
+    "INSERT INTO design_gaps (id, workspace_id, title, status, created_at, updated_at) VALUES ('g3', 'other', '別WS', 'closed', 1, 400)",
+    "INSERT INTO design_gaps (id, workspace_id, title, status, created_at, updated_at) VALUES ('g4', 'ws', 'フォーラム議論', 'open', 1, 100)",
+    "INSERT INTO sessions (id, workspace_id, title, started_at, scene, created_at, updated_at) VALUES ('s1', 'ws', 'discussion-of-gap:g1', 10, 'discord:G1/T1', 1, 1)",
+    "INSERT INTO sessions (id, workspace_id, title, started_at, scene, created_at, updated_at) VALUES ('s2', 'ws', 'discussion-of-gap:g2', 20, 'web:lobby', 1, 1)",
+    "INSERT INTO sessions (id, workspace_id, title, started_at, scene, created_at, updated_at) VALUES ('s3', 'other', 'discussion-of-gap:g3', 30, NULL, 1, 1)",
+    "INSERT INTO sessions (id, workspace_id, title, started_at, scene, created_at, updated_at) VALUES ('s4', 'ws', 'discussion-of-gap:g4', 40, 'discord:G1/T4', 1, 1)",
+    "INSERT INTO sessions (id, workspace_id, title, started_at, scene, created_at, updated_at) VALUES ('w1', 'ws', 'web-session:lobby', 5, 'web:lobby', 1, 1)",
+    "INSERT INTO utterances (id, workspace_id, session_id, speaker_id, raw_content, posted_at, created_at, updated_at) VALUES ('u1', 'ws', 's1', 'persona:陽介', '周回前提なら飽きが課題', 100, 1, 1)",
+    "INSERT INTO utterances (id, workspace_id, session_id, speaker_id, raw_content, posted_at, created_at, updated_at) VALUES ('u2', 'ws', 's1', 'discord:123', 'ビルド分岐で多様性を出せる', 110, 1, 1)",
+    "INSERT INTO utterances (id, workspace_id, session_id, speaker_id, raw_content, posted_at, created_at, updated_at) VALUES ('u3', 'ws', 's1', 'ext:youtube:abc', '外部の声', 120, 1, 1)",
+    "INSERT INTO utterances (id, workspace_id, session_id, speaker_id, raw_content, posted_at, created_at, updated_at) VALUES ('u4', 'ws', 's1', 'persona:facilitator', '進行役', 130, 1, 1)",
+    "INSERT INTO utterances (id, workspace_id, session_id, speaker_id, raw_content, posted_at, created_at, updated_at) VALUES ('u5', 'ws', 's1', 'persona:ミナ', '【収束】周回はビルド多様性で飽きを防ぐ\n\n\n詳細', 140, 1, 1)",
+    "INSERT INTO utterances (id, workspace_id, session_id, speaker_id, raw_content, posted_at, created_at, updated_at) VALUES ('u6', 'ws', 's1', 'persona:ミナ', '報酬設計も\n\n\n大事', 150, 1, 1)",
+    "INSERT INTO utterances (id, workspace_id, session_id, speaker_id, raw_content, posted_at, created_at, updated_at) VALUES ('u7', 'ws', 's1', NULL, '匿名', 160, 1, 1)",
+    "INSERT INTO utterances (id, workspace_id, session_id, speaker_id, raw_content, posted_at, created_at, updated_at) VALUES ('wu1', 'ws', 'w1', '太郎', 'ローグライトの面白さの核は何か', 1000, 1, 1)",
+    "INSERT INTO utterances (id, workspace_id, session_id, speaker_id, raw_content, posted_at, created_at, updated_at) VALUES ('wu2', 'ws', 's2', 'persona:p-a', '探索の手触りが核', 2000, 1, 1)",
+    "INSERT INTO utterances (id, workspace_id, session_id, speaker_id, raw_content, posted_at, created_at, updated_at) VALUES ('wu3', 'ws', 's2', 'persona:facilitator', '論点を整理します', 3000, 1, 1)",
+    "INSERT INTO consensus_scores (utterance_id, agree, score, reasoning, created_at) VALUES ('u1', 1, 80, '多くが同意', 1)",
+    "INSERT INTO consensus_scores (utterance_id, agree, score, reasoning, created_at) VALUES ('u2', 0, 30, NULL, 1)"
+  ],
+  "flowSetup": [
+    "INSERT INTO discussion_paper (id, flow, session_id, theme, tags_json, mechanics_json, supplement, created_at, updated_at, status, discussion_no) VALUES ('p1', 'discussion', 'fs-1', 'ローグライトの周回設計', '[\"開発\"]', '[{\"name\":\"ビルド選択\",\"description\":\"周回ごとに構成を変える\"}]', '', 1700000000000, 1700000000000, 'started', 1)",
+    "INSERT INTO discussion_paper (id, flow, session_id, theme, tags_json, mechanics_json, supplement, created_at, updated_at, status, discussion_no) VALUES ('p2', 'sparring', 'fs-2', '壁打ちの議題', '[]', '[]', '', 1700000100000, 1700000100000, 'started', 2)",
+    "INSERT INTO discussion_paper (id, flow, session_id, theme, tags_json, mechanics_json, supplement, created_at, updated_at, status, discussion_no) VALUES ('p3', 'discussion', 'fs-3', '', '[]', '[]', '', 1700000200000, 1700000200000, 'draft', NULL)",
+    "INSERT INTO discussion_paper (id, flow, session_id, theme, tags_json, mechanics_json, supplement, created_at, updated_at, status, discussion_no) VALUES ('p4', 'improvement', 'fs-4', 'とても長い議題とても長い議題とても長い議題とても長い議題とても長い議題とても長い議題とても長い議題とても長い議題とても長い議題とても長い議題とても長い議題とても長い議題', '[]', '[]', '', 1700000300000, 1700000300000, 'started', 4)",
+    "INSERT INTO flow_conclusion (session_id, paper_id, summary, aufhebung_json, top_utterance_ids_json, concluded, created_at) VALUES ('fs-1', 'p1', '【収束】周回はビルド多様性で飽きを防ぐ', '[\"難度と報酬の対応を保つ\"]', '[\"fu1\"]', 1, 1700000050000)",
+    "INSERT INTO flow_utterance (id, session_id, paper_id, round, turn, persona_id, persona_name, role, stance, text, is_error, possession_name, created_at) VALUES ('fu1', 'fs-1', 'p1', 1, 1, 'a', '陽介', 'debater', 'pro', 'ビルド分岐で飽きを防ぐ', 0, NULL, 1700000010000)",
+    "INSERT INTO flow_utterance (id, session_id, paper_id, round, turn, persona_id, persona_name, role, stance, text, is_error, possession_name, created_at) VALUES ('fu2', 'fs-2', 'p2', 1, 1, 'b', 'ミナ', 'opinion', 'opinion', '壁打ち', 0, NULL, 1700000110000)"
+  ],
+  "slash": [
+    {
+      "input": {
+        "name": "discutere-discussions",
+        "argsText": ""
+      },
+      "reply": {
+        "content": "【議論一覧 (全件・新しい順 4/4件)】\n• 💬進行中 #4 **とても長い議題とても長い議題とても長い議題とても長い議題とても長い議題とても長い議題とても長い議題とても長い議題とても…**\n  └ improvement / 発話0 / 2023/11/14 22:18:20\n• 📝下書き #? **(無題)**\n  └ discussion / 発話0 / 2023/11/14 22:16:40\n• 💬進行中 #2 **壁打ちの議題**\n  └ sparring / 発話1 / 2023/11/14 22:15:00\n• ✅結論あり #1 **ローグライトの周回設計**\n  └ discussion / 発話1 / 2023/11/14 22:13:20",
+        "ephemeral": true
+      }
+    },
+    {
+      "input": {
+        "name": "discutere-discussions",
+        "argsText": "draft"
+      },
+      "reply": {
+        "content": "【議論一覧 (draft・新しい順 1/1件)】\n• 📝下書き #? **(無題)**\n  └ discussion / 発話0 / 2023/11/14 22:16:40",
+        "ephemeral": true
+      }
+    },
+    {
+      "input": {
+        "name": "discutere-discussions",
+        "argsText": "concluded"
+      },
+      "reply": {
+        "content": "【議論一覧 (concluded・新しい順 1/1件)】\n• ✅結論あり #1 **ローグライトの周回設計**\n  └ discussion / 発話1 / 2023/11/14 22:13:20",
+        "ephemeral": true
+      }
+    },
+    {
+      "input": {
+        "name": "discutere-discussions",
+        "argsText": "weird"
+      },
+      "reply": {
+        "content": "【議論一覧 (全件・新しい順 4/4件)】\n• 💬進行中 #4 **とても長い議題とても長い議題とても長い議題とても長い議題とても長い議題とても長い議題とても長い議題とても長い議題とても…**\n  └ improvement / 発話0 / 2023/11/14 22:18:20\n• 📝下書き #? **(無題)**\n  └ discussion / 発話0 / 2023/11/14 22:16:40\n• 💬進行中 #2 **壁打ちの議題**\n  └ sparring / 発話1 / 2023/11/14 22:15:00\n• ✅結論あり #1 **ローグライトの周回設計**\n  └ discussion / 発話1 / 2023/11/14 22:13:20",
+        "ephemeral": true
+      }
+    },
+    {
+      "input": {
+        "name": "discutere-conclusions",
+        "argsText": ""
+      },
+      "reply": {
+        "content": "【結論一覧 (新しい順 1件)】\n• **ローグライトの周回**\n  周回はビルド多様性で飽きを防ぐ\n詳細\n  └ 詳細: /discutere-conclusions gap:g1 (発言7/止揚1)",
+        "ephemeral": true
+      }
+    },
+    {
+      "input": {
+        "name": "discutere-conclusions",
+        "argsText": "g1"
+      },
+      "reply": {
+        "content": "【結論】ローグライトの周回\n周回はビルド多様性で飽きを防ぐ\n詳細\n── 止揚ストック ──\n1. 止揚A\nつづき\n── 高評価意見 ──\n+3 ミナ: 報酬設計も\n大事\n── 議論ログ (7発言) ──\n[陽介] 周回前提なら飽きが課題\n[人間] ビルド分岐で多様性を出せる\n[論者#63751c] 外部の声\n[facilitator] 進行役\n[ミナ] 【収束】周回はビルド多様性で飽きを防ぐ\n詳細\n[ミナ] 報酬設計も\n大事\n[参加者] 匿名",
+        "ephemeral": true
+      }
+    },
+    {
+      "input": {
+        "name": "discutere-conclusions",
+        "argsText": "missing"
+      },
+      "reply": {
+        "content": "⚠️ 結論が見つかりません (gap=missing)",
+        "ephemeral": true
+      }
+    },
+    {
+      "input": {
+        "name": "discutere-queue",
+        "argsText": ""
+      },
+      "reply": {
+        "content": "⚠️ queue view が利用できません (起動構成を確認)",
+        "ephemeral": true
+      }
+    },
+    {
+      "input": {
+        "name": "discutere-backup",
+        "argsText": "",
+        "userId": "admin1"
+      },
+      "reply": {
+        "content": "⚠️ backup が構成されていません (backup.bucket 未設定?)",
+        "ephemeral": true
+      }
+    },
+    {
+      "input": {
+        "name": "discutere-backup",
+        "argsText": "",
+        "userId": "intruder"
+      },
+      "reply": {
+        "content": "⚠️ admin only",
+        "ephemeral": true
+      }
+    },
+    {
+      "input": {
+        "name": "persona-generate",
+        "argsText": "steam",
+        "userId": "admin1"
+      },
+      "reply": {
+        "content": "⚠️ ペルソナ生成が構成されていません",
+        "ephemeral": true
+      }
+    },
+    {
+      "input": {
+        "name": "economy-graph",
+        "argsText": ""
+      },
+      "reply": {
+        "content": "⚠️ game オプションにゲームタイトルを指定してください",
+        "ephemeral": true
+      }
+    },
+    {
+      "input": {
+        "name": "economy-graph",
+        "argsText": "Slay"
+      },
+      "reply": {
+        "content": "⚠️ economy-graph が構成されていません (ANTHROPIC_API_KEY 未設定?)",
+        "ephemeral": true
+      }
+    },
+    {
+      "input": {
+        "name": "mechanics-check",
+        "argsText": "x"
+      },
+      "reply": {
+        "content": "mechanics-check requires its dedicated async handler",
+        "ephemeral": true
+      }
+    },
+    {
+      "input": {
+        "name": "level-check",
+        "argsText": "x"
+      },
+      "reply": {
+        "content": "level-check requires its dedicated async handler",
+        "ephemeral": true
+      }
+    },
+    {
+      "input": {
+        "name": "discutere-status",
+        "argsText": "",
+        "userId": "admin1"
+      },
+      "reply": {
+        "content": "⚠️ persona-engine not initialized",
+        "ephemeral": true
+      }
+    },
+    {
+      "input": {
+        "name": "discutere-status",
+        "argsText": "",
+        "userId": "admin1",
+        "adminIds": []
+      },
+      "reply": {
+        "content": "⚠️ discord.adminIds not set — admin commands are disabled",
+        "ephemeral": true
+      }
+    },
+    {
+      "input": {
+        "name": "discutere-kill",
+        "argsText": "",
+        "userId": null,
+        "enabledOption": true
+      },
+      "reply": {
+        "content": "⚠️ admin only",
+        "ephemeral": true
+      }
+    },
+    {
+      "input": {
+        "name": "integrate",
+        "argsText": ""
+      },
+      "reply": {
+        "content": "⚠️ no hypothesis",
+        "ephemeral": true
+      }
+    },
+    {
+      "input": {
+        "name": "unknowncmd",
+        "argsText": "a b"
+      },
+      "reply": {
+        "content": "⚠️ unknown command: unknowncmd",
+        "ephemeral": true
+      }
+    },
+    {
+      "input": {
+        "name": "propose",
+        "argsText": "新しい仮説"
+      },
+      "reply": {
+        "content": "✅ hypothesis a309b931-b07b-4611-85e6-16a1bc6fdd05",
+        "ephemeral": false
+      }
+    }
+  ]
+}

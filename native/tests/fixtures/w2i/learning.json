@@ -1,0 +1,139 @@
+{
+  "outcomes": [
+    {
+      "recorded": true,
+      "personaId": "advocate"
+    },
+    {
+      "recorded": true,
+      "personaId": "advocate"
+    },
+    {
+      "recorded": true,
+      "personaId": "advocate"
+    },
+    {
+      "recorded": false
+    },
+    {
+      "recorded": false
+    }
+  ],
+  "advocateNotes": [
+    "✅ integrated: hyp:h-000000 — \"選択肢を2つに絞る選択肢を2つに絞る選択肢を2つに絞る選択肢を2つに絞る選択肢を2つに絞る選択肢を2つに絞る選択肢を2つ\"",
+    "❌ rejected: hyp:h-2",
+    "✅ integrated: hyp:h-2"
+  ],
+  "personaMetrics": [
+    {
+      "id": "advocate",
+      "name": "推進派",
+      "display_name": "押野 進",
+      "proposed": 2,
+      "integrated": 1,
+      "rejected": 1,
+      "acceptanceRate": 0.5
+    },
+    {
+      "id": "evidence-seeker",
+      "name": "検証者",
+      "display_name": "礎沢 拠",
+      "proposed": 0,
+      "integrated": 0,
+      "rejected": 0,
+      "acceptanceRate": null
+    },
+    {
+      "id": "historian",
+      "name": "歴史尊重派",
+      "display_name": "古沢 経",
+      "proposed": 0,
+      "integrated": 0,
+      "rejected": 0,
+      "acceptanceRate": null
+    },
+    {
+      "id": "innovator",
+      "name": "革新者",
+      "display_name": "破出 新",
+      "proposed": 0,
+      "integrated": 0,
+      "rejected": 0,
+      "acceptanceRate": null
+    },
+    {
+      "id": "integrator",
+      "name": "統合者",
+      "display_name": "綴谷 結",
+      "proposed": 0,
+      "integrated": 0,
+      "rejected": 0,
+      "acceptanceRate": null
+    },
+    {
+      "id": "jester",
+      "name": "風刺者",
+      "display_name": "笑里 凪",
+      "proposed": 0,
+      "integrated": 0,
+      "rejected": 0,
+      "acceptanceRate": null
+    },
+    {
+      "id": "neutral-observer",
+      "name": "中立観察者",
+      "display_name": "傍見 涼",
+      "proposed": 0,
+      "integrated": 0,
+      "rejected": 0,
+      "acceptanceRate": null
+    },
+    {
+      "id": "refiner",
+      "name": "慎重派",
+      "display_name": "繕井 緻",
+      "proposed": 0,
+      "integrated": 0,
+      "rejected": 0,
+      "acceptanceRate": null
+    },
+    {
+      "id": "sceptic",
+      "name": "懐疑者",
+      "display_name": "問田 鋭",
+      "proposed": 1,
+      "integrated": 0,
+      "rejected": 0,
+      "acceptanceRate": 0
+    },
+    {
+      "id": "silent-witness",
+      "name": "沈黙の証人",
+      "display_name": "黙居 観",
+      "proposed": 0,
+      "integrated": 0,
+      "rejected": 0,
+      "acceptanceRate": null
+    }
+  ],
+  "ruleMetrics": [
+    {
+      "id": "propose-on-gap",
+      "fires": 3,
+      "skips": 0,
+      "errors": 0
+    },
+    {
+      "id": "x-rule",
+      "fires": 1,
+      "skips": 0,
+      "errors": 0
+    },
+    {
+      "id": "refute-cold",
+      "fires": 0,
+      "skips": 1,
+      "errors": 1
+    }
+  ]
+}

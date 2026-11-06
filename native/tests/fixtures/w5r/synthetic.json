@@ -1,0 +1,162 @@
+[
+  {
+    "items": [
+      {
+        "segment": "初心者",
+        "polarity": "negative",
+        "concern": "チュートリアル理解",
+        "content": "[synthetic] 何をすれば強くなるのか最初に分からず、説明を飛ばしたら戻れないのがつらい。"
+      },
+      {
+        "segment": "初心者",
+        "polarity": "negative",
+        "concern": "チュートリアル理解",
+        "content": "[synthetic] 最初に何をすれば強くなるのか分からず、説明を飛ばすと戻れないのがつらい。"
+      },
+      {
+        "segment": "復帰者",
+        "polarity": "mixed",
+        "concern": "UI変化",
+        "content": "[synthetic] 昔より便利そうだが、復帰直後は画面の情報量が多くて迷う。"
+      },
+      {
+        "segment": "上級者",
+        "polarity": "positive",
+        "concern": "序盤テンポ",
+        "content": "[synthetic] 既存プレイヤーには短い導線だけで十分で、すぐクエストへ行ける方が良い。"
+      },
+      {
+        "segment": "無課金",
+        "polarity": "negative",
+        "concern": "ガチャ導線",
+        "content": "[synthetic] 序盤からガチャと育成素材の説明が絡むと、課金前提に見えて身構える。"
+      },
+      {
+        "segment": "友達紹介",
+        "polarity": "mixed",
+        "concern": "協力プレイ",
+        "content": "[synthetic] 友達に誘われた人にはマルチの楽しさを早く見せたいが、操作説明が長いと離れそう。"
+      }
+    ],
+    "out": [
+      {
+        "content": "[synthetic] (初心者 / チュートリアル理解 / 否定) 何をすれば強くなるのか最初に分からず、説明を飛ばしたら戻れないのがつらい。",
+        "postedAt": 1000
+      },
+      {
+        "content": "[synthetic] (復帰者 / UI変化 / 混合) 昔より便利そうだが、復帰直後は画面の情報量が多くて迷う。",
+        "postedAt": 1001
+      },
+      {
+        "content": "[synthetic] (上級者 / 序盤テンポ / 肯定) 既存プレイヤーには短い導線だけで十分で、すぐクエストへ行ける方が良い。",
+        "postedAt": 1002
+      },
+      {
+        "content": "[synthetic] (無課金 / ガチャ導線 / 否定) 序盤からガチャと育成素材の説明が絡むと、課金前提に見えて身構える。",
+        "postedAt": 1003
+      },
+      {
+        "content": "[synthetic] (友達紹介 / 協力プレイ / 混合) 友達に誘われた人にはマルチの楽しさを早く見せたいが、操作説明が長いと離れそう。",
+        "postedAt": 1004
+      }
+    ]
+  },
+  {
+    "items": [
+      "  [SYNTHETIC]   素の文字列の声   です  ",
+      {
+        "content": "[仮説 Synthetic 生成] 括弧つきラベル",
+        "persona": "  熟練   プレイヤー  ",
+        "issue": null,
+        "topic": "報酬",
+        "sentiment": "賛成寄り"
+      },
+      {
+        "content": "  ",
+        "segment": "空"
+      },
+      {
+        "content": 5
+      },
+      null,
+      [
+        "配列"
+      ],
+      {
+        "content": "不満が多い声",
+        "polarity": "NEGATIVE ",
+        "segment": 3,
+        "concern": "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"
+      },
+      {
+        "content": "😀😀 絵文字の声 𠮷野家",
+        "segment": "Ａｂｃ",
+        "concern": "絵文字"
+      },
+      {
+        "content": "😀😀 絵文字の声 𠮷野家!",
+        "segment": "abc",
+        "concern": "絵文字2"
+      },
+      {
+        "content": "ああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああ",
+        "polarity": "否定的"
+      },
+      {
+        "content": "短い",
+        "segment": "s1",
+        "concern": "c1",
+        "polarity": "positive"
+      },
+      {
+        "content": "短い",
+        "segment": "s2",
+        "concern": "c2",
+        "polarity": "positive"
+      },
+      {
+        "content": "ab",
+        "segment": "s3",
+        "concern": "c3"
+      }
+    ],
+    "out": [
+      {
+        "content": "[synthetic] (仮想ユーザ / xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx / 否定) 不満が多い声",
+        "postedAt": 1000
+      },
+      {
+        "content": "[synthetic] (仮想ユーザ / 未分類の論点 / 混合) 素の文字列の声 です",
+        "postedAt": 1001
+      },
+      {
+        "content": "[synthetic] (熟練 プレイヤー / 報酬 / 肯定) 括弧つきラベル",
+        "postedAt": 1002
+      },
+      {
+        "content": "[synthetic] (Ａｂｃ / 絵文字 / 混合) 😀😀 絵文字の声 𠮷野家",
+        "postedAt": 1003
+      },
+      {
+        "content": "[synthetic] (s1 / c1 / 肯定) 短い",
+        "postedAt": 1004
+      },
+      {
+        "content": "[synthetic] (abc / 絵文字2 / 混合) 😀😀 絵文字の声 𠮷野家!",
+        "postedAt": 1005
+      },
+      {
+        "content": "[synthetic] (s2 / c2 / 肯定) 短い",
+        "postedAt": 1006
+      },
+      {
+        "content": "[synthetic] (s3 / c3 / 混合) ab",
+        "postedAt": 1007
+      }
+    ]
+  },
+  {
+    "items": [],
+    "out": []
+  }
+]

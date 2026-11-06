@@ -1,0 +1,98 @@
+[
+  {
+    "input": "{\"action\":\"skip\"}",
+    "output": {
+      "action": "skip"
+    }
+  },
+  {
+    "input": "  {\"action\":\"skip\",\"reasoning\":\"x\"}  ",
+    "output": {
+      "action": "skip",
+      "reasoning": "x"
+    }
+  },
+  {
+    "input": "Sure! here it is: {\"action\":\"post_utterance\",\"text\":\"hi\"} thanks",
+    "output": {
+      "action": "post_utterance",
+      "text": "hi"
+    }
+  },
+  {
+    "input": "```json\n{\"action\":\"propose_hypothesis\",\"statement\":\"s\"}\n```",
+    "output": {
+      "action": "propose_hypothesis",
+      "statement": "s"
+    }
+  },
+  {
+    "input": "[1,2,3]",
+    "output": null
+  },
+  {
+    "input": "\"just a string\"",
+    "output": null
+  },
+  {
+    "input": "no json at all",
+    "output": null
+  },
+  {
+    "input": "{not json} and then {\"action\":\"skip\"}",
+    "output": null
+  },
+  {
+    "input": "{\"a\":{\"b\":{\"c\":1}}} trailing",
+    "output": {
+      "a": {
+        "b": {
+          "c": 1
+        }
+      }
+    }
+  },
+  {
+    "input": "{\"a\":\"}\"} after",
+    "output": null
+  },
+  {
+    "input": "{{{",
+    "output": null
+  },
+  {
+    "input": "}}}{\"action\":\"skip\"}",
+    "output": {
+      "action": "skip"
+    }
+  },
+  {
+    "input": "{\"x\":1}{\"y\":2}",
+    "output": {
+      "x": 1
+    }
+  },
+  {
+    "input": "前置き {\"action\":\"post_utterance\",\"text\":\"日本語の発話\"} 後書き",
+    "output": {
+      "action": "post_utterance",
+      "text": "日本語の発話"
+    }
+  },
+  {
+    "input": "",
+    "output": null
+  },
+  {
+    "input": "   ",
+    "output": null
+  },
+  {
+    "input": "null",
+    "output": null
+  },
+  {
+    "input": "{\"action\":\"skip\"",
+    "output": null
+  }
+]

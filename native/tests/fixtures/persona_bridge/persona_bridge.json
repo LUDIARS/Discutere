@@ -1,0 +1,428 @@
+{
+  "assertions": [
+    {
+      "name": "ok",
+      "compact": "eyJhdXRob3JJZCI6IjEyMzQ1Njc4OSIsImF1ZCI6ImRpc2N1dGVyZS1wZXJzb25hLWJyaWRnZSIsImV4cCI6MTc4NTE5NjkyMCwianRpIjoiYXNzZXJ0aW9uLWp0aS0wMDAxIn0.Tew_g6Z7Wi0nEiwFrMogJkbCRxvIMYzwATkQfZciToy5UTa7MCS6ne8a_OANciYFR7xOvKsCz8RxsBJXEm30BQ",
+      "publicKey": "MCowBQYDK2VwAyEA6kpsY-KcUgq-9VB7Ey7F-ZVHdq6-vnuSQh7qaRRG0iw",
+      "authorId": "123456789",
+      "nowMs": 1785196800000,
+      "ok": true,
+      "output": {
+        "authorId": "123456789",
+        "expiresAt": 1785196920,
+        "jti": "assertion-jti-0001"
+      }
+    },
+    {
+      "name": "ok-max-ttl",
+      "compact": "eyJhdXRob3JJZCI6IjEyMzQ1Njc4OSIsImF1ZCI6ImRpc2N1dGVyZS1wZXJzb25hLWJyaWRnZSIsImV4cCI6MTc4NTE5NzEwMCwianRpIjoiYXNzZXJ0aW9uLWp0aS0wMDAxIn0.Sntb9PR3SlhDa787t6Vl_e0XYydmOVYtgKx4QBM8nca-mxKRjHCp2zNDA9ONpgj27-qX5YxA_uUDB18iWqvSAQ",
+      "publicKey": "MCowBQYDK2VwAyEA6kpsY-KcUgq-9VB7Ey7F-ZVHdq6-vnuSQh7qaRRG0iw",
+      "authorId": "123456789",
+      "nowMs": 1785196800000,
+      "ok": true,
+      "output": {
+        "authorId": "123456789",
+        "expiresAt": 1785197100,
+        "jti": "assertion-jti-0001"
+      }
+    },
+    {
+      "name": "ttl-too-long",
+      "compact": "eyJhdXRob3JJZCI6IjEyMzQ1Njc4OSIsImF1ZCI6ImRpc2N1dGVyZS1wZXJzb25hLWJyaWRnZSIsImV4cCI6MTc4NTE5NzEwMSwianRpIjoiYXNzZXJ0aW9uLWp0aS0wMDAxIn0.OvvAVWXJj4gmIt9fKsDZpA1IjFMzKkqbqE3bDf9z74QRIafd83h_eUyfjB4c-vsrSbi1T4DQYgPcBNv5bSUCDg",
+      "publicKey": "MCowBQYDK2VwAyEA6kpsY-KcUgq-9VB7Ey7F-ZVHdq6-vnuSQh7qaRRG0iw",
+      "authorId": "123456789",
+      "nowMs": 1785196800000,
+      "ok": false,
+      "errorClass": "PersonaBridgeAssertionVerificationError",
+      "error": "assertion is expired or not short-lived"
+    },
+    {
+      "name": "expired",
+      "compact": "eyJhdXRob3JJZCI6IjEyMzQ1Njc4OSIsImF1ZCI6ImRpc2N1dGVyZS1wZXJzb25hLWJyaWRnZSIsImV4cCI6MTc4NTE5NjgwMCwianRpIjoiYXNzZXJ0aW9uLWp0aS0wMDAxIn0.o_zl7D5m_SkahEjfXiGd5ar9FU_Z52n6NdTsHROlPfM72S8zsDyQdc_EpHWskprk0e9Ju8INRlTRo-N57Zc2AA",
+      "publicKey": "MCowBQYDK2VwAyEA6kpsY-KcUgq-9VB7Ey7F-ZVHdq6-vnuSQh7qaRRG0iw",
+      "authorId": "123456789",
+      "nowMs": 1785196800000,
+      "ok": false,
+      "errorClass": "PersonaBridgeAssertionVerificationError",
+      "error": "assertion is expired or not short-lived"
+    },
+    {
+      "name": "author-mismatch",
+      "compact": "eyJhdXRob3JJZCI6IjEyMzQ1Njc4OSIsImF1ZCI6ImRpc2N1dGVyZS1wZXJzb25hLWJyaWRnZSIsImV4cCI6MTc4NTE5NjkyMCwianRpIjoiYXNzZXJ0aW9uLWp0aS0wMDAxIn0.Tew_g6Z7Wi0nEiwFrMogJkbCRxvIMYzwATkQfZciToy5UTa7MCS6ne8a_OANciYFR7xOvKsCz8RxsBJXEm30BQ",
+      "publicKey": "MCowBQYDK2VwAyEA6kpsY-KcUgq-9VB7Ey7F-ZVHdq6-vnuSQh7qaRRG0iw",
+      "authorId": "987654321",
+      "nowMs": 1785196800000,
+      "ok": false,
+      "errorClass": "PersonaBridgeAssertionVerificationError",
+      "error": "assertion authorId does not match the query"
+    },
+    {
+      "name": "author-invalid",
+      "compact": "eyJhdXRob3JJZCI6IjEyMzQiLCJhdWQiOiJkaXNjdXRlcmUtcGVyc29uYS1icmlkZ2UiLCJleHAiOjE3ODUxOTY5MjAsImp0aSI6ImFzc2VydGlvbi1qdGktMDAwMSJ9.-NZJHVJ7ANrO6gwpHmIsUmbVkG2dk8j886X5aF_yVZT_yNZ1Ty4hKVQWQ-q2gG5WdJsdNiCC3JGR1PB9EbXuDQ",
+      "publicKey": "MCowBQYDK2VwAyEA6kpsY-KcUgq-9VB7Ey7F-ZVHdq6-vnuSQh7qaRRG0iw",
+      "authorId": "1234",
+      "nowMs": 1785196800000,
+      "ok": false,
+      "errorClass": "PersonaBridgeAssertionVerificationError",
+      "error": "assertion authorId is invalid"
+    },
+    {
+      "name": "audience",
+      "compact": "eyJhdXRob3JJZCI6IjEyMzQ1Njc4OSIsImF1ZCI6ImFub3RoZXIiLCJleHAiOjE3ODUxOTY5MjAsImp0aSI6ImFzc2VydGlvbi1qdGktMDAwMSJ9.FAjb0vRibo28FGK264SXngJI47c-7bPrbnh-_VhloxSKJ2hS61ZAbUkezEa20u1CB6S4Ai7dsrJEors_oPciAA",
+      "publicKey": "MCowBQYDK2VwAyEA6kpsY-KcUgq-9VB7Ey7F-ZVHdq6-vnuSQh7qaRRG0iw",
+      "authorId": "123456789",
+      "nowMs": 1785196800000,
+      "ok": false,
+      "errorClass": "PersonaBridgeAssertionVerificationError",
+      "error": "assertion audience is invalid"
+    },
+    {
+      "name": "exp-float",
+      "compact": "eyJhdXRob3JJZCI6IjEyMzQ1Njc4OSIsImF1ZCI6ImRpc2N1dGVyZS1wZXJzb25hLWJyaWRnZSIsImV4cCI6MTc4NTE5NjgwMS41LCJqdGkiOiJhc3NlcnRpb24tanRpLTAwMDEifQ.hgFfLQV7RP8j6IgBEnkyXz_lyafrbduED-ShICILUJxVQcGMhBfQWUoAn_TDmZ_5orVmCVpv3u7mjiHtGtQSDA",
+      "publicKey": "MCowBQYDK2VwAyEA6kpsY-KcUgq-9VB7Ey7F-ZVHdq6-vnuSQh7qaRRG0iw",
+      "authorId": "123456789",
+      "nowMs": 1785196800000,
+      "ok": false,
+      "errorClass": "PersonaBridgeAssertionVerificationError",
+      "error": "assertion exp is invalid"
+    },
+    {
+      "name": "exp-string",
+      "compact": "eyJhdXRob3JJZCI6IjEyMzQ1Njc4OSIsImF1ZCI6ImRpc2N1dGVyZS1wZXJzb25hLWJyaWRnZSIsImV4cCI6IjE3ODUxOTY4MTAiLCJqdGkiOiJhc3NlcnRpb24tanRpLTAwMDEifQ.2-30Vf2DSb5UCnfmunFWPlGa-jaKICSdvyuK9yX8zwmXU_3fqx3aObnpvtE60MVaeB9FJvV1q0raw4GnIFEcDg",
+      "publicKey": "MCowBQYDK2VwAyEA6kpsY-KcUgq-9VB7Ey7F-ZVHdq6-vnuSQh7qaRRG0iw",
+      "authorId": "123456789",
+      "nowMs": 1785196800000,
+      "ok": false,
+      "errorClass": "PersonaBridgeAssertionVerificationError",
+      "error": "assertion exp is invalid"
+    },
+    {
+      "name": "jti-short",
+      "compact": "eyJhdXRob3JJZCI6IjEyMzQ1Njc4OSIsImF1ZCI6ImRpc2N1dGVyZS1wZXJzb25hLWJyaWRnZSIsImV4cCI6MTc4NTE5NjkyMCwianRpIjoic2hvcnQifQ.LF3YxGYS7thw3Y9cLtab3jj2gGy9rCSfLfHHbigD8HcAtSLvs4yRDLMrxOFPG0fgfAZr-QgT2v2K7UJb-eMDDA",
+      "publicKey": "MCowBQYDK2VwAyEA6kpsY-KcUgq-9VB7Ey7F-ZVHdq6-vnuSQh7qaRRG0iw",
+      "authorId": "123456789",
+      "nowMs": 1785196800000,
+      "ok": false,
+      "errorClass": "PersonaBridgeAssertionVerificationError",
+      "error": "assertion jti is invalid"
+    },
+    {
+      "name": "jti-bad-char",
+      "compact": "eyJhdXRob3JJZCI6IjEyMzQ1Njc4OSIsImF1ZCI6ImRpc2N1dGVyZS1wZXJzb25hLWJyaWRnZSIsImV4cCI6MTc4NTE5NjkyMCwianRpIjoiYXNzZXJ0aW9uIGp0aSAwMDAxIn0.oqQVS0RzlnOoCIGiGDO1HyE7eop_0xJtkhz0axiG5rczypLKxktefiZF4od0-7ZMVV04HcsUnlBvLwjEFoxKCg",
+      "publicKey": "MCowBQYDK2VwAyEA6kpsY-KcUgq-9VB7Ey7F-ZVHdq6-vnuSQh7qaRRG0iw",
+      "authorId": "123456789",
+      "nowMs": 1785196800000,
+      "ok": false,
+      "errorClass": "PersonaBridgeAssertionVerificationError",
+      "error": "assertion jti is invalid"
+    },
+    {
+      "name": "payload-array",
+      "compact": "WzEsMl0.ZZFPC4h-R5Lmb52svpsvWeESVlYPWQ2dpB4Olw3V2A_kOHnfAzftAtKoIMMSe7swJHcfAAV0nGTOvacbam0wBg",
+      "publicKey": "MCowBQYDK2VwAyEA6kpsY-KcUgq-9VB7Ey7F-ZVHdq6-vnuSQh7qaRRG0iw",
+      "authorId": "123456789",
+      "nowMs": 1785196800000,
+      "ok": false,
+      "errorClass": "PersonaBridgeAssertionVerificationError",
+      "error": "assertion payload is invalid JSON"
+    },
+    {
+      "name": "payload-not-json",
+      "compact": "bm90IGpzb24.L2rk7_BcGrjzhNeU1wbiNxkhJ7LDhu0dfP1XH-RFhqlcjkLQpsrhRFxF8KpbVTPbdbqv8XLwIfaCuJHeapUSBA",
+      "publicKey": "MCowBQYDK2VwAyEA6kpsY-KcUgq-9VB7Ey7F-ZVHdq6-vnuSQh7qaRRG0iw",
+      "authorId": "123456789",
+      "nowMs": 1785196800000,
+      "ok": false,
+      "errorClass": "PersonaBridgeAssertionVerificationError",
+      "error": "assertion payload is invalid JSON"
+    },
+    {
+      "name": "payload-bad-utf8",
+      "compact": "e_99.D_jNO7XN7Lv8zhAVDT3_-P8zgHEAT8o96V9o6SaRHmdT-YttjJ_uGdw6GaGFjrVXy38lz_E2V44J3D2n6BRPAg",
+      "publicKey": "MCowBQYDK2VwAyEA6kpsY-KcUgq-9VB7Ey7F-ZVHdq6-vnuSQh7qaRRG0iw",
+      "authorId": "123456789",
+      "nowMs": 1785196800000,
+      "ok": false,
+      "errorClass": "PersonaBridgeAssertionVerificationError",
+      "error": "assertion payload is invalid JSON"
+    },
+    {
+      "name": "payload-2048",
+      "compact": "eyJhdXRob3JJZCI6IjEyMzQ1Njc4OSIsImF1ZCI6ImRpc2N1dGVyZS1wZXJzb25hLWJyaWRnZSIsImV4cCI6MTc4NTE5NjkyMCwianRpIjoiYXNzZXJ0aW9uLWp0aS0wMDAxIiwicGFkIjoieHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4In0.J_ZxoUa8NBy3nmEfDvaane2YN5phQn7O8ebnXSWvT-XgMUR5GczRVMMqlRg5RHt-nhbTqD4Mq7KcN4_FTIPlDg",
+      "publicKey": "MCowBQYDK2VwAyEA6kpsY-KcUgq-9VB7Ey7F-ZVHdq6-vnuSQh7qaRRG0iw",
+      "authorId": "123456789",
+      "nowMs": 1785196800000,
+      "ok": true,
+      "output": {
+        "authorId": "123456789",
+        "expiresAt": 1785196920,
+        "jti": "assertion-jti-0001"
+      }
+    },
+    {
+      "name": "payload-2049",
+      "compact": "eyJhdXRob3JJZCI6IjEyMzQ1Njc4OSIsImF1ZCI6ImRpc2N1dGVyZS1wZXJzb25hLWJyaWRnZSIsImV4cCI6MTc4NTE5NjkyMCwianRpIjoiYXNzZXJ0aW9uLWp0aS0wMDAxIiwicGFkIjoieHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eCJ9.IYZbVAacDsi0zr-5GY2BQyPl77vAREyq35smf4q-7XSPSNylrPdVwz3q4uFF87V5E1e4eWB190CmEfIC08XqAg",
+      "publicKey": "MCowBQYDK2VwAyEA6kpsY-KcUgq-9VB7Ey7F-ZVHdq6-vnuSQh7qaRRG0iw",
+      "authorId": "123456789",
+      "nowMs": 1785196800000,
+      "ok": false,
+      "errorClass": "PersonaBridgeAssertionVerificationError",
+      "error": "assertion size is invalid"
+    },
+    {
+      "name": "oversized",
+      "compact": "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA.AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA",
+      "publicKey": "MCowBQYDK2VwAyEA6kpsY-KcUgq-9VB7Ey7F-ZVHdq6-vnuSQh7qaRRG0iw",
+      "authorId": "123456789",
+      "nowMs": 1785196800000,
+      "ok": false,
+      "errorClass": "PersonaBridgeAssertionVerificationError",
+      "error": "assertion size is invalid"
+    },
+    {
+      "name": "wrong-key",
+      "compact": "eyJhdXRob3JJZCI6IjEyMzQ1Njc4OSIsImF1ZCI6ImRpc2N1dGVyZS1wZXJzb25hLWJyaWRnZSIsImV4cCI6MTc4NTE5NjkyMCwianRpIjoiYXNzZXJ0aW9uLWp0aS0wMDAxIn0.Tew_g6Z7Wi0nEiwFrMogJkbCRxvIMYzwATkQfZciToy5UTa7MCS6ne8a_OANciYFR7xOvKsCz8RxsBJXEm30BQ",
+      "publicKey": "MCowBQYDK2VwAyEA_RckOFqgx1tk-3jNYC-h2ZH96_drE8WO1wLqyDXp9hg",
+      "authorId": "123456789",
+      "nowMs": 1785196800000,
+      "ok": false,
+      "errorClass": "PersonaBridgeAssertionVerificationError",
+      "error": "assertion signature is invalid"
+    },
+    {
+      "name": "tampered",
+      "compact": "fyJhdXRob3JJZCI6IjEyMzQ1Njc4OSIsImF1ZCI6ImRpc2N1dGVyZS1wZXJzb25hLWJyaWRnZSIsImV4cCI6MTc4NTE5NjkyMCwianRpIjoiYXNzZXJ0aW9uLWp0aS0wMDAxIn0.Tew_g6Z7Wi0nEiwFrMogJkbCRxvIMYzwATkQfZciToy5UTa7MCS6ne8a_OANciYFR7xOvKsCz8RxsBJXEm30BQ",
+      "publicKey": "MCowBQYDK2VwAyEA6kpsY-KcUgq-9VB7Ey7F-ZVHdq6-vnuSQh7qaRRG0iw",
+      "authorId": "123456789",
+      "nowMs": 1785196800000,
+      "ok": false,
+      "errorClass": "PersonaBridgeAssertionVerificationError",
+      "error": "assertion signature is invalid"
+    },
+    {
+      "name": "three-parts",
+      "compact": "eyJhdXRob3JJZCI6IjEyMzQ1Njc4OSIsImF1ZCI6ImRpc2N1dGVyZS1wZXJzb25hLWJyaWRnZSIsImV4cCI6MTc4NTE5NjkyMCwianRpIjoiYXNzZXJ0aW9uLWp0aS0wMDAxIn0.Tew_g6Z7Wi0nEiwFrMogJkbCRxvIMYzwATkQfZciToy5UTa7MCS6ne8a_OANciYFR7xOvKsCz8RxsBJXEm30BQ.x",
+      "publicKey": "MCowBQYDK2VwAyEA6kpsY-KcUgq-9VB7Ey7F-ZVHdq6-vnuSQh7qaRRG0iw",
+      "authorId": "123456789",
+      "nowMs": 1785196800000,
+      "ok": false,
+      "errorClass": "PersonaBridgeAssertionVerificationError",
+      "error": "assertion format is invalid"
+    },
+    {
+      "name": "empty-part",
+      "compact": ".AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA",
+      "publicKey": "MCowBQYDK2VwAyEA6kpsY-KcUgq-9VB7Ey7F-ZVHdq6-vnuSQh7qaRRG0iw",
+      "authorId": "123456789",
+      "nowMs": 1785196800000,
+      "ok": false,
+      "errorClass": "PersonaBridgeAssertionVerificationError",
+      "error": "assertion format is invalid"
+    },
+    {
+      "name": "sig-short",
+      "compact": "e30.AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA",
+      "publicKey": "MCowBQYDK2VwAyEA6kpsY-KcUgq-9VB7Ey7F-ZVHdq6-vnuSQh7qaRRG0iw",
+      "authorId": "123456789",
+      "nowMs": 1785196800000,
+      "ok": false,
+      "errorClass": "PersonaBridgeAssertionVerificationError",
+      "error": "assertion size is invalid"
+    },
+    {
+      "name": "sig-bad-char",
+      "compact": "e30.AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA+",
+      "publicKey": "MCowBQYDK2VwAyEA6kpsY-KcUgq-9VB7Ey7F-ZVHdq6-vnuSQh7qaRRG0iw",
+      "authorId": "123456789",
+      "nowMs": 1785196800000,
+      "ok": false,
+      "errorClass": "PersonaBridgeAssertionVerificationError",
+      "error": "assertion signature is not base64url"
+    },
+    {
+      "name": "no-key",
+      "compact": "eyJhdXRob3JJZCI6IjEyMzQ1Njc4OSIsImF1ZCI6ImRpc2N1dGVyZS1wZXJzb25hLWJyaWRnZSIsImV4cCI6MTc4NTE5NjkyMCwianRpIjoiYXNzZXJ0aW9uLWp0aS0wMDAxIn0.Tew_g6Z7Wi0nEiwFrMogJkbCRxvIMYzwATkQfZciToy5UTa7MCS6ne8a_OANciYFR7xOvKsCz8RxsBJXEm30BQ",
+      "publicKey": "  ",
+      "authorId": "123456789",
+      "nowMs": 1785196800000,
+      "ok": false,
+      "errorClass": "PersonaBridgeAssertionConfigurationError",
+      "error": "DISCUTERE_PERSONA_BRIDGE_ASSERTION_PUBLIC_KEY is required"
+    },
+    {
+      "name": "bad-key",
+      "compact": "eyJhdXRob3JJZCI6IjEyMzQ1Njc4OSIsImF1ZCI6ImRpc2N1dGVyZS1wZXJzb25hLWJyaWRnZSIsImV4cCI6MTc4NTE5NjkyMCwianRpIjoiYXNzZXJ0aW9uLWp0aS0wMDAxIn0.Tew_g6Z7Wi0nEiwFrMogJkbCRxvIMYzwATkQfZciToy5UTa7MCS6ne8a_OANciYFR7xOvKsCz8RxsBJXEm30BQ",
+      "publicKey": "AAAA",
+      "authorId": "123456789",
+      "nowMs": 1785196800000,
+      "ok": false,
+      "errorClass": "PersonaBridgeAssertionConfigurationError",
+      "error": "DISCUTERE_PERSONA_BRIDGE_ASSERTION_PUBLIC_KEY must be an Ed25519 SPKI DER key encoded as base64url"
+    },
+    {
+      "name": "bad-key-chars",
+      "compact": "eyJhdXRob3JJZCI6IjEyMzQ1Njc4OSIsImF1ZCI6ImRpc2N1dGVyZS1wZXJzb25hLWJyaWRnZSIsImV4cCI6MTc4NTE5NjkyMCwianRpIjoiYXNzZXJ0aW9uLWp0aS0wMDAxIn0.Tew_g6Z7Wi0nEiwFrMogJkbCRxvIMYzwATkQfZciToy5UTa7MCS6ne8a_OANciYFR7xOvKsCz8RxsBJXEm30BQ",
+      "publicKey": "MCowBQYDK2VwAyEA6kpsY-KcUgq-9VB7Ey7F-ZVHdq6-vnuSQh7qaRRG0iw=",
+      "authorId": "123456789",
+      "nowMs": 1785196800000,
+      "ok": false,
+      "errorClass": "PersonaBridgeAssertionConfigurationError",
+      "error": "DISCUTERE_PERSONA_BRIDGE_ASSERTION_PUBLIC_KEY must be an Ed25519 SPKI DER key encoded as base64url"
+    }
+  ],
+  "cursors": [
+    {
+      "input": "WzIwMDAsInBhZ2UtMiJd",
+      "ok": true,
+      "output": {
+        "postedAt": 2000,
+        "id": "page-2"
+      }
+    },
+    {
+      "input": "WzAsIuaXpeacrOiqni1pZCJd",
+      "ok": true,
+      "output": {
+        "postedAt": 0,
+        "id": "日本語-id"
+      }
+    },
+    {
+      "input": "WzEsImEiXQ",
+      "ok": true,
+      "output": {
+        "postedAt": 1,
+        "id": "a"
+      }
+    },
+    {
+      "input": "WzEuNSwiYSJd",
+      "ok": false,
+      "error": "cursor is invalid"
+    },
+    {
+      "input": "Wy0xLCJhIl0",
+      "ok": false,
+      "error": "cursor is invalid"
+    },
+    {
+      "input": "WzkwMDcxOTkyNTQ3NDA5OTIsImEiXQ",
+      "ok": false,
+      "error": "cursor is invalid"
+    },
+    {
+      "input": "WzEsIiJd",
+      "ok": false,
+      "error": "cursor is invalid"
+    },
+    {
+      "input": "WzEsInh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHgiXQ",
+      "ok": true,
+      "output": {
+        "postedAt": 1,
+        "id": "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"
+      }
+    },
+    {
+      "input": "WzEsInh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4Il0",
+      "ok": false,
+      "error": "cursor is invalid"
+    },
+    {
+      "input": "WzEsImEiLDNd",
+      "ok": false,
+      "error": "cursor is invalid"
+    },
+    {
+      "input": "eyJhIjoxfQ",
+      "ok": false,
+      "error": "cursor is invalid"
+    },
+    {
+      "input": "WzEsImEi",
+      "ok": false,
+      "error": "cursor is invalid"
+    },
+    {
+      "input": "",
+      "ok": false,
+      "error": "cursor is invalid"
+    },
+    {
+      "input": "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA",
+      "ok": false,
+      "error": "cursor is invalid"
+    },
+    {
+      "input": "abc+def",
+      "ok": false,
+      "error": "cursor is invalid"
+    },
+    {
+      "input": "abc=",
+      "ok": false,
+      "error": "cursor is invalid"
+    }
+  ],
+  "nexts": [
+    {
+      "input": [],
+      "ok": true,
+      "output": null
+    },
+    {
+      "input": [
+        {
+          "id": "a",
+          "text": "t",
+          "createdAt": "1970-01-01T00:00:01.000Z"
+        }
+      ],
+      "ok": true,
+      "output": "WzEwMDAsImEiXQ"
+    },
+    {
+      "input": [
+        {
+          "id": "a",
+          "text": "t",
+          "createdAt": "x"
+        },
+        {
+          "id": "b",
+          "text": "t",
+          "createdAt": "2026-07-28T00:00:00.123Z"
+        }
+      ],
+      "ok": true,
+      "output": "WzE3ODUxOTY4MDAxMjMsImIiXQ"
+    },
+    {
+      "input": [
+        {
+          "id": "a",
+          "text": "t",
+          "createdAt": "not a date"
+        }
+      ],
+      "ok": false,
+      "error": "utterance createdAt is invalid"
+    }
+  ],
+  "encodes": [
+    {
+      "input": {
+        "postedAt": 1000,
+        "id": "human"
+      },
+      "output": "WzEwMDAsImh1bWFuIl0"
+    },
+    {
+      "input": {
+        "postedAt": 1764288000000,
+        "id": "id/with+chars"
+      },
+      "output": "WzE3NjQyODgwMDAwMDAsImlkL3dpdGgrY2hhcnMiXQ"
+    }
+  ]
+}

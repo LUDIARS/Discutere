@@ -1,0 +1,5440 @@
+{
+  "tier0": [
+    {
+      "text": "最高に面白い!",
+      "signal": null,
+      "result": {
+        "polarity": "positive",
+        "score": 0.8333333333333334,
+        "confidence": 0.8333333333333334,
+        "tier": 0
+      }
+    },
+    {
+      "text": "最高に面白い!",
+      "signal": {
+        "votedUp": true
+      },
+      "result": {
+        "polarity": "positive",
+        "score": 1,
+        "confidence": 1,
+        "tier": 0
+      }
+    },
+    {
+      "text": "最高に面白い!",
+      "signal": {
+        "votedUp": false
+      },
+      "result": {
+        "polarity": "positive",
+        "score": 0.25,
+        "confidence": 0.25,
+        "tier": 0
+      }
+    },
+    {
+      "text": "最高に面白い!",
+      "signal": {
+        "upvotes": 0
+      },
+      "result": {
+        "polarity": "positive",
+        "score": 0.8333333333333334,
+        "confidence": 0.8333333333333334,
+        "tier": 0
+      }
+    },
+    {
+      "text": "最高に面白い!",
+      "signal": {
+        "upvotes": 999
+      },
+      "result": {
+        "polarity": "positive",
+        "score": 1,
+        "confidence": 1,
+        "tier": 0
+      }
+    },
+    {
+      "text": "最高に面白い!",
+      "signal": {
+        "votedUp": true,
+        "upvotes": 10
+      },
+      "result": {
+        "polarity": "positive",
+        "score": 1,
+        "confidence": 1,
+        "tier": 0
+      }
+    },
+    {
+      "text": "最高に面白い!",
+      "signal": {
+        "votedUp": false,
+        "upvotes": 5000
+      },
+      "result": {
+        "polarity": "positive",
+        "score": 0.5,
+        "confidence": 0.5,
+        "tier": 0
+      }
+    },
+    {
+      "text": "つまらないしバグだらけ",
+      "signal": null,
+      "result": {
+        "polarity": "negative",
+        "score": -0.8,
+        "confidence": 0.8,
+        "tier": 0
+      }
+    },
+    {
+      "text": "つまらないしバグだらけ",
+      "signal": {
+        "votedUp": true
+      },
+      "result": {
+        "polarity": "neutral",
+        "score": -0.03333333333333336,
+        "confidence": 0.03333333333333336,
+        "tier": 0
+      }
+    },
+    {
+      "text": "つまらないしバグだらけ",
+      "signal": {
+        "votedUp": false
+      },
+      "result": {
+        "polarity": "negative",
+        "score": -1,
+        "confidence": 1,
+        "tier": 0
+      }
+    },
+    {
+      "text": "つまらないしバグだらけ",
+      "signal": {
+        "upvotes": 0
+      },
+      "result": {
+        "polarity": "negative",
+        "score": -0.8,
+        "confidence": 0.8,
+        "tier": 0
+      }
+    },
+    {
+      "text": "つまらないしバグだらけ",
+      "signal": {
+        "upvotes": 999
+      },
+      "result": {
+        "polarity": "negative",
+        "score": -1,
+        "confidence": 1,
+        "tier": 0
+      }
+    },
+    {
+      "text": "つまらないしバグだらけ",
+      "signal": {
+        "votedUp": true,
+        "upvotes": 10
+      },
+      "result": {
+        "polarity": "negative",
+        "score": -0.14904363168424725,
+        "confidence": 0.14904363168424725,
+        "tier": 0
+      }
+    },
+    {
+      "text": "つまらないしバグだらけ",
+      "signal": {
+        "votedUp": false,
+        "upvotes": 5000
+      },
+      "result": {
+        "polarity": "negative",
+        "score": -1,
+        "confidence": 1,
+        "tier": 0
+      }
+    },
+    {
+      "text": "神ゲー 888888",
+      "signal": null,
+      "result": {
+        "polarity": "positive",
+        "score": 0.8666666666666667,
+        "confidence": 0.8666666666666667,
+        "tier": 0
+      }
+    },
+    {
+      "text": "神ゲー 888888",
+      "signal": {
+        "votedUp": true
+      },
+      "result": {
+        "polarity": "positive",
+        "score": 1,
+        "confidence": 1,
+        "tier": 0
+      }
+    },
+    {
+      "text": "神ゲー 888888",
+      "signal": {
+        "votedUp": false
+      },
+      "result": {
+        "polarity": "positive",
+        "score": 0.275,
+        "confidence": 0.275,
+        "tier": 0
+      }
+    },
+    {
+      "text": "神ゲー 888888",
+      "signal": {
+        "upvotes": 0
+      },
+      "result": {
+        "polarity": "positive",
+        "score": 0.8666666666666667,
+        "confidence": 0.8666666666666667,
+        "tier": 0
+      }
+    },
+    {
+      "text": "神ゲー 888888",
+      "signal": {
+        "upvotes": 999
+      },
+      "result": {
+        "polarity": "positive",
+        "score": 1,
+        "confidence": 1,
+        "tier": 0
+      }
+    },
+    {
+      "text": "神ゲー 888888",
+      "signal": {
+        "votedUp": true,
+        "upvotes": 10
+      },
+      "result": {
+        "polarity": "positive",
+        "score": 1,
+        "confidence": 1,
+        "tier": 0
+      }
+    },
+    {
+      "text": "神ゲー 888888",
+      "signal": {
+        "votedUp": false,
+        "upvotes": 5000
+      },
+      "result": {
+        "polarity": "positive",
+        "score": 0.525,
+        "confidence": 0.525,
+        "tier": 0
+      }
+    },
+    {
+      "text": "草",
+      "signal": null,
+      "result": {
+        "polarity": "neutral",
+        "score": 0,
+        "confidence": 0,
+        "tier": 0
+      }
+    },
+    {
+      "text": "草",
+      "signal": {
+        "votedUp": true
+      },
+      "result": {
+        "polarity": "positive",
+        "score": 0.75,
+        "confidence": 0.75,
+        "tier": 0
+      }
+    },
+    {
+      "text": "草",
+      "signal": {
+        "votedUp": false
+      },
+      "result": {
+        "polarity": "negative",
+        "score": -0.75,
+        "confidence": 0.75,
+        "tier": 0
+      }
+    },
+    {
+      "text": "草",
+      "signal": {
+        "upvotes": 0
+      },
+      "result": {
+        "polarity": "neutral",
+        "score": 0,
+        "confidence": 0,
+        "tier": 0
+      }
+    },
+    {
+      "text": "草",
+      "signal": {
+        "upvotes": 999
+      },
+      "result": {
+        "polarity": "neutral",
+        "score": 0,
+        "confidence": 0,
+        "tier": 0
+      }
+    },
+    {
+      "text": "草",
+      "signal": {
+        "votedUp": true,
+        "upvotes": 10
+      },
+      "result": {
+        "polarity": "positive",
+        "score": 0.9235654475263708,
+        "confidence": 0.9235654475263708,
+        "tier": 0
+      }
+    },
+    {
+      "text": "草",
+      "signal": {
+        "votedUp": false,
+        "upvotes": 5000
+      },
+      "result": {
+        "polarity": "negative",
+        "score": -1,
+        "confidence": 1,
+        "tier": 0
+      }
+    },
+    {
+      "text": "!?",
+      "signal": null,
+      "result": {
+        "polarity": "neutral",
+        "score": 0,
+        "confidence": 0,
+        "tier": 0
+      }
+    },
+    {
+      "text": "!?",
+      "signal": {
+        "votedUp": true
+      },
+      "result": {
+        "polarity": "positive",
+        "score": 0.75,
+        "confidence": 0.75,
+        "tier": 0
+      }
+    },
+    {
+      "text": "!?",
+      "signal": {
+        "votedUp": false
+      },
+      "result": {
+        "polarity": "negative",
+        "score": -0.75,
+        "confidence": 0.75,
+        "tier": 0
+      }
+    },
+    {
+      "text": "!?",
+      "signal": {
+        "upvotes": 0
+      },
+      "result": {
+        "polarity": "neutral",
+        "score": 0,
+        "confidence": 0,
+        "tier": 0
+      }
+    },
+    {
+      "text": "!?",
+      "signal": {
+        "upvotes": 999
+      },
+      "result": {
+        "polarity": "neutral",
+        "score": 0,
+        "confidence": 0,
+        "tier": 0
+      }
+    },
+    {
+      "text": "!?",
+      "signal": {
+        "votedUp": true,
+        "upvotes": 10
+      },
+      "result": {
+        "polarity": "positive",
+        "score": 0.9235654475263708,
+        "confidence": 0.9235654475263708,
+        "tier": 0
+      }
+    },
+    {
+      "text": "!?",
+      "signal": {
+        "votedUp": false,
+        "upvotes": 5000
+      },
+      "result": {
+        "polarity": "negative",
+        "score": -1,
+        "confidence": 1,
+        "tier": 0
+      }
+    },
+    {
+      "text": "awesome combat but terrible performance",
+      "signal": null,
+      "result": {
+        "polarity": "neutral",
+        "score": 0.04999999999999999,
+        "confidence": 0.04999999999999999,
+        "tier": 0
+      }
+    },
+    {
+      "text": "awesome combat but terrible performance",
+      "signal": {
+        "votedUp": true
+      },
+      "result": {
+        "polarity": "positive",
+        "score": 0.5333333333333333,
+        "confidence": 0.5333333333333333,
+        "tier": 0
+      }
+    },
+    {
+      "text": "awesome combat but terrible performance",
+      "signal": {
+        "votedUp": false
+      },
+      "result": {
+        "polarity": "negative",
+        "score": -0.4666666666666666,
+        "confidence": 0.4666666666666666,
+        "tier": 0
+      }
+    },
+    {
+      "text": "awesome combat but terrible performance",
+      "signal": {
+        "upvotes": 0
+      },
+      "result": {
+        "polarity": "neutral",
+        "score": 0.04999999999999999,
+        "confidence": 0.04999999999999999,
+        "tier": 0
+      }
+    },
+    {
+      "text": "awesome combat but terrible performance",
+      "signal": {
+        "upvotes": 999
+      },
+      "result": {
+        "polarity": "positive",
+        "score": 0.55,
+        "confidence": 0.55,
+        "tier": 0
+      }
+    },
+    {
+      "text": "awesome combat but terrible performance",
+      "signal": {
+        "votedUp": true,
+        "upvotes": 10
+      },
+      "result": {
+        "polarity": "positive",
+        "score": 0.6490436316842473,
+        "confidence": 0.6490436316842473,
+        "tier": 0
+      }
+    },
+    {
+      "text": "awesome combat but terrible performance",
+      "signal": {
+        "votedUp": false,
+        "upvotes": 5000
+      },
+      "result": {
+        "polarity": "negative",
+        "score": -0.7999999999999999,
+        "confidence": 0.7999999999999999,
+        "tier": 0
+      }
+    },
+    {
+      "text": "I love the story and beautiful graphics",
+      "signal": null,
+      "result": {
+        "polarity": "positive",
+        "score": 0.8,
+        "confidence": 0.8,
+        "tier": 0
+      }
+    },
+    {
+      "text": "I love the story and beautiful graphics",
+      "signal": {
+        "votedUp": true
+      },
+      "result": {
+        "polarity": "positive",
+        "score": 1,
+        "confidence": 1,
+        "tier": 0
+      }
+    },
+    {
+      "text": "I love the story and beautiful graphics",
+      "signal": {
+        "votedUp": false
+      },
+      "result": {
+        "polarity": "neutral",
+        "score": 0.03333333333333336,
+        "confidence": 0.03333333333333336,
+        "tier": 0
+      }
+    },
+    {
+      "text": "I love the story and beautiful graphics",
+      "signal": {
+        "upvotes": 0
+      },
+      "result": {
+        "polarity": "positive",
+        "score": 0.8,
+        "confidence": 0.8,
+        "tier": 0
+      }
+    },
+    {
+      "text": "I love the story and beautiful graphics",
+      "signal": {
+        "upvotes": 999
+      },
+      "result": {
+        "polarity": "positive",
+        "score": 1,
+        "confidence": 1,
+        "tier": 0
+      }
+    },
+    {
+      "text": "I love the story and beautiful graphics",
+      "signal": {
+        "votedUp": true,
+        "upvotes": 10
+      },
+      "result": {
+        "polarity": "positive",
+        "score": 1,
+        "confidence": 1,
+        "tier": 0
+      }
+    },
+    {
+      "text": "I love the story and beautiful graphics",
+      "signal": {
+        "votedUp": false,
+        "upvotes": 5000
+      },
+      "result": {
+        "polarity": "positive",
+        "score": 0.3666666666666667,
+        "confidence": 0.3666666666666667,
+        "tier": 0
+      }
+    },
+    {
+      "text": "boring repetitive grind",
+      "signal": null,
+      "result": {
+        "polarity": "negative",
+        "score": -0.65,
+        "confidence": 0.65,
+        "tier": 0
+      }
+    },
+    {
+      "text": "boring repetitive grind",
+      "signal": {
+        "votedUp": true
+      },
+      "result": {
+        "polarity": "positive",
+        "score": 0.06666666666666665,
+        "confidence": 0.06666666666666665,
+        "tier": 0
+      }
+    },
+    {
+      "text": "boring repetitive grind",
+      "signal": {
+        "votedUp": false
+      },
+      "result": {
+        "polarity": "negative",
+        "score": -0.9333333333333332,
+        "confidence": 0.9333333333333332,
+        "tier": 0
+      }
+    },
+    {
+      "text": "boring repetitive grind",
+      "signal": {
+        "upvotes": 0
+      },
+      "result": {
+        "polarity": "negative",
+        "score": -0.65,
+        "confidence": 0.65,
+        "tier": 0
+      }
+    },
+    {
+      "text": "boring repetitive grind",
+      "signal": {
+        "upvotes": 999
+      },
+      "result": {
+        "polarity": "negative",
+        "score": -1,
+        "confidence": 1,
+        "tier": 0
+      }
+    },
+    {
+      "text": "boring repetitive grind",
+      "signal": {
+        "votedUp": true,
+        "upvotes": 10
+      },
+      "result": {
+        "polarity": "positive",
+        "score": 0.18237696501758052,
+        "confidence": 0.18237696501758052,
+        "tier": 0
+      }
+    },
+    {
+      "text": "boring repetitive grind",
+      "signal": {
+        "votedUp": false,
+        "upvotes": 5000
+      },
+      "result": {
+        "polarity": "negative",
+        "score": -1,
+        "confidence": 1,
+        "tier": 0
+      }
+    },
+    {
+      "text": "good value, smooth and polished",
+      "signal": null,
+      "result": {
+        "polarity": "positive",
+        "score": 0.5666666666666668,
+        "confidence": 0.5666666666666668,
+        "tier": 0
+      }
+    },
+    {
+      "text": "good value, smooth and polished",
+      "signal": {
+        "votedUp": true
+      },
+      "result": {
+        "polarity": "positive",
+        "score": 0.8,
+        "confidence": 0.8,
+        "tier": 0
+      }
+    },
+    {
+      "text": "good value, smooth and polished",
+      "signal": {
+        "votedUp": false
+      },
+      "result": {
+        "polarity": "positive",
+        "score": 0.050000000000000044,
+        "confidence": 0.050000000000000044,
+        "tier": 0
+      }
+    },
+    {
+      "text": "good value, smooth and polished",
+      "signal": {
+        "upvotes": 0
+      },
+      "result": {
+        "polarity": "positive",
+        "score": 0.5666666666666668,
+        "confidence": 0.5666666666666668,
+        "tier": 0
+      }
+    },
+    {
+      "text": "good value, smooth and polished",
+      "signal": {
+        "upvotes": 999
+      },
+      "result": {
+        "polarity": "positive",
+        "score": 0.9,
+        "confidence": 0.9,
+        "tier": 0
+      }
+    },
+    {
+      "text": "good value, smooth and polished",
+      "signal": {
+        "votedUp": true,
+        "upvotes": 10
+      },
+      "result": {
+        "polarity": "positive",
+        "score": 0.8867827237631855,
+        "confidence": 0.8867827237631855,
+        "tier": 0
+      }
+    },
+    {
+      "text": "good value, smooth and polished",
+      "signal": {
+        "votedUp": false,
+        "upvotes": 5000
+      },
+      "result": {
+        "polarity": "positive",
+        "score": 0.30000000000000004,
+        "confidence": 0.30000000000000004,
+        "tier": 0
+      }
+    },
+    {
+      "text": "worst crash ever!",
+      "signal": null,
+      "result": {
+        "polarity": "negative",
+        "score": -0.85,
+        "confidence": 0.85,
+        "tier": 0
+      }
+    },
+    {
+      "text": "worst crash ever!",
+      "signal": {
+        "votedUp": true
+      },
+      "result": {
+        "polarity": "negative",
+        "score": -0.06666666666666665,
+        "confidence": 0.06666666666666665,
+        "tier": 0
+      }
+    },
+    {
+      "text": "worst crash ever!",
+      "signal": {
+        "votedUp": false
+      },
+      "result": {
+        "polarity": "negative",
+        "score": -1,
+        "confidence": 1,
+        "tier": 0
+      }
+    },
+    {
+      "text": "worst crash ever!",
+      "signal": {
+        "upvotes": 0
+      },
+      "result": {
+        "polarity": "negative",
+        "score": -0.85,
+        "confidence": 0.85,
+        "tier": 0
+      }
+    },
+    {
+      "text": "worst crash ever!",
+      "signal": {
+        "upvotes": 999
+      },
+      "result": {
+        "polarity": "negative",
+        "score": -1,
+        "confidence": 1,
+        "tier": 0
+      }
+    },
+    {
+      "text": "worst crash ever!",
+      "signal": {
+        "votedUp": true,
+        "upvotes": 10
+      },
+      "result": {
+        "polarity": "negative",
+        "score": -0.18237696501758052,
+        "confidence": 0.18237696501758052,
+        "tier": 0
+      }
+    },
+    {
+      "text": "worst crash ever!",
+      "signal": {
+        "votedUp": false,
+        "upvotes": 5000
+      },
+      "result": {
+        "polarity": "negative",
+        "score": -1,
+        "confidence": 1,
+        "tier": 0
+      }
+    },
+    {
+      "text": "難しいけど達成感があって楽しい",
+      "signal": null,
+      "result": {
+        "polarity": "positive",
+        "score": 0.75,
+        "confidence": 0.75,
+        "tier": 0
+      }
+    },
+    {
+      "text": "難しいけど達成感があって楽しい",
+      "signal": {
+        "votedUp": true
+      },
+      "result": {
+        "polarity": "positive",
+        "score": 1,
+        "confidence": 1,
+        "tier": 0
+      }
+    },
+    {
+      "text": "難しいけど達成感があって楽しい",
+      "signal": {
+        "votedUp": false
+      },
+      "result": {
+        "polarity": "neutral",
+        "score": 0,
+        "confidence": 0,
+        "tier": 0
+      }
+    },
+    {
+      "text": "難しいけど達成感があって楽しい",
+      "signal": {
+        "upvotes": 0
+      },
+      "result": {
+        "polarity": "positive",
+        "score": 0.75,
+        "confidence": 0.75,
+        "tier": 0
+      }
+    },
+    {
+      "text": "難しいけど達成感があって楽しい",
+      "signal": {
+        "upvotes": 999
+      },
+      "result": {
+        "polarity": "positive",
+        "score": 1,
+        "confidence": 1,
+        "tier": 0
+      }
+    },
+    {
+      "text": "難しいけど達成感があって楽しい",
+      "signal": {
+        "votedUp": true,
+        "upvotes": 10
+      },
+      "result": {
+        "polarity": "positive",
+        "score": 1,
+        "confidence": 1,
+        "tier": 0
+      }
+    },
+    {
+      "text": "難しいけど達成感があって楽しい",
+      "signal": {
+        "votedUp": false,
+        "upvotes": 5000
+      },
+      "result": {
+        "polarity": "neutral",
+        "score": 0,
+        "confidence": 0,
+        "tier": 0
+      }
+    },
+    {
+      "text": "理不尽でストレスがすごい",
+      "signal": null,
+      "result": {
+        "polarity": "negative",
+        "score": -0.6,
+        "confidence": 0.6,
+        "tier": 0
+      }
+    },
+    {
+      "text": "理不尽でストレスがすごい",
+      "signal": {
+        "votedUp": true
+      },
+      "result": {
+        "polarity": "positive",
+        "score": 0.10000000000000002,
+        "confidence": 0.10000000000000002,
+        "tier": 0
+      }
+    },
+    {
+      "text": "理不尽でストレスがすごい",
+      "signal": {
+        "votedUp": false
+      },
+      "result": {
+        "polarity": "negative",
+        "score": -0.9,
+        "confidence": 0.9,
+        "tier": 0
+      }
+    },
+    {
+      "text": "理不尽でストレスがすごい",
+      "signal": {
+        "upvotes": 0
+      },
+      "result": {
+        "polarity": "negative",
+        "score": -0.6,
+        "confidence": 0.6,
+        "tier": 0
+      }
+    },
+    {
+      "text": "理不尽でストレスがすごい",
+      "signal": {
+        "upvotes": 999
+      },
+      "result": {
+        "polarity": "negative",
+        "score": -1,
+        "confidence": 1,
+        "tier": 0
+      }
+    },
+    {
+      "text": "理不尽でストレスがすごい",
+      "signal": {
+        "votedUp": true,
+        "upvotes": 10
+      },
+      "result": {
+        "polarity": "positive",
+        "score": 0.2157102983509139,
+        "confidence": 0.2157102983509139,
+        "tier": 0
+      }
+    },
+    {
+      "text": "理不尽でストレスがすごい",
+      "signal": {
+        "votedUp": false,
+        "upvotes": 5000
+      },
+      "result": {
+        "polarity": "negative",
+        "score": -1,
+        "confidence": 1,
+        "tier": 0
+      }
+    },
+    {
+      "text": "物語と世界観が好き",
+      "signal": null,
+      "result": {
+        "polarity": "positive",
+        "score": 0.3,
+        "confidence": 0.3,
+        "tier": 0
+      }
+    },
+    {
+      "text": "物語と世界観が好き",
+      "signal": {
+        "votedUp": true
+      },
+      "result": {
+        "polarity": "positive",
+        "score": 1,
+        "confidence": 1,
+        "tier": 0
+      }
+    },
+    {
+      "text": "物語と世界観が好き",
+      "signal": {
+        "votedUp": false
+      },
+      "result": {
+        "polarity": "negative",
+        "score": -0.45,
+        "confidence": 0.45,
+        "tier": 0
+      }
+    },
+    {
+      "text": "物語と世界観が好き",
+      "signal": {
+        "upvotes": 0
+      },
+      "result": {
+        "polarity": "positive",
+        "score": 0.3,
+        "confidence": 0.3,
+        "tier": 0
+      }
+    },
+    {
+      "text": "物語と世界観が好き",
+      "signal": {
+        "upvotes": 999
+      },
+      "result": {
+        "polarity": "positive",
+        "score": 0.8,
+        "confidence": 0.8,
+        "tier": 0
+      }
+    },
+    {
+      "text": "物語と世界観が好き",
+      "signal": {
+        "votedUp": true,
+        "upvotes": 10
+      },
+      "result": {
+        "polarity": "positive",
+        "score": 1,
+        "confidence": 1,
+        "tier": 0
+      }
+    },
+    {
+      "text": "物語と世界観が好き",
+      "signal": {
+        "votedUp": false,
+        "upvotes": 5000
+      },
+      "result": {
+        "polarity": "negative",
+        "score": -0.95,
+        "confidence": 0.95,
+        "tier": 0
+      }
+    },
+    {
+      "text": "グラフィックは綺麗、でも重い",
+      "signal": null,
+      "result": {
+        "polarity": "negative",
+        "score": -0.25,
+        "confidence": 0.25,
+        "tier": 0
+      }
+    },
+    {
+      "text": "グラフィックは綺麗、でも重い",
+      "signal": {
+        "votedUp": true
+      },
+      "result": {
+        "polarity": "positive",
+        "score": 0.5,
+        "confidence": 0.5,
+        "tier": 0
+      }
+    },
+    {
+      "text": "グラフィックは綺麗、でも重い",
+      "signal": {
+        "votedUp": false
+      },
+      "result": {
+        "polarity": "negative",
+        "score": -1,
+        "confidence": 1,
+        "tier": 0
+      }
+    },
+    {
+      "text": "グラフィックは綺麗、でも重い",
+      "signal": {
+        "upvotes": 0
+      },
+      "result": {
+        "polarity": "negative",
+        "score": -0.25,
+        "confidence": 0.25,
+        "tier": 0
+      }
+    },
+    {
+      "text": "グラフィックは綺麗、でも重い",
+      "signal": {
+        "upvotes": 999
+      },
+      "result": {
+        "polarity": "negative",
+        "score": -0.75,
+        "confidence": 0.75,
+        "tier": 0
+      }
+    },
+    {
+      "text": "グラフィックは綺麗、でも重い",
+      "signal": {
+        "votedUp": true,
+        "upvotes": 10
+      },
+      "result": {
+        "polarity": "positive",
+        "score": 0.6735654475263708,
+        "confidence": 0.6735654475263708,
+        "tier": 0
+      }
+    },
+    {
+      "text": "グラフィックは綺麗、でも重い",
+      "signal": {
+        "votedUp": false,
+        "upvotes": 5000
+      },
+      "result": {
+        "polarity": "negative",
+        "score": -1,
+        "confidence": 1,
+        "tier": 0
+      }
+    },
+    {
+      "text": "課金ゲーでがっかり",
+      "signal": null,
+      "result": {
+        "polarity": "negative",
+        "score": -0.7,
+        "confidence": 0.7,
+        "tier": 0
+      }
+    },
+    {
+      "text": "課金ゲーでがっかり",
+      "signal": {
+        "votedUp": true
+      },
+      "result": {
+        "polarity": "neutral",
+        "score": 0.03333333333333336,
+        "confidence": 0.03333333333333336,
+        "tier": 0
+      }
+    },
+    {
+      "text": "課金ゲーでがっかり",
+      "signal": {
+        "votedUp": false
+      },
+      "result": {
+        "polarity": "negative",
+        "score": -0.9666666666666667,
+        "confidence": 0.9666666666666667,
+        "tier": 0
+      }
+    },
+    {
+      "text": "課金ゲーでがっかり",
+      "signal": {
+        "upvotes": 0
+      },
+      "result": {
+        "polarity": "negative",
+        "score": -0.7,
+        "confidence": 0.7,
+        "tier": 0
+      }
+    },
+    {
+      "text": "課金ゲーでがっかり",
+      "signal": {
+        "upvotes": 999
+      },
+      "result": {
+        "polarity": "negative",
+        "score": -1,
+        "confidence": 1,
+        "tier": 0
+      }
+    },
+    {
+      "text": "課金ゲーでがっかり",
+      "signal": {
+        "votedUp": true,
+        "upvotes": 10
+      },
+      "result": {
+        "polarity": "positive",
+        "score": 0.14904363168424725,
+        "confidence": 0.14904363168424725,
+        "tier": 0
+      }
+    },
+    {
+      "text": "課金ゲーでがっかり",
+      "signal": {
+        "votedUp": false,
+        "upvotes": 5000
+      },
+      "result": {
+        "polarity": "negative",
+        "score": -1,
+        "confidence": 1,
+        "tier": 0
+      }
+    },
+    {
+      "text": "周回が中毒になる",
+      "signal": null,
+      "result": {
+        "polarity": "positive",
+        "score": 0.3,
+        "confidence": 0.3,
+        "tier": 0
+      }
+    },
+    {
+      "text": "周回が中毒になる",
+      "signal": {
+        "votedUp": true
+      },
+      "result": {
+        "polarity": "positive",
+        "score": 1,
+        "confidence": 1,
+        "tier": 0
+      }
+    },
+    {
+      "text": "周回が中毒になる",
+      "signal": {
+        "votedUp": false
+      },
+      "result": {
+        "polarity": "negative",
+        "score": -0.45,
+        "confidence": 0.45,
+        "tier": 0
+      }
+    },
+    {
+      "text": "周回が中毒になる",
+      "signal": {
+        "upvotes": 0
+      },
+      "result": {
+        "polarity": "positive",
+        "score": 0.3,
+        "confidence": 0.3,
+        "tier": 0
+      }
+    },
+    {
+      "text": "周回が中毒になる",
+      "signal": {
+        "upvotes": 999
+      },
+      "result": {
+        "polarity": "positive",
+        "score": 0.8,
+        "confidence": 0.8,
+        "tier": 0
+      }
+    },
+    {
+      "text": "周回が中毒になる",
+      "signal": {
+        "votedUp": true,
+        "upvotes": 10
+      },
+      "result": {
+        "polarity": "positive",
+        "score": 1,
+        "confidence": 1,
+        "tier": 0
+      }
+    },
+    {
+      "text": "周回が中毒になる",
+      "signal": {
+        "votedUp": false,
+        "upvotes": 5000
+      },
+      "result": {
+        "polarity": "negative",
+        "score": -0.95,
+        "confidence": 0.95,
+        "tier": 0
+      }
+    },
+    {
+      "text": "怖い! でも面白い",
+      "signal": null,
+      "result": {
+        "polarity": "positive",
+        "score": 0.8,
+        "confidence": 0.8,
+        "tier": 0
+      }
+    },
+    {
+      "text": "怖い! でも面白い",
+      "signal": {
+        "votedUp": true
+      },
+      "result": {
+        "polarity": "positive",
+        "score": 1,
+        "confidence": 1,
+        "tier": 0
+      }
+    },
+    {
+      "text": "怖い! でも面白い",
+      "signal": {
+        "votedUp": false
+      },
+      "result": {
+        "polarity": "neutral",
+        "score": 0.03333333333333336,
+        "confidence": 0.03333333333333336,
+        "tier": 0
+      }
+    },
+    {
+      "text": "怖い! でも面白い",
+      "signal": {
+        "upvotes": 0
+      },
+      "result": {
+        "polarity": "positive",
+        "score": 0.8,
+        "confidence": 0.8,
+        "tier": 0
+      }
+    },
+    {
+      "text": "怖い! でも面白い",
+      "signal": {
+        "upvotes": 999
+      },
+      "result": {
+        "polarity": "positive",
+        "score": 1,
+        "confidence": 1,
+        "tier": 0
+      }
+    },
+    {
+      "text": "怖い! でも面白い",
+      "signal": {
+        "votedUp": true,
+        "upvotes": 10
+      },
+      "result": {
+        "polarity": "positive",
+        "score": 1,
+        "confidence": 1,
+        "tier": 0
+      }
+    },
+    {
+      "text": "怖い! でも面白い",
+      "signal": {
+        "votedUp": false,
+        "upvotes": 5000
+      },
+      "result": {
+        "polarity": "positive",
+        "score": 0.3666666666666667,
+        "confidence": 0.3666666666666667,
+        "tier": 0
+      }
+    },
+    {
+      "text": "まさかの展開ですごい",
+      "signal": null,
+      "result": {
+        "polarity": "neutral",
+        "score": 0,
+        "confidence": 0,
+        "tier": 0
+      }
+    },
+    {
+      "text": "まさかの展開ですごい",
+      "signal": {
+        "votedUp": true
+      },
+      "result": {
+        "polarity": "positive",
+        "score": 0.75,
+        "confidence": 0.75,
+        "tier": 0
+      }
+    },
+    {
+      "text": "まさかの展開ですごい",
+      "signal": {
+        "votedUp": false
+      },
+      "result": {
+        "polarity": "negative",
+        "score": -0.75,
+        "confidence": 0.75,
+        "tier": 0
+      }
+    },
+    {
+      "text": "まさかの展開ですごい",
+      "signal": {
+        "upvotes": 0
+      },
+      "result": {
+        "polarity": "neutral",
+        "score": 0,
+        "confidence": 0,
+        "tier": 0
+      }
+    },
+    {
+      "text": "まさかの展開ですごい",
+      "signal": {
+        "upvotes": 999
+      },
+      "result": {
+        "polarity": "neutral",
+        "score": 0,
+        "confidence": 0,
+        "tier": 0
+      }
+    },
+    {
+      "text": "まさかの展開ですごい",
+      "signal": {
+        "votedUp": true,
+        "upvotes": 10
+      },
+      "result": {
+        "polarity": "positive",
+        "score": 0.9235654475263708,
+        "confidence": 0.9235654475263708,
+        "tier": 0
+      }
+    },
+    {
+      "text": "まさかの展開ですごい",
+      "signal": {
+        "votedUp": false,
+        "upvotes": 5000
+      },
+      "result": {
+        "polarity": "negative",
+        "score": -1,
+        "confidence": 1,
+        "tier": 0
+      }
+    },
+    {
+      "text": "泣いた。切ない物語",
+      "signal": null,
+      "result": {
+        "polarity": "neutral",
+        "score": 0,
+        "confidence": 0,
+        "tier": 0
+      }
+    },
+    {
+      "text": "泣いた。切ない物語",
+      "signal": {
+        "votedUp": true
+      },
+      "result": {
+        "polarity": "positive",
+        "score": 0.75,
+        "confidence": 0.75,
+        "tier": 0
+      }
+    },
+    {
+      "text": "泣いた。切ない物語",
+      "signal": {
+        "votedUp": false
+      },
+      "result": {
+        "polarity": "negative",
+        "score": -0.75,
+        "confidence": 0.75,
+        "tier": 0
+      }
+    },
+    {
+      "text": "泣いた。切ない物語",
+      "signal": {
+        "upvotes": 0
+      },
+      "result": {
+        "polarity": "neutral",
+        "score": 0,
+        "confidence": 0,
+        "tier": 0
+      }
+    },
+    {
+      "text": "泣いた。切ない物語",
+      "signal": {
+        "upvotes": 999
+      },
+      "result": {
+        "polarity": "neutral",
+        "score": 0,
+        "confidence": 0,
+        "tier": 0
+      }
+    },
+    {
+      "text": "泣いた。切ない物語",
+      "signal": {
+        "votedUp": true,
+        "upvotes": 10
+      },
+      "result": {
+        "polarity": "positive",
+        "score": 0.9235654475263708,
+        "confidence": 0.9235654475263708,
+        "tier": 0
+      }
+    },
+    {
+      "text": "泣いた。切ない物語",
+      "signal": {
+        "votedUp": false,
+        "upvotes": 5000
+      },
+      "result": {
+        "polarity": "negative",
+        "score": -1,
+        "confidence": 1,
+        "tier": 0
+      }
+    },
+    {
+      "text": "操作が快適でおすすめ",
+      "signal": null,
+      "result": {
+        "polarity": "positive",
+        "score": 0.6499999999999999,
+        "confidence": 0.6499999999999999,
+        "tier": 0
+      }
+    },
+    {
+      "text": "操作が快適でおすすめ",
+      "signal": {
+        "votedUp": true
+      },
+      "result": {
+        "polarity": "positive",
+        "score": 0.9333333333333332,
+        "confidence": 0.9333333333333332,
+        "tier": 0
+      }
+    },
+    {
+      "text": "操作が快適でおすすめ",
+      "signal": {
+        "votedUp": false
+      },
+      "result": {
+        "polarity": "negative",
+        "score": -0.06666666666666672,
+        "confidence": 0.06666666666666672,
+        "tier": 0
+      }
+    },
+    {
+      "text": "操作が快適でおすすめ",
+      "signal": {
+        "upvotes": 0
+      },
+      "result": {
+        "polarity": "positive",
+        "score": 0.6499999999999999,
+        "confidence": 0.6499999999999999,
+        "tier": 0
+      }
+    },
+    {
+      "text": "操作が快適でおすすめ",
+      "signal": {
+        "upvotes": 999
+      },
+      "result": {
+        "polarity": "positive",
+        "score": 1,
+        "confidence": 1,
+        "tier": 0
+      }
+    },
+    {
+      "text": "操作が快適でおすすめ",
+      "signal": {
+        "votedUp": true,
+        "upvotes": 10
+      },
+      "result": {
+        "polarity": "positive",
+        "score": 1,
+        "confidence": 1,
+        "tier": 0
+      }
+    },
+    {
+      "text": "操作が快適でおすすめ",
+      "signal": {
+        "votedUp": false,
+        "upvotes": 5000
+      },
+      "result": {
+        "polarity": "negative",
+        "score": -0.4000000000000001,
+        "confidence": 0.4000000000000001,
+        "tier": 0
+      }
+    },
+    {
+      "text": "対戦の難易度がちょうど良い",
+      "signal": null,
+      "result": {
+        "polarity": "positive",
+        "score": 0.3,
+        "confidence": 0.3,
+        "tier": 0
+      }
+    },
+    {
+      "text": "対戦の難易度がちょうど良い",
+      "signal": {
+        "votedUp": true
+      },
+      "result": {
+        "polarity": "positive",
+        "score": 1,
+        "confidence": 1,
+        "tier": 0
+      }
+    },
+    {
+      "text": "対戦の難易度がちょうど良い",
+      "signal": {
+        "votedUp": false
+      },
+      "result": {
+        "polarity": "negative",
+        "score": -0.45,
+        "confidence": 0.45,
+        "tier": 0
+      }
+    },
+    {
+      "text": "対戦の難易度がちょうど良い",
+      "signal": {
+        "upvotes": 0
+      },
+      "result": {
+        "polarity": "positive",
+        "score": 0.3,
+        "confidence": 0.3,
+        "tier": 0
+      }
+    },
+    {
+      "text": "対戦の難易度がちょうど良い",
+      "signal": {
+        "upvotes": 999
+      },
+      "result": {
+        "polarity": "positive",
+        "score": 0.8,
+        "confidence": 0.8,
+        "tier": 0
+      }
+    },
+    {
+      "text": "対戦の難易度がちょうど良い",
+      "signal": {
+        "votedUp": true,
+        "upvotes": 10
+      },
+      "result": {
+        "polarity": "positive",
+        "score": 1,
+        "confidence": 1,
+        "tier": 0
+      }
+    },
+    {
+      "text": "対戦の難易度がちょうど良い",
+      "signal": {
+        "votedUp": false,
+        "upvotes": 5000
+      },
+      "result": {
+        "polarity": "negative",
+        "score": -0.95,
+        "confidence": 0.95,
+        "tier": 0
+      }
+    },
+    {
+      "text": "コンテンツ量が少ない",
+      "signal": null,
+      "result": {
+        "polarity": "neutral",
+        "score": 0,
+        "confidence": 0,
+        "tier": 0
+      }
+    },
+    {
+      "text": "コンテンツ量が少ない",
+      "signal": {
+        "votedUp": true
+      },
+      "result": {
+        "polarity": "positive",
+        "score": 0.75,
+        "confidence": 0.75,
+        "tier": 0
+      }
+    },
+    {
+      "text": "コンテンツ量が少ない",
+      "signal": {
+        "votedUp": false
+      },
+      "result": {
+        "polarity": "negative",
+        "score": -0.75,
+        "confidence": 0.75,
+        "tier": 0
+      }
+    },
+    {
+      "text": "コンテンツ量が少ない",
+      "signal": {
+        "upvotes": 0
+      },
+      "result": {
+        "polarity": "neutral",
+        "score": 0,
+        "confidence": 0,
+        "tier": 0
+      }
+    },
+    {
+      "text": "コンテンツ量が少ない",
+      "signal": {
+        "upvotes": 999
+      },
+      "result": {
+        "polarity": "neutral",
+        "score": 0,
+        "confidence": 0,
+        "tier": 0
+      }
+    },
+    {
+      "text": "コンテンツ量が少ない",
+      "signal": {
+        "votedUp": true,
+        "upvotes": 10
+      },
+      "result": {
+        "polarity": "positive",
+        "score": 0.9235654475263708,
+        "confidence": 0.9235654475263708,
+        "tier": 0
+      }
+    },
+    {
+      "text": "コンテンツ量が少ない",
+      "signal": {
+        "votedUp": false,
+        "upvotes": 5000
+      },
+      "result": {
+        "polarity": "negative",
+        "score": -1,
+        "confidence": 1,
+        "tier": 0
+      }
+    },
+    {
+      "text": "値段は高いがworth it",
+      "signal": null,
+      "result": {
+        "polarity": "positive",
+        "score": 0.3,
+        "confidence": 0.3,
+        "tier": 0
+      }
+    },
+    {
+      "text": "値段は高いがworth it",
+      "signal": {
+        "votedUp": true
+      },
+      "result": {
+        "polarity": "positive",
+        "score": 1,
+        "confidence": 1,
+        "tier": 0
+      }
+    },
+    {
+      "text": "値段は高いがworth it",
+      "signal": {
+        "votedUp": false
+      },
+      "result": {
+        "polarity": "negative",
+        "score": -0.45,
+        "confidence": 0.45,
+        "tier": 0
+      }
+    },
+    {
+      "text": "値段は高いがworth it",
+      "signal": {
+        "upvotes": 0
+      },
+      "result": {
+        "polarity": "positive",
+        "score": 0.3,
+        "confidence": 0.3,
+        "tier": 0
+      }
+    },
+    {
+      "text": "値段は高いがworth it",
+      "signal": {
+        "upvotes": 999
+      },
+      "result": {
+        "polarity": "positive",
+        "score": 0.8,
+        "confidence": 0.8,
+        "tier": 0
+      }
+    },
+    {
+      "text": "値段は高いがworth it",
+      "signal": {
+        "votedUp": true,
+        "upvotes": 10
+      },
+      "result": {
+        "polarity": "positive",
+        "score": 1,
+        "confidence": 1,
+        "tier": 0
+      }
+    },
+    {
+      "text": "値段は高いがworth it",
+      "signal": {
+        "votedUp": false,
+        "upvotes": 5000
+      },
+      "result": {
+        "polarity": "negative",
+        "score": -0.95,
+        "confidence": 0.95,
+        "tier": 0
+      }
+    },
+    {
+      "text": "fps lag and stutter",
+      "signal": null,
+      "result": {
+        "polarity": "negative",
+        "score": -0.55,
+        "confidence": 0.55,
+        "tier": 0
+      }
+    },
+    {
+      "text": "fps lag and stutter",
+      "signal": {
+        "votedUp": true
+      },
+      "result": {
+        "polarity": "positive",
+        "score": 0.1333333333333333,
+        "confidence": 0.1333333333333333,
+        "tier": 0
+      }
+    },
+    {
+      "text": "fps lag and stutter",
+      "signal": {
+        "votedUp": false
+      },
+      "result": {
+        "polarity": "negative",
+        "score": -0.8666666666666667,
+        "confidence": 0.8666666666666667,
+        "tier": 0
+      }
+    },
+    {
+      "text": "fps lag and stutter",
+      "signal": {
+        "upvotes": 0
+      },
+      "result": {
+        "polarity": "negative",
+        "score": -0.55,
+        "confidence": 0.55,
+        "tier": 0
+      }
+    },
+    {
+      "text": "fps lag and stutter",
+      "signal": {
+        "upvotes": 999
+      },
+      "result": {
+        "polarity": "negative",
+        "score": -1,
+        "confidence": 1,
+        "tier": 0
+      }
+    },
+    {
+      "text": "fps lag and stutter",
+      "signal": {
+        "votedUp": true,
+        "upvotes": 10
+      },
+      "result": {
+        "polarity": "positive",
+        "score": 0.24904363168424717,
+        "confidence": 0.24904363168424717,
+        "tier": 0
+      }
+    },
+    {
+      "text": "fps lag and stutter",
+      "signal": {
+        "votedUp": false,
+        "upvotes": 5000
+      },
+      "result": {
+        "polarity": "negative",
+        "score": -1,
+        "confidence": 1,
+        "tier": 0
+      }
+    },
+    {
+      "text": "キャラとシナリオが最高",
+      "signal": null,
+      "result": {
+        "polarity": "positive",
+        "score": 0.45,
+        "confidence": 0.45,
+        "tier": 0
+      }
+    },
+    {
+      "text": "キャラとシナリオが最高",
+      "signal": {
+        "votedUp": true
+      },
+      "result": {
+        "polarity": "positive",
+        "score": 1,
+        "confidence": 1,
+        "tier": 0
+      }
+    },
+    {
+      "text": "キャラとシナリオが最高",
+      "signal": {
+        "votedUp": false
+      },
+      "result": {
+        "polarity": "negative",
+        "score": -0.3,
+        "confidence": 0.3,
+        "tier": 0
+      }
+    },
+    {
+      "text": "キャラとシナリオが最高",
+      "signal": {
+        "upvotes": 0
+      },
+      "result": {
+        "polarity": "positive",
+        "score": 0.45,
+        "confidence": 0.45,
+        "tier": 0
+      }
+    },
+    {
+      "text": "キャラとシナリオが最高",
+      "signal": {
+        "upvotes": 999
+      },
+      "result": {
+        "polarity": "positive",
+        "score": 0.95,
+        "confidence": 0.95,
+        "tier": 0
+      }
+    },
+    {
+      "text": "キャラとシナリオが最高",
+      "signal": {
+        "votedUp": true,
+        "upvotes": 10
+      },
+      "result": {
+        "polarity": "positive",
+        "score": 1,
+        "confidence": 1,
+        "tier": 0
+      }
+    },
+    {
+      "text": "キャラとシナリオが最高",
+      "signal": {
+        "votedUp": false,
+        "upvotes": 5000
+      },
+      "result": {
+        "polarity": "negative",
+        "score": -0.8,
+        "confidence": 0.8,
+        "tier": 0
+      }
+    },
+    {
+      "text": "作画が美麗",
+      "signal": null,
+      "result": {
+        "polarity": "neutral",
+        "score": 0,
+        "confidence": 0,
+        "tier": 0
+      }
+    },
+    {
+      "text": "作画が美麗",
+      "signal": {
+        "votedUp": true
+      },
+      "result": {
+        "polarity": "positive",
+        "score": 0.75,
+        "confidence": 0.75,
+        "tier": 0
+      }
+    },
+    {
+      "text": "作画が美麗",
+      "signal": {
+        "votedUp": false
+      },
+      "result": {
+        "polarity": "negative",
+        "score": -0.75,
+        "confidence": 0.75,
+        "tier": 0
+      }
+    },
+    {
+      "text": "作画が美麗",
+      "signal": {
+        "upvotes": 0
+      },
+      "result": {
+        "polarity": "neutral",
+        "score": 0,
+        "confidence": 0,
+        "tier": 0
+      }
+    },
+    {
+      "text": "作画が美麗",
+      "signal": {
+        "upvotes": 999
+      },
+      "result": {
+        "polarity": "neutral",
+        "score": 0,
+        "confidence": 0,
+        "tier": 0
+      }
+    },
+    {
+      "text": "作画が美麗",
+      "signal": {
+        "votedUp": true,
+        "upvotes": 10
+      },
+      "result": {
+        "polarity": "positive",
+        "score": 0.9235654475263708,
+        "confidence": 0.9235654475263708,
+        "tier": 0
+      }
+    },
+    {
+      "text": "作画が美麗",
+      "signal": {
+        "votedUp": false,
+        "upvotes": 5000
+      },
+      "result": {
+        "polarity": "negative",
+        "score": -1,
+        "confidence": 1,
+        "tier": 0
+      }
+    },
+    {
+      "text": "リプレイ性が高く何度も遊べる",
+      "signal": null,
+      "result": {
+        "polarity": "neutral",
+        "score": 0,
+        "confidence": 0,
+        "tier": 0
+      }
+    },
+    {
+      "text": "リプレイ性が高く何度も遊べる",
+      "signal": {
+        "votedUp": true
+      },
+      "result": {
+        "polarity": "positive",
+        "score": 0.75,
+        "confidence": 0.75,
+        "tier": 0
+      }
+    },
+    {
+      "text": "リプレイ性が高く何度も遊べる",
+      "signal": {
+        "votedUp": false
+      },
+      "result": {
+        "polarity": "negative",
+        "score": -0.75,
+        "confidence": 0.75,
+        "tier": 0
+      }
+    },
+    {
+      "text": "リプレイ性が高く何度も遊べる",
+      "signal": {
+        "upvotes": 0
+      },
+      "result": {
+        "polarity": "neutral",
+        "score": 0,
+        "confidence": 0,
+        "tier": 0
+      }
+    },
+    {
+      "text": "リプレイ性が高く何度も遊べる",
+      "signal": {
+        "upvotes": 999
+      },
+      "result": {
+        "polarity": "neutral",
+        "score": 0,
+        "confidence": 0,
+        "tier": 0
+      }
+    },
+    {
+      "text": "リプレイ性が高く何度も遊べる",
+      "signal": {
+        "votedUp": true,
+        "upvotes": 10
+      },
+      "result": {
+        "polarity": "positive",
+        "score": 0.9235654475263708,
+        "confidence": 0.9235654475263708,
+        "tier": 0
+      }
+    },
+    {
+      "text": "リプレイ性が高く何度も遊べる",
+      "signal": {
+        "votedUp": false,
+        "upvotes": 5000
+      },
+      "result": {
+        "polarity": "negative",
+        "score": -1,
+        "confidence": 1,
+        "tier": 0
+      }
+    },
+    {
+      "text": "refund requested",
+      "signal": null,
+      "result": {
+        "polarity": "positive",
+        "score": 0.050000000000000044,
+        "confidence": 0.050000000000000044,
+        "tier": 0
+      }
+    },
+    {
+      "text": "refund requested",
+      "signal": {
+        "votedUp": true
+      },
+      "result": {
+        "polarity": "positive",
+        "score": 0.5333333333333333,
+        "confidence": 0.5333333333333333,
+        "tier": 0
+      }
+    },
+    {
+      "text": "refund requested",
+      "signal": {
+        "votedUp": false
+      },
+      "result": {
+        "polarity": "negative",
+        "score": -0.4666666666666666,
+        "confidence": 0.4666666666666666,
+        "tier": 0
+      }
+    },
+    {
+      "text": "refund requested",
+      "signal": {
+        "upvotes": 0
+      },
+      "result": {
+        "polarity": "positive",
+        "score": 0.050000000000000044,
+        "confidence": 0.050000000000000044,
+        "tier": 0
+      }
+    },
+    {
+      "text": "refund requested",
+      "signal": {
+        "upvotes": 999
+      },
+      "result": {
+        "polarity": "positive",
+        "score": 0.55,
+        "confidence": 0.55,
+        "tier": 0
+      }
+    },
+    {
+      "text": "refund requested",
+      "signal": {
+        "votedUp": true,
+        "upvotes": 10
+      },
+      "result": {
+        "polarity": "positive",
+        "score": 0.6490436316842473,
+        "confidence": 0.6490436316842473,
+        "tier": 0
+      }
+    },
+    {
+      "text": "refund requested",
+      "signal": {
+        "votedUp": false,
+        "upvotes": 5000
+      },
+      "result": {
+        "polarity": "negative",
+        "score": -0.7999999999999999,
+        "confidence": 0.7999999999999999,
+        "tier": 0
+      }
+    },
+    {
+      "text": "not bad",
+      "signal": null,
+      "result": {
+        "polarity": "negative",
+        "score": -0.35,
+        "confidence": 0.35,
+        "tier": 0
+      }
+    },
+    {
+      "text": "not bad",
+      "signal": {
+        "votedUp": true
+      },
+      "result": {
+        "polarity": "positive",
+        "score": 0.4,
+        "confidence": 0.4,
+        "tier": 0
+      }
+    },
+    {
+      "text": "not bad",
+      "signal": {
+        "votedUp": false
+      },
+      "result": {
+        "polarity": "negative",
+        "score": -1,
+        "confidence": 1,
+        "tier": 0
+      }
+    },
+    {
+      "text": "not bad",
+      "signal": {
+        "upvotes": 0
+      },
+      "result": {
+        "polarity": "negative",
+        "score": -0.35,
+        "confidence": 0.35,
+        "tier": 0
+      }
+    },
+    {
+      "text": "not bad",
+      "signal": {
+        "upvotes": 999
+      },
+      "result": {
+        "polarity": "negative",
+        "score": -0.85,
+        "confidence": 0.85,
+        "tier": 0
+      }
+    },
+    {
+      "text": "not bad",
+      "signal": {
+        "votedUp": true,
+        "upvotes": 10
+      },
+      "result": {
+        "polarity": "positive",
+        "score": 0.5735654475263708,
+        "confidence": 0.5735654475263708,
+        "tier": 0
+      }
+    },
+    {
+      "text": "not bad",
+      "signal": {
+        "votedUp": false,
+        "upvotes": 5000
+      },
+      "result": {
+        "polarity": "negative",
+        "score": -1,
+        "confidence": 1,
+        "tier": 0
+      }
+    },
+    {
+      "text": "普通",
+      "signal": null,
+      "result": {
+        "polarity": "neutral",
+        "score": 0,
+        "confidence": 0,
+        "tier": 0
+      }
+    },
+    {
+      "text": "普通",
+      "signal": {
+        "votedUp": true
+      },
+      "result": {
+        "polarity": "positive",
+        "score": 0.75,
+        "confidence": 0.75,
+        "tier": 0
+      }
+    },
+    {
+      "text": "普通",
+      "signal": {
+        "votedUp": false
+      },
+      "result": {
+        "polarity": "negative",
+        "score": -0.75,
+        "confidence": 0.75,
+        "tier": 0
+      }
+    },
+    {
+      "text": "普通",
+      "signal": {
+        "upvotes": 0
+      },
+      "result": {
+        "polarity": "neutral",
+        "score": 0,
+        "confidence": 0,
+        "tier": 0
+      }
+    },
+    {
+      "text": "普通",
+      "signal": {
+        "upvotes": 999
+      },
+      "result": {
+        "polarity": "neutral",
+        "score": 0,
+        "confidence": 0,
+        "tier": 0
+      }
+    },
+    {
+      "text": "普通",
+      "signal": {
+        "votedUp": true,
+        "upvotes": 10
+      },
+      "result": {
+        "polarity": "positive",
+        "score": 0.9235654475263708,
+        "confidence": 0.9235654475263708,
+        "tier": 0
+      }
+    },
+    {
+      "text": "普通",
+      "signal": {
+        "votedUp": false,
+        "upvotes": 5000
+      },
+      "result": {
+        "polarity": "negative",
+        "score": -1,
+        "confidence": 1,
+        "tier": 0
+      }
+    },
+    {
+      "text": "",
+      "signal": null,
+      "result": {
+        "polarity": "neutral",
+        "score": 0,
+        "confidence": 0,
+        "tier": 0
+      }
+    },
+    {
+      "text": "",
+      "signal": {
+        "votedUp": true
+      },
+      "result": {
+        "polarity": "neutral",
+        "score": 0,
+        "confidence": 0,
+        "tier": 0
+      }
+    },
+    {
+      "text": "",
+      "signal": {
+        "votedUp": false
+      },
+      "result": {
+        "polarity": "neutral",
+        "score": 0,
+        "confidence": 0,
+        "tier": 0
+      }
+    },
+    {
+      "text": "",
+      "signal": {
+        "upvotes": 0
+      },
+      "result": {
+        "polarity": "neutral",
+        "score": 0,
+        "confidence": 0,
+        "tier": 0
+      }
+    },
+    {
+      "text": "",
+      "signal": {
+        "upvotes": 999
+      },
+      "result": {
+        "polarity": "neutral",
+        "score": 0,
+        "confidence": 0,
+        "tier": 0
+      }
+    },
+    {
+      "text": "",
+      "signal": {
+        "votedUp": true,
+        "upvotes": 10
+      },
+      "result": {
+        "polarity": "neutral",
+        "score": 0,
+        "confidence": 0,
+        "tier": 0
+      }
+    },
+    {
+      "text": "",
+      "signal": {
+        "votedUp": false,
+        "upvotes": 5000
+      },
+      "result": {
+        "polarity": "neutral",
+        "score": 0,
+        "confidence": 0,
+        "tier": 0
+      }
+    },
+    {
+      "text": "!!!",
+      "signal": null,
+      "result": {
+        "polarity": "neutral",
+        "score": 0,
+        "confidence": 0,
+        "tier": 0
+      }
+    },
+    {
+      "text": "!!!",
+      "signal": {
+        "votedUp": true
+      },
+      "result": {
+        "polarity": "positive",
+        "score": 0.75,
+        "confidence": 0.75,
+        "tier": 0
+      }
+    },
+    {
+      "text": "!!!",
+      "signal": {
+        "votedUp": false
+      },
+      "result": {
+        "polarity": "negative",
+        "score": -0.75,
+        "confidence": 0.75,
+        "tier": 0
+      }
+    },
+    {
+      "text": "!!!",
+      "signal": {
+        "upvotes": 0
+      },
+      "result": {
+        "polarity": "neutral",
+        "score": 0,
+        "confidence": 0,
+        "tier": 0
+      }
+    },
+    {
+      "text": "!!!",
+      "signal": {
+        "upvotes": 999
+      },
+      "result": {
+        "polarity": "neutral",
+        "score": 0,
+        "confidence": 0,
+        "tier": 0
+      }
+    },
+    {
+      "text": "!!!",
+      "signal": {
+        "votedUp": true,
+        "upvotes": 10
+      },
+      "result": {
+        "polarity": "positive",
+        "score": 0.9235654475263708,
+        "confidence": 0.9235654475263708,
+        "tier": 0
+      }
+    },
+    {
+      "text": "!!!",
+      "signal": {
+        "votedUp": false,
+        "upvotes": 5000
+      },
+      "result": {
+        "polarity": "negative",
+        "score": -1,
+        "confidence": 1,
+        "tier": 0
+      }
+    },
+    {
+      "text": "神",
+      "signal": null,
+      "result": {
+        "polarity": "positive",
+        "score": 0.3,
+        "confidence": 0.3,
+        "tier": 0
+      }
+    },
+    {
+      "text": "神",
+      "signal": {
+        "votedUp": true
+      },
+      "result": {
+        "polarity": "positive",
+        "score": 1,
+        "confidence": 1,
+        "tier": 0
+      }
+    },
+    {
+      "text": "神",
+      "signal": {
+        "votedUp": false
+      },
+      "result": {
+        "polarity": "negative",
+        "score": -0.45,
+        "confidence": 0.45,
+        "tier": 0
+      }
+    },
+    {
+      "text": "神",
+      "signal": {
+        "upvotes": 0
+      },
+      "result": {
+        "polarity": "positive",
+        "score": 0.3,
+        "confidence": 0.3,
+        "tier": 0
+      }
+    },
+    {
+      "text": "神",
+      "signal": {
+        "upvotes": 999
+      },
+      "result": {
+        "polarity": "positive",
+        "score": 0.8,
+        "confidence": 0.8,
+        "tier": 0
+      }
+    },
+    {
+      "text": "神",
+      "signal": {
+        "votedUp": true,
+        "upvotes": 10
+      },
+      "result": {
+        "polarity": "positive",
+        "score": 1,
+        "confidence": 1,
+        "tier": 0
+      }
+    },
+    {
+      "text": "神",
+      "signal": {
+        "votedUp": false,
+        "upvotes": 5000
+      },
+      "result": {
+        "polarity": "negative",
+        "score": -0.95,
+        "confidence": 0.95,
+        "tier": 0
+      }
+    },
+    {
+      "text": "クソ",
+      "signal": null,
+      "result": {
+        "polarity": "negative",
+        "score": -0.35,
+        "confidence": 0.35,
+        "tier": 0
+      }
+    },
+    {
+      "text": "クソ",
+      "signal": {
+        "votedUp": true
+      },
+      "result": {
+        "polarity": "positive",
+        "score": 0.4,
+        "confidence": 0.4,
+        "tier": 0
+      }
+    },
+    {
+      "text": "クソ",
+      "signal": {
+        "votedUp": false
+      },
+      "result": {
+        "polarity": "negative",
+        "score": -1,
+        "confidence": 1,
+        "tier": 0
+      }
+    },
+    {
+      "text": "クソ",
+      "signal": {
+        "upvotes": 0
+      },
+      "result": {
+        "polarity": "negative",
+        "score": -0.35,
+        "confidence": 0.35,
+        "tier": 0
+      }
+    },
+    {
+      "text": "クソ",
+      "signal": {
+        "upvotes": 999
+      },
+      "result": {
+        "polarity": "negative",
+        "score": -0.85,
+        "confidence": 0.85,
+        "tier": 0
+      }
+    },
+    {
+      "text": "クソ",
+      "signal": {
+        "votedUp": true,
+        "upvotes": 10
+      },
+      "result": {
+        "polarity": "positive",
+        "score": 0.5735654475263708,
+        "confidence": 0.5735654475263708,
+        "tier": 0
+      }
+    },
+    {
+      "text": "クソ",
+      "signal": {
+        "votedUp": false,
+        "upvotes": 5000
+      },
+      "result": {
+        "polarity": "negative",
+        "score": -1,
+        "confidence": 1,
+        "tier": 0
+      }
+    },
+    {
+      "text": "期待している 次回アプデ待ち",
+      "signal": null,
+      "result": {
+        "polarity": "neutral",
+        "score": 0,
+        "confidence": 0,
+        "tier": 0
+      }
+    },
+    {
+      "text": "期待している 次回アプデ待ち",
+      "signal": {
+        "votedUp": true
+      },
+      "result": {
+        "polarity": "positive",
+        "score": 0.75,
+        "confidence": 0.75,
+        "tier": 0
+      }
+    },
+    {
+      "text": "期待している 次回アプデ待ち",
+      "signal": {
+        "votedUp": false
+      },
+      "result": {
+        "polarity": "negative",
+        "score": -0.75,
+        "confidence": 0.75,
+        "tier": 0
+      }
+    },
+    {
+      "text": "期待している 次回アプデ待ち",
+      "signal": {
+        "upvotes": 0
+      },
+      "result": {
+        "polarity": "neutral",
+        "score": 0,
+        "confidence": 0,
+        "tier": 0
+      }
+    },
+    {
+      "text": "期待している 次回アプデ待ち",
+      "signal": {
+        "upvotes": 999
+      },
+      "result": {
+        "polarity": "neutral",
+        "score": 0,
+        "confidence": 0,
+        "tier": 0
+      }
+    },
+    {
+      "text": "期待している 次回アプデ待ち",
+      "signal": {
+        "votedUp": true,
+        "upvotes": 10
+      },
+      "result": {
+        "polarity": "positive",
+        "score": 0.9235654475263708,
+        "confidence": 0.9235654475263708,
+        "tier": 0
+      }
+    },
+    {
+      "text": "期待している 次回アプデ待ち",
+      "signal": {
+        "votedUp": false,
+        "upvotes": 5000
+      },
+      "result": {
+        "polarity": "negative",
+        "score": -1,
+        "confidence": 1,
+        "tier": 0
+      }
+    },
+    {
+      "text": "安心して遊べる安定した良作",
+      "signal": null,
+      "result": {
+        "polarity": "positive",
+        "score": 0.4,
+        "confidence": 0.4,
+        "tier": 0
+      }
+    },
+    {
+      "text": "安心して遊べる安定した良作",
+      "signal": {
+        "votedUp": true
+      },
+      "result": {
+        "polarity": "positive",
+        "score": 1,
+        "confidence": 1,
+        "tier": 0
+      }
+    },
+    {
+      "text": "安心して遊べる安定した良作",
+      "signal": {
+        "votedUp": false
+      },
+      "result": {
+        "polarity": "negative",
+        "score": -0.35,
+        "confidence": 0.35,
+        "tier": 0
+      }
+    },
+    {
+      "text": "安心して遊べる安定した良作",
+      "signal": {
+        "upvotes": 0
+      },
+      "result": {
+        "polarity": "positive",
+        "score": 0.4,
+        "confidence": 0.4,
+        "tier": 0
+      }
+    },
+    {
+      "text": "安心して遊べる安定した良作",
+      "signal": {
+        "upvotes": 999
+      },
+      "result": {
+        "polarity": "positive",
+        "score": 0.9,
+        "confidence": 0.9,
+        "tier": 0
+      }
+    },
+    {
+      "text": "安心して遊べる安定した良作",
+      "signal": {
+        "votedUp": true,
+        "upvotes": 10
+      },
+      "result": {
+        "polarity": "positive",
+        "score": 1,
+        "confidence": 1,
+        "tier": 0
+      }
+    },
+    {
+      "text": "安心して遊べる安定した良作",
+      "signal": {
+        "votedUp": false,
+        "upvotes": 5000
+      },
+      "result": {
+        "polarity": "negative",
+        "score": -0.85,
+        "confidence": 0.85,
+        "tier": 0
+      }
+    },
+    {
+      "text": "ホラーでビビった",
+      "signal": null,
+      "result": {
+        "polarity": "neutral",
+        "score": 0,
+        "confidence": 0,
+        "tier": 0
+      }
+    },
+    {
+      "text": "ホラーでビビった",
+      "signal": {
+        "votedUp": true
+      },
+      "result": {
+        "polarity": "positive",
+        "score": 0.75,
+        "confidence": 0.75,
+        "tier": 0
+      }
+    },
+    {
+      "text": "ホラーでビビった",
+      "signal": {
+        "votedUp": false
+      },
+      "result": {
+        "polarity": "negative",
+        "score": -0.75,
+        "confidence": 0.75,
+        "tier": 0
+      }
+    },
+    {
+      "text": "ホラーでビビった",
+      "signal": {
+        "upvotes": 0
+      },
+      "result": {
+        "polarity": "neutral",
+        "score": 0,
+        "confidence": 0,
+        "tier": 0
+      }
+    },
+    {
+      "text": "ホラーでビビった",
+      "signal": {
+        "upvotes": 999
+      },
+      "result": {
+        "polarity": "neutral",
+        "score": 0,
+        "confidence": 0,
+        "tier": 0
+      }
+    },
+    {
+      "text": "ホラーでビビった",
+      "signal": {
+        "votedUp": true,
+        "upvotes": 10
+      },
+      "result": {
+        "polarity": "positive",
+        "score": 0.9235654475263708,
+        "confidence": 0.9235654475263708,
+        "tier": 0
+      }
+    },
+    {
+      "text": "ホラーでビビった",
+      "signal": {
+        "votedUp": false,
+        "upvotes": 5000
+      },
+      "result": {
+        "polarity": "negative",
+        "score": -1,
+        "confidence": 1,
+        "tier": 0
+      }
+    },
+    {
+      "text": "ムカつくほど理不尽",
+      "signal": null,
+      "result": {
+        "polarity": "negative",
+        "score": -0.3,
+        "confidence": 0.3,
+        "tier": 0
+      }
+    },
+    {
+      "text": "ムカつくほど理不尽",
+      "signal": {
+        "votedUp": true
+      },
+      "result": {
+        "polarity": "positive",
+        "score": 0.45,
+        "confidence": 0.45,
+        "tier": 0
+      }
+    },
+    {
+      "text": "ムカつくほど理不尽",
+      "signal": {
+        "votedUp": false
+      },
+      "result": {
+        "polarity": "negative",
+        "score": -1,
+        "confidence": 1,
+        "tier": 0
+      }
+    },
+    {
+      "text": "ムカつくほど理不尽",
+      "signal": {
+        "upvotes": 0
+      },
+      "result": {
+        "polarity": "negative",
+        "score": -0.3,
+        "confidence": 0.3,
+        "tier": 0
+      }
+    },
+    {
+      "text": "ムカつくほど理不尽",
+      "signal": {
+        "upvotes": 999
+      },
+      "result": {
+        "polarity": "negative",
+        "score": -0.8,
+        "confidence": 0.8,
+        "tier": 0
+      }
+    },
+    {
+      "text": "ムカつくほど理不尽",
+      "signal": {
+        "votedUp": true,
+        "upvotes": 10
+      },
+      "result": {
+        "polarity": "positive",
+        "score": 0.6235654475263708,
+        "confidence": 0.6235654475263708,
+        "tier": 0
+      }
+    },
+    {
+      "text": "ムカつくほど理不尽",
+      "signal": {
+        "votedUp": false,
+        "upvotes": 5000
+      },
+      "result": {
+        "polarity": "negative",
+        "score": -1,
+        "confidence": 1,
+        "tier": 0
+      }
+    },
+    {
+      "text": "発見が楽しい exploration",
+      "signal": null,
+      "result": {
+        "polarity": "positive",
+        "score": 0.75,
+        "confidence": 0.75,
+        "tier": 0
+      }
+    },
+    {
+      "text": "発見が楽しい exploration",
+      "signal": {
+        "votedUp": true
+      },
+      "result": {
+        "polarity": "positive",
+        "score": 1,
+        "confidence": 1,
+        "tier": 0
+      }
+    },
+    {
+      "text": "発見が楽しい exploration",
+      "signal": {
+        "votedUp": false
+      },
+      "result": {
+        "polarity": "neutral",
+        "score": 0,
+        "confidence": 0,
+        "tier": 0
+      }
+    },
+    {
+      "text": "発見が楽しい exploration",
+      "signal": {
+        "upvotes": 0
+      },
+      "result": {
+        "polarity": "positive",
+        "score": 0.75,
+        "confidence": 0.75,
+        "tier": 0
+      }
+    },
+    {
+      "text": "発見が楽しい exploration",
+      "signal": {
+        "upvotes": 999
+      },
+      "result": {
+        "polarity": "positive",
+        "score": 1,
+        "confidence": 1,
+        "tier": 0
+      }
+    },
+    {
+      "text": "発見が楽しい exploration",
+      "signal": {
+        "votedUp": true,
+        "upvotes": 10
+      },
+      "result": {
+        "polarity": "positive",
+        "score": 1,
+        "confidence": 1,
+        "tier": 0
+      }
+    },
+    {
+      "text": "発見が楽しい exploration",
+      "signal": {
+        "votedUp": false,
+        "upvotes": 5000
+      },
+      "result": {
+        "polarity": "neutral",
+        "score": 0,
+        "confidence": 0,
+        "tier": 0
+      }
+    },
+    {
+      "text": "story good, gameplay bad",
+      "signal": null,
+      "result": {
+        "polarity": "neutral",
+        "score": -0.04999999999999999,
+        "confidence": 0.04999999999999999,
+        "tier": 0
+      }
+    },
+    {
+      "text": "story good, gameplay bad",
+      "signal": {
+        "votedUp": true
+      },
+      "result": {
+        "polarity": "positive",
+        "score": 0.4666666666666666,
+        "confidence": 0.4666666666666666,
+        "tier": 0
+      }
+    },
+    {
+      "text": "story good, gameplay bad",
+      "signal": {
+        "votedUp": false
+      },
+      "result": {
+        "polarity": "negative",
+        "score": -0.5333333333333333,
+        "confidence": 0.5333333333333333,
+        "tier": 0
+      }
+    },
+    {
+      "text": "story good, gameplay bad",
+      "signal": {
+        "upvotes": 0
+      },
+      "result": {
+        "polarity": "neutral",
+        "score": -0.04999999999999999,
+        "confidence": 0.04999999999999999,
+        "tier": 0
+      }
+    },
+    {
+      "text": "story good, gameplay bad",
+      "signal": {
+        "upvotes": 999
+      },
+      "result": {
+        "polarity": "negative",
+        "score": -0.55,
+        "confidence": 0.55,
+        "tier": 0
+      }
+    },
+    {
+      "text": "story good, gameplay bad",
+      "signal": {
+        "votedUp": true,
+        "upvotes": 10
+      },
+      "result": {
+        "polarity": "positive",
+        "score": 0.5823769650175805,
+        "confidence": 0.5823769650175805,
+        "tier": 0
+      }
+    },
+    {
+      "text": "story good, gameplay bad",
+      "signal": {
+        "votedUp": false,
+        "upvotes": 5000
+      },
+      "result": {
+        "polarity": "negative",
+        "score": -0.8666666666666667,
+        "confidence": 0.8666666666666667,
+        "tier": 0
+      }
+    },
+    {
+      "text": "beautiful but overpriced",
+      "signal": null,
+      "result": {
+        "polarity": "neutral",
+        "score": 0,
+        "confidence": 0,
+        "tier": 0
+      }
+    },
+    {
+      "text": "beautiful but overpriced",
+      "signal": {
+        "votedUp": true
+      },
+      "result": {
+        "polarity": "positive",
+        "score": 0.5,
+        "confidence": 0.5,
+        "tier": 0
+      }
+    },
+    {
+      "text": "beautiful but overpriced",
+      "signal": {
+        "votedUp": false
+      },
+      "result": {
+        "polarity": "negative",
+        "score": -0.5,
+        "confidence": 0.5,
+        "tier": 0
+      }
+    },
+    {
+      "text": "beautiful but overpriced",
+      "signal": {
+        "upvotes": 0
+      },
+      "result": {
+        "polarity": "neutral",
+        "score": 0,
+        "confidence": 0,
+        "tier": 0
+      }
+    },
+    {
+      "text": "beautiful but overpriced",
+      "signal": {
+        "upvotes": 999
+      },
+      "result": {
+        "polarity": "neutral",
+        "score": 0,
+        "confidence": 0,
+        "tier": 0
+      }
+    },
+    {
+      "text": "beautiful but overpriced",
+      "signal": {
+        "votedUp": true,
+        "upvotes": 10
+      },
+      "result": {
+        "polarity": "positive",
+        "score": 0.6157102983509138,
+        "confidence": 0.6157102983509138,
+        "tier": 0
+      }
+    },
+    {
+      "text": "beautiful but overpriced",
+      "signal": {
+        "votedUp": false,
+        "upvotes": 5000
+      },
+      "result": {
+        "polarity": "negative",
+        "score": -0.8333333333333334,
+        "confidence": 0.8333333333333334,
+        "tier": 0
+      }
+    },
+    {
+      "text": "easy and relaxing",
+      "signal": null,
+      "result": {
+        "polarity": "neutral",
+        "score": 0,
+        "confidence": 0,
+        "tier": 0
+      }
+    },
+    {
+      "text": "easy and relaxing",
+      "signal": {
+        "votedUp": true
+      },
+      "result": {
+        "polarity": "positive",
+        "score": 0.75,
+        "confidence": 0.75,
+        "tier": 0
+      }
+    },
+    {
+      "text": "easy and relaxing",
+      "signal": {
+        "votedUp": false
+      },
+      "result": {
+        "polarity": "negative",
+        "score": -0.75,
+        "confidence": 0.75,
+        "tier": 0
+      }
+    },
+    {
+      "text": "easy and relaxing",
+      "signal": {
+        "upvotes": 0
+      },
+      "result": {
+        "polarity": "neutral",
+        "score": 0,
+        "confidence": 0,
+        "tier": 0
+      }
+    },
+    {
+      "text": "easy and relaxing",
+      "signal": {
+        "upvotes": 999
+      },
+      "result": {
+        "polarity": "neutral",
+        "score": 0,
+        "confidence": 0,
+        "tier": 0
+      }
+    },
+    {
+      "text": "easy and relaxing",
+      "signal": {
+        "votedUp": true,
+        "upvotes": 10
+      },
+      "result": {
+        "polarity": "positive",
+        "score": 0.9235654475263708,
+        "confidence": 0.9235654475263708,
+        "tier": 0
+      }
+    },
+    {
+      "text": "easy and relaxing",
+      "signal": {
+        "votedUp": false,
+        "upvotes": 5000
+      },
+      "result": {
+        "polarity": "negative",
+        "score": -1,
+        "confidence": 1,
+        "tier": 0
+      }
+    },
+    {
+      "text": "challenging boss was amazing!!",
+      "signal": null,
+      "result": {
+        "polarity": "positive",
+        "score": 0.5,
+        "confidence": 0.5,
+        "tier": 0
+      }
+    },
+    {
+      "text": "challenging boss was amazing!!",
+      "signal": {
+        "votedUp": true
+      },
+      "result": {
+        "polarity": "positive",
+        "score": 1,
+        "confidence": 1,
+        "tier": 0
+      }
+    },
+    {
+      "text": "challenging boss was amazing!!",
+      "signal": {
+        "votedUp": false
+      },
+      "result": {
+        "polarity": "negative",
+        "score": -0.25,
+        "confidence": 0.25,
+        "tier": 0
+      }
+    },
+    {
+      "text": "challenging boss was amazing!!",
+      "signal": {
+        "upvotes": 0
+      },
+      "result": {
+        "polarity": "positive",
+        "score": 0.5,
+        "confidence": 0.5,
+        "tier": 0
+      }
+    },
+    {
+      "text": "challenging boss was amazing!!",
+      "signal": {
+        "upvotes": 999
+      },
+      "result": {
+        "polarity": "positive",
+        "score": 1,
+        "confidence": 1,
+        "tier": 0
+      }
+    },
+    {
+      "text": "challenging boss was amazing!!",
+      "signal": {
+        "votedUp": true,
+        "upvotes": 10
+      },
+      "result": {
+        "polarity": "positive",
+        "score": 1,
+        "confidence": 1,
+        "tier": 0
+      }
+    },
+    {
+      "text": "challenging boss was amazing!!",
+      "signal": {
+        "votedUp": false,
+        "upvotes": 5000
+      },
+      "result": {
+        "polarity": "negative",
+        "score": -0.75,
+        "confidence": 0.75,
+        "tier": 0
+      }
+    },
+    {
+      "text": "ガチャで最高のキャラが出た!",
+      "signal": null,
+      "result": {
+        "polarity": "positive",
+        "score": 0.45,
+        "confidence": 0.45,
+        "tier": 0
+      }
+    },
+    {
+      "text": "ガチャで最高のキャラが出た!",
+      "signal": {
+        "votedUp": true
+      },
+      "result": {
+        "polarity": "positive",
+        "score": 1,
+        "confidence": 1,
+        "tier": 0
+      }
+    },
+    {
+      "text": "ガチャで最高のキャラが出た!",
+      "signal": {
+        "votedUp": false
+      },
+      "result": {
+        "polarity": "negative",
+        "score": -0.3,
+        "confidence": 0.3,
+        "tier": 0
+      }
+    },
+    {
+      "text": "ガチャで最高のキャラが出た!",
+      "signal": {
+        "upvotes": 0
+      },
+      "result": {
+        "polarity": "positive",
+        "score": 0.45,
+        "confidence": 0.45,
+        "tier": 0
+      }
+    },
+    {
+      "text": "ガチャで最高のキャラが出た!",
+      "signal": {
+        "upvotes": 999
+      },
+      "result": {
+        "polarity": "positive",
+        "score": 0.95,
+        "confidence": 0.95,
+        "tier": 0
+      }
+    },
+    {
+      "text": "ガチャで最高のキャラが出た!",
+      "signal": {
+        "votedUp": true,
+        "upvotes": 10
+      },
+      "result": {
+        "polarity": "positive",
+        "score": 1,
+        "confidence": 1,
+        "tier": 0
+      }
+    },
+    {
+      "text": "ガチャで最高のキャラが出た!",
+      "signal": {
+        "votedUp": false,
+        "upvotes": 5000
+      },
+      "result": {
+        "polarity": "negative",
+        "score": -0.8,
+        "confidence": 0.8,
+        "tier": 0
+      }
+    },
+    {
+      "text": "ガチャ課金は詐欺",
+      "signal": null,
+      "result": {
+        "polarity": "negative",
+        "score": -0.5,
+        "confidence": 0.5,
+        "tier": 0
+      }
+    },
+    {
+      "text": "ガチャ課金は詐欺",
+      "signal": {
+        "votedUp": true
+      },
+      "result": {
+        "polarity": "positive",
+        "score": 0.25,
+        "confidence": 0.25,
+        "tier": 0
+      }
+    },
+    {
+      "text": "ガチャ課金は詐欺",
+      "signal": {
+        "votedUp": false
+      },
+      "result": {
+        "polarity": "negative",
+        "score": -1,
+        "confidence": 1,
+        "tier": 0
+      }
+    },
+    {
+      "text": "ガチャ課金は詐欺",
+      "signal": {
+        "upvotes": 0
+      },
+      "result": {
+        "polarity": "negative",
+        "score": -0.5,
+        "confidence": 0.5,
+        "tier": 0
+      }
+    },
+    {
+      "text": "ガチャ課金は詐欺",
+      "signal": {
+        "upvotes": 999
+      },
+      "result": {
+        "polarity": "negative",
+        "score": -1,
+        "confidence": 1,
+        "tier": 0
+      }
+    },
+    {
+      "text": "ガチャ課金は詐欺",
+      "signal": {
+        "votedUp": true,
+        "upvotes": 10
+      },
+      "result": {
+        "polarity": "positive",
+        "score": 0.4235654475263708,
+        "confidence": 0.4235654475263708,
+        "tier": 0
+      }
+    },
+    {
+      "text": "ガチャ課金は詐欺",
+      "signal": {
+        "votedUp": false,
+        "upvotes": 5000
+      },
+      "result": {
+        "polarity": "negative",
+        "score": -1,
+        "confidence": 1,
+        "tier": 0
+      }
+    },
+    {
+      "text": "やり込みボリュームがある",
+      "signal": null,
+      "result": {
+        "polarity": "neutral",
+        "score": 0,
+        "confidence": 0,
+        "tier": 0
+      }
+    },
+    {
+      "text": "やり込みボリュームがある",
+      "signal": {
+        "votedUp": true
+      },
+      "result": {
+        "polarity": "positive",
+        "score": 0.75,
+        "confidence": 0.75,
+        "tier": 0
+      }
+    },
+    {
+      "text": "やり込みボリュームがある",
+      "signal": {
+        "votedUp": false
+      },
+      "result": {
+        "polarity": "negative",
+        "score": -0.75,
+        "confidence": 0.75,
+        "tier": 0
+      }
+    },
+    {
+      "text": "やり込みボリュームがある",
+      "signal": {
+        "upvotes": 0
+      },
+      "result": {
+        "polarity": "neutral",
+        "score": 0,
+        "confidence": 0,
+        "tier": 0
+      }
+    },
+    {
+      "text": "やり込みボリュームがある",
+      "signal": {
+        "upvotes": 999
+      },
+      "result": {
+        "polarity": "neutral",
+        "score": 0,
+        "confidence": 0,
+        "tier": 0
+      }
+    },
+    {
+      "text": "やり込みボリュームがある",
+      "signal": {
+        "votedUp": true,
+        "upvotes": 10
+      },
+      "result": {
+        "polarity": "positive",
+        "score": 0.9235654475263708,
+        "confidence": 0.9235654475263708,
+        "tier": 0
+      }
+    },
+    {
+      "text": "やり込みボリュームがある",
+      "signal": {
+        "votedUp": false,
+        "upvotes": 5000
+      },
+      "result": {
+        "polarity": "negative",
+        "score": -1,
+        "confidence": 1,
+        "tier": 0
+      }
+    },
+    {
+      "text": "最適化不足で落ちる",
+      "signal": null,
+      "result": {
+        "polarity": "neutral",
+        "score": 0,
+        "confidence": 0,
+        "tier": 0
+      }
+    },
+    {
+      "text": "最適化不足で落ちる",
+      "signal": {
+        "votedUp": true
+      },
+      "result": {
+        "polarity": "positive",
+        "score": 0.75,
+        "confidence": 0.75,
+        "tier": 0
+      }
+    },
+    {
+      "text": "最適化不足で落ちる",
+      "signal": {
+        "votedUp": false
+      },
+      "result": {
+        "polarity": "negative",
+        "score": -0.75,
+        "confidence": 0.75,
+        "tier": 0
+      }
+    },
+    {
+      "text": "最適化不足で落ちる",
+      "signal": {
+        "upvotes": 0
+      },
+      "result": {
+        "polarity": "neutral",
+        "score": 0,
+        "confidence": 0,
+        "tier": 0
+      }
+    },
+    {
+      "text": "最適化不足で落ちる",
+      "signal": {
+        "upvotes": 999
+      },
+      "result": {
+        "polarity": "neutral",
+        "score": 0,
+        "confidence": 0,
+        "tier": 0
+      }
+    },
+    {
+      "text": "最適化不足で落ちる",
+      "signal": {
+        "votedUp": true,
+        "upvotes": 10
+      },
+      "result": {
+        "polarity": "positive",
+        "score": 0.9235654475263708,
+        "confidence": 0.9235654475263708,
+        "tier": 0
+      }
+    },
+    {
+      "text": "最適化不足で落ちる",
+      "signal": {
+        "votedUp": false,
+        "upvotes": 5000
+      },
+      "result": {
+        "polarity": "negative",
+        "score": -1,
+        "confidence": 1,
+        "tier": 0
+      }
+    },
+    {
+      "text": "協力プレイが楽しい",
+      "signal": null,
+      "result": {
+        "polarity": "positive",
+        "score": 0.75,
+        "confidence": 0.75,
+        "tier": 0
+      }
+    },
+    {
+      "text": "協力プレイが楽しい",
+      "signal": {
+        "votedUp": true
+      },
+      "result": {
+        "polarity": "positive",
+        "score": 1,
+        "confidence": 1,
+        "tier": 0
+      }
+    },
+    {
+      "text": "協力プレイが楽しい",
+      "signal": {
+        "votedUp": false
+      },
+      "result": {
+        "polarity": "neutral",
+        "score": 0,
+        "confidence": 0,
+        "tier": 0
+      }
+    },
+    {
+      "text": "協力プレイが楽しい",
+      "signal": {
+        "upvotes": 0
+      },
+      "result": {
+        "polarity": "positive",
+        "score": 0.75,
+        "confidence": 0.75,
+        "tier": 0
+      }
+    },
+    {
+      "text": "協力プレイが楽しい",
+      "signal": {
+        "upvotes": 999
+      },
+      "result": {
+        "polarity": "positive",
+        "score": 1,
+        "confidence": 1,
+        "tier": 0
+      }
+    },
+    {
+      "text": "協力プレイが楽しい",
+      "signal": {
+        "votedUp": true,
+        "upvotes": 10
+      },
+      "result": {
+        "polarity": "positive",
+        "score": 1,
+        "confidence": 1,
+        "tier": 0
+      }
+    },
+    {
+      "text": "協力プレイが楽しい",
+      "signal": {
+        "votedUp": false,
+        "upvotes": 5000
+      },
+      "result": {
+        "polarity": "neutral",
+        "score": 0,
+        "confidence": 0,
+        "tier": 0
+      }
+    },
+    {
+      "text": "期待外れで微妙",
+      "signal": null,
+      "result": {
+        "polarity": "negative",
+        "score": -0.2,
+        "confidence": 0.2,
+        "tier": 0
+      }
+    },
+    {
+      "text": "期待外れで微妙",
+      "signal": {
+        "votedUp": true
+      },
+      "result": {
+        "polarity": "positive",
+        "score": 0.55,
+        "confidence": 0.55,
+        "tier": 0
+      }
+    },
+    {
+      "text": "期待外れで微妙",
+      "signal": {
+        "votedUp": false
+      },
+      "result": {
+        "polarity": "negative",
+        "score": -0.95,
+        "confidence": 0.95,
+        "tier": 0
+      }
+    },
+    {
+      "text": "期待外れで微妙",
+      "signal": {
+        "upvotes": 0
+      },
+      "result": {
+        "polarity": "negative",
+        "score": -0.2,
+        "confidence": 0.2,
+        "tier": 0
+      }
+    },
+    {
+      "text": "期待外れで微妙",
+      "signal": {
+        "upvotes": 999
+      },
+      "result": {
+        "polarity": "negative",
+        "score": -0.7,
+        "confidence": 0.7,
+        "tier": 0
+      }
+    },
+    {
+      "text": "期待外れで微妙",
+      "signal": {
+        "votedUp": true,
+        "upvotes": 10
+      },
+      "result": {
+        "polarity": "positive",
+        "score": 0.7235654475263709,
+        "confidence": 0.7235654475263709,
+        "tier": 0
+      }
+    },
+    {
+      "text": "期待外れで微妙",
+      "signal": {
+        "votedUp": false,
+        "upvotes": 5000
+      },
+      "result": {
+        "polarity": "negative",
+        "score": -1,
+        "confidence": 1,
+        "tier": 0
+      }
+    },
+    {
+      "text": "masterpiece 名作",
+      "signal": null,
+      "result": {
+        "polarity": "positive",
+        "score": 0.95,
+        "confidence": 0.95,
+        "tier": 0
+      }
+    },
+    {
+      "text": "masterpiece 名作",
+      "signal": {
+        "votedUp": true
+      },
+      "result": {
+        "polarity": "positive",
+        "score": 1,
+        "confidence": 1,
+        "tier": 0
+      }
+    },
+    {
+      "text": "masterpiece 名作",
+      "signal": {
+        "votedUp": false
+      },
+      "result": {
+        "polarity": "positive",
+        "score": 0.1333333333333333,
+        "confidence": 0.1333333333333333,
+        "tier": 0
+      }
+    },
+    {
+      "text": "masterpiece 名作",
+      "signal": {
+        "upvotes": 0
+      },
+      "result": {
+        "polarity": "positive",
+        "score": 0.95,
+        "confidence": 0.95,
+        "tier": 0
+      }
+    },
+    {
+      "text": "masterpiece 名作",
+      "signal": {
+        "upvotes": 999
+      },
+      "result": {
+        "polarity": "positive",
+        "score": 1,
+        "confidence": 1,
+        "tier": 0
+      }
+    },
+    {
+      "text": "masterpiece 名作",
+      "signal": {
+        "votedUp": true,
+        "upvotes": 10
+      },
+      "result": {
+        "polarity": "positive",
+        "score": 1,
+        "confidence": 1,
+        "tier": 0
+      }
+    },
+    {
+      "text": "masterpiece 名作",
+      "signal": {
+        "votedUp": false,
+        "upvotes": 5000
+      },
+      "result": {
+        "polarity": "positive",
+        "score": 0.4666666666666666,
+        "confidence": 0.4666666666666666,
+        "tier": 0
+      }
+    },
+    {
+      "text": "AWESOME Combat!!",
+      "signal": null,
+      "result": {
+        "polarity": "positive",
+        "score": 0.5,
+        "confidence": 0.5,
+        "tier": 0
+      }
+    },
+    {
+      "text": "AWESOME Combat!!",
+      "signal": {
+        "votedUp": true
+      },
+      "result": {
+        "polarity": "positive",
+        "score": 1,
+        "confidence": 1,
+        "tier": 0
+      }
+    },
+    {
+      "text": "AWESOME Combat!!",
+      "signal": {
+        "votedUp": false
+      },
+      "result": {
+        "polarity": "negative",
+        "score": -0.25,
+        "confidence": 0.25,
+        "tier": 0
+      }
+    },
+    {
+      "text": "AWESOME Combat!!",
+      "signal": {
+        "upvotes": 0
+      },
+      "result": {
+        "polarity": "positive",
+        "score": 0.5,
+        "confidence": 0.5,
+        "tier": 0
+      }
+    },
+    {
+      "text": "AWESOME Combat!!",
+      "signal": {
+        "upvotes": 999
+      },
+      "result": {
+        "polarity": "positive",
+        "score": 1,
+        "confidence": 1,
+        "tier": 0
+      }
+    },
+    {
+      "text": "AWESOME Combat!!",
+      "signal": {
+        "votedUp": true,
+        "upvotes": 10
+      },
+      "result": {
+        "polarity": "positive",
+        "score": 1,
+        "confidence": 1,
+        "tier": 0
+      }
+    },
+    {
+      "text": "AWESOME Combat!!",
+      "signal": {
+        "votedUp": false,
+        "upvotes": 5000
+      },
+      "result": {
+        "polarity": "negative",
+        "score": -0.75,
+        "confidence": 0.75,
+        "tier": 0
+      }
+    },
+    {
+      "text": "ÉPIC fail",
+      "signal": null,
+      "result": {
+        "polarity": "neutral",
+        "score": 0,
+        "confidence": 0,
+        "tier": 0
+      }
+    },
+    {
+      "text": "ÉPIC fail",
+      "signal": {
+        "votedUp": true
+      },
+      "result": {
+        "polarity": "positive",
+        "score": 0.75,
+        "confidence": 0.75,
+        "tier": 0
+      }
+    },
+    {
+      "text": "ÉPIC fail",
+      "signal": {
+        "votedUp": false
+      },
+      "result": {
+        "polarity": "negative",
+        "score": -0.75,
+        "confidence": 0.75,
+        "tier": 0
+      }
+    },
+    {
+      "text": "ÉPIC fail",
+      "signal": {
+        "upvotes": 0
+      },
+      "result": {
+        "polarity": "neutral",
+        "score": 0,
+        "confidence": 0,
+        "tier": 0
+      }
+    },
+    {
+      "text": "ÉPIC fail",
+      "signal": {
+        "upvotes": 999
+      },
+      "result": {
+        "polarity": "neutral",
+        "score": 0,
+        "confidence": 0,
+        "tier": 0
+      }
+    },
+    {
+      "text": "ÉPIC fail",
+      "signal": {
+        "votedUp": true,
+        "upvotes": 10
+      },
+      "result": {
+        "polarity": "positive",
+        "score": 0.9235654475263708,
+        "confidence": 0.9235654475263708,
+        "tier": 0
+      }
+    },
+    {
+      "text": "ÉPIC fail",
+      "signal": {
+        "votedUp": false,
+        "upvotes": 5000
+      },
+      "result": {
+        "polarity": "negative",
+        "score": -1,
+        "confidence": 1,
+        "tier": 0
+      }
+    },
+    {
+      "text": "ＧＯＯＤ ｇａｍｅ",
+      "signal": null,
+      "result": {
+        "polarity": "neutral",
+        "score": 0,
+        "confidence": 0,
+        "tier": 0
+      }
+    },
+    {
+      "text": "ＧＯＯＤ ｇａｍｅ",
+      "signal": {
+        "votedUp": true
+      },
+      "result": {
+        "polarity": "positive",
+        "score": 0.75,
+        "confidence": 0.75,
+        "tier": 0
+      }
+    },
+    {
+      "text": "ＧＯＯＤ ｇａｍｅ",
+      "signal": {
+        "votedUp": false
+      },
+      "result": {
+        "polarity": "negative",
+        "score": -0.75,
+        "confidence": 0.75,
+        "tier": 0
+      }
+    },
+    {
+      "text": "ＧＯＯＤ ｇａｍｅ",
+      "signal": {
+        "upvotes": 0
+      },
+      "result": {
+        "polarity": "neutral",
+        "score": 0,
+        "confidence": 0,
+        "tier": 0
+      }
+    },
+    {
+      "text": "ＧＯＯＤ ｇａｍｅ",
+      "signal": {
+        "upvotes": 999
+      },
+      "result": {
+        "polarity": "neutral",
+        "score": 0,
+        "confidence": 0,
+        "tier": 0
+      }
+    },
+    {
+      "text": "ＧＯＯＤ ｇａｍｅ",
+      "signal": {
+        "votedUp": true,
+        "upvotes": 10
+      },
+      "result": {
+        "polarity": "positive",
+        "score": 0.9235654475263708,
+        "confidence": 0.9235654475263708,
+        "tier": 0
+      }
+    },
+    {
+      "text": "ＧＯＯＤ ｇａｍｅ",
+      "signal": {
+        "votedUp": false,
+        "upvotes": 5000
+      },
+      "result": {
+        "polarity": "negative",
+        "score": -1,
+        "confidence": 1,
+        "tier": 0
+      }
+    },
+    {
+      "text": "great great great",
+      "signal": null,
+      "result": {
+        "polarity": "positive",
+        "score": 0.4,
+        "confidence": 0.4,
+        "tier": 0
+      }
+    },
+    {
+      "text": "great great great",
+      "signal": {
+        "votedUp": true
+      },
+      "result": {
+        "polarity": "positive",
+        "score": 1,
+        "confidence": 1,
+        "tier": 0
+      }
+    },
+    {
+      "text": "great great great",
+      "signal": {
+        "votedUp": false
+      },
+      "result": {
+        "polarity": "negative",
+        "score": -0.35,
+        "confidence": 0.35,
+        "tier": 0
+      }
+    },
+    {
+      "text": "great great great",
+      "signal": {
+        "upvotes": 0
+      },
+      "result": {
+        "polarity": "positive",
+        "score": 0.4,
+        "confidence": 0.4,
+        "tier": 0
+      }
+    },
+    {
+      "text": "great great great",
+      "signal": {
+        "upvotes": 999
+      },
+      "result": {
+        "polarity": "positive",
+        "score": 0.9,
+        "confidence": 0.9,
+        "tier": 0
+      }
+    },
+    {
+      "text": "great great great",
+      "signal": {
+        "votedUp": true,
+        "upvotes": 10
+      },
+      "result": {
+        "polarity": "positive",
+        "score": 1,
+        "confidence": 1,
+        "tier": 0
+      }
+    },
+    {
+      "text": "great great great",
+      "signal": {
+        "votedUp": false,
+        "upvotes": 5000
+      },
+      "result": {
+        "polarity": "negative",
+        "score": -0.85,
+        "confidence": 0.85,
+        "tier": 0
+      }
+    },
+    {
+      "text": "not good, not bad, boring and fun",
+      "signal": null,
+      "result": {
+        "polarity": "neutral",
+        "score": -0.025000000000000022,
+        "confidence": 0.025000000000000022,
+        "tier": 0
+      }
+    },
+    {
+      "text": "not good, not bad, boring and fun",
+      "signal": {
+        "votedUp": true
+      },
+      "result": {
+        "polarity": "positive",
+        "score": 0.27999999999999997,
+        "confidence": 0.27999999999999997,
+        "tier": 0
+      }
+    },
+    {
+      "text": "not good, not bad, boring and fun",
+      "signal": {
+        "votedUp": false
+      },
+      "result": {
+        "polarity": "negative",
+        "score": -0.32,
+        "confidence": 0.32,
+        "tier": 0
+      }
+    },
+    {
+      "text": "not good, not bad, boring and fun",
+      "signal": {
+        "upvotes": 0
+      },
+      "result": {
+        "polarity": "neutral",
+        "score": -0.025000000000000022,
+        "confidence": 0.025000000000000022,
+        "tier": 0
+      }
+    },
+    {
+      "text": "not good, not bad, boring and fun",
+      "signal": {
+        "upvotes": 999
+      },
+      "result": {
+        "polarity": "negative",
+        "score": -0.275,
+        "confidence": 0.275,
+        "tier": 0
+      }
+    },
+    {
+      "text": "not good, not bad, boring and fun",
+      "signal": {
+        "votedUp": true,
+        "upvotes": 10
+      },
+      "result": {
+        "polarity": "positive",
+        "score": 0.3494261790105483,
+        "confidence": 0.3494261790105483,
+        "tier": 0
+      }
+    },
+    {
+      "text": "not good, not bad, boring and fun",
+      "signal": {
+        "votedUp": false,
+        "upvotes": 5000
+      },
+      "result": {
+        "polarity": "negative",
+        "score": -0.52,
+        "confidence": 0.52,
+        "tier": 0
+      }
+    },
+    {
+      "text": "神ゲー!!!!!!!!",
+      "signal": null,
+      "result": {
+        "polarity": "positive",
+        "score": 0.8666666666666667,
+        "confidence": 0.8666666666666667,
+        "tier": 0
+      }
+    },
+    {
+      "text": "神ゲー!!!!!!!!",
+      "signal": {
+        "votedUp": true
+      },
+      "result": {
+        "polarity": "positive",
+        "score": 1,
+        "confidence": 1,
+        "tier": 0
+      }
+    },
+    {
+      "text": "神ゲー!!!!!!!!",
+      "signal": {
+        "votedUp": false
+      },
+      "result": {
+        "polarity": "positive",
+        "score": 0.275,
+        "confidence": 0.275,
+        "tier": 0
+      }
+    },
+    {
+      "text": "神ゲー!!!!!!!!",
+      "signal": {
+        "upvotes": 0
+      },
+      "result": {
+        "polarity": "positive",
+        "score": 0.8666666666666667,
+        "confidence": 0.8666666666666667,
+        "tier": 0
+      }
+    },
+    {
+      "text": "神ゲー!!!!!!!!",
+      "signal": {
+        "upvotes": 999
+      },
+      "result": {
+        "polarity": "positive",
+        "score": 1,
+        "confidence": 1,
+        "tier": 0
+      }
+    },
+    {
+      "text": "神ゲー!!!!!!!!",
+      "signal": {
+        "votedUp": true,
+        "upvotes": 10
+      },
+      "result": {
+        "polarity": "positive",
+        "score": 1,
+        "confidence": 1,
+        "tier": 0
+      }
+    },
+    {
+      "text": "神ゲー!!!!!!!!",
+      "signal": {
+        "votedUp": false,
+        "upvotes": 5000
+      },
+      "result": {
+        "polarity": "positive",
+        "score": 0.525,
+        "confidence": 0.525,
+        "tier": 0
+      }
+    },
+    {
+      "text": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa love",
+      "signal": null,
+      "result": {
+        "polarity": "positive",
+        "score": 0.45,
+        "confidence": 0.45,
+        "tier": 0
+      }
+    },
+    {
+      "text": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa love",
+      "signal": {
+        "votedUp": true
+      },
+      "result": {
+        "polarity": "positive",
+        "score": 1,
+        "confidence": 1,
+        "tier": 0
+      }
+    },
+    {
+      "text": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa love",
+      "signal": {
+        "votedUp": false
+      },
+      "result": {
+        "polarity": "negative",
+        "score": -0.3,
+        "confidence": 0.3,
+        "tier": 0
+      }
+    },
+    {
+      "text": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa love",
+      "signal": {
+        "upvotes": 0
+      },
+      "result": {
+        "polarity": "positive",
+        "score": 0.45,
+        "confidence": 0.45,
+        "tier": 0
+      }
+    },
+    {
+      "text": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa love",
+      "signal": {
+        "upvotes": 999
+      },
+      "result": {
+        "polarity": "positive",
+        "score": 0.95,
+        "confidence": 0.95,
+        "tier": 0
+      }
+    },
+    {
+      "text": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa love",
+      "signal": {
+        "votedUp": true,
+        "upvotes": 10
+      },
+      "result": {
+        "polarity": "positive",
+        "score": 1,
+        "confidence": 1,
+        "tier": 0
+      }
+    },
+    {
+      "text": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa love",
+      "signal": {
+        "votedUp": false,
+        "upvotes": 5000
+      },
+      "result": {
+        "polarity": "negative",
+        "score": -0.8,
+        "confidence": 0.8,
+        "tier": 0
+      }
+    },
+    {
+      "text": "😀 最高",
+      "signal": null,
+      "result": {
+        "polarity": "positive",
+        "score": 0.45,
+        "confidence": 0.45,
+        "tier": 0
+      }
+    },
+    {
+      "text": "😀 最高",
+      "signal": {
+        "votedUp": true
+      },
+      "result": {
+        "polarity": "positive",
+        "score": 1,
+        "confidence": 1,
+        "tier": 0
+      }
+    },
+    {
+      "text": "😀 最高",
+      "signal": {
+        "votedUp": false
+      },
+      "result": {
+        "polarity": "negative",
+        "score": -0.3,
+        "confidence": 0.3,
+        "tier": 0
+      }
+    },
+    {
+      "text": "😀 最高",
+      "signal": {
+        "upvotes": 0
+      },
+      "result": {
+        "polarity": "positive",
+        "score": 0.45,
+        "confidence": 0.45,
+        "tier": 0
+      }
+    },
+    {
+      "text": "😀 最高",
+      "signal": {
+        "upvotes": 999
+      },
+      "result": {
+        "polarity": "positive",
+        "score": 0.95,
+        "confidence": 0.95,
+        "tier": 0
+      }
+    },
+    {
+      "text": "😀 最高",
+      "signal": {
+        "votedUp": true,
+        "upvotes": 10
+      },
+      "result": {
+        "polarity": "positive",
+        "score": 1,
+        "confidence": 1,
+        "tier": 0
+      }
+    },
+    {
+      "text": "😀 最高",
+      "signal": {
+        "votedUp": false,
+        "upvotes": 5000
+      },
+      "result": {
+        "polarity": "negative",
+        "score": -0.8,
+        "confidence": 0.8,
+        "tier": 0
+      }
+    },
+    {
+      "text": "mixed: love hate love",
+      "signal": null,
+      "result": {
+        "polarity": "neutral",
+        "score": 0,
+        "confidence": 0,
+        "tier": 0
+      }
+    },
+    {
+      "text": "mixed: love hate love",
+      "signal": {
+        "votedUp": true
+      },
+      "result": {
+        "polarity": "positive",
+        "score": 0.5,
+        "confidence": 0.5,
+        "tier": 0
+      }
+    },
+    {
+      "text": "mixed: love hate love",
+      "signal": {
+        "votedUp": false
+      },
+      "result": {
+        "polarity": "negative",
+        "score": -0.5,
+        "confidence": 0.5,
+        "tier": 0
+      }
+    },
+    {
+      "text": "mixed: love hate love",
+      "signal": {
+        "upvotes": 0
+      },
+      "result": {
+        "polarity": "neutral",
+        "score": 0,
+        "confidence": 0,
+        "tier": 0
+      }
+    },
+    {
+      "text": "mixed: love hate love",
+      "signal": {
+        "upvotes": 999
+      },
+      "result": {
+        "polarity": "neutral",
+        "score": 0,
+        "confidence": 0,
+        "tier": 0
+      }
+    },
+    {
+      "text": "mixed: love hate love",
+      "signal": {
+        "votedUp": true,
+        "upvotes": 10
+      },
+      "result": {
+        "polarity": "positive",
+        "score": 0.6157102983509138,
+        "confidence": 0.6157102983509138,
+        "tier": 0
+      }
+    },
+    {
+      "text": "mixed: love hate love",
+      "signal": {
+        "votedUp": false,
+        "upvotes": 5000
+      },
+      "result": {
+        "polarity": "negative",
+        "score": -0.8333333333333334,
+        "confidence": 0.8333333333333334,
+        "tier": 0
+      }
+    }
+  ],
+  "llm": [
+    {
+      "local": "{\"polarity\":\"positive\",\"confidence\":0.9}",
+      "main": "{\"polarity\":\"positive\",\"confidence\":0.9}",
+      "result": {
+        "polarity": "positive",
+        "score": 0.9,
+        "confidence": 0.9,
+        "tier": 1
+      },
+      "prompts": [
+        "{\"system\":\"You are a sentiment classifier for game reviews/comments. Reply ONLY with a JSON object: {\\\"polarity\\\":\\\"positive\\\"|\\\"negative\\\"|\\\"neutral\\\",\\\"confidence\\\":0.0..1.0}. No other text.\",\"prompt\":\"Classify the sentiment of this game review/comment:\\n\\n\\\"so-so xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx\\\"\",\"maxTokens\":64}"
+      ]
+    },
+    {
+      "local": "{\"polarity\":\"positive\",\"confidence\":0.9}",
+      "main": "no json here",
+      "result": {
+        "polarity": "positive",
+        "score": 0.9,
+        "confidence": 0.9,
+        "tier": 1
+      },
+      "prompts": [
+        "{\"system\":\"You are a sentiment classifier for game reviews/comments. Reply ONLY with a JSON object: {\\\"polarity\\\":\\\"positive\\\"|\\\"negative\\\"|\\\"neutral\\\",\\\"confidence\\\":0.0..1.0}. No other text.\",\"prompt\":\"Classify the sentiment of this game review/comment:\\n\\n\\\"so-so xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx\\\"\",\"maxTokens\":64}"
+      ]
+    },
+    {
+      "local": "{\"polarity\":\"positive\",\"confidence\":0.9}",
+      "main": null,
+      "result": {
+        "polarity": "positive",
+        "score": 0.9,
+        "confidence": 0.9,
+        "tier": 1
+      },
+      "prompts": [
+        "{\"system\":\"You are a sentiment classifier for game reviews/comments. Reply ONLY with a JSON object: {\\\"polarity\\\":\\\"positive\\\"|\\\"negative\\\"|\\\"neutral\\\",\\\"confidence\\\":0.0..1.0}. No other text.\",\"prompt\":\"Classify the sentiment of this game review/comment:\\n\\n\\\"so-so xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx\\\"\",\"maxTokens\":64}"
+      ]
+    },
+    {
+      "local": "sure: {\"polarity\":\"negative\",\"confidence\":0.7} done",
+      "main": "{\"polarity\":\"positive\",\"confidence\":0.9}",
+      "result": {
+        "polarity": "negative",
+        "score": -0.7,
+        "confidence": 0.7,
+        "tier": 1
+      },
+      "prompts": [
+        "{\"system\":\"You are a sentiment classifier for game reviews/comments. Reply ONLY with a JSON object: {\\\"polarity\\\":\\\"positive\\\"|\\\"negative\\\"|\\\"neutral\\\",\\\"confidence\\\":0.0..1.0}. No other text.\",\"prompt\":\"Classify the sentiment of this game review/comment:\\n\\n\\\"so-so xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx\\\"\",\"maxTokens\":64}"
+      ]
+    },
+    {
+      "local": "sure: {\"polarity\":\"negative\",\"confidence\":0.7} done",
+      "main": "no json here",
+      "result": {
+        "polarity": "negative",
+        "score": -0.7,
+        "confidence": 0.7,
+        "tier": 1
+      },
+      "prompts": [
+        "{\"system\":\"You are a sentiment classifier for game reviews/comments. Reply ONLY with a JSON object: {\\\"polarity\\\":\\\"positive\\\"|\\\"negative\\\"|\\\"neutral\\\",\\\"confidence\\\":0.0..1.0}. No other text.\",\"prompt\":\"Classify the sentiment of this game review/comment:\\n\\n\\\"so-so xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx\\\"\",\"maxTokens\":64}"
+      ]
+    },
+    {
+      "local": "sure: {\"polarity\":\"negative\",\"confidence\":0.7} done",
+      "main": null,
+      "result": {
+        "polarity": "negative",
+        "score": -0.7,
+        "confidence": 0.7,
+        "tier": 1
+      },
+      "prompts": [
+        "{\"system\":\"You are a sentiment classifier for game reviews/comments. Reply ONLY with a JSON object: {\\\"polarity\\\":\\\"positive\\\"|\\\"negative\\\"|\\\"neutral\\\",\\\"confidence\\\":0.0..1.0}. No other text.\",\"prompt\":\"Classify the sentiment of this game review/comment:\\n\\n\\\"so-so xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx\\\"\",\"maxTokens\":64}"
+      ]
+    },
+    {
+      "local": "{\"polarity\":\"neutral\",\"confidence\":\"0.8\"}",
+      "main": "{\"polarity\":\"positive\",\"confidence\":0.9}",
+      "result": {
+        "polarity": "neutral",
+        "score": 0,
+        "confidence": 0.8,
+        "tier": 1
+      },
+      "prompts": [
+        "{\"system\":\"You are a sentiment classifier for game reviews/comments. Reply ONLY with a JSON object: {\\\"polarity\\\":\\\"positive\\\"|\\\"negative\\\"|\\\"neutral\\\",\\\"confidence\\\":0.0..1.0}. No other text.\",\"prompt\":\"Classify the sentiment of this game review/comment:\\n\\n\\\"so-so xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx\\\"\",\"maxTokens\":64}"
+      ]
+    },
+    {
+      "local": "{\"polarity\":\"neutral\",\"confidence\":\"0.8\"}",
+      "main": "no json here",
+      "result": {
+        "polarity": "neutral",
+        "score": 0,
+        "confidence": 0.8,
+        "tier": 1
+      },
+      "prompts": [
+        "{\"system\":\"You are a sentiment classifier for game reviews/comments. Reply ONLY with a JSON object: {\\\"polarity\\\":\\\"positive\\\"|\\\"negative\\\"|\\\"neutral\\\",\\\"confidence\\\":0.0..1.0}. No other text.\",\"prompt\":\"Classify the sentiment of this game review/comment:\\n\\n\\\"so-so xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx\\\"\",\"maxTokens\":64}"
+      ]
+    },
+    {
+      "local": "{\"polarity\":\"neutral\",\"confidence\":\"0.8\"}",
+      "main": null,
+      "result": {
+        "polarity": "neutral",
+        "score": 0,
+        "confidence": 0.8,
+        "tier": 1
+      },
+      "prompts": [
+        "{\"system\":\"You are a sentiment classifier for game reviews/comments. Reply ONLY with a JSON object: {\\\"polarity\\\":\\\"positive\\\"|\\\"negative\\\"|\\\"neutral\\\",\\\"confidence\\\":0.0..1.0}. No other text.\",\"prompt\":\"Classify the sentiment of this game review/comment:\\n\\n\\\"so-so xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx\\\"\",\"maxTokens\":64}"
+      ]
+    },
+    {
+      "local": "{\"polarity\":\"positive\",\"confidence\":2}",
+      "main": "{\"polarity\":\"positive\",\"confidence\":0.9}",
+      "result": {
+        "polarity": "positive",
+        "score": 1,
+        "confidence": 1,
+        "tier": 1
+      },
+      "prompts": [
+        "{\"system\":\"You are a sentiment classifier for game reviews/comments. Reply ONLY with a JSON object: {\\\"polarity\\\":\\\"positive\\\"|\\\"negative\\\"|\\\"neutral\\\",\\\"confidence\\\":0.0..1.0}. No other text.\",\"prompt\":\"Classify the sentiment of this game review/comment:\\n\\n\\\"so-so xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx\\\"\",\"maxTokens\":64}"
+      ]
+    },
+    {
+      "local": "{\"polarity\":\"positive\",\"confidence\":2}",
+      "main": "no json here",
+      "result": {
+        "polarity": "positive",
+        "score": 1,
+        "confidence": 1,
+        "tier": 1
+      },
+      "prompts": [
+        "{\"system\":\"You are a sentiment classifier for game reviews/comments. Reply ONLY with a JSON object: {\\\"polarity\\\":\\\"positive\\\"|\\\"negative\\\"|\\\"neutral\\\",\\\"confidence\\\":0.0..1.0}. No other text.\",\"prompt\":\"Classify the sentiment of this game review/comment:\\n\\n\\\"so-so xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx\\\"\",\"maxTokens\":64}"
+      ]
+    },
+    {
+      "local": "{\"polarity\":\"positive\",\"confidence\":2}",
+      "main": null,
+      "result": {
+        "polarity": "positive",
+        "score": 1,
+        "confidence": 1,
+        "tier": 1
+      },
+      "prompts": [
+        "{\"system\":\"You are a sentiment classifier for game reviews/comments. Reply ONLY with a JSON object: {\\\"polarity\\\":\\\"positive\\\"|\\\"negative\\\"|\\\"neutral\\\",\\\"confidence\\\":0.0..1.0}. No other text.\",\"prompt\":\"Classify the sentiment of this game review/comment:\\n\\n\\\"so-so xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx\\\"\",\"maxTokens\":64}"
+      ]
+    },
+    {
+      "local": "{\"polarity\":\"positive\"}",
+      "main": "{\"polarity\":\"positive\",\"confidence\":0.9}",
+      "result": {
+        "polarity": "positive",
+        "score": 0.9,
+        "confidence": 0.9,
+        "tier": 2
+      },
+      "prompts": [
+        "{\"system\":\"You are a sentiment classifier for game reviews/comments. Reply ONLY with a JSON object: {\\\"polarity\\\":\\\"positive\\\"|\\\"negative\\\"|\\\"neutral\\\",\\\"confidence\\\":0.0..1.0}. No other text.\",\"prompt\":\"Classify the sentiment of this game review/comment:\\n\\n\\\"so-so xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx\\\"\",\"maxTokens\":64}",
+        "{\"system\":\"You are a sentiment classifier for game reviews/comments. Reply ONLY with a JSON object: {\\\"polarity\\\":\\\"positive\\\"|\\\"negative\\\"|\\\"neutral\\\",\\\"confidence\\\":0.0..1.0}. No other text.\",\"prompt\":\"Classify the sentiment of this game review/comment:\\n\\n\\\"so-so xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx\\\"\",\"maxTokens\":64}"
+      ]
+    },
+    {
+      "local": "{\"polarity\":\"positive\"}",
+      "main": "no json here",
+      "result": {
+        "polarity": "neutral",
+        "score": 0,
+        "confidence": 0,
+        "tier": 2
+      },
+      "prompts": [
+        "{\"system\":\"You are a sentiment classifier for game reviews/comments. Reply ONLY with a JSON object: {\\\"polarity\\\":\\\"positive\\\"|\\\"negative\\\"|\\\"neutral\\\",\\\"confidence\\\":0.0..1.0}. No other text.\",\"prompt\":\"Classify the sentiment of this game review/comment:\\n\\n\\\"so-so xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx\\\"\",\"maxTokens\":64}",
+        "{\"system\":\"You are a sentiment classifier for game reviews/comments. Reply ONLY with a JSON object: {\\\"polarity\\\":\\\"positive\\\"|\\\"negative\\\"|\\\"neutral\\\",\\\"confidence\\\":0.0..1.0}. No other text.\",\"prompt\":\"Classify the sentiment of this game review/comment:\\n\\n\\\"so-so xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx\\\"\",\"maxTokens\":64}"
+      ]
+    },
+    {
+      "local": "{\"polarity\":\"positive\"}",
+      "main": null,
+      "result": {
+        "polarity": "neutral",
+        "score": 0,
+        "confidence": 0,
+        "tier": 0
+      },
+      "prompts": [
+        "{\"system\":\"You are a sentiment classifier for game reviews/comments. Reply ONLY with a JSON object: {\\\"polarity\\\":\\\"positive\\\"|\\\"negative\\\"|\\\"neutral\\\",\\\"confidence\\\":0.0..1.0}. No other text.\",\"prompt\":\"Classify the sentiment of this game review/comment:\\n\\n\\\"so-so xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx\\\"\",\"maxTokens\":64}"
+      ]
+    },
+    {
+      "local": "{\"polarity\":\"bad\",\"confidence\":0.9}",
+      "main": "{\"polarity\":\"positive\",\"confidence\":0.9}",
+      "result": {
+        "polarity": "positive",
+        "score": 0.9,
+        "confidence": 0.9,
+        "tier": 2
+      },
+      "prompts": [
+        "{\"system\":\"You are a sentiment classifier for game reviews/comments. Reply ONLY with a JSON object: {\\\"polarity\\\":\\\"positive\\\"|\\\"negative\\\"|\\\"neutral\\\",\\\"confidence\\\":0.0..1.0}. No other text.\",\"prompt\":\"Classify the sentiment of this game review/comment:\\n\\n\\\"so-so xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx\\\"\",\"maxTokens\":64}",
+        "{\"system\":\"You are a sentiment classifier for game reviews/comments. Reply ONLY with a JSON object: {\\\"polarity\\\":\\\"positive\\\"|\\\"negative\\\"|\\\"neutral\\\",\\\"confidence\\\":0.0..1.0}. No other text.\",\"prompt\":\"Classify the sentiment of this game review/comment:\\n\\n\\\"so-so xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx\\\"\",\"maxTokens\":64}"
+      ]
+    },
+    {
+      "local": "{\"polarity\":\"bad\",\"confidence\":0.9}",
+      "main": "no json here",
+      "result": {
+        "polarity": "neutral",
+        "score": 0,
+        "confidence": 0,
+        "tier": 2
+      },
+      "prompts": [
+        "{\"system\":\"You are a sentiment classifier for game reviews/comments. Reply ONLY with a JSON object: {\\\"polarity\\\":\\\"positive\\\"|\\\"negative\\\"|\\\"neutral\\\",\\\"confidence\\\":0.0..1.0}. No other text.\",\"prompt\":\"Classify the sentiment of this game review/comment:\\n\\n\\\"so-so xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx\\\"\",\"maxTokens\":64}",
+        "{\"system\":\"You are a sentiment classifier for game reviews/comments. Reply ONLY with a JSON object: {\\\"polarity\\\":\\\"positive\\\"|\\\"negative\\\"|\\\"neutral\\\",\\\"confidence\\\":0.0..1.0}. No other text.\",\"prompt\":\"Classify the sentiment of this game review/comment:\\n\\n\\\"so-so xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx\\\"\",\"maxTokens\":64}"
+      ]
+    },
+    {
+      "local": "{\"polarity\":\"bad\",\"confidence\":0.9}",
+      "main": null,
+      "result": {
+        "polarity": "neutral",
+        "score": 0,
+        "confidence": 0,
+        "tier": 0
+      },
+      "prompts": [
+        "{\"system\":\"You are a sentiment classifier for game reviews/comments. Reply ONLY with a JSON object: {\\\"polarity\\\":\\\"positive\\\"|\\\"negative\\\"|\\\"neutral\\\",\\\"confidence\\\":0.0..1.0}. No other text.\",\"prompt\":\"Classify the sentiment of this game review/comment:\\n\\n\\\"so-so xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx\\\"\",\"maxTokens\":64}"
+      ]
+    },
+    {
+      "local": "no json here",
+      "main": "{\"polarity\":\"positive\",\"confidence\":0.9}",
+      "result": {
+        "polarity": "positive",
+        "score": 0.9,
+        "confidence": 0.9,
+        "tier": 2
+      },
+      "prompts": [
+        "{\"system\":\"You are a sentiment classifier for game reviews/comments. Reply ONLY with a JSON object: {\\\"polarity\\\":\\\"positive\\\"|\\\"negative\\\"|\\\"neutral\\\",\\\"confidence\\\":0.0..1.0}. No other text.\",\"prompt\":\"Classify the sentiment of this game review/comment:\\n\\n\\\"so-so xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx\\\"\",\"maxTokens\":64}",
+        "{\"system\":\"You are a sentiment classifier for game reviews/comments. Reply ONLY with a JSON object: {\\\"polarity\\\":\\\"positive\\\"|\\\"negative\\\"|\\\"neutral\\\",\\\"confidence\\\":0.0..1.0}. No other text.\",\"prompt\":\"Classify the sentiment of this game review/comment:\\n\\n\\\"so-so xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx\\\"\",\"maxTokens\":64}"
+      ]
+    },
+    {
+      "local": "no json here",
+      "main": "no json here",
+      "result": {
+        "polarity": "neutral",
+        "score": 0,
+        "confidence": 0,
+        "tier": 2
+      },
+      "prompts": [
+        "{\"system\":\"You are a sentiment classifier for game reviews/comments. Reply ONLY with a JSON object: {\\\"polarity\\\":\\\"positive\\\"|\\\"negative\\\"|\\\"neutral\\\",\\\"confidence\\\":0.0..1.0}. No other text.\",\"prompt\":\"Classify the sentiment of this game review/comment:\\n\\n\\\"so-so xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx\\\"\",\"maxTokens\":64}",
+        "{\"system\":\"You are a sentiment classifier for game reviews/comments. Reply ONLY with a JSON object: {\\\"polarity\\\":\\\"positive\\\"|\\\"negative\\\"|\\\"neutral\\\",\\\"confidence\\\":0.0..1.0}. No other text.\",\"prompt\":\"Classify the sentiment of this game review/comment:\\n\\n\\\"so-so xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx\\\"\",\"maxTokens\":64}"
+      ]
+    },
+    {
+      "local": "no json here",
+      "main": null,
+      "result": {
+        "polarity": "neutral",
+        "score": 0,
+        "confidence": 0,
+        "tier": 0
+      },
+      "prompts": [
+        "{\"system\":\"You are a sentiment classifier for game reviews/comments. Reply ONLY with a JSON object: {\\\"polarity\\\":\\\"positive\\\"|\\\"negative\\\"|\\\"neutral\\\",\\\"confidence\\\":0.0..1.0}. No other text.\",\"prompt\":\"Classify the sentiment of this game review/comment:\\n\\n\\\"so-so xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx\\\"\",\"maxTokens\":64}"
+      ]
+    },
+    {
+      "local": "{\"polarity\":\"positive\",\"confidence\":0.5}",
+      "main": "{\"polarity\":\"positive\",\"confidence\":0.9}",
+      "result": {
+        "polarity": "positive",
+        "score": 0.9,
+        "confidence": 0.9,
+        "tier": 2
+      },
+      "prompts": [
+        "{\"system\":\"You are a sentiment classifier for game reviews/comments. Reply ONLY with a JSON object: {\\\"polarity\\\":\\\"positive\\\"|\\\"negative\\\"|\\\"neutral\\\",\\\"confidence\\\":0.0..1.0}. No other text.\",\"prompt\":\"Classify the sentiment of this game review/comment:\\n\\n\\\"so-so xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx\\\"\",\"maxTokens\":64}",
+        "{\"system\":\"You are a sentiment classifier for game reviews/comments. Reply ONLY with a JSON object: {\\\"polarity\\\":\\\"positive\\\"|\\\"negative\\\"|\\\"neutral\\\",\\\"confidence\\\":0.0..1.0}. No other text.\",\"prompt\":\"Classify the sentiment of this game review/comment:\\n\\n\\\"so-so xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx\\\"\",\"maxTokens\":64}"
+      ]
+    },
+    {
+      "local": "{\"polarity\":\"positive\",\"confidence\":0.5}",
+      "main": "no json here",
+      "result": {
+        "polarity": "neutral",
+        "score": 0,
+        "confidence": 0,
+        "tier": 2
+      },
+      "prompts": [
+        "{\"system\":\"You are a sentiment classifier for game reviews/comments. Reply ONLY with a JSON object: {\\\"polarity\\\":\\\"positive\\\"|\\\"negative\\\"|\\\"neutral\\\",\\\"confidence\\\":0.0..1.0}. No other text.\",\"prompt\":\"Classify the sentiment of this game review/comment:\\n\\n\\\"so-so xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx\\\"\",\"maxTokens\":64}",
+        "{\"system\":\"You are a sentiment classifier for game reviews/comments. Reply ONLY with a JSON object: {\\\"polarity\\\":\\\"positive\\\"|\\\"negative\\\"|\\\"neutral\\\",\\\"confidence\\\":0.0..1.0}. No other text.\",\"prompt\":\"Classify the sentiment of this game review/comment:\\n\\n\\\"so-so xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx\\\"\",\"maxTokens\":64}"
+      ]
+    },
+    {
+      "local": "{\"polarity\":\"positive\",\"confidence\":0.5}",
+      "main": null,
+      "result": {
+        "polarity": "neutral",
+        "score": 0,
+        "confidence": 0,
+        "tier": 0
+      },
+      "prompts": [
+        "{\"system\":\"You are a sentiment classifier for game reviews/comments. Reply ONLY with a JSON object: {\\\"polarity\\\":\\\"positive\\\"|\\\"negative\\\"|\\\"neutral\\\",\\\"confidence\\\":0.0..1.0}. No other text.\",\"prompt\":\"Classify the sentiment of this game review/comment:\\n\\n\\\"so-so xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx\\\"\",\"maxTokens\":64}"
+      ]
+    },
+    {
+      "local": "{broken",
+      "main": "{\"polarity\":\"positive\",\"confidence\":0.9}",
+      "result": {
+        "polarity": "positive",
+        "score": 0.9,
+        "confidence": 0.9,
+        "tier": 2
+      },
+      "prompts": [
+        "{\"system\":\"You are a sentiment classifier for game reviews/comments. Reply ONLY with a JSON object: {\\\"polarity\\\":\\\"positive\\\"|\\\"negative\\\"|\\\"neutral\\\",\\\"confidence\\\":0.0..1.0}. No other text.\",\"prompt\":\"Classify the sentiment of this game review/comment:\\n\\n\\\"so-so xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx\\\"\",\"maxTokens\":64}",
+        "{\"system\":\"You are a sentiment classifier for game reviews/comments. Reply ONLY with a JSON object: {\\\"polarity\\\":\\\"positive\\\"|\\\"negative\\\"|\\\"neutral\\\",\\\"confidence\\\":0.0..1.0}. No other text.\",\"prompt\":\"Classify the sentiment of this game review/comment:\\n\\n\\\"so-so xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx\\\"\",\"maxTokens\":64}"
+      ]
+    },
+    {
+      "local": "{broken",
+      "main": "no json here",
+      "result": {
+        "polarity": "neutral",
+        "score": 0,
+        "confidence": 0,
+        "tier": 2
+      },
+      "prompts": [
+        "{\"system\":\"You are a sentiment classifier for game reviews/comments. Reply ONLY with a JSON object: {\\\"polarity\\\":\\\"positive\\\"|\\\"negative\\\"|\\\"neutral\\\",\\\"confidence\\\":0.0..1.0}. No other text.\",\"prompt\":\"Classify the sentiment of this game review/comment:\\n\\n\\\"so-so xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx\\\"\",\"maxTokens\":64}",
+        "{\"system\":\"You are a sentiment classifier for game reviews/comments. Reply ONLY with a JSON object: {\\\"polarity\\\":\\\"positive\\\"|\\\"negative\\\"|\\\"neutral\\\",\\\"confidence\\\":0.0..1.0}. No other text.\",\"prompt\":\"Classify the sentiment of this game review/comment:\\n\\n\\\"so-so xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx\\\"\",\"maxTokens\":64}"
+      ]
+    },
+    {
+      "local": "{broken",
+      "main": null,
+      "result": {
+        "polarity": "neutral",
+        "score": 0,
+        "confidence": 0,
+        "tier": 0
+      },
+      "prompts": [
+        "{\"system\":\"You are a sentiment classifier for game reviews/comments. Reply ONLY with a JSON object: {\\\"polarity\\\":\\\"positive\\\"|\\\"negative\\\"|\\\"neutral\\\",\\\"confidence\\\":0.0..1.0}. No other text.\",\"prompt\":\"Classify the sentiment of this game review/comment:\\n\\n\\\"so-so xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx\\\"\",\"maxTokens\":64}"
+      ]
+    },
+    {
+      "local": "{\"polarity\":\"negative\",\"confidence\":true}",
+      "main": "{\"polarity\":\"positive\",\"confidence\":0.9}",
+      "result": {
+        "polarity": "negative",
+        "score": -1,
+        "confidence": 1,
+        "tier": 1
+      },
+      "prompts": [
+        "{\"system\":\"You are a sentiment classifier for game reviews/comments. Reply ONLY with a JSON object: {\\\"polarity\\\":\\\"positive\\\"|\\\"negative\\\"|\\\"neutral\\\",\\\"confidence\\\":0.0..1.0}. No other text.\",\"prompt\":\"Classify the sentiment of this game review/comment:\\n\\n\\\"so-so xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx\\\"\",\"maxTokens\":64}"
+      ]
+    },
+    {
+      "local": "{\"polarity\":\"negative\",\"confidence\":true}",
+      "main": "no json here",
+      "result": {
+        "polarity": "negative",
+        "score": -1,
+        "confidence": 1,
+        "tier": 1
+      },
+      "prompts": [
+        "{\"system\":\"You are a sentiment classifier for game reviews/comments. Reply ONLY with a JSON object: {\\\"polarity\\\":\\\"positive\\\"|\\\"negative\\\"|\\\"neutral\\\",\\\"confidence\\\":0.0..1.0}. No other text.\",\"prompt\":\"Classify the sentiment of this game review/comment:\\n\\n\\\"so-so xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx\\\"\",\"maxTokens\":64}"
+      ]
+    },
+    {
+      "local": "{\"polarity\":\"negative\",\"confidence\":true}",
+      "main": null,
+      "result": {
+        "polarity": "negative",
+        "score": -1,
+        "confidence": 1,
+        "tier": 1
+      },
+      "prompts": [
+        "{\"system\":\"You are a sentiment classifier for game reviews/comments. Reply ONLY with a JSON object: {\\\"polarity\\\":\\\"positive\\\"|\\\"negative\\\"|\\\"neutral\\\",\\\"confidence\\\":0.0..1.0}. No other text.\",\"prompt\":\"Classify the sentiment of this game review/comment:\\n\\n\\\"so-so xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx\\\"\",\"maxTokens\":64}"
+      ]
+    },
+    {
+      "local": "{\"polarity\":\"negative\",\"confidence\":null}",
+      "main": "{\"polarity\":\"positive\",\"confidence\":0.9}",
+      "result": {
+        "polarity": "positive",
+        "score": 0.9,
+        "confidence": 0.9,
+        "tier": 2
+      },
+      "prompts": [
+        "{\"system\":\"You are a sentiment classifier for game reviews/comments. Reply ONLY with a JSON object: {\\\"polarity\\\":\\\"positive\\\"|\\\"negative\\\"|\\\"neutral\\\",\\\"confidence\\\":0.0..1.0}. No other text.\",\"prompt\":\"Classify the sentiment of this game review/comment:\\n\\n\\\"so-so xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx\\\"\",\"maxTokens\":64}",
+        "{\"system\":\"You are a sentiment classifier for game reviews/comments. Reply ONLY with a JSON object: {\\\"polarity\\\":\\\"positive\\\"|\\\"negative\\\"|\\\"neutral\\\",\\\"confidence\\\":0.0..1.0}. No other text.\",\"prompt\":\"Classify the sentiment of this game review/comment:\\n\\n\\\"so-so xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx\\\"\",\"maxTokens\":64}"
+      ]
+    },
+    {
+      "local": "{\"polarity\":\"negative\",\"confidence\":null}",
+      "main": "no json here",
+      "result": {
+        "polarity": "neutral",
+        "score": 0,
+        "confidence": 0,
+        "tier": 2
+      },
+      "prompts": [
+        "{\"system\":\"You are a sentiment classifier for game reviews/comments. Reply ONLY with a JSON object: {\\\"polarity\\\":\\\"positive\\\"|\\\"negative\\\"|\\\"neutral\\\",\\\"confidence\\\":0.0..1.0}. No other text.\",\"prompt\":\"Classify the sentiment of this game review/comment:\\n\\n\\\"so-so xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx\\\"\",\"maxTokens\":64}",
+        "{\"system\":\"You are a sentiment classifier for game reviews/comments. Reply ONLY with a JSON object: {\\\"polarity\\\":\\\"positive\\\"|\\\"negative\\\"|\\\"neutral\\\",\\\"confidence\\\":0.0..1.0}. No other text.\",\"prompt\":\"Classify the sentiment of this game review/comment:\\n\\n\\\"so-so xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx\\\"\",\"maxTokens\":64}"
+      ]
+    },
+    {
+      "local": "{\"polarity\":\"negative\",\"confidence\":null}",
+      "main": null,
+      "result": {
+        "polarity": "neutral",
+        "score": 0,
+        "confidence": 0,
+        "tier": 0
+      },
+      "prompts": [
+        "{\"system\":\"You are a sentiment classifier for game reviews/comments. Reply ONLY with a JSON object: {\\\"polarity\\\":\\\"positive\\\"|\\\"negative\\\"|\\\"neutral\\\",\\\"confidence\\\":0.0..1.0}. No other text.\",\"prompt\":\"Classify the sentiment of this game review/comment:\\n\\n\\\"so-so xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx\\\"\",\"maxTokens\":64}"
+      ]
+    },
+    {
+      "local": null,
+      "main": "{\"polarity\":\"positive\",\"confidence\":0.9}",
+      "result": {
+        "polarity": "positive",
+        "score": 0.9,
+        "confidence": 0.9,
+        "tier": 2
+      },
+      "prompts": [
+        "{\"system\":\"You are a sentiment classifier for game reviews/comments. Reply ONLY with a JSON object: {\\\"polarity\\\":\\\"positive\\\"|\\\"negative\\\"|\\\"neutral\\\",\\\"confidence\\\":0.0..1.0}. No other text.\",\"prompt\":\"Classify the sentiment of this game review/comment:\\n\\n\\\"so-so xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx\\\"\",\"maxTokens\":64}"
+      ]
+    },
+    {
+      "local": null,
+      "main": "no json here",
+      "result": {
+        "polarity": "neutral",
+        "score": 0,
+        "confidence": 0,
+        "tier": 2
+      },
+      "prompts": [
+        "{\"system\":\"You are a sentiment classifier for game reviews/comments. Reply ONLY with a JSON object: {\\\"polarity\\\":\\\"positive\\\"|\\\"negative\\\"|\\\"neutral\\\",\\\"confidence\\\":0.0..1.0}. No other text.\",\"prompt\":\"Classify the sentiment of this game review/comment:\\n\\n\\\"so-so xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx\\\"\",\"maxTokens\":64}"
+      ]
+    },
+    {
+      "local": null,
+      "main": null,
+      "result": {
+        "polarity": "neutral",
+        "score": 0,
+        "confidence": 0,
+        "tier": 0
+      },
+      "prompts": []
+    }
+  ]
+}
