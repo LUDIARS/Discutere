@@ -13,12 +13,15 @@ services:
     component: backend
     port: 3110
     repo: LUDIARS/Discutere
+    # Excubitor に native 用の runtime は無いので runtime: node のまま、command に C++ の実行ファイルを書く
+    # (Odeum の odeum-relay と同じ形)。ビルド: cmake -S native -B native/build -G Ninja -DCMAKE_BUILD_TYPE=Release
+    # && cmake --build native/build -j2 (native/README.md)。仕様書の PDF/DOCX 抽出・Notion 読み込み・バックアップの
+    # tar.gz 作成は Node のサイドカー (native/sidecar) を呼ぶので、node と npm install 済みの node_modules は引き続き要る。
+    # 移行前は `node --run dev:server` (tsx watch)。main の更新で自動再起動しない (議論が消える問題も無くなる)。
     runtime: node
     cwd: ${ARS_ROOT}/Discutere
-    command: node --run dev:server
-    allow_hot_reload: true
-    # npm run だと Windows の job-breakaway 起動で npm.cmd の親がすぐ終わり、Excubitor が
-    # 起動直後の終了 (crashed) と誤判定する。node --run で node を直接起動する (Cernere 等と同じ)。
+    command: native/build/bin/discutere-server
+    allow_hot_reload: false
     # BACKEND_PORT=3110 は env: で spawn env に注入され、 node が継承する
     # (Nuntius(3100) との port 競合回避)。
     autostart: false

@@ -19,6 +19,7 @@ import { cpSync, existsSync, mkdirSync, mkdtempSync, readFileSync, rmSync, write
 import { createServer } from "node:net";
 import { tmpdir } from "node:os";
 import { join, resolve } from "node:path";
+import { fileURLToPath } from "node:url";
 
 type Args = { cppBin: string; data?: string; config?: string; out?: string; keep: boolean; verbose: boolean };
 
@@ -46,7 +47,8 @@ function parseArgs(argv: string[]): Args {
   return a;
 }
 
-const repoRoot = resolve(new URL("../..", import.meta.url).pathname);
+// URL の pathname を使うと Windows で "/E:/..." になり resolve が "E:\E:\..." を返すので fileURLToPath で変換する。
+const repoRoot = fileURLToPath(new URL("../..", import.meta.url));
 
 /** 空きポート (port=0 で bind して閉じる)。 */
 function freePort(): Promise<number> {

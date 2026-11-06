@@ -37,3 +37,6 @@ logs/
 
 # Anatomia のローカル状態 (ドメイン定義の正本は spec/domains/)
 .anatomia/
+
+# native の CMake ビルド出力 (Excubitor は native/build/bin/discutere-server を起動する)
+native/build/
