@@ -114,6 +114,7 @@ TEST_CASE("server and client over loopback with body limit boundary") {
     auto b = http::fetch(blocked);
     CHECK(!b.transport_ok);  // 既定では loopback へ出ない (SSRF 対策)
     CHECK(b.error.find("blocked") != std::string::npos);
+    CHECK(b.error_kind == http::FetchErrorKind::blocked);
 
     http::ClientRequest get;
     get.url = base + "/health";
@@ -141,11 +142,14 @@ TEST_CASE("server and client over loopback with body limit boundary") {
     limited.max_response_bytes = 10;
     auto l = http::fetch(limited);
     CHECK(!l.transport_ok);
+    CHECK(l.error_kind == http::FetchErrorKind::too_large);
 
     http::ClientRequest nf;
     nf.url = base + "/missing";
     nf.allow_private_network = true;
-    CHECK_EQ(http::fetch(nf).status, 404);
+    auto missing = http::fetch(nf);
+    CHECK_EQ(missing.status, 404);
+    CHECK_EQ(missing.reason, std::string("Not Found"));
     server.stop();
 }
 

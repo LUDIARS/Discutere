@@ -9685,6 +9685,486 @@
       ]
     },
     {
+      "file": "native/tests/analysis/gap_rate_tests.cpp",
+      "standard": "c++20",
+      "includes": [
+        "native/src",
+        "native/tests"
+      ],
+      "defines": [
+        "WIN32_LEAN_AND_MEAN",
+        "NOMINMAX",
+        "_WIN32_WINNT=0x0A00",
+        "BOOST_ERROR_CODE_HEADER_ONLY",
+        "BOOST_ASIO_NO_DEPRECATED",
+        "BOOST_BEAST_USE_STD_STRING_VIEW",
+        "BOOST_BEAST_SEPARATE_COMPILATION"
+      ],
+      "packages": [
+        "odeum-json-3-11-3",
+        "odeum-boost-1-87-0",
+        "odeum-openssl-3",
+        "discutere-lorica-cab4f120",
+        "discutere-sqlite-3-53-4"
+      ]
+    },
+    {
+      "file": "native/tests/api/conclusion_publication_routes_tests.cpp",
+      "standard": "c++20",
+      "includes": [
+        "native/src",
+        "native/tests"
+      ],
+      "defines": [
+        "WIN32_LEAN_AND_MEAN",
+        "NOMINMAX",
+        "_WIN32_WINNT=0x0A00",
+        "BOOST_ERROR_CODE_HEADER_ONLY",
+        "BOOST_ASIO_NO_DEPRECATED",
+        "BOOST_BEAST_USE_STD_STRING_VIEW",
+        "BOOST_BEAST_SEPARATE_COMPILATION"
+      ],
+      "packages": [
+        "odeum-json-3-11-3",
+        "odeum-boost-1-87-0",
+        "odeum-openssl-3",
+        "discutere-lorica-cab4f120",
+        "discutere-sqlite-3-53-4"
+      ]
+    },
+    {
+      "file": "native/tests/api/guide_routes_tests.cpp",
+      "standard": "c++20",
+      "includes": [
+        "native/src",
+        "native/tests"
+      ],
+      "defines": [
+        "WIN32_LEAN_AND_MEAN",
+        "NOMINMAX",
+        "_WIN32_WINNT=0x0A00",
+        "BOOST_ERROR_CODE_HEADER_ONLY",
+        "BOOST_ASIO_NO_DEPRECATED",
+        "BOOST_BEAST_USE_STD_STRING_VIEW",
+        "BOOST_BEAST_SEPARATE_COMPILATION"
+      ],
+      "packages": [
+        "odeum-json-3-11-3",
+        "odeum-boost-1-87-0",
+        "odeum-openssl-3",
+        "discutere-lorica-cab4f120",
+        "discutere-sqlite-3-53-4"
+      ]
+    },
+    {
+      "file": "native/tests/api/persona_bridge_routes_tests.cpp",
+      "standard": "c++20",
+      "includes": [
+        "native/src",
+        "native/tests"
+      ],
+      "defines": [
+        "WIN32_LEAN_AND_MEAN",
+        "NOMINMAX",
+        "_WIN32_WINNT=0x0A00",
+        "BOOST_ERROR_CODE_HEADER_ONLY",
+        "BOOST_ASIO_NO_DEPRECATED",
+        "BOOST_BEAST_USE_STD_STRING_VIEW",
+        "BOOST_BEAST_SEPARATE_COMPILATION"
+      ],
+      "packages": [
+        "odeum-json-3-11-3",
+        "odeum-boost-1-87-0",
+        "odeum-openssl-3",
+        "discutere-lorica-cab4f120",
+        "discutere-sqlite-3-53-4"
+      ]
+    },
+    {
+      "file": "native/tests/api/w3k_economy_tests.cpp",
+      "standard": "c++20",
+      "includes": [
+        "native/src",
+        "native/tests"
+      ],
+      "defines": [
+        "WIN32_LEAN_AND_MEAN",
+        "NOMINMAX",
+        "_WIN32_WINNT=0x0A00",
+        "BOOST_ERROR_CODE_HEADER_ONLY",
+        "BOOST_ASIO_NO_DEPRECATED",
+        "BOOST_BEAST_USE_STD_STRING_VIEW",
+        "BOOST_BEAST_SEPARATE_COMPILATION"
+      ],
+      "packages": [
+        "odeum-json-3-11-3",
+        "odeum-boost-1-87-0",
+        "odeum-openssl-3",
+        "discutere-lorica-cab4f120",
+        "discutere-sqlite-3-53-4"
+      ]
+    },
+    {
+      "file": "native/tests/api/w3m_admin_routes_part2_tests.cpp",
+      "standard": "c++20",
+      "includes": [
+        "native/src",
+        "native/tests"
+      ],
+      "defines": [
+        "WIN32_LEAN_AND_MEAN",
+        "NOMINMAX",
+        "_WIN32_WINNT=0x0A00",
+        "BOOST_ERROR_CODE_HEADER_ONLY",
+        "BOOST_ASIO_NO_DEPRECATED",
+        "BOOST_BEAST_USE_STD_STRING_VIEW",
+        "BOOST_BEAST_SEPARATE_COMPILATION"
+      ],
+      "packages": [
+        "odeum-json-3-11-3",
+        "odeum-boost-1-87-0",
+        "odeum-openssl-3",
+        "discutere-lorica-cab4f120",
+        "discutere-sqlite-3-53-4"
+      ]
+    },
+    {
+      "file": "native/tests/api/w3m_admin_routes_part3_tests.cpp",
+      "standard": "c++20",
+      "includes": [
+        "native/src",
+        "native/tests"
+      ],
+      "defines": [
+        "WIN32_LEAN_AND_MEAN",
+        "NOMINMAX",
+        "_WIN32_WINNT=0x0A00",
+        "BOOST_ERROR_CODE_HEADER_ONLY",
+        "BOOST_ASIO_NO_DEPRECATED",
+        "BOOST_BEAST_USE_STD_STRING_VIEW",
+        "BOOST_BEAST_SEPARATE_COMPILATION"
+      ],
+      "packages": [
+        "odeum-json-3-11-3",
+        "odeum-boost-1-87-0",
+        "odeum-openssl-3",
+        "discutere-lorica-cab4f120",
+        "discutere-sqlite-3-53-4"
+      ]
+    },
+    {
+      "file": "native/tests/api/w3m_admin_routes_tests.cpp",
+      "standard": "c++20",
+      "includes": [
+        "native/src",
+        "native/tests"
+      ],
+      "defines": [
+        "WIN32_LEAN_AND_MEAN",
+        "NOMINMAX",
+        "_WIN32_WINNT=0x0A00",
+        "BOOST_ERROR_CODE_HEADER_ONLY",
+        "BOOST_ASIO_NO_DEPRECATED",
+        "BOOST_BEAST_USE_STD_STRING_VIEW",
+        "BOOST_BEAST_SEPARATE_COMPILATION"
+      ],
+      "packages": [
+        "odeum-json-3-11-3",
+        "odeum-boost-1-87-0",
+        "odeum-openssl-3",
+        "discutere-lorica-cab4f120",
+        "discutere-sqlite-3-53-4"
+      ]
+    },
+    {
+      "file": "native/tests/api/w3o_admin_routes_part2_tests.cpp",
+      "standard": "c++20",
+      "includes": [
+        "native/src",
+        "native/tests"
+      ],
+      "defines": [
+        "WIN32_LEAN_AND_MEAN",
+        "NOMINMAX",
+        "_WIN32_WINNT=0x0A00",
+        "BOOST_ERROR_CODE_HEADER_ONLY",
+        "BOOST_ASIO_NO_DEPRECATED",
+        "BOOST_BEAST_USE_STD_STRING_VIEW",
+        "BOOST_BEAST_SEPARATE_COMPILATION"
+      ],
+      "packages": [
+        "odeum-json-3-11-3",
+        "odeum-boost-1-87-0",
+        "odeum-openssl-3",
+        "discutere-lorica-cab4f120",
+        "discutere-sqlite-3-53-4"
+      ]
+    },
+    {
+      "file": "native/tests/api/w3o_admin_routes_part3_tests.cpp",
+      "standard": "c++20",
+      "includes": [
+        "native/src",
+        "native/tests"
+      ],
+      "defines": [
+        "WIN32_LEAN_AND_MEAN",
+        "NOMINMAX",
+        "_WIN32_WINNT=0x0A00",
+        "BOOST_ERROR_CODE_HEADER_ONLY",
+        "BOOST_ASIO_NO_DEPRECATED",
+        "BOOST_BEAST_USE_STD_STRING_VIEW",
+        "BOOST_BEAST_SEPARATE_COMPILATION"
+      ],
+      "packages": [
+        "odeum-json-3-11-3",
+        "odeum-boost-1-87-0",
+        "odeum-openssl-3",
+        "discutere-lorica-cab4f120",
+        "discutere-sqlite-3-53-4"
+      ]
+    },
+    {
+      "file": "native/tests/api/w3o_admin_routes_tests.cpp",
+      "standard": "c++20",
+      "includes": [
+        "native/src",
+        "native/tests"
+      ],
+      "defines": [
+        "WIN32_LEAN_AND_MEAN",
+        "NOMINMAX",
+        "_WIN32_WINNT=0x0A00",
+        "BOOST_ERROR_CODE_HEADER_ONLY",
+        "BOOST_ASIO_NO_DEPRECATED",
+        "BOOST_BEAST_USE_STD_STRING_VIEW",
+        "BOOST_BEAST_SEPARATE_COMPILATION"
+      ],
+      "packages": [
+        "odeum-json-3-11-3",
+        "odeum-boost-1-87-0",
+        "odeum-openssl-3",
+        "discutere-lorica-cab4f120",
+        "discutere-sqlite-3-53-4"
+      ]
+    },
+    {
+      "file": "native/tests/api/w4q_routes_part2_tests.cpp",
+      "standard": "c++20",
+      "includes": [
+        "native/src",
+        "native/tests"
+      ],
+      "defines": [
+        "WIN32_LEAN_AND_MEAN",
+        "NOMINMAX",
+        "_WIN32_WINNT=0x0A00",
+        "BOOST_ERROR_CODE_HEADER_ONLY",
+        "BOOST_ASIO_NO_DEPRECATED",
+        "BOOST_BEAST_USE_STD_STRING_VIEW",
+        "BOOST_BEAST_SEPARATE_COMPILATION"
+      ],
+      "packages": [
+        "odeum-json-3-11-3",
+        "odeum-boost-1-87-0",
+        "odeum-openssl-3",
+        "discutere-lorica-cab4f120",
+        "discutere-sqlite-3-53-4"
+      ]
+    },
+    {
+      "file": "native/tests/api/w4q_routes_part3_tests.cpp",
+      "standard": "c++20",
+      "includes": [
+        "native/src",
+        "native/tests"
+      ],
+      "defines": [
+        "WIN32_LEAN_AND_MEAN",
+        "NOMINMAX",
+        "_WIN32_WINNT=0x0A00",
+        "BOOST_ERROR_CODE_HEADER_ONLY",
+        "BOOST_ASIO_NO_DEPRECATED",
+        "BOOST_BEAST_USE_STD_STRING_VIEW",
+        "BOOST_BEAST_SEPARATE_COMPILATION"
+      ],
+      "packages": [
+        "odeum-json-3-11-3",
+        "odeum-boost-1-87-0",
+        "odeum-openssl-3",
+        "discutere-lorica-cab4f120",
+        "discutere-sqlite-3-53-4"
+      ]
+    },
+    {
+      "file": "native/tests/api/w4q_routes_part4_tests.cpp",
+      "standard": "c++20",
+      "includes": [
+        "native/src",
+        "native/tests"
+      ],
+      "defines": [
+        "WIN32_LEAN_AND_MEAN",
+        "NOMINMAX",
+        "_WIN32_WINNT=0x0A00",
+        "BOOST_ERROR_CODE_HEADER_ONLY",
+        "BOOST_ASIO_NO_DEPRECATED",
+        "BOOST_BEAST_USE_STD_STRING_VIEW",
+        "BOOST_BEAST_SEPARATE_COMPILATION"
+      ],
+      "packages": [
+        "odeum-json-3-11-3",
+        "odeum-boost-1-87-0",
+        "odeum-openssl-3",
+        "discutere-lorica-cab4f120",
+        "discutere-sqlite-3-53-4"
+      ]
+    },
+    {
+      "file": "native/tests/api/w4q_routes_tests.cpp",
+      "standard": "c++20",
+      "includes": [
+        "native/src",
+        "native/tests"
+      ],
+      "defines": [
+        "WIN32_LEAN_AND_MEAN",
+        "NOMINMAX",
+        "_WIN32_WINNT=0x0A00",
+        "BOOST_ERROR_CODE_HEADER_ONLY",
+        "BOOST_ASIO_NO_DEPRECATED",
+        "BOOST_BEAST_USE_STD_STRING_VIEW",
+        "BOOST_BEAST_SEPARATE_COMPILATION"
+      ],
+      "packages": [
+        "odeum-json-3-11-3",
+        "odeum-boost-1-87-0",
+        "odeum-openssl-3",
+        "discutere-lorica-cab4f120",
+        "discutere-sqlite-3-53-4"
+      ]
+    },
+    {
+      "file": "native/tests/api/web_api_tests.cpp",
+      "standard": "c++20",
+      "includes": [
+        "native/src",
+        "native/tests"
+      ],
+      "defines": [
+        "WIN32_LEAN_AND_MEAN",
+        "NOMINMAX",
+        "_WIN32_WINNT=0x0A00",
+        "BOOST_ERROR_CODE_HEADER_ONLY",
+        "BOOST_ASIO_NO_DEPRECATED",
+        "BOOST_BEAST_USE_STD_STRING_VIEW",
+        "BOOST_BEAST_SEPARATE_COMPILATION"
+      ],
+      "packages": [
+        "odeum-json-3-11-3",
+        "odeum-boost-1-87-0",
+        "odeum-openssl-3",
+        "discutere-lorica-cab4f120",
+        "discutere-sqlite-3-53-4"
+      ]
+    },
+    {
+      "file": "native/tests/backup/archive_tests.cpp",
+      "standard": "c++20",
+      "includes": [
+        "native/src",
+        "native/tests"
+      ],
+      "defines": [
+        "WIN32_LEAN_AND_MEAN",
+        "NOMINMAX",
+        "_WIN32_WINNT=0x0A00",
+        "BOOST_ERROR_CODE_HEADER_ONLY",
+        "BOOST_ASIO_NO_DEPRECATED",
+        "BOOST_BEAST_USE_STD_STRING_VIEW",
+        "BOOST_BEAST_SEPARATE_COMPILATION"
+      ],
+      "packages": [
+        "odeum-json-3-11-3",
+        "odeum-boost-1-87-0",
+        "odeum-openssl-3",
+        "discutere-lorica-cab4f120",
+        "discutere-sqlite-3-53-4"
+      ]
+    },
+    {
+      "file": "native/tests/backup/runner_tests.cpp",
+      "standard": "c++20",
+      "includes": [
+        "native/src",
+        "native/tests"
+      ],
+      "defines": [
+        "WIN32_LEAN_AND_MEAN",
+        "NOMINMAX",
+        "_WIN32_WINNT=0x0A00",
+        "BOOST_ERROR_CODE_HEADER_ONLY",
+        "BOOST_ASIO_NO_DEPRECATED",
+        "BOOST_BEAST_USE_STD_STRING_VIEW",
+        "BOOST_BEAST_SEPARATE_COMPILATION"
+      ],
+      "packages": [
+        "odeum-json-3-11-3",
+        "odeum-boost-1-87-0",
+        "odeum-openssl-3",
+        "discutere-lorica-cab4f120",
+        "discutere-sqlite-3-53-4"
+      ]
+    },
+    {
+      "file": "native/tests/backup/s3_part2_tests.cpp",
+      "standard": "c++20",
+      "includes": [
+        "native/src",
+        "native/tests"
+      ],
+      "defines": [
+        "WIN32_LEAN_AND_MEAN",
+        "NOMINMAX",
+        "_WIN32_WINNT=0x0A00",
+        "BOOST_ERROR_CODE_HEADER_ONLY",
+        "BOOST_ASIO_NO_DEPRECATED",
+        "BOOST_BEAST_USE_STD_STRING_VIEW",
+        "BOOST_BEAST_SEPARATE_COMPILATION"
+      ],
+      "packages": [
+        "odeum-json-3-11-3",
+        "odeum-boost-1-87-0",
+        "odeum-openssl-3",
+        "discutere-lorica-cab4f120",
+        "discutere-sqlite-3-53-4"
+      ]
+    },
+    {
+      "file": "native/tests/backup/s3_tests.cpp",
+      "standard": "c++20",
+      "includes": [
+        "native/src",
+        "native/tests"
+      ],
+      "defines": [
+        "WIN32_LEAN_AND_MEAN",
+        "NOMINMAX",
+        "_WIN32_WINNT=0x0A00",
+        "BOOST_ERROR_CODE_HEADER_ONLY",
+        "BOOST_ASIO_NO_DEPRECATED",
+        "BOOST_BEAST_USE_STD_STRING_VIEW",
+        "BOOST_BEAST_SEPARATE_COMPILATION"
+      ],
+      "packages": [
+        "odeum-json-3-11-3",
+        "odeum-boost-1-87-0",
+        "odeum-openssl-3",
+        "discutere-lorica-cab4f120",
+        "discutere-sqlite-3-53-4"
+      ]
+    },
+    {
       "file": "native/tests/base/crypto_time_tests.cpp",
       "standard": "c++20",
       "includes": [
@@ -9805,6 +10285,2934 @@
       ]
     },
     {
+      "file": "native/tests/cernere_service_token/cernere_service_token_part2_tests.cpp",
+      "standard": "c++20",
+      "includes": [
+        "native/src",
+        "native/tests"
+      ],
+      "defines": [
+        "WIN32_LEAN_AND_MEAN",
+        "NOMINMAX",
+        "_WIN32_WINNT=0x0A00",
+        "BOOST_ERROR_CODE_HEADER_ONLY",
+        "BOOST_ASIO_NO_DEPRECATED",
+        "BOOST_BEAST_USE_STD_STRING_VIEW",
+        "BOOST_BEAST_SEPARATE_COMPILATION"
+      ],
+      "packages": [
+        "odeum-json-3-11-3",
+        "odeum-boost-1-87-0",
+        "odeum-openssl-3",
+        "discutere-lorica-cab4f120",
+        "discutere-sqlite-3-53-4"
+      ]
+    },
+    {
+      "file": "native/tests/cernere_service_token/cernere_service_token_part3_tests.cpp",
+      "standard": "c++20",
+      "includes": [
+        "native/src",
+        "native/tests"
+      ],
+      "defines": [
+        "WIN32_LEAN_AND_MEAN",
+        "NOMINMAX",
+        "_WIN32_WINNT=0x0A00",
+        "BOOST_ERROR_CODE_HEADER_ONLY",
+        "BOOST_ASIO_NO_DEPRECATED",
+        "BOOST_BEAST_USE_STD_STRING_VIEW",
+        "BOOST_BEAST_SEPARATE_COMPILATION"
+      ],
+      "packages": [
+        "odeum-json-3-11-3",
+        "odeum-boost-1-87-0",
+        "odeum-openssl-3",
+        "discutere-lorica-cab4f120",
+        "discutere-sqlite-3-53-4"
+      ]
+    },
+    {
+      "file": "native/tests/cernere_service_token/cernere_service_token_tests.cpp",
+      "standard": "c++20",
+      "includes": [
+        "native/src",
+        "native/tests"
+      ],
+      "defines": [
+        "WIN32_LEAN_AND_MEAN",
+        "NOMINMAX",
+        "_WIN32_WINNT=0x0A00",
+        "BOOST_ERROR_CODE_HEADER_ONLY",
+        "BOOST_ASIO_NO_DEPRECATED",
+        "BOOST_BEAST_USE_STD_STRING_VIEW",
+        "BOOST_BEAST_SEPARATE_COMPILATION"
+      ],
+      "packages": [
+        "odeum-json-3-11-3",
+        "odeum-boost-1-87-0",
+        "odeum-openssl-3",
+        "discutere-lorica-cab4f120",
+        "discutere-sqlite-3-53-4"
+      ]
+    },
+    {
+      "file": "native/tests/cernere_service_token/service_token_verify_tests.cpp",
+      "standard": "c++20",
+      "includes": [
+        "native/src",
+        "native/tests"
+      ],
+      "defines": [
+        "WIN32_LEAN_AND_MEAN",
+        "NOMINMAX",
+        "_WIN32_WINNT=0x0A00",
+        "BOOST_ERROR_CODE_HEADER_ONLY",
+        "BOOST_ASIO_NO_DEPRECATED",
+        "BOOST_BEAST_USE_STD_STRING_VIEW",
+        "BOOST_BEAST_SEPARATE_COMPILATION"
+      ],
+      "packages": [
+        "odeum-json-3-11-3",
+        "odeum-boost-1-87-0",
+        "odeum-openssl-3",
+        "discutere-lorica-cab4f120",
+        "discutere-sqlite-3-53-4"
+      ]
+    },
+    {
+      "file": "native/tests/config/config_tests.cpp",
+      "standard": "c++20",
+      "includes": [
+        "native/src",
+        "native/tests"
+      ],
+      "defines": [
+        "WIN32_LEAN_AND_MEAN",
+        "NOMINMAX",
+        "_WIN32_WINNT=0x0A00",
+        "BOOST_ERROR_CODE_HEADER_ONLY",
+        "BOOST_ASIO_NO_DEPRECATED",
+        "BOOST_BEAST_USE_STD_STRING_VIEW",
+        "BOOST_BEAST_SEPARATE_COMPILATION"
+      ],
+      "packages": [
+        "odeum-json-3-11-3",
+        "odeum-boost-1-87-0",
+        "odeum-openssl-3",
+        "discutere-lorica-cab4f120",
+        "discutere-sqlite-3-53-4"
+      ]
+    },
+    {
+      "file": "native/tests/core/command_handlers_tests.cpp",
+      "standard": "c++20",
+      "includes": [
+        "native/src",
+        "native/tests"
+      ],
+      "defines": [
+        "WIN32_LEAN_AND_MEAN",
+        "NOMINMAX",
+        "_WIN32_WINNT=0x0A00",
+        "BOOST_ERROR_CODE_HEADER_ONLY",
+        "BOOST_ASIO_NO_DEPRECATED",
+        "BOOST_BEAST_USE_STD_STRING_VIEW",
+        "BOOST_BEAST_SEPARATE_COMPILATION"
+      ],
+      "packages": [
+        "odeum-json-3-11-3",
+        "odeum-boost-1-87-0",
+        "odeum-openssl-3",
+        "discutere-lorica-cab4f120",
+        "discutere-sqlite-3-53-4"
+      ]
+    },
+    {
+      "file": "native/tests/core/embedder_tests.cpp",
+      "standard": "c++20",
+      "includes": [
+        "native/src",
+        "native/tests"
+      ],
+      "defines": [
+        "WIN32_LEAN_AND_MEAN",
+        "NOMINMAX",
+        "_WIN32_WINNT=0x0A00",
+        "BOOST_ERROR_CODE_HEADER_ONLY",
+        "BOOST_ASIO_NO_DEPRECATED",
+        "BOOST_BEAST_USE_STD_STRING_VIEW",
+        "BOOST_BEAST_SEPARATE_COMPILATION"
+      ],
+      "packages": [
+        "odeum-json-3-11-3",
+        "odeum-boost-1-87-0",
+        "odeum-openssl-3",
+        "discutere-lorica-cab4f120",
+        "discutere-sqlite-3-53-4"
+      ]
+    },
+    {
+      "file": "native/tests/core/hybrid_rank_tests.cpp",
+      "standard": "c++20",
+      "includes": [
+        "native/src",
+        "native/tests"
+      ],
+      "defines": [
+        "WIN32_LEAN_AND_MEAN",
+        "NOMINMAX",
+        "_WIN32_WINNT=0x0A00",
+        "BOOST_ERROR_CODE_HEADER_ONLY",
+        "BOOST_ASIO_NO_DEPRECATED",
+        "BOOST_BEAST_USE_STD_STRING_VIEW",
+        "BOOST_BEAST_SEPARATE_COMPILATION"
+      ],
+      "packages": [
+        "odeum-json-3-11-3",
+        "odeum-boost-1-87-0",
+        "odeum-openssl-3",
+        "discutere-lorica-cab4f120",
+        "discutere-sqlite-3-53-4"
+      ]
+    },
+    {
+      "file": "native/tests/core/projection_tests.cpp",
+      "standard": "c++20",
+      "includes": [
+        "native/src",
+        "native/tests"
+      ],
+      "defines": [
+        "WIN32_LEAN_AND_MEAN",
+        "NOMINMAX",
+        "_WIN32_WINNT=0x0A00",
+        "BOOST_ERROR_CODE_HEADER_ONLY",
+        "BOOST_ASIO_NO_DEPRECATED",
+        "BOOST_BEAST_USE_STD_STRING_VIEW",
+        "BOOST_BEAST_SEPARATE_COMPILATION"
+      ],
+      "packages": [
+        "odeum-json-3-11-3",
+        "odeum-boost-1-87-0",
+        "odeum-openssl-3",
+        "discutere-lorica-cab4f120",
+        "discutere-sqlite-3-53-4"
+      ]
+    },
+    {
+      "file": "native/tests/core/pure_tests.cpp",
+      "standard": "c++20",
+      "includes": [
+        "native/src",
+        "native/tests"
+      ],
+      "defines": [
+        "WIN32_LEAN_AND_MEAN",
+        "NOMINMAX",
+        "_WIN32_WINNT=0x0A00",
+        "BOOST_ERROR_CODE_HEADER_ONLY",
+        "BOOST_ASIO_NO_DEPRECATED",
+        "BOOST_BEAST_USE_STD_STRING_VIEW",
+        "BOOST_BEAST_SEPARATE_COMPILATION"
+      ],
+      "packages": [
+        "odeum-json-3-11-3",
+        "odeum-boost-1-87-0",
+        "odeum-openssl-3",
+        "discutere-lorica-cab4f120",
+        "discutere-sqlite-3-53-4"
+      ]
+    },
+    {
+      "file": "native/tests/core/schema_tests.cpp",
+      "standard": "c++20",
+      "includes": [
+        "native/src",
+        "native/tests"
+      ],
+      "defines": [
+        "WIN32_LEAN_AND_MEAN",
+        "NOMINMAX",
+        "_WIN32_WINNT=0x0A00",
+        "BOOST_ERROR_CODE_HEADER_ONLY",
+        "BOOST_ASIO_NO_DEPRECATED",
+        "BOOST_BEAST_USE_STD_STRING_VIEW",
+        "BOOST_BEAST_SEPARATE_COMPILATION"
+      ],
+      "packages": [
+        "odeum-json-3-11-3",
+        "odeum-boost-1-87-0",
+        "odeum-openssl-3",
+        "discutere-lorica-cab4f120",
+        "discutere-sqlite-3-53-4"
+      ]
+    },
+    {
+      "file": "native/tests/core/w2j_core_tests.cpp",
+      "standard": "c++20",
+      "includes": [
+        "native/src",
+        "native/tests"
+      ],
+      "defines": [
+        "WIN32_LEAN_AND_MEAN",
+        "NOMINMAX",
+        "_WIN32_WINNT=0x0A00",
+        "BOOST_ERROR_CODE_HEADER_ONLY",
+        "BOOST_ASIO_NO_DEPRECATED",
+        "BOOST_BEAST_USE_STD_STRING_VIEW",
+        "BOOST_BEAST_SEPARATE_COMPILATION"
+      ],
+      "packages": [
+        "odeum-json-3-11-3",
+        "odeum-boost-1-87-0",
+        "odeum-openssl-3",
+        "discutere-lorica-cab4f120",
+        "discutere-sqlite-3-53-4"
+      ]
+    },
+    {
+      "file": "native/tests/core/w4q_message_input_tests.cpp",
+      "standard": "c++20",
+      "includes": [
+        "native/src",
+        "native/tests"
+      ],
+      "defines": [
+        "WIN32_LEAN_AND_MEAN",
+        "NOMINMAX",
+        "_WIN32_WINNT=0x0A00",
+        "BOOST_ERROR_CODE_HEADER_ONLY",
+        "BOOST_ASIO_NO_DEPRECATED",
+        "BOOST_BEAST_USE_STD_STRING_VIEW",
+        "BOOST_BEAST_SEPARATE_COMPILATION"
+      ],
+      "packages": [
+        "odeum-json-3-11-3",
+        "odeum-boost-1-87-0",
+        "odeum-openssl-3",
+        "discutere-lorica-cab4f120",
+        "discutere-sqlite-3-53-4"
+      ]
+    },
+    {
+      "file": "native/tests/crawler/fetch_part2_tests.cpp",
+      "standard": "c++20",
+      "includes": [
+        "native/src",
+        "native/tests"
+      ],
+      "defines": [
+        "WIN32_LEAN_AND_MEAN",
+        "NOMINMAX",
+        "_WIN32_WINNT=0x0A00",
+        "BOOST_ERROR_CODE_HEADER_ONLY",
+        "BOOST_ASIO_NO_DEPRECATED",
+        "BOOST_BEAST_USE_STD_STRING_VIEW",
+        "BOOST_BEAST_SEPARATE_COMPILATION"
+      ],
+      "packages": [
+        "odeum-json-3-11-3",
+        "odeum-boost-1-87-0",
+        "odeum-openssl-3",
+        "discutere-lorica-cab4f120",
+        "discutere-sqlite-3-53-4"
+      ]
+    },
+    {
+      "file": "native/tests/crawler/fetch_part3_tests.cpp",
+      "standard": "c++20",
+      "includes": [
+        "native/src",
+        "native/tests"
+      ],
+      "defines": [
+        "WIN32_LEAN_AND_MEAN",
+        "NOMINMAX",
+        "_WIN32_WINNT=0x0A00",
+        "BOOST_ERROR_CODE_HEADER_ONLY",
+        "BOOST_ASIO_NO_DEPRECATED",
+        "BOOST_BEAST_USE_STD_STRING_VIEW",
+        "BOOST_BEAST_SEPARATE_COMPILATION"
+      ],
+      "packages": [
+        "odeum-json-3-11-3",
+        "odeum-boost-1-87-0",
+        "odeum-openssl-3",
+        "discutere-lorica-cab4f120",
+        "discutere-sqlite-3-53-4"
+      ]
+    },
+    {
+      "file": "native/tests/crawler/fetch_tests.cpp",
+      "standard": "c++20",
+      "includes": [
+        "native/src",
+        "native/tests"
+      ],
+      "defines": [
+        "WIN32_LEAN_AND_MEAN",
+        "NOMINMAX",
+        "_WIN32_WINNT=0x0A00",
+        "BOOST_ERROR_CODE_HEADER_ONLY",
+        "BOOST_ASIO_NO_DEPRECATED",
+        "BOOST_BEAST_USE_STD_STRING_VIEW",
+        "BOOST_BEAST_SEPARATE_COMPILATION"
+      ],
+      "packages": [
+        "odeum-json-3-11-3",
+        "odeum-boost-1-87-0",
+        "odeum-openssl-3",
+        "discutere-lorica-cab4f120",
+        "discutere-sqlite-3-53-4"
+      ]
+    },
+    {
+      "file": "native/tests/crawler/md_format_tests.cpp",
+      "standard": "c++20",
+      "includes": [
+        "native/src",
+        "native/tests"
+      ],
+      "defines": [
+        "WIN32_LEAN_AND_MEAN",
+        "NOMINMAX",
+        "_WIN32_WINNT=0x0A00",
+        "BOOST_ERROR_CODE_HEADER_ONLY",
+        "BOOST_ASIO_NO_DEPRECATED",
+        "BOOST_BEAST_USE_STD_STRING_VIEW",
+        "BOOST_BEAST_SEPARATE_COMPILATION"
+      ],
+      "packages": [
+        "odeum-json-3-11-3",
+        "odeum-boost-1-87-0",
+        "odeum-openssl-3",
+        "discutere-lorica-cab4f120",
+        "discutere-sqlite-3-53-4"
+      ]
+    },
+    {
+      "file": "native/tests/crawler/sources_tests.cpp",
+      "standard": "c++20",
+      "includes": [
+        "native/src",
+        "native/tests"
+      ],
+      "defines": [
+        "WIN32_LEAN_AND_MEAN",
+        "NOMINMAX",
+        "_WIN32_WINNT=0x0A00",
+        "BOOST_ERROR_CODE_HEADER_ONLY",
+        "BOOST_ASIO_NO_DEPRECATED",
+        "BOOST_BEAST_USE_STD_STRING_VIEW",
+        "BOOST_BEAST_SEPARATE_COMPILATION"
+      ],
+      "packages": [
+        "odeum-json-3-11-3",
+        "odeum-boost-1-87-0",
+        "odeum-openssl-3",
+        "discutere-lorica-cab4f120",
+        "discutere-sqlite-3-53-4"
+      ]
+    },
+    {
+      "file": "native/tests/crawler/w2j_sources_tests.cpp",
+      "standard": "c++20",
+      "includes": [
+        "native/src",
+        "native/tests"
+      ],
+      "defines": [
+        "WIN32_LEAN_AND_MEAN",
+        "NOMINMAX",
+        "_WIN32_WINNT=0x0A00",
+        "BOOST_ERROR_CODE_HEADER_ONLY",
+        "BOOST_ASIO_NO_DEPRECATED",
+        "BOOST_BEAST_USE_STD_STRING_VIEW",
+        "BOOST_BEAST_SEPARATE_COMPILATION"
+      ],
+      "packages": [
+        "odeum-json-3-11-3",
+        "odeum-boost-1-87-0",
+        "odeum-openssl-3",
+        "discutere-lorica-cab4f120",
+        "discutere-sqlite-3-53-4"
+      ]
+    },
+    {
+      "file": "native/tests/db/repository_tests.cpp",
+      "standard": "c++20",
+      "includes": [
+        "native/src",
+        "native/tests"
+      ],
+      "defines": [
+        "WIN32_LEAN_AND_MEAN",
+        "NOMINMAX",
+        "_WIN32_WINNT=0x0A00",
+        "BOOST_ERROR_CODE_HEADER_ONLY",
+        "BOOST_ASIO_NO_DEPRECATED",
+        "BOOST_BEAST_USE_STD_STRING_VIEW",
+        "BOOST_BEAST_SEPARATE_COMPILATION"
+      ],
+      "packages": [
+        "odeum-json-3-11-3",
+        "odeum-boost-1-87-0",
+        "odeum-openssl-3",
+        "discutere-lorica-cab4f120",
+        "discutere-sqlite-3-53-4"
+      ]
+    },
+    {
+      "file": "native/tests/db/schema_tests.cpp",
+      "standard": "c++20",
+      "includes": [
+        "native/src",
+        "native/tests"
+      ],
+      "defines": [
+        "WIN32_LEAN_AND_MEAN",
+        "NOMINMAX",
+        "_WIN32_WINNT=0x0A00",
+        "BOOST_ERROR_CODE_HEADER_ONLY",
+        "BOOST_ASIO_NO_DEPRECATED",
+        "BOOST_BEAST_USE_STD_STRING_VIEW",
+        "BOOST_BEAST_SEPARATE_COMPILATION"
+      ],
+      "packages": [
+        "odeum-json-3-11-3",
+        "odeum-boost-1-87-0",
+        "odeum-openssl-3",
+        "discutere-lorica-cab4f120",
+        "discutere-sqlite-3-53-4"
+      ]
+    },
+    {
+      "file": "native/tests/design_diagnostic/contracts_tests.cpp",
+      "standard": "c++20",
+      "includes": [
+        "native/src",
+        "native/tests"
+      ],
+      "defines": [
+        "WIN32_LEAN_AND_MEAN",
+        "NOMINMAX",
+        "_WIN32_WINNT=0x0A00",
+        "BOOST_ERROR_CODE_HEADER_ONLY",
+        "BOOST_ASIO_NO_DEPRECATED",
+        "BOOST_BEAST_USE_STD_STRING_VIEW",
+        "BOOST_BEAST_SEPARATE_COMPILATION"
+      ],
+      "packages": [
+        "odeum-json-3-11-3",
+        "odeum-boost-1-87-0",
+        "odeum-openssl-3",
+        "discutere-lorica-cab4f120",
+        "discutere-sqlite-3-53-4"
+      ]
+    },
+    {
+      "file": "native/tests/design_diagnostic/w2j_diagnostics_tests.cpp",
+      "standard": "c++20",
+      "includes": [
+        "native/src",
+        "native/tests"
+      ],
+      "defines": [
+        "WIN32_LEAN_AND_MEAN",
+        "NOMINMAX",
+        "_WIN32_WINNT=0x0A00",
+        "BOOST_ERROR_CODE_HEADER_ONLY",
+        "BOOST_ASIO_NO_DEPRECATED",
+        "BOOST_BEAST_USE_STD_STRING_VIEW",
+        "BOOST_BEAST_SEPARATE_COMPILATION"
+      ],
+      "packages": [
+        "odeum-json-3-11-3",
+        "odeum-boost-1-87-0",
+        "odeum-openssl-3",
+        "discutere-lorica-cab4f120",
+        "discutere-sqlite-3-53-4"
+      ]
+    },
+    {
+      "file": "native/tests/discatier_engine_adapter/adapter_part2_tests.cpp",
+      "standard": "c++20",
+      "includes": [
+        "native/src",
+        "native/tests"
+      ],
+      "defines": [
+        "WIN32_LEAN_AND_MEAN",
+        "NOMINMAX",
+        "_WIN32_WINNT=0x0A00",
+        "BOOST_ERROR_CODE_HEADER_ONLY",
+        "BOOST_ASIO_NO_DEPRECATED",
+        "BOOST_BEAST_USE_STD_STRING_VIEW",
+        "BOOST_BEAST_SEPARATE_COMPILATION"
+      ],
+      "packages": [
+        "odeum-json-3-11-3",
+        "odeum-boost-1-87-0",
+        "odeum-openssl-3",
+        "discutere-lorica-cab4f120",
+        "discutere-sqlite-3-53-4"
+      ]
+    },
+    {
+      "file": "native/tests/discatier_engine_adapter/adapter_part3_tests.cpp",
+      "standard": "c++20",
+      "includes": [
+        "native/src",
+        "native/tests"
+      ],
+      "defines": [
+        "WIN32_LEAN_AND_MEAN",
+        "NOMINMAX",
+        "_WIN32_WINNT=0x0A00",
+        "BOOST_ERROR_CODE_HEADER_ONLY",
+        "BOOST_ASIO_NO_DEPRECATED",
+        "BOOST_BEAST_USE_STD_STRING_VIEW",
+        "BOOST_BEAST_SEPARATE_COMPILATION"
+      ],
+      "packages": [
+        "odeum-json-3-11-3",
+        "odeum-boost-1-87-0",
+        "odeum-openssl-3",
+        "discutere-lorica-cab4f120",
+        "discutere-sqlite-3-53-4"
+      ]
+    },
+    {
+      "file": "native/tests/discatier_engine_adapter/adapter_tests.cpp",
+      "standard": "c++20",
+      "includes": [
+        "native/src",
+        "native/tests"
+      ],
+      "defines": [
+        "WIN32_LEAN_AND_MEAN",
+        "NOMINMAX",
+        "_WIN32_WINNT=0x0A00",
+        "BOOST_ERROR_CODE_HEADER_ONLY",
+        "BOOST_ASIO_NO_DEPRECATED",
+        "BOOST_BEAST_USE_STD_STRING_VIEW",
+        "BOOST_BEAST_SEPARATE_COMPILATION"
+      ],
+      "packages": [
+        "odeum-json-3-11-3",
+        "odeum-boost-1-87-0",
+        "odeum-openssl-3",
+        "discutere-lorica-cab4f120",
+        "discutere-sqlite-3-53-4"
+      ]
+    },
+    {
+      "file": "native/tests/discatier_engine_adapter/game_aliases_tests.cpp",
+      "standard": "c++20",
+      "includes": [
+        "native/src",
+        "native/tests"
+      ],
+      "defines": [
+        "WIN32_LEAN_AND_MEAN",
+        "NOMINMAX",
+        "_WIN32_WINNT=0x0A00",
+        "BOOST_ERROR_CODE_HEADER_ONLY",
+        "BOOST_ASIO_NO_DEPRECATED",
+        "BOOST_BEAST_USE_STD_STRING_VIEW",
+        "BOOST_BEAST_SEPARATE_COMPILATION"
+      ],
+      "packages": [
+        "odeum-json-3-11-3",
+        "odeum-boost-1-87-0",
+        "odeum-openssl-3",
+        "discutere-lorica-cab4f120",
+        "discutere-sqlite-3-53-4"
+      ]
+    },
+    {
+      "file": "native/tests/discatier_engine_adapter/keyword_terms_tests.cpp",
+      "standard": "c++20",
+      "includes": [
+        "native/src",
+        "native/tests"
+      ],
+      "defines": [
+        "WIN32_LEAN_AND_MEAN",
+        "NOMINMAX",
+        "_WIN32_WINNT=0x0A00",
+        "BOOST_ERROR_CODE_HEADER_ONLY",
+        "BOOST_ASIO_NO_DEPRECATED",
+        "BOOST_BEAST_USE_STD_STRING_VIEW",
+        "BOOST_BEAST_SEPARATE_COMPILATION"
+      ],
+      "packages": [
+        "odeum-json-3-11-3",
+        "odeum-boost-1-87-0",
+        "odeum-openssl-3",
+        "discutere-lorica-cab4f120",
+        "discutere-sqlite-3-53-4"
+      ]
+    },
+    {
+      "file": "native/tests/discatier_engine_adapter/voice_search_part2_tests.cpp",
+      "standard": "c++20",
+      "includes": [
+        "native/src",
+        "native/tests"
+      ],
+      "defines": [
+        "WIN32_LEAN_AND_MEAN",
+        "NOMINMAX",
+        "_WIN32_WINNT=0x0A00",
+        "BOOST_ERROR_CODE_HEADER_ONLY",
+        "BOOST_ASIO_NO_DEPRECATED",
+        "BOOST_BEAST_USE_STD_STRING_VIEW",
+        "BOOST_BEAST_SEPARATE_COMPILATION"
+      ],
+      "packages": [
+        "odeum-json-3-11-3",
+        "odeum-boost-1-87-0",
+        "odeum-openssl-3",
+        "discutere-lorica-cab4f120",
+        "discutere-sqlite-3-53-4"
+      ]
+    },
+    {
+      "file": "native/tests/discatier_engine_adapter/voice_search_tests.cpp",
+      "standard": "c++20",
+      "includes": [
+        "native/src",
+        "native/tests"
+      ],
+      "defines": [
+        "WIN32_LEAN_AND_MEAN",
+        "NOMINMAX",
+        "_WIN32_WINNT=0x0A00",
+        "BOOST_ERROR_CODE_HEADER_ONLY",
+        "BOOST_ASIO_NO_DEPRECATED",
+        "BOOST_BEAST_USE_STD_STRING_VIEW",
+        "BOOST_BEAST_SEPARATE_COMPILATION"
+      ],
+      "packages": [
+        "odeum-json-3-11-3",
+        "odeum-boost-1-87-0",
+        "odeum-openssl-3",
+        "discutere-lorica-cab4f120",
+        "discutere-sqlite-3-53-4"
+      ]
+    },
+    {
+      "file": "native/tests/discord_hook/auto_discussion_tests.cpp",
+      "standard": "c++20",
+      "includes": [
+        "native/src",
+        "native/tests"
+      ],
+      "defines": [
+        "WIN32_LEAN_AND_MEAN",
+        "NOMINMAX",
+        "_WIN32_WINNT=0x0A00",
+        "BOOST_ERROR_CODE_HEADER_ONLY",
+        "BOOST_ASIO_NO_DEPRECATED",
+        "BOOST_BEAST_USE_STD_STRING_VIEW",
+        "BOOST_BEAST_SEPARATE_COMPILATION"
+      ],
+      "packages": [
+        "odeum-json-3-11-3",
+        "odeum-boost-1-87-0",
+        "odeum-openssl-3",
+        "discutere-lorica-cab4f120",
+        "discutere-sqlite-3-53-4"
+      ]
+    },
+    {
+      "file": "native/tests/discord_hook/discord_api_tests.cpp",
+      "standard": "c++20",
+      "includes": [
+        "native/src",
+        "native/tests"
+      ],
+      "defines": [
+        "WIN32_LEAN_AND_MEAN",
+        "NOMINMAX",
+        "_WIN32_WINNT=0x0A00",
+        "BOOST_ERROR_CODE_HEADER_ONLY",
+        "BOOST_ASIO_NO_DEPRECATED",
+        "BOOST_BEAST_USE_STD_STRING_VIEW",
+        "BOOST_BEAST_SEPARATE_COMPILATION"
+      ],
+      "packages": [
+        "odeum-json-3-11-3",
+        "odeum-boost-1-87-0",
+        "odeum-openssl-3",
+        "discutere-lorica-cab4f120",
+        "discutere-sqlite-3-53-4"
+      ]
+    },
+    {
+      "file": "native/tests/discord_hook/forum_event_gate_tests.cpp",
+      "standard": "c++20",
+      "includes": [
+        "native/src",
+        "native/tests"
+      ],
+      "defines": [
+        "WIN32_LEAN_AND_MEAN",
+        "NOMINMAX",
+        "_WIN32_WINNT=0x0A00",
+        "BOOST_ERROR_CODE_HEADER_ONLY",
+        "BOOST_ASIO_NO_DEPRECATED",
+        "BOOST_BEAST_USE_STD_STRING_VIEW",
+        "BOOST_BEAST_SEPARATE_COMPILATION"
+      ],
+      "packages": [
+        "odeum-json-3-11-3",
+        "odeum-boost-1-87-0",
+        "odeum-openssl-3",
+        "discutere-lorica-cab4f120",
+        "discutere-sqlite-3-53-4"
+      ]
+    },
+    {
+      "file": "native/tests/discord_hook/gateway_client_part2_tests.cpp",
+      "standard": "c++20",
+      "includes": [
+        "native/src",
+        "native/tests"
+      ],
+      "defines": [
+        "WIN32_LEAN_AND_MEAN",
+        "NOMINMAX",
+        "_WIN32_WINNT=0x0A00",
+        "BOOST_ERROR_CODE_HEADER_ONLY",
+        "BOOST_ASIO_NO_DEPRECATED",
+        "BOOST_BEAST_USE_STD_STRING_VIEW",
+        "BOOST_BEAST_SEPARATE_COMPILATION"
+      ],
+      "packages": [
+        "odeum-json-3-11-3",
+        "odeum-boost-1-87-0",
+        "odeum-openssl-3",
+        "discutere-lorica-cab4f120",
+        "discutere-sqlite-3-53-4"
+      ]
+    },
+    {
+      "file": "native/tests/discord_hook/gateway_client_part3_tests.cpp",
+      "standard": "c++20",
+      "includes": [
+        "native/src",
+        "native/tests"
+      ],
+      "defines": [
+        "WIN32_LEAN_AND_MEAN",
+        "NOMINMAX",
+        "_WIN32_WINNT=0x0A00",
+        "BOOST_ERROR_CODE_HEADER_ONLY",
+        "BOOST_ASIO_NO_DEPRECATED",
+        "BOOST_BEAST_USE_STD_STRING_VIEW",
+        "BOOST_BEAST_SEPARATE_COMPILATION"
+      ],
+      "packages": [
+        "odeum-json-3-11-3",
+        "odeum-boost-1-87-0",
+        "odeum-openssl-3",
+        "discutere-lorica-cab4f120",
+        "discutere-sqlite-3-53-4"
+      ]
+    },
+    {
+      "file": "native/tests/discord_hook/gateway_client_part4_tests.cpp",
+      "standard": "c++20",
+      "includes": [
+        "native/src",
+        "native/tests"
+      ],
+      "defines": [
+        "WIN32_LEAN_AND_MEAN",
+        "NOMINMAX",
+        "_WIN32_WINNT=0x0A00",
+        "BOOST_ERROR_CODE_HEADER_ONLY",
+        "BOOST_ASIO_NO_DEPRECATED",
+        "BOOST_BEAST_USE_STD_STRING_VIEW",
+        "BOOST_BEAST_SEPARATE_COMPILATION"
+      ],
+      "packages": [
+        "odeum-json-3-11-3",
+        "odeum-boost-1-87-0",
+        "odeum-openssl-3",
+        "discutere-lorica-cab4f120",
+        "discutere-sqlite-3-53-4"
+      ]
+    },
+    {
+      "file": "native/tests/discord_hook/gateway_client_tests.cpp",
+      "standard": "c++20",
+      "includes": [
+        "native/src",
+        "native/tests"
+      ],
+      "defines": [
+        "WIN32_LEAN_AND_MEAN",
+        "NOMINMAX",
+        "_WIN32_WINNT=0x0A00",
+        "BOOST_ERROR_CODE_HEADER_ONLY",
+        "BOOST_ASIO_NO_DEPRECATED",
+        "BOOST_BEAST_USE_STD_STRING_VIEW",
+        "BOOST_BEAST_SEPARATE_COMPILATION"
+      ],
+      "packages": [
+        "odeum-json-3-11-3",
+        "odeum-boost-1-87-0",
+        "odeum-openssl-3",
+        "discutere-lorica-cab4f120",
+        "discutere-sqlite-3-53-4"
+      ]
+    },
+    {
+      "file": "native/tests/discord_hook/managed_forum_scope_tests.cpp",
+      "standard": "c++20",
+      "includes": [
+        "native/src",
+        "native/tests"
+      ],
+      "defines": [
+        "WIN32_LEAN_AND_MEAN",
+        "NOMINMAX",
+        "_WIN32_WINNT=0x0A00",
+        "BOOST_ERROR_CODE_HEADER_ONLY",
+        "BOOST_ASIO_NO_DEPRECATED",
+        "BOOST_BEAST_USE_STD_STRING_VIEW",
+        "BOOST_BEAST_SEPARATE_COMPILATION"
+      ],
+      "packages": [
+        "odeum-json-3-11-3",
+        "odeum-boost-1-87-0",
+        "odeum-openssl-3",
+        "discutere-lorica-cab4f120",
+        "discutere-sqlite-3-53-4"
+      ]
+    },
+    {
+      "file": "native/tests/discord_hook/pure_tests.cpp",
+      "standard": "c++20",
+      "includes": [
+        "native/src",
+        "native/tests"
+      ],
+      "defines": [
+        "WIN32_LEAN_AND_MEAN",
+        "NOMINMAX",
+        "_WIN32_WINNT=0x0A00",
+        "BOOST_ERROR_CODE_HEADER_ONLY",
+        "BOOST_ASIO_NO_DEPRECATED",
+        "BOOST_BEAST_USE_STD_STRING_VIEW",
+        "BOOST_BEAST_SEPARATE_COMPILATION"
+      ],
+      "packages": [
+        "odeum-json-3-11-3",
+        "odeum-boost-1-87-0",
+        "odeum-openssl-3",
+        "discutere-lorica-cab4f120",
+        "discutere-sqlite-3-53-4"
+      ]
+    },
+    {
+      "file": "native/tests/discord_hook/rest_modules_tests.cpp",
+      "standard": "c++20",
+      "includes": [
+        "native/src",
+        "native/tests"
+      ],
+      "defines": [
+        "WIN32_LEAN_AND_MEAN",
+        "NOMINMAX",
+        "_WIN32_WINNT=0x0A00",
+        "BOOST_ERROR_CODE_HEADER_ONLY",
+        "BOOST_ASIO_NO_DEPRECATED",
+        "BOOST_BEAST_USE_STD_STRING_VIEW",
+        "BOOST_BEAST_SEPARATE_COMPILATION"
+      ],
+      "packages": [
+        "odeum-json-3-11-3",
+        "odeum-boost-1-87-0",
+        "odeum-openssl-3",
+        "discutere-lorica-cab4f120",
+        "discutere-sqlite-3-53-4"
+      ]
+    },
+    {
+      "file": "native/tests/discord_hook/stores_tests.cpp",
+      "standard": "c++20",
+      "includes": [
+        "native/src",
+        "native/tests"
+      ],
+      "defines": [
+        "WIN32_LEAN_AND_MEAN",
+        "NOMINMAX",
+        "_WIN32_WINNT=0x0A00",
+        "BOOST_ERROR_CODE_HEADER_ONLY",
+        "BOOST_ASIO_NO_DEPRECATED",
+        "BOOST_BEAST_USE_STD_STRING_VIEW",
+        "BOOST_BEAST_SEPARATE_COMPILATION"
+      ],
+      "packages": [
+        "odeum-json-3-11-3",
+        "odeum-boost-1-87-0",
+        "odeum-openssl-3",
+        "discutere-lorica-cab4f120",
+        "discutere-sqlite-3-53-4"
+      ]
+    },
+    {
+      "file": "native/tests/discord_hook/w3k_crawl_tests.cpp",
+      "standard": "c++20",
+      "includes": [
+        "native/src",
+        "native/tests"
+      ],
+      "defines": [
+        "WIN32_LEAN_AND_MEAN",
+        "NOMINMAX",
+        "_WIN32_WINNT=0x0A00",
+        "BOOST_ERROR_CODE_HEADER_ONLY",
+        "BOOST_ASIO_NO_DEPRECATED",
+        "BOOST_BEAST_USE_STD_STRING_VIEW",
+        "BOOST_BEAST_SEPARATE_COMPILATION"
+      ],
+      "packages": [
+        "odeum-json-3-11-3",
+        "odeum-boost-1-87-0",
+        "odeum-openssl-3",
+        "discutere-lorica-cab4f120",
+        "discutere-sqlite-3-53-4"
+      ]
+    },
+    {
+      "file": "native/tests/discord_hook/w3m_discord_part2_tests.cpp",
+      "standard": "c++20",
+      "includes": [
+        "native/src",
+        "native/tests"
+      ],
+      "defines": [
+        "WIN32_LEAN_AND_MEAN",
+        "NOMINMAX",
+        "_WIN32_WINNT=0x0A00",
+        "BOOST_ERROR_CODE_HEADER_ONLY",
+        "BOOST_ASIO_NO_DEPRECATED",
+        "BOOST_BEAST_USE_STD_STRING_VIEW",
+        "BOOST_BEAST_SEPARATE_COMPILATION"
+      ],
+      "packages": [
+        "odeum-json-3-11-3",
+        "odeum-boost-1-87-0",
+        "odeum-openssl-3",
+        "discutere-lorica-cab4f120",
+        "discutere-sqlite-3-53-4"
+      ]
+    },
+    {
+      "file": "native/tests/discord_hook/w3m_discord_part3_tests.cpp",
+      "standard": "c++20",
+      "includes": [
+        "native/src",
+        "native/tests"
+      ],
+      "defines": [
+        "WIN32_LEAN_AND_MEAN",
+        "NOMINMAX",
+        "_WIN32_WINNT=0x0A00",
+        "BOOST_ERROR_CODE_HEADER_ONLY",
+        "BOOST_ASIO_NO_DEPRECATED",
+        "BOOST_BEAST_USE_STD_STRING_VIEW",
+        "BOOST_BEAST_SEPARATE_COMPILATION"
+      ],
+      "packages": [
+        "odeum-json-3-11-3",
+        "odeum-boost-1-87-0",
+        "odeum-openssl-3",
+        "discutere-lorica-cab4f120",
+        "discutere-sqlite-3-53-4"
+      ]
+    },
+    {
+      "file": "native/tests/discord_hook/w3m_discord_part4_tests.cpp",
+      "standard": "c++20",
+      "includes": [
+        "native/src",
+        "native/tests"
+      ],
+      "defines": [
+        "WIN32_LEAN_AND_MEAN",
+        "NOMINMAX",
+        "_WIN32_WINNT=0x0A00",
+        "BOOST_ERROR_CODE_HEADER_ONLY",
+        "BOOST_ASIO_NO_DEPRECATED",
+        "BOOST_BEAST_USE_STD_STRING_VIEW",
+        "BOOST_BEAST_SEPARATE_COMPILATION"
+      ],
+      "packages": [
+        "odeum-json-3-11-3",
+        "odeum-boost-1-87-0",
+        "odeum-openssl-3",
+        "discutere-lorica-cab4f120",
+        "discutere-sqlite-3-53-4"
+      ]
+    },
+    {
+      "file": "native/tests/discord_hook/w3m_discord_tests.cpp",
+      "standard": "c++20",
+      "includes": [
+        "native/src",
+        "native/tests"
+      ],
+      "defines": [
+        "WIN32_LEAN_AND_MEAN",
+        "NOMINMAX",
+        "_WIN32_WINNT=0x0A00",
+        "BOOST_ERROR_CODE_HEADER_ONLY",
+        "BOOST_ASIO_NO_DEPRECATED",
+        "BOOST_BEAST_USE_STD_STRING_VIEW",
+        "BOOST_BEAST_SEPARATE_COMPILATION"
+      ],
+      "packages": [
+        "odeum-json-3-11-3",
+        "odeum-boost-1-87-0",
+        "odeum-openssl-3",
+        "discutere-lorica-cab4f120",
+        "discutere-sqlite-3-53-4"
+      ]
+    },
+    {
+      "file": "native/tests/discord_hook/w4q_command_router_part2_tests.cpp",
+      "standard": "c++20",
+      "includes": [
+        "native/src",
+        "native/tests"
+      ],
+      "defines": [
+        "WIN32_LEAN_AND_MEAN",
+        "NOMINMAX",
+        "_WIN32_WINNT=0x0A00",
+        "BOOST_ERROR_CODE_HEADER_ONLY",
+        "BOOST_ASIO_NO_DEPRECATED",
+        "BOOST_BEAST_USE_STD_STRING_VIEW",
+        "BOOST_BEAST_SEPARATE_COMPILATION"
+      ],
+      "packages": [
+        "odeum-json-3-11-3",
+        "odeum-boost-1-87-0",
+        "odeum-openssl-3",
+        "discutere-lorica-cab4f120",
+        "discutere-sqlite-3-53-4"
+      ]
+    },
+    {
+      "file": "native/tests/discord_hook/w4q_command_router_part3_tests.cpp",
+      "standard": "c++20",
+      "includes": [
+        "native/src",
+        "native/tests"
+      ],
+      "defines": [
+        "WIN32_LEAN_AND_MEAN",
+        "NOMINMAX",
+        "_WIN32_WINNT=0x0A00",
+        "BOOST_ERROR_CODE_HEADER_ONLY",
+        "BOOST_ASIO_NO_DEPRECATED",
+        "BOOST_BEAST_USE_STD_STRING_VIEW",
+        "BOOST_BEAST_SEPARATE_COMPILATION"
+      ],
+      "packages": [
+        "odeum-json-3-11-3",
+        "odeum-boost-1-87-0",
+        "odeum-openssl-3",
+        "discutere-lorica-cab4f120",
+        "discutere-sqlite-3-53-4"
+      ]
+    },
+    {
+      "file": "native/tests/discord_hook/w4q_command_router_part4_tests.cpp",
+      "standard": "c++20",
+      "includes": [
+        "native/src",
+        "native/tests"
+      ],
+      "defines": [
+        "WIN32_LEAN_AND_MEAN",
+        "NOMINMAX",
+        "_WIN32_WINNT=0x0A00",
+        "BOOST_ERROR_CODE_HEADER_ONLY",
+        "BOOST_ASIO_NO_DEPRECATED",
+        "BOOST_BEAST_USE_STD_STRING_VIEW",
+        "BOOST_BEAST_SEPARATE_COMPILATION"
+      ],
+      "packages": [
+        "odeum-json-3-11-3",
+        "odeum-boost-1-87-0",
+        "odeum-openssl-3",
+        "discutere-lorica-cab4f120",
+        "discutere-sqlite-3-53-4"
+      ]
+    },
+    {
+      "file": "native/tests/discord_hook/w4q_command_router_tests.cpp",
+      "standard": "c++20",
+      "includes": [
+        "native/src",
+        "native/tests"
+      ],
+      "defines": [
+        "WIN32_LEAN_AND_MEAN",
+        "NOMINMAX",
+        "_WIN32_WINNT=0x0A00",
+        "BOOST_ERROR_CODE_HEADER_ONLY",
+        "BOOST_ASIO_NO_DEPRECATED",
+        "BOOST_BEAST_USE_STD_STRING_VIEW",
+        "BOOST_BEAST_SEPARATE_COMPILATION"
+      ],
+      "packages": [
+        "odeum-json-3-11-3",
+        "odeum-boost-1-87-0",
+        "odeum-openssl-3",
+        "discutere-lorica-cab4f120",
+        "discutere-sqlite-3-53-4"
+      ]
+    },
+    {
+      "file": "native/tests/discord_hook/w4q_forum_monitor_tests.cpp",
+      "standard": "c++20",
+      "includes": [
+        "native/src",
+        "native/tests"
+      ],
+      "defines": [
+        "WIN32_LEAN_AND_MEAN",
+        "NOMINMAX",
+        "_WIN32_WINNT=0x0A00",
+        "BOOST_ERROR_CODE_HEADER_ONLY",
+        "BOOST_ASIO_NO_DEPRECATED",
+        "BOOST_BEAST_USE_STD_STRING_VIEW",
+        "BOOST_BEAST_SEPARATE_COMPILATION"
+      ],
+      "packages": [
+        "odeum-json-3-11-3",
+        "odeum-boost-1-87-0",
+        "odeum-openssl-3",
+        "discutere-lorica-cab4f120",
+        "discutere-sqlite-3-53-4"
+      ]
+    },
+    {
+      "file": "native/tests/discord_hook/w5u_gateway_part2_tests.cpp",
+      "standard": "c++20",
+      "includes": [
+        "native/src",
+        "native/tests"
+      ],
+      "defines": [
+        "WIN32_LEAN_AND_MEAN",
+        "NOMINMAX",
+        "_WIN32_WINNT=0x0A00",
+        "BOOST_ERROR_CODE_HEADER_ONLY",
+        "BOOST_ASIO_NO_DEPRECATED",
+        "BOOST_BEAST_USE_STD_STRING_VIEW",
+        "BOOST_BEAST_SEPARATE_COMPILATION"
+      ],
+      "packages": [
+        "odeum-json-3-11-3",
+        "odeum-boost-1-87-0",
+        "odeum-openssl-3",
+        "discutere-lorica-cab4f120",
+        "discutere-sqlite-3-53-4"
+      ]
+    },
+    {
+      "file": "native/tests/discord_hook/w5u_gateway_part3_tests.cpp",
+      "standard": "c++20",
+      "includes": [
+        "native/src",
+        "native/tests"
+      ],
+      "defines": [
+        "WIN32_LEAN_AND_MEAN",
+        "NOMINMAX",
+        "_WIN32_WINNT=0x0A00",
+        "BOOST_ERROR_CODE_HEADER_ONLY",
+        "BOOST_ASIO_NO_DEPRECATED",
+        "BOOST_BEAST_USE_STD_STRING_VIEW",
+        "BOOST_BEAST_SEPARATE_COMPILATION"
+      ],
+      "packages": [
+        "odeum-json-3-11-3",
+        "odeum-boost-1-87-0",
+        "odeum-openssl-3",
+        "discutere-lorica-cab4f120",
+        "discutere-sqlite-3-53-4"
+      ]
+    },
+    {
+      "file": "native/tests/discord_hook/w5u_gateway_part4_tests.cpp",
+      "standard": "c++20",
+      "includes": [
+        "native/src",
+        "native/tests"
+      ],
+      "defines": [
+        "WIN32_LEAN_AND_MEAN",
+        "NOMINMAX",
+        "_WIN32_WINNT=0x0A00",
+        "BOOST_ERROR_CODE_HEADER_ONLY",
+        "BOOST_ASIO_NO_DEPRECATED",
+        "BOOST_BEAST_USE_STD_STRING_VIEW",
+        "BOOST_BEAST_SEPARATE_COMPILATION"
+      ],
+      "packages": [
+        "odeum-json-3-11-3",
+        "odeum-boost-1-87-0",
+        "odeum-openssl-3",
+        "discutere-lorica-cab4f120",
+        "discutere-sqlite-3-53-4"
+      ]
+    },
+    {
+      "file": "native/tests/discord_hook/w5u_gateway_tests.cpp",
+      "standard": "c++20",
+      "includes": [
+        "native/src",
+        "native/tests"
+      ],
+      "defines": [
+        "WIN32_LEAN_AND_MEAN",
+        "NOMINMAX",
+        "_WIN32_WINNT=0x0A00",
+        "BOOST_ERROR_CODE_HEADER_ONLY",
+        "BOOST_ASIO_NO_DEPRECATED",
+        "BOOST_BEAST_USE_STD_STRING_VIEW",
+        "BOOST_BEAST_SEPARATE_COMPILATION"
+      ],
+      "packages": [
+        "odeum-json-3-11-3",
+        "odeum-boost-1-87-0",
+        "odeum-openssl-3",
+        "discutere-lorica-cab4f120",
+        "discutere-sqlite-3-53-4"
+      ]
+    },
+    {
+      "file": "native/tests/discussion/composition_tests.cpp",
+      "standard": "c++20",
+      "includes": [
+        "native/src",
+        "native/tests"
+      ],
+      "defines": [
+        "WIN32_LEAN_AND_MEAN",
+        "NOMINMAX",
+        "_WIN32_WINNT=0x0A00",
+        "BOOST_ERROR_CODE_HEADER_ONLY",
+        "BOOST_ASIO_NO_DEPRECATED",
+        "BOOST_BEAST_USE_STD_STRING_VIEW",
+        "BOOST_BEAST_SEPARATE_COMPILATION"
+      ],
+      "packages": [
+        "odeum-json-3-11-3",
+        "odeum-boost-1-87-0",
+        "odeum-openssl-3",
+        "discutere-lorica-cab4f120",
+        "discutere-sqlite-3-53-4"
+      ]
+    },
+    {
+      "file": "native/tests/discussion/director_live_tests.cpp",
+      "standard": "c++20",
+      "includes": [
+        "native/src",
+        "native/tests"
+      ],
+      "defines": [
+        "WIN32_LEAN_AND_MEAN",
+        "NOMINMAX",
+        "_WIN32_WINNT=0x0A00",
+        "BOOST_ERROR_CODE_HEADER_ONLY",
+        "BOOST_ASIO_NO_DEPRECATED",
+        "BOOST_BEAST_USE_STD_STRING_VIEW",
+        "BOOST_BEAST_SEPARATE_COMPILATION"
+      ],
+      "packages": [
+        "odeum-json-3-11-3",
+        "odeum-boost-1-87-0",
+        "odeum-openssl-3",
+        "discutere-lorica-cab4f120",
+        "discutere-sqlite-3-53-4"
+      ]
+    },
+    {
+      "file": "native/tests/discussion/director_tests.cpp",
+      "standard": "c++20",
+      "includes": [
+        "native/src",
+        "native/tests"
+      ],
+      "defines": [
+        "WIN32_LEAN_AND_MEAN",
+        "NOMINMAX",
+        "_WIN32_WINNT=0x0A00",
+        "BOOST_ERROR_CODE_HEADER_ONLY",
+        "BOOST_ASIO_NO_DEPRECATED",
+        "BOOST_BEAST_USE_STD_STRING_VIEW",
+        "BOOST_BEAST_SEPARATE_COMPILATION"
+      ],
+      "packages": [
+        "odeum-json-3-11-3",
+        "odeum-boost-1-87-0",
+        "odeum-openssl-3",
+        "discutere-lorica-cab4f120",
+        "discutere-sqlite-3-53-4"
+      ]
+    },
+    {
+      "file": "native/tests/discussion_seed/seeds_tests.cpp",
+      "standard": "c++20",
+      "includes": [
+        "native/src",
+        "native/tests"
+      ],
+      "defines": [
+        "WIN32_LEAN_AND_MEAN",
+        "NOMINMAX",
+        "_WIN32_WINNT=0x0A00",
+        "BOOST_ERROR_CODE_HEADER_ONLY",
+        "BOOST_ASIO_NO_DEPRECATED",
+        "BOOST_BEAST_USE_STD_STRING_VIEW",
+        "BOOST_BEAST_SEPARATE_COMPILATION"
+      ],
+      "packages": [
+        "odeum-json-3-11-3",
+        "odeum-boost-1-87-0",
+        "odeum-openssl-3",
+        "discutere-lorica-cab4f120",
+        "discutere-sqlite-3-53-4"
+      ]
+    },
+    {
+      "file": "native/tests/discussion_seed/w3m_scheduler_tests.cpp",
+      "standard": "c++20",
+      "includes": [
+        "native/src",
+        "native/tests"
+      ],
+      "defines": [
+        "WIN32_LEAN_AND_MEAN",
+        "NOMINMAX",
+        "_WIN32_WINNT=0x0A00",
+        "BOOST_ERROR_CODE_HEADER_ONLY",
+        "BOOST_ASIO_NO_DEPRECATED",
+        "BOOST_BEAST_USE_STD_STRING_VIEW",
+        "BOOST_BEAST_SEPARATE_COMPILATION"
+      ],
+      "packages": [
+        "odeum-json-3-11-3",
+        "odeum-boost-1-87-0",
+        "odeum-openssl-3",
+        "discutere-lorica-cab4f120",
+        "discutere-sqlite-3-53-4"
+      ]
+    },
+    {
+      "file": "native/tests/external_discussion/external_discussion_tests.cpp",
+      "standard": "c++20",
+      "includes": [
+        "native/src",
+        "native/tests"
+      ],
+      "defines": [
+        "WIN32_LEAN_AND_MEAN",
+        "NOMINMAX",
+        "_WIN32_WINNT=0x0A00",
+        "BOOST_ERROR_CODE_HEADER_ONLY",
+        "BOOST_ASIO_NO_DEPRECATED",
+        "BOOST_BEAST_USE_STD_STRING_VIEW",
+        "BOOST_BEAST_SEPARATE_COMPILATION"
+      ],
+      "packages": [
+        "odeum-json-3-11-3",
+        "odeum-boost-1-87-0",
+        "odeum-openssl-3",
+        "discutere-lorica-cab4f120",
+        "discutere-sqlite-3-53-4"
+      ]
+    },
+    {
+      "file": "native/tests/external_discussion/service_tests.cpp",
+      "standard": "c++20",
+      "includes": [
+        "native/src",
+        "native/tests"
+      ],
+      "defines": [
+        "WIN32_LEAN_AND_MEAN",
+        "NOMINMAX",
+        "_WIN32_WINNT=0x0A00",
+        "BOOST_ERROR_CODE_HEADER_ONLY",
+        "BOOST_ASIO_NO_DEPRECATED",
+        "BOOST_BEAST_USE_STD_STRING_VIEW",
+        "BOOST_BEAST_SEPARATE_COMPILATION"
+      ],
+      "packages": [
+        "odeum-json-3-11-3",
+        "odeum-boost-1-87-0",
+        "odeum-openssl-3",
+        "discutere-lorica-cab4f120",
+        "discutere-sqlite-3-53-4"
+      ]
+    },
+    {
+      "file": "native/tests/feedback/store_tests.cpp",
+      "standard": "c++20",
+      "includes": [
+        "native/src",
+        "native/tests"
+      ],
+      "defines": [
+        "WIN32_LEAN_AND_MEAN",
+        "NOMINMAX",
+        "_WIN32_WINNT=0x0A00",
+        "BOOST_ERROR_CODE_HEADER_ONLY",
+        "BOOST_ASIO_NO_DEPRECATED",
+        "BOOST_BEAST_USE_STD_STRING_VIEW",
+        "BOOST_BEAST_SEPARATE_COMPILATION"
+      ],
+      "packages": [
+        "odeum-json-3-11-3",
+        "odeum-boost-1-87-0",
+        "odeum-openssl-3",
+        "discutere-lorica-cab4f120",
+        "discutere-sqlite-3-53-4"
+      ]
+    },
+    {
+      "file": "native/tests/flow/anatomia_client_tests.cpp",
+      "standard": "c++20",
+      "includes": [
+        "native/src",
+        "native/tests"
+      ],
+      "defines": [
+        "WIN32_LEAN_AND_MEAN",
+        "NOMINMAX",
+        "_WIN32_WINNT=0x0A00",
+        "BOOST_ERROR_CODE_HEADER_ONLY",
+        "BOOST_ASIO_NO_DEPRECATED",
+        "BOOST_BEAST_USE_STD_STRING_VIEW",
+        "BOOST_BEAST_SEPARATE_COMPILATION"
+      ],
+      "packages": [
+        "odeum-json-3-11-3",
+        "odeum-boost-1-87-0",
+        "odeum-openssl-3",
+        "discutere-lorica-cab4f120",
+        "discutere-sqlite-3-53-4"
+      ]
+    },
+    {
+      "file": "native/tests/flow/anatomia_refine_tests.cpp",
+      "standard": "c++20",
+      "includes": [
+        "native/src",
+        "native/tests"
+      ],
+      "defines": [
+        "WIN32_LEAN_AND_MEAN",
+        "NOMINMAX",
+        "_WIN32_WINNT=0x0A00",
+        "BOOST_ERROR_CODE_HEADER_ONLY",
+        "BOOST_ASIO_NO_DEPRECATED",
+        "BOOST_BEAST_USE_STD_STRING_VIEW",
+        "BOOST_BEAST_SEPARATE_COMPILATION"
+      ],
+      "packages": [
+        "odeum-json-3-11-3",
+        "odeum-boost-1-87-0",
+        "odeum-openssl-3",
+        "discutere-lorica-cab4f120",
+        "discutere-sqlite-3-53-4"
+      ]
+    },
+    {
+      "file": "native/tests/flow/argument_graph_tests.cpp",
+      "standard": "c++20",
+      "includes": [
+        "native/src",
+        "native/tests"
+      ],
+      "defines": [
+        "WIN32_LEAN_AND_MEAN",
+        "NOMINMAX",
+        "_WIN32_WINNT=0x0A00",
+        "BOOST_ERROR_CODE_HEADER_ONLY",
+        "BOOST_ASIO_NO_DEPRECATED",
+        "BOOST_BEAST_USE_STD_STRING_VIEW",
+        "BOOST_BEAST_SEPARATE_COMPILATION"
+      ],
+      "packages": [
+        "odeum-json-3-11-3",
+        "odeum-boost-1-87-0",
+        "odeum-openssl-3",
+        "discutere-lorica-cab4f120",
+        "discutere-sqlite-3-53-4"
+      ]
+    },
+    {
+      "file": "native/tests/flow/contracts_runtime_tests.cpp",
+      "standard": "c++20",
+      "includes": [
+        "native/src",
+        "native/tests"
+      ],
+      "defines": [
+        "WIN32_LEAN_AND_MEAN",
+        "NOMINMAX",
+        "_WIN32_WINNT=0x0A00",
+        "BOOST_ERROR_CODE_HEADER_ONLY",
+        "BOOST_ASIO_NO_DEPRECATED",
+        "BOOST_BEAST_USE_STD_STRING_VIEW",
+        "BOOST_BEAST_SEPARATE_COMPILATION"
+      ],
+      "packages": [
+        "odeum-json-3-11-3",
+        "odeum-boost-1-87-0",
+        "odeum-openssl-3",
+        "discutere-lorica-cab4f120",
+        "discutere-sqlite-3-53-4"
+      ]
+    },
+    {
+      "file": "native/tests/flow/cost_relay_part2_tests.cpp",
+      "standard": "c++20",
+      "includes": [
+        "native/src",
+        "native/tests"
+      ],
+      "defines": [
+        "WIN32_LEAN_AND_MEAN",
+        "NOMINMAX",
+        "_WIN32_WINNT=0x0A00",
+        "BOOST_ERROR_CODE_HEADER_ONLY",
+        "BOOST_ASIO_NO_DEPRECATED",
+        "BOOST_BEAST_USE_STD_STRING_VIEW",
+        "BOOST_BEAST_SEPARATE_COMPILATION"
+      ],
+      "packages": [
+        "odeum-json-3-11-3",
+        "odeum-boost-1-87-0",
+        "odeum-openssl-3",
+        "discutere-lorica-cab4f120",
+        "discutere-sqlite-3-53-4"
+      ]
+    },
+    {
+      "file": "native/tests/flow/cost_relay_tests.cpp",
+      "standard": "c++20",
+      "includes": [
+        "native/src",
+        "native/tests"
+      ],
+      "defines": [
+        "WIN32_LEAN_AND_MEAN",
+        "NOMINMAX",
+        "_WIN32_WINNT=0x0A00",
+        "BOOST_ERROR_CODE_HEADER_ONLY",
+        "BOOST_ASIO_NO_DEPRECATED",
+        "BOOST_BEAST_USE_STD_STRING_VIEW",
+        "BOOST_BEAST_SEPARATE_COMPILATION"
+      ],
+      "packages": [
+        "odeum-json-3-11-3",
+        "odeum-boost-1-87-0",
+        "odeum-openssl-3",
+        "discutere-lorica-cab4f120",
+        "discutere-sqlite-3-53-4"
+      ]
+    },
+    {
+      "file": "native/tests/flow/design_gap_tests.cpp",
+      "standard": "c++20",
+      "includes": [
+        "native/src",
+        "native/tests"
+      ],
+      "defines": [
+        "WIN32_LEAN_AND_MEAN",
+        "NOMINMAX",
+        "_WIN32_WINNT=0x0A00",
+        "BOOST_ERROR_CODE_HEADER_ONLY",
+        "BOOST_ASIO_NO_DEPRECATED",
+        "BOOST_BEAST_USE_STD_STRING_VIEW",
+        "BOOST_BEAST_SEPARATE_COMPILATION"
+      ],
+      "packages": [
+        "odeum-json-3-11-3",
+        "odeum-boost-1-87-0",
+        "odeum-openssl-3",
+        "discutere-lorica-cab4f120",
+        "discutere-sqlite-3-53-4"
+      ]
+    },
+    {
+      "file": "native/tests/flow/foresight_tests.cpp",
+      "standard": "c++20",
+      "includes": [
+        "native/src",
+        "native/tests"
+      ],
+      "defines": [
+        "WIN32_LEAN_AND_MEAN",
+        "NOMINMAX",
+        "_WIN32_WINNT=0x0A00",
+        "BOOST_ERROR_CODE_HEADER_ONLY",
+        "BOOST_ASIO_NO_DEPRECATED",
+        "BOOST_BEAST_USE_STD_STRING_VIEW",
+        "BOOST_BEAST_SEPARATE_COMPILATION"
+      ],
+      "packages": [
+        "odeum-json-3-11-3",
+        "odeum-boost-1-87-0",
+        "odeum-openssl-3",
+        "discutere-lorica-cab4f120",
+        "discutere-sqlite-3-53-4"
+      ]
+    },
+    {
+      "file": "native/tests/flow/github_cli_tests.cpp",
+      "standard": "c++20",
+      "includes": [
+        "native/src",
+        "native/tests"
+      ],
+      "defines": [
+        "WIN32_LEAN_AND_MEAN",
+        "NOMINMAX",
+        "_WIN32_WINNT=0x0A00",
+        "BOOST_ERROR_CODE_HEADER_ONLY",
+        "BOOST_ASIO_NO_DEPRECATED",
+        "BOOST_BEAST_USE_STD_STRING_VIEW",
+        "BOOST_BEAST_SEPARATE_COMPILATION"
+      ],
+      "packages": [
+        "odeum-json-3-11-3",
+        "odeum-boost-1-87-0",
+        "odeum-openssl-3",
+        "discutere-lorica-cab4f120",
+        "discutere-sqlite-3-53-4"
+      ]
+    },
+    {
+      "file": "native/tests/flow/investigate_tests.cpp",
+      "standard": "c++20",
+      "includes": [
+        "native/src",
+        "native/tests"
+      ],
+      "defines": [
+        "WIN32_LEAN_AND_MEAN",
+        "NOMINMAX",
+        "_WIN32_WINNT=0x0A00",
+        "BOOST_ERROR_CODE_HEADER_ONLY",
+        "BOOST_ASIO_NO_DEPRECATED",
+        "BOOST_BEAST_USE_STD_STRING_VIEW",
+        "BOOST_BEAST_SEPARATE_COMPILATION"
+      ],
+      "packages": [
+        "odeum-json-3-11-3",
+        "odeum-boost-1-87-0",
+        "odeum-openssl-3",
+        "discutere-lorica-cab4f120",
+        "discutere-sqlite-3-53-4"
+      ]
+    },
+    {
+      "file": "native/tests/flow/llm_router_tests.cpp",
+      "standard": "c++20",
+      "includes": [
+        "native/src",
+        "native/tests"
+      ],
+      "defines": [
+        "WIN32_LEAN_AND_MEAN",
+        "NOMINMAX",
+        "_WIN32_WINNT=0x0A00",
+        "BOOST_ERROR_CODE_HEADER_ONLY",
+        "BOOST_ASIO_NO_DEPRECATED",
+        "BOOST_BEAST_USE_STD_STRING_VIEW",
+        "BOOST_BEAST_SEPARATE_COMPILATION"
+      ],
+      "packages": [
+        "odeum-json-3-11-3",
+        "odeum-boost-1-87-0",
+        "odeum-openssl-3",
+        "discutere-lorica-cab4f120",
+        "discutere-sqlite-3-53-4"
+      ]
+    },
+    {
+      "file": "native/tests/flow/notion_link_tests.cpp",
+      "standard": "c++20",
+      "includes": [
+        "native/src",
+        "native/tests"
+      ],
+      "defines": [
+        "WIN32_LEAN_AND_MEAN",
+        "NOMINMAX",
+        "_WIN32_WINNT=0x0A00",
+        "BOOST_ERROR_CODE_HEADER_ONLY",
+        "BOOST_ASIO_NO_DEPRECATED",
+        "BOOST_BEAST_USE_STD_STRING_VIEW",
+        "BOOST_BEAST_SEPARATE_COMPILATION"
+      ],
+      "packages": [
+        "odeum-json-3-11-3",
+        "odeum-boost-1-87-0",
+        "odeum-openssl-3",
+        "discutere-lorica-cab4f120",
+        "discutere-sqlite-3-53-4"
+      ]
+    },
+    {
+      "file": "native/tests/flow/paper_blocks_tests.cpp",
+      "standard": "c++20",
+      "includes": [
+        "native/src",
+        "native/tests"
+      ],
+      "defines": [
+        "WIN32_LEAN_AND_MEAN",
+        "NOMINMAX",
+        "_WIN32_WINNT=0x0A00",
+        "BOOST_ERROR_CODE_HEADER_ONLY",
+        "BOOST_ASIO_NO_DEPRECATED",
+        "BOOST_BEAST_USE_STD_STRING_VIEW",
+        "BOOST_BEAST_SEPARATE_COMPILATION"
+      ],
+      "packages": [
+        "odeum-json-3-11-3",
+        "odeum-boost-1-87-0",
+        "odeum-openssl-3",
+        "discutere-lorica-cab4f120",
+        "discutere-sqlite-3-53-4"
+      ]
+    },
+    {
+      "file": "native/tests/flow/paper_review_intent_tests.cpp",
+      "standard": "c++20",
+      "includes": [
+        "native/src",
+        "native/tests"
+      ],
+      "defines": [
+        "WIN32_LEAN_AND_MEAN",
+        "NOMINMAX",
+        "_WIN32_WINNT=0x0A00",
+        "BOOST_ERROR_CODE_HEADER_ONLY",
+        "BOOST_ASIO_NO_DEPRECATED",
+        "BOOST_BEAST_USE_STD_STRING_VIEW",
+        "BOOST_BEAST_SEPARATE_COMPILATION"
+      ],
+      "packages": [
+        "odeum-json-3-11-3",
+        "odeum-boost-1-87-0",
+        "odeum-openssl-3",
+        "discutere-lorica-cab4f120",
+        "discutere-sqlite-3-53-4"
+      ]
+    },
+    {
+      "file": "native/tests/flow/paper_review_part2_tests.cpp",
+      "standard": "c++20",
+      "includes": [
+        "native/src",
+        "native/tests"
+      ],
+      "defines": [
+        "WIN32_LEAN_AND_MEAN",
+        "NOMINMAX",
+        "_WIN32_WINNT=0x0A00",
+        "BOOST_ERROR_CODE_HEADER_ONLY",
+        "BOOST_ASIO_NO_DEPRECATED",
+        "BOOST_BEAST_USE_STD_STRING_VIEW",
+        "BOOST_BEAST_SEPARATE_COMPILATION"
+      ],
+      "packages": [
+        "odeum-json-3-11-3",
+        "odeum-boost-1-87-0",
+        "odeum-openssl-3",
+        "discutere-lorica-cab4f120",
+        "discutere-sqlite-3-53-4"
+      ]
+    },
+    {
+      "file": "native/tests/flow/paper_review_session_tests.cpp",
+      "standard": "c++20",
+      "includes": [
+        "native/src",
+        "native/tests"
+      ],
+      "defines": [
+        "WIN32_LEAN_AND_MEAN",
+        "NOMINMAX",
+        "_WIN32_WINNT=0x0A00",
+        "BOOST_ERROR_CODE_HEADER_ONLY",
+        "BOOST_ASIO_NO_DEPRECATED",
+        "BOOST_BEAST_USE_STD_STRING_VIEW",
+        "BOOST_BEAST_SEPARATE_COMPILATION"
+      ],
+      "packages": [
+        "odeum-json-3-11-3",
+        "odeum-boost-1-87-0",
+        "odeum-openssl-3",
+        "discutere-lorica-cab4f120",
+        "discutere-sqlite-3-53-4"
+      ]
+    },
+    {
+      "file": "native/tests/flow/paper_review_tests.cpp",
+      "standard": "c++20",
+      "includes": [
+        "native/src",
+        "native/tests"
+      ],
+      "defines": [
+        "WIN32_LEAN_AND_MEAN",
+        "NOMINMAX",
+        "_WIN32_WINNT=0x0A00",
+        "BOOST_ERROR_CODE_HEADER_ONLY",
+        "BOOST_ASIO_NO_DEPRECATED",
+        "BOOST_BEAST_USE_STD_STRING_VIEW",
+        "BOOST_BEAST_SEPARATE_COMPILATION"
+      ],
+      "packages": [
+        "odeum-json-3-11-3",
+        "odeum-boost-1-87-0",
+        "odeum-openssl-3",
+        "discutere-lorica-cab4f120",
+        "discutere-sqlite-3-53-4"
+      ]
+    },
+    {
+      "file": "native/tests/flow/persona_adopt_runner_tests.cpp",
+      "standard": "c++20",
+      "includes": [
+        "native/src",
+        "native/tests"
+      ],
+      "defines": [
+        "WIN32_LEAN_AND_MEAN",
+        "NOMINMAX",
+        "_WIN32_WINNT=0x0A00",
+        "BOOST_ERROR_CODE_HEADER_ONLY",
+        "BOOST_ASIO_NO_DEPRECATED",
+        "BOOST_BEAST_USE_STD_STRING_VIEW",
+        "BOOST_BEAST_SEPARATE_COMPILATION"
+      ],
+      "packages": [
+        "odeum-json-3-11-3",
+        "odeum-boost-1-87-0",
+        "odeum-openssl-3",
+        "discutere-lorica-cab4f120",
+        "discutere-sqlite-3-53-4"
+      ]
+    },
+    {
+      "file": "native/tests/flow/persona_history_evidence_tests.cpp",
+      "standard": "c++20",
+      "includes": [
+        "native/src",
+        "native/tests"
+      ],
+      "defines": [
+        "WIN32_LEAN_AND_MEAN",
+        "NOMINMAX",
+        "_WIN32_WINNT=0x0A00",
+        "BOOST_ERROR_CODE_HEADER_ONLY",
+        "BOOST_ASIO_NO_DEPRECATED",
+        "BOOST_BEAST_USE_STD_STRING_VIEW",
+        "BOOST_BEAST_SEPARATE_COMPILATION"
+      ],
+      "packages": [
+        "odeum-json-3-11-3",
+        "odeum-boost-1-87-0",
+        "odeum-openssl-3",
+        "discutere-lorica-cab4f120",
+        "discutere-sqlite-3-53-4"
+      ]
+    },
+    {
+      "file": "native/tests/flow/persona_pool_tests.cpp",
+      "standard": "c++20",
+      "includes": [
+        "native/src",
+        "native/tests"
+      ],
+      "defines": [
+        "WIN32_LEAN_AND_MEAN",
+        "NOMINMAX",
+        "_WIN32_WINNT=0x0A00",
+        "BOOST_ERROR_CODE_HEADER_ONLY",
+        "BOOST_ASIO_NO_DEPRECATED",
+        "BOOST_BEAST_USE_STD_STRING_VIEW",
+        "BOOST_BEAST_SEPARATE_COMPILATION"
+      ],
+      "packages": [
+        "odeum-json-3-11-3",
+        "odeum-boost-1-87-0",
+        "odeum-openssl-3",
+        "discutere-lorica-cab4f120",
+        "discutere-sqlite-3-53-4"
+      ]
+    },
+    {
+      "file": "native/tests/flow/personas_tests.cpp",
+      "standard": "c++20",
+      "includes": [
+        "native/src",
+        "native/tests"
+      ],
+      "defines": [
+        "WIN32_LEAN_AND_MEAN",
+        "NOMINMAX",
+        "_WIN32_WINNT=0x0A00",
+        "BOOST_ERROR_CODE_HEADER_ONLY",
+        "BOOST_ASIO_NO_DEPRECATED",
+        "BOOST_BEAST_USE_STD_STRING_VIEW",
+        "BOOST_BEAST_SEPARATE_COMPILATION"
+      ],
+      "packages": [
+        "odeum-json-3-11-3",
+        "odeum-boost-1-87-0",
+        "odeum-openssl-3",
+        "discutere-lorica-cab4f120",
+        "discutere-sqlite-3-53-4"
+      ]
+    },
+    {
+      "file": "native/tests/flow/project_premise_tests.cpp",
+      "standard": "c++20",
+      "includes": [
+        "native/src",
+        "native/tests"
+      ],
+      "defines": [
+        "WIN32_LEAN_AND_MEAN",
+        "NOMINMAX",
+        "_WIN32_WINNT=0x0A00",
+        "BOOST_ERROR_CODE_HEADER_ONLY",
+        "BOOST_ASIO_NO_DEPRECATED",
+        "BOOST_BEAST_USE_STD_STRING_VIEW",
+        "BOOST_BEAST_SEPARATE_COMPILATION"
+      ],
+      "packages": [
+        "odeum-json-3-11-3",
+        "odeum-boost-1-87-0",
+        "odeum-openssl-3",
+        "discutere-lorica-cab4f120",
+        "discutere-sqlite-3-53-4"
+      ]
+    },
+    {
+      "file": "native/tests/flow/proxy_cast_tests.cpp",
+      "standard": "c++20",
+      "includes": [
+        "native/src",
+        "native/tests"
+      ],
+      "defines": [
+        "WIN32_LEAN_AND_MEAN",
+        "NOMINMAX",
+        "_WIN32_WINNT=0x0A00",
+        "BOOST_ERROR_CODE_HEADER_ONLY",
+        "BOOST_ASIO_NO_DEPRECATED",
+        "BOOST_BEAST_USE_STD_STRING_VIEW",
+        "BOOST_BEAST_SEPARATE_COMPILATION"
+      ],
+      "packages": [
+        "odeum-json-3-11-3",
+        "odeum-boost-1-87-0",
+        "odeum-openssl-3",
+        "discutere-lorica-cab4f120",
+        "discutere-sqlite-3-53-4"
+      ]
+    },
+    {
+      "file": "native/tests/flow/proxy_tests.cpp",
+      "standard": "c++20",
+      "includes": [
+        "native/src",
+        "native/tests"
+      ],
+      "defines": [
+        "WIN32_LEAN_AND_MEAN",
+        "NOMINMAX",
+        "_WIN32_WINNT=0x0A00",
+        "BOOST_ERROR_CODE_HEADER_ONLY",
+        "BOOST_ASIO_NO_DEPRECATED",
+        "BOOST_BEAST_USE_STD_STRING_VIEW",
+        "BOOST_BEAST_SEPARATE_COMPILATION"
+      ],
+      "packages": [
+        "odeum-json-3-11-3",
+        "odeum-boost-1-87-0",
+        "odeum-openssl-3",
+        "discutere-lorica-cab4f120",
+        "discutere-sqlite-3-53-4"
+      ]
+    },
+    {
+      "file": "native/tests/flow/small_pure_tests.cpp",
+      "standard": "c++20",
+      "includes": [
+        "native/src",
+        "native/tests"
+      ],
+      "defines": [
+        "WIN32_LEAN_AND_MEAN",
+        "NOMINMAX",
+        "_WIN32_WINNT=0x0A00",
+        "BOOST_ERROR_CODE_HEADER_ONLY",
+        "BOOST_ASIO_NO_DEPRECATED",
+        "BOOST_BEAST_USE_STD_STRING_VIEW",
+        "BOOST_BEAST_SEPARATE_COMPILATION"
+      ],
+      "packages": [
+        "odeum-json-3-11-3",
+        "odeum-boost-1-87-0",
+        "odeum-openssl-3",
+        "discutere-lorica-cab4f120",
+        "discutere-sqlite-3-53-4"
+      ]
+    },
+    {
+      "file": "native/tests/flow/spec_source_tests.cpp",
+      "standard": "c++20",
+      "includes": [
+        "native/src",
+        "native/tests"
+      ],
+      "defines": [
+        "WIN32_LEAN_AND_MEAN",
+        "NOMINMAX",
+        "_WIN32_WINNT=0x0A00",
+        "BOOST_ERROR_CODE_HEADER_ONLY",
+        "BOOST_ASIO_NO_DEPRECATED",
+        "BOOST_BEAST_USE_STD_STRING_VIEW",
+        "BOOST_BEAST_SEPARATE_COMPILATION"
+      ],
+      "packages": [
+        "odeum-json-3-11-3",
+        "odeum-boost-1-87-0",
+        "odeum-openssl-3",
+        "discutere-lorica-cab4f120",
+        "discutere-sqlite-3-53-4"
+      ]
+    },
+    {
+      "file": "native/tests/flow/steam_app_tests.cpp",
+      "standard": "c++20",
+      "includes": [
+        "native/src",
+        "native/tests"
+      ],
+      "defines": [
+        "WIN32_LEAN_AND_MEAN",
+        "NOMINMAX",
+        "_WIN32_WINNT=0x0A00",
+        "BOOST_ERROR_CODE_HEADER_ONLY",
+        "BOOST_ASIO_NO_DEPRECATED",
+        "BOOST_BEAST_USE_STD_STRING_VIEW",
+        "BOOST_BEAST_SEPARATE_COMPILATION"
+      ],
+      "packages": [
+        "odeum-json-3-11-3",
+        "odeum-boost-1-87-0",
+        "odeum-openssl-3",
+        "discutere-lorica-cab4f120",
+        "discutere-sqlite-3-53-4"
+      ]
+    },
+    {
+      "file": "native/tests/flow/user_voices/voice_request_tests.cpp",
+      "standard": "c++20",
+      "includes": [
+        "native/src",
+        "native/tests"
+      ],
+      "defines": [
+        "WIN32_LEAN_AND_MEAN",
+        "NOMINMAX",
+        "_WIN32_WINNT=0x0A00",
+        "BOOST_ERROR_CODE_HEADER_ONLY",
+        "BOOST_ASIO_NO_DEPRECATED",
+        "BOOST_BEAST_USE_STD_STRING_VIEW",
+        "BOOST_BEAST_SEPARATE_COMPILATION"
+      ],
+      "packages": [
+        "odeum-json-3-11-3",
+        "odeum-boost-1-87-0",
+        "odeum-openssl-3",
+        "discutere-lorica-cab4f120",
+        "discutere-sqlite-3-53-4"
+      ]
+    },
+    {
+      "file": "native/tests/flow/w2g_db_part2_tests.cpp",
+      "standard": "c++20",
+      "includes": [
+        "native/src",
+        "native/tests"
+      ],
+      "defines": [
+        "WIN32_LEAN_AND_MEAN",
+        "NOMINMAX",
+        "_WIN32_WINNT=0x0A00",
+        "BOOST_ERROR_CODE_HEADER_ONLY",
+        "BOOST_ASIO_NO_DEPRECATED",
+        "BOOST_BEAST_USE_STD_STRING_VIEW",
+        "BOOST_BEAST_SEPARATE_COMPILATION"
+      ],
+      "packages": [
+        "odeum-json-3-11-3",
+        "odeum-boost-1-87-0",
+        "odeum-openssl-3",
+        "discutere-lorica-cab4f120",
+        "discutere-sqlite-3-53-4"
+      ]
+    },
+    {
+      "file": "native/tests/flow/w2g_db_part3_tests.cpp",
+      "standard": "c++20",
+      "includes": [
+        "native/src",
+        "native/tests"
+      ],
+      "defines": [
+        "WIN32_LEAN_AND_MEAN",
+        "NOMINMAX",
+        "_WIN32_WINNT=0x0A00",
+        "BOOST_ERROR_CODE_HEADER_ONLY",
+        "BOOST_ASIO_NO_DEPRECATED",
+        "BOOST_BEAST_USE_STD_STRING_VIEW",
+        "BOOST_BEAST_SEPARATE_COMPILATION"
+      ],
+      "packages": [
+        "odeum-json-3-11-3",
+        "odeum-boost-1-87-0",
+        "odeum-openssl-3",
+        "discutere-lorica-cab4f120",
+        "discutere-sqlite-3-53-4"
+      ]
+    },
+    {
+      "file": "native/tests/flow/w2g_db_tests.cpp",
+      "standard": "c++20",
+      "includes": [
+        "native/src",
+        "native/tests"
+      ],
+      "defines": [
+        "WIN32_LEAN_AND_MEAN",
+        "NOMINMAX",
+        "_WIN32_WINNT=0x0A00",
+        "BOOST_ERROR_CODE_HEADER_ONLY",
+        "BOOST_ASIO_NO_DEPRECATED",
+        "BOOST_BEAST_USE_STD_STRING_VIEW",
+        "BOOST_BEAST_SEPARATE_COMPILATION"
+      ],
+      "packages": [
+        "odeum-json-3-11-3",
+        "odeum-boost-1-87-0",
+        "odeum-openssl-3",
+        "discutere-lorica-cab4f120",
+        "discutere-sqlite-3-53-4"
+      ]
+    },
+    {
+      "file": "native/tests/flow/w2g_golden_part2_tests.cpp",
+      "standard": "c++20",
+      "includes": [
+        "native/src",
+        "native/tests"
+      ],
+      "defines": [
+        "WIN32_LEAN_AND_MEAN",
+        "NOMINMAX",
+        "_WIN32_WINNT=0x0A00",
+        "BOOST_ERROR_CODE_HEADER_ONLY",
+        "BOOST_ASIO_NO_DEPRECATED",
+        "BOOST_BEAST_USE_STD_STRING_VIEW",
+        "BOOST_BEAST_SEPARATE_COMPILATION"
+      ],
+      "packages": [
+        "odeum-json-3-11-3",
+        "odeum-boost-1-87-0",
+        "odeum-openssl-3",
+        "discutere-lorica-cab4f120",
+        "discutere-sqlite-3-53-4"
+      ]
+    },
+    {
+      "file": "native/tests/flow/w2g_golden_part3_tests.cpp",
+      "standard": "c++20",
+      "includes": [
+        "native/src",
+        "native/tests"
+      ],
+      "defines": [
+        "WIN32_LEAN_AND_MEAN",
+        "NOMINMAX",
+        "_WIN32_WINNT=0x0A00",
+        "BOOST_ERROR_CODE_HEADER_ONLY",
+        "BOOST_ASIO_NO_DEPRECATED",
+        "BOOST_BEAST_USE_STD_STRING_VIEW",
+        "BOOST_BEAST_SEPARATE_COMPILATION"
+      ],
+      "packages": [
+        "odeum-json-3-11-3",
+        "odeum-boost-1-87-0",
+        "odeum-openssl-3",
+        "discutere-lorica-cab4f120",
+        "discutere-sqlite-3-53-4"
+      ]
+    },
+    {
+      "file": "native/tests/flow/w2g_golden_part4_tests.cpp",
+      "standard": "c++20",
+      "includes": [
+        "native/src",
+        "native/tests"
+      ],
+      "defines": [
+        "WIN32_LEAN_AND_MEAN",
+        "NOMINMAX",
+        "_WIN32_WINNT=0x0A00",
+        "BOOST_ERROR_CODE_HEADER_ONLY",
+        "BOOST_ASIO_NO_DEPRECATED",
+        "BOOST_BEAST_USE_STD_STRING_VIEW",
+        "BOOST_BEAST_SEPARATE_COMPILATION"
+      ],
+      "packages": [
+        "odeum-json-3-11-3",
+        "odeum-boost-1-87-0",
+        "odeum-openssl-3",
+        "discutere-lorica-cab4f120",
+        "discutere-sqlite-3-53-4"
+      ]
+    },
+    {
+      "file": "native/tests/flow/w2g_golden_tests.cpp",
+      "standard": "c++20",
+      "includes": [
+        "native/src",
+        "native/tests"
+      ],
+      "defines": [
+        "WIN32_LEAN_AND_MEAN",
+        "NOMINMAX",
+        "_WIN32_WINNT=0x0A00",
+        "BOOST_ERROR_CODE_HEADER_ONLY",
+        "BOOST_ASIO_NO_DEPRECATED",
+        "BOOST_BEAST_USE_STD_STRING_VIEW",
+        "BOOST_BEAST_SEPARATE_COMPILATION"
+      ],
+      "packages": [
+        "odeum-json-3-11-3",
+        "odeum-boost-1-87-0",
+        "odeum-openssl-3",
+        "discutere-lorica-cab4f120",
+        "discutere-sqlite-3-53-4"
+      ]
+    },
+    {
+      "file": "native/tests/flow/w3k_gate_part2_tests.cpp",
+      "standard": "c++20",
+      "includes": [
+        "native/src",
+        "native/tests"
+      ],
+      "defines": [
+        "WIN32_LEAN_AND_MEAN",
+        "NOMINMAX",
+        "_WIN32_WINNT=0x0A00",
+        "BOOST_ERROR_CODE_HEADER_ONLY",
+        "BOOST_ASIO_NO_DEPRECATED",
+        "BOOST_BEAST_USE_STD_STRING_VIEW",
+        "BOOST_BEAST_SEPARATE_COMPILATION"
+      ],
+      "packages": [
+        "odeum-json-3-11-3",
+        "odeum-boost-1-87-0",
+        "odeum-openssl-3",
+        "discutere-lorica-cab4f120",
+        "discutere-sqlite-3-53-4"
+      ]
+    },
+    {
+      "file": "native/tests/flow/w3k_gate_part3_tests.cpp",
+      "standard": "c++20",
+      "includes": [
+        "native/src",
+        "native/tests"
+      ],
+      "defines": [
+        "WIN32_LEAN_AND_MEAN",
+        "NOMINMAX",
+        "_WIN32_WINNT=0x0A00",
+        "BOOST_ERROR_CODE_HEADER_ONLY",
+        "BOOST_ASIO_NO_DEPRECATED",
+        "BOOST_BEAST_USE_STD_STRING_VIEW",
+        "BOOST_BEAST_SEPARATE_COMPILATION"
+      ],
+      "packages": [
+        "odeum-json-3-11-3",
+        "odeum-boost-1-87-0",
+        "odeum-openssl-3",
+        "discutere-lorica-cab4f120",
+        "discutere-sqlite-3-53-4"
+      ]
+    },
+    {
+      "file": "native/tests/flow/w3k_gate_part4_tests.cpp",
+      "standard": "c++20",
+      "includes": [
+        "native/src",
+        "native/tests"
+      ],
+      "defines": [
+        "WIN32_LEAN_AND_MEAN",
+        "NOMINMAX",
+        "_WIN32_WINNT=0x0A00",
+        "BOOST_ERROR_CODE_HEADER_ONLY",
+        "BOOST_ASIO_NO_DEPRECATED",
+        "BOOST_BEAST_USE_STD_STRING_VIEW",
+        "BOOST_BEAST_SEPARATE_COMPILATION"
+      ],
+      "packages": [
+        "odeum-json-3-11-3",
+        "odeum-boost-1-87-0",
+        "odeum-openssl-3",
+        "discutere-lorica-cab4f120",
+        "discutere-sqlite-3-53-4"
+      ]
+    },
+    {
+      "file": "native/tests/flow/w3k_gate_tests.cpp",
+      "standard": "c++20",
+      "includes": [
+        "native/src",
+        "native/tests"
+      ],
+      "defines": [
+        "WIN32_LEAN_AND_MEAN",
+        "NOMINMAX",
+        "_WIN32_WINNT=0x0A00",
+        "BOOST_ERROR_CODE_HEADER_ONLY",
+        "BOOST_ASIO_NO_DEPRECATED",
+        "BOOST_BEAST_USE_STD_STRING_VIEW",
+        "BOOST_BEAST_SEPARATE_COMPILATION"
+      ],
+      "packages": [
+        "odeum-json-3-11-3",
+        "odeum-boost-1-87-0",
+        "odeum-openssl-3",
+        "discutere-lorica-cab4f120",
+        "discutere-sqlite-3-53-4"
+      ]
+    },
+    {
+      "file": "native/tests/flow/w3k_user_voices_part2_tests.cpp",
+      "standard": "c++20",
+      "includes": [
+        "native/src",
+        "native/tests"
+      ],
+      "defines": [
+        "WIN32_LEAN_AND_MEAN",
+        "NOMINMAX",
+        "_WIN32_WINNT=0x0A00",
+        "BOOST_ERROR_CODE_HEADER_ONLY",
+        "BOOST_ASIO_NO_DEPRECATED",
+        "BOOST_BEAST_USE_STD_STRING_VIEW",
+        "BOOST_BEAST_SEPARATE_COMPILATION"
+      ],
+      "packages": [
+        "odeum-json-3-11-3",
+        "odeum-boost-1-87-0",
+        "odeum-openssl-3",
+        "discutere-lorica-cab4f120",
+        "discutere-sqlite-3-53-4"
+      ]
+    },
+    {
+      "file": "native/tests/flow/w3k_user_voices_part3_tests.cpp",
+      "standard": "c++20",
+      "includes": [
+        "native/src",
+        "native/tests"
+      ],
+      "defines": [
+        "WIN32_LEAN_AND_MEAN",
+        "NOMINMAX",
+        "_WIN32_WINNT=0x0A00",
+        "BOOST_ERROR_CODE_HEADER_ONLY",
+        "BOOST_ASIO_NO_DEPRECATED",
+        "BOOST_BEAST_USE_STD_STRING_VIEW",
+        "BOOST_BEAST_SEPARATE_COMPILATION"
+      ],
+      "packages": [
+        "odeum-json-3-11-3",
+        "odeum-boost-1-87-0",
+        "odeum-openssl-3",
+        "discutere-lorica-cab4f120",
+        "discutere-sqlite-3-53-4"
+      ]
+    },
+    {
+      "file": "native/tests/flow/w3k_user_voices_tests.cpp",
+      "standard": "c++20",
+      "includes": [
+        "native/src",
+        "native/tests"
+      ],
+      "defines": [
+        "WIN32_LEAN_AND_MEAN",
+        "NOMINMAX",
+        "_WIN32_WINNT=0x0A00",
+        "BOOST_ERROR_CODE_HEADER_ONLY",
+        "BOOST_ASIO_NO_DEPRECATED",
+        "BOOST_BEAST_USE_STD_STRING_VIEW",
+        "BOOST_BEAST_SEPARATE_COMPILATION"
+      ],
+      "packages": [
+        "odeum-json-3-11-3",
+        "odeum-boost-1-87-0",
+        "odeum-openssl-3",
+        "discutere-lorica-cab4f120",
+        "discutere-sqlite-3-53-4"
+      ]
+    },
+    {
+      "file": "native/tests/flow/w3l_director_part2_tests.cpp",
+      "standard": "c++20",
+      "includes": [
+        "native/src",
+        "native/tests"
+      ],
+      "defines": [
+        "WIN32_LEAN_AND_MEAN",
+        "NOMINMAX",
+        "_WIN32_WINNT=0x0A00",
+        "BOOST_ERROR_CODE_HEADER_ONLY",
+        "BOOST_ASIO_NO_DEPRECATED",
+        "BOOST_BEAST_USE_STD_STRING_VIEW",
+        "BOOST_BEAST_SEPARATE_COMPILATION"
+      ],
+      "packages": [
+        "odeum-json-3-11-3",
+        "odeum-boost-1-87-0",
+        "odeum-openssl-3",
+        "discutere-lorica-cab4f120",
+        "discutere-sqlite-3-53-4"
+      ]
+    },
+    {
+      "file": "native/tests/flow/w3l_director_tests.cpp",
+      "standard": "c++20",
+      "includes": [
+        "native/src",
+        "native/tests"
+      ],
+      "defines": [
+        "WIN32_LEAN_AND_MEAN",
+        "NOMINMAX",
+        "_WIN32_WINNT=0x0A00",
+        "BOOST_ERROR_CODE_HEADER_ONLY",
+        "BOOST_ASIO_NO_DEPRECATED",
+        "BOOST_BEAST_USE_STD_STRING_VIEW",
+        "BOOST_BEAST_SEPARATE_COMPILATION"
+      ],
+      "packages": [
+        "odeum-json-3-11-3",
+        "odeum-boost-1-87-0",
+        "odeum-openssl-3",
+        "discutere-lorica-cab4f120",
+        "discutere-sqlite-3-53-4"
+      ]
+    },
+    {
+      "file": "native/tests/flow/w4p_flow_part2_tests.cpp",
+      "standard": "c++20",
+      "includes": [
+        "native/src",
+        "native/tests"
+      ],
+      "defines": [
+        "WIN32_LEAN_AND_MEAN",
+        "NOMINMAX",
+        "_WIN32_WINNT=0x0A00",
+        "BOOST_ERROR_CODE_HEADER_ONLY",
+        "BOOST_ASIO_NO_DEPRECATED",
+        "BOOST_BEAST_USE_STD_STRING_VIEW",
+        "BOOST_BEAST_SEPARATE_COMPILATION"
+      ],
+      "packages": [
+        "odeum-json-3-11-3",
+        "odeum-boost-1-87-0",
+        "odeum-openssl-3",
+        "discutere-lorica-cab4f120",
+        "discutere-sqlite-3-53-4"
+      ]
+    },
+    {
+      "file": "native/tests/flow/w4p_flow_part3_tests.cpp",
+      "standard": "c++20",
+      "includes": [
+        "native/src",
+        "native/tests"
+      ],
+      "defines": [
+        "WIN32_LEAN_AND_MEAN",
+        "NOMINMAX",
+        "_WIN32_WINNT=0x0A00",
+        "BOOST_ERROR_CODE_HEADER_ONLY",
+        "BOOST_ASIO_NO_DEPRECATED",
+        "BOOST_BEAST_USE_STD_STRING_VIEW",
+        "BOOST_BEAST_SEPARATE_COMPILATION"
+      ],
+      "packages": [
+        "odeum-json-3-11-3",
+        "odeum-boost-1-87-0",
+        "odeum-openssl-3",
+        "discutere-lorica-cab4f120",
+        "discutere-sqlite-3-53-4"
+      ]
+    },
+    {
+      "file": "native/tests/flow/w4p_flow_part4_tests.cpp",
+      "standard": "c++20",
+      "includes": [
+        "native/src",
+        "native/tests"
+      ],
+      "defines": [
+        "WIN32_LEAN_AND_MEAN",
+        "NOMINMAX",
+        "_WIN32_WINNT=0x0A00",
+        "BOOST_ERROR_CODE_HEADER_ONLY",
+        "BOOST_ASIO_NO_DEPRECATED",
+        "BOOST_BEAST_USE_STD_STRING_VIEW",
+        "BOOST_BEAST_SEPARATE_COMPILATION"
+      ],
+      "packages": [
+        "odeum-json-3-11-3",
+        "odeum-boost-1-87-0",
+        "odeum-openssl-3",
+        "discutere-lorica-cab4f120",
+        "discutere-sqlite-3-53-4"
+      ]
+    },
+    {
+      "file": "native/tests/flow/w4p_flow_tests.cpp",
+      "standard": "c++20",
+      "includes": [
+        "native/src",
+        "native/tests"
+      ],
+      "defines": [
+        "WIN32_LEAN_AND_MEAN",
+        "NOMINMAX",
+        "_WIN32_WINNT=0x0A00",
+        "BOOST_ERROR_CODE_HEADER_ONLY",
+        "BOOST_ASIO_NO_DEPRECATED",
+        "BOOST_BEAST_USE_STD_STRING_VIEW",
+        "BOOST_BEAST_SEPARATE_COMPILATION"
+      ],
+      "packages": [
+        "odeum-json-3-11-3",
+        "odeum-boost-1-87-0",
+        "odeum-openssl-3",
+        "discutere-lorica-cab4f120",
+        "discutere-sqlite-3-53-4"
+      ]
+    },
+    {
+      "file": "native/tests/flow/w5r_entry_tests.cpp",
+      "standard": "c++20",
+      "includes": [
+        "native/src",
+        "native/tests"
+      ],
+      "defines": [
+        "WIN32_LEAN_AND_MEAN",
+        "NOMINMAX",
+        "_WIN32_WINNT=0x0A00",
+        "BOOST_ERROR_CODE_HEADER_ONLY",
+        "BOOST_ASIO_NO_DEPRECATED",
+        "BOOST_BEAST_USE_STD_STRING_VIEW",
+        "BOOST_BEAST_SEPARATE_COMPILATION"
+      ],
+      "packages": [
+        "odeum-json-3-11-3",
+        "odeum-boost-1-87-0",
+        "odeum-openssl-3",
+        "discutere-lorica-cab4f120",
+        "discutere-sqlite-3-53-4"
+      ]
+    },
+    {
+      "file": "native/tests/flow/w5r_gate_part2_tests.cpp",
+      "standard": "c++20",
+      "includes": [
+        "native/src",
+        "native/tests"
+      ],
+      "defines": [
+        "WIN32_LEAN_AND_MEAN",
+        "NOMINMAX",
+        "_WIN32_WINNT=0x0A00",
+        "BOOST_ERROR_CODE_HEADER_ONLY",
+        "BOOST_ASIO_NO_DEPRECATED",
+        "BOOST_BEAST_USE_STD_STRING_VIEW",
+        "BOOST_BEAST_SEPARATE_COMPILATION"
+      ],
+      "packages": [
+        "odeum-json-3-11-3",
+        "odeum-boost-1-87-0",
+        "odeum-openssl-3",
+        "discutere-lorica-cab4f120",
+        "discutere-sqlite-3-53-4"
+      ]
+    },
+    {
+      "file": "native/tests/flow/w5r_gate_tests.cpp",
+      "standard": "c++20",
+      "includes": [
+        "native/src",
+        "native/tests"
+      ],
+      "defines": [
+        "WIN32_LEAN_AND_MEAN",
+        "NOMINMAX",
+        "_WIN32_WINNT=0x0A00",
+        "BOOST_ERROR_CODE_HEADER_ONLY",
+        "BOOST_ASIO_NO_DEPRECATED",
+        "BOOST_BEAST_USE_STD_STRING_VIEW",
+        "BOOST_BEAST_SEPARATE_COMPILATION"
+      ],
+      "packages": [
+        "odeum-json-3-11-3",
+        "odeum-boost-1-87-0",
+        "odeum-openssl-3",
+        "discutere-lorica-cab4f120",
+        "discutere-sqlite-3-53-4"
+      ]
+    },
+    {
+      "file": "native/tests/flow/w5r_routes_tests.cpp",
+      "standard": "c++20",
+      "includes": [
+        "native/src",
+        "native/tests"
+      ],
+      "defines": [
+        "WIN32_LEAN_AND_MEAN",
+        "NOMINMAX",
+        "_WIN32_WINNT=0x0A00",
+        "BOOST_ERROR_CODE_HEADER_ONLY",
+        "BOOST_ASIO_NO_DEPRECATED",
+        "BOOST_BEAST_USE_STD_STRING_VIEW",
+        "BOOST_BEAST_SEPARATE_COMPILATION"
+      ],
+      "packages": [
+        "odeum-json-3-11-3",
+        "odeum-boost-1-87-0",
+        "odeum-openssl-3",
+        "discutere-lorica-cab4f120",
+        "discutere-sqlite-3-53-4"
+      ]
+    },
+    {
+      "file": "native/tests/flow/w5u_discord_live_part2_tests.cpp",
+      "standard": "c++20",
+      "includes": [
+        "native/src",
+        "native/tests"
+      ],
+      "defines": [
+        "WIN32_LEAN_AND_MEAN",
+        "NOMINMAX",
+        "_WIN32_WINNT=0x0A00",
+        "BOOST_ERROR_CODE_HEADER_ONLY",
+        "BOOST_ASIO_NO_DEPRECATED",
+        "BOOST_BEAST_USE_STD_STRING_VIEW",
+        "BOOST_BEAST_SEPARATE_COMPILATION"
+      ],
+      "packages": [
+        "odeum-json-3-11-3",
+        "odeum-boost-1-87-0",
+        "odeum-openssl-3",
+        "discutere-lorica-cab4f120",
+        "discutere-sqlite-3-53-4"
+      ]
+    },
+    {
+      "file": "native/tests/flow/w5u_discord_live_part3_tests.cpp",
+      "standard": "c++20",
+      "includes": [
+        "native/src",
+        "native/tests"
+      ],
+      "defines": [
+        "WIN32_LEAN_AND_MEAN",
+        "NOMINMAX",
+        "_WIN32_WINNT=0x0A00",
+        "BOOST_ERROR_CODE_HEADER_ONLY",
+        "BOOST_ASIO_NO_DEPRECATED",
+        "BOOST_BEAST_USE_STD_STRING_VIEW",
+        "BOOST_BEAST_SEPARATE_COMPILATION"
+      ],
+      "packages": [
+        "odeum-json-3-11-3",
+        "odeum-boost-1-87-0",
+        "odeum-openssl-3",
+        "discutere-lorica-cab4f120",
+        "discutere-sqlite-3-53-4"
+      ]
+    },
+    {
+      "file": "native/tests/flow/w5u_discord_live_part4_tests.cpp",
+      "standard": "c++20",
+      "includes": [
+        "native/src",
+        "native/tests"
+      ],
+      "defines": [
+        "WIN32_LEAN_AND_MEAN",
+        "NOMINMAX",
+        "_WIN32_WINNT=0x0A00",
+        "BOOST_ERROR_CODE_HEADER_ONLY",
+        "BOOST_ASIO_NO_DEPRECATED",
+        "BOOST_BEAST_USE_STD_STRING_VIEW",
+        "BOOST_BEAST_SEPARATE_COMPILATION"
+      ],
+      "packages": [
+        "odeum-json-3-11-3",
+        "odeum-boost-1-87-0",
+        "odeum-openssl-3",
+        "discutere-lorica-cab4f120",
+        "discutere-sqlite-3-53-4"
+      ]
+    },
+    {
+      "file": "native/tests/flow/w5u_discord_live_tests.cpp",
+      "standard": "c++20",
+      "includes": [
+        "native/src",
+        "native/tests"
+      ],
+      "defines": [
+        "WIN32_LEAN_AND_MEAN",
+        "NOMINMAX",
+        "_WIN32_WINNT=0x0A00",
+        "BOOST_ERROR_CODE_HEADER_ONLY",
+        "BOOST_ASIO_NO_DEPRECATED",
+        "BOOST_BEAST_USE_STD_STRING_VIEW",
+        "BOOST_BEAST_SEPARATE_COMPILATION"
+      ],
+      "packages": [
+        "odeum-json-3-11-3",
+        "odeum-boost-1-87-0",
+        "odeum-openssl-3",
+        "discutere-lorica-cab4f120",
+        "discutere-sqlite-3-53-4"
+      ]
+    },
+    {
+      "file": "native/tests/flow/web/spec_extract_route_tests.cpp",
+      "standard": "c++20",
+      "includes": [
+        "native/src",
+        "native/tests"
+      ],
+      "defines": [
+        "WIN32_LEAN_AND_MEAN",
+        "NOMINMAX",
+        "_WIN32_WINNT=0x0A00",
+        "BOOST_ERROR_CODE_HEADER_ONLY",
+        "BOOST_ASIO_NO_DEPRECATED",
+        "BOOST_BEAST_USE_STD_STRING_VIEW",
+        "BOOST_BEAST_SEPARATE_COMPILATION"
+      ],
+      "packages": [
+        "odeum-json-3-11-3",
+        "odeum-boost-1-87-0",
+        "odeum-openssl-3",
+        "discutere-lorica-cab4f120",
+        "discutere-sqlite-3-53-4"
+      ]
+    },
+    {
+      "file": "native/tests/flow_db/migrations_tests.cpp",
+      "standard": "c++20",
+      "includes": [
+        "native/src",
+        "native/tests"
+      ],
+      "defines": [
+        "WIN32_LEAN_AND_MEAN",
+        "NOMINMAX",
+        "_WIN32_WINNT=0x0A00",
+        "BOOST_ERROR_CODE_HEADER_ONLY",
+        "BOOST_ASIO_NO_DEPRECATED",
+        "BOOST_BEAST_USE_STD_STRING_VIEW",
+        "BOOST_BEAST_SEPARATE_COMPILATION"
+      ],
+      "packages": [
+        "odeum-json-3-11-3",
+        "odeum-boost-1-87-0",
+        "odeum-openssl-3",
+        "discutere-lorica-cab4f120",
+        "discutere-sqlite-3-53-4"
+      ]
+    },
+    {
+      "file": "native/tests/fundamentum_export/w3l_export_tests.cpp",
+      "standard": "c++20",
+      "includes": [
+        "native/src",
+        "native/tests"
+      ],
+      "defines": [
+        "WIN32_LEAN_AND_MEAN",
+        "NOMINMAX",
+        "_WIN32_WINNT=0x0A00",
+        "BOOST_ERROR_CODE_HEADER_ONLY",
+        "BOOST_ASIO_NO_DEPRECATED",
+        "BOOST_BEAST_USE_STD_STRING_VIEW",
+        "BOOST_BEAST_SEPARATE_COMPILATION"
+      ],
+      "packages": [
+        "odeum-json-3-11-3",
+        "odeum-boost-1-87-0",
+        "odeum-openssl-3",
+        "discutere-lorica-cab4f120",
+        "discutere-sqlite-3-53-4"
+      ]
+    },
+    {
       "file": "native/tests/infra/http_tests.cpp",
       "standard": "c++20",
       "includes": [
@@ -9829,7 +13237,1279 @@
       ]
     },
     {
+      "file": "native/tests/infra/ws_tests.cpp",
+      "standard": "c++20",
+      "includes": [
+        "native/src",
+        "native/tests"
+      ],
+      "defines": [
+        "WIN32_LEAN_AND_MEAN",
+        "NOMINMAX",
+        "_WIN32_WINNT=0x0A00",
+        "BOOST_ERROR_CODE_HEADER_ONLY",
+        "BOOST_ASIO_NO_DEPRECATED",
+        "BOOST_BEAST_USE_STD_STRING_VIEW",
+        "BOOST_BEAST_SEPARATE_COMPILATION"
+      ],
+      "packages": [
+        "odeum-json-3-11-3",
+        "odeum-boost-1-87-0",
+        "odeum-openssl-3",
+        "discutere-lorica-cab4f120",
+        "discutere-sqlite-3-53-4"
+      ]
+    },
+    {
+      "file": "native/tests/integrations/conclusion_publication_tests.cpp",
+      "standard": "c++20",
+      "includes": [
+        "native/src",
+        "native/tests"
+      ],
+      "defines": [
+        "WIN32_LEAN_AND_MEAN",
+        "NOMINMAX",
+        "_WIN32_WINNT=0x0A00",
+        "BOOST_ERROR_CODE_HEADER_ONLY",
+        "BOOST_ASIO_NO_DEPRECATED",
+        "BOOST_BEAST_USE_STD_STRING_VIEW",
+        "BOOST_BEAST_SEPARATE_COMPILATION"
+      ],
+      "packages": [
+        "odeum-json-3-11-3",
+        "odeum-boost-1-87-0",
+        "odeum-openssl-3",
+        "discutere-lorica-cab4f120",
+        "discutere-sqlite-3-53-4"
+      ]
+    },
+    {
+      "file": "native/tests/integrations/glab_review_trends_tests.cpp",
+      "standard": "c++20",
+      "includes": [
+        "native/src",
+        "native/tests"
+      ],
+      "defines": [
+        "WIN32_LEAN_AND_MEAN",
+        "NOMINMAX",
+        "_WIN32_WINNT=0x0A00",
+        "BOOST_ERROR_CODE_HEADER_ONLY",
+        "BOOST_ASIO_NO_DEPRECATED",
+        "BOOST_BEAST_USE_STD_STRING_VIEW",
+        "BOOST_BEAST_SEPARATE_COMPILATION"
+      ],
+      "packages": [
+        "odeum-json-3-11-3",
+        "odeum-boost-1-87-0",
+        "odeum-openssl-3",
+        "discutere-lorica-cab4f120",
+        "discutere-sqlite-3-53-4"
+      ]
+    },
+    {
+      "file": "native/tests/kg_sync/kg_sync_tests.cpp",
+      "standard": "c++20",
+      "includes": [
+        "native/src",
+        "native/tests"
+      ],
+      "defines": [
+        "WIN32_LEAN_AND_MEAN",
+        "NOMINMAX",
+        "_WIN32_WINNT=0x0A00",
+        "BOOST_ERROR_CODE_HEADER_ONLY",
+        "BOOST_ASIO_NO_DEPRECATED",
+        "BOOST_BEAST_USE_STD_STRING_VIEW",
+        "BOOST_BEAST_SEPARATE_COMPILATION"
+      ],
+      "packages": [
+        "odeum-json-3-11-3",
+        "odeum-boost-1-87-0",
+        "odeum-openssl-3",
+        "discutere-lorica-cab4f120",
+        "discutere-sqlite-3-53-4"
+      ]
+    },
+    {
+      "file": "native/tests/kg_sync/pull_tests.cpp",
+      "standard": "c++20",
+      "includes": [
+        "native/src",
+        "native/tests"
+      ],
+      "defines": [
+        "WIN32_LEAN_AND_MEAN",
+        "NOMINMAX",
+        "_WIN32_WINNT=0x0A00",
+        "BOOST_ERROR_CODE_HEADER_ONLY",
+        "BOOST_ASIO_NO_DEPRECATED",
+        "BOOST_BEAST_USE_STD_STRING_VIEW",
+        "BOOST_BEAST_SEPARATE_COMPILATION"
+      ],
+      "packages": [
+        "odeum-json-3-11-3",
+        "odeum-boost-1-87-0",
+        "odeum-openssl-3",
+        "discutere-lorica-cab4f120",
+        "discutere-sqlite-3-53-4"
+      ]
+    },
+    {
+      "file": "native/tests/kg_sync/scheduler_tests.cpp",
+      "standard": "c++20",
+      "includes": [
+        "native/src",
+        "native/tests"
+      ],
+      "defines": [
+        "WIN32_LEAN_AND_MEAN",
+        "NOMINMAX",
+        "_WIN32_WINNT=0x0A00",
+        "BOOST_ERROR_CODE_HEADER_ONLY",
+        "BOOST_ASIO_NO_DEPRECATED",
+        "BOOST_BEAST_USE_STD_STRING_VIEW",
+        "BOOST_BEAST_SEPARATE_COMPILATION"
+      ],
+      "packages": [
+        "odeum-json-3-11-3",
+        "odeum-boost-1-87-0",
+        "odeum-openssl-3",
+        "discutere-lorica-cab4f120",
+        "discutere-sqlite-3-53-4"
+      ]
+    },
+    {
+      "file": "native/tests/lib/blackbox_engine_part2_tests.cpp",
+      "standard": "c++20",
+      "includes": [
+        "native/src",
+        "native/tests"
+      ],
+      "defines": [
+        "WIN32_LEAN_AND_MEAN",
+        "NOMINMAX",
+        "_WIN32_WINNT=0x0A00",
+        "BOOST_ERROR_CODE_HEADER_ONLY",
+        "BOOST_ASIO_NO_DEPRECATED",
+        "BOOST_BEAST_USE_STD_STRING_VIEW",
+        "BOOST_BEAST_SEPARATE_COMPILATION"
+      ],
+      "packages": [
+        "odeum-json-3-11-3",
+        "odeum-boost-1-87-0",
+        "odeum-openssl-3",
+        "discutere-lorica-cab4f120",
+        "discutere-sqlite-3-53-4"
+      ]
+    },
+    {
+      "file": "native/tests/lib/blackbox_engine_part3_tests.cpp",
+      "standard": "c++20",
+      "includes": [
+        "native/src",
+        "native/tests"
+      ],
+      "defines": [
+        "WIN32_LEAN_AND_MEAN",
+        "NOMINMAX",
+        "_WIN32_WINNT=0x0A00",
+        "BOOST_ERROR_CODE_HEADER_ONLY",
+        "BOOST_ASIO_NO_DEPRECATED",
+        "BOOST_BEAST_USE_STD_STRING_VIEW",
+        "BOOST_BEAST_SEPARATE_COMPILATION"
+      ],
+      "packages": [
+        "odeum-json-3-11-3",
+        "odeum-boost-1-87-0",
+        "odeum-openssl-3",
+        "discutere-lorica-cab4f120",
+        "discutere-sqlite-3-53-4"
+      ]
+    },
+    {
+      "file": "native/tests/lib/blackbox_engine_tests.cpp",
+      "standard": "c++20",
+      "includes": [
+        "native/src",
+        "native/tests"
+      ],
+      "defines": [
+        "WIN32_LEAN_AND_MEAN",
+        "NOMINMAX",
+        "_WIN32_WINNT=0x0A00",
+        "BOOST_ERROR_CODE_HEADER_ONLY",
+        "BOOST_ASIO_NO_DEPRECATED",
+        "BOOST_BEAST_USE_STD_STRING_VIEW",
+        "BOOST_BEAST_SEPARATE_COMPILATION"
+      ],
+      "packages": [
+        "odeum-json-3-11-3",
+        "odeum-boost-1-87-0",
+        "odeum-openssl-3",
+        "discutere-lorica-cab4f120",
+        "discutere-sqlite-3-53-4"
+      ]
+    },
+    {
+      "file": "native/tests/lib/blackbox_fingerprint_tests.cpp",
+      "standard": "c++20",
+      "includes": [
+        "native/src",
+        "native/tests"
+      ],
+      "defines": [
+        "WIN32_LEAN_AND_MEAN",
+        "NOMINMAX",
+        "_WIN32_WINNT=0x0A00",
+        "BOOST_ERROR_CODE_HEADER_ONLY",
+        "BOOST_ASIO_NO_DEPRECATED",
+        "BOOST_BEAST_USE_STD_STRING_VIEW",
+        "BOOST_BEAST_SEPARATE_COMPILATION"
+      ],
+      "packages": [
+        "odeum-json-3-11-3",
+        "odeum-boost-1-87-0",
+        "odeum-openssl-3",
+        "discutere-lorica-cab4f120",
+        "discutere-sqlite-3-53-4"
+      ]
+    },
+    {
+      "file": "native/tests/lib/blackbox_store_jsonfile_tests.cpp",
+      "standard": "c++20",
+      "includes": [
+        "native/src",
+        "native/tests"
+      ],
+      "defines": [
+        "WIN32_LEAN_AND_MEAN",
+        "NOMINMAX",
+        "_WIN32_WINNT=0x0A00",
+        "BOOST_ERROR_CODE_HEADER_ONLY",
+        "BOOST_ASIO_NO_DEPRECATED",
+        "BOOST_BEAST_USE_STD_STRING_VIEW",
+        "BOOST_BEAST_SEPARATE_COMPILATION"
+      ],
+      "packages": [
+        "odeum-json-3-11-3",
+        "odeum-boost-1-87-0",
+        "odeum-openssl-3",
+        "discutere-lorica-cab4f120",
+        "discutere-sqlite-3-53-4"
+      ]
+    },
+    {
+      "file": "native/tests/lib/blackbox_store_sqlite_tests.cpp",
+      "standard": "c++20",
+      "includes": [
+        "native/src",
+        "native/tests"
+      ],
+      "defines": [
+        "WIN32_LEAN_AND_MEAN",
+        "NOMINMAX",
+        "_WIN32_WINNT=0x0A00",
+        "BOOST_ERROR_CODE_HEADER_ONLY",
+        "BOOST_ASIO_NO_DEPRECATED",
+        "BOOST_BEAST_USE_STD_STRING_VIEW",
+        "BOOST_BEAST_SEPARATE_COMPILATION"
+      ],
+      "packages": [
+        "odeum-json-3-11-3",
+        "odeum-boost-1-87-0",
+        "odeum-openssl-3",
+        "discutere-lorica-cab4f120",
+        "discutere-sqlite-3-53-4"
+      ]
+    },
+    {
+      "file": "native/tests/lib/front_matter_dump_tests.cpp",
+      "standard": "c++20",
+      "includes": [
+        "native/src",
+        "native/tests"
+      ],
+      "defines": [
+        "WIN32_LEAN_AND_MEAN",
+        "NOMINMAX",
+        "_WIN32_WINNT=0x0A00",
+        "BOOST_ERROR_CODE_HEADER_ONLY",
+        "BOOST_ASIO_NO_DEPRECATED",
+        "BOOST_BEAST_USE_STD_STRING_VIEW",
+        "BOOST_BEAST_SEPARATE_COMPILATION"
+      ],
+      "packages": [
+        "odeum-json-3-11-3",
+        "odeum-boost-1-87-0",
+        "odeum-openssl-3",
+        "discutere-lorica-cab4f120",
+        "discutere-sqlite-3-53-4"
+      ]
+    },
+    {
+      "file": "native/tests/lib/front_matter_tests.cpp",
+      "standard": "c++20",
+      "includes": [
+        "native/src",
+        "native/tests"
+      ],
+      "defines": [
+        "WIN32_LEAN_AND_MEAN",
+        "NOMINMAX",
+        "_WIN32_WINNT=0x0A00",
+        "BOOST_ERROR_CODE_HEADER_ONLY",
+        "BOOST_ASIO_NO_DEPRECATED",
+        "BOOST_BEAST_USE_STD_STRING_VIEW",
+        "BOOST_BEAST_SEPARATE_COMPILATION"
+      ],
+      "packages": [
+        "odeum-json-3-11-3",
+        "odeum-boost-1-87-0",
+        "odeum-openssl-3",
+        "discutere-lorica-cab4f120",
+        "discutere-sqlite-3-53-4"
+      ]
+    },
+    {
+      "file": "native/tests/lib/fundamentum_tests.cpp",
+      "standard": "c++20",
+      "includes": [
+        "native/src",
+        "native/tests"
+      ],
+      "defines": [
+        "WIN32_LEAN_AND_MEAN",
+        "NOMINMAX",
+        "_WIN32_WINNT=0x0A00",
+        "BOOST_ERROR_CODE_HEADER_ONLY",
+        "BOOST_ASIO_NO_DEPRECATED",
+        "BOOST_BEAST_USE_STD_STRING_VIEW",
+        "BOOST_BEAST_SEPARATE_COMPILATION"
+      ],
+      "packages": [
+        "odeum-json-3-11-3",
+        "odeum-boost-1-87-0",
+        "odeum-openssl-3",
+        "discutere-lorica-cab4f120",
+        "discutere-sqlite-3-53-4"
+      ]
+    },
+    {
+      "file": "native/tests/lib/llm_gateway_part2_tests.cpp",
+      "standard": "c++20",
+      "includes": [
+        "native/src",
+        "native/tests"
+      ],
+      "defines": [
+        "WIN32_LEAN_AND_MEAN",
+        "NOMINMAX",
+        "_WIN32_WINNT=0x0A00",
+        "BOOST_ERROR_CODE_HEADER_ONLY",
+        "BOOST_ASIO_NO_DEPRECATED",
+        "BOOST_BEAST_USE_STD_STRING_VIEW",
+        "BOOST_BEAST_SEPARATE_COMPILATION"
+      ],
+      "packages": [
+        "odeum-json-3-11-3",
+        "odeum-boost-1-87-0",
+        "odeum-openssl-3",
+        "discutere-lorica-cab4f120",
+        "discutere-sqlite-3-53-4"
+      ]
+    },
+    {
+      "file": "native/tests/lib/llm_gateway_part3_tests.cpp",
+      "standard": "c++20",
+      "includes": [
+        "native/src",
+        "native/tests"
+      ],
+      "defines": [
+        "WIN32_LEAN_AND_MEAN",
+        "NOMINMAX",
+        "_WIN32_WINNT=0x0A00",
+        "BOOST_ERROR_CODE_HEADER_ONLY",
+        "BOOST_ASIO_NO_DEPRECATED",
+        "BOOST_BEAST_USE_STD_STRING_VIEW",
+        "BOOST_BEAST_SEPARATE_COMPILATION"
+      ],
+      "packages": [
+        "odeum-json-3-11-3",
+        "odeum-boost-1-87-0",
+        "odeum-openssl-3",
+        "discutere-lorica-cab4f120",
+        "discutere-sqlite-3-53-4"
+      ]
+    },
+    {
+      "file": "native/tests/lib/llm_gateway_part4_tests.cpp",
+      "standard": "c++20",
+      "includes": [
+        "native/src",
+        "native/tests"
+      ],
+      "defines": [
+        "WIN32_LEAN_AND_MEAN",
+        "NOMINMAX",
+        "_WIN32_WINNT=0x0A00",
+        "BOOST_ERROR_CODE_HEADER_ONLY",
+        "BOOST_ASIO_NO_DEPRECATED",
+        "BOOST_BEAST_USE_STD_STRING_VIEW",
+        "BOOST_BEAST_SEPARATE_COMPILATION"
+      ],
+      "packages": [
+        "odeum-json-3-11-3",
+        "odeum-boost-1-87-0",
+        "odeum-openssl-3",
+        "discutere-lorica-cab4f120",
+        "discutere-sqlite-3-53-4"
+      ]
+    },
+    {
+      "file": "native/tests/lib/llm_gateway_tests.cpp",
+      "standard": "c++20",
+      "includes": [
+        "native/src",
+        "native/tests"
+      ],
+      "defines": [
+        "WIN32_LEAN_AND_MEAN",
+        "NOMINMAX",
+        "_WIN32_WINNT=0x0A00",
+        "BOOST_ERROR_CODE_HEADER_ONLY",
+        "BOOST_ASIO_NO_DEPRECATED",
+        "BOOST_BEAST_USE_STD_STRING_VIEW",
+        "BOOST_BEAST_SEPARATE_COMPILATION"
+      ],
+      "packages": [
+        "odeum-json-3-11-3",
+        "odeum-boost-1-87-0",
+        "odeum-openssl-3",
+        "discutere-lorica-cab4f120",
+        "discutere-sqlite-3-53-4"
+      ]
+    },
+    {
+      "file": "native/tests/lib/sentiment_core_tests.cpp",
+      "standard": "c++20",
+      "includes": [
+        "native/src",
+        "native/tests"
+      ],
+      "defines": [
+        "WIN32_LEAN_AND_MEAN",
+        "NOMINMAX",
+        "_WIN32_WINNT=0x0A00",
+        "BOOST_ERROR_CODE_HEADER_ONLY",
+        "BOOST_ASIO_NO_DEPRECATED",
+        "BOOST_BEAST_USE_STD_STRING_VIEW",
+        "BOOST_BEAST_SEPARATE_COMPILATION"
+      ],
+      "packages": [
+        "odeum-json-3-11-3",
+        "odeum-boost-1-87-0",
+        "odeum-openssl-3",
+        "discutere-lorica-cab4f120",
+        "discutere-sqlite-3-53-4"
+      ]
+    },
+    {
+      "file": "native/tests/main/main_tests.cpp",
+      "standard": "c++20",
+      "includes": [
+        "native/src",
+        "native/tests"
+      ],
+      "defines": [
+        "WIN32_LEAN_AND_MEAN",
+        "NOMINMAX",
+        "_WIN32_WINNT=0x0A00",
+        "BOOST_ERROR_CODE_HEADER_ONLY",
+        "BOOST_ASIO_NO_DEPRECATED",
+        "BOOST_BEAST_USE_STD_STRING_VIEW",
+        "BOOST_BEAST_SEPARATE_COMPILATION"
+      ],
+      "packages": [
+        "odeum-json-3-11-3",
+        "odeum-boost-1-87-0",
+        "odeum-openssl-3",
+        "discutere-lorica-cab4f120",
+        "discutere-sqlite-3-53-4"
+      ]
+    },
+    {
+      "file": "native/tests/middleware/auth_tests.cpp",
+      "standard": "c++20",
+      "includes": [
+        "native/src",
+        "native/tests"
+      ],
+      "defines": [
+        "WIN32_LEAN_AND_MEAN",
+        "NOMINMAX",
+        "_WIN32_WINNT=0x0A00",
+        "BOOST_ERROR_CODE_HEADER_ONLY",
+        "BOOST_ASIO_NO_DEPRECATED",
+        "BOOST_BEAST_USE_STD_STRING_VIEW",
+        "BOOST_BEAST_SEPARATE_COMPILATION"
+      ],
+      "packages": [
+        "odeum-json-3-11-3",
+        "odeum-boost-1-87-0",
+        "odeum-openssl-3",
+        "discutere-lorica-cab4f120",
+        "discutere-sqlite-3-53-4"
+      ]
+    },
+    {
+      "file": "native/tests/observability/error_buffer_tests.cpp",
+      "standard": "c++20",
+      "includes": [
+        "native/src",
+        "native/tests"
+      ],
+      "defines": [
+        "WIN32_LEAN_AND_MEAN",
+        "NOMINMAX",
+        "_WIN32_WINNT=0x0A00",
+        "BOOST_ERROR_CODE_HEADER_ONLY",
+        "BOOST_ASIO_NO_DEPRECATED",
+        "BOOST_BEAST_USE_STD_STRING_VIEW",
+        "BOOST_BEAST_SEPARATE_COMPILATION"
+      ],
+      "packages": [
+        "odeum-json-3-11-3",
+        "odeum-boost-1-87-0",
+        "odeum-openssl-3",
+        "discutere-lorica-cab4f120",
+        "discutere-sqlite-3-53-4"
+      ]
+    },
+    {
+      "file": "native/tests/persona_bridge/persona_bridge_tests.cpp",
+      "standard": "c++20",
+      "includes": [
+        "native/src",
+        "native/tests"
+      ],
+      "defines": [
+        "WIN32_LEAN_AND_MEAN",
+        "NOMINMAX",
+        "_WIN32_WINNT=0x0A00",
+        "BOOST_ERROR_CODE_HEADER_ONLY",
+        "BOOST_ASIO_NO_DEPRECATED",
+        "BOOST_BEAST_USE_STD_STRING_VIEW",
+        "BOOST_BEAST_SEPARATE_COMPILATION"
+      ],
+      "packages": [
+        "odeum-json-3-11-3",
+        "odeum-boost-1-87-0",
+        "odeum-openssl-3",
+        "discutere-lorica-cab4f120",
+        "discutere-sqlite-3-53-4"
+      ]
+    },
+    {
+      "file": "native/tests/persona_bridge/w3k_impression_tests.cpp",
+      "standard": "c++20",
+      "includes": [
+        "native/src",
+        "native/tests"
+      ],
+      "defines": [
+        "WIN32_LEAN_AND_MEAN",
+        "NOMINMAX",
+        "_WIN32_WINNT=0x0A00",
+        "BOOST_ERROR_CODE_HEADER_ONLY",
+        "BOOST_ASIO_NO_DEPRECATED",
+        "BOOST_BEAST_USE_STD_STRING_VIEW",
+        "BOOST_BEAST_SEPARATE_COMPILATION"
+      ],
+      "packages": [
+        "odeum-json-3-11-3",
+        "odeum-boost-1-87-0",
+        "odeum-openssl-3",
+        "discutere-lorica-cab4f120",
+        "discutere-sqlite-3-53-4"
+      ]
+    },
+    {
       "file": "native/tests/persona_engine/claude_cli_tests.cpp",
+      "standard": "c++20",
+      "includes": [
+        "native/src",
+        "native/tests"
+      ],
+      "defines": [
+        "WIN32_LEAN_AND_MEAN",
+        "NOMINMAX",
+        "_WIN32_WINNT=0x0A00",
+        "BOOST_ERROR_CODE_HEADER_ONLY",
+        "BOOST_ASIO_NO_DEPRECATED",
+        "BOOST_BEAST_USE_STD_STRING_VIEW",
+        "BOOST_BEAST_SEPARATE_COMPILATION"
+      ],
+      "packages": [
+        "odeum-json-3-11-3",
+        "odeum-boost-1-87-0",
+        "odeum-openssl-3",
+        "discutere-lorica-cab4f120",
+        "discutere-sqlite-3-53-4"
+      ]
+    },
+    {
+      "file": "native/tests/persona_engine/engine_tests.cpp",
+      "standard": "c++20",
+      "includes": [
+        "native/src",
+        "native/tests"
+      ],
+      "defines": [
+        "WIN32_LEAN_AND_MEAN",
+        "NOMINMAX",
+        "_WIN32_WINNT=0x0A00",
+        "BOOST_ERROR_CODE_HEADER_ONLY",
+        "BOOST_ASIO_NO_DEPRECATED",
+        "BOOST_BEAST_USE_STD_STRING_VIEW",
+        "BOOST_BEAST_SEPARATE_COMPILATION"
+      ],
+      "packages": [
+        "odeum-json-3-11-3",
+        "odeum-boost-1-87-0",
+        "odeum-openssl-3",
+        "discutere-lorica-cab4f120",
+        "discutere-sqlite-3-53-4"
+      ]
+    },
+    {
+      "file": "native/tests/persona_engine/handler_tests.cpp",
+      "standard": "c++20",
+      "includes": [
+        "native/src",
+        "native/tests"
+      ],
+      "defines": [
+        "WIN32_LEAN_AND_MEAN",
+        "NOMINMAX",
+        "_WIN32_WINNT=0x0A00",
+        "BOOST_ERROR_CODE_HEADER_ONLY",
+        "BOOST_ASIO_NO_DEPRECATED",
+        "BOOST_BEAST_USE_STD_STRING_VIEW",
+        "BOOST_BEAST_SEPARATE_COMPILATION"
+      ],
+      "packages": [
+        "odeum-json-3-11-3",
+        "odeum-boost-1-87-0",
+        "odeum-openssl-3",
+        "discutere-lorica-cab4f120",
+        "discutere-sqlite-3-53-4"
+      ]
+    },
+    {
+      "file": "native/tests/persona_engine/learning_tests.cpp",
+      "standard": "c++20",
+      "includes": [
+        "native/src",
+        "native/tests"
+      ],
+      "defines": [
+        "WIN32_LEAN_AND_MEAN",
+        "NOMINMAX",
+        "_WIN32_WINNT=0x0A00",
+        "BOOST_ERROR_CODE_HEADER_ONLY",
+        "BOOST_ASIO_NO_DEPRECATED",
+        "BOOST_BEAST_USE_STD_STRING_VIEW",
+        "BOOST_BEAST_SEPARATE_COMPILATION"
+      ],
+      "packages": [
+        "odeum-json-3-11-3",
+        "odeum-boost-1-87-0",
+        "odeum-openssl-3",
+        "discutere-lorica-cab4f120",
+        "discutere-sqlite-3-53-4"
+      ]
+    },
+    {
+      "file": "native/tests/persona_engine/llm_clients_tests.cpp",
+      "standard": "c++20",
+      "includes": [
+        "native/src",
+        "native/tests"
+      ],
+      "defines": [
+        "WIN32_LEAN_AND_MEAN",
+        "NOMINMAX",
+        "_WIN32_WINNT=0x0A00",
+        "BOOST_ERROR_CODE_HEADER_ONLY",
+        "BOOST_ASIO_NO_DEPRECATED",
+        "BOOST_BEAST_USE_STD_STRING_VIEW",
+        "BOOST_BEAST_SEPARATE_COMPILATION"
+      ],
+      "packages": [
+        "odeum-json-3-11-3",
+        "odeum-boost-1-87-0",
+        "odeum-openssl-3",
+        "discutere-lorica-cab4f120",
+        "discutere-sqlite-3-53-4"
+      ]
+    },
+    {
+      "file": "native/tests/persona_engine/prompts_golden_tests.cpp",
+      "standard": "c++20",
+      "includes": [
+        "native/src",
+        "native/tests"
+      ],
+      "defines": [
+        "WIN32_LEAN_AND_MEAN",
+        "NOMINMAX",
+        "_WIN32_WINNT=0x0A00",
+        "BOOST_ERROR_CODE_HEADER_ONLY",
+        "BOOST_ASIO_NO_DEPRECATED",
+        "BOOST_BEAST_USE_STD_STRING_VIEW",
+        "BOOST_BEAST_SEPARATE_COMPILATION"
+      ],
+      "packages": [
+        "odeum-json-3-11-3",
+        "odeum-boost-1-87-0",
+        "odeum-openssl-3",
+        "discutere-lorica-cab4f120",
+        "discutere-sqlite-3-53-4"
+      ]
+    },
+    {
+      "file": "native/tests/persona_engine/repos_tests.cpp",
+      "standard": "c++20",
+      "includes": [
+        "native/src",
+        "native/tests"
+      ],
+      "defines": [
+        "WIN32_LEAN_AND_MEAN",
+        "NOMINMAX",
+        "_WIN32_WINNT=0x0A00",
+        "BOOST_ERROR_CODE_HEADER_ONLY",
+        "BOOST_ASIO_NO_DEPRECATED",
+        "BOOST_BEAST_USE_STD_STRING_VIEW",
+        "BOOST_BEAST_SEPARATE_COMPILATION"
+      ],
+      "packages": [
+        "odeum-json-3-11-3",
+        "odeum-boost-1-87-0",
+        "odeum-openssl-3",
+        "discutere-lorica-cab4f120",
+        "discutere-sqlite-3-53-4"
+      ]
+    },
+    {
+      "file": "native/tests/persona_engine/spawner_tests.cpp",
+      "standard": "c++20",
+      "includes": [
+        "native/src",
+        "native/tests"
+      ],
+      "defines": [
+        "WIN32_LEAN_AND_MEAN",
+        "NOMINMAX",
+        "_WIN32_WINNT=0x0A00",
+        "BOOST_ERROR_CODE_HEADER_ONLY",
+        "BOOST_ASIO_NO_DEPRECATED",
+        "BOOST_BEAST_USE_STD_STRING_VIEW",
+        "BOOST_BEAST_SEPARATE_COMPILATION"
+      ],
+      "packages": [
+        "odeum-json-3-11-3",
+        "odeum-boost-1-87-0",
+        "odeum-openssl-3",
+        "discutere-lorica-cab4f120",
+        "discutere-sqlite-3-53-4"
+      ]
+    },
+    {
+      "file": "native/tests/persona_engine/w3m_facilitator_part2_tests.cpp",
+      "standard": "c++20",
+      "includes": [
+        "native/src",
+        "native/tests"
+      ],
+      "defines": [
+        "WIN32_LEAN_AND_MEAN",
+        "NOMINMAX",
+        "_WIN32_WINNT=0x0A00",
+        "BOOST_ERROR_CODE_HEADER_ONLY",
+        "BOOST_ASIO_NO_DEPRECATED",
+        "BOOST_BEAST_USE_STD_STRING_VIEW",
+        "BOOST_BEAST_SEPARATE_COMPILATION"
+      ],
+      "packages": [
+        "odeum-json-3-11-3",
+        "odeum-boost-1-87-0",
+        "odeum-openssl-3",
+        "discutere-lorica-cab4f120",
+        "discutere-sqlite-3-53-4"
+      ]
+    },
+    {
+      "file": "native/tests/persona_engine/w3m_facilitator_part3_tests.cpp",
+      "standard": "c++20",
+      "includes": [
+        "native/src",
+        "native/tests"
+      ],
+      "defines": [
+        "WIN32_LEAN_AND_MEAN",
+        "NOMINMAX",
+        "_WIN32_WINNT=0x0A00",
+        "BOOST_ERROR_CODE_HEADER_ONLY",
+        "BOOST_ASIO_NO_DEPRECATED",
+        "BOOST_BEAST_USE_STD_STRING_VIEW",
+        "BOOST_BEAST_SEPARATE_COMPILATION"
+      ],
+      "packages": [
+        "odeum-json-3-11-3",
+        "odeum-boost-1-87-0",
+        "odeum-openssl-3",
+        "discutere-lorica-cab4f120",
+        "discutere-sqlite-3-53-4"
+      ]
+    },
+    {
+      "file": "native/tests/persona_engine/w3m_facilitator_part4_tests.cpp",
+      "standard": "c++20",
+      "includes": [
+        "native/src",
+        "native/tests"
+      ],
+      "defines": [
+        "WIN32_LEAN_AND_MEAN",
+        "NOMINMAX",
+        "_WIN32_WINNT=0x0A00",
+        "BOOST_ERROR_CODE_HEADER_ONLY",
+        "BOOST_ASIO_NO_DEPRECATED",
+        "BOOST_BEAST_USE_STD_STRING_VIEW",
+        "BOOST_BEAST_SEPARATE_COMPILATION"
+      ],
+      "packages": [
+        "odeum-json-3-11-3",
+        "odeum-boost-1-87-0",
+        "odeum-openssl-3",
+        "discutere-lorica-cab4f120",
+        "discutere-sqlite-3-53-4"
+      ]
+    },
+    {
+      "file": "native/tests/persona_engine/w3m_facilitator_tests.cpp",
+      "standard": "c++20",
+      "includes": [
+        "native/src",
+        "native/tests"
+      ],
+      "defines": [
+        "WIN32_LEAN_AND_MEAN",
+        "NOMINMAX",
+        "_WIN32_WINNT=0x0A00",
+        "BOOST_ERROR_CODE_HEADER_ONLY",
+        "BOOST_ASIO_NO_DEPRECATED",
+        "BOOST_BEAST_USE_STD_STRING_VIEW",
+        "BOOST_BEAST_SEPARATE_COMPILATION"
+      ],
+      "packages": [
+        "odeum-json-3-11-3",
+        "odeum-boost-1-87-0",
+        "odeum-openssl-3",
+        "discutere-lorica-cab4f120",
+        "discutere-sqlite-3-53-4"
+      ]
+    },
+    {
+      "file": "native/tests/persona_engine/worker_pool_part2_tests.cpp",
+      "standard": "c++20",
+      "includes": [
+        "native/src",
+        "native/tests"
+      ],
+      "defines": [
+        "WIN32_LEAN_AND_MEAN",
+        "NOMINMAX",
+        "_WIN32_WINNT=0x0A00",
+        "BOOST_ERROR_CODE_HEADER_ONLY",
+        "BOOST_ASIO_NO_DEPRECATED",
+        "BOOST_BEAST_USE_STD_STRING_VIEW",
+        "BOOST_BEAST_SEPARATE_COMPILATION"
+      ],
+      "packages": [
+        "odeum-json-3-11-3",
+        "odeum-boost-1-87-0",
+        "odeum-openssl-3",
+        "discutere-lorica-cab4f120",
+        "discutere-sqlite-3-53-4"
+      ]
+    },
+    {
+      "file": "native/tests/persona_engine/worker_pool_tests.cpp",
+      "standard": "c++20",
+      "includes": [
+        "native/src",
+        "native/tests"
+      ],
+      "defines": [
+        "WIN32_LEAN_AND_MEAN",
+        "NOMINMAX",
+        "_WIN32_WINNT=0x0A00",
+        "BOOST_ERROR_CODE_HEADER_ONLY",
+        "BOOST_ASIO_NO_DEPRECATED",
+        "BOOST_BEAST_USE_STD_STRING_VIEW",
+        "BOOST_BEAST_SEPARATE_COMPILATION"
+      ],
+      "packages": [
+        "odeum-json-3-11-3",
+        "odeum-boost-1-87-0",
+        "odeum-openssl-3",
+        "discutere-lorica-cab4f120",
+        "discutere-sqlite-3-53-4"
+      ]
+    },
+    {
+      "file": "native/tests/queue/snapshot_tests.cpp",
+      "standard": "c++20",
+      "includes": [
+        "native/src",
+        "native/tests"
+      ],
+      "defines": [
+        "WIN32_LEAN_AND_MEAN",
+        "NOMINMAX",
+        "_WIN32_WINNT=0x0A00",
+        "BOOST_ERROR_CODE_HEADER_ONLY",
+        "BOOST_ASIO_NO_DEPRECATED",
+        "BOOST_BEAST_USE_STD_STRING_VIEW",
+        "BOOST_BEAST_SEPARATE_COMPILATION"
+      ],
+      "packages": [
+        "odeum-json-3-11-3",
+        "odeum-boost-1-87-0",
+        "odeum-openssl-3",
+        "discutere-lorica-cab4f120",
+        "discutere-sqlite-3-53-4"
+      ]
+    },
+    {
+      "file": "native/tests/runtime_settings/store_tests.cpp",
+      "standard": "c++20",
+      "includes": [
+        "native/src",
+        "native/tests"
+      ],
+      "defines": [
+        "WIN32_LEAN_AND_MEAN",
+        "NOMINMAX",
+        "_WIN32_WINNT=0x0A00",
+        "BOOST_ERROR_CODE_HEADER_ONLY",
+        "BOOST_ASIO_NO_DEPRECATED",
+        "BOOST_BEAST_USE_STD_STRING_VIEW",
+        "BOOST_BEAST_SEPARATE_COMPILATION"
+      ],
+      "packages": [
+        "odeum-json-3-11-3",
+        "odeum-boost-1-87-0",
+        "odeum-openssl-3",
+        "discutere-lorica-cab4f120",
+        "discutere-sqlite-3-53-4"
+      ]
+    },
+    {
+      "file": "native/tests/secrets/youtube_env_tests.cpp",
+      "standard": "c++20",
+      "includes": [
+        "native/src",
+        "native/tests"
+      ],
+      "defines": [
+        "WIN32_LEAN_AND_MEAN",
+        "NOMINMAX",
+        "_WIN32_WINNT=0x0A00",
+        "BOOST_ERROR_CODE_HEADER_ONLY",
+        "BOOST_ASIO_NO_DEPRECATED",
+        "BOOST_BEAST_USE_STD_STRING_VIEW",
+        "BOOST_BEAST_SEPARATE_COMPILATION"
+      ],
+      "packages": [
+        "odeum-json-3-11-3",
+        "odeum-boost-1-87-0",
+        "odeum-openssl-3",
+        "discutere-lorica-cab4f120",
+        "discutere-sqlite-3-53-4"
+      ]
+    },
+    {
+      "file": "native/tests/slack/slack_entry_tests.cpp",
+      "standard": "c++20",
+      "includes": [
+        "native/src",
+        "native/tests"
+      ],
+      "defines": [
+        "WIN32_LEAN_AND_MEAN",
+        "NOMINMAX",
+        "_WIN32_WINNT=0x0A00",
+        "BOOST_ERROR_CODE_HEADER_ONLY",
+        "BOOST_ASIO_NO_DEPRECATED",
+        "BOOST_BEAST_USE_STD_STRING_VIEW",
+        "BOOST_BEAST_SEPARATE_COMPILATION"
+      ],
+      "packages": [
+        "odeum-json-3-11-3",
+        "odeum-boost-1-87-0",
+        "odeum-openssl-3",
+        "discutere-lorica-cab4f120",
+        "discutere-sqlite-3-53-4"
+      ]
+    },
+    {
+      "file": "native/tests/slack/socket_mode_part2_tests.cpp",
+      "standard": "c++20",
+      "includes": [
+        "native/src",
+        "native/tests"
+      ],
+      "defines": [
+        "WIN32_LEAN_AND_MEAN",
+        "NOMINMAX",
+        "_WIN32_WINNT=0x0A00",
+        "BOOST_ERROR_CODE_HEADER_ONLY",
+        "BOOST_ASIO_NO_DEPRECATED",
+        "BOOST_BEAST_USE_STD_STRING_VIEW",
+        "BOOST_BEAST_SEPARATE_COMPILATION"
+      ],
+      "packages": [
+        "odeum-json-3-11-3",
+        "odeum-boost-1-87-0",
+        "odeum-openssl-3",
+        "discutere-lorica-cab4f120",
+        "discutere-sqlite-3-53-4"
+      ]
+    },
+    {
+      "file": "native/tests/slack/socket_mode_tests.cpp",
+      "standard": "c++20",
+      "includes": [
+        "native/src",
+        "native/tests"
+      ],
+      "defines": [
+        "WIN32_LEAN_AND_MEAN",
+        "NOMINMAX",
+        "_WIN32_WINNT=0x0A00",
+        "BOOST_ERROR_CODE_HEADER_ONLY",
+        "BOOST_ASIO_NO_DEPRECATED",
+        "BOOST_BEAST_USE_STD_STRING_VIEW",
+        "BOOST_BEAST_SEPARATE_COMPILATION"
+      ],
+      "packages": [
+        "odeum-json-3-11-3",
+        "odeum-boost-1-87-0",
+        "odeum-openssl-3",
+        "discutere-lorica-cab4f120",
+        "discutere-sqlite-3-53-4"
+      ]
+    },
+    {
+      "file": "native/tests/slack/w5r_slack_tests.cpp",
+      "standard": "c++20",
+      "includes": [
+        "native/src",
+        "native/tests"
+      ],
+      "defines": [
+        "WIN32_LEAN_AND_MEAN",
+        "NOMINMAX",
+        "_WIN32_WINNT=0x0A00",
+        "BOOST_ERROR_CODE_HEADER_ONLY",
+        "BOOST_ASIO_NO_DEPRECATED",
+        "BOOST_BEAST_USE_STD_STRING_VIEW",
+        "BOOST_BEAST_SEPARATE_COMPILATION"
+      ],
+      "packages": [
+        "odeum-json-3-11-3",
+        "odeum-boost-1-87-0",
+        "odeum-openssl-3",
+        "discutere-lorica-cab4f120",
+        "discutere-sqlite-3-53-4"
+      ]
+    },
+    {
+      "file": "native/tests/startup_guard/startup_guard_tests.cpp",
+      "standard": "c++20",
+      "includes": [
+        "native/src",
+        "native/tests"
+      ],
+      "defines": [
+        "WIN32_LEAN_AND_MEAN",
+        "NOMINMAX",
+        "_WIN32_WINNT=0x0A00",
+        "BOOST_ERROR_CODE_HEADER_ONLY",
+        "BOOST_ASIO_NO_DEPRECATED",
+        "BOOST_BEAST_USE_STD_STRING_VIEW",
+        "BOOST_BEAST_SEPARATE_COMPILATION"
+      ],
+      "packages": [
+        "odeum-json-3-11-3",
+        "odeum-boost-1-87-0",
+        "odeum-openssl-3",
+        "discutere-lorica-cab4f120",
+        "discutere-sqlite-3-53-4"
+      ]
+    },
+    {
+      "file": "native/tests/visualize/md_exporter_tests.cpp",
+      "standard": "c++20",
+      "includes": [
+        "native/src",
+        "native/tests"
+      ],
+      "defines": [
+        "WIN32_LEAN_AND_MEAN",
+        "NOMINMAX",
+        "_WIN32_WINNT=0x0A00",
+        "BOOST_ERROR_CODE_HEADER_ONLY",
+        "BOOST_ASIO_NO_DEPRECATED",
+        "BOOST_BEAST_USE_STD_STRING_VIEW",
+        "BOOST_BEAST_SEPARATE_COMPILATION"
+      ],
+      "packages": [
+        "odeum-json-3-11-3",
+        "odeum-boost-1-87-0",
+        "odeum-openssl-3",
+        "discutere-lorica-cab4f120",
+        "discutere-sqlite-3-53-4"
+      ]
+    },
+    {
+      "file": "native/tests/visualize/visualize_part2_tests.cpp",
+      "standard": "c++20",
+      "includes": [
+        "native/src",
+        "native/tests"
+      ],
+      "defines": [
+        "WIN32_LEAN_AND_MEAN",
+        "NOMINMAX",
+        "_WIN32_WINNT=0x0A00",
+        "BOOST_ERROR_CODE_HEADER_ONLY",
+        "BOOST_ASIO_NO_DEPRECATED",
+        "BOOST_BEAST_USE_STD_STRING_VIEW",
+        "BOOST_BEAST_SEPARATE_COMPILATION"
+      ],
+      "packages": [
+        "odeum-json-3-11-3",
+        "odeum-boost-1-87-0",
+        "odeum-openssl-3",
+        "discutere-lorica-cab4f120",
+        "discutere-sqlite-3-53-4"
+      ]
+    },
+    {
+      "file": "native/tests/visualize/visualize_tests.cpp",
+      "standard": "c++20",
+      "includes": [
+        "native/src",
+        "native/tests"
+      ],
+      "defines": [
+        "WIN32_LEAN_AND_MEAN",
+        "NOMINMAX",
+        "_WIN32_WINNT=0x0A00",
+        "BOOST_ERROR_CODE_HEADER_ONLY",
+        "BOOST_ASIO_NO_DEPRECATED",
+        "BOOST_BEAST_USE_STD_STRING_VIEW",
+        "BOOST_BEAST_SEPARATE_COMPILATION"
+      ],
+      "packages": [
+        "odeum-json-3-11-3",
+        "odeum-boost-1-87-0",
+        "odeum-openssl-3",
+        "discutere-lorica-cab4f120",
+        "discutere-sqlite-3-53-4"
+      ]
+    },
+    {
+      "file": "native/tests/visualize/w3l_conclusions_part2_tests.cpp",
+      "standard": "c++20",
+      "includes": [
+        "native/src",
+        "native/tests"
+      ],
+      "defines": [
+        "WIN32_LEAN_AND_MEAN",
+        "NOMINMAX",
+        "_WIN32_WINNT=0x0A00",
+        "BOOST_ERROR_CODE_HEADER_ONLY",
+        "BOOST_ASIO_NO_DEPRECATED",
+        "BOOST_BEAST_USE_STD_STRING_VIEW",
+        "BOOST_BEAST_SEPARATE_COMPILATION"
+      ],
+      "packages": [
+        "odeum-json-3-11-3",
+        "odeum-boost-1-87-0",
+        "odeum-openssl-3",
+        "discutere-lorica-cab4f120",
+        "discutere-sqlite-3-53-4"
+      ]
+    },
+    {
+      "file": "native/tests/visualize/w3l_conclusions_part3_tests.cpp",
+      "standard": "c++20",
+      "includes": [
+        "native/src",
+        "native/tests"
+      ],
+      "defines": [
+        "WIN32_LEAN_AND_MEAN",
+        "NOMINMAX",
+        "_WIN32_WINNT=0x0A00",
+        "BOOST_ERROR_CODE_HEADER_ONLY",
+        "BOOST_ASIO_NO_DEPRECATED",
+        "BOOST_BEAST_USE_STD_STRING_VIEW",
+        "BOOST_BEAST_SEPARATE_COMPILATION"
+      ],
+      "packages": [
+        "odeum-json-3-11-3",
+        "odeum-boost-1-87-0",
+        "odeum-openssl-3",
+        "discutere-lorica-cab4f120",
+        "discutere-sqlite-3-53-4"
+      ]
+    },
+    {
+      "file": "native/tests/visualize/w3l_conclusions_tests.cpp",
+      "standard": "c++20",
+      "includes": [
+        "native/src",
+        "native/tests"
+      ],
+      "defines": [
+        "WIN32_LEAN_AND_MEAN",
+        "NOMINMAX",
+        "_WIN32_WINNT=0x0A00",
+        "BOOST_ERROR_CODE_HEADER_ONLY",
+        "BOOST_ASIO_NO_DEPRECATED",
+        "BOOST_BEAST_USE_STD_STRING_VIEW",
+        "BOOST_BEAST_SEPARATE_COMPILATION"
+      ],
+      "packages": [
+        "odeum-json-3-11-3",
+        "odeum-boost-1-87-0",
+        "odeum-openssl-3",
+        "discutere-lorica-cab4f120",
+        "discutere-sqlite-3-53-4"
+      ]
+    },
+    {
+      "file": "native/tests/web_chat/web_chat_tests.cpp",
       "standard": "c++20",
       "includes": [
         "native/src",

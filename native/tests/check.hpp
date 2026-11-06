@@ -9,6 +9,8 @@
 #include <string_view>
 #include <vector>
 
+#include "base/env.hpp"
+
 namespace di::test {
 
 struct Case {
@@ -60,8 +62,8 @@ void check_throws(Fn&& fn, std::string_view what, const char* file, int line) {
 
 /** fixtures ディレクトリ (ctest が DI_TEST_FIXTURES を渡す)。 */
 inline std::string fixtures_dir() {
-    const char* value = std::getenv("DI_TEST_FIXTURES");
-    return value ? std::string(value) : std::string("native/tests/fixtures");
+    // std::getenv は MSVC で C4996 (/WX で失敗) になるので、本体と同じ env::get で読む。
+    return ::di::env::get("DI_TEST_FIXTURES").value_or("native/tests/fixtures");
 }
 
 inline int run_all() {
