@@ -4,6 +4,7 @@
   "presetRules": [],
   "templateRules": [],
   "membership": [
+    { "pathPattern": "(^|/)native/src/discord_hook/(?:.*/)?[^/]+$" },
     {
       "pathPattern": "(^|/)src/discord-hook/(?:.*/)?[^/]+$"
     },

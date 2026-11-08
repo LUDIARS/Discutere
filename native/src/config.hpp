@@ -257,6 +257,8 @@ struct DiscutereConfig {
             std::vector<std::string> improvementTagNames;
             std::vector<std::string> funTagNames;
             std::string discussionForumName;
+            /** guild ID ごとの議論フォーラム名。載っている guild だけ discussionForumName の代わりに使う。 */
+            std::map<std::string, std::string> discussionForumNameByGuild;
         } forum;
         struct GameFeedback {
             bool enabled = true;

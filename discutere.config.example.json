@@ -184,7 +184,9 @@
       "dataLearningChannelName": "データ学習依頼",
       "managedCategoryName": "システム",
       "improvementTagNames": ["改善提案", "改善", "提案", "improvement"],
-      "funTagNames": ["面白さ", "面白い", "おもしろさ", "fun"]
+      "funTagNames": ["面白さ", "面白い", "おもしろさ", "fun"],
+      "$commentDiscussionForumNameByGuild": "guild ID ごとの議論フォーラム名 (任意)。載っている guild だけ discussionForumName の代わりに使う。受信の判定は引き続き guild ID + 解決した親 forum ID の組で行う。",
+      "discussionForumNameByGuild": {}
     },
     "gameFeedback": {
       "enabled": true,

@@ -67,4 +67,22 @@ TEST_CASE("READY: 議論フォーラム名が空なら guild を拒否し、全�
     CHECK(gw->event_stats().gateRejected >= 2);
 }
 
+TEST_CASE("READY: guild 別の議論フォーラム名を共通の名前より優先する") {
+    GwHarness h;
+    auto d = h.deps();
+    d.forum->discussionForumName = "存在しない共通名";
+    d.forum->discussionForumNameByGuild["G1"] = "議論";
+    auto gw = h.start(std::move(d));
+    CHECK_EQ(gw->managed_forum_ids().size(), std::size_t{1});
+    CHECK(gw->managed_forum_ids().count("G1") == 1);
+}
+
+TEST_CASE("READY: guild 別の指定が空白なら共通の名前を使う") {
+    GwHarness h;
+    auto d = h.deps();
+    d.forum->discussionForumNameByGuild["G1"] = "  ";
+    auto gw = h.start(std::move(d));
+    CHECK(gw->managed_forum_ids().count("G1") == 1);
+}
+
 DI_TEST_MAIN()

@@ -533,6 +533,11 @@ DiscutereConfig load_config(const LoadOptions& options) {
     if (dc.forum.funTagNames.empty()) dc.forum.funTagNames = {"面白さ", "面白い", "おもしろさ", "fun"};
     dc.forum.discussionForumName =
         L::pick(e("DISCUTERE_DISCORD_FORUM_NAME"), x.f({"discord", "forum", "discussionForumName"}), "議論");
+    if (const Json* by_guild = x.f({"discord", "forum", "discussionForumNameByGuild"}); by_guild && by_guild->is_object()) {
+        for (const auto& [guild_id, name] : by_guild->items()) {
+            if (name.is_string()) dc.forum.discussionForumNameByGuild[guild_id] = name.get<std::string>();
+        }
+    }
     dc.gameFeedback.enabled =
         L::pick_bool(e("DISCUTERE_DISCORD_GAME_FEEDBACK_ENABLED"), x.f({"discord", "gameFeedback", "enabled"}), true);
     dc.gameFeedback.categoryName =
@@ -783,6 +788,9 @@ Json to_json(const DiscutereConfig& c) {
                        {"improvementTagNames", strings(c.discord.forum.improvementTagNames)},
                        {"funTagNames", strings(c.discord.forum.funTagNames)},
                        {"discussionForumName", c.discord.forum.discussionForumName}};
+    if (!c.discord.forum.discussionForumNameByGuild.empty()) {
+        dc["forum"]["discussionForumNameByGuild"] = Json(c.discord.forum.discussionForumNameByGuild);
+    }
     dc["gameFeedback"] = Json{{"enabled", c.discord.gameFeedback.enabled}, {"categoryName", c.discord.gameFeedback.categoryName}};
     o["discord"] = std::move(dc);
 

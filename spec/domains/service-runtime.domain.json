@@ -4,6 +4,7 @@
   "presetRules": [],
   "templateRules": [],
   "membership": [
+    { "pathPattern": "(^|/)native/src/config[.](?:cpp|hpp)$" },
     {
       "pathPattern": "(^|/)src/config/(?:.*/)?[^/]+$"
     },

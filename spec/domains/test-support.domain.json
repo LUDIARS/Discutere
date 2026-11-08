@@ -4,6 +4,7 @@
   "presetRules": [],
   "templateRules": [],
   "membership": [
+    { "pathPattern": "(^|/)native/tests/(?:.*/)?[^/]+$" },
     {
       "pathPattern": "(^|/)tests/(?!discord-hook/(?:managed-forum-scope|forum-event-gate)\\.test\\.ts$)(?:.*/)?[^/]+$"
     },

@@ -3,6 +3,8 @@
 DiのDiscord利用者イベントは、設定された各guildで `discord.forum.discussionForumName` から
 `ensureDiscussionForum` が解決したフォーラムIDを親とするスレッドだけで処理する。
 フォーラム名の一致や `GuildForum` 型だけでは許可しない。guild IDと親forum IDの組を照合する。
+guildごとに既存フォーラムの名前が違う場合は `discord.forum.discussionForumNameByGuild` (guild ID→名前、C++版のみ) で
+そのguildの解決に使う名前を指定できる。空や未指定のguildは `discussionForumName` を使う。指定しても解決後の照合は同じ。
 起動時の解決は `forum.enabled` に従い、`flowLive` の有無とは分ける。LLM無しでもslashの境界は同じ。
 ClientReadyで対象IDが解決する前、未設定・無効・未解決のguild、親の取得失敗は拒否する。
 親がuncachedなら読み取りfetchでID/guild/typeを確認する。複数guildの対象を混同しない。

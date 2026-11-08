@@ -4,6 +4,20 @@
 
 namespace di::discord_hook {
 
+namespace {
+
+/** その guild の議論フォーラム名。guild 別の指定が空でなければ優先し、無ければ全 guild 共通の名前を使う。 */
+std::string discussion_forum_name_for(const ForumConfig& forum, const std::string& guild_id) {
+    const auto it = forum.discussionForumNameByGuild.find(guild_id);
+    if (it != forum.discussionForumNameByGuild.end()) {
+        std::string name = str::trim(it->second);
+        if (!name.empty()) return name;
+    }
+    return str::trim(forum.discussionForumName);
+}
+
+} // namespace
+
 auto DiscordGateway::Impl::forums() const -> ManagedForumIds {
     std::lock_guard lock(mu);
     return managed_ids;
@@ -199,8 +213,8 @@ auto DiscordGateway::Impl::on_ready(const Json& d) -> void {
 
     // 議論フォーラムを ensure し、定義済みフロータグを用意する。LLM未設定でも slash の受信境界に同じ対象IDを使う。
     if (forum_enabled && !guild_ids.empty()) {
-        const std::string forum_name = deps.forum ? str::trim(deps.forum->discussionForumName) : std::string();
         for (const auto& guild_id : guild_ids) {
+            const std::string forum_name = deps.forum ? discussion_forum_name_for(*deps.forum, guild_id) : std::string();
             if (forum_name.empty()) {
                 log::warn("  discord-forum: managed forum name missing; guild=" + guild_id + " denied");
                 continue;
