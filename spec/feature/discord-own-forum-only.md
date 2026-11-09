@@ -9,6 +9,9 @@ guildごとに既存フォーラムの名前が違う場合は `discord.forum.di
 ClientReadyで対象IDが解決する前、未設定・無効・未解決のguild、親の取得失敗は拒否する。
 親がuncachedなら読み取りfetchでID/guild/typeを確認する。複数guildの対象を混同しない。
 
+Botが受信できなかった既存スレッドは、管理者の `POST /api/admin/forum/threads/:id/start` で新規投稿と同じThreadCreate経路へ渡す (C++版のみ)。
+同じgateを通すので、管理フォーラム外のスレッドは起動しない。
+
 MessageCreateは共通gateを最初に通し、ゲーム感想、クロール、旧discussionChannelIds、メンションが
 通常テキストチャンネル・DM・他フォーラムを許可する迂回路にならないようにする。
 Discordのreply投稿そのものは、宛先にかかわらず引き続き無視する。

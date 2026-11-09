@@ -265,6 +265,7 @@ struct DiscordGateway::Impl : std::enable_shared_from_this<DiscordGateway::Impl>
     FinalizeForumPostResult finalize(const std::optional<std::string>& scene, const std::string& summary, const std::string& title);
     void react(const std::string& channel_id, const std::string& message_id, const std::string& emoji);
     SweepUnseededResult sweep(std::optional<int> limit_opt);
+    StartExistingThreadResult start_existing_thread(const std::string& thread_id);
     static std::string url_encode_emoji(const std::string& emoji);
     void stop();
 };

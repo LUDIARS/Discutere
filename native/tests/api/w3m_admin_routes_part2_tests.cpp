@@ -82,6 +82,23 @@ TEST_CASE("sessions converge: facilitator.converge_now を scene 共有の議論
     CHECK_EQ(call(r, "POST", "/api/admin/sessions/zzz/converge").status, 404);
 }
 
+TEST_CASE("forum thread start: ID の検証・未注入は 503・起動不可の理由を返す") {
+    Env env;
+    const auto r = app();
+    CHECK_EQ(call(r, "POST", "/api/admin/forum/threads/123/start", "").body, std::string(R"({"error":"gateway not initialized"})"));
+    std::vector<std::string> seen;
+    api::set_gateway_thread_starter([&](const std::string& id) {
+        seen.push_back(id);
+        if (id == "9") return api::StartThreadResult{false, "outside managed forum"};
+        return api::StartThreadResult{true, ""};
+    });
+    CHECK_EQ(call(r, "POST", "/api/admin/forum/threads/abc/start", "").body, std::string(R"({"error":"invalid thread id"})"));
+    CHECK(seen.empty());
+    CHECK_EQ(call(r, "POST", "/api/admin/forum/threads/123/start", "").body, std::string(R"({"ok":true})"));
+    CHECK_EQ(call(r, "POST", "/api/admin/forum/threads/9/start", "").body, std::string(R"({"ok":false,"reason":"outside managed forum"})"));
+    CHECK_EQ(seen.size(), std::size_t(2));
+}
+
 TEST_CASE("seed-sweep: limit の解釈 (truthy・>0・最大 100)・失敗は 500") {
     Env env;
     std::vector<std::optional<double>> seen;

@@ -964,6 +964,12 @@ int run_server() {
             auto r = gw->sweep_unseeded(l);
             return api::SweepResult{static_cast<double>(r.scanned), static_cast<double>(r.seeded)};
         });
+        api::set_gateway_thread_starter([weak](const std::string& thread_id) {
+            auto gw = weak.lock();
+            if (!gw) throw std::runtime_error("discord gateway stopped");
+            const auto r = gw->start_existing_thread(thread_id);
+            return api::StartThreadResult{r.queued, r.reason};
+        });
         log::info("  discord-seed-sweep / consensus-react: wired to gateway");
         if (!forum_enabled) return;
         {

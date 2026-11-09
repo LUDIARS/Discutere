@@ -71,6 +71,7 @@ void DiscordGateway::react_to_message(const std::string& channel_id, const std::
     impl_->react(channel_id, message_id, emoji);
 }
 SweepUnseededResult DiscordGateway::sweep_unseeded(std::optional<int> limit) { return impl_->sweep(limit); }
+StartExistingThreadResult DiscordGateway::start_existing_thread(const std::string& thread_id) { return impl_->start_existing_thread(thread_id); }
 void DiscordGateway::handle_dispatch(const std::string& event, const Json& d) { impl_->handle_dispatch(event, d); }
 bool DiscordGateway::ready_done() const { return impl_->ready_finished.load(); }
 bool DiscordGateway::wait_idle(std::chrono::milliseconds timeout) const {

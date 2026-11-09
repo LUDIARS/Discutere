@@ -180,6 +180,29 @@ auto DiscordGateway::Impl::on_forum_thread_create(const Json& d) -> void {
     post_flow_pick_menu(thread_id);
 }
 
+/** 既存スレッドを取得し、新規投稿の THREAD_CREATE と同じ門と起動経路へ渡す。 */
+auto DiscordGateway::Impl::start_existing_thread(const std::string& thread_id) -> StartExistingThreadResult {
+    if (!flow_live) return {false, "flow not available"};
+    Json d;
+    Channel thread;
+    try {
+        d = api->request("GET", "/channels/" + thread_id);
+        thread = channel_from_json(d);
+    } catch (const std::exception&) {
+        return {false, "thread not found"};
+    }
+    if (!managed_location(thread.guild_id, thread.id, forum_ref_from_channel(thread))) return {false, "outside managed forum"};
+    {
+        std::lock_guard lock(mu);
+        if (pending_picks.get(thread_id)) return {false, "already waiting for a flow choice"};
+    }
+    if (has_review(thread_id)) return {false, "already started"};
+    d["newly_created"] = true;
+    auto self = shared_from_this();
+    enqueue(true, "THREAD_CREATE", [self, d] { self->on_thread_create(d); });
+    return {true, ""};
+}
+
 auto DiscordGateway::Impl::has_review(const std::string& channel_id) -> bool {
     try {
         return flow::has_paper_review(channel_id);

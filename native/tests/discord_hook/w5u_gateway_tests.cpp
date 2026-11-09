@@ -85,4 +85,18 @@ TEST_CASE("READY: guild 別の指定が空白なら共通の名前を使う") {
     CHECK(gw->managed_forum_ids().count("G1") == 1);
 }
 
+TEST_CASE("既存スレッドの起動: 管理フォーラムだけ新規投稿と同じ経路へ渡し、二重起動しない") {
+    GwHarness h;
+    auto gw = h.start(h.deps());
+    CHECK_EQ(gw->start_existing_thread("NONE").reason, std::string("thread not found"));
+    h.discord.add_thread("TX", "F9");
+    CHECK_EQ(gw->start_existing_thread("TX").reason, std::string("outside managed forum"));
+    h.discord.add_thread("T1");
+    h.discord.add_starter("T1", "本文");
+    CHECK(gw->start_existing_thread("T1").queued);
+    h.settle(*gw);
+    // タグ無しのスレッドは種類の選択待ちになる。
+    CHECK_EQ(gw->start_existing_thread("T1").reason, std::string("already waiting for a flow choice"));
+}
+
 DI_TEST_MAIN()

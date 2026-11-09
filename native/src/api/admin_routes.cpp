@@ -24,6 +24,7 @@ struct Bindings {
     std::shared_ptr<persona_engine::PersonaEngineHandle> engine;
     std::shared_ptr<persona_engine::facilitator::Facilitator> facilitator;
     GatewaySweeper sweeper;
+    GatewayThreadStarter thread_starter;
     bool runtime_enabled = true;
 };
 
@@ -81,6 +82,10 @@ void set_facilitator(std::shared_ptr<persona_engine::facilitator::Facilitator> f
 void set_gateway_sweeper(GatewaySweeper sweeper) {
     std::lock_guard lock(bindings().m);
     bindings().sweeper = std::move(sweeper);
+}
+void set_gateway_thread_starter(GatewayThreadStarter starter) {
+    std::lock_guard lock(bindings().m);
+    bindings().thread_starter = std::move(starter);
 }
 
 http::Router admin_routes() {
@@ -248,6 +253,28 @@ http::Router admin_routes() {
         try {
             const auto r = sweeper(limit);
             return http::Response::json(Json{{"ok", true}, {"scanned", r.scanned}, {"seeded", r.seeded}});
+        } catch (const std::exception& err) {
+            return http::Response::json(Json{{"error", err.what()}}, 500);
+        }
+    });
+
+    // 受信できなかった既存のフォーラムスレッドを、新規投稿と同じ経路で起動する。
+    router.post("/admin/forum/threads/:id/start", [](http::Request& c) {
+        if (auto guard = middleware::require_admin(c)) return *guard;
+        const std::string id = c.param("id");
+        if (id.empty() || id.find_first_not_of("0123456789") != std::string::npos) {
+            return http::Response::json(Json{{"error", "invalid thread id"}}, 400);
+        }
+        GatewayThreadStarter starter;
+        {
+            std::lock_guard lock(bindings().m);
+            starter = bindings().thread_starter;
+        }
+        if (!starter) return http::Response::json(Json{{"error", "gateway not initialized"}}, 503);
+        try {
+            const auto r = starter(id);
+            if (!r.queued) return http::Response::json(Json{{"ok", false}, {"reason", r.reason}}, 409);
+            return http::Response::json(Json{{"ok", true}});
         } catch (const std::exception& err) {
             return http::Response::json(Json{{"error", err.what()}}, 500);
         }

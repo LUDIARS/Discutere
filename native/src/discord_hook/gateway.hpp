@@ -150,6 +150,12 @@ struct SweepUnseededResult {
     int seeded = 0;
 };
 
+/** 既存スレッドの起動依頼の結果。queued が false なら reason に理由が入る。 */
+struct StartExistingThreadResult {
+    bool queued = false;
+    std::string reason;
+};
+
 class DiscordGateway {
 public:
     struct Impl;
@@ -170,6 +176,11 @@ public:
     void react_to_message(const std::string& channel_id, const std::string& message_id, const std::string& emoji);
     /** 未検知 (👀 が付いていない) 投稿を種まきする再スイープ (FEATURE ⑤b)。 */
     SweepUnseededResult sweep_unseeded(std::optional<int> limit = std::nullopt);
+    /**
+     * Bot が受信できなかった既存のフォーラムスレッドを、新規投稿と同じ経路で起動する。
+     * 管理フォーラムの判定は THREAD_CREATE と同じ門を通す。
+     */
+    StartExistingThreadResult start_existing_thread(const std::string& thread_id);
 
     /** Gateway の dispatch を 1 件処理する (制御スレッドから呼ばれる。テストは直接渡せる)。 */
     void handle_dispatch(const std::string& event, const Json& d);

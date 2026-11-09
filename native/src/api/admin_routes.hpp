@@ -9,6 +9,7 @@
 //   POST /admin/sessions/:id/converge facilitator.converge_now で LLM まとめ → 収束
 //   GET  /admin/status               kill switch 状態と直近 rule_log
 //   POST /admin/seed-sweep           未検知投稿の再スイープ (gateway の sweeper)
+//   POST /admin/forum/threads/:id/start 受信できなかった既存スレッドを新規投稿と同じ経路で起動
 //   GET  /admin/learning/topics      話題と意見のスナップショット
 //   GET  /admin/metrics/personas | /admin/metrics/rules | /admin/rules | /admin/rules/:id/logs
 //
@@ -31,6 +32,13 @@ struct SweepResult {
 /** gateway の sweepUnseeded。limit 指定なし (nullopt) は gateway 側の既定。失敗は例外。 */
 using GatewaySweeper = std::function<SweepResult(std::optional<double> limit)>;
 
+struct StartThreadResult {
+    bool queued = false;
+    std::string reason;
+};
+/** gateway の start_existing_thread。失敗は例外。 */
+using GatewayThreadStarter = std::function<StartThreadResult(const std::string& thread_id)>;
+
 /** index などから注入 (起動時 1 回)。 */
 void set_persona_engine(std::shared_ptr<persona_engine::PersonaEngineHandle> engine);
 std::shared_ptr<persona_engine::PersonaEngineHandle> get_persona_engine();
@@ -38,6 +46,8 @@ std::shared_ptr<persona_engine::PersonaEngineHandle> get_persona_engine();
 void set_facilitator(std::shared_ptr<persona_engine::facilitator::Facilitator> facilitator);
 /** gateway の sweepUnseeded を注入 (gateway 起動後)。未注入なら seed-sweep は 503。 */
 void set_gateway_sweeper(GatewaySweeper sweeper);
+/** gateway の start_existing_thread を注入 (gateway 起動後)。未注入なら起動 API は 503。 */
+void set_gateway_thread_starter(GatewayThreadStarter starter);
 
 http::Router admin_routes();
 

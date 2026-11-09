@@ -70,12 +70,12 @@ struct Env {
         config::reset_config_for_test();
         api::set_persona_engine(nullptr);
         api::set_facilitator(nullptr);
-        api::set_gateway_sweeper(nullptr);
+        api::set_gateway_sweeper(nullptr); api::set_gateway_thread_starter(nullptr);
     }
     ~Env() {
         api::set_persona_engine(nullptr);
         api::set_facilitator(nullptr);
-        api::set_gateway_sweeper(nullptr);
+        api::set_gateway_sweeper(nullptr); api::set_gateway_thread_starter(nullptr);
         config::reset_config_for_test();
     }
     std::unique_ptr<core::Core> core() { return core::create_core(kg, dir.file("events.jsonl")); }
@@ -132,6 +132,7 @@ const std::vector<std::pair<std::string, std::string>> kAdminRoutes = {
     {"GET", "/api/admin/status"},               {"POST", "/api/admin/seed-sweep"},       {"GET", "/api/admin/learning/topics"},
     {"GET", "/api/admin/metrics/personas"},     {"GET", "/api/admin/metrics/rules"},     {"GET", "/api/admin/rules"},
     {"GET", "/api/admin/rules/r1/logs"},        {"GET", "/api/admin/consensus/g1/personas"}, {"POST", "/api/admin/gaps"},
+    {"POST", "/api/admin/forum/threads/123/start"},
 };
 
 } // namespace w3m_admin_routes_support
