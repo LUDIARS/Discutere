@@ -23,11 +23,12 @@ jobs:
   build-test:
     runs-on: ubuntu-latest
     steps:
-      # LUDIARS 依存 (llm-gateway/sentiment-core/canalis/fundamentum) は lib/* submodule。
-      # 全て public repo なので素の GITHUB_TOKEN で取得できる。
+      # LUDIARS 依存 (llm-gateway/sentiment-core/canalis/fundamentum) は lib/* submodule (public)。
+      # lib/lorica (C++ 版のビルド用、private) はこのジョブでは使わないので取得しない。
       - uses: actions/checkout@v4
-        with:
-          submodules: recursive
+
+      - name: Fetch submodules (TS 用)
+        run: git submodule update --init --recursive --depth 1 lib/lapilli lib/canalis lib/vestigium lib/fundamentum
 
       - name: Setup Node
         uses: actions/setup-node@v4

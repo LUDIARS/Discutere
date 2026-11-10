@@ -14,7 +14,7 @@ Discutere の常駐サーバ (C++20)。Node.js 版 (`src/index.ts`) から移し
 | Boost (Asio / Beast、ヘッダのみ) | 1.87.0 | URL_HASH SHA256 |
 | nlohmann_json | 3.11.3 | URL_HASH SHA256 |
 | SQLite (better-sqlite3 13.0.3 同梱の amalgamation) | 3.53.4 | URL_HASH SHA256 (npm tarball) |
-| Lorica | commit cab4f12 | GIT_TAG |
+| Lorica | commit cab4f12 | submodule `lib/lorica` (gitlink) |
 | OpenSSL | 3.x | システム |
 
 Node のまま残す機能 (PDF/DOCX 抽出・Notion クロール・tar.gz 作成) は `sidecar/` を別プロセスで呼ぶ (`sidecar/README.md`)。
@@ -27,8 +27,10 @@ cmake --build build -j2
 cd build && ctest --output-on-failure -j2
 ```
 
-取得済みの依存を使うときは `-DFETCHCONTENT_SOURCE_DIR_{BOOST,JSON,SQLITE}=<展開先>` と `-DLORICA_SOURCE_DIR=<clone>`
-(`tools/build.sh` が既定の場所を見る)。実行ファイルは `build/bin/discutere-server`。
+Lorica は submodule なので、最初に `git submodule update --init lib/lorica` を実行する (別の checkout を使うなら
+`-DLORICA_SOURCE_DIR=<path>`)。取得済みの Boost / JSON / SQLite を使うときは
+`-DFETCHCONTENT_SOURCE_DIR_{BOOST,JSON,SQLITE}=<展開先>` (`tools/build.sh` が既定の場所を見る)。
+実行ファイルは `build/bin/discutere-server`。
 
 ## 起動
 
