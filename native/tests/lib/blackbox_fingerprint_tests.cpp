@@ -37,12 +37,12 @@ TEST_CASE("sameOutput is deep equal independent of key order") {
 TEST_CASE("canonicalJson keeps array order") { CHECK(canonical_json(Json::array({2, 1})) != canonical_json(Json::array({1, 2}))); }
 
 TEST_CASE("canonicalJson matches Node golden (index keys, UTF-16 order, numbers)") {
-    for (const auto& c : load()["canonical"]) CHECK_EQ(canonical_json(c["value"]), c["json"].get<std::string>());
+    for (const auto& c : Json(load()["canonical"])) CHECK_EQ(canonical_json(c["value"]), c["json"].get<std::string>());
 }
 
 TEST_CASE("validateCondition / describeCondition match Node golden (errors and depth limit)") {
     int n = 0;
-    for (const auto& c : load()["validation"]) {
+    for (const auto& c : Json(load()["validation"])) {
         const std::string label = "case " + std::to_string(n++);
         if (c["ok"].get<bool>()) {
             Json cond;
@@ -75,7 +75,7 @@ TEST_CASE("evaluate matches Node golden") {
 }
 
 TEST_CASE("ruleFingerprint matches Node golden") {
-    for (const auto& c : load()["fingerprints"]) CHECK_EQ(rule_fingerprint(c["when"], c["output"]), c["fingerprint"].get<std::string>());
+    for (const auto& c : Json(load()["fingerprints"])) CHECK_EQ(rule_fingerprint(c["when"], c["output"]), c["fingerprint"].get<std::string>());
 }
 
 TEST_CASE("evaluate is robust to malformed / deep conditions from storage") {
