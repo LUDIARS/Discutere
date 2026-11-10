@@ -17,6 +17,13 @@ import {
   assert.ok(fused.get("a")! > fused.get("c")!, "2 系合算 > 片系のみ");
   assert.ok(fused.has("d"), "片系にしか無い id も残る");
 
+  const tied = rrfFuse([
+    ["a", "b", "c"],
+    ["b", "a", "d"],
+  ]);
+  assert.ok(tied.has("a") && tied.has("b"));
+  assert.equal(tied.get("a"), tied.get("b"), "等しい重みで 1 位と 2 位を入れ替えると同点");
+
   // 重み付け: keyword 系を 0 にすればベクトル系の順位が支配する。
   const weighted = rrfFuse(
     [
