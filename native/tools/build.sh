@@ -2,19 +2,19 @@
 # 同時に走るフルビルドを 2 本までに絞ってビルドする (4 CPU / 15GB の作業環境向け)。
 # 使い方: native/tools/build.sh <build-dir> [ctest 引数...]
 #   DI_DEPS_DIR (既定 /home/user/deps-cache/src) に取得済みの boost-1.87.0 / json / sqlite を置くと再取得しない。
-#   LORICA_SOURCE_DIR (既定 /home/user/lorica) をローカルの Lorica clone に向ける。
+#   Lorica は lib/lorica の submodule を使う。別の clone を使うときは LORICA_SOURCE_DIR を渡す。
 set -euo pipefail
 here="$(cd "$(dirname "$0")/.." && pwd)"
 build="${1:?build dir}"; shift || true
 deps="${DI_DEPS_DIR:-/home/user/deps-cache/src}"
-lorica="${LORICA_SOURCE_DIR:-/home/user/lorica}"
+lorica="${LORICA_SOURCE_DIR:-}"
 slots="${DI_BUILD_SLOTS_DIR:-/tmp/di-build-slots}"
 mkdir -p "$slots"
 extra=()
 [ -d "$deps/boost-1.87.0" ] && extra+=("-DFETCHCONTENT_SOURCE_DIR_BOOST=$deps/boost-1.87.0")
 [ -d "$deps/json" ] && extra+=("-DFETCHCONTENT_SOURCE_DIR_JSON=$deps/json")
 [ -d "$deps/sqlite/package" ] && extra+=("-DFETCHCONTENT_SOURCE_DIR_SQLITE=$deps/sqlite/package")
-[ -d "$lorica" ] && extra+=("-DLORICA_SOURCE_DIR=$lorica")
+[ -n "$lorica" ] && [ -d "$lorica" ] && extra+=("-DLORICA_SOURCE_DIR=$lorica")
 run_build() {
   if [ ! -f "$build/CMakeCache.txt" ]; then
     cmake -S "$here" -B "$build" -G Ninja -DCMAKE_BUILD_TYPE=Debug "${extra[@]}"

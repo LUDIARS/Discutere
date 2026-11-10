@@ -2,6 +2,9 @@
 
 #include <sqlite3.h>
 
+#include <cmath>
+#include <limits>
+
 #include <lorica/input_budget.hpp>
 
 #include "base/json.hpp"
@@ -25,7 +28,13 @@ std::optional<std::string> Value::as_opt_string() const {
 
 std::int64_t Value::as_int(std::int64_t fallback) const {
     if (const auto* i = std::get_if<std::int64_t>(&v_)) return *i;
-    if (const auto* d = std::get_if<double>(&v_)) return static_cast<std::int64_t>(*d);
+    if (const auto* d = std::get_if<double>(&v_)) {
+        // 範囲外の double を整数へ変換するのは未定義動作。NaN は fallback、範囲外は端に寄せる。
+        if (std::isnan(*d)) return fallback;
+        if (*d >= 9223372036854775808.0) return std::numeric_limits<std::int64_t>::max();
+        if (*d <= -9223372036854775808.0) return std::numeric_limits<std::int64_t>::min();
+        return static_cast<std::int64_t>(*d);
+    }
     if (const auto* s = std::get_if<std::string>(&v_)) {
         try {
             return std::stoll(*s);

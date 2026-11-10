@@ -9,6 +9,21 @@ include(CTest)
 
 option(DI_WARNINGS_AS_ERRORS "Treat compiler warnings in Discutere sources as errors" ON)
 
+# 検査用ビルド: -DDI_SANITIZE=address,undefined か -DDI_SANITIZE=thread (GCC / Clang、Debug で使う)。
+# 取得した第三者のコードも含め全体に掛ける (片側だけだと誤検知・見逃しが出る)。
+set(DI_SANITIZE "" CACHE STRING "Sanitizers for a checking build (e.g. address,undefined or thread)")
+if(DI_SANITIZE)
+  if(MSVC)
+    message(FATAL_ERROR "DI_SANITIZE is supported with GCC / Clang only")
+  endif()
+  add_compile_options(-fsanitize=${DI_SANITIZE} -fno-omit-frame-pointer -fno-sanitize-recover=undefined)
+  add_link_options(-fsanitize=${DI_SANITIZE})
+  if(DI_SANITIZE MATCHES "thread" AND CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
+    # GCC は Boost.Asio が使う atomic_thread_fence を TSan で扱えないと警告する (-Wtsan)。-Werror で止めない。
+    add_compile_options(-Wno-tsan)
+  endif()
+endif()
+
 include(cmake/DiDependencies.cmake)
 include(cmake/DiWarnings.cmake)
 

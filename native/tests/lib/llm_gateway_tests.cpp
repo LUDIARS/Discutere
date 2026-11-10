@@ -15,7 +15,7 @@ TEST_CASE("estimateTokens counts CJK denser than latin") {
 }
 
 TEST_CASE("estimateTokens matches Node golden") {
-    for (const auto& c : load("/llm_gateway/cases.json")["tokens"]) {
+    for (const auto& c : Json(load("/llm_gateway/cases.json")["tokens"])) {
         CHECK_EQ(estimate_tokens(c["text"].get<std::string>()), c["tokens"].get<long long>());
     }
 }

@@ -31,7 +31,7 @@ TEST_CASE("pickTier honors forceTier / strong kinds / simple kinds / large input
 }
 
 TEST_CASE("pickTier matches Node golden (threshold exact / +1)") {
-    for (const auto& c : load("/llm_gateway/cases.json")["tiers"]) {
+    for (const auto& c : Json(load("/llm_gateway/cases.json")["tiers"])) {
         RoutingInput in;
         in.kind = c["input"]["kind"].get<std::string>();
         if (c["input"].contains("inputTokens")) in.inputTokens = c["input"]["inputTokens"].get<double>();

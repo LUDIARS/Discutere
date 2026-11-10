@@ -2,6 +2,8 @@
 
 #include "base/sqlite.hpp"
 
+#include <limits>
+
 using namespace di;
 
 TEST_CASE("run/get/all mirror better-sqlite3") {
@@ -57,6 +59,37 @@ TEST_CASE("transaction rolls back on exception and nests with savepoints") {
         }
     });
     CHECK_EQ(db->get("SELECT COUNT(*) AS n FROM t")->i64("n"), 1);
+}
+
+TEST_CASE("a failed COMMIT rolls back and leaves the database usable") {
+    auto db = sql::Database::open(":memory:");
+    db->exec("CREATE TABLE parent (id INTEGER PRIMARY KEY)");
+    db->exec("CREATE TABLE child (pid INTEGER REFERENCES parent(id) DEFERRABLE INITIALLY DEFERRED)");
+    bool failed = false;
+    try {
+        // 遅延外部キー違反は COMMIT の時点で失敗する (fn は例外なく終わる)。
+        db->transaction([&] { db->run("INSERT INTO child VALUES (99)"); });
+    } catch (const std::exception&) {
+        failed = true;
+    }
+    CHECK(failed);
+    CHECK(!db->in_transaction());
+    CHECK_EQ(db->get("SELECT COUNT(*) AS n FROM child")->i64("n"), 0);
+    // 以後のトランザクション (入れ子を含む) が普通に動く。
+    db->transaction([&] {
+        db->run("INSERT INTO parent VALUES (1)");
+        db->transaction([&] { db->run("INSERT INTO child VALUES (1)"); });
+    });
+    CHECK(!db->in_transaction());
+    CHECK_EQ(db->get("SELECT COUNT(*) AS n FROM child")->i64("n"), 1);
+}
+
+TEST_CASE("as_int never converts an out-of-range double") {
+    CHECK_EQ(sql::Value(std::numeric_limits<double>::quiet_NaN()).as_int(7), 7);
+    CHECK_EQ(sql::Value(1e300).as_int(), std::numeric_limits<std::int64_t>::max());
+    CHECK_EQ(sql::Value(-1e300).as_int(), std::numeric_limits<std::int64_t>::min());
+    CHECK_EQ(sql::Value(std::numeric_limits<double>::infinity()).as_int(), std::numeric_limits<std::int64_t>::max());
+    CHECK_EQ(sql::Value(42.9).as_int(), 42);
 }
 
 TEST_CASE("wrong parameter count and multi statements are rejected") {

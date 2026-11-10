@@ -8,12 +8,12 @@ import {
 
 // ── rrfFuse: 順位融合 ────────────────────────────────────────────────────────
 {
-  // 両系で b が 1 位、a が 2 位。c と d は片系のみに現れる。
+  // 両系 1 位の b が、両系 2 位の a より高くなる。
   const fused = rrfFuse([
     ["b", "a", "c"],
     ["b", "a", "d"],
   ]);
-  assert.ok(fused.get("b")! > fused.get("a")!, "両系で 1 位の b は両系で 2 位の a より高い");
+  assert.ok(fused.get("b")! > fused.get("a")!, "両系上位の id が最上位");
   assert.ok(fused.get("a")! > fused.get("c")!, "2 系合算 > 片系のみ");
   assert.ok(fused.has("d"), "片系にしか無い id も残る");
 

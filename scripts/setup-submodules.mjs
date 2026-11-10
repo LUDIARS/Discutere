@@ -49,11 +49,9 @@ if (!process.argv.includes("--skip-git-update")) {
 // Lapilli は pnpm workspace だが、必要なパッケージは自己完結した build script を持つため
 // pnpm 無しで個別に npm install/build できる。
 const packageDirectories = [
-  "lib/vestigium",
   "lib/canalis",
   "lib/fundamentum",
   "lib/lapilli/packages/llm-gateway",
-  "lib/lapilli/packages/blackbox",
   "lib/lapilli/packages/sentiment-core",
 ];
 

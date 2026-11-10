@@ -4,7 +4,7 @@
 using namespace llm_gateway_support;
 
 TEST_CASE("orderSegments matches Node golden") {
-    for (const auto& c : load("/llm_gateway/cases.json")["ordering"]) {
+    for (const auto& c : Json(load("/llm_gateway/cases.json")["ordering"])) {
         std::vector<Segment> segs;
         for (const auto& s : c["segments"])
             segs.push_back({s["stability"].get<std::string>(), s["role"].get<std::string>(), s["text"].get<std::string>()});
