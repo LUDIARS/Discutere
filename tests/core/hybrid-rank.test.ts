@@ -8,14 +8,21 @@ import {
 
 // ── rrfFuse: 順位融合 ────────────────────────────────────────────────────────
 {
-  // 両系で上位の b が、片系 1 位ずつの a/c より高くなる。
+  // 両系で b が 1 位、a が 2 位。c と d は片系のみに現れる。
   const fused = rrfFuse([
+    ["b", "a", "c"],
+    ["b", "a", "d"],
+  ]);
+  assert.ok(fused.get("b")! > fused.get("a")!, "両系で 1 位の b は両系で 2 位の a より高い");
+  assert.ok(fused.get("a")! > fused.get("c")!, "2 系合算 > 片系のみ");
+  assert.ok(fused.has("d"), "片系にしか無い id も残る");
+
+  const tied = rrfFuse([
     ["a", "b", "c"],
     ["b", "a", "d"],
   ]);
-  assert.ok(fused.get("b")! > fused.get("a")!, "両系上位の id が最上位");
-  assert.ok(fused.get("a")! > fused.get("c")!, "2 系合算 > 片系のみ");
-  assert.ok(fused.has("d"), "片系にしか無い id も残る");
+  assert.ok(tied.has("a") && tied.has("b"));
+  assert.equal(tied.get("a"), tied.get("b"), "等しい重みで 1 位と 2 位を入れ替えると同点");
 
   // 重み付け: keyword 系を 0 にすればベクトル系の順位が支配する。
   const weighted = rrfFuse(
