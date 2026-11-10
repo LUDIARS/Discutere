@@ -60,9 +60,8 @@ job `cpp-node-20261030`。依存の方針と目的は `native/docs/INVENTORY.md`
 
 - 元の TS テスト (`tests/**`, `src/**/*.test.ts`) を同じ観点で `native/tests/<モジュール>/<名前>_tests.cpp` に移す
   (`tests/check.hpp` の `TEST_CASE` / `CHECK` / `CHECK_EQ`)。1 ファイル = 1 実行ファイル = 1 ctest。
-- 互換性 (golden): Node 実装の入出力を `native/tests/golden/<モジュール>.gen.ts` (tsx で実行) で
-  `native/tests/fixtures/<モジュール>/*.json` に書き出し、C++ のテストが同じ出力を返すことを確かめる。
-  生成スクリプトはコミットする (`npx tsx native/tests/golden/<モジュール>.gen.ts`)。
+- 期待値 (fixtures): `native/tests/fixtures/<モジュール>/*.json` は Node 版の入出力から作ったもので、Node 版の撤去時点の値で
+  固定している。挙動を意図して変えるときは、該当の fixture を同じ PR で直す。
 - 境界: 各入力経路に「上限ちょうど・上限+1・壊れた入力・巨大な入力」を入れる。
 - 本物の外部サービス (Discord・Slack・S3・LLM・Cernere・Voluptas) には繋がない。偽のサーバ (テスト内で
   `http::Server` を立てる) か記録した応答を使う。

@@ -46,7 +46,11 @@ public:
                     state->running = true;
                 }
                 const bool queued = background_executor().submit([state] {
-                    state->worker = std::this_thread::get_id();
+                    {
+                        // stop() が別スレッドから worker を読むので、書くときも同じ mutex を取る。
+                        std::lock_guard g(state->m);
+                        state->worker = std::this_thread::get_id();
+                    }
                     try {
                         state->work();
                     } catch (...) {

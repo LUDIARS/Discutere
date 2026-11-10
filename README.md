@@ -154,7 +154,6 @@ Discatier KG (kuzu) + persona-engine.db + discutere.db を **tar.gz にまとめ
 | AI に自走議論させる (LLM backend) | [spec/setup/llm.md](spec/setup/llm.md) |
 | 複数サーバ (guild) で運用する | [spec/setup/multi-server.md](spec/setup/multi-server.md) |
 | 学習データを S3 にバックアップする | [spec/setup/backup.md](spec/setup/backup.md) |
-| デスクトップアプリ (Windows exe) として使う | [docs/desktop-app.md](docs/desktop-app.md) |
 | **全設定キーを確認する** | [spec/setup/config-reference.md](spec/setup/config-reference.md) |
 
 設定は `default < discutere.config.json < env` の順で解決 (`DISCUTERE_CONFIG` で config パス変更可)。
@@ -168,27 +167,22 @@ Discatier KG (kuzu) + persona-engine.db + discutere.db を **tar.gz にまとめ
 以下の起動コマンドは Excubitor による環境変数注入を前提とする。
 YouTube キーの管理は [Vault 運用ガイド](docs/youtube-api-key-gcloud.md) を参照。
 
+常駐サーバは C++ 版 (`native/`)。ビルドと起動は [native/README.md](native/README.md)。
+
 ```sh
-npm run dev:server   # tsx watch (ホットリロード)
-npm run build        # tsc → dist/
-npm start            # node dist/index.js
+cmake -S native -B native/build -G Ninja -DCMAKE_BUILD_TYPE=Release
+cmake --build native/build -j2
+BACKEND_PORT=3110 ./native/build/bin/discutere-server
 ```
+
+`src/` の TypeScript は運用スクリプト (`scripts/`) とサイドカー (`native/sidecar`) が使う分だけを残している。
 
 ### テスト
 
 ```sh
-npm run test:core            # Discatier Core (Phase 0)
-npm run test:phase2          # message projection
-npm run test:phase3          # translation bridge
-npm run test:phase4          # gap detection
-npm run test:phase5          # hypothesis lifecycle
-npm run test:phase6          # cross-axis projection
-npm run test:persona-engine  # 議論駆動エンジン
-npm run test:discord-hook    # Gateway / command-router / interactions
-npm run test:queue           # 議論キュー snapshot
-npm run test:backup          # バックアップ archive
-npm run test:crawler         # KG クローラー
-npm run test:visualize       # magic-link md 書き出し
+cd native/build && ctest --output-on-failure -j2   # 常駐サーバ (C++)
+npm run typecheck                                   # scripts / sidecar が使う TS
+npm run test:core                                   # ほか test:* は package.json を参照
 ```
 
 ## persona-engine (議論駆動)

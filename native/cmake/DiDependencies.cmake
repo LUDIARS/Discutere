@@ -1,6 +1,6 @@
 include_guard(GLOBAL)
 # 依存はこのファイルだけで宣言する。版はすべて URL_HASH / commit で固定。
-# 取得済みのものを使うときは -DFETCHCONTENT_SOURCE_DIR_<NAME>=<展開先> を渡す (BOOST / JSON / SQLITE / LORICA)。
+# 取得済みのものを使うときは -DFETCHCONTENT_SOURCE_DIR_<NAME>=<展開先> を渡す (BOOST / JSON / SQLITE)。
 
 find_package(OpenSSL 3 REQUIRED)
 find_package(Threads REQUIRED)
@@ -23,17 +23,21 @@ FetchContent_Declare(sqlite URL https://registry.npmjs.org/better-sqlite3/-/bett
   URL_HASH SHA256=77e0513dc1a469fb3bceec4c7fb5ad3f403109787eda05be047ec17fd56868cb
   SOURCE_SUBDIR discutere-no-build)
 
-# Lorica (commit 固定)。ローカルの clone を使うときは -DLORICA_SOURCE_DIR=<path>。
-set(LORICA_SOURCE_DIR "" CACHE PATH "Local Lorica checkout (empty = fetch the pinned commit)")
+# Lorica: リポの submodule (lib/lorica、commit は gitlink で固定) を使う。別の checkout を使うときは
+# -DLORICA_SOURCE_DIR=<path>。
+set(LORICA_SOURCE_DIR "" CACHE PATH "Lorica checkout (empty = the lib/lorica submodule)")
 set(LORICA_BUILD_PROTECTION OFF CACHE BOOL "" FORCE)
 set(LORICA_BUILD_TESTS OFF CACHE BOOL "" FORCE)
 if(LORICA_SOURCE_DIR)
-  add_subdirectory(${LORICA_SOURCE_DIR} ${CMAKE_BINARY_DIR}/_lorica EXCLUDE_FROM_ALL)
+  set(_di_lorica_dir ${LORICA_SOURCE_DIR})
 else()
-  FetchContent_Declare(lorica GIT_REPOSITORY https://github.com/LUDIARS/Lorica.git
-    GIT_TAG cab4f12086e30484f249d1b4aa479bf7cdec13a9)
-  FetchContent_MakeAvailable(lorica)
+  get_filename_component(_di_lorica_dir ${CMAKE_CURRENT_LIST_DIR}/../../lib/lorica ABSOLUTE)
 endif()
+if(NOT EXISTS ${_di_lorica_dir}/CMakeLists.txt)
+  message(FATAL_ERROR "Lorica が ${_di_lorica_dir} に無い。git submodule update --init lib/lorica を実行するか、"
+    "-DLORICA_SOURCE_DIR=<checkout> を渡す")
+endif()
+add_subdirectory(${_di_lorica_dir} ${CMAKE_BINARY_DIR}/_lorica EXCLUDE_FROM_ALL)
 
 FetchContent_MakeAvailable(json boost sqlite)
 

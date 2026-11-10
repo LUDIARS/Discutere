@@ -260,7 +260,7 @@ Json ok_with(const Json& payload, std::initializer_list<std::pair<const char*, J
 NewPaper new_paper_of(const std::string& session_id, const PaperDraft& d);
 
 
-inline void schedule_web_auto_approve_locked(const std::string& session_id);
+void schedule_web_auto_approve_locked(const std::string& session_id);
 
 void commit_body_md_locked(const std::string& session_id, WebPaperReview& entry, const std::string& body_md, const std::string& change_summary,
                            const std::string& origin);

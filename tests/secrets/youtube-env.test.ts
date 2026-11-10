@@ -18,8 +18,10 @@ test("status contains presence without exposing the secret", () => {
 
 test("catalog startup scripts use the injected environment without bootstrap", () => {
   const pkg = JSON.parse(readFileSync(new URL("../../package.json", import.meta.url), "utf8"));
-  assert.equal(pkg.scripts.dev, "tsx watch src/index.ts");
-  assert.equal(pkg.scripts["dev:server"], "tsx watch src/index.ts");
+  // 常駐サーバは C++ 版 (native/) で、Excubitor が実行ファイルを直接起動する。npm の起動スクリプトは持たない。
+  assert.equal(pkg.scripts.dev, undefined);
+  assert.equal(pkg.scripts["dev:server"], undefined);
+  assert.equal(pkg.scripts.start, undefined);
   assert.ok(!Object.keys(pkg.scripts).some((key) => key.startsWith("env:")));
   assert.ok(!JSON.stringify(pkg).match(/dotenv-cli|env-cli|--env-file/));
 });

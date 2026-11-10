@@ -10,3 +10,6 @@
 [submodule "lib/fundamentum"]
 	path = lib/fundamentum
 	url = https://github.com/LUDIARS/Fundamentum.git
+[submodule "lib/lorica"]
+	path = lib/lorica
+	url = https://github.com/LUDIARS/Lorica.git
