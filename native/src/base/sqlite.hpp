@@ -183,20 +183,25 @@ public:
         const bool outer = depth_ == 0;
         const std::string sp = "di_sp_" + std::to_string(depth_);
         exec(outer ? "BEGIN" : "SAVEPOINT " + sp);
-        ++depth_;
+        // 深さはこのスコープを抜けるときに 1 回だけ戻す。COMMIT / RELEASE 自体が失敗したときも
+        // catch に入るので、手で減らすと 2 回減って負になり、以後の SAVEPOINT 名が壊れる。
+        struct DepthGuard {
+            int& depth;
+            explicit DepthGuard(int& d) : depth(d) { ++depth; }
+            ~DepthGuard() { --depth; }
+            DepthGuard(const DepthGuard&) = delete;
+            DepthGuard& operator=(const DepthGuard&) = delete;
+        } guard(depth_);
         try {
             if constexpr (std::is_void_v<decltype(fn())>) {
                 fn();
-                --depth_;
                 exec(outer ? "COMMIT" : "RELEASE " + sp);
             } else {
                 auto r = fn();
-                --depth_;
                 exec(outer ? "COMMIT" : "RELEASE " + sp);
                 return r;
             }
         } catch (...) {
-            --depth_;
             try {
                 if (outer) exec("ROLLBACK");
                 else {
