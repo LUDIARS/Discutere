@@ -23,7 +23,7 @@ jobs:
   build-test:
     runs-on: ubuntu-latest
     steps:
-      # LUDIARS 依存 (llm-gateway/blackbox/sentiment-core/canalis/vestigium/fundamentum) は lib/* submodule。
+      # LUDIARS 依存 (llm-gateway/sentiment-core/canalis/fundamentum) は lib/* submodule。
       # 全て public repo なので素の GITHUB_TOKEN で取得できる。
       - uses: actions/checkout@v4
         with:
@@ -53,24 +53,28 @@ jobs:
       - name: Build (tsc)
         run: npm run build
 
-      # 動作テスト: 自作 tsx ランナー (node:assert)。Discord/LLM を叩かない
-      # 純ロジック/投影/ブリッジ/仮説/クローラ/可視化/ペルソナ/discord-hook を網羅。
-      - name: Tests (core + phases)
+      # 動作テスト: 自作 tsx ランナー (node:assert)。Discord/LLM を叩かない。
+      # 常駐サーバは C++ 版 (native/) に移したので、ここで見るのは運用スクリプト (scripts/) と
+      # サイドカー (native/sidecar) が使う TS だけ。
+      - name: Tests (core)
         run: |
           npm run test:core
           npm run test:ft
-          npm run test:phase2
           npm run test:phase3
           npm run test:phase4
-          npm run test:phase5
-          npm run test:phase6
-      - name: Tests (crawler / visualize / persona / discord-hook)
+          npm run test:kg-sync
+          npm run test:conclusion-cache
+      - name: Tests (crawler / visualize / persona / discord-hook / flow)
         run: |
           npm run test:crawler
+          npm run test:comment-history
           npm run test:visualize
           npm run test:persona-engine
           npm run test:discord-hook
-          npm run test:runtime-settings
-          npm run test:startup-guard
+          npm run test:mechanics-check
+          npm run test:level-check
+          npm run test:backup
           npm run test:flow
           npm run test:fundamentum-export
+          npm run test:vault-env
+          npm run test:setup-links

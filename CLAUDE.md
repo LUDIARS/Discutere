@@ -3,6 +3,18 @@
 **遊びの議論プラットフォーム (Discatier)** — Discord-only の自走議論 ChatBot。
 詳細は `README.md` / `spec/` / `docs/discatier_implementation_plan.md`。
 
+## 実装の所在 (2026-11-10)
+
+- **常駐サーバは C++ 版 (`native/`)**。Excubitor は `native/build/bin/discutere-server` を起動する。ビルド・テスト・規約は
+  `native/README.md` / `native/docs/PORTING.md`。Node 版サーバ (`src/index.ts` とサーバ専用モジュール) と Electron の
+  デスクトップ配布は撤去した。
+- **この文書の `src/a/b-c.ts` という記述は、サーバの機能については `native/src/a/b_c.{hpp,cpp}` を指す**
+  (ディレクトリ・ファイル名の `-` は `_`、名前空間 `di::a`)。機能を変えるときは C++ 側を直す。
+- `src/` に残る TS は運用スクリプト (`scripts/`、`npm run <名前>`) とサイドカー (`native/sidecar`: PDF/DOCX 抽出・
+  Notion クロール・tar.gz 作成) が import する分だけ。サーバと同じロジックを TS で持つスクリプト (headless 議論など) は
+  C++ 側の変更に追従しないので、挙動の正本は C++。
+- 検査: `ctest` (C++)、`npm run typecheck` と `npm run test:*` (残した TS)。検査用ビルドは `-DDI_SANITIZE=address,undefined` / `thread`。
+
 ## 認証モデル (Discord 依存 / Cernere 非使用) — canonical
 
 Discutere は **半ローカルツール(Discord ギルド内限定の議論 ChatBot)** として運用する。
@@ -83,15 +95,6 @@ env)。`discutere.config.example.json` 参照。詳細は `docs/ws-gateway-confi
   `GET /api/chat/:room/messages?since=` でポーリング取得する。 個人データは保存しない
   (author は表示名のみ)。 実装は `src/web-chat/` + `src/api/web-chat-routes.ts`。
 
-- **デスクトップアプリ配布 (Electron, 2026-07-02, `docs/desktop-app.md`)**: 既存 Node サーバを
-  無改変のまま Electron main プロセスで起動し BrowserWindow でトップページを開くランチャー構成
-  (`electron/main.mjs` + `electron-builder.yml`)。書き込みは全て userData (起動時に chdir)、初回に
-  `data/games`/`data/affects`/`worker-home`/config 雛形をシード。exe (NSIS + portable) は
-  `.github/workflows/desktop.yml` (windows-latest) でビルド、ローカルは `npm run app:dist:win`。
-  **kuzu は N-API でそのまま動くが better-sqlite3 は Electron ABI リビルド必須** (`app:rebuild`、
-  素の Node に戻すのは `app:rebuild:undo`)。Tauri は Node sidecar 同梱が必要になるため不採用。
-  **実配布 (タグ push → CI release) は「議論データ管理ツール」対応完了後**に行う運用 (下記)。
-
 - **LUDIARS 依存の submodule 化 (2026-07-09)**: `@ludiars/llm-gateway` / `@ludiars/blackbox`
   (実体は `LUDIARS/Lapilli` monorepo の `packages/{llm-gateway,blackbox}`) / `@ludiars/canalis` /
   `@ludiars/vestigium` (新規追加) / `fundamentum` (新規追加) を GitHub Packages 経由の npm 依存
@@ -102,8 +105,6 @@ env)。`discutere.config.example.json` 参照。詳細は `docs/ws-gateway-confi
   `actions/checkout` に `submodules: recursive` を付けるだけで済む (4 submodule 全て public repo)。
   Vestigium は `src/index.ts` の `installConsoleCapture()` 直後に `serviceCode: "discutere"` で配線
   (Actio と同パターン、pino 不使用のため `pinoTransport: false`)、graceful shutdown で `shutdown()`。
-  デスクトップ配布 (`desktop.yml`) は基礎挙動と無関係なので PR トリガーから外し、手動/タグ push のみに縮小
-  (下記デスクトップアプリ配布の節も参照)。
 
 - **議論データ管理ツール (Fundamentum export, 2026-07-09, `docs/fundamentum-export.md`)**: 議論
   (paper + 発話 + 結論) を Fundamentum (`lib/fundamentum`) へ **個別 export** できるようにした。

@@ -17,7 +17,7 @@ services:
     # (Odeum の odeum-relay と同じ形)。ビルド: cmake -S native -B native/build -G Ninja -DCMAKE_BUILD_TYPE=Release
     # && cmake --build native/build -j2 (native/README.md)。仕様書の PDF/DOCX 抽出・Notion 読み込み・バックアップの
     # tar.gz 作成は Node のサイドカー (native/sidecar) を呼ぶので、node と npm install 済みの node_modules は引き続き要る。
-    # 移行前は `node --run dev:server` (tsx watch)。main の更新で自動再起動しない (議論が消える問題も無くなる)。
+    # main の更新で自動再起動しない。
     runtime: node
     cwd: ${ARS_ROOT}/Discutere
     command: native/build/bin/discutere-server
