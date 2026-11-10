@@ -18,6 +18,10 @@ if(DI_SANITIZE)
   endif()
   add_compile_options(-fsanitize=${DI_SANITIZE} -fno-omit-frame-pointer -fno-sanitize-recover=undefined)
   add_link_options(-fsanitize=${DI_SANITIZE})
+  if(DI_SANITIZE MATCHES "thread" AND CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
+    # GCC は Boost.Asio が使う atomic_thread_fence を TSan で扱えないと警告する (-Wtsan)。-Werror で止めない。
+    add_compile_options(-Wno-tsan)
+  endif()
 endif()
 
 include(cmake/DiDependencies.cmake)
