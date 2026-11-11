@@ -164,10 +164,13 @@ public:
 
     void exec(std::string_view sql);
     RunResult run(std::string_view sql, const Params& params = {});
-    std::optional<Row> get(std::string_view sql, const Params& params = {});
+    /** 1 行。読む値の合計は limits.max_bytes まで (超えたら sql::Error SQLITE_TOOBIG)。 */
+    std::optional<Row> get(std::string_view sql, const Params& params = {}, const QueryLimits& limits = {});
     std::vector<Row> all(std::string_view sql, const Params& params = {}, const QueryLimits& limits = {});
     /** 1 行ずつ渡す (大きな結果を溜めずに処理する)。fn が false を返したら止める。 */
-    void each(std::string_view sql, const Params& params, const std::function<bool(const Row&)>& fn);
+    /** 1 行ごとの値の合計は limits.max_bytes まで、行数は limits.max_rows まで (超えたら sql::Error SQLITE_TOOBIG)。 */
+    void each(std::string_view sql, const Params& params, const std::function<bool(const Row&)>& fn,
+              const QueryLimits& limits = {});
     /** db.pragma("x") の単一値版 (例 pragma_value("journal_mode"))。 */
     std::optional<Value> pragma_value(std::string_view pragma);
     /** db.pragma("journal_mode = WAL") 相当 (結果は捨てる)。 */

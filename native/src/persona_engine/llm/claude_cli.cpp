@@ -22,7 +22,8 @@ ClaudeCliClient::ClaudeCliClient(ClaudeCliClientOptions options)
     : cli_path_(options.cliPath.value_or("claude")),
       default_timeout_ms_(options.defaultTimeoutMs.value_or(kDefaultTimeoutMs)),
       git_bash_path_(std::move(options.gitBashPath)),
-      default_model_(std::move(options.defaultModel)) {}
+      default_model_(std::move(options.defaultModel)),
+      max_output_bytes_(options.maxOutputBytes.value_or(kClaudeCliMaxOutputBytes)) {}
 
 std::string compose_prompt(const std::optional<std::string>& system, const std::string& user) {
     if (!system || system->empty()) return user;
@@ -40,10 +41,10 @@ std::vector<std::string> claude_cli_args(const std::optional<std::string>& model
     return args;
 }
 
-LLMResult parse_claude_cli_result(const std::string& raw) {
+LLMResult parse_claude_cli_result(const std::string& raw, std::size_t max_bytes) {
     std::string error;
     JsonLimits limits;
-    limits.max_bytes = 16u << 20;
+    limits.max_bytes = max_bytes;
     auto parsed = parse_json(raw, limits, &error);
     if (!parsed) return LLMResult::failure("claude cli json parse failed: " + error + ": " + str::js_slice(raw, 0, 200));
     const Json* env = nullptr;
@@ -111,6 +112,7 @@ LLMResult ClaudeCliClient::invoke(const LLMInvokeArgs& args) {
         options.cwd = env::cwd();
         options.stdin_data = prompt;
         options.timeout = std::chrono::milliseconds(timeout_ms);
+        options.max_stdout = max_output_bytes_;
         run = lib::one_shot::run(cli_path_, cli_args, options);
     } catch (const std::exception& e) {
         report_concordia_cost_one_shot({"discutere", "claude", command, model, env::cwd(), prompt, "error", -1,
@@ -137,7 +139,7 @@ LLMResult ClaudeCliClient::invoke(const LLMInvokeArgs& args) {
         result = LLMResult::failure("claude cli exit " + std::to_string(run.exit_code) + ": " + str::js_slice(run.err, 0, 200));
     } else {
         const std::string raw = str::trim(run.out);
-        result = raw.empty() ? LLMResult::failure("claude cli empty output") : parse_claude_cli_result(raw);
+        result = raw.empty() ? LLMResult::failure("claude cli empty output") : parse_claude_cli_result(raw, max_output_bytes_);
     }
     LlmLogArgs log_args;
     log_args.backend = "claude-cli";

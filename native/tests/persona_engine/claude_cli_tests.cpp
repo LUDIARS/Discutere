@@ -66,7 +66,7 @@ TEST_CASE("invoke runs a fake claude through argv and stdin") {
     const std::string fake = dir + "/claude";
     di::fs::write_file_atomic(fake, "#!/bin/sh\ninput=$(cat)\nprintf '{\"type\":\"result\",\"subtype\":\"success\",\"result\":\"%s\"}' \"$(printf %s \"$input\" | tr -d '\\n\\\"')\"\n");
     ::chmod(fake.c_str(), 0755);
-    ClaudeCliClient client({fake, std::nullopt, 10'000, std::nullopt});
+    ClaudeCliClient client({fake, std::nullopt, 10'000, std::nullopt, std::nullopt});
     LLMInvokeArgs args;
     args.prompt = "hello";
     args.system = "sys";
@@ -74,6 +74,49 @@ TEST_CASE("invoke runs a fake claude through argv and stdin") {
     CHECK(r.ok);
     CHECK_EQ(r.text, std::string("[system]sys[user]hello"));
 }
+
+TEST_CASE("claude -p output limit: exactly at the limit is read, limit + 1 and endless output fail") {
+    // 偽の claude は固定の JSON (改行なし) を出す。上限ちょうどなら読める、1 バイト少ない上限なら失敗。
+    const std::string dir = "/tmp/di-fake-claude-limit-" + std::to_string(::getpid());
+    di::fs::ensure_dir(dir);
+    const std::string body = R"({"type":"result","subtype":"success","result":"ok"})";
+    const std::string fixed = dir + "/claude-fixed";
+    di::fs::write_file_atomic(fixed, "#!/bin/sh\ncat >/dev/null\nprintf '%s' '" + body + "'\n");
+    ::chmod(fixed.c_str(), 0755);
+    LLMInvokeArgs args;
+    args.prompt = "p";
+    {
+        ClaudeCliClient client({fixed, std::nullopt, 10'000, std::nullopt, body.size()});
+        auto r = client.invoke(args);
+        CHECK(r.ok);
+        CHECK_EQ(r.text, std::string("ok"));
+    }
+    {
+        ClaudeCliClient client({fixed, std::nullopt, 10'000, std::nullopt, body.size() - 1});
+        auto r = client.invoke(args);
+        CHECK(!r.ok);
+        CHECK(r.error.find("output too large") != std::string::npos);
+    }
+    // 終わらない出力 (巨大な入力) は上限で子を止めて失敗にする (期限を待たない)。
+    const std::string endless = dir + "/claude-endless";
+    di::fs::write_file_atomic(endless, "#!/bin/sh\ncat >/dev/null\nexec yes xxxxxxxxxxxxxxxx\n");
+    ::chmod(endless.c_str(), 0755);
+    {
+        ClaudeCliClient client({endless, std::nullopt, 30'000, std::nullopt, std::size_t{1} << 20});
+        auto r = client.invoke(args);
+        CHECK(!r.ok);
+        CHECK(r.error.find("output too large") != std::string::npos);
+    }
+}
 #endif
+
+TEST_CASE("parse_claude_cli_result: byte limit at the boundary and broken input") {
+    const std::string body = R"({"type":"result","subtype":"success","result":"ok"})";
+    CHECK(parse_claude_cli_result(body, body.size()).ok);
+    CHECK(!parse_claude_cli_result(body, body.size() - 1).ok);
+    CHECK(!parse_claude_cli_result(body.substr(0, body.size() - 1)).ok);  // 壊れた JSON
+    CHECK(!parse_claude_cli_result(std::string(100, '[')).ok);           // 閉じない入れ子
+    CHECK(!parse_claude_cli_result(std::string(1000, '[') + std::string(1000, ']')).ok);  // 深さ 64 超
+}
 
 DI_TEST_MAIN()

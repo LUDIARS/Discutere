@@ -60,6 +60,29 @@ struct S3Options {
     std::int64_t now_ms = 0;
 };
 
+/** CompleteMultipartUpload の part 数の上限 (S3 の仕様)。 */
+inline constexpr std::size_t kMaxS3Parts = 10'000;
+
+/** multipart の part 1 つ (ファイル内の位置と長さ)。 */
+struct S3PartRange {
+    std::uint64_t offset = 0;
+    std::size_t length = 0;
+};
+
+/**
+ * size バイトのファイルを part_size ごとに分けたときの part 数。part_size が 0・part 数が kMaxS3Parts を
+ * 超える・計算が桁あふれする場合は nullopt (lorica::checked_* で計算する)。
+ */
+std::optional<std::uint64_t> s3_part_count(std::uint64_t size, std::size_t part_size);
+/** index 番目 (0 始まり) の part の範囲。範囲外・桁あふれは nullopt。 */
+std::optional<S3PartRange> s3_part_range(std::uint64_t size, std::size_t part_size, std::uint64_t index);
+
+/**
+ * S3 の XML 応答から <tag>…</tag> の最初の中身を取り出す (小さな応答だけに使う)。
+ * 位置の計算は lorica::checked_add / contains_range で確かめる。無い・壊れていれば nullopt。
+ */
+std::optional<std::string> s3_xml_tag(const std::string& xml, const std::string& tag);
+
 /** 失敗は std::runtime_error (秘密値は文言に含めない)。 */
 S3UploadResult upload_file_to_s3(const S3UploadArgs& args, const S3Options& options = {});
 

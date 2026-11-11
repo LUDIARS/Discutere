@@ -115,6 +115,35 @@ TEST_CASE("all() charges rows against the limit (boundary)") {
     CHECK_THROWS(db->all("SELECT v FROM s", {}, limits));
 }
 
+TEST_CASE("get() and each() charge values against the limit (boundary)") {
+    auto db = sql::Database::open(":memory:");
+    db->exec("CREATE TABLE s (v TEXT, b BLOB)");
+    db->run("INSERT INTO s VALUES ('abcd', x'0102')");  // 1 行 = 4 + 2 バイト
+    sql::QueryLimits limits;
+    limits.max_bytes = 6;  // ちょうど
+    CHECK(db->get("SELECT v, b FROM s", {}, limits).has_value());
+    limits.max_bytes = 5;  // 1 足りない
+    CHECK_THROWS(db->get("SELECT v, b FROM s", {}, limits));
+    // each: 値の大きさは 1 行ごと、行数は流しながら数える
+    for (int i = 0; i < 4; ++i) db->run("INSERT INTO s VALUES ('abcd', x'0102')");
+    limits.max_bytes = 6;
+    limits.max_rows = 5;
+    int seen = 0;
+    db->each("SELECT v, b FROM s", {}, [&](const sql::Row&) { ++seen; return true; }, limits);
+    CHECK_EQ(seen, 5);
+    limits.max_rows = 4;
+    seen = 0;
+    CHECK_THROWS(db->each("SELECT v, b FROM s", {}, [&](const sql::Row&) { ++seen; return true; }, limits));
+    CHECK_EQ(seen, 4);
+    limits.max_rows = 100;
+    limits.max_bytes = 5;
+    CHECK_THROWS(db->each("SELECT v, b FROM s", {}, [](const sql::Row&) { return true; }, limits));
+    // 大きな値 (DB 側で作る 1MiB の文字列) は上限で断り、その後も DB は使える
+    limits.max_bytes = 1024;
+    CHECK_THROWS(db->get("SELECT hex(zeroblob(524288)) AS v", {}, limits));
+    CHECK_EQ(db->get("SELECT 1 AS v")->value(0).as_int(), std::int64_t{1});
+}
+
 TEST_CASE("sqlite version is the one bundled by better-sqlite3 13.0.3") {
     auto db = sql::Database::open(":memory:");
     CHECK_EQ(db->get("SELECT sqlite_version() AS v")->str("v"), std::string("3.53.4"));
