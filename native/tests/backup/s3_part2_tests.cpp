@@ -112,6 +112,28 @@ TEST_CASE("失敗: 403 は例外 (秘密値を含めない)・応答上限・期
     }
     first.join();
     CHECK(first_done.load());
+    // 待つ側: 先の upload が queue_wait の内に終われば、待っていた upload が枠を取って進む
+    // (枠は mutex + condition_variable。失敗で抜けた upload も枠を返す)。
+    std::thread holder([&] {
+        try {
+            upload_file_to_s3(a);
+        } catch (...) {
+        }
+    });
+    std::this_thread::sleep_for(std::chrono::milliseconds(200));
+    S3Options patient;
+    patient.queue_wait = std::chrono::milliseconds(5000);
+    patient.request_timeout = std::chrono::milliseconds(2000);
+    const auto t1 = std::chrono::steady_clock::now();
+    bool waited_ok = false;
+    try {
+        upload_file_to_s3(a, patient);
+        waited_ok = true;
+    } catch (const std::exception&) {
+    }
+    CHECK(waited_ok);
+    CHECK(std::chrono::steady_clock::now() - t1 >= std::chrono::milliseconds(400));
+    holder.join();
     slow.stop();
     std::filesystem::remove_all(fs::to_path(dir));
 }

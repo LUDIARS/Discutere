@@ -1,6 +1,8 @@
 #include "backup/s3.hpp"
 
 #include <algorithm>
+#include <chrono>
+#include <condition_variable>
 #include <cstdio>
 #include <fstream>
 #include <mutex>
@@ -27,10 +29,49 @@ constexpr std::size_t kMaxCredentialsFileBytes = 256 * 1024;
 /** UploadPart の応答の ETag の上限 (S3 の ETag は "<32 桁の 16 進>" で 34 バイト)。 */
 constexpr std::size_t kMaxS3EtagBytes = 1024;
 
-std::timed_mutex& upload_slot() {
-    static std::timed_mutex m;
-    return m;
+/**
+ * 同時に走らせる upload を 1 本にする枠。std::timed_mutex の try_lock_for は glibc の
+ * pthread_mutex_clocklock を使い、GCC 13 の TSan はそれを捕まえないので「ロックしていない mutex の
+ * 解放」と誤って報告する。mutex + condition_variable で同じ「最大 queue_wait 待って取れなければ断る」を作る。
+ */
+class UploadSlot {
+public:
+    bool try_acquire_for(std::chrono::milliseconds wait) {
+        std::unique_lock lock(mutex_);
+        if (!cv_.wait_for(lock, wait, [this] { return !busy_; })) return false;
+        busy_ = true;
+        return true;
+    }
+    void release() {
+        {
+            std::lock_guard lock(mutex_);
+            busy_ = false;
+        }
+        cv_.notify_one();
+    }
+
+private:
+    std::mutex mutex_;
+    std::condition_variable cv_;
+    bool busy_ = false;
+};
+
+UploadSlot& upload_slot() {
+    static UploadSlot slot;
+    return slot;
 }
+
+/** upload_slot を取った間だけ持つ (例外で抜けても返す)。 */
+class UploadSlotHold {
+public:
+    explicit UploadSlotHold(UploadSlot& slot) : slot_(slot) {}
+    UploadSlotHold(const UploadSlotHold&) = delete;
+    UploadSlotHold& operator=(const UploadSlotHold&) = delete;
+    ~UploadSlotHold() { slot_.release(); }
+
+private:
+    UploadSlot& slot_;
+};
 
 std::string trim_header_value(std::string_view v) { return str::squish(v); }
 
@@ -316,8 +357,8 @@ S3UploadResult upload_file_to_s3(const S3UploadArgs& args, const S3Options& opti
     if (!creds) throw std::runtime_error("S3 upload: credentials not found (args / env / shared credentials file)");
     const std::string storage_class = args.storageClass.value_or("STANDARD");
 
-    std::unique_lock slot(upload_slot(), std::defer_lock);
-    if (!slot.try_lock_for(options.queue_wait)) throw std::runtime_error("S3 upload: another upload is still running");
+    if (!upload_slot().try_acquire_for(options.queue_wait)) throw std::runtime_error("S3 upload: another upload is still running");
+    const UploadSlotHold slot(upload_slot());
 
     Signer signer(args, options, *creds);
     const std::vector<std::pair<std::string, std::string>> object_headers = {
