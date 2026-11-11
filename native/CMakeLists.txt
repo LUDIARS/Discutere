@@ -6,6 +6,10 @@ set(CMAKE_CXX_EXTENSIONS OFF)
 set(CMAKE_POLICY_VERSION_MINIMUM 3.5)
 include(FetchContent)
 include(CTest)
+# tests/lorica_applied の lorica_applied.compile_commands が全翻訳単位のコンパイルコマンドを読む。
+if(PROJECT_IS_TOP_LEVEL)
+  set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
+endif()
 
 option(DI_WARNINGS_AS_ERRORS "Treat compiler warnings in Discutere sources as errors" ON)
 

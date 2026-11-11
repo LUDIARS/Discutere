@@ -38,6 +38,19 @@ WIP コミットは無い。2 代目の担当が引き継いで、sanitizer・fu
 - `compile_commands.json` (637 件): 守りの設定がすべてにあり、打ち消す設定は 0 件。
 - `anatomia domains program --repo . --unclassified`: origin/main からこのブランチで変えたファイルに未分類は無い。
 
+### 追加: 「Lorica を使っているか」のテスト (COMMON-4 作業 B、`native/tests/lorica_applied/`)
+
+- ctest に 4 本: `lorica_applied.baseline` / `.server` (同じソースを `di_harden(<t>)` と `di_harden(<t> SERVER)` で作り、
+  翻訳単位の中から強制 include の印 (先頭より前の `strcpy` 宣言・glibc の `_FEATURES_H`)、`_GLIBCXX_ASSERTIONS`、
+  `_LIBCPP_HARDENING_MODE` の FAST/EXTENSIVE、Release の `_FORTIFY_SOURCE=3`、`checked_add` / `input_budget` を見る。
+  サーバが baseline に下がった構成では `.server` が理由を出して skip)、`.compile_commands` (`cmake -P` で全エントリの
+  フラグと打ち消し。C の `di_sqlite` は C のフラグだけ)、`.verify_binary` (python3 があるとき `discutere-server`)。
+- わざと壊して確かめた: `di_harden` を外したビルド単位・`discutere-server` の SERVER と unsafe API の拒否を外す・
+  `di_sqlite` に `-fcf-protection=none`・`-U_GLIBCXX_ASSERTIONS` で、`.baseline` / `.server` / `.compile_commands` が落ちた。
+  `DI_LORICA_PROFILE=baseline` では `.server` が Skipped になった。
+- configure 時に「未適用のビルド単位で止める」網羅の確認は Discutere には無いまま ((d) の残り)。代わりに
+  `.compile_commands` が、Discutere のソースを持つ全エントリに守りがあることを ctest で見る。
+
 ## (b) 済んだが確かめていないこと
 
 - MSVC / Windows のビルド、Clang の通常ビルド、本社での結合テスト・実機 (外部サービスへの実接続)。

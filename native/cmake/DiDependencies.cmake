@@ -56,6 +56,8 @@ if(GIT_FOUND AND EXISTS ${_di_lorica_dir}/.git)
   endif()
 endif()
 add_subdirectory(${_di_lorica_dir} ${CMAKE_BINARY_DIR}/_lorica EXCLUDE_FROM_ALL)
+# tests/lorica_applied が Lorica の tools/verify_binary.py を探すのに使う。
+set(DI_LORICA_DIR ${_di_lorica_dir})
 
 FetchContent_MakeAvailable(json boost sqlite)
 

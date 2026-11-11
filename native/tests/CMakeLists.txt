@@ -27,3 +27,6 @@ endforeach()
 
 # fuzz の入口と、その回帰用の実行ファイル (tests/fuzz/CMakeLists.txt)。
 add_subdirectory(fuzz)
+
+# Lorica が実際に掛かっているかをビルドの結果から見るテスト (tests/lorica_applied/CMakeLists.txt)。
+add_subdirectory(lorica_applied)
