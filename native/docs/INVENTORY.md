@@ -10,7 +10,7 @@
 |---|---|---|---|---|
 | Boost (Asio/Beast, ヘッダのみ) | 1.87.0 | github boostorg `boost-1.87.0-b2-nodocs.zip` | `40efbb1f38b8cf186fd7bb12809f561ae1c233bae0f75146862e9bfce77d0d42` (指示書の値と一致) | HTTP サーバ/クライアント, WebSocket |
 | nlohmann_json | 3.11.3 | github nlohmann `json.tar.xz` | `d6c65aca6b1ed68e7a182f4757257b107ae403032760ed6ef121c9d55e81757d` (一致) | JSON |
-| Lorica | commit `cab4f12086e30484f249d1b4aa479bf7cdec13a9` | github LUDIARS/Lorica (submodule `lib/lorica`) | (gitlink で commit 固定) | `Lorica::boundary`, `lorica_harden_target` |
+| Lorica | commit `5e8281b0e60fa16f814e16eaa620715937e8618d` | github LUDIARS/Lorica (submodule `lib/lorica`) | (gitlink で commit 固定) | `Lorica::boundary`, `lorica_harden_target` |
 | OpenSSL | 3.0.13 (ubuntu `libssl-dev`) | システム | — | TLS, SHA-256, HMAC, Ed25519, 乱数 |
 | SQLite | 3.53.4 | npm `better-sqlite3-13.0.3.tgz` 同梱の amalgamation (`deps/sqlite3/sqlite3.c`) | tgz `77e0513dc1a469fb3bceec4c7fb5ad3f403109787eda05be047ec17fd56868cb` / sqlite3.c `6a2805f8c1ef020a7086e62258519323cf98b219e9fe87a42065d916cfebaefc` / sqlite3.h `919e7f2e8ed1d8f56ac17b412b8971c76aa5d1a879752cc6058f75e7d5910e1d` | DB (移行前と同じ実体・同じコンパイル定義) |
 | Kuzu | 0.11.3 | npm `kuzu-0.11.3.tgz` | `6cda34f2536c05f831ef86f0e5370b5d0204a51ac3bac99580d9ec5d333c88bf` | **常駐サーバでは未使用** (下記) のため C++ ビルドには入れない |

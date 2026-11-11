@@ -14,7 +14,7 @@ Discutere の常駐サーバ (C++20)。Node.js 版 (`src/index.ts`) から移し
 | Boost (Asio / Beast、ヘッダのみ) | 1.87.0 | URL_HASH SHA256 |
 | nlohmann_json | 3.11.3 | URL_HASH SHA256 |
 | SQLite (better-sqlite3 13.0.3 同梱の amalgamation) | 3.53.4 | URL_HASH SHA256 (npm tarball) |
-| Lorica | commit cab4f12 | submodule `lib/lorica` (gitlink) |
+| Lorica | commit 5e8281b | submodule `lib/lorica` (gitlink) |
 | OpenSSL | 3.x | システム |
 
 Node のまま残す機能 (PDF/DOCX 抽出・Notion クロール・tar.gz 作成) は `sidecar/` を別プロセスで呼ぶ (`sidecar/README.md`)。
