@@ -24,3 +24,6 @@ foreach(source ${DI_TEST_SOURCES})
     ENVIRONMENT "DI_TEST_FIXTURES=${CMAKE_CURRENT_SOURCE_DIR}/fixtures;DI_REPO_ROOT=${PROJECT_SOURCE_DIR}/.."
     TIMEOUT 120)
 endforeach()
+
+# fuzz の入口と、その回帰用の実行ファイル (tests/fuzz/CMakeLists.txt)。
+add_subdirectory(fuzz)
