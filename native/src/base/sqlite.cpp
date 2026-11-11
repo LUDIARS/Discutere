@@ -326,7 +326,7 @@ RunResult Database::run(std::string_view sql, const Params& params) {
     return {sqlite3_changes64(db_), sqlite3_last_insert_rowid(db_)};
 }
 
-std::optional<Row> Database::get(std::string_view sql, const Params& params) {
+std::optional<Row> Database::get(std::string_view sql, const Params& params, const QueryLimits& limits) {
     std::lock_guard lock(mutex_);
     sqlite3_stmt* stmt = prepare_cached(sql);
     ResetOnExit reset{stmt};
@@ -334,7 +334,7 @@ std::optional<Row> Database::get(std::string_view sql, const Params& params) {
     const int rc = sqlite3_step(stmt);
     if (rc == SQLITE_DONE) return std::nullopt;
     if (rc != SQLITE_ROW) throw_error("get");
-    lorica::input_budget budget({QueryLimits{}.max_bytes, 1, 1, 1});
+    lorica::input_budget budget({limits.max_bytes, 1, 1, 1});
     return read_row(stmt, &budget);
 }
 
@@ -355,16 +355,20 @@ std::vector<Row> Database::all(std::string_view sql, const Params& params, const
     return rows;
 }
 
-void Database::each(std::string_view sql, const Params& params, const std::function<bool(const Row&)>& fn) {
+void Database::each(std::string_view sql, const Params& params, const std::function<bool(const Row&)>& fn,
+                    const QueryLimits& limits) {
     std::lock_guard lock(mutex_);
     sqlite3_stmt* stmt = prepare_cached(sql);
     ResetOnExit reset{stmt};
     bind(stmt, params);
+    std::size_t rows = 0;
     while (true) {
         const int rc = sqlite3_step(stmt);
         if (rc == SQLITE_DONE) break;
         if (rc != SQLITE_ROW) throw_error("each");
-        lorica::input_budget budget({QueryLimits{}.max_bytes, 1, 1, 1});
+        // 行数は流しながら数える (溜めないので行ごとの確保は 1 回)。値の大きさは 1 行ごとに課金する。
+        if (++rows > limits.max_rows) throw Error("sql: too many rows", SQLITE_TOOBIG, SQLITE_TOOBIG);
+        lorica::input_budget budget({limits.max_bytes, 1, 1, 1});
         if (!fn(read_row(stmt, &budget))) break;
     }
 }

@@ -1,0 +1,14 @@
+{
+  "$comment": "Anatomia のプログラムドメイン (二層判定) 用の層宣言。業務ドメインの正本は spec/domains/*.domain.json のまま。glob はリポ相対のファイルパスに完全一致で当たる (`*` = 1 階層、`**` = 何階層でも)。Anatomia の module 単位はディレクトリなので、ディレクトリ 1 つに 1 本だけ置く。宣言してあるのは job cpp-lorica-20261111 で変えた C++ 版 (native/) のディレクトリだけ: OS・ファイル・SQLite (接続・スキーマ・migration を含む)・子プロセス・HTTP/WebSocket・S3・LLM の外部プロセスに触る部品は infrastructure、front matter の読み書き (純関数) は domain、テストと fuzz は verification。ほかの native/src と Node 版 (src/ scripts/ tests/) は未宣言 (層の割り当ては人間の確認が要る)。確認は `anatomia domains program --repo . --unclassified`。",
+  "layers": [
+    { "glob": "native/src/backup/*", "layer": "infrastructure" },
+    { "glob": "native/src/base/*", "layer": "infrastructure" },
+    { "glob": "native/src/db/*", "layer": "infrastructure" },
+    { "glob": "native/src/flow/db/*", "layer": "infrastructure" },
+    { "glob": "native/src/infra/*", "layer": "infrastructure" },
+    { "glob": "native/src/lib/front_matter/*", "layer": "domain" },
+    { "glob": "native/src/persona_engine/llm/*", "layer": "infrastructure" },
+    { "glob": "native/tests/**", "layer": "verification" }
+  ],
+  "mergeCouplingThreshold": 1
+}

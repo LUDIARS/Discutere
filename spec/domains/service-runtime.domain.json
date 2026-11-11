@@ -5,6 +5,7 @@
   "templateRules": [],
   "membership": [
     { "pathPattern": "(^|/)native/src/config[.](?:cpp|hpp)$" },
+    { "pathPattern": "(^|/)native/cmake/(?:.*/)?[^/]+$" },
     {
       "pathPattern": "(^|/)src/config/(?:.*/)?[^/]+$"
     },

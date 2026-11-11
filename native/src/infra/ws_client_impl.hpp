@@ -184,6 +184,13 @@ private:
                 req.set(k, v);
             }
         }));
+        // 圧縮 (permessage-deflate) は交渉しない (Beast の既定と同じだが明示する)。展開後の大きさを
+        // 上限で見る経路を持たないため、圧縮されたフレーム (RSV1) は Beast がプロトコル違反として断る。
+        websocket::permessage_deflate pmd;
+        pmd.client_enable = false;
+        pmd.server_enable = false;
+        ws_->set_option(pmd);
+        // 1 メッセージ (分割フレームをつないだ後) の上限。Beast はフレームの長さを読んだ時点 (確保の前) に断る。
         ws_->read_message_max(options_.max_message_bytes);
         ws_->async_handshake(host_header_, url_.target, [this](const error_code& e) {
             if (e) return connect_failed(e);

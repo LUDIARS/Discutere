@@ -40,7 +40,8 @@ std::optional<Matter> parse(std::string_view text, std::string* error = nullptr,
 /** YAML の部分集合だけを読む (front matter の中身)。 */
 std::optional<Json> parse_yaml(std::string_view yaml, std::string* error = nullptr, const Limits& limits = {});
 
-/** matter.stringify(content, data)。data が空 object なら content だけ (末尾改行を補う)。 */
+/** matter.stringify(content, data)。data が空 object なら content だけ (末尾改行を補う)。
+ *  content を parse し直すので、content の先頭の front matter が読めなければ std::runtime_error を投げる。 */
 std::string stringify(std::string_view content, const Json& data);
 
 /** js-yaml 3.15 safeDump(data) (末尾改行つき)。 */

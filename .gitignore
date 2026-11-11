@@ -35,8 +35,10 @@ release/
 # LLM 実行ログ / cost queue JSONL (src/persona-engine/llm が cwd/logs に書き出す)
 logs/
 
-# Anatomia のローカル状態 (ドメイン定義の正本は spec/domains/)
-.anatomia/
+# Anatomia のローカル状態 (ドメイン定義の正本は spec/domains/)。
+# 層の宣言 (プログラムドメインの二層判定が読む) だけは追跡する。
+.anatomia/*
+!.anatomia/layers.json
 
 # native の CMake ビルド出力 (Excubitor は native/build/bin/discutere-server を起動する)
 native/build/

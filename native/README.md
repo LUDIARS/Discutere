@@ -14,7 +14,7 @@ Discutere の常駐サーバ (C++20)。Node.js 版 (`src/index.ts`) から移し
 | Boost (Asio / Beast、ヘッダのみ) | 1.87.0 | URL_HASH SHA256 |
 | nlohmann_json | 3.11.3 | URL_HASH SHA256 |
 | SQLite (better-sqlite3 13.0.3 同梱の amalgamation) | 3.53.4 | URL_HASH SHA256 (npm tarball) |
-| Lorica | commit 5e8281b | submodule `lib/lorica` (gitlink) |
+| Lorica | commit 5e8281b (`5e8281b0e60fa16f814e16eaa620715937e8618d`) | submodule `lib/lorica` (gitlink)。`DiDependencies.cmake` の `DI_LORICA_COMMIT` と照合 |
 | OpenSSL | 3.x | システム |
 
 Node のまま残す機能 (PDF/DOCX 抽出・Notion クロール・tar.gz 作成) は `sidecar/` を別プロセスで呼ぶ (`sidecar/README.md`)。
@@ -31,6 +31,21 @@ Lorica は submodule なので、最初に `git submodule update --init lib/lori
 `-DLORICA_SOURCE_DIR=<path>`)。取得済みの Boost / JSON / SQLite を使うときは
 `-DFETCHCONTENT_SOURCE_DIR_{BOOST,JSON,SQLITE}=<展開先>` (`tools/build.sh` が既定の場所を見る)。
 実行ファイルは `build/bin/discutere-server`。
+
+## Lorica の守り (job cpp-lorica-20261111)
+
+全ビルド単位は `cmake/DiHardening.cmake` の `di_harden()` を通す: `Lorica::boundary` のリンク、`lorica_harden_target`、
+C++ のビルド単位には `lorica_deprecate_unsafe_apis` (`strcpy` 等の使用をコンパイルエラーにする。`DI_DEPRECATE_UNSAFE_APIS`)。
+常駐サーバに入る単位 (`di_sqlite` `di_base` `di_infra` `di_app` `discutere-server`) は `DI_LORICA_PROFILE` に従う:
+`auto` (既定。使えれば EXTENDED、使えなければ baseline で理由を出す) / `extended` (必須) / `baseline`。
+Lorica の checkout が git なら HEAD を `DI_LORICA_COMMIT` と照合し、違えば configure を止める
+(試すときだけ `-DDI_LORICA_ALLOW_OTHER_COMMIT=ON`)。できた実行ファイルは Lorica の
+`tools/verify_binary.py build/bin/discutere-server` で点検する。
+
+## fuzz の入口
+
+`tests/fuzz/fuzz_<name>.cpp` (libFuzzer 形式)。いつものビルドでは固定の入力で 1 回ずつ呼ぶ `fuzz.<name>` が ctest に入る。
+libFuzzer で回すときは Clang で `-DDI_FUZZ=ON` (`tests/fuzz/CMakeLists.txt` の例)。
 
 ## 起動
 

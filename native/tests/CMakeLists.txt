@@ -18,9 +18,15 @@ foreach(source ${DI_TEST_SOURCES})
   # テストは Beast で偽のサーバ (WebSocket 等) を立てることがあるので di_boost も使える。
   target_link_libraries(${target_name} PRIVATE di_app di_boost)
   di_target_warnings(${target_name})
-  lorica_harden_target(${target_name})
+  di_harden(${target_name})
   add_test(NAME ${test_name} COMMAND ${target_name})
   set_tests_properties(${test_name} PROPERTIES
     ENVIRONMENT "DI_TEST_FIXTURES=${CMAKE_CURRENT_SOURCE_DIR}/fixtures;DI_REPO_ROOT=${PROJECT_SOURCE_DIR}/.."
     TIMEOUT 120)
 endforeach()
+
+# fuzz の入口と、その回帰用の実行ファイル (tests/fuzz/CMakeLists.txt)。
+add_subdirectory(fuzz)
+
+# Lorica が実際に掛かっているかをビルドの結果から見るテスト (tests/lorica_applied/CMakeLists.txt)。
+add_subdirectory(lorica_applied)
