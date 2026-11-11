@@ -24,8 +24,21 @@ if(DI_SANITIZE)
   endif()
 endif()
 
+# fuzz の入口 (libFuzzer、Clang のみ。既定 OFF で GCC のビルドには影響しない)。ON のときは全体を
+# -fsanitize=fuzzer-no-link で計装する (入口以外のコードの到達も libFuzzer に見えるように)。
+option(DI_FUZZ "Build libFuzzer entry points (Clang only)" OFF)
+if(DI_FUZZ)
+  if(NOT CMAKE_CXX_COMPILER_ID STREQUAL "Clang")
+    message(FATAL_ERROR "DI_FUZZ needs Clang (libFuzzer)")
+  endif()
+  add_compile_options(-fsanitize=fuzzer-no-link)
+endif()
+
 include(cmake/DiDependencies.cmake)
 include(cmake/DiWarnings.cmake)
+include(cmake/DiHardening.cmake)
+# 第三者の SQLite amalgamation (ソースからビルドする C)。守りは掛け、unsafe API の拒否は C なので掛けない。
+di_harden(di_sqlite SERVER C_SOURCES)
 
 # base: 文字列・JSON・暗号・ログ・子プロセス・SQLite ラッパ (Boost 非依存)。
 file(GLOB_RECURSE DI_BASE_SOURCES CONFIGURE_DEPENDS ${CMAKE_CURRENT_SOURCE_DIR}/src/base/*.cpp)
@@ -40,7 +53,7 @@ target_include_directories(di_base PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/src)
 target_link_libraries(di_base PUBLIC Lorica::boundary nlohmann_json::nlohmann_json di_sqlite
   OpenSSL::SSL OpenSSL::Crypto Threads::Threads)
 di_target_warnings(di_base)
-lorica_harden_target(di_base)
+di_harden(di_base SERVER)
 
 # infra: Boost.Beast を含む翻訳単位はここだけに閉じ込める (重いので)。
 file(GLOB_RECURSE DI_INFRA_SOURCES CONFIGURE_DEPENDS ${CMAKE_CURRENT_SOURCE_DIR}/src/infra/*.cpp)
@@ -50,7 +63,7 @@ if(WIN32)
   target_link_libraries(di_infra PRIVATE crypt32)
 endif()
 di_target_warnings(di_infra)
-lorica_harden_target(di_infra)
+di_harden(di_infra SERVER)
 
 # app: TS の src/ を写したモジュール群 (base / infra / main.cpp 以外の全 .cpp)。
 file(GLOB_RECURSE DI_APP_SOURCES CONFIGURE_DEPENDS ${CMAKE_CURRENT_SOURCE_DIR}/src/*.cpp)
@@ -63,12 +76,12 @@ else()
 endif()
 target_link_libraries(di_app PUBLIC di_infra)
 di_target_warnings(di_app)
-lorica_harden_target(di_app)
+di_harden(di_app SERVER)
 
 add_executable(discutere-server src/main.cpp)
 target_link_libraries(discutere-server PRIVATE di_app)
 di_target_warnings(discutere-server)
-lorica_harden_target(discutere-server)
+di_harden(discutere-server SERVER)
 set_target_properties(discutere-server PROPERTIES RUNTIME_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/bin"
   RUNTIME_OUTPUT_DIRECTORY_RELEASE "${CMAKE_BINARY_DIR}/bin" RUNTIME_OUTPUT_DIRECTORY_DEBUG "${CMAKE_BINARY_DIR}/bin")
 install(TARGETS discutere-server RUNTIME DESTINATION bin)

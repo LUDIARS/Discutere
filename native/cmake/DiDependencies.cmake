@@ -37,6 +37,24 @@ if(NOT EXISTS ${_di_lorica_dir}/CMakeLists.txt)
   message(FATAL_ERROR "Lorica が ${_di_lorica_dir} に無い。git submodule update --init lib/lorica を実行するか、"
     "-DLORICA_SOURCE_DIR=<checkout> を渡す")
 endif()
+# 固定する commit (LUDIARS の C++ 各リポで共通、job cpp-lorica-20261111)。gitlink もこの値。
+# checkout が git の作業ツリーなら HEAD を照合し、違えば止める (別の commit を試すときだけ
+# -DDI_LORICA_ALLOW_OTHER_COMMIT=ON)。git でない展開物 (tarball 等) は照合できないので照合しない。
+set(DI_LORICA_COMMIT 5e8281b0e60fa16f814e16eaa620715937e8618d)
+option(DI_LORICA_ALLOW_OTHER_COMMIT "Allow a Lorica checkout whose HEAD differs from DI_LORICA_COMMIT" OFF)
+find_package(Git QUIET)
+if(GIT_FOUND AND EXISTS ${_di_lorica_dir}/.git)
+  execute_process(COMMAND ${GIT_EXECUTABLE} -C ${_di_lorica_dir} rev-parse HEAD
+    OUTPUT_VARIABLE _di_lorica_head OUTPUT_STRIP_TRAILING_WHITESPACE ERROR_QUIET RESULT_VARIABLE _di_lorica_rc)
+  if(_di_lorica_rc EQUAL 0 AND NOT _di_lorica_head STREQUAL DI_LORICA_COMMIT)
+    if(DI_LORICA_ALLOW_OTHER_COMMIT)
+      message(WARNING "Lorica ${_di_lorica_dir} は ${_di_lorica_head} (固定は ${DI_LORICA_COMMIT})")
+    else()
+      message(FATAL_ERROR "Lorica ${_di_lorica_dir} は ${_di_lorica_head} で、固定の ${DI_LORICA_COMMIT} と違う。"
+        "git submodule update --init lib/lorica を実行する (別の commit を試すなら -DDI_LORICA_ALLOW_OTHER_COMMIT=ON)")
+    endif()
+  endif()
+endif()
 add_subdirectory(${_di_lorica_dir} ${CMAKE_BINARY_DIR}/_lorica EXCLUDE_FROM_ALL)
 
 FetchContent_MakeAvailable(json boost sqlite)
@@ -74,4 +92,4 @@ else()
   target_compile_options(di_sqlite PRIVATE -w)
   target_link_libraries(di_sqlite PUBLIC ${CMAKE_DL_LIBS} m)
 endif()
-lorica_harden_target(di_sqlite)
+# 守り (lorica_harden_target) は CMakeLists.txt で di_harden(di_sqlite SERVER C_SOURCES) として掛ける。
