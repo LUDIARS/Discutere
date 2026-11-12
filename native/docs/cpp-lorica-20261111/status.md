@@ -50,6 +50,9 @@ WIP コミットは無い。2 代目の担当が引き継いで、sanitizer・fu
   `DI_LORICA_PROFILE=baseline` では `.server` が Skipped になった。
 - configure 時に「未適用のビルド単位で止める」網羅の確認は Discutere には無いまま ((d) の残り)。代わりに
   `.compile_commands` が、Discutere のソースを持つ全エントリに守りがあることを ctest で見る。
+- (COMMON-5, 2026-11-12) `lorica_applied_check.cpp` の probe (requires の中の未評価の式で宣言の有無を見る。呼んではいない) を、
+  名前をマクロ `DI_LORICA_PROBE_UNSAFE_NAME` で綴る書き方にした (Praesidium の native.unbounded-copy に当たらないように)。
+  この job で変えた C/C++ 23 ファイルの検査は 0 件 (直す前もテスト以外は 0 件)。強制 include を外すと `.baseline` / `.server` は従来どおり落ちる。
 
 ## (b) 済んだが確かめていないこと
 

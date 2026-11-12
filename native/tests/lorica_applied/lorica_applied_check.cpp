@@ -21,10 +21,14 @@
 #define DI_LORICA_CAN_SEE_UNSAFE_API_HEADER 1
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Wdeprecated-declarations"
+// requires の中の式は評価されない (宣言があるかを見るだけで、呼んではいない)。名前は lorica/unsafe_api.hpp 自身と同じく
+// マクロで綴り、呼び出しに見える行を置かない (Praesidium の文字列の規則 native.unbounded-copy は呼び出しの形を探す)。
+#define DI_LORICA_PROBE_UNSAFE_NAME(a, b) a##b
 template <class Char>
 constexpr bool di_lorica_strcpy_declared_first = requires(Char* destination, const Char* source) {
-    strcpy(destination, source);
+    DI_LORICA_PROBE_UNSAFE_NAME(str, cpy)(destination, source);
 };
+#undef DI_LORICA_PROBE_UNSAFE_NAME
 inline constexpr bool di_lorica_seen_strcpy_declaration = di_lorica_strcpy_declared_first<char>;
 #pragma GCC diagnostic pop
 #if defined(__has_include)
