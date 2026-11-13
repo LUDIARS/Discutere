@@ -1,0 +1,12 @@
+{
+  "name": "creator-insight",
+  "description": "同意済みのログ・コード・ポートフォリオ・アンケートから、人生脚本・性格・プレイタイプの対話用の仮説を作るスキルと、その集計ツール。サーバ機能、KG書込、議論の起動は所有しない。",
+  "presetRules": [],
+  "templateRules": [],
+  "membership": [
+    { "pathPattern": "(^|/)skills/creator-insight/(?:.*/)?[^/]+$" },
+    { "pathPattern": "(^|/)scripts/creator-insight/(?:.*/)?[^/]+$" },
+    { "pathPattern": "(^|/)tests/creator-insight/(?:.*/)?[^/]+$" }
+  ],
+  "specRefs": ["DI-CI-01", "DI-CI-02", "DI-CI-03", "DI-CI-04", "DI-CI-05", "DI-CI-06", "DI-CI-07", "つくり手インサイト"]
+}
