@@ -1,0 +1,226 @@
+{
+  "schemaVersion": 1,
+  "id": "life-script-ja",
+  "revision": "2026-11-13",
+  "locale": "ja-JP",
+  "context": "制作・学習・チーム活動の場面",
+  "instructions": [
+    "ふだんの制作・学習・チーム活動を思い浮かべて答えてください。",
+    "正解はありません。評価や選考には使いません。",
+    "答えたくない設問は飛ばしてかまいません。",
+    "考え込まず、最初に浮かんだ感覚で選んでください。"
+  ],
+  "scale": {
+    "type": "likert4",
+    "labels": {
+      "1": "あてはまらない",
+      "2": "あまりあてはまらない",
+      "3": "ややあてはまる",
+      "4": "あてはまる"
+    }
+  },
+  "presentation": {
+    "shuffleWithinSection": true,
+    "seed": "life-script-ja-1"
+  },
+  "labels": {
+    "be_perfect": "完全であれ",
+    "be_strong": "強くあれ",
+    "try_hard": "努力せよ",
+    "please_others": "喜ばせよ",
+    "hurry_up": "急げ",
+    "until": "〜までは",
+    "after": "〜の後は",
+    "never": "決して",
+    "always": "いつも",
+    "almost": "もう少しで",
+    "open_ended": "結末なし",
+    "self": "自己への構え",
+    "other": "他者への構え"
+  },
+  "sections": [
+    {
+      "id": "drivers",
+      "title": "ドライバー",
+      "type": "likert",
+      "items": [
+        { "id": "D-BP-1", "key": "be_perfect", "reverse": false, "text": "提出や公開の前に、細かい粗が気になって何度も直す。" },
+        { "id": "D-BP-2", "key": "be_perfect", "reverse": false, "text": "「だいたい動く」状態のものを人に見せるのは落ち着かない。" },
+        { "id": "D-BP-3", "key": "be_perfect", "reverse": false, "text": "他人の成果物でも、誤字や小さなズレが目につく。" },
+        { "id": "D-BP-4", "key": "be_perfect", "reverse": true, "text": "8割の出来でも、期限が来たら出してしまえる。" },
+
+        { "id": "D-BS-1", "key": "be_strong", "reverse": false, "text": "困っていても、ぎりぎりまで自分で何とかしようとする。" },
+        { "id": "D-BS-2", "key": "be_strong", "reverse": false, "text": "しんどいときほど、周りには平気そうに振る舞う。" },
+        { "id": "D-BS-3", "key": "be_strong", "reverse": false, "text": "人に頼るより、時間がかかっても一人で片づけるほうが楽だ。" },
+        { "id": "D-BS-4", "key": "be_strong", "reverse": true, "text": "行き詰まったら、早めに「助けてほしい」と言える。" },
+
+        { "id": "D-TH-1", "key": "try_hard", "reverse": false, "text": "楽に終わる方法があっても、苦労した実感がないと物足りない。" },
+        { "id": "D-TH-2", "key": "try_hard", "reverse": false, "text": "「頑張っている」と言える状態でないと落ち着かない。" },
+        { "id": "D-TH-3", "key": "try_hard", "reverse": false, "text": "新しいことに手を出すが、仕上げ切る前に次へ移りがちだ。" },
+        { "id": "D-TH-4", "key": "try_hard", "reverse": true, "text": "結果が出るなら、手を抜けるところは抜く。" },
+
+        { "id": "D-PO-1", "key": "please_others", "reverse": false, "text": "頼まれると、余裕がなくても断りにくい。" },
+        { "id": "D-PO-2", "key": "please_others", "reverse": false, "text": "自分の意見より、場の空気が悪くならないことを優先する。" },
+        { "id": "D-PO-3", "key": "please_others", "reverse": false, "text": "相手の反応が薄いと、何か悪いことをしたかと気になる。" },
+        { "id": "D-PO-4", "key": "please_others", "reverse": true, "text": "相手が不満そうでも、必要なことははっきり伝える。" },
+
+        { "id": "D-HU-1", "key": "hurry_up", "reverse": false, "text": "メッセージが来たら、作業を止めてでもすぐ返したくなる。" },
+        { "id": "D-HU-2", "key": "hurry_up", "reverse": false, "text": "待ち時間や、説明の長い場面でいらいらしやすい。" },
+        { "id": "D-HU-3", "key": "hurry_up", "reverse": false, "text": "予定を詰め込み、次のことを考えながら今の作業をしている。" },
+        { "id": "D-HU-4", "key": "hurry_up", "reverse": true, "text": "締切まで余裕があるなら、ゆっくり進めてかまわないと思える。" }
+      ]
+    },
+    {
+      "id": "process",
+      "title": "プロセス脚本",
+      "type": "likert",
+      "items": [
+        { "id": "S-UN-1", "key": "until", "reverse": false, "text": "やるべきことが全部片づくまでは、休んだり遊んだりしにくい。" },
+        { "id": "S-UN-2", "key": "until", "reverse": false, "text": "「これが終わったら」と、楽しみを後回しにすることが多い。" },
+        { "id": "S-UN-3", "key": "until", "reverse": false, "text": "ごほうびは、やり遂げてからでないと受け取ってはいけない気がする。" },
+
+        { "id": "S-AF-1", "key": "after", "reverse": false, "text": "うまくいっているときほど、このあと悪いことが起きそうで落ち着かない。" },
+        { "id": "S-AF-2", "key": "after", "reverse": false, "text": "楽しんだあとに「そのぶんのツケが来る」と感じる。" },
+        { "id": "S-AF-3", "key": "after", "reverse": false, "text": "良い評価をもらっても、次で失望されることを先に考える。" },
+
+        { "id": "S-NE-1", "key": "never", "reverse": false, "text": "いちばんやりたいことほど、なぜか手をつけられないままになる。" },
+        { "id": "S-NE-2", "key": "never", "reverse": false, "text": "計画や構想は練るが、実行に移らないことが多い。" },
+        { "id": "S-NE-3", "key": "never", "reverse": false, "text": "「自分には結局できないだろう」と思って、最初の一歩を見送る。" },
+
+        { "id": "S-AL-1", "key": "always", "reverse": false, "text": "環境や相手が変わっても、似たような困りごとに何度もぶつかる。" },
+        { "id": "S-AL-2", "key": "always", "reverse": false, "text": "うまくいかないと分かっていても、同じやり方を続けてしまう。" },
+        { "id": "S-AL-3", "key": "always", "reverse": false, "text": "「なぜいつもこうなるのか」と思うことがある。" },
+
+        { "id": "S-AM-1", "key": "almost", "reverse": false, "text": "完成の直前で手が止まり、仕上がらないことが多い。" },
+        { "id": "S-AM-2", "key": "almost", "reverse": false, "text": "九割できたあたりで、別の作業に移ってしまう。" },
+        { "id": "S-AM-3", "key": "almost", "reverse": false, "text": "目標を達成しても、すぐ次の目標を立て、達成した実感が残らない。" },
+
+        { "id": "S-OE-1", "key": "open_ended", "reverse": false, "text": "大きな目標（卒業・リリース・就職など）の先を、具体的に思い描けない。" },
+        { "id": "S-OE-2", "key": "open_ended", "reverse": false, "text": "区切りを迎えたあと、何をすればいいか分からなくなることがある。" },
+        { "id": "S-OE-3", "key": "open_ended", "reverse": false, "text": "目標があるうちは動けるが、達成したあとの計画は立てていない。" }
+      ]
+    },
+    {
+      "id": "position",
+      "title": "基本的構え",
+      "type": "likert",
+      "items": [
+        { "id": "P-S-1", "key": "self", "reverse": false, "text": "自分の作ったものには、人に見せる価値があると思う。" },
+        { "id": "P-S-2", "key": "self", "reverse": false, "text": "失敗しても、自分はやり直せると思える。" },
+        { "id": "P-S-3", "key": "self", "reverse": true, "text": "周りと比べて、自分だけ力が足りないと感じる。" },
+        { "id": "P-S-4", "key": "self", "reverse": true, "text": "褒められても、本当はそれほどでもないと打ち消したくなる。" },
+
+        { "id": "P-O-1", "key": "other", "reverse": false, "text": "チームのメンバーは、任せればやってくれると思う。" },
+        { "id": "P-O-2", "key": "other", "reverse": false, "text": "意見が違う相手にも、その人なりの理由があると思える。" },
+        { "id": "P-O-3", "key": "other", "reverse": true, "text": "周りのやり方を見て、なぜそんなやり方をするのかと苛立つことが多い。" },
+        { "id": "P-O-4", "key": "other", "reverse": true, "text": "他人は、結局あてにならないと思う。" }
+      ]
+    },
+    {
+      "id": "forced_choice",
+      "title": "場面での選択",
+      "type": "forced_choice",
+      "prompt": "それぞれの場面で、自分にいちばん近いものを1つ選んでください。",
+      "items": [
+        {
+          "id": "FC-1",
+          "scene": "締切の前日。まだ気になる点が残っている。",
+          "options": [
+            { "id": "a", "key": "be_perfect", "text": "納得がいくまで直す。" },
+            { "id": "b", "key": "be_strong", "text": "誰にも言わず、一人で夜通し片づける。" },
+            { "id": "c", "key": "try_hard", "text": "とにかく手を動かし続ける。" },
+            { "id": "d", "key": "please_others", "text": "待っている人に迷惑をかけないことを最優先にする。" },
+            { "id": "e", "key": "hurry_up", "text": "早く手放したくて、先に出してしまう。" }
+          ]
+        },
+        {
+          "id": "FC-2",
+          "scene": "チームで意見が割れた。",
+          "options": [
+            { "id": "a", "key": "be_perfect", "text": "正しい結論が出るまで論点を詰める。" },
+            { "id": "b", "key": "be_strong", "text": "自分の負担が増えても、黙って引き受ける。" },
+            { "id": "c", "key": "try_hard", "text": "出た案を全部試そうとする。" },
+            { "id": "d", "key": "please_others", "text": "皆が納得しそうな落としどころを探す。" },
+            { "id": "e", "key": "hurry_up", "text": "早く決めて先に進みたい。" }
+          ]
+        },
+        {
+          "id": "FC-3",
+          "scene": "新しいツールを覚える必要が出た。",
+          "options": [
+            { "id": "a", "key": "be_perfect", "text": "公式の資料を一通り読んでから触る。" },
+            { "id": "b", "key": "be_strong", "text": "人に聞かず、自力で調べ切る。" },
+            { "id": "c", "key": "try_hard", "text": "あれこれ手を出して、時間をかけて試す。" },
+            { "id": "d", "key": "please_others", "text": "教えてくれる人の都合に合わせて進める。" },
+            { "id": "e", "key": "hurry_up", "text": "とりあえず動く最短の使い方だけ覚える。" }
+          ]
+        },
+        {
+          "id": "FC-4",
+          "scene": "自分の作品に厳しい指摘をもらった。",
+          "options": [
+            { "id": "a", "key": "be_perfect", "text": "指摘を全部直さないと気が済まない。" },
+            { "id": "b", "key": "be_strong", "text": "動揺を見せず、その場は受け流す。" },
+            { "id": "c", "key": "try_hard", "text": "もっと頑張らなければと思う。" },
+            { "id": "d", "key": "please_others", "text": "相手をがっかりさせたことが気になる。" },
+            { "id": "e", "key": "hurry_up", "text": "すぐ直して、すぐ出し直す。" }
+          ]
+        },
+        {
+          "id": "FC-5",
+          "scene": "予定のない休日。",
+          "options": [
+            { "id": "a", "key": "be_perfect", "text": "計画を立てて、予定どおりに過ごしたい。" },
+            { "id": "b", "key": "be_strong", "text": "疲れていても、たまった用事を片づける。" },
+            { "id": "c", "key": "try_hard", "text": "何か身になることをしないと落ち着かない。" },
+            { "id": "d", "key": "please_others", "text": "誘われたら、気が乗らなくても付き合う。" },
+            { "id": "e", "key": "hurry_up", "text": "やりたいことを詰め込んで、あれこれ動き回る。" }
+          ]
+        }
+      ]
+    }
+  ],
+  "scoring": {
+    "reverse": "5 - x",
+    "scaleScore": {
+      "method": "mean",
+      "minAnsweredRatio": 0.75,
+      "round": 2
+    },
+    "axes": {
+      "drivers": ["be_perfect", "be_strong", "try_hard", "please_others", "hurry_up"],
+      "process": ["until", "after", "never", "always", "almost", "open_ended"],
+      "position": ["self", "other"]
+    },
+    "dominance": {
+      "appliesTo": ["drivers", "process"],
+      "minScore": 3.0,
+      "minGapFromPersonMean": 0.5,
+      "maxReported": 2
+    },
+    "forcedChoice": {
+      "appliesTo": "drivers",
+      "agreeMinPicks": 2
+    },
+    "position": {
+      "midpoint": 2.5,
+      "borderLow": 2.25,
+      "borderHigh": 2.75
+    },
+    "responseStyle": {
+      "useRawAnswers": true,
+      "sd": "population",
+      "oneSidedHighMean": 3.5,
+      "oneSidedLowMean": 1.5,
+      "flatSdBelow": 0.4,
+      "reverseConflictGap": 2.0
+    },
+    "driverProcessCorrespondence": {
+      "be_perfect": "until",
+      "be_strong": "never",
+      "try_hard": "always",
+      "please_others": "after"
+    },
+    "note": "閾値は初期値。回答が30件たまったら分布を見て見直す。それまでは本人の中での相対だけを読む。"
+  }
+}

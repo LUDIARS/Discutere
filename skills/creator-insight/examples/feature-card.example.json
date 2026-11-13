@@ -1,0 +1,122 @@
+{
+  "_note": "架空の例。実在の人物・団体のデータではない。",
+  "schemaVersion": 1,
+  "subject": "p_3f9a1c",
+  "consent": {
+    "sources": ["chat", "code", "portfolio", "questionnaire"],
+    "purpose": "self_reflection",
+    "llmQuotes": true,
+    "confirmedAt": "2026-11-01"
+  },
+  "window": { "from": "2026-08-01", "to": "2026-10-31", "tz": "Asia/Tokyo" },
+  "cohort": { "id": "c_7b21", "n": 12 },
+  "coverage": {
+    "chatMessages": 842,
+    "chatActiveWeeks": 11,
+    "chatChannels": 3,
+    "commits": 131,
+    "commitActiveWeeks": 11,
+    "portfolioItems": 4,
+    "questionnaires": ["life-script-ja"]
+  },
+  "chat": {
+    "msgs_per_week": { "value": 76.5, "z": 0.2, "n": 842 },
+    "chars_median": { "value": 48, "z": -0.1, "n": 842 },
+    "initiation_rate": { "value": 0.06, "z": -0.9, "n": 842 },
+    "partner_breadth": { "value": 5, "z": -0.8, "n": 842 },
+    "public_share": { "value": 0.31, "z": -0.6, "n": 842 },
+    "reply_latency_median_min": { "value": 14, "z": -0.4, "n": 310 },
+    "question_rate": { "value": 0.07, "z": -0.7, "n": 842 },
+    "help_seeking_rate": { "value": 0.02, "z": -1.1, "n": 842 },
+    "help_giving_rate": { "value": 0.19, "z": 0.9, "n": 405 },
+    "ack_rate": { "value": 0.22, "z": 0.3, "n": 842 },
+    "reaction_given_per_week": { "value": 31, "z": 0.4, "n": 341 },
+    "disagreement_rate": { "value": 0.01, "z": -1.0, "n": 405 },
+    "softened_disagreement_share": { "value": null, "z": null, "n": 4 },
+    "report_rate": { "value": 0.12, "z": 1.0, "n": 842 },
+    "deadline_followup_rate": { "value": 0.83, "z": 0.8, "n": 18 },
+    "edit_rate": { "value": 0.15, "z": 1.2, "n": 842 },
+    "polite_ratio_by_tier": { "value": { "senior": 0.97, "peer": 0.41, "junior": 0.38, "unknown": 0.72 }, "z": null, "n": 842 },
+    "topic_breadth": { "value": 3, "z": null, "n": 3 },
+    "link_share_rate": { "value": 0.01, "z": null, "n": 8 },
+    "expressive_marks_rate": { "value": 0.34, "z": -0.2, "n": 842 },
+    "active_hours": { "value": { "05-12": 0.12, "12-18": 0.38, "18-22": 0.35, "22-05": 0.15 }, "z": null, "n": 842 }
+  },
+  "code": {
+    "commits_per_week": { "value": 11.9, "z": 0.5, "n": 131 },
+    "commit_regularity": { "value": 0.42, "z": -0.6, "n": 11 },
+    "commit_size_median": { "value": 38, "z": -0.3, "n": 131 },
+    "fixup_share": { "value": 0.27, "z": 1.3, "n": 131 },
+    "wip_share": { "value": 0.02, "z": -0.9, "n": 131 },
+    "test_touch_share": { "value": 0.24, "z": 0.7, "n": 131 },
+    "msg_length_median": { "value": 41, "z": 0.4, "n": 131 },
+    "pr_open_to_merge_median_h": { "value": null, "z": null, "n": 0 },
+    "pr_abandoned_share": { "value": null, "z": null, "n": 0 },
+    "review_given": { "value": null, "z": null, "n": 0 },
+    "review_received": { "value": null, "z": null, "n": 0 },
+    "ai_coauthored_share": { "value": 0.35, "z": 0.1, "n": 131 },
+    "area_weights": { "value": { "gameplay": 0.22, "generation": 0.41, "ui": 0.12, "network": 0.0, "tools": 0.18, "rendering": 0.07 }, "z": null, "n": 131 },
+    "rework_areas": { "value": ["generation"], "z": null, "n": 131 }
+  },
+  "portfolio": {
+    "items": { "value": 4, "z": null, "n": 4 },
+    "completed_share": { "value": 0.5, "z": null, "n": 4 },
+    "genre_breadth": { "value": 2, "z": null, "n": 4 },
+    "lead_emphasis": { "value": "遊びの手触り", "z": null, "n": 4 },
+    "subject_self_share": { "value": 0.75, "z": null, "n": 4 },
+    "reflection_present": { "value": 1, "z": null, "n": 4 },
+    "mechanic_ids": { "value": ["exploration/hidden-area", "exploration/procedural-map", "action/dodge-roll"], "z": null, "n": 4 }
+  },
+  "play": {
+    "player": {
+      "style.mastery": { "like": 9, "aversion": 0, "unknown": 2, "days": 7 },
+      "style.competitor": { "like": 6, "aversion": 0, "unknown": 1, "days": 5 },
+      "style.routine_tolerance": { "like": 0, "aversion": 4, "unknown": 1, "days": 4 },
+      "style.narrative": { "like": 2, "aversion": 0, "unknown": 0, "days": 2 }
+    },
+    "maker": {
+      "style.explorer": { "items": 3, "source": "portfolio" },
+      "style.autonomy": { "items": 2, "source": "portfolio" }
+    },
+    "titles": { "played": 9, "watched": 3, "mentioned": 6 },
+    "externalAnalysis": null
+  },
+  "questionnaire": {
+    "lifeScript": {
+      "questionnaire": "life-script-ja",
+      "revision": "2026-11-13",
+      "answered": 51,
+      "drivers": {
+        "scores": { "be_perfect": 3.5, "be_strong": 3.25, "try_hard": 2.25, "please_others": 2.5, "hurry_up": 2.0 },
+        "personMean": 2.7,
+        "dominant": ["be_perfect", "be_strong"],
+        "forcedChoice": { "be_perfect": 3, "be_strong": 1, "try_hard": 0, "please_others": 1, "hurry_up": 0 },
+        "confidence": { "be_perfect": "high", "be_strong": "medium" }
+      },
+      "process": {
+        "scores": { "until": 3.33, "after": 2.0, "never": 1.67, "always": 2.33, "almost": 2.67, "open_ended": 2.33 },
+        "personMean": 2.39,
+        "dominant": ["until"],
+        "confidence": { "until": "high" }
+      },
+      "position": { "self": 2.5, "other": 3.0, "selfBand": "border", "otherBand": "positive" },
+      "responseStyle": { "rawMean": 2.61, "rawSd": 0.67, "oneSided": false, "flat": false, "reverseConflicts": [] }
+    }
+  },
+  "quotes": [
+    { "id": "Q1", "source": "chat", "text": "レベル生成の件、昨日の分は終わりました。残りは通路の接続だけです。", "tags": ["report"] },
+    { "id": "Q3", "source": "chat", "text": "あのボス、ノーダメで抜けられるまで3日かかった。パターンを覚えるのが楽しい。", "tags": ["play", "style.mastery", "like"] },
+    { "id": "Q7", "source": "chat", "text": "素材集めの周回がだるくて、そこで止まってる。", "tags": ["play", "style.routine_tolerance", "aversion"] },
+    { "id": "Q9", "source": "chat", "text": "それ、シードを固定すると再現できますよ。[URL]", "tags": ["help_giving"] },
+    { "id": "Q12", "source": "chat", "text": "個人的には、先に操作感を固めたほうがいい気がします。", "tags": ["disagreement"] }
+  ],
+  "insufficient": [
+    "chat.softened_disagreement_share",
+    "chat.topic_breadth",
+    "chat.link_share_rate",
+    "code.pr_open_to_merge_median_h",
+    "code.pr_abandoned_share",
+    "code.review_given",
+    "code.review_received"
+  ]
+}
