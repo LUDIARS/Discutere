@@ -47,11 +47,6 @@ JsonLimits body_limits(std::size_t max_bytes);
 /** LLM の応答 (チェック系の JSON object) を読む上限。 */
 inline const JsonLimits kLlmJsonLimits{1u << 20, 50'000, 32};
 
-/** DB の JSON 列 (top_utterance_ids_json / aufhebung_json) を読む上限。 */
-inline const JsonLimits kDbJsonLimits{1u << 20, 50'000, 16};
-
-/** status が読む行の上限。 */
-inline const sql::QueryLimits kStatusRowLimits{200'000, 256u << 20};
 
 
 // ─── モジュールの状態 (TS の module-level Map / Set) ──────────────────────
@@ -314,8 +309,6 @@ double clamp_int_query(const std::optional<std::string>& v, double fallback, dou
 http::Response handle_sessions(http::Request& req);
 
 http::Response handle_delete(http::Request& req);
-
-std::vector<std::string> string_array_column(const std::string& raw);
 
 http::Response handle_status(http::Request& req);
 

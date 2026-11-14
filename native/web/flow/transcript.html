@@ -1,0 +1,115 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<meta name="color-scheme" content="light dark" />
+<title>{{title}} — Discutere 議論ログ</title>
+<style>
+  /* 色・カードの見た目は議論画面 (flow/page.html) と同じ。JS は使わない。 */
+  :root {
+    color-scheme: light;
+    --bg: #f8fafc;
+    --fg: #111827;
+    --muted: #64748b;
+    --surface: #ffffff;
+    --soft: #eaf2ff;
+    --border: #d0d7de;
+    --primary: #4a90e2;
+    --danger-fg: #b91c1c;
+    --success: #16a34a;
+    --pro-bg: #eff6ff;
+    --pro-border: #93c5fd;
+    --con-bg: #fff1f2;
+    --con-border: #fda4af;
+    --neutral-bg: #f8fafc;
+    --neutral-border: #cbd5e1;
+    --opinion-bg: #f5f3ff;
+    --opinion-border: #c4b5fd;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root {
+      color-scheme: dark;
+      --bg: #0f1115;
+      --fg: #e6e6e6;
+      --muted: #8b94a3;
+      --surface: #161922;
+      --soft: #4a90e21a;
+      --border: #334155;
+      --primary: #4a90e2;
+      --danger-fg: #fca5a5;
+      --success: #22c55e;
+      --pro-bg: #102033;
+      --pro-border: #2563eb;
+      --con-bg: #32151a;
+      --con-border: #be123c;
+      --neutral-bg: #111827;
+      --neutral-border: #475569;
+      --opinion-bg: #211634;
+      --opinion-border: #7c3aed;
+    }
+  }
+  * { box-sizing: border-box; }
+  body { font-family: system-ui, -apple-system, "Segoe UI", "Hiragino Kaku Gothic ProN", sans-serif; max-width: 1100px; margin: 24px auto; padding: 0 16px 48px; line-height: 1.5; color: var(--fg); background: var(--bg); }
+  .app-head { border-bottom: 2px solid var(--primary); padding-bottom: 10px; margin-bottom: 16px; display: flex; align-items: flex-end; justify-content: space-between; gap: 12px; flex-wrap: wrap; }
+  h1 { font-size: 22px; margin: 0; overflow-wrap: anywhere; }
+  .mode-title { display: inline-flex; align-items: center; padding: 4px 12px; border-radius: 999px; background: var(--soft); color: var(--fg); font-weight: 700; font-size: 13px; }
+  .meta { color: var(--muted); font-size: 0.85rem; margin: 0 0 8px; }
+  #log { display: grid; gap: 10px; }
+  .u { padding: 12px 14px; border: 1px solid var(--neutral-border); border-left-width: 4px; border-radius: 8px; background: var(--neutral-bg); }
+  .u.pro { background: var(--pro-bg); border-color: var(--pro-border); }
+  .u.con { background: var(--con-bg); border-color: var(--con-border); }
+  .u.opinion { background: var(--opinion-bg); border-color: var(--opinion-border); }
+  .u.user { border-color: var(--primary); }
+  .u .who { font-weight: 700; font-size: 0.9rem; color: var(--fg); display: flex; gap: 8px; flex-wrap: wrap; align-items: center; }
+  .u .text { margin-top: 6px; white-space: pre-wrap; word-break: break-word; }
+  .err { color: var(--danger-fg); }
+  #conclusion { border-left: 4px solid var(--success); }
+  #conclusionBody { white-space: pre-wrap; font-weight: 600; word-break: break-word; }
+  .muted { color: var(--muted); font-size: 0.85rem; }
+  #live { display: grid; grid-template-columns: 1fr; gap: 16px; margin-top: 16px; }
+  #rightPanes { display: grid; gap: 16px; min-width: 0; align-content: start; }
+  #paperPanel, #opinions, #conclusion { border: 1px solid var(--border); border-radius: 8px; padding: 16px; background: var(--surface); min-width: 0; }
+  .panel-head { display: flex; justify-content: space-between; align-items: center; gap: 8px; margin-bottom: 10px; }
+  #paperPanel h2, #opinions h2, #conclusion h2 { font-size: 16px; margin: 0; }
+  .paper-md { font-size: 0.9rem; line-height: 1.55; overflow-wrap: anywhere; }
+  .paper-md h3 { font-size: 1rem; margin: 0.8rem 0 0.3rem; border-bottom: 1px solid var(--border); padding-bottom: 0.1rem; }
+  .paper-md h4 { font-size: 0.9rem; margin: 0.6rem 0 0.2rem; color: var(--fg); }
+  .paper-md ul { margin: 0.2rem 0 0.4rem; padding-left: 1.2rem; }
+  .paper-md p { margin: 0.3rem 0; }
+  .badge, .mark { display: inline-block; font-size: 11px; border-radius: 5px; padding: 2px 7px; margin-right: 4px; background: var(--soft); color: var(--fg); font-weight: 700; }
+  .mark.vote { background: #fef3c7; color: #92400e; }
+  .mark.win { background: #dcfce7; color: #15803d; }
+  .mark.auf { background: #ede9fe; color: #6d28d9; }
+  @media (min-width: 960px) {
+    body { max-width: 1480px; }
+    #live { grid-template-columns: minmax(340px, 1fr) minmax(560px, 2fr); align-items: start; }
+    #live.no-paper { grid-template-columns: 1fr; }
+    #paperPanel { position: sticky; top: 16px; max-height: calc(100vh - 32px); overflow: auto; }
+  }
+  @media (max-width: 720px) {
+    body { margin: 14px auto; padding: 0 12px 32px; }
+  }
+</style>
+</head>
+<body>
+  <header class="app-head">
+    <h1>{{title}}</h1>
+    <div class="mode-title">{{flowLabel}}</div>
+  </header>
+  <p class="meta">{{meta}}</p>
+
+  <div id="live" class="{{liveClass}}">
+{{paperSection}}
+    <div id="rightPanes">
+      <div id="opinions">
+        <div class="panel-head"><h2>各LLMの意見議論内容</h2></div>
+        <div id="log">
+{{utterances}}
+        </div>
+      </div>
+{{conclusionSection}}
+    </div>
+  </div>
+</body>
+</html>

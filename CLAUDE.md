@@ -341,6 +341,12 @@ bot 名義で締める (収束時 `finalizeForumPost` で lock+archive+まとめ
   未来予測が終わるまで done にしない。設定 `flow.foresight` (`enabled` は機能ごとの停止スイッチ・既定 true、turns 6、
   `forecastModel` で予測だけ別モデル)。Discord の「✅ 結論」通知は最後 (未来予測の後) のまま。
 
+- **議論の締めにまとめ + チャット風 HTML を送る (2026-11-12)**: Discord の議論/改善が終わると、「✅ 結論」の直後
+  (lock+archive の前) に同じスレッドへ **まとめ本文 (テーマ・ラウンド数・立場別の発言数・採択された意見・結論、1900 字以内)**
+  と **議論画面と同じ見た目の静的 HTML (`discussion-<thread>.html`、JS なし・ライト/ダーク)** を 1 通で送る
+  (`native/src/flow/transcript/`)。中身は `GET /api/flow/:session/status` と同じ組み立て (`load_transcript_snapshot`) を使い、
+  テンプレートは `native/web/flow/transcript.html`。投稿失敗は warn ログで議論の締めを止めない。壁打ちは対象外。
+
 - **ペーパーの使い回し (2026-10-13, `spec/feature/flow/paper-reuse.md`)**: 既存ペーパーを議論番号で指定すると
   (Discord はスレッド名/starter の「ペーパー#12」、Web は開始フォームの「使い回すペーパー番号」)、メカニクス・ゲーム内容・
   保存した声を新しいペーパーへ引き継ぎ、声は集め直さない (ユーザーの声の収集・情報ゲートを省く)。声は草案作成時と

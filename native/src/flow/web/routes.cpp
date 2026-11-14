@@ -1,6 +1,7 @@
 // src/flow/web/routes.ts の移植。経路・JSON の形・status は TS と同じ。
 #include "flow/web/routes.hpp"
 #include "flow/web/routes_internal.hpp"
+#include "flow/transcript/snapshot.hpp"
 
 
 
@@ -115,81 +116,11 @@ http::Response handle_delete(http::Request& req) {
 }
 
 
-std::vector<std::string> string_array_column(const std::string& raw) {
-    std::vector<std::string> out;
-    const auto parsed = parse_json(raw, kDbJsonLimits);
-    if (parsed && parsed->is_array())
-        for (const auto& v : *parsed)
-            if (v.is_string()) out.push_back(v.get<std::string>());
-    return out;
-}
-
-
 http::Response handle_status(http::Request& req) {
     const std::string session_id = req.param("session");
     double since = 0;
     if (const auto n = api::js_query::parse_int(req.query("since").value_or("0")); n && *n != 0) since = *n;
-    auto db = db::get_flow_db();
-
-    const auto utterances = db->all(
-        "SELECT id, round, turn, persona_name, role, stance, possession_name, text, is_error, created_at\n"
-        "         FROM flow_utterance\n"
-        "        WHERE session_id = ? AND created_at > ?\n"
-        "        ORDER BY created_at ASC",
-        {session_id, since}, kStatusRowLimits);
-
-    const auto vote_rows = db->all(
-        "SELECT round, chosen_utterance_id AS id, COUNT(*) AS votes\n"
-        "         FROM vote\n"
-        "        WHERE session_id = ? AND chosen_utterance_id IS NOT NULL\n"
-        "        GROUP BY round, chosen_utterance_id\n"
-        "        ORDER BY round ASC",
-        {session_id}, kStatusRowLimits);
-    std::map<std::string, std::int64_t> vote_by_id;
-    std::map<std::int64_t, std::pair<std::string, std::int64_t>> vote_winner_by_round;
-    for (const auto& r : vote_rows) {
-        const auto id = r.str("id");
-        const auto votes = r.i64("votes");
-        vote_by_id[id] += votes;
-        const auto round = r.i64("round");
-        const auto cur = vote_winner_by_round.find(round);
-        if (cur == vote_winner_by_round.end() || votes > cur->second.second) vote_winner_by_round[round] = {id, votes};
-    }
-    const auto score_winner_rows = db->all(
-        "SELECT round, utterance_id AS id\n"
-        "         FROM improvement_score\n"
-        "        WHERE session_id = ? AND is_winner = 1",
-        {session_id}, kStatusRowLimits);
-    const auto top_row = db->get("SELECT top_utterance_ids_json FROM flow_conclusion WHERE session_id = ?", {session_id});
-    std::set<std::string> winner_ids;
-    if (top_row)
-        for (auto& id : string_array_column(top_row->str("top_utterance_ids_json"))) winner_ids.insert(std::move(id));
-    for (const auto& [round, w] : vote_winner_by_round)
-        if (w.second > 0) winner_ids.insert(w.first);
-    for (const auto& r : score_winner_rows) winner_ids.insert(r.str("id"));
-    const auto round_rows = db->all(
-        "SELECT round, aufhebung_json FROM discussion_paper_round WHERE paper_id IN (SELECT id FROM discussion_paper WHERE session_id = ?)",
-        {session_id}, kStatusRowLimits);
-    std::map<std::int64_t, std::vector<std::string>> aufhebung_by_round;
-    for (const auto& r : round_rows) aufhebung_by_round[r.i64("round")] = string_array_column(r.str("aufhebung_json"));
-    const auto mark_rows = db->all("SELECT id, round FROM flow_utterance WHERE session_id = ?", {session_id}, kStatusRowLimits);
-    auto mark_fields = [&](Json& out, const std::string& id, std::int64_t round) {
-        const auto v = vote_by_id.find(id);
-        const std::int64_t votes = v == vote_by_id.end() ? 0 : v->second;
-        const bool is_winner = winner_ids.count(id) > 0;
-        Json auf = Json::array();
-        // 止揚はラウンド全体ではなく、世論として使われた意見だけに付ける。
-        if (is_winner) {
-            const auto a = aufhebung_by_round.find(round);
-            if (a != aufhebung_by_round.end()) auf = a->second;
-        }
-        out["votes"] = votes;
-        out["isWinner"] = is_winner;
-        out["roundAufhebung"] = auf;
-        return votes > 0 || is_winner || !auf.empty();
-    };
-
-    const auto conclusion_row = db->get("SELECT summary, concluded FROM flow_conclusion WHERE session_id = ?", {session_id});
+    auto snap = transcript::load_transcript_snapshot(session_id, since);
 
     bool finished = false;
     std::shared_ptr<SparringSession> session;
@@ -201,48 +132,16 @@ http::Response handle_status(http::Request& req) {
     }
     // 結論の行は未来予測より前に書かれるので、未来予測が待機中 / 実行中の間は完了にしない。
     const auto foresight = foresight::get_foresight_status(session_id);
-    const bool done = (finished || (session && session->is_ended()) || conclusion_row.has_value()) && !foresight::is_foresight_active(session_id);
+    const bool done = (finished || (session && session->is_ended()) || snap.hasConclusionRow) && !foresight::is_foresight_active(session_id);
 
-    Json out_utterances = Json::array();
-    for (const auto& u : utterances) {
-        Json j = Json::object();
-        const std::string id = u.str("id");
-        j["id"] = id;
-        j["round"] = u["round"].to_json();
-        j["turn"] = u["turn"].to_json();
-        j["personaName"] = u.str("persona_name");
-        // 「名前 (ロール/憑依ペルソナ)」(item2/4)。憑依なしは括弧内ロールのみ。
-        DisplayNameInput dn;
-        dn.name = u.str("persona_name");
-        dn.stance = u.opt_str("stance");
-        dn.role = u.opt_str("role");
-        dn.possessionName = u.opt_str("possession_name");
-        j["displayName"] = compose_display_name(dn);
-        j["role"] = u["role"].to_json();
-        j["stance"] = u["stance"].to_json();
-        j["possessionName"] = u["possession_name"].to_json();
-        j["text"] = u["text"].to_json();
-        j["isError"] = u.i64("is_error") == 1;
-        mark_fields(j, id, u.i64("round"));
-        j["createdAt"] = u["created_at"].to_json();
-        out_utterances.push_back(std::move(j));
-    }
-    Json marks = Json::array();
-    for (const auto& r : mark_rows) {
-        Json m = Json::object();
-        const std::string id = r.str("id");
-        m["id"] = id;
-        if (mark_fields(m, id, r.i64("round"))) marks.push_back(std::move(m));
-    }
     Json j = Json::object();
     j["ok"] = true;
-    j["utterances"] = out_utterances;
-    j["marks"] = marks;
-    j["conclusion"] = conclusion_row ? (*conclusion_row)["summary"].to_json() : Json(nullptr);
-    j["concluded"] = conclusion_row && conclusion_row->i64("concluded") == 1;
+    j["utterances"] = std::move(snap.utterances);
+    j["marks"] = std::move(snap.marks);
+    j["conclusion"] = std::move(snap.conclusion);
+    j["concluded"] = snap.concluded;
     // ライブのディスカッションペーパー本文 (議論進行で更新されていく)。
-    const auto paper_md = get_paper_body_by_session(session_id);
-    j["paperMd"] = paper_md ? Json(*paper_md) : Json(nullptr);
+    j["paperMd"] = snap.paperMd ? Json(*snap.paperMd) : Json(nullptr);
     // 未来予測アドバイザリーの状態 (タグなし / 再起動後は null)。
     j["foresight"] = foresight ? to_json(*foresight) : Json(nullptr);
     j["done"] = done;
