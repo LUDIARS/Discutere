@@ -16,7 +16,7 @@ std::optional<ProxyRun> resolve_proxy_run(const std::string& theme, const std::v
     if (!can_collect_external(tags)) throw ProxyRequestError("機密 / 内部の議論では、公開レビューから作った代理は使えません。");
     const auto request = parse_proxy_request(theme);
     if (!request) throw ProxyRequestError("議題に「代理: 論者#xxxxxx, 論者#yyyyyy」を書いてください。");
-    const std::string default_model = cfg.llm.model ? *cfg.llm.model : "claude-haiku-4-5-20251001";
+    const std::string default_model = cfg.llm.model ? *cfg.llm.model : "haiku";
     const std::vector<std::string> discussants =
         !cfg.flow.roster.discussants.empty() ? cfg.flow.roster.discussants : std::vector<std::string>{default_model};
     LoadProxyParticipantsArgs args;

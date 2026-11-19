@@ -85,10 +85,10 @@ const assistantWithModel = (u: Record<string, number>, model: string): string =>
 {
   // message.model が在れば usage.model に載る (cost 補完がモデル単価を引けるように)
   const text = [
-    assistantWithModel({ input_tokens: 12, output_tokens: 7 }, "claude-haiku-4-5-20251001"),
+    assistantWithModel({ input_tokens: 12, output_tokens: 7 }, "claude-test-haiku"),
   ].join("\n");
   const r = usageDeltaFromTranscript(text, 0);
-  assert.equal(r.usage!.model, "claude-haiku-4-5-20251001", "model captured from transcript");
+  assert.equal(r.usage!.model, "claude-test-haiku", "model captured from transcript");
   assert.equal(r.usage!.input_tokens, 12);
   console.log("  [ok] message.model captured into usage.model");
 }
@@ -103,11 +103,11 @@ const assistantWithModel = (u: Record<string, number>, model: string): string =>
 {
   // fresh 行が複数モデルを跨いだら最後の model を採る (1 ターンは単一モデル想定)
   const text = [
-    assistantWithModel({ input_tokens: 10, output_tokens: 3 }, "claude-haiku-4-5-20251001"),
-    assistantWithModel({ input_tokens: 20, output_tokens: 4 }, "claude-opus-4-8"),
+    assistantWithModel({ input_tokens: 10, output_tokens: 3 }, "claude-test-haiku"),
+    assistantWithModel({ input_tokens: 20, output_tokens: 4 }, "claude-test-opus"),
   ].join("\n");
   const r = usageDeltaFromTranscript(text, 0);
-  assert.equal(r.usage!.model, "claude-opus-4-8", "last fresh model wins");
+  assert.equal(r.usage!.model, "claude-test-opus", "last fresh model wins");
   assert.equal(r.usage!.input_tokens, 30, "tokens still summed across fresh lines");
   console.log("  [ok] last fresh model wins, tokens summed");
 }

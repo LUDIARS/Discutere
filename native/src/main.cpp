@@ -739,7 +739,7 @@ int run_server() {
     } else {
         flow_claude_llm = auto_discussion_llm ? auto_discussion_llm : classifier_llm;
     }
-    // model spec が `gpt-*` のペルソナは Codex CLI (`codex exec`) へ、それ以外は Claude チェーンへ振り分ける。
+    // Codex の役割名・モデル ID は Codex CLI (`codex exec`) へ、それ以外は Claude チェーンへ振り分ける。
     LLMClientPtr flow_engine_llm;
     if (flow_claude_llm) {
         persona_engine::CodexCliClientOptions co;

@@ -5,16 +5,16 @@
  * dependencies に追加してあるが、 package 切り出し時にも忘れず移植する。
  *
  * - env ANTHROPIC_API_KEY を読む (空文字なら invoke は ok:false を返す)
- * - default model: claude-haiku-4-5-20251001 (議論の細かい応答は haiku で十分速い)
+ * - default model: haiku (議論の細かい応答は haiku で十分速い)
  * - prompt caching は Phase 1 で導入予定 (claude-api skill 参照)
  */
 
 import type { LLMClient, LLMInvokeArgs, LLMResult } from "./client.js";
 import { OAUTH_BETA_HEADER } from "./claude-code-auth.js";
-import { parseModelSpec, validateModelSpec } from "./model-spec.js";
+import { parseModelSpec, resolveAnthropicModel, validateModelSpec } from "./model-spec.js";
 import { logLlm } from "./llm-vg.js";
 
-const DEFAULT_MODEL = "claude-haiku-4-5-20251001";
+const DEFAULT_MODEL = "haiku";
 const DEFAULT_MAX_TOKENS = 1024;
 const DEFAULT_TIMEOUT_MS = 60_000;
 
@@ -72,7 +72,12 @@ export class AnthropicSdkClient implements LLMClient {
     const spec = parseModelSpec(args.model ?? this.defaultModel);
     const validationError = validateModelSpec(spec, "claude");
     if (validationError) return { ok: false, error: `anthropic: ${validationError}` };
-    const model = spec.model || this.defaultModel;
+    let model: string;
+    try {
+      model = resolveAnthropicModel(spec.model);
+    } catch (error) {
+      return { ok: false, error: `anthropic: ${(error as Error).message}` };
+    }
     const effort = spec.effort;
     const maxTokens = args.maxTokens ?? DEFAULT_MAX_TOKENS;
     const timeoutMs = args.timeoutMs ?? DEFAULT_TIMEOUT_MS;

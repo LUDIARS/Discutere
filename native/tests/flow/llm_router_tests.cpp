@@ -25,20 +25,22 @@ struct Tagged : LLMClient {
 
 } // namespace
 
-TEST_CASE("model router: gpt-* goes to codex, others to claude, no codex = error (no impersonation)") {
+TEST_CASE("model router: Codex roles and IDs go to Codex, no Codex backend returns an error") {
     std::vector<std::string> calls;
     flow::ModelRouterLlm router(std::make_shared<Tagged>("claude", true, &calls), std::make_shared<Tagged>("codex", true, &calls));
     LLMInvokeArgs a;
     a.prompt = "p";
-    a.model = "gpt-5.6-sol@xhigh";
+    a.model = "sol@xhigh";
     CHECK(router.invoke(a).ok);
-    a.model = "claude-opus-5@xhigh";
+    a.model = "opus@xhigh";
+    CHECK(router.invoke(a).ok);
+    a.model = "codex-mini-latest";
     CHECK(router.invoke(a).ok);
     a.model.reset();
     CHECK(router.invoke(a).ok);
-    CHECK_EQ(calls, (std::vector<std::string>{"codex:gpt-5.6-sol@xhigh", "claude:claude-opus-5@xhigh", "claude:"}));
+    CHECK_EQ(calls, (std::vector<std::string>{"codex:sol@xhigh", "claude:opus@xhigh", "codex:codex-mini-latest", "claude:"}));
     flow::ModelRouterLlm no_codex(std::make_shared<Tagged>("claude", true, &calls), nullptr);
-    a.model = "gpt-5.6-sol";
+    a.model = "sol";
     const auto r = no_codex.invoke(a);
     CHECK(!r.ok);
     CHECK_EQ(r.error, std::string("model-router: codex 経路なし"));

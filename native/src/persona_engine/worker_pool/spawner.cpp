@@ -7,6 +7,7 @@
 #include "base/fsutil.hpp"
 #include "base/log.hpp"
 #include "base/process.hpp"
+#include "lapilli/one_shot.hpp"
 
 #ifdef _WIN32
 #include <windows.h>
@@ -38,10 +39,13 @@ std::optional<std::string> resolve_git_bash(const std::optional<std::string>& ex
 }
 
 std::vector<std::string> lictor_args(const WorkerConfig& worker) {
-    const std::string bin = worker.provider == "codex" ? "codex" : "claude";
+    namespace one_shot = lapilli::one_shot;
+    const auto provider = worker.provider == "codex" ? one_shot::Provider::codex : one_shot::Provider::claude;
+    const std::string bin = one_shot::provider_name(provider);
+    const auto model = one_shot::resolve_model(worker.model, provider, lapilli::process::current_environment());
     // claude は edit-mode (acceptEdits) で起動する (codex は claude 専用 flag なので付けない)。
-    if (worker.provider == "claude") return {bin, "--model", worker.model, "--permission-mode", "acceptEdits"};
-    return {bin, "--model", worker.model};
+    if (worker.provider == "claude") return {bin, "--model", model, "--permission-mode", "acceptEdits"};
+    return {bin, "--model", model};
 }
 
 std::map<std::string, std::string> build_worker_environment(const std::map<std::string, std::string>& parent,
@@ -194,7 +198,12 @@ std::optional<std::int64_t> spawn_detached(const DetachedSpawn& spec, std::strin
 SpawnedWorker spawn_worker(const SpawnWorkerArgs& args) {
     DetachedSpawn spec;
     spec.argv.push_back("lictor");
-    for (auto& a : lictor_args(args.worker)) spec.argv.push_back(std::move(a));
+    try {
+        for (auto& a : lictor_args(args.worker)) spec.argv.push_back(std::move(a));
+    } catch (const lapilli::one_shot::OneShotError& error) {
+        log::warn("[worker-pool] spawn failed (" + args.worker.id + "): " + error.what());
+        return {};
+    }
     spec.env = build_worker_environment(env::snapshot(), args);
     spec.cwd = args.cwd;
     // Windows: TS は lictor (.cmd shim) を cmd.exe /c で起動していたが、シェルを経由しないため

@@ -10,7 +10,7 @@ using namespace di;
 using namespace di::discussion;
 
 namespace {
-const PartyConfig CFG{20, 2, "claude-opus-5", "claude-opus-5", {{"claude-sonnet-5", 6}, {"claude-haiku-4-5-20251001", 4}}, 4};
+const PartyConfig CFG{20, 2, "opus", "opus", {{"sonnet", 6}, {"haiku", 4}}, 4};
 Rng seq_rng(std::vector<double> values) {
     auto i = std::make_shared<std::size_t>(0);
     return [values, i] { return values[(*i)++ % values.size()]; };
@@ -45,9 +45,9 @@ TEST_CASE("partySize") {
 }
 
 TEST_CASE("pickWeightedModel") {
-    CHECK_EQ(pick_weighted_model(CFG.opinionModels, [] { return 0.0; }), std::string("claude-sonnet-5"));
-    CHECK_EQ(pick_weighted_model(CFG.opinionModels, [] { return 0.99; }), std::string("claude-haiku-4-5-20251001"));
-    CHECK_EQ(pick_weighted_model(CFG.opinionModels, [] { return 0.5; }), std::string("claude-sonnet-5"));
+    CHECK_EQ(pick_weighted_model(CFG.opinionModels, [] { return 0.0; }), std::string("sonnet"));
+    CHECK_EQ(pick_weighted_model(CFG.opinionModels, [] { return 0.99; }), std::string("haiku"));
+    CHECK_EQ(pick_weighted_model(CFG.opinionModels, [] { return 0.5; }), std::string("sonnet"));
     CHECK_EQ(pick_weighted_model({}, [] { return 0.5; }), std::string(""));
 }
 
@@ -60,7 +60,7 @@ TEST_CASE("formParty (6 members, model assignment, unique names)") {
         fac += m.tier == "facilitator";
         key += m.tier == "keyman";
         op += m.tier == "opinion";
-        if (m.tier != "opinion") CHECK_EQ(m.model, std::string("claude-opus-5"));
+        if (m.tier != "opinion") CHECK_EQ(m.model, std::string("opus"));
         names.insert(m.personaName);
     }
     CHECK_EQ(fac, 1);
@@ -77,7 +77,7 @@ TEST_CASE("swapHalf (facilitator fixed / 2 swapped / keyman keeps Opus)") {
     for (std::size_t i = 0; i < party.size(); ++i) changed += swapped[i].personaName != party[i].personaName;
     CHECK_EQ(changed, 2);
     for (const auto& m : swapped)
-        if (m.tier == "keyman") CHECK_EQ(m.model, std::string("claude-opus-5"));
+        if (m.tier == "keyman") CHECK_EQ(m.model, std::string("opus"));
 }
 
 TEST_CASE("decideStance") {

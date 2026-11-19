@@ -96,7 +96,7 @@ TEST_CASE("cost_logger: 1 呼び出し 1 行 (usage・推定コスト・失敗�
             persona_engine::TokenUsage u;
             u.input_tokens = 1000;
             u.output_tokens = 500;
-            u.model = "claude-sonnet-4-5";
+            u.model = "claude-test-sonnet";
             return persona_engine::LLMResult::success("resp", u);
         }
     } inner;
@@ -109,7 +109,7 @@ TEST_CASE("cost_logger: 1 呼び出し 1 行 (usage・推定コスト・失敗�
     CHECK(!logged.invoke(a).ok);
     const auto rows = db::get_flow_db()->all("SELECT * FROM llm_call_log WHERE session_id = 'CL' ORDER BY id");
     CHECK_EQ(rows.size(), std::size_t(2));
-    CHECK_EQ(rows[0].str("model"), std::string("claude-sonnet-4-5"));
+    CHECK_EQ(rows[0].str("model"), std::string("claude-test-sonnet"));
     CHECK_EQ(rows[0].i64("round"), 2);
     CHECK_EQ(rows[0].str("backend"), std::string("test-backend"));
     CHECK_EQ(rows[0].i64("input_tokens"), 1000);

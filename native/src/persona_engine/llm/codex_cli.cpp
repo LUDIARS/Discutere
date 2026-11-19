@@ -17,7 +17,9 @@ namespace di::persona_engine {
 namespace {
 const char* const CODEX_ENV_ALLOWLIST[] = {"PATH",     "Path",         "PATHEXT",    "SystemRoot", "WINDIR",
                                            "COMSPEC",  "TEMP",         "TMP",        "HOME",       "USERPROFILE",
-                                           "APPDATA",  "LOCALAPPDATA", "CODEX_HOME", "LANG",       "LC_ALL"};
+                                           "APPDATA",  "LOCALAPPDATA", "CODEX_HOME", "LANG",       "LC_ALL",
+                                           "XDG_STATE_HOME", "LUDIARS_MODEL_ROLES_FILE", "LUDIARS_ONESHOT_MODEL_ASTRA",
+                                           "LUDIARS_ONESHOT_MODEL_SOL", "LUDIARS_ONESHOT_MODEL_LUNA"};
 
 std::string compose(const std::optional<std::string>& system, const std::string& user) {
     if (!system || system->empty()) return user;

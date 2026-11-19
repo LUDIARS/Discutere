@@ -20,6 +20,24 @@
                           "criterion": "C-2 stripHtml(html): 整形式HTMLの本文と空白正規化を維持し、256KiB以上の未閉鎖タグを1秒未満で処理する",
                           "mode": "observe",
                           "file": "src/flow/strip-html.ts"
+                      },
+                      {
+                          "id": "C-3",
+                          "module": "src/flow/contracts/codex-model-role.contract.ts",
+                          "sample": 1,
+                          "symbol": "isCodexModel",
+                          "criterion": "C-3 isCodexModel(spec): 役割名と明示 ID を effort 付きでも正しい provider に振り分ける",
+                          "mode": "observe",
+                          "file": "src/persona-engine/llm/model-spec.ts"
+                      },
+                      {
+                          "id": "C-4",
+                          "module": "src/flow/contracts/anthropic-model-role.contract.ts",
+                          "sample": 1,
+                          "symbol": "resolveAnthropicModel",
+                          "criterion": "C-4 resolveAnthropicModel(model): Anthropic API 用に役割名を ID に解決し明示 ID を保持する",
+                          "mode": "observe",
+                          "file": "src/persona-engine/llm/model-spec.ts"
                       }
                   ],
     "runtimeFile":  "src/flow/contracts/runtime.ts"

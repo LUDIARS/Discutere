@@ -262,7 +262,7 @@ FlowDirectorResult run_flow(persona_engine::LLMClient& llm, const std::string& t
                                                FlowModelRoster{cfg.flow.roster.facilitator.empty() ? std::nullopt
                                                                                                    : std::optional<std::string>(cfg.flow.roster.facilitator),
                                                                cfg.flow.roster.discussants});
-        cast_args.defaultModel = cfg.llm.model.value_or("claude-haiku-4-5-20251001");
+        cast_args.defaultModel = cfg.llm.model.value_or("haiku");
         cast_args.isLocal = is_local;
         cast_args.rng = rng;
         if (options.personaIds) cast_args.personaIds = *options.personaIds;

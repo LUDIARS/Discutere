@@ -10,7 +10,6 @@
  */
 
 import { existsSync, readFileSync } from "node:fs";
-import { resolveModel } from "@ludiars/one-shot";
 import path from "node:path";
 import { DEFAULT_VOTE_LENSES, type VoteLens } from "./flow/vote-lenses.js";
 
@@ -49,9 +48,9 @@ export interface DiscutereConfig {
     personaCount: number;
     /**
      * モデル編成 (spec/feature/flow/model-roster.md)。各値は model spec
-     * (`<model>@<effort>`、例 `claude-opus-5@xhigh` / `gpt-5.6-sol@medium`)。
+     * (`<model>@<effort>`、例 `opus@xhigh` / `sol@medium`)。
      * discussants が 1 つ以上あれば議論者人数 = その数 (personaCount より優先)。
-     * `gpt-*` は Codex CLI 経路 (`codex exec`)、それ以外は Claude 経路。
+     * Codex の役割名・モデル ID は Codex CLI 経路 (`codex exec`)、それ以外は Claude 経路。
      */
     roster: {
       facilitator: string;
@@ -93,7 +92,7 @@ export interface DiscutereConfig {
        * 通常判定 (前提ルール / 立場 / tension-classify / fact-resolve) に使う小モデル。
        * finalJudgeModel 未設定時は結論候補の評価・批准にも使う。
        * 進行文と生成 (position/utterance/synthesize) は各担当ペルソナのモデル。
-       * 既定 claude-haiku-4-5-20251001。
+       * 既定 haiku。
        */
       judgeModel: string;
       /** 結論候補の評価・批准専用。空なら judgeModel を使い既存設定と互換にする。 */
@@ -242,7 +241,7 @@ export interface DiscutereConfig {
      * LLM 失敗時は意見単位で旧 lexicon 方式へフォールバック (improvement_score.method に記録)。
      */
     improvement: {
-      /** 効果予測に使うモデル。既定 Haiku 級 (claude-haiku-4-5-20251001)。"" なら LLM の既定モデル。 */
+      /** 効果予測に使うモデル。既定 Haiku 級 (haiku)。"" なら LLM の既定モデル。 */
       effectModel: string;
     };
     /**
@@ -887,7 +886,7 @@ export function loadConfig(): DiscutereConfig {
         judgeModel: pick(
           process.env.DISCUTERE_FLOW_DIALECTIC_JUDGE_MODEL,
           file.flow?.dialectic?.judgeModel,
-          "claude-haiku-4-5-20251001"
+          "haiku"
         ),
         ruleCheck: pickBool(
           process.env.DISCUTERE_FLOW_DIALECTIC_RULE_CHECK,
@@ -1049,7 +1048,7 @@ export function loadConfig(): DiscutereConfig {
         effectModel: pick(
           process.env.DISCUTERE_FLOW_IMPROVEMENT_EFFECT_MODEL,
           file.flow?.improvement?.effectModel,
-          "claude-haiku-4-5-20251001"
+          "haiku"
         ),
       },
       paperRefine: {
@@ -1203,7 +1202,7 @@ export function loadConfig(): DiscutereConfig {
       model: pick(
         process.env.DISCUTERE_CLASSIFIER_MODEL,
         file.classifier?.model,
-        "claude-haiku-4-5-20251001"
+        "haiku"
       ),
       timeoutMs: pickNum(process.env.DISCUTERE_CLASSIFIER_TIMEOUT_MS, file.classifier?.timeoutMs, 30_000),
     },
@@ -1213,15 +1212,15 @@ export function loadConfig(): DiscutereConfig {
       facilitatorModel: pick(
         process.env.DISCUTERE_DISCUSSION_FACILITATOR_MODEL,
         file.discussion?.facilitatorModel,
-        resolveModel("opus", "claude")
+        "opus"
       ),
-      keymanModel: pick(process.env.DISCUTERE_DISCUSSION_KEYMAN_MODEL, file.discussion?.keymanModel, resolveModel("opus", "claude")),
+      keymanModel: pick(process.env.DISCUTERE_DISCUSSION_KEYMAN_MODEL, file.discussion?.keymanModel, "opus"),
       opinionModels:
         Array.isArray(file.discussion?.opinionModels) && file.discussion!.opinionModels.length > 0
           ? file.discussion!.opinionModels
           : [
-              { model: resolveModel("sonnet", "claude"), weight: 6 },
-              { model: resolveModel("haiku", "claude"), weight: 4 },
+              { model: "sonnet", weight: 6 },
+              { model: "haiku", weight: 4 },
             ],
       minTotal: pickNum(process.env.DISCUTERE_DISCUSSION_MIN_TOTAL, file.discussion?.minTotal, 4),
       turnDelayMs: pickNum(process.env.DISCUTERE_DISCUSSION_TURN_DELAY_MS, file.discussion?.turnDelayMs, 4_000),

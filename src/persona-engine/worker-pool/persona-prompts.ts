@@ -11,14 +11,14 @@ import type { WorkerConfig } from "./types.js";
 
 /** 既定の 8 キャスト。spec §3。 */
 export const DEFAULT_WORKERS: WorkerConfig[] = [
-  { id: "facilitator", role: "ファシリテーター", provider: "claude", model: "claude-opus-5" },
-  { id: "pro-opus", role: "正論派", provider: "claude", model: "claude-opus-5" },
-  { id: "con-opus", role: "否定派", provider: "claude", model: "claude-opus-5" },
-  { id: "pro-gpt", role: "正論派", provider: "codex", model: "gpt-5.6-sol" },
-  { id: "con-gpt", role: "否定派", provider: "codex", model: "gpt-5.6-sol" },
-  { id: "opinion-opus", role: "意見屋", provider: "claude", model: "claude-opus-5" },
-  { id: "opinion-sonnet", role: "意見屋", provider: "claude", model: "claude-sonnet-5" },
-  { id: "opinion-gpt", role: "意見屋", provider: "codex", model: "gpt-5.6-sol" },
+  { id: "facilitator", role: "ファシリテーター", provider: "claude", model: "opus" },
+  { id: "pro-opus", role: "正論派", provider: "claude", model: "opus" },
+  { id: "con-opus", role: "否定派", provider: "claude", model: "opus" },
+  { id: "pro-gpt", role: "正論派", provider: "codex", model: "sol" },
+  { id: "con-gpt", role: "否定派", provider: "codex", model: "sol" },
+  { id: "opinion-opus", role: "意見屋", provider: "claude", model: "opus" },
+  { id: "opinion-sonnet", role: "意見屋", provider: "claude", model: "sonnet" },
+  { id: "opinion-gpt", role: "意見屋", provider: "codex", model: "sol" },
 ];
 
 /**

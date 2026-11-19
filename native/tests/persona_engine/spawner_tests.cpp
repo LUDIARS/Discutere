@@ -20,7 +20,7 @@ using namespace di::persona_engine::worker_pool;
 namespace {
 SpawnWorkerArgs sample_args(const std::string& cwd) {
     SpawnWorkerArgs a;
-    a.worker = {"con-opus", "否定派", "claude", "claude-opus-5"};
+    a.worker = {"con-opus", "否定派", "claude", "claude-test-opus"};
     a.promptPath = "/p/prompt.md";
     a.cwd = cwd;
     a.cfg.callbackBaseUrl = "http://127.0.0.1:3110";
@@ -30,12 +30,12 @@ SpawnWorkerArgs sample_args(const std::string& cwd) {
 } // namespace
 
 TEST_CASE("lictor args: claude gets acceptEdits, codex does not") {
-    std::vector<std::string> c = {"claude", "--model", "claude-opus-5", "--permission-mode", "acceptEdits"};
-    CHECK(lictor_args({"a", "r", "claude", "claude-opus-5"}) == c);
-    std::vector<std::string> x = {"codex", "--model", "gpt-5.6-sol"};
-    CHECK(lictor_args({"a", "r", "codex", "gpt-5.6-sol"}) == x);
-    std::vector<std::string> u = {"claude", "--model", "m"};
-    CHECK(lictor_args({"a", "r", "other", "m"}) == u);  // 未知 provider は claude bin (flag なし)
+    std::vector<std::string> c = {"claude", "--model", "claude-test-opus", "--permission-mode", "acceptEdits"};
+    CHECK(lictor_args({"a", "r", "claude", "claude-test-opus"}) == c);
+    std::vector<std::string> x = {"codex", "--model", "codex-test-sol"};
+    CHECK(lictor_args({"a", "r", "codex", "codex-test-sol"}) == x);
+    std::vector<std::string> u = {"claude", "--model", "claude-test-explicit"};
+    CHECK(lictor_args({"a", "r", "other", "claude-test-explicit"}) == u);  // 未知 provider は claude bin (flag なし)
 }
 
 TEST_CASE("worker env: adds worker values and strips parent Lictor/Concordia wiring") {
@@ -88,7 +88,7 @@ TEST_CASE("spawn_worker launches fake lictor detached with argv/env/cwd and kill
     const std::string env_file = fs::from_path(home / "env.txt");
     for (int i = 0; i < 100 && !(fs::exists(env_file) && fs::file_size(env_file).value_or(0) > 0); ++i)
         std::this_thread::sleep_for(std::chrono::milliseconds(50));
-    CHECK_EQ(*fs::read_file(fs::from_path(home / "args.txt")), std::string("claude|--model|claude-opus-5|--permission-mode|acceptEdits|"));
+    CHECK_EQ(*fs::read_file(fs::from_path(home / "args.txt")), std::string("claude|--model|claude-test-opus|--permission-mode|acceptEdits|"));
     CHECK_EQ(*fs::read_file(env_file), std::string("con-opus none 1"));
     CHECK(fs::read_file(fs::from_path(home / "cwd.txt"))->find("home") != std::string::npos);
     CHECK_EQ(::kill(static_cast<pid_t>(*spawned.pid), 0), 0);  // 生きている

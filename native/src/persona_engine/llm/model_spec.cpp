@@ -1,6 +1,7 @@
 #include "persona_engine/llm/model_spec.hpp"
 
 #include "base/strings.hpp"
+#include "lapilli/one_shot.hpp"
 
 namespace di::persona_engine {
 namespace {
@@ -42,8 +43,10 @@ std::optional<std::string> validate_model_spec(const ModelSpec& spec, ModelProvi
 }
 
 bool is_codex_model(const std::optional<std::string>& spec) {
-    const auto m = str::to_lower_ascii(parse_model_spec(spec).model);
-    return str::starts_with(m, "gpt-");
+    const auto model = parse_model_spec(spec).model;
+    if (lapilli::one_shot::role_provider(model) == lapilli::one_shot::Provider::codex) return true;
+    const auto lower = str::to_lower_ascii(model);
+    return str::starts_with(lower, "gpt-") || str::starts_with(lower, "codex-");
 }
 
 std::optional<std::string> model_of_spec(const std::optional<std::string>& spec) {

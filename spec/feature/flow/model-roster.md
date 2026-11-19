@@ -2,6 +2,8 @@
 
 Spec ID: `SPEC-FLOW-MODEL-ROSTER`
 
+関連タスク: `actio:18478b29-2b8c-48a0-81fa-3d8d7d58137c`
+
 > 状態: 実装済 (2026-09-05)。議論/改善フロー (`src/flow/`, dialectic / rounds 両エンジン) が対象。
 
 ## 1. 目的
@@ -11,13 +13,18 @@ Spec ID: `SPEC-FLOW-MODEL-ROSTER`
 
 ## 2. model spec
 
-`"<model>@<effort>"` の 1 文字列でモデル ID と effort を運ぶ (`src/persona-engine/llm/model-spec.ts`)。
+`"<model>@<effort>"` の 1 文字列でモデルの役割名または明示 ID と effort を運ぶ。
+Claude の役割名は `opus`、`sonnet`、`haiku`、`fable`。Codex の役割名は `astra`、`sol`、`luna`。
+Lapilli one-shot は呼び出し直前に Concordia の対応表から役割を ID に解決し、設定の明示 ID を保持する。
+対応表のパスは `LUDIARS_MODEL_ROLES_FILE` で指定できる。
+Claude Code は対応表がない場合も `opus`、`sonnet`、`haiku` の別名を解釈する。
+Anthropic Messages API では明示 ID か、対応表または `LUDIARS_ONESHOT_MODEL_<ROLE>` で解決できる役割名が必要になる。
 
 | 例 | 経路 | CLI/API への落とし方 |
 |---|---|---|
-| `claude-opus-5@xhigh` | Claude (SDK → `claude -p`) | SDK: `output_config.effort` / CLI: `--effort xhigh` |
-| `claude-fable-5-1` | Claude | effort 未指定 = API 既定 |
-| `gpt-5.6-sol@medium` | Codex (`codex exec`) | `-m gpt-5.6-sol -c model_reasoning_effort="medium"` |
+| `opus@xhigh` | Claude (SDK → `claude -p`) | SDK: `output_config.effort` / CLI: `--effort xhigh` |
+| `fable` | Claude | effort 未指定 = API 既定 |
+| `sol@medium` | Codex (`codex exec`) | `-m <解決後のID> -c model_reasoning_effort="medium"` |
 
 `mid`/`med` は `medium` の別名。effort の語彙は provider に従う
 (claude: low/medium/high/xhigh/max、codex: minimal/low/medium/high/xhigh)。
@@ -27,15 +34,15 @@ Spec ID: `SPEC-FLOW-MODEL-ROSTER`
 ```jsonc
 "flow": {
   "dialectic": {
-    "judgeModel": "claude-sonnet-5-5",       // 通常判定
-    "finalJudgeModel": "claude-fable-5-1"    // 結論候補の評価・批准
+    "judgeModel": "sonnet",       // 通常判定
+    "finalJudgeModel": "fable"    // 結論候補の評価・批准
   },
   "roster": {
-    "facilitator": "claude-opus-5-5",                  // 進行役 + 止揚テキストの生成
+    "facilitator": "opus",                  // 進行役 + 止揚テキストの生成
     "discussants": [                                    // 議論者 (人数 = 要素数)
-      "claude-opus-5@xhigh", "claude-opus-5@medium",
-      "gpt-5.6-sol@xhigh",   "gpt-5.6-sol@medium",
-      "claude-sonnet-5@high", "gpt-5.6-terra@high"
+      "opus@xhigh", "opus@medium",
+      "sol@xhigh",   "sol@medium",
+      "sonnet@high", "luna@high"
     ]
   }
 }
@@ -78,12 +85,12 @@ https://platform.claude.com/docs/en/models/overview 。モデルの公開・登�
 
 ## 6. 経路の振り分け (`src/flow/model-router.ts`)
 
-`ModelRouterLlm` が `gpt-` 接頭辞を `CodexCliClient` (`src/persona-engine/llm/codex-cli.ts`)
+`ModelRouterLlm` が Codex の役割名と `gpt-` / `codex-` 接頭辞の明示 ID を `CodexCliClient`
 へ、それ以外を既存チェーン (worker-pool → SDK(OAuth) → `claude -p`) へ回す。
 Codex 経路の失敗は Claude にフォールバックしない (GPT の意見を Claude が代弁すると偽装になる)。
 `codex exec` は `-s read-only --ephemeral --skip-git-repo-check`、cwd は `worker-home/`、
 prompt は stdin、最終文は `-o` ファイルで受ける。子プロセスの環境変数は実行と
-サブスクリプション認証に必要な OS / home 系だけを allowlist し、サービスの資格情報・
+サブスクリプション認証に必要な OS / home 系とモデル対応表の設定を許可し、サービスの資格情報・
 内部 endpoint・セッション変数は継承しない。
 
 ## 7. 既知の制約

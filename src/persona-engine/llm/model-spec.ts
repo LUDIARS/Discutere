@@ -1,19 +1,24 @@
 /**
  * モデル指定子 (model spec) — `"<model>@<effort>"` の 1 文字列で
- * モデル ID と推論の深さ (effort) を運ぶ。
+ * モデル役割名または ID と推論の深さ (effort) を運ぶ。
  *
  * 議論フローはペルソナごとに `model` 文字列 1 つしか持ち回らないため、
  * effort を別フィールドで全経路に配線する代わりに model 文字列へ同梱する。
  * 各 LLM client (claude-cli / anthropic / codex-cli) が呼び出し直前に
  * `parseModelSpec` で分解して CLI/API の引数へ落とす。
  *
- *   "claude-opus-5@xhigh"  → { model: "claude-opus-5", effort: "xhigh" }
- *   "gpt-5.6-sol@medium"   → { model: "gpt-5.6-sol",   effort: "medium" }
- *   "claude-fable-5-1"     → { model: "claude-fable-5-1" }  (effort 未指定 = 既定)
+ *   "opus@xhigh"  → { model: "opus", effort: "xhigh" }
+ *   "sol@medium"  → { model: "sol",  effort: "medium" }
+ *   "fable"       → { model: "fable" }  (effort 未指定 = 既定)
  *
  * effort の語彙は provider 側の受け入れ値に合わせる (claude: low/medium/high/xhigh/max、
  * codex: minimal/low/medium/high/xhigh)。"mid" は medium の別名として吸収する。
  */
+
+import { MODEL_ROLES, resolveModel } from "@ludiars/one-shot";
+import { contract } from '../../flow/contracts/runtime.js'; /* augur-inject:import:a4caaed6 */
+import augurContract_ea3cb2b3 from '../../flow/contracts/anthropic-model-role.contract.js'; /* augur-inject:contract-predicate:6929b81d */
+import augurContract_73d6b115 from '../../flow/contracts/codex-model-role.contract.js'; /* augur-inject:contract-predicate:4ce94a17 */
 
 export interface ModelSpec {
   model: string;
@@ -56,10 +61,22 @@ export function validateModelSpec(spec: ModelSpec, provider: ModelProvider): str
   return null;
 }
 
-/** model spec が Codex (GPT 系) を指すか。`gpt-` 接頭辞で判定する。 */
+/** model spec が Codex の役割名か Codex 用の明示 ID を指すか。 */
 export function isCodexModel(spec: string | undefined): boolean {
-  return /^gpt-/i.test(parseModelSpec(spec).model);
+  const { model } = parseModelSpec(spec);
+  return MODEL_ROLES.codex.some((role) => role === model) || /^(?:gpt|codex)-/i.test(model);
 }
+// @ts-expect-error augur-inject
+isCodexModel = contract(isCodexModel, { ...augurContract_73d6b115, contractId: 'C-3', mode: 'observe', sample: 1, where: 'src/persona-engine/llm/model-spec.ts:64', rule: 'contract-wrap', id: '73d6b115' }); /* augur-inject:contract-wrap:73d6b115 */
+
+/** Anthropic Messages API には Claude Code 専用の短い別名を送れない。 */
+export function resolveAnthropicModel(model: string): string {
+  const resolved = resolveModel(model, "claude");
+  if (!resolved.startsWith("claude-")) throw new Error(`model_role_unresolved:${model}`);
+  return resolved;
+}
+// @ts-expect-error augur-inject
+resolveAnthropicModel = contract(resolveAnthropicModel, { ...augurContract_ea3cb2b3, contractId: 'C-4', mode: 'observe', sample: 1, where: 'src/persona-engine/llm/model-spec.ts:68', rule: 'contract-wrap', id: 'ea3cb2b3' }); /* augur-inject:contract-wrap:ea3cb2b3 */
 
 /** spec の model 部分だけを返す (pricing / ログ用)。 */
 export function modelOfSpec(spec: string | undefined): string | undefined {

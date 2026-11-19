@@ -15,13 +15,9 @@
 
 import { spawn } from "node:child_process";
 import { existsSync } from "node:fs";
+import { resolveModel } from "@ludiars/one-shot";
 
 import type { WorkerConfig, WorkerPoolConfig } from "./types.js";
-
-const BIN_BY_PROVIDER: Record<string, string> = {
-  claude: "claude",
-  codex: "codex",
-};
 
 /** git-bash パス解決 (config 明示 → 既知候補の自動検出)。 */
 export function resolveGitBash(explicit?: string): string | undefined {
@@ -49,15 +45,16 @@ export function spawnWorker(args: {
   cfg: WorkerPoolConfig;
 }): SpawnedWorker {
   const { worker, promptPath, cwd, cfg } = args;
-  const bin = BIN_BY_PROVIDER[worker.provider] ?? "claude";
+  const bin = worker.provider === "codex" ? "codex" : "claude";
+  const model = resolveModel(worker.model, bin);
 
   // claude は edit-mode (acceptEdits) で起動。worker-home の settings.json と
   // 合わせて register/send スクリプトを待ち無しで実行させる (codex は claude 専用
   // flag なので付けない)。
   const lictorArgs =
     worker.provider === "claude"
-      ? [bin, "--model", worker.model, "--permission-mode", "acceptEdits"]
-      : [bin, "--model", worker.model];
+      ? [bin, "--model", model, "--permission-mode", "acceptEdits"]
+      : [bin, "--model", model];
 
   const env: NodeJS.ProcessEnv = {
     ...process.env,

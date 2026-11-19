@@ -11,7 +11,7 @@ public:
     /** @implements SPEC-FLOW-MODEL-ROSTER — provider ごとのクライアントを固定する。codex は nullptr 可。 */
     ModelRouterLlm(persona_engine::LLMClientPtr claude, persona_engine::LLMClientPtr codex)
         : claude_(std::move(claude)), codex_(std::move(codex)) {}
-    /** @implements SPEC-FLOW-MODEL-ROSTER — gpt-* だけを Codex 経路へ送る。 */
+    /** @implements SPEC-FLOW-MODEL-ROSTER — Codex の役割名と明示 ID を Codex 経路へ送る。 */
     persona_engine::LLMResult invoke(const persona_engine::LLMInvokeArgs& args) override;
 
 private:

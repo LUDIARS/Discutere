@@ -83,7 +83,7 @@ WorkerPoolConfig make_cfg(const std::string& dir) {
     cfg.registerSettleMs = 30;
     cfg.turnsDir = "turns";
     cfg.promptsDir = fs::join(dir, "prompts");
-    cfg.workers = {{"con-opus", "否定派", "claude", "claude-opus-4"}, {"pro-gpt", "肯定派", "codex", "gpt-5"}};
+    cfg.workers = {{"con-opus", "否定派", "claude", "opus"}, {"pro-gpt", "肯定派", "codex", "sol"}};
     return cfg;
 }
 

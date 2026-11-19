@@ -10,7 +10,6 @@
 #include "base/fsutil.hpp"
 #include "base/log.hpp"
 #include "base/strings.hpp"
-#include "lib/one_shot/one_shot.hpp"
 
 namespace di::config {
 
@@ -301,7 +300,7 @@ DiscutereConfig load_config(const LoadOptions& options) {
         L::pick_num(e("DISCUTERE_FLOW_DIALECTIC_ARGUMENT_DEPTH"), x.f({"flow", "dialectic", "argumentDepth"}), 4);
     fl.dialectic.staleTurns = L::pick_num(e("DISCUTERE_FLOW_DIALECTIC_STALE_TURNS"), x.f({"flow", "dialectic", "staleTurns"}), 6);
     fl.dialectic.judgeModel = L::pick(e("DISCUTERE_FLOW_DIALECTIC_JUDGE_MODEL"), x.f({"flow", "dialectic", "judgeModel"}),
-                                      "claude-haiku-4-5-20251001");
+                                      "haiku");
     fl.dialectic.ruleCheck = L::pick_bool(e("DISCUTERE_FLOW_DIALECTIC_RULE_CHECK"), x.f({"flow", "dialectic", "ruleCheck"}), true);
     fl.dialectic.finalJudgeModel =
         L::pick(e("DISCUTERE_FLOW_DIALECTIC_FINAL_JUDGE_MODEL"), x.f({"flow", "dialectic", "finalJudgeModel"}), "");
@@ -366,7 +365,7 @@ DiscutereConfig load_config(const LoadOptions& options) {
     fl.notionLinks.maxDepth = L::pick_num(e("DISCUTERE_NOTION_MAX_DEPTH"), x.f({"flow", "notionLinks", "maxDepth"}), 2);
     fl.notionLinks.maxPages = L::pick_num(e("DISCUTERE_NOTION_MAX_PAGES"), x.f({"flow", "notionLinks", "maxPages"}), 50);
     fl.improvement.effectModel = L::pick(e("DISCUTERE_FLOW_IMPROVEMENT_EFFECT_MODEL"), x.f({"flow", "improvement", "effectModel"}),
-                                         "claude-haiku-4-5-20251001");
+                                         "haiku");
     fl.paperRefine.enabled = L::pick_bool(e("DISCUTERE_FLOW_PAPER_REFINE_ENABLED"), x.f({"flow", "paperRefine", "enabled"}), false);
     fl.paperRefine.model = L::pick(e("DISCUTERE_FLOW_PAPER_REFINE_MODEL"), x.f({"flow", "paperRefine", "model"}), "");
 
@@ -460,16 +459,13 @@ DiscutereConfig load_config(const LoadOptions& options) {
     c.embedding.batchSize =
         L::pick_positive_integer(e("DISCUTERE_EMBEDDING_BATCH_SIZE"), x.f({"embedding", "batchSize"}), 32, "embedding.batchSize");
 
-    c.classifier.model = L::pick(e("DISCUTERE_CLASSIFIER_MODEL"), x.f({"classifier", "model"}), "claude-haiku-4-5-20251001");
+    c.classifier.model = L::pick(e("DISCUTERE_CLASSIFIER_MODEL"), x.f({"classifier", "model"}), "haiku");
     c.classifier.timeoutMs = L::pick_num(e("DISCUTERE_CLASSIFIER_TIMEOUT_MS"), x.f({"classifier", "timeoutMs"}), 30'000);
 
-    // TS と同じく既定値のモデル解決は常に評価する (env の上書きが不正なら起動時に失敗する)。
-    const std::string opus = lib::one_shot::resolve_model(std::string("opus"), "claude", env);
     c.discussion.expectedUtterances = L::pick_num(e("DISCUTERE_DISCUSSION_EXPECTED"), x.f({"discussion", "expectedUtterances"}), 20);
     c.discussion.keymanCount = L::pick_num(e("DISCUTERE_DISCUSSION_KEYMEN"), x.f({"discussion", "keymanCount"}), 2);
-    c.discussion.facilitatorModel = L::pick(e("DISCUTERE_DISCUSSION_FACILITATOR_MODEL"), x.f({"discussion", "facilitatorModel"}), opus);
-    c.discussion.keymanModel = L::pick(e("DISCUTERE_DISCUSSION_KEYMAN_MODEL"), x.f({"discussion", "keymanModel"}),
-                                       lib::one_shot::resolve_model(std::string("opus"), "claude", env));
+    c.discussion.facilitatorModel = L::pick(e("DISCUTERE_DISCUSSION_FACILITATOR_MODEL"), x.f({"discussion", "facilitatorModel"}), "opus");
+    c.discussion.keymanModel = L::pick(e("DISCUTERE_DISCUSSION_KEYMAN_MODEL"), x.f({"discussion", "keymanModel"}), "opus");
     if (const Json* om = x.f({"discussion", "opinionModels"}); om && om->is_array() && !om->empty()) {
         for (const auto& m : *om) {
             if (!m.is_object()) {
@@ -480,8 +476,8 @@ DiscutereConfig load_config(const LoadOptions& options) {
         }
     } else {
         c.discussion.opinionModels = {
-            {lib::one_shot::resolve_model(std::string("sonnet"), "claude", env), 6},
-            {lib::one_shot::resolve_model(std::string("haiku"), "claude", env), 4},
+            {"sonnet", 6},
+            {"haiku", 4},
         };
     }
     c.discussion.minTotal = L::pick_num(e("DISCUTERE_DISCUSSION_MIN_TOTAL"), x.f({"discussion", "minTotal"}), 4);

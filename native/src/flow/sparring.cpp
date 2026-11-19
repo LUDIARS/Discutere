@@ -91,7 +91,7 @@ void SparringSession::start() {
     paper_.mechanics = investigation_->mechanics;
     paper_.supplement = supplement;
 
-    const std::string default_model = cfg.llm.model.value_or("claude-haiku-4-5-20251001");
+    const std::string default_model = cfg.llm.model.value_or("haiku");
     // G: 相手ペルソナ指定があればプールから解決して相手に充てる。未指定/未解決なら従来生成。
     std::vector<FlowPersona> opponents;
     for (const auto& ref : deps_.opponentPersonaIds) {

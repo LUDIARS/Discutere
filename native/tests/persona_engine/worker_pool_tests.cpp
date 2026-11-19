@@ -22,7 +22,7 @@ TEST_CASE("pool: 起動・一覧・register の settle・停止") {
     CHECK_EQ(listed.size(), std::size_t(2));
     CHECK(listed[0].running && !listed[0].registered && !listed[0].settling);
     CHECK_EQ(to_json(listed[0]).dump(),
-             std::string(R"({"id":"con-opus","role":"否定派","provider":"claude","model":"claude-opus-4","running":true,"registered":false,"settling":false,"busy":false,"pid":1000,"port":null})"));
+             std::string(R"({"id":"con-opus","role":"否定派","provider":"claude","model":"opus","running":true,"registered":false,"settling":false,"busy":false,"pid":1000,"port":null})"));
 
     CHECK(!pool->register_port("ghost", 1234));
     CHECK_EQ(warns.back(), std::string("register from unknown worker ghost"));
@@ -33,7 +33,7 @@ TEST_CASE("pool: 起動・一覧・register の settle・停止") {
     CHECK(pool->is_ready("con-opus"));
     CHECK(pool->list_configured()[0].registered);
     CHECK_EQ(to_json(pool->snapshot()[0]).dump(),
-             std::string(R"({"id":"con-opus","provider":"claude","model":"claude-opus-4","port":4321,"settling":false,"busy":false,"pid":1000,"lictorPid":77})"));
+             std::string(R"({"id":"con-opus","provider":"claude","model":"opus","port":4321,"settling":false,"busy":false,"pid":1000,"lictorPid":77})"));
 
     // 再 register は settle をやり直す / 停止したワーカーの古いタイマーは効かない
     CHECK(pool->register_port("pro-gpt", 5555));
@@ -174,7 +174,7 @@ TEST_CASE("client: ルーティング・JSON 包み・fallback の model") {
     auto fb = std::make_shared<MockLLMClient>(std::vector<MockResponder>{}, "fallback");
     WorkerPoolClient with_fb(pool, fb);
     CHECK_EQ(with_fb.invoke(a).text, std::string("fallback"));
-    CHECK_EQ(*fb->last_invocation()->model, std::string("claude-opus-4"));
+    CHECK_EQ(*fb->last_invocation()->model, std::string("opus"));
     a.personaId = "pro-gpt";
     a.model = "claude-x";
     with_fb.invoke(a);

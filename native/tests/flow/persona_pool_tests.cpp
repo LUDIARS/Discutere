@@ -146,8 +146,8 @@ TEST_CASE("pool: insert/get/list/archive, affinity, theme possession, find (pers
     CHECK(hits[0].similarity > 0);
     CHECK_EQ(select_by_affinity(v, 2, list_pool_personas()).size(), 2u);
     CHECK(select_by_affinity(v, -1).empty());
-    auto fp = to_flow_persona(hits[0].persona, {std::string("opinion"), "claude-haiku-4-5-20251001", false, std::nullopt});
-    CHECK_EQ(fp.model, std::string("claude-haiku-4-5-20251001"));
+    auto fp = to_flow_persona(hits[0].persona, {std::string("opinion"), "haiku", false, std::nullopt});
+    CHECK_EQ(fp.model, std::string("haiku"));
     CHECK_EQ(fp.stance, std::string("opinion"));
 
     insert_pool_persona(seed("p-themed", "達成感おじさん", text_to_vector("高難度を上達する達成感")));

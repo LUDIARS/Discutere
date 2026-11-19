@@ -16,5 +16,6 @@ import "./external-voices.test.js";
 import "./external-voices-lookup.test.js";
 import "./game-aliases.test.js";
 import "./local-openai.test.js";
+import "./model-role.test.js";
 
 console.log("persona-engine tests: all passed");

@@ -48,14 +48,17 @@ persona-engine の発話生成は従来 `ClaudeCliClient`（`claude -p` を per-
 
 | worker / persona id | 役割 | provider | model |
 |---|---|---|---|
-| `facilitator`     | ファシリテーター（止揚収束・人間優先） | claude | claude-opus-4-8 |
-| `pro-opus`        | 正論派 | claude | claude-opus-4-8 |
-| `con-opus`        | 否定派 | claude | claude-opus-4-8 |
-| `pro-gpt`         | 正論派 | codex  | gpt-5.5 |
-| `con-gpt`         | 否定派 | codex  | gpt-5.5 |
-| `opinion-opus`    | 意見屋 | claude | claude-opus-4-8 |
-| `opinion-sonnet`  | 意見屋 | claude | claude-sonnet-4-6 |
-| `opinion-gpt`     | 意見屋 | codex  | gpt-5.5 |
+| `facilitator`     | ファシリテーター（止揚収束・人間優先） | claude | opus |
+| `pro-opus`        | 正論派 | claude | opus |
+| `con-opus`        | 否定派 | claude | opus |
+| `pro-gpt`         | 正論派 | codex  | sol |
+| `con-gpt`         | 否定派 | codex  | sol |
+| `opinion-opus`    | 意見屋 | claude | opus |
+| `opinion-sonnet`  | 意見屋 | claude | sonnet |
+| `opinion-gpt`     | 意見屋 | codex  | sol |
+
+ワーカー起動時は Lapilli が役割名を解決し、Lictor の `--model` に渡す。
+設定で明示したモデル ID も使える。
 
 各ワーカーの **standing persona prompt**（auto-inject される本文）は:
 1. 役割・口調ルール（prompt-builder.ts の現行ルールを踏襲: ラベル禁止 / 一文ごと改行 / 1〜3文 / 自然口語）。
@@ -77,7 +80,7 @@ persona-engine の発話生成は従来 `ClaudeCliClient`（`claude -p` を per-
   "injectDelayMs": 2500,
   "turnTimeoutMs": 120000,
   "registerTimeoutMs": 60000,
-  "workers": [ { "id":"facilitator","role":"ファシリテーター","provider":"claude","model":"claude-opus-4-8" }, ... ]
+  "workers": [ { "id":"facilitator","role":"ファシリテーター","provider":"claude","model":"opus" }, ... ]
 }
 ```
 

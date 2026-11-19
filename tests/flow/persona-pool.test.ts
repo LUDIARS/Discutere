@@ -109,9 +109,9 @@ const zeros = (): number[] => new Array(DIM as number).fill(0);
   assert.equal(hits2.length, 2, "k=2 (candidates 明示)");
 
   // FlowPersona 変換
-  const fp = toFlowPersona(hits[0].persona, { role: "opinion", defaultModel: "claude-haiku-4-5-20251001", isLocal: false });
+  const fp = toFlowPersona(hits[0].persona, { role: "opinion", defaultModel: "haiku", isLocal: false });
   assert.equal(fp.id, "p-rogue");
-  assert.equal(fp.model, "claude-haiku-4-5-20251001", "model fallback");
+  assert.equal(fp.model, "haiku", "model fallback");
   console.log("  [ok] 憑依: selectByAffinity + toFlowPersona");
 }
 

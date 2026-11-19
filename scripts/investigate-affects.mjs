@@ -1,4 +1,4 @@
-// 未知 Affect 語の LLM 調査ワーカー (依存ゼロ / Claude Code 方針: LLM に意味を調査させる)。
+// 未知 Affect 語の LLM 調査ワーカー (Claude Code 方針: LLM に意味を調査させる)。
 //   data/affects/pending-questions.json の queued を LLM に投げ、
 //   {key,label_ja,valence,description} を得て data/affects/vocabulary.json に
 //   status="provisional", provenance="llm" で追加。質問は status="answered" に。
@@ -9,11 +9,12 @@
 import fs from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
+import { resolveModel } from "@ludiars/one-shot";
 
 const HERE = path.dirname(fileURLToPath(import.meta.url));
 const VOCAB = path.resolve(HERE, "../data/affects/vocabulary.json");
 const QUEUE = path.resolve(HERE, "../data/affects/pending-questions.json");
-const MODEL = process.env.ANTHROPIC_MODEL || "claude-haiku-4-5-20251001";
+const MODEL = process.env.ANTHROPIC_MODEL || "haiku";
 const arg = (n, d) => { const i = process.argv.indexOf("--" + n); return i >= 0 ? process.argv[i + 1] : d; };
 
 const readJson = (p) => JSON.parse(fs.readFileSync(p, "utf8").replace(/^﻿/, ""));
@@ -26,10 +27,12 @@ async function ask(term, contexts, knownKeys) {
     `語: "${term}"\n文脈: ${contexts.length ? contexts.join(" / ") : "(なし)"}\n` +
     `既存 key (重複回避用・近ければ既存を再利用可): ${knownKeys.join(", ")}\n\n` +
     `JSON のみで出力: {"key":"英snake","label_ja":"日本語名","valence":"positive|negative|ambivalent","description":"1文の定義","alias_of":"既存keyに統合できるなら其のkey/無ければnull"}`;
+  const model = resolveModel(MODEL, "claude");
+  if (!model.startsWith("claude-")) throw new Error(`model_role_unresolved:${MODEL}`);
   const res = await fetch("https://api.anthropic.com/v1/messages", {
     method: "POST",
     headers: { "content-type": "application/json", "x-api-key": process.env.ANTHROPIC_API_KEY, "anthropic-version": "2023-06-01" },
-    body: JSON.stringify({ model: MODEL, max_tokens: 300, messages: [{ role: "user", content: prompt }] }),
+    body: JSON.stringify({ model, max_tokens: 300, messages: [{ role: "user", content: prompt }] }),
   });
   const j = await res.json();
   if (j.error) throw new Error(j.error.message);

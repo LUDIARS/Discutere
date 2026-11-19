@@ -35,7 +35,7 @@ struct EconomyGraph {
 /** キー順は TS のオブジェクトリテラル (gameTitle, nodes, edges, summary, economyLoops, analyzedAt, mechanicCount)。 */
 Json to_json(const EconomyGraph& g);
 
-inline constexpr const char* ANALYSIS_MODEL = "claude-haiku-4-5-20251001";
+inline constexpr const char* ANALYSIS_MODEL = "haiku";
 inline constexpr int ANALYSIS_MAX_TOKENS = 4096;
 inline constexpr long long ANALYSIS_TIMEOUT_MS = 120'000;
 /** LLM 応答の上限 (外部入力)。 */

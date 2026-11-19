@@ -129,7 +129,7 @@ interface LLMClient {
 ```
 
 実装:
-- `AnthropicSdkClient` — `@anthropic-ai/sdk` (env `ANTHROPIC_API_KEY`)、 model default `claude-haiku-4-5-20251001`
+- `AnthropicSdkClient` — `@anthropic-ai/sdk` (env `ANTHROPIC_API_KEY`)、 model default `haiku`
 - `MockLLMClient` — テスト用、 固定 JSON 返す or scripted response
 
 ## DiscussionContextProvider interface

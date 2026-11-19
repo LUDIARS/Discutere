@@ -14,7 +14,7 @@ import { WorkerPool } from "../src/persona-engine/worker-pool/pool.js";
 import type { WorkerConfig } from "../src/persona-engine/worker-pool/types.js";
 
 const PORT = 3398;
-const WORKER: WorkerConfig = { id: "con-opus", role: "否定派", provider: "claude", model: "claude-opus-4-8" };
+const WORKER: WorkerConfig = { id: "con-opus", role: "否定派", provider: "claude", model: "opus" };
 
 const pool = new WorkerPool(
   {

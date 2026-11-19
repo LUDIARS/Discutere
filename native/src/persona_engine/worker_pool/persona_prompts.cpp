@@ -45,14 +45,14 @@ std::string role_guidance(const std::string& role) {
 
 const std::vector<WorkerConfig>& DEFAULT_WORKERS() {
     static const std::vector<WorkerConfig> workers = {
-        {"facilitator", "ファシリテーター", "claude", "claude-opus-5"},
-        {"pro-opus", "正論派", "claude", "claude-opus-5"},
-        {"con-opus", "否定派", "claude", "claude-opus-5"},
-        {"pro-gpt", "正論派", "codex", "gpt-5.6-sol"},
-        {"con-gpt", "否定派", "codex", "gpt-5.6-sol"},
-        {"opinion-opus", "意見屋", "claude", "claude-opus-5"},
-        {"opinion-sonnet", "意見屋", "claude", "claude-sonnet-5"},
-        {"opinion-gpt", "意見屋", "codex", "gpt-5.6-sol"},
+        {"facilitator", "ファシリテーター", "claude", "opus"},
+        {"pro-opus", "正論派", "claude", "opus"},
+        {"con-opus", "否定派", "claude", "opus"},
+        {"pro-gpt", "正論派", "codex", "sol"},
+        {"con-gpt", "否定派", "codex", "sol"},
+        {"opinion-opus", "意見屋", "claude", "opus"},
+        {"opinion-sonnet", "意見屋", "claude", "sonnet"},
+        {"opinion-gpt", "意見屋", "codex", "sol"},
     };
     return workers;
 }

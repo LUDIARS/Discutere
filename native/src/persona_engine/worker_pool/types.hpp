@@ -20,7 +20,7 @@ struct WorkerConfig {
     std::string role;
     /** Lictor がラップする CLI。 */
     WorkerProvider provider;
-    /** CLI に --model で渡すモデル ID。 */
+    /** CLI 起動時に解決するモデル役割名、または明示 ID。 */
     std::string model;
 };
 

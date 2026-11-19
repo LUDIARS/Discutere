@@ -148,7 +148,7 @@ FlowDirectorResult run_dialectic_flow(persona_engine::LLMClient& llm, const std:
                                  cfg.flow.roster.discussants};
     BuildFlowCastArgs cast_args;
     cast_args.count = proxy_mode ? 1 : roster_persona_count(static_cast<int>(cfg.flow.personaCount), roster);
-    cast_args.defaultModel = cfg.llm.model.value_or("claude-haiku-4-5-20251001");
+    cast_args.defaultModel = cfg.llm.model.value_or("haiku");
     cast_args.isLocal = is_local;
     cast_args.rng = rng;
     if (!proxy_mode && options.personaIds) cast_args.personaIds = *options.personaIds;

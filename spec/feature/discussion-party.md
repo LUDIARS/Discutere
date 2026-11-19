@@ -50,7 +50,7 @@
 |------|------|------|
 | `expectedUtterances` | 20 | 想定発話数 (人数算出 + 続行ゲート) |
 | `keymanCount` | 2 | キーマン人数 (Opus 固定) |
-| `facilitatorModel` / `keymanModel` | `claude-opus-4-8` | 司会 / キーマンのモデル |
+| `facilitatorModel` / `keymanModel` | `opus` | 司会 / キーマンのモデル |
 | `opinionModels` | Sonnet:6 / Haiku:4 | 意見メンバーの重み抽選表 |
 | `minTotal` | 4 | 総人数の下限 |
 | `turnDelayMs` | 4000 | ターン間ディレイ (Discord ペース) |

@@ -5,6 +5,8 @@
 
 #include "base/crypto.hpp"
 #include "base/strings.hpp"
+#include "lapilli/one_shot.hpp"
+#include "persona_engine/llm/model_spec.hpp"
 
 namespace di::persona_engine::worker_pool {
 
@@ -44,10 +46,12 @@ LLMResult WorkerPoolClient::invoke(const LLMInvokeArgs& args) {
 LLMResult WorkerPoolClient::invoke_fallback(const LLMInvokeArgs& args, const std::string& worker_id) {
     const auto cfg = pool_->get_worker_config(worker_id);
     const std::optional<std::string> raw_model = cfg ? std::optional<std::string>(cfg->model) : args.model;
-    // fallback は claude -p。worker が GPT 等の非 claude モデル (provider: codex) の場合、その model id を
-    // `claude --model <gpt-...>` に渡すと CLI が exit 1 で落ちる。非 claude モデルは未指定にして claude の既定モデルで発話させる。
+    // fallback は claude -p。Claude の役割名・明示 ID を保持し、Codex ワーカーには Claude の既定値を使う。
     LLMInvokeArgs next = args;
-    if (raw_model && !raw_model->empty() && str::contains(str::to_lower_ascii(*raw_model), "claude"))
+    const auto model = parse_model_spec(raw_model).model;
+    if ((!cfg || cfg->provider == "claude") &&
+        (lapilli::one_shot::role_provider(model) == lapilli::one_shot::Provider::claude ||
+         str::starts_with(model, "claude-")))
         next.model = raw_model;
     else
         next.model.reset();

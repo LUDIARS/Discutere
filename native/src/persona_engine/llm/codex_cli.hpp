@@ -16,7 +16,7 @@ namespace di::persona_engine {
 struct CodexCliClientOptions {
     /** codex CLI のパス (PATH に乗っていれば不要)。 */
     std::optional<std::string> cliPath;
-    /** 既定 model spec (`gpt-5.6-sol@medium` 等)。invoke の model が優先。 */
+    /** 既定 model spec (`sol@medium` 等)。invoke の model が優先。 */
     std::optional<std::string> defaultModel;
     /** タイムアウト ms (既定 240000)。 */
     std::optional<long long> defaultTimeoutMs;

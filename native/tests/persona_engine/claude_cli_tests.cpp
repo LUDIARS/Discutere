@@ -4,6 +4,7 @@
 #include "persona_engine/llm/claude_cli.hpp"
 #include "persona_engine/llm/model_spec.hpp"
 #include "lib/one_shot/one_shot.hpp"
+#include "base/crypto.hpp"
 #include "base/fsutil.hpp"
 #ifndef _WIN32
 #include <sys/stat.h>
@@ -34,28 +35,38 @@ TEST_CASE("error envelopes and empty text fail") {
 }
 
 TEST_CASE("cli args carry model and effort as separate argv entries") {
-    auto a = claude_cli_args(std::string("claude-opus-5@xhigh"), true);
+    auto a = claude_cli_args(std::string("opus@xhigh"), true);
     std::vector<std::string> expected = {"-p", "--output-format", "json", "--tools=", "--strict-mcp-config",
-                                         "--disable-slash-commands", "--safe-mode", "--model", "claude-opus-5", "--effort", "xhigh"};
+                                         "--disable-slash-commands", "--safe-mode", "--model", "opus", "--effort", "xhigh"};
     CHECK(a == expected);
     CHECK(validate_model_spec(parse_model_spec(std::string("bad model;rm")), ModelProvider::claude).has_value());
     CHECK(!validate_model_spec(parse_model_spec(std::string("claude-x@mid")), ModelProvider::claude).has_value());
     CHECK(validate_model_spec(parse_model_spec(std::string("claude-x@minimal")), ModelProvider::claude).has_value());
-    CHECK(is_codex_model(std::string("GPT-6-sol@low")));
+    CHECK(is_codex_model(std::string("luna@low")));
+    CHECK(is_codex_model(std::string("codex-mini-latest")));
+    CHECK(!is_codex_model(std::string("opus@xhigh")));
 }
 
 TEST_CASE("one-shot strips API keys and resolves default model") {
     std::map<std::string, std::string> env = {{"ANTHROPIC_API_KEY", "x"}, {"LICTOR_PORT", "1"}, {"PATH", "/usr/bin"}, {"HOME", "/h"}};
+    const auto path = std::filesystem::temp_directory_path() / ("di-model-roles-" + di::crypto::uuid_v4() + ".json");
+    env["LUDIARS_MODEL_ROLES_FILE"] = di::fs::from_path(path);
+    di::fs::write_file_atomic(env.at("LUDIARS_MODEL_ROLES_FILE"),
+                             R"({"schemaVersion":1,"roles":{"claude":{"sonnet":"claude-test-sonnet"},"codex":{"sol":"codex-test-sol"}}})");
     auto launch = di::lib::one_shot::prepare("claude", {"-p", "--output-format", "json"}, env, "/tmp");
     CHECK(launch.env.find("ANTHROPIC_API_KEY") == launch.env.end());
     CHECK(launch.env.find("LICTOR_PORT") == launch.env.end());
     CHECK_EQ(launch.env.at("HOME"), std::string("/h"));
     CHECK_EQ(launch.args[0], std::string("--model"));
-    CHECK_EQ(launch.args[1], std::string("claude-sonnet-5"));
+    CHECK_EQ(launch.args[1], std::string("claude-test-sonnet"));
     CHECK_THROWS(di::lib::one_shot::prepare("claude", {"--help"}, env, "/tmp"));
     CHECK_THROWS(di::lib::one_shot::prepare("cmd.exe", {"/c", "claude -p"}, env, "/tmp"));
     auto codex = di::lib::one_shot::prepare("codex", {"exec", "--model", "sol", "-"}, env, "/tmp");
-    CHECK_EQ(codex.args[2], std::string("gpt-6-sol"));
+    CHECK_EQ(codex.args[2], std::string("codex-test-sol"));
+    env["LUDIARS_ONESHOT_MODEL_SOL"] = "codex-test-override";
+    CHECK_EQ(di::lib::one_shot::prepare("codex", {"exec", "-m", "sol", "-"}, env).args[2], std::string("codex-test-override"));
+    CHECK_EQ(di::lib::one_shot::prepare("codex", {"exec", "-m", "codex-mini-latest", "-"}, env).args[2], std::string("codex-mini-latest"));
+    std::filesystem::remove(path);
 }
 
 #ifndef _WIN32

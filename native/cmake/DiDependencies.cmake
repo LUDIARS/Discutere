@@ -61,6 +61,16 @@ set(DI_LORICA_DIR ${_di_lorica_dir})
 
 FetchContent_MakeAvailable(json boost sqlite)
 
+# Reuse the one-shot launch boundary and the dependency targets above.
+set(_di_lapilli_dir "${CMAKE_CURRENT_LIST_DIR}/../../lib/lapilli/native")
+if(NOT EXISTS "${_di_lapilli_dir}/CMakeLists.txt")
+  message(FATAL_ERROR "Lapilli native is missing. Run git submodule update --init lib/lapilli")
+endif()
+set(LAPILLI_NATIVE_CRYPTO OFF)
+set(LAPILLI_NATIVE_NET OFF)
+set(LAPILLI_NATIVE_TESTS OFF)
+add_subdirectory("${_di_lapilli_dir}" "${CMAKE_BINARY_DIR}/_lapilli" EXCLUDE_FROM_ALL)
+
 add_library(di_boost INTERFACE)
 target_include_directories(di_boost SYSTEM INTERFACE ${boost_SOURCE_DIR})
 # Beast は分離コンパイル: 実装 (.ipp、zlib を含む) は生成した 1 単位 (beast_src.cpp) にだけ置き、

@@ -43,16 +43,16 @@ Discord Gateway の `MessageCreate` で **bot 発言は取り込み前に破棄*
 | キー | 既定 | 説明 |
 |------|------|------|
 | `backend` | `claude-cli` | `claude-cli`=Lictor 経由 spawn (サブスク・トークン不要) / `anthropic`=API 直 / `off`=LLM 無効 (regex のみ) |
-| `model` | `claude-haiku-4-5-20251001` | 分類モデル。精度優先なら Sonnet 等に変更可 |
+| `model` | `haiku` | 分類モデル。精度優先なら Sonnet 等に変更可 |
 | `timeoutMs` | `30000` | claude-cli backend のタイムアウト (分類は短文なので短め) |
 
 env: `DISCUTERE_CLASSIFIER_BACKEND` / `DISCUTERE_CLASSIFIER_MODEL` /
 `DISCUTERE_CLASSIFIER_TIMEOUT_MS`。`backend` 未指定時は `ANTHROPIC_API_KEY` があれば
 `anthropic`、無ければ `claude-cli` に倒す (CLI が無い CI/headless での後方互換)。
 
-- **claude-cli** = `ClaudeCliClient` が `claude -p --model <haiku>` を spawn (Lictor
-  wrapping 配下と同等の挙動)。生テキストを返すので action ラップは無い。
-- **anthropic** = `AnthropicSdkClient` が `/v1/messages` を `model=haiku` で叩く。
+- **claude-cli** = `ClaudeCliClient` が Lapilli one-shot にモデル指定を渡し、`claude -p` を起動する。
+  生テキストを返すので action ラップは無い。
+- **anthropic** = `AnthropicSdkClient` が役割名を解決し、得られた ID を `/v1/messages` に渡す。
 
 ## 出力スキーマ
 

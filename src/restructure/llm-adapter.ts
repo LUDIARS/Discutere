@@ -4,6 +4,7 @@
  * AnthropicAdapter が本番実装、MockAdapter がテスト用。
  */
 
+import { resolveAnthropicModel } from "../persona-engine/llm/model-spec.js";
 import type {
   EconomyPhase0,
   MechanicMid,
@@ -52,7 +53,7 @@ export interface LlmAdapter {
 
 // ── Anthropic 本番実装 ────────────────────────────────────────────────────────
 
-const ANTHROPIC_MODEL = "claude-haiku-4-5-20251001";
+const ANTHROPIC_MODEL = "haiku";
 const TIMEOUT_MS = 90_000;
 
 async function callAnthropic(
@@ -71,7 +72,7 @@ async function callAnthropic(
         "anthropic-version": "2023-06-01",
       },
       body: JSON.stringify({
-        model: ANTHROPIC_MODEL,
+        model: resolveAnthropicModel(ANTHROPIC_MODEL),
         max_tokens: 2048,
         system: systemPrompt,
         messages: [{ role: "user", content: prompt }],

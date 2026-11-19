@@ -123,21 +123,23 @@ TEST_CASE("codex-cli: env allowlist, args, conversationOnly and model validation
     auto env = build_codex_environment(src);
     CHECK_EQ(env.size(), std::size_t(3));
     CHECK(env.find("OPENAI_API_KEY") == env.end());
-    auto args = codex_cli_args("gpt-6-sol", std::string("high"), "/tmp/o.txt");
-    std::vector<std::string> expected = {"exec", "-m", "gpt-6-sol", "-c", "model_reasoning_effort=\"high\"", "-s", "read-only", "--ephemeral",
+    src["LUDIARS_MODEL_ROLES_FILE"] = "test-model-roles.json";
+    CHECK_EQ(build_codex_environment(src).at("LUDIARS_MODEL_ROLES_FILE"), std::string("test-model-roles.json"));
+    auto args = codex_cli_args("codex-test-sol", std::string("high"), "/tmp/o.txt");
+    std::vector<std::string> expected = {"exec", "-m", "codex-test-sol", "-c", "model_reasoning_effort=\"high\"", "-s", "read-only", "--ephemeral",
                                          "--skip-git-repo-check", "--color", "never", "-o", "/tmp/o.txt", "-"};
     CHECK(args == expected);
-    CodexCliClient client({std::string("/nonexistent/codex"), std::string("gpt-6-sol"), 5000, std::nullopt});
+    CodexCliClient client({std::string("/nonexistent/codex"), std::string("codex-test-sol"), 5000, std::nullopt});
     LLMInvokeArgs a;
     a.prompt = "p";
     a.conversationOnly = true;
     CHECK_EQ(client.invoke(a).error, std::string("Codex CLI conversation-only capability is not configured"));
     a.conversationOnly = false;
-    a.model = "gpt-6-sol@ultra";  // 未対応の effort の検査 (起動前に拒否)
+    a.model = "sol@ultra";  // 未対応の effort の検査 (起動前に拒否)
     CHECK(client.invoke(a).error.rfind("codex-cli: ", 0) == 0);
     a.model = "claude-opus-5";  // one-shot が GPT 以外を拒否 (TS の spawnOneShot が投げるのと同じ)
     CHECK_EQ(client.invoke(a).error, std::string("codex cli spawn failed"));
-    a.model = "gpt-6-sol";
+    a.model = "codex-test-sol";
     CHECK_EQ(client.invoke(a).error, std::string("codex cli error (ENOENT)"));
 }
 
@@ -161,7 +163,7 @@ TEST_CASE("codex-cli: fake codex writes -o file from stdin (argv, no shell)") {
         "if [ -n \"$OPENAI_API_KEY\" ]; then echo leaked > \"$out\"; exit 0; fi\n"
         "cat > \"$out\"\n");
     di::env::set_for_test("OPENAI_API_KEY", std::string_view("test-not-real"));
-    CodexCliClient client({path, std::string("gpt-6-sol@low"), 10'000, std::nullopt});
+    CodexCliClient client({path, std::string("codex-test-sol@low"), 10'000, std::nullopt});
     LLMInvokeArgs a;
     a.prompt = "hello; rm -rf /";
     a.system = "sys";
@@ -174,21 +176,21 @@ TEST_CASE("codex-cli: fake codex writes -o file from stdin (argv, no shell)") {
 TEST_CASE("codex-cli: exit code, empty response, oversized response, timeout") {
     LLMInvokeArgs a;
     a.prompt = "p";
-    CHECK_EQ(CodexCliClient({fake_codex("exit 3\n"), std::string("gpt-6-sol"), 10'000, std::nullopt}).invoke(a).error,
+    CHECK_EQ(CodexCliClient({fake_codex("exit 3\n"), std::string("codex-test-sol"), 10'000, std::nullopt}).invoke(a).error,
              std::string("codex cli exit 3"));
-    CHECK_EQ(CodexCliClient({fake_codex("cat >/dev/null\nexit 0\n"), std::string("gpt-6-sol"), 10'000, std::nullopt}).invoke(a).error,
+    CHECK_EQ(CodexCliClient({fake_codex("cat >/dev/null\nexit 0\n"), std::string("codex-test-sol"), 10'000, std::nullopt}).invoke(a).error,
              std::string("codex cli: empty response"));
     // 子の env は許可リストだけなので、書く大きさはスクリプトに埋め込む。
     auto write_n = [](std::size_t n) {
         return "out=\"\"; while [ $# -gt 0 ]; do if [ \"$1\" = \"-o\" ]; then out=$2; fi; shift; done\n"
                "head -c " + std::to_string(n) + " /dev/zero | tr '\\0' 'a' > \"$out\"\n";
     };
-    auto exact = CodexCliClient({fake_codex(write_n(CODEX_MAX_RESPONSE_BYTES)), std::string("gpt-6-sol"), 10'000, std::nullopt}).invoke(a);
+    auto exact = CodexCliClient({fake_codex(write_n(CODEX_MAX_RESPONSE_BYTES)), std::string("codex-test-sol"), 10'000, std::nullopt}).invoke(a);
     CHECK(exact.ok);
     CHECK_EQ(exact.text.size(), CODEX_MAX_RESPONSE_BYTES);
-    auto over = CodexCliClient({fake_codex(write_n(CODEX_MAX_RESPONSE_BYTES + 1)), std::string("gpt-6-sol"), 10'000, std::nullopt}).invoke(a);
+    auto over = CodexCliClient({fake_codex(write_n(CODEX_MAX_RESPONSE_BYTES + 1)), std::string("codex-test-sol"), 10'000, std::nullopt}).invoke(a);
     CHECK_EQ(over.error, std::string("codex cli: response exceeds 1048576 bytes"));
-    auto slow = CodexCliClient({fake_codex("sleep 5\n"), std::string("gpt-6-sol"), 300, std::nullopt}).invoke(a);
+    auto slow = CodexCliClient({fake_codex("sleep 5\n"), std::string("codex-test-sol"), 300, std::nullopt}).invoke(a);
     CHECK_EQ(slow.error, std::string("codex cli timeout (300ms)"));
 }
 #endif

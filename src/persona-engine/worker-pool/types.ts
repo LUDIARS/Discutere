@@ -13,7 +13,7 @@ export interface WorkerConfig {
   role: string;
   /** Lictor がラップする CLI。 */
   provider: WorkerProvider;
-  /** CLI に --model で渡すモデル ID。例 "claude-opus-5" / "gpt-5.6-sol" */
+  /** CLI 起動時に解決するモデル役割名、または明示 ID。 */
   model: string;
 }
 

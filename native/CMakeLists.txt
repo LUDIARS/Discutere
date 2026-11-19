@@ -78,7 +78,7 @@ if(DI_APP_SOURCES)
 else()
   add_library(di_app STATIC ${CMAKE_CURRENT_SOURCE_DIR}/cmake/empty.cpp)
 endif()
-target_link_libraries(di_app PUBLIC di_infra)
+target_link_libraries(di_app PUBLIC di_infra PRIVATE Lapilli::one_shot)
 di_target_warnings(di_app)
 di_harden(di_app SERVER)
 
