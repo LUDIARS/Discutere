@@ -9,9 +9,11 @@
 #include "core/index.hpp"
 #include "core/kg_registry.hpp"
 #include "core/vectors/voice_index.hpp"
+#include "flow/db/connection.hpp"
 #include "flow/learning_autocrawl.hpp"
 #include "flow/user_voices/runtime.hpp"
 #include "persona_bridge/bridge_auth.hpp"
+#include "playtest/voice_store.hpp"
 
 namespace di::api {
 
@@ -32,7 +34,14 @@ void default_impression_ingest(const std::function<void(const persona_bridge::In
     persona_bridge::IngestDeps deps;
     core::Core* c = core.get();
     const std::string ws = cfg.workspace;
-    deps.importItems = [c, ws](const std::vector<crawler::sources::ExternalUtterance>& items) { return flow::default_import(c, items, ws); };
+    deps.importItems = [c, ws](const std::vector<crawler::sources::ExternalUtterance>& items) {
+        const int imported = flow::default_import(c, items, ws);
+        std::vector<playtest::HumanVoice> voices;
+        voices.reserve(items.size());
+        for (const auto& item : items) voices.push_back({item.nativeId, item.threadKey, item.content});
+        playtest::index_human_playtest_voices(*flow::db::get_flow_db(), voices);
+        return imported;
+    };
     if (embedder) {
         const int batch = static_cast<int>(cfg.embedding.batchSize);
         deps.embed = [c, embedder, ws, batch](const std::vector<std::string>& ids) {
@@ -65,9 +74,28 @@ http::Router create_impression_bridge_routes(ImpressionBridgeRoutesOptions optio
     }
     if (!options.now) options.now = [] { return time::now_ms(); };
     if (!options.withIngest) options.withIngest = default_impression_ingest;
+    if (!options.saveAiReview) options.saveAiReview = [](const playtest::AiReview& review) {
+        return playtest::save_ai_review(*flow::db::get_flow_db(), review);
+    };
     auto opts = std::make_shared<ImpressionBridgeRoutesOptions>(std::move(options));
 
     http::Router routes;
+    routes.post("/persona-bridge/ai-playtest-reviews", [opts](http::Request& req) {
+        const auto auth = persona_bridge::authorize_bridge_request(
+            req.header("authorization"), {opts->token, opts->serviceAudience, opts->loadServiceTokenKeys, opts->now, "ai-playtest-bridge"});
+        if (!auth.ok) return no_store(http::Response::json(Json{{"ok", false}, {"error", auth.error}}, auth.status));
+        const auto body = req.json(JsonLimits{playtest::review_body_limit, 6'000, 8});
+        const auto key = req.header("idempotency-key");
+        const auto review = body && key ? playtest::parse_ai_review(*body, *key) : std::nullopt;
+        if (!review) return no_store(http::Response::json(Json{{"ok", false}, {"error", "invalid AI playtest review"}}, 400));
+        try {
+            const bool inserted = opts->saveAiReview(*review);
+            return no_store(http::Response::json(Json{{"ok", true}, {"run_id", review->runId}}, inserted ? 201 : 200));
+        } catch (const std::exception&) {
+            log::warn("[ai-playtest-bridge] failed to store review");
+            return no_store(http::Response::json(Json{{"ok", false}, {"error", "failed to store review"}}, 500));
+        }
+    }, http::RouteOptions{playtest::review_body_limit});
     routes.post(
         "/persona-bridge/impressions",
         [opts](http::Request& req) {

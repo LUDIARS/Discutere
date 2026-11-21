@@ -436,6 +436,12 @@ DiscutereConfig load_config(const LoadOptions& options) {
     c.autoSeed.maxConcurrent = L::pick_num(e("DISCUTERE_AUTOSEED_MAX_CONCURRENT"), x.f({"autoSeed", "maxConcurrent"}), 2);
     c.autoSeed.sources = L::parse_string_list(e("DISCUTERE_AUTOSEED_SOURCES"), x.f({"autoSeed", "sources"}));
     if (c.autoSeed.sources.empty()) c.autoSeed.sources = {"genre"};
+    c.autoSeed.minNewVoices = static_cast<std::int64_t>(std::clamp(
+        std::floor(L::pick_num(e("DISCUTERE_AUTOSEED_MIN_NEW_VOICES"), x.f({"autoSeed", "minNewVoices"}), 3)), 1.0, 10'000.0));
+    c.autoSeed.cooldownMs = static_cast<std::int64_t>(std::clamp(
+        std::floor(L::pick_num(e("DISCUTERE_AUTOSEED_COOLDOWN_MS"), x.f({"autoSeed", "cooldownMs"}), 86'400'000)), 0.0, 2'592'000'000.0));
+    c.managementProposals.baseUrl = L::pick_opt(e("DISCUTERE_MANAGEMENT_PROPOSALS_BASE_URL"), x.f({"managementProposals", "baseUrl"})).value_or("");
+    c.managementProposals.projectCode = L::pick_opt(e("DISCUTERE_MANAGEMENT_PROPOSALS_PROJECT_CODE"), x.f({"managementProposals", "projectCode"})).value_or("");
 
     c.llm.anthropicApiKey = L::pick_opt(e("ANTHROPIC_API_KEY"), x.f({"llm", "anthropicApiKey"}));
     c.llm.model = L::pick_opt(e("ANTHROPIC_MODEL"), x.f({"llm", "model"}));
@@ -711,7 +717,10 @@ Json to_json(const DiscutereConfig& c) {
     o["autoSeed"] = Json{{"enabled", c.autoSeed.enabled},
                          {"intervalMs", c.autoSeed.intervalMs},
                          {"maxConcurrent", c.autoSeed.maxConcurrent},
-                         {"sources", strings(c.autoSeed.sources)}};
+                         {"sources", strings(c.autoSeed.sources)},
+                         {"minNewVoices", c.autoSeed.minNewVoices},
+                         {"cooldownMs", c.autoSeed.cooldownMs}};
+    o["managementProposals"] = Json{{"baseUrl", c.managementProposals.baseUrl}, {"projectCode", c.managementProposals.projectCode}};
 
     Json llm = Json::object();
     llm["backend"] = c.llm.backend;

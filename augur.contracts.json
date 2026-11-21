@@ -38,6 +38,33 @@
                           "criterion": "C-4 resolveAnthropicModel(model): Anthropic API 用に役割名を ID に解決し明示 ID を保持する",
                           "mode": "observe",
                           "file": "src/persona-engine/llm/model-spec.ts"
+                      },
+                      {
+                          "id": "C-8",
+                          "module": "src/flow/contracts/praesidium-native-coverage.contract.ts",
+                          "sample": 1,
+                          "symbol": "verifyNativeCoverage",
+                          "criterion": "C-8 verifyNativeCoverage(report, units): Praesidium が追加ユニットすべてを解析し、指摘 0 件で全検査を通過する",
+                          "mode": "observe",
+                          "file": "src/flow/verify-praesidium-native-coverage.ts"
+                      },
+                      {
+                          "id": "C-9",
+                          "module": "src/flow/contracts/playtest-runtime-allocation.contract.ts",
+                          "sample": 1,
+                          "symbol": "verifyPlaytestRuntimeAllocation",
+                          "criterion": "C-9 verifyPlaytestRuntimeAllocation(report): Anatomia が試遊契約ランタイムを検査し memory/c-allocation を報告しない",
+                          "mode": "observe",
+                          "file": "src/flow/verify-playtest-runtime-allocation.ts"
+                      },
+                      {
+                          "id": "C-10",
+                          "module": "src/flow/contracts/playtest-runtime-clang.contract.ts",
+                          "sample": 1,
+                          "symbol": "verifyPlaytestRuntimeClang",
+                          "criterion": "C-10 verifyPlaytestRuntimeClang(report): 後置条件なしの契約を使う翻訳単位が Praesidium の Clang 解析に通る",
+                          "mode": "observe",
+                          "file": "src/flow/verify-playtest-runtime-clang.ts"
                       }
                   ],
     "runtimeFile":  "src/flow/contracts/runtime.ts"

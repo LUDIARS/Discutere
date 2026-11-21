@@ -15,6 +15,7 @@
 #include "discord_hook/reactions.hpp"
 #include "persona_engine/facilitator/js_value.hpp"
 #include "persona_engine/index.hpp"
+#include "playtest/proposal_outbox.hpp"
 
 namespace di::persona_engine::facilitator {
 
@@ -331,9 +332,12 @@ void Facilitator::converge(const Discussion& d) {
     post.text = "【収束】\n" + summary;
     post.byPersonaId = FACILITATOR_PERSONA_ID;
     deps_.contextProvider->post_utterance(post);
-    close_gap(d.gapId);
-    // gap closed と session ライフサイクルを揃える (ダッシュボードの「進行中」に出続けないように)。
-    const auto scene = end_converged_sessions(d.sessionId);
+    // Outbox と収束を同じ SQLite トランザクションで確定する。
+    const auto scene = raw().transaction([&] {
+        playtest::enqueue_playtest_proposal(raw(), d.gapId, summary, time::now_ms());
+        close_gap(d.gapId);
+        return end_converged_sessions(d.sessionId);
+    });
     {
         std::lock_guard lock(states_mutex_);
         states_.erase(d.sessionId);  // 収束したら管理終了 (= ファシリテーター消滅)
@@ -375,12 +379,13 @@ std::optional<std::string> Facilitator::end_converged_sessions(const std::string
 }
 
 void Facilitator::close_gap(const std::string& gap_id) {
-    const auto g = raw().get("SELECT title, description FROM design_gaps WHERE id = ?", {gap_id});
+    const auto g = raw().get("SELECT title, description, game_id FROM design_gaps WHERE id = ?", {gap_id});
     if (!g) return;
     core::repositories::DesignGapPatch patch;
     patch.workspaceId = deps_.workspaceId;
     patch.title = g->str("title");
     patch.description = g->opt_str("description");
+    patch.gameId = g->opt_str("game_id");
     patch.status = "closed";
     deps_.core->repos.designGap.update(gap_id, patch);
 }

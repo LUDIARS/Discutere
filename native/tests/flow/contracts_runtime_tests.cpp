@@ -12,6 +12,7 @@
 #include "base/time.hpp"
 #include "flow/contracts/runtime.hpp"
 #include "flow/contracts/spec_zip_entry_contract.hpp"
+#include "playtest/contracts/runtime.hpp"
 
 using namespace di;
 using namespace di::flow::contracts;
@@ -52,6 +53,22 @@ TEST_CASE("day key is JST") {
     const auto t = time::from_civil_utc(2026, 10, 13, 14, 59, 59);
     CHECK_EQ(day_key(t), std::string("2026-10-13"));
     CHECK_EQ(day_key(t + 1000), std::string("2026-10-14"));  // 15:00 UTC = 翌日 0:00 JST
+}
+
+TEST_CASE("playtest contracts write to the configured UTF-8 log directory") {
+    LogsDir logs;
+    const auto path = fs::join(logs.path, "試遊");
+    env::set_for_test("VESTIGIUM_LOGS_DIR", path);
+    auto observed = augur::contract([] { return 3; }, {"playtest-runtime", "log-path", "contracts_runtime_tests"});
+    CHECK_EQ(observed(), 3);
+    int calls = 0;
+    auto observed_void = augur::contract([&calls] { ++calls; },
+                                        {"playtest-runtime", "void", "contracts_runtime_tests"});
+    observed_void();
+    CHECK_EQ(calls, 1);
+    const auto log = fs::read_file(fs::join(path, "contracts.jsonl"));
+    CHECK(log.has_value());
+    CHECK(log->find("contract observed") != std::string::npos);
 }
 
 TEST_CASE("retention days env") {

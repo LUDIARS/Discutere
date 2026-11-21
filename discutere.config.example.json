@@ -124,6 +124,18 @@
       "timeoutMs": 180000
     }
   },
+  "autoSeed": {
+    "enabled": false,
+    "intervalMs": 1800000,
+    "maxConcurrent": 2,
+    "sources": ["genre"],
+    "minNewVoices": 3,
+    "cooldownMs": 86400000
+  },
+  "managementProposals": {
+    "baseUrl": "",
+    "projectCode": ""
+  },
   "personaEngine": {
     "dbPath": "./data/persona-engine.db",
     "maxFiresPerSession": 20,

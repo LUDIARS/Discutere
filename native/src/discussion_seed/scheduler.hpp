@@ -16,6 +16,7 @@
 #include "persona_engine/db/personas_repo.hpp"
 #include "persona_engine/facilitator/periodic.hpp"
 #include "persona_engine/types.hpp"
+#include "playtest/seed.hpp"
 
 namespace di::discussion_seed {
 
@@ -23,6 +24,7 @@ struct AutoSeedConfig {
     double intervalMs = 0;
     double maxConcurrent = 0;
     std::vector<std::string> sources;
+    playtest::VoiceSeedPolicy playtest{};
 };
 
 struct AutoSeedSchedulerDeps {
@@ -61,6 +63,8 @@ private:
     std::int64_t open_headless_count();
     bool has_open_gap_with_title(const std::string& title);
     std::optional<Next> next_topic();
+    std::optional<AutoSeedTriggered> trigger_playtest_seed();
+    std::optional<AutoSeedTriggered> trigger_catalog_seed();
 
     AutoSeedSchedulerDeps deps_;
     std::vector<std::string> sources_;

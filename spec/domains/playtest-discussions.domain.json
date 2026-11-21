@@ -1,0 +1,12 @@
+{
+  "name": "playtest-discussions",
+  "description": "AI 試遊感想と人の新着感想を材料とする自動議論、および CDGD 改善提案配送",
+  "presetRules": [],
+  "templateRules": [],
+  "membership": [
+    {"pathPattern": "^native/src/(playtest|discussion_seed)/"},
+    {"pathPattern": "^native/src/api/(ai_playtest|impression)_bridge_routes\\.(cpp|hpp)$"},
+    {"pathPattern": "^native/tests/(playtest|discussion_seed)/"}
+  ],
+  "specRefs": ["SPEC-DI-AI-PLAYTEST-REVIEWS", "SPEC-DI-PLAYTEST-PROPOSALS", "SPEC-DI-PLAYTEST-RUNTIME"]
+}

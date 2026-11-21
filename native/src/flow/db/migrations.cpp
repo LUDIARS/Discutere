@@ -398,6 +398,18 @@ const std::vector<FlowMigration>& flow_migrations() {
              R"SQL(CREATE INDEX IF NOT EXISTS idx_flow_proxy_profile_label ON flow_proxy_profile(label, genre))SQL",
              R"SQL(ALTER TABLE flow_utterance ADD COLUMN claim_kind TEXT)SQL",
              R"SQL(ALTER TABLE flow_utterance ADD COLUMN evidence_ids_json TEXT)SQL"}},
+        {"2026-11-21-playtest-voices",
+         {R"SQL(CREATE TABLE IF NOT EXISTS ai_playtest_review (
+           seq INTEGER PRIMARY KEY AUTOINCREMENT, run_id TEXT NOT NULL UNIQUE, game_id TEXT NOT NULL,
+           game_title TEXT NOT NULL, payload TEXT NOT NULL
+         ))SQL",
+          R"SQL(CREATE INDEX IF NOT EXISTS ai_playtest_review_game_id ON ai_playtest_review(game_id, seq))SQL",
+          R"SQL(CREATE INDEX IF NOT EXISTS ai_playtest_review_game_title ON ai_playtest_review(game_title, seq))SQL",
+          R"SQL(CREATE TABLE IF NOT EXISTS human_playtest_voice (
+           seq INTEGER PRIMARY KEY AUTOINCREMENT, impression_id TEXT NOT NULL UNIQUE,
+           game_title TEXT NOT NULL, comment TEXT NOT NULL
+         ))SQL",
+          R"SQL(CREATE INDEX IF NOT EXISTS human_playtest_voice_game ON human_playtest_voice(game_title, seq))SQL"}},
     };
     return migrations;
 }

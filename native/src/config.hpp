@@ -186,7 +186,13 @@ struct DiscutereConfig {
         double intervalMs = 0;
         double maxConcurrent = 0;
         std::vector<std::string> sources;
+        std::int64_t minNewVoices = 3;
+        std::int64_t cooldownMs = 86'400'000;
     } autoSeed;
+    struct {
+        std::string baseUrl;
+        std::string projectCode;
+    } managementProposals;
     struct {
         LlmBackend backend;
         std::optional<std::string> anthropicApiKey;

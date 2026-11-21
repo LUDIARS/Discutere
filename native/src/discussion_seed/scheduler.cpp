@@ -1,10 +1,13 @@
+// @spec 設定 (config.autoSeed)
 #include "discussion_seed/scheduler.hpp"
 
 #include <chrono>
 #include <stdexcept>
 #include <utility>
 
+#include "base/time.hpp"
 #include "discussion_seed/seed.hpp"
+#include "flow/db/connection.hpp"
 #include "persona_engine/index.hpp"
 
 namespace di::discussion_seed {
@@ -55,13 +58,18 @@ std::optional<AutoSeedScheduler::Next> AutoSeedScheduler::next_topic() {
     return std::nullopt;
 }
 
-std::optional<AutoSeedTriggered> AutoSeedScheduler::trigger() {
-    std::lock_guard lock(mutex_);
-    if (static_cast<double>(open_headless_count()) >= deps_.config.maxConcurrent) {
-        deps_.logger->info(Json{{"open", open_headless_count()}, {"max", deps_.config.maxConcurrent}},
-                           "auto-seed skipped (maxConcurrent reached)");
-        return std::nullopt;
-    }
+std::optional<AutoSeedTriggered> AutoSeedScheduler::trigger_playtest_seed() {
+    SeedHeadlessDiscussionArgs args;
+    args.core = deps_.core.get();
+    args.personas = deps_.personas.get();
+    args.workspaceId = deps_.workspaceId;
+    const auto seeded = playtest::seed_from_playtest_voices(*flow::db::get_flow_db(), args, deps_.config.playtest, time::now_ms());
+    if (!seeded) return std::nullopt;
+    deps_.logger->info(Json{{"gap_id", seeded->gapId}, {"origin", "auto:playtest-voices"}}, "auto-seed started headless discussion");
+    return AutoSeedTriggered{seeded->gapId, seeded->title};
+}
+
+std::optional<AutoSeedTriggered> AutoSeedScheduler::trigger_catalog_seed() {
     const auto next = next_topic();
     if (!next) {
         deps_.logger->info(Json::object(), "auto-seed skipped (no fresh topic)");
@@ -77,6 +85,19 @@ std::optional<AutoSeedTriggered> AutoSeedScheduler::trigger() {
     deps_.logger->info(Json{{"gap_id", seeded.gapId}, {"title", next->topic.title}, {"origin", next->origin}},
                        "auto-seed started headless discussion");
     return AutoSeedTriggered{seeded.gapId, next->topic.title};
+}
+
+std::optional<AutoSeedTriggered> AutoSeedScheduler::trigger() {
+    std::lock_guard lock(mutex_);
+    const auto open = open_headless_count();
+    if (static_cast<double>(open) >= deps_.config.maxConcurrent) {
+        deps_.logger->info(Json{{"open", open}, {"max", deps_.config.maxConcurrent}}, "auto-seed skipped (maxConcurrent reached)");
+        return std::nullopt;
+    }
+    const auto& source = sources_[static_cast<std::size_t>(rotation_ % static_cast<std::int64_t>(sources_.size()))];
+    if (source != "playtest-voices") return trigger_catalog_seed();
+    ++rotation_;
+    return trigger_playtest_seed();
 }
 
 void AutoSeedScheduler::start() {

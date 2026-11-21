@@ -1,5 +1,5 @@
 {
   "service": "discutere",
-  "include": ["src/flow/spec-source.ts", "src/flow/strip-html.ts"],
+  "include": ["src/flow/spec-source.ts", "src/flow/strip-html.ts", "src/flow/verify-praesidium-native-coverage.ts", "src/flow/verify-playtest-runtime-allocation.ts", "src/flow/verify-playtest-runtime-clang.ts"],
   "rules": { "contract-wrap": true }
 }

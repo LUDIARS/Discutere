@@ -1,0 +1,5 @@
+{
+  "service": "discutere-playtest",
+  "include": ["src/playtest/*.cpp"],
+  "rules": {"contract-wrap": true}
+}

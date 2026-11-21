@@ -4,11 +4,13 @@
 
 #include "base/strings.hpp"
 #include "config.hpp"
+#include "flow/db/connection.hpp"
 #include "flow/mechanic_extract.hpp"
 #include "flow/paper_markdown.hpp"
 #include "flow/project_premise.hpp"
 #include "flow/tags.hpp"
 #include "flow/user_voices/reference_policy.hpp"
+#include "playtest/voice_store.hpp"
 
 namespace di::flow {
 
@@ -67,6 +69,13 @@ FlowSetupResult setup_flow_paper(persona_engine::LLMClient& llm, const FlowSetup
         content.supplement = supplement;
         content.mechanics = mechanics;
         body_md = paper_draft_to_markdown(content);
+    }
+    playtest::replace_ai_review_section(*body_md, {});
+    if (can_collect_external(args.tags)) {
+        const auto fields = paper_fixed_fields_from_markdown(*body_md, PaperContent{});
+        const auto game = str::trim(fields.gameTitle.empty() ? args.theme : fields.gameTitle);
+        const auto section = playtest::ai_review_section_for_game(*db::get_flow_db(), game);
+        if (!section.empty()) playtest::replace_ai_review_section(*body_md, section);
     }
     out.paperId = persist_paper({args.sessionId, args.theme, args.tags, mechanics, supplement, body_md}, args.flow);
     out.paper.paperId = out.paperId;

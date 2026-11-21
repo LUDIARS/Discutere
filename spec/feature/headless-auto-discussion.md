@@ -40,9 +40,35 @@ store-trends ─┘   gap + session(scene=gap:*)   拡張→止揚判定→収�
 | enabled | false | 自動シードの有効化 (opt-in) |
 | intervalMs | 1_800_000 | 種投入の周期 (30分) |
 | maxConcurrent | 2 | 同時に開く headless 議論の上限 |
-| sources | ["genre"] | 種ソース ("genre" / "store-trend"、 複数で巡回) |
+| sources | ["genre"] | 種ソース (`genre` / `store-trend` / `playtest-voices`、複数で巡回) |
+| minNewVoices | 3 | `playtest-voices` で起動するゲームの未消費感想の最小件数 (整数、1〜10000) |
+| cooldownMs | 86400000 | 同じゲームの再起動までの最短時間 (整数、0〜2592000000 ms) |
 
-env: `DISCUTERE_AUTOSEED_ENABLED` / `_INTERVAL_MS` / `_MAX_CONCURRENT` / `_SOURCES`。
+env: `DISCUTERE_AUTOSEED_ENABLED` / `_INTERVAL_MS` / `_MAX_CONCURRENT` / `_SOURCES` / `_MIN_NEW_VOICES` / `_COOLDOWN_MS`。
+
+### 試遊感想による起動（Actio 3259cd8c）
+
+`playtest-voices` は、Voluptas から受領した匿名の人の感想と AI 試遊感想を重複を除いて合算する。AI のゲーム ID を基準にまとめ、タイトルからゲーム ID を一意に引ける場合に人の感想を合算する。人の感想しか届いていないタイトルも起動候補になる。閾値に達し、対象の議論が開いておらず、クールダウンを過ぎたときに同じ headless 経路で起動する。起動成功時に対象の受信位置をワークスペース別に保存する。議論の種には人と AI の感想を別の欄に載せる。
+
+既存ソースと試遊感想の切り替えは `native/src/discussion_seed/scheduler.cpp` が行う。
+
+## CDGD 改善提案（SPEC-DI-PLAYTEST-PROPOSALS）
+
+`playtest-voices` 由来の議論の収束時に、結論要約を永続 outbox に登録する。収束済みを確認してから Concordia の `POST /v1/management/events` に次の値を送る。
+
+| 項目 | 値 |
+|---|---|
+| `event_key` | `di:proposal:<gap ID>`。同じ議論の再送で固定 |
+| `source` / `kind` / `origin` | `di` / `improvement_proposal` / `ai` |
+| `project_code` | 対象ゲームを管理するプロジェクトコード。初回配送時に確定 |
+| `target_key` | Voluptas のゲーム ID。ID が無いときは `glab:<タイトルの SHA-256>`、Concordia のキー規則に合わない ID は `game:<ID の SHA-256>` |
+| `summary` / `observed_at` | 結論要約（最大 2000 UTF-16 単位）と収束時刻 (UNIX ミリ秒) |
+
+`managementProposals.baseUrl` に Concordia のループバック origin (127.0.0.1 または ::1)、`managementProposals.projectCode` に配送対象プロジェクトを設定する。どちらも既定は空。env は `DISCUTERE_MANAGEMENT_PROPOSALS_BASE_URL` / `DISCUTERE_MANAGEMENT_PROPOSALS_PROJECT_CODE`。認証情報は送信せず、リダイレクトを追わない。15 秒ごとに配送対象を確認し、5 秒のタイムアウトまたはエラー時は状態と警告を残して 60 秒後から同じキーで再送する。未設定時も保留理由を記録して再試行する。
+
+## 契約の観測（SPEC-DI-PLAYTEST-RUNTIME）
+
+C++ の受信形式、起動の閾値、配送イベントは `native/augur.contracts.json` に登録する。`native/src/playtest/contracts/contract_runtime.hpp` のランタイムは契約 ID と判定だけを記録する。後置条件を省略した場合も、戻り値のある処理と `void` 処理のどちらでも呼び出しを観測する。PR #4003（Actio `37ee6778-714c-4851-85dd-64da25da66a5`）の回帰確認では、両方を実体化する翻訳単位の Praesidium Clang 解析結果を確認する。
 
 ## 結論閲覧 (#66)
 

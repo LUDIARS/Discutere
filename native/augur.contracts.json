@@ -1,0 +1,11 @@
+{
+  "version": 1,
+  "contractsDir": "src/playtest/contracts",
+  "importFrom": "playtest/contracts/runtime.hpp",
+  "runtimeFile": "src/playtest/contracts/contract_runtime.hpp",
+  "contracts": [
+    {"id":"C-5","file":"src/playtest/review.cpp","symbol":"parse_ai_review","module":"src/playtest/contracts/review.hpp","criterion":"C-5 parse_ai_review(body, key): AI 由来の項目と run_id に一致する冪等キーだけを受理する"},
+    {"id":"C-6","file":"src/playtest/seed.cpp","symbol":"voice_threshold_met","module":"src/playtest/contracts/seed.hpp","criterion":"C-6 voice_threshold_met(count, minimum): 未消費の新着感想が閾値に達したときだけ起動候補になる"},
+    {"id":"C-7","file":"src/playtest/proposal_client.cpp","symbol":"proposal_payload","module":"src/playtest/contracts/proposal.hpp","criterion":"C-7 proposal_payload(conclusion_id, project_code, target_key, summary, observed_at): 同じ結論の配送で同じ event_key と AI 由来情報を保持する"}
+  ]
+}

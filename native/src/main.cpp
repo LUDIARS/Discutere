@@ -59,6 +59,7 @@
 #include "base/log.hpp"
 #include "base/sqlite.hpp"
 #include "base/strings.hpp"
+#include "base/time.hpp"
 #include "config.hpp"
 #include "core/index.hpp"
 #include "core/kg_registry.hpp"
@@ -99,6 +100,7 @@
 #include "persona_engine/worker_pool/debate_rules.hpp"
 #include "persona_engine/worker_pool/persona_prompts.hpp"
 #include "persona_engine/worker_pool/pool.hpp"
+#include "playtest/proposal_outbox.hpp"
 #include "queue/snapshot.hpp"
 #include "runtime_settings/store.hpp"
 #include "secrets/youtube_env.hpp"
@@ -212,6 +214,7 @@ struct GatewaySlot {
 /** persona-engine の IIFE が返すもの。 */
 struct PersonaLifecycle {
     std::shared_ptr<persona_engine::PersonaEngineHandle> engine;
+    std::unique_ptr<persona_engine::facilitator::PeriodicTask> proposalDelivery;
     std::shared_ptr<discatier_engine_adapter::EventBridge> bridge;
     std::shared_ptr<core::Core> core;
     sql::DatabasePtr peDb;
@@ -670,12 +673,23 @@ int run_server() {
                 sd.config.intervalMs = config.autoSeed.intervalMs;
                 sd.config.maxConcurrent = config.autoSeed.maxConcurrent;
                 sd.config.sources = config.autoSeed.sources;
+                sd.config.playtest = {config.autoSeed.minNewVoices, config.autoSeed.cooldownMs};
                 sd.logger = std::make_shared<PrefixLogger>("auto-seed");
                 pl.autoSeed = discussion_seed::create_auto_seed_scheduler(std::move(sd));
                 pl.autoSeed->start();
                 log::info("  auto-seed: started (interval=" + js_number_to_string(config.autoSeed.intervalMs) + "ms, maxConcurrent=" +
                           js_number_to_string(config.autoSeed.maxConcurrent) + ", sources=" + str::join(config.autoSeed.sources, "/") + ")");
             }
+            playtest::ensure_proposal_outbox(pl.core->raw());
+            pl.proposalDelivery = std::make_unique<persona_engine::facilitator::PeriodicTask>();
+            pl.proposalDelivery->start(std::chrono::seconds(15),
+                [core = pl.core, destination = playtest::ProposalDestination{config.managementProposals.baseUrl, config.managementProposals.projectCode}] {
+                    try {
+                        playtest::deliver_next_proposal(core->raw(), destination, time::now_ms());
+                    } catch (const std::exception&) {
+                        log::warn("[playtest-proposal] outbox tick failed");
+                    }
+                }, [] { log::warn("[playtest-proposal] outbox tick skipped (executor queue full)"); });
             return pl;
         } catch (const std::exception& e) {
             log::warn("  persona-engine: startup failed: " + what_of(e));
@@ -1074,6 +1088,7 @@ int run_server() {
             if (persona_lifecycle->autoSeed) persona_lifecycle->autoSeed->stop();
             if (persona_lifecycle->consensusScorer) persona_lifecycle->consensusScorer->stop();
             if (persona_lifecycle->facilitator) persona_lifecycle->facilitator->stop();
+            if (persona_lifecycle->proposalDelivery) persona_lifecycle->proposalDelivery->stop();
             persona_lifecycle->bridge->stop();
             persona_lifecycle->engine->stop();
         } catch (...) {

@@ -13,6 +13,7 @@
 #include "cernere_service_token/cernere_public_keys.hpp"
 #include "infra/http.hpp"
 #include "persona_bridge/impression_intake.hpp"
+#include "playtest/review.hpp"
 
 namespace di::api {
 
@@ -28,6 +29,7 @@ struct ImpressionBridgeRoutesOptions {
     std::function<std::int64_t()> now;
     /** 取込依存を用意して run を呼ぶ (テストで差し替える)。既定は active KG を開いて importer + 埋め込み。 */
     WithIngestFn withIngest;
+    std::function<bool(const playtest::AiReview&)> saveAiReview;
 };
 
 /** 本番の取込 (active KG を開いて importer + 埋め込み)。 */
