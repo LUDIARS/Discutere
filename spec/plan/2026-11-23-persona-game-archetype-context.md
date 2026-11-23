@@ -4,7 +4,7 @@ project: Discutere
 kind: 設計
 author: Opus (Cc セッション、neco 指示 2026-11-23)
 created: 2026-11-23
-status: draft (人間判断 D1〜D3 待ち。A1 の配線は v2 PR に同梱)
+status: decided (D1〜D3 は 2026-11-23 neco「全部推奨どおり」。A1 は #4086 でマージ済み。D3 は立場を人物像から導く方式とセット)
 related:
   - spec/feature/flow/dialectic.md
   - spec/feature/flow/persona-pool.md
@@ -93,7 +93,7 @@ A3 は Histrio の S6 (最小サービス) と脚本パターンの実装が前�
 - 【注意】Ludus の game-template に運営型 (ライブサービス・ガチャ) のジャンルが無い点を D1 の前に確かめる。
 - Histrio は「対話の振る舞い (人生脚本・口調)」、Di / Voluptas は「遊び手の嗜好」と責務を分ける (Neon)。
 
-## 4. 人間判断
+## 4. 人間判断 (2026-11-23 neco「全部推奨どおり」で確定)
 
 | # | 事項 | 推奨 | 理由 |
 |---|---|---|---|

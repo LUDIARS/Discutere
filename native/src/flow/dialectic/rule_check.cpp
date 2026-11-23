@@ -1,6 +1,7 @@
 #include "flow/dialectic/rule_check.hpp"
 
 #include "base/strings.hpp"
+#include "flow/dialectic/toulmin.hpp"
 
 namespace di::flow::dialectic {
 
@@ -27,7 +28,8 @@ AnchorResult check_rebut_anchor(const RebutClaim& claim, const PositionRecord& p
         r.foul = "unanchored";
         return r;
     }
-    if (*claim.attack == "qualifier") {
+    // 限定 (範囲・確度) と例外条件は主張全体に掛かるので、根拠を指さなくてよい。
+    if (*claim.attack == "qualifier" || *claim.attack == "exception") {
         r.ok = true;
         return r;
     }
@@ -47,11 +49,13 @@ AnchorResult check_rebut_anchor(const RebutClaim& claim, const PositionRecord& p
 namespace {
 
 std::string render_target(const PositionRecord& position, const std::optional<Ground>& ground) {
-    std::vector<std::string> lines{"主張: " + position.claim, "限定: " + position.qualifier.value_or("(明示なし)")};
+    std::vector<std::string> lines{"主張: " + position.claim, "限定: " + render_qualifier(position)};
+    if (const std::string ex = render_exceptions(position); !ex.empty()) lines.push_back(ex);
     if (ground) {
         lines.push_back("突かれた根拠 [" + ground->id + "]" + (ground->kind ? " (" + inference_kind_label(*ground->kind) + ")" : ""));
         lines.push_back("  データ: " + ground->text);
         lines.push_back("  論拠: " + ground->warrant.value_or("(明示なし)"));
+        if (ground->backing && !ground->backing->empty()) lines.push_back("  裏付け: " + *ground->backing);
     }
     return str::join(lines, "\n");
 }
@@ -67,7 +71,7 @@ std::string build_rule_judge_prompt(const RuleJudgeInput& a) {
            "# 反論 (「" + attack_point_label(a.attack) + "」を突くと宣言)\n" + a.rebutText + "\n" + "  反論のデータ: " +
            a.rebutData + "\n" + "  反論の論拠: " + a.rebutWarrant + "\n\n" +
            "この反論が議論の前提ルールを守っているかを判定し、ラベルを 1 つだけ返してください (説明不要):\n" +
-           "- ok: 宣言した要素 (データの真偽・論拠の妥当性・限定の範囲) を、相手の主張の限定の内側で突いている\n" +
+           "- ok: 宣言した要素 (データの真偽・論拠の妥当性・裏付けの確かさ・限定の範囲と確度・挙がっていない例外) を、相手の主張の限定の内側で突いている\n" +
            "- out_of_scope: 相手の限定の外側にある層・条件・事例を持ち出して主張全体を否定している\n" +
            "- straw_man: 相手が言っていない主張に置き換えて否定している\n" +
            "- dismissal: 根拠の中身に触れず「感想にすぎない」「データが無い」だけで退けている (何が足りないかを具体的に示していない)\n" +

@@ -412,6 +412,10 @@ const std::vector<FlowMigration>& flow_migrations() {
           R"SQL(CREATE INDEX IF NOT EXISTS human_playtest_voice_game ON human_playtest_voice(game_title, seq))SQL"}},
         // 議論エンジンの版 (dialectic v2 P10)。旧行は NULL = 版の記録が無い (v1 以前)。
         {"2026-11-23-conclusion-engine-version", {R"SQL(ALTER TABLE flow_conclusion ADD COLUMN engine_version TEXT)SQL"}},
+        // トゥールミンの限定の確度と反駁 (例外条件)。旧行は確度なし・例外なし。
+        {"2026-11-23-position-toulmin",
+         {R"SQL(ALTER TABLE flow_position ADD COLUMN qualifier_force TEXT)SQL",
+          R"SQL(ALTER TABLE flow_position ADD COLUMN exceptions_json TEXT NOT NULL DEFAULT '[]')SQL"}},
     };
     return migrations;
 }

@@ -15,6 +15,10 @@ struct ExchangeEnd {
     int cutPending = 0;
     /** 応答者の LLM 障害・空応答で応答できなかった件数 (崩れたにしない。未決に数える)。 */
     int errored = 0;
+    /** 形の崩れた応答を深掘り (1 回の言い直し) した件数。 */
+    int drilled = 0;
+    /** そのうち言い直しで反論として成り立った件数。 */
+    int drillRecovered = 0;
 };
 
 inline bool ended_by_turn_cap(const ExchangeEnd& e) { return e.reason == "turn_cap"; }

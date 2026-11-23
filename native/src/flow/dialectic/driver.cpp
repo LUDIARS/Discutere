@@ -12,6 +12,7 @@
 #include "flow/argument_graph.hpp"
 #include "flow/cost_logger.hpp"
 #include "flow/dialectic/conclusion.hpp"
+#include "flow/dialectic/drilldown.hpp"
 #include "flow/dialectic/convergence.hpp"
 #include "flow/dialectic/exchange.hpp"
 #include "flow/dialectic/exchange_end.hpp"
@@ -412,6 +413,18 @@ FlowDirectorResult run_dialectic_flow(persona_engine::LLMClient& llm, const std:
             ga.model = persona.model;
             ga.warn = warn;
             GeneratedPosition gp = generate_position(position_llm, ga);
+            // 深掘り: 定立の形 (データ・論拠・種類) が足りなければ、欠けている要素を名指しして 1 回だけ作り直す。
+            // LLM 障害の degrade (coreClaims 代用) は形の問題ではないので作り直さない。
+            if (cfg.flow.dialectic.drillDown && !persona.proxy) {
+                const auto missing = missing_position_elements(gp, gp.llmError);
+                if (!missing.empty()) {
+                    warn("論点 " + rs + " (" + persona.name + "/" + stance + "): 定立の形が足りない — 深掘りして 1 回だけ作り直す");
+                    GeneratePositionArgs again = ga;
+                    again.feedback = position_drilldown_feedback(missing);
+                    GeneratedPosition retry = generate_position(position_llm, again);
+                    if (missing_position_elements(retry, false).size() < missing.size()) gp = std::move(retry);
+                }
+            }
             // 定立が陣営と逆向き (賛成なのに否定 / 反対なのに肯定) なら 1 回だけ作り直す (neco レビュー 2026-10-13)。
             if (cfg.flow.dialectic.ruleCheck && !gp.degraded) {
                 CostLogContext stc = ctx_of(flow, session_id, "position-stance");
@@ -440,6 +453,8 @@ FlowDirectorResult run_dialectic_flow(persona_engine::LLMClient& llm, const std:
             pr.stance = stance;
             pr.claim = gp.claim;
             pr.qualifier = gp.qualifier;
+            pr.qualifierForce = gp.qualifierForce;
+            pr.exceptions = gp.exceptions;
             pr.grounds = gp.grounds;
             pr.values = gp.values;
             positions.push_back(insert_position(pr));
@@ -508,6 +523,7 @@ FlowDirectorResult run_dialectic_flow(persona_engine::LLMClient& llm, const std:
             ea.voicesBlock = voices_block;
             ea.turnCap = std::max(0, static_cast<int>(cfg.flow.dialectic.exchangeTurns));
             ea.ruleCheck = cfg.flow.dialectic.ruleCheck;
+            ea.drillDown = cfg.flow.dialectic.drillDown;
             ea.judgeModel = judge_model;
             ea.turnLlm = [&](const FlowPersona& persona, int t) {
                 if (state) state->set_position(round, issue_count, t);

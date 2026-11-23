@@ -6,6 +6,7 @@
 
 #include "base/strings.hpp"
 #include "flow/dialectic/ground_state.hpp"
+#include "flow/dialectic/toulmin.hpp"
 
 namespace di::flow::dialectic {
 
@@ -33,7 +34,9 @@ std::string render_position_for_synthesis(const std::string& label, const Positi
         (is_standing_ground(g.state) ? usable : unusable).push_back(line);
     }
     const std::string values = str::join(p.values, " / ");
-    std::string out = label + " (" + p.stance + "): " + p.claim + "\n  残った根拠 (保存の対象):\n" +
+    const std::string ex = render_exceptions(p);
+    std::string out = label + " (" + p.stance + "): " + p.claim + "\n  限定: " + render_qualifier(p) + (ex.empty() ? "" : "\n  " + ex) +
+                      "\n  残った根拠 (保存の対象):\n" +
                       (usable.empty() ? std::string("  - (なし)") : str::join(usable, "\n"));
     if (!unusable.empty()) out += "\n  崩れた・未決の根拠 (前提に使わない。preserves に入れない):\n" + str::join(unusable, "\n");
     return out + "\n  価値前提: " + (values.empty() ? "(なし)" : values);

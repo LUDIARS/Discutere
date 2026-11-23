@@ -25,6 +25,8 @@ struct Ground {
     std::optional<proxy::ClaimKind> claimKind;
     /** 代理議論のみ: 根拠にした本人の発言 id。 */
     std::optional<std::vector<std::string>> evidenceIds;
+    /** 裏付け (トゥールミンの backing): 論拠がなぜ成り立つか (他ゲームの例・仕様・調査)。 */
+    std::optional<std::string> backing;
 };
 Json to_json(const Ground& g);
 Ground ground_from_json(const Json& j);
@@ -50,6 +52,10 @@ struct PositionRecord {
     std::optional<std::string> qualifier;
     std::vector<Ground> grounds;
     std::vector<std::string> values;
+    /** 限定の確度 (トゥールミンの qualifier の強さ): 必ず / 多くの場合 / 条件つきで / おそらく。qualifier は範囲。 */
+    std::optional<std::string> qualifierForce;
+    /** 反駁 (トゥールミンの rebuttal): 主張する本人が挙げる「この主張が成り立たない場合」(例外条件)。 */
+    std::vector<std::string> exceptions;
 };
 
 /** "facts" | "values" | "means" | "tradeoff" */

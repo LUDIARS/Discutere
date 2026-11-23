@@ -4,7 +4,7 @@ project: Discutere
 kind: 設計評価の統合 (Astra / Neon / Fable、独立レビュー 3 本)
 author: Opus (Cc セッション)
 created: 2026-11-23
-status: 人間判断待ち (R1〜R3)
+status: decided (R1〜R3 は 2026-11-23 neco「全部推奨どおり」)
 inputs:
   - spec/tasks/2026-11-23-dialectic-engine-design-review-request.md (依頼文、3 者同文)
   - spec/plan/2026-11-23-dialectic-engine-design-review-astra.md (総合 3/5)
@@ -52,7 +52,7 @@ inputs:
   コードが集計し決着カードを出す。止揚は「未検証の提案」。
 - 共通: 状態をコードで持つ・敵対的批准・結論なしの許容・出所の明示は残す。勝敗を「反論の形が残ったか」で決めない。
 
-## 3. 人間判断
+## 3. 人間判断 (2026-11-23 neco「全部推奨どおり」で確定)
 
 | # | 事項 | 推奨 | 理由 |
 |---|---|---|---|

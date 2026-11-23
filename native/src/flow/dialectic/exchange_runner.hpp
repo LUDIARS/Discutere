@@ -90,6 +90,8 @@ struct GroundExchangeArgs {
     std::string voicesBlock;
     /** 応答ターン上限 (flow.dialectic.exchangeTurns)。 */
     int turnCap = 0;
+    /** 形の崩れた応答を 1 回だけ言い直させる (flow.dialectic.drillDown)。 */
+    bool drillDown = false;
     bool ruleCheck = true;
     std::optional<std::string> judgeModel;
     TurnLlmFactory turnLlm;

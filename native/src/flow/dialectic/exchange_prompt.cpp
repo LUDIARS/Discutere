@@ -85,18 +85,22 @@ std::string build_exchange_prompt(const ExchangePromptArgs& args) {
         lines.emplace_back("相手陣営の主張を支える内容を、反論として言わない。相手の言い分が正しいと思うなら反論せず concede で認める。");
         lines.emplace_back("");
     }
+    if (args.drillDown && !args.drillDown->empty()) {
+        lines.push_back(*args.drillDown);
+        lines.emplace_back("");
+    }
     lines.emplace_back("# 指示");
     lines.push_back(target_name + "さんの最後の" + (target && target->depth > 0 ? "反論" : "論拠") +
                     "に答えてください。答え方は次のどちらか 1 つ:");
     lines.emplace_back("- rebut: 反論する。反論も論拠 1 つだけで立てる (データ 1 つ + 論拠 1 つ)");
     lines.emplace_back("- concede: 相手の言い分を認める (崩せないと思うなら認める)");
     lines.emplace_back("次の JSON 1 個だけを返す (前後に説明やコードフェンスを付けない):");
-    lines.push_back(std::string("{\"act\": \"<rebut | concede>\", \"attack\": \"<rebut のとき必須: data | warrant | qualifier (相手のデータ・論拠・限定のどれを突くか)>\", ") +
+    lines.push_back(std::string("{\"act\": \"<rebut | concede>\", \"attack\": \"<rebut のとき必須: data | warrant | backing | qualifier | exception (相手のデータ・論拠・裏付け・限定・例外条件のどれを突くか)>\", ") +
                     "\"kind\": \"<rebut のとき: deduction | induction | abduction>\", " +
                     "\"data\": \"<rebut のとき必須: 反論のデータ (事実・事例・仕様) 1 つ>\", " +
                     "\"warrant\": \"<rebut のとき必須: 反論の論拠 (そのデータで相手のどこが崩れるか) 1 つ>\", " +
                     "\"text\": \"<Discord に流す口語 1〜3 文>\"" + proxy::proxy_ground_fields(persona) + "}");
-    lines.emplace_back("反論は相手の主張の限定の内側で突く。論拠を 2 つ以上並べない。");
+    lines.emplace_back("反論は相手の主張の限定 (範囲・確度) の内側で突く。exception は相手が挙げていない例外がこの場合に当てはまると示すときに使う。論拠を 2 つ以上並べない。");
     lines.push_back(std::string("根拠にする声は、プレイヤーの声の中から複数を照らし合わせて選ぶ。続けている人の声だけで全体を語らず、") +
                     "やめた人・不満のある人の声があればそれも検討する。声が足りなければ、何の材料が足りないかを言う。");
     lines.emplace_back("text は実在の人間の雑談のような自然な口語で書く (ラベル・箇条書き禁止)。");

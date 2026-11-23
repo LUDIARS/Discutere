@@ -3,6 +3,7 @@
 #include <algorithm>
 
 #include "base/strings.hpp"
+#include "flow/dialectic/toulmin.hpp"
 #include "flow/discussion_paper.hpp"
 
 namespace di::flow::dialectic {
@@ -11,10 +12,13 @@ std::string render_position_digest(const PositionRecord& p, const std::string& p
     std::vector<std::string> grounds;
     for (const auto& g : p.grounds) {
         const std::string kind = g.kind ? " " + inference_kind_label(*g.kind) : "";
-        const std::string warrant = (g.warrant && !g.warrant->empty()) ? "\n      論拠: " + *g.warrant : "";
-        grounds.push_back("  - [" + g.id + "] (" + g.state + kind + ") データ: " + g.text + warrant);
+        grounds.push_back("  - [" + g.id + "] (" + g.state + kind + ") データ: " + g.text + render_warrant_lines(g, "      "));
     }
-    const std::string qualifier = (p.qualifier && !p.qualifier->empty()) ? "\n  限定: " + *p.qualifier : "";
+    const std::string ex = render_exceptions(p);
+    const std::string qualifier = ((p.qualifier && !p.qualifier->empty()) || (p.qualifierForce && !p.qualifierForce->empty())
+                                       ? "\n  限定: " + render_qualifier(p)
+                                       : std::string()) +
+                                  (ex.empty() ? std::string() : "\n  " + ex);
     const std::string values = p.values.empty() ? "" : "\n  価値前提: " + str::join(p.values, " / ");
     return persona_name + " (" + p.stance + "): " + p.claim + qualifier + "\n" + str::join(grounds, "\n") + values;
 }
@@ -82,7 +86,7 @@ std::string build_dialectic_turn_prompt(const DialecticTurnPromptArgs& args) {
         nomination_line + target_block + "# 指示\n" +
         "あなたの発言は次の JSON 1 個だけで返す (前後に説明やコードフェンスを付けない):\n" + "{\"act\": \"<" + act_list +
         ">\", \"target\": \"<応答先 utterance id (claim/question は null 可)>\", " +
-        "\"attack\": \"<rebut のとき必須: data | warrant | qualifier (突くのはデータ・論拠・限定のどれか)>\", " +
+        "\"attack\": \"<rebut のとき必須: data | warrant | backing | qualifier | exception (突くのはデータ・論拠・裏付け・限定・例外条件のどれか)>\", " +
         "\"groundId\": \"<rebut で data/warrant を突くとき必須: 攻撃対象の根拠 id>\", " +
         "\"data\": \"<rebut のとき必須: 反論のデータ (事実・事例・仕様)>\", " +
         "\"warrant\": \"<rebut のとき必須: 反論の論拠 (そのデータで相手のどこが崩れるか)>\", " +

@@ -376,6 +376,11 @@ bot 名義で締める (収束時 `finalizeForumPost` で lock+archive+まとめ
   LLM は決着表だけを入力に要約部を書く (投票の勝者・直近 20 発話は渡さない)。dialectic の論点投票は既定 off
   (`flow.dialectic.vote`)、進行役の開幕・指名・まとめは定型文 (LLM を呼ばない)。`flow_conclusion.engine_version` に版を残す。
   personaIds で指定したプール人物は遊び手の型 (`persona_descriptor`) を定立・応答の prompt に載せる。
+- **深掘りとトゥールミンの 6 要素 (2026-11-23, `spec/plan/2026-11-23-dialectic-drilldown.md`)**: 深掘りは論拠が不足している場合に
+  行う (反論のデータ / 論拠が無い・形が崩れて読めない、定立の根拠が主張の複製・論拠が無い・論拠がデータの言い換え)。最初の
+  応答は問いとして残し、進行役が欠けている要素を名指しして同じ人に 1 回だけ言い直させる (`flow.dialectic.drillDown`、既定 true)。
+  定立はトゥールミンの 6 要素 (主張・データ・論拠・裏付け・限定 = 範囲 + 確度・反駁 = 例外条件) で持ち、反論は
+  data / warrant / backing / qualifier / exception のどれを突くか宣言する (`dialectic.md` §2.5、表示は `toulmin.hpp`)。
 
 ## 個人データ
 

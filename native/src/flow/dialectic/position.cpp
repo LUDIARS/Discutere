@@ -40,12 +40,16 @@ std::string build_position_prompt(const BuildPositionPromptArgs& args) {
            "】の向きにし、相手陣営より強い肯定・否定にすり替えない。\n" +
            ((args.feedback && !args.feedback->empty()) ? *args.feedback + "\n" : "") +
            "次の JSON 1 個だけを返してください (前後に説明やコードフェンスを付けない):\n" +
-           "{\"claim\": \"<主張 1 文>\", \"qualifier\": \"<主張の限定: どのプレイヤー層・どの条件の話か>\", " +
+           "{\"claim\": \"<主張 1 文>\", \"qualifier\": \"<限定の範囲: どのプレイヤー層・どの条件の話か>\", " +
+           "\"force\": \"<限定の確度: 必ず | 多くの場合 | 条件つきで | おそらく>\", " +
+           "\"exceptions\": [\"<反駁: この主張が成り立たない場合 (例外条件) 1〜2 個>\"], " +
            "\"grounds\": [{\"kind\": \"<deduction|induction|abduction>\", \"data\": \"<データ: 事実・事例・仕様>\", " +
-           "\"warrant\": \"<論拠: データから主張が言える理由>\", \"say\": \"<この論拠を Discord に流す口語 1〜2 文>\"" +
+           "\"warrant\": \"<論拠: データから主張が言える理由>\", \"backing\": \"<裏付け: 論拠がなぜ成り立つか (他のゲームの例・仕様・調査)>\", " +
+           "\"say\": \"<この論拠を Discord に流す口語 1〜2 文>\"" +
            proxy::proxy_ground_fields(persona) + "}], " +
            "\"values\": [\"<価値前提 (例: 収益 > 体験)>\"], \"text\": \"<主張を Discord に流す口語 1〜2 文 (論拠は say で別に流す)>\"}\n" +
-           "grounds は 1〜3 個 (強い論拠だけに絞る)。data と warrant は混ぜずに分ける。" +
+           "grounds は 1〜3 個 (強い論拠だけに絞る)。data と warrant は混ぜずに分け、warrant を data の言い換えにしない。" +
+           "確度は根拠に見合う強さにする (言い過ぎない)。" +
            "text は実在の人間の雑談のような自然な口語で書く。";
 }
 
@@ -57,6 +61,7 @@ struct ParsedGround {
     std::string text;
     std::optional<InferenceKind> kind;
     std::optional<std::string> warrant;
+    std::optional<std::string> backing;
     std::optional<std::string> say;
     std::optional<proxy::ClaimKind> claimKind;
     std::optional<std::vector<std::string>> evidenceIds;
@@ -90,7 +95,7 @@ std::vector<ParsedGround> coerce_grounds(const Json& v, std::size_t max) {
         if (out.size() >= max) break;
         if (item.is_string()) {
             auto t = str::trim(item.get<std::string>());
-            if (!t.empty()) out.push_back({t, {}, {}, {}, {}, {}});
+            if (!t.empty()) out.push_back({t, {}, {}, {}, {}, {}, {}});
             continue;
         }
         if (!item.is_object()) continue;
@@ -103,6 +108,7 @@ std::vector<ParsedGround> coerce_grounds(const Json& v, std::size_t max) {
         g.text = data;
         g.kind = coerce_inference_kind(item.contains("kind") ? item["kind"] : Json());
         g.warrant = trimmed_string(item, "warrant");
+        g.backing = trimmed_string(item, "backing");
         g.say = trimmed_string(item, "say");
         // 代理議論の申告 (検査は driver が proxy/attribution で行う)。
         g.claimKind = proxy::coerce_claim_kind(item.contains("claimKind") ? item["claimKind"] : Json());
@@ -139,6 +145,7 @@ GeneratedPosition generate_position(persona_engine::LLMClient& llm, const Genera
         p.text = claim;
         p.groundTexts = {claim};
         p.degraded = true;
+        p.llmError = true;
         return p;
     }
 
@@ -161,15 +168,17 @@ GeneratedPosition generate_position(persona_engine::LLMClient& llm, const Genera
 
     const std::string claim = *claim_opt;
     auto parsed = coerce_grounds(obj->contains("grounds") ? (*obj)["grounds"] : Json(), GROUNDS_MAX);
-    if (parsed.empty()) parsed.push_back({claim, {}, {}, {}, {}, {}});
+    if (parsed.empty()) parsed.push_back({claim, {}, {}, {}, {}, {}, {}});
     GeneratedPosition p;
     p.claim = claim;
     for (std::size_t i = 0; i < parsed.size(); ++i) {
         const auto& g = parsed[i];
-        p.grounds.push_back({ground_id(stance, i), g.text, "unchallenged", g.kind, g.warrant, g.claimKind, g.evidenceIds});
+        p.grounds.push_back({ground_id(stance, i), g.text, "unchallenged", g.kind, g.warrant, g.claimKind, g.evidenceIds, g.backing});
         p.groundTexts.push_back(g.say ? *g.say : (g.warrant ? g.text + "。" + *g.warrant : g.text));
     }
     p.qualifier = trimmed_string(*obj, "qualifier");
+    p.qualifierForce = trimmed_string(*obj, "force");
+    p.exceptions = coerce_string_array(obj->contains("exceptions") ? (*obj)["exceptions"] : Json(), 3);
     p.text = trimmed_string(*obj, "text").value_or(claim);
     p.values = coerce_string_array(obj->contains("values") ? (*obj)["values"] : Json(), 4);
     p.degraded = false;

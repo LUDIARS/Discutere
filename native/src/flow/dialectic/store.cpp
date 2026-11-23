@@ -54,6 +54,7 @@ Json to_json(const Ground& g) {
     if (g.warrant) o["warrant"] = *g.warrant;
     if (g.claimKind) o["claimKind"] = *g.claimKind;
     if (g.evidenceIds) o["evidenceIds"] = *g.evidenceIds;
+    if (g.backing) o["backing"] = *g.backing;
     return o;
 }
 
@@ -66,6 +67,7 @@ Ground ground_from_json(const Json& j) {
     g.warrant = json_opt_string(j, "warrant");
     g.claimKind = json_opt_string(j, "claimKind");
     if (j.is_object() && j.contains("evidenceIds") && j["evidenceIds"].is_array()) g.evidenceIds = string_list(j["evidenceIds"]);
+    g.backing = json_opt_string(j, "backing");
     return g;
 }
 
@@ -124,10 +126,11 @@ std::vector<IssueRecord> list_issues(const std::string& session_id) {
 PositionRecord insert_position(PositionRecord p) {
     if (p.id.empty()) p.id = crypto::uuid_v4();
     db::get_flow_db()->run(
-        R"SQL(INSERT INTO flow_position (id, issue_id, persona_id, stance, claim, qualifier, grounds_json, values_json, created_at)
-       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?))SQL",
+        R"SQL(INSERT INTO flow_position (id, issue_id, persona_id, stance, claim, qualifier, grounds_json, values_json, created_at,
+                                   qualifier_force, exceptions_json)
+       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?))SQL",
         {p.id, p.issueId, p.personaId, p.stance, p.claim, sql::Value(p.qualifier), grounds_json(p.grounds),
-         json_stringify(Json(p.values)), time::now_ms()});
+         json_stringify(Json(p.values)), time::now_ms(), sql::Value(p.qualifierForce), json_stringify(Json(p.exceptions))});
     return p;
 }
 
@@ -137,7 +140,7 @@ void update_position_grounds(const std::string& position_id, const std::vector<G
 
 std::vector<PositionRecord> list_positions(const std::string& issue_id) {
     const auto rows = db::get_flow_db()->all(
-        R"SQL(SELECT id, issue_id, persona_id, stance, claim, qualifier, grounds_json, values_json
+        R"SQL(SELECT id, issue_id, persona_id, stance, claim, qualifier, grounds_json, values_json, qualifier_force, exceptions_json
          FROM flow_position WHERE issue_id = ? ORDER BY created_at, id)SQL",
         {issue_id});
     std::vector<PositionRecord> out;
@@ -152,6 +155,8 @@ std::vector<PositionRecord> list_positions(const std::string& issue_id) {
         if (auto g = parse_stored(r.str("grounds_json")); g && g->is_array())
             for (const auto& item : *g) p.grounds.push_back(ground_from_json(item));
         p.values = parse_string_list(r.str("values_json"));
+        p.qualifierForce = r.opt_str("qualifier_force");
+        if (auto ex = r.opt_str("exceptions_json")) p.exceptions = parse_string_list(*ex);
         out.push_back(std::move(p));
     }
     return out;

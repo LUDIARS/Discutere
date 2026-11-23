@@ -87,6 +87,8 @@ struct DiscutereConfig {
             std::string version;
             /** 論点決着後のレンズ投票 (既定 false)。決着・結論には使わない。true のときだけ表示用に走る。 */
             bool vote = false;
+            /** 論拠の形を成していない応答・定立を 1 回だけ言い直させる (既定 true)。 */
+            bool drillDown = true;
         } dialectic;
         std::string personaSetupModel;
         std::vector<std::string> tags;

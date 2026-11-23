@@ -265,6 +265,13 @@
       "sql": [
         "ALTER TABLE flow_conclusion ADD COLUMN engine_version TEXT"
       ]
+    },
+    {
+      "id": "2026-11-23-position-toulmin",
+      "sql": [
+        "ALTER TABLE flow_position ADD COLUMN qualifier_force TEXT",
+        "ALTER TABLE flow_position ADD COLUMN exceptions_json TEXT NOT NULL DEFAULT '[]'"
+      ]
     }
   ],
   "sqlite_master": [
@@ -674,7 +681,7 @@
       "type": "table",
       "name": "flow_position",
       "tbl_name": "flow_position",
-      "sql": "CREATE TABLE flow_position (\n        id TEXT PRIMARY KEY,\n        issue_id TEXT NOT NULL,\n        persona_id TEXT NOT NULL,\n        stance TEXT NOT NULL,\n        claim TEXT NOT NULL,\n        grounds_json TEXT NOT NULL,\n        values_json TEXT NOT NULL,\n        created_at INTEGER NOT NULL\n      , qualifier TEXT)"
+      "sql": "CREATE TABLE flow_position (\n        id TEXT PRIMARY KEY,\n        issue_id TEXT NOT NULL,\n        persona_id TEXT NOT NULL,\n        stance TEXT NOT NULL,\n        claim TEXT NOT NULL,\n        grounds_json TEXT NOT NULL,\n        values_json TEXT NOT NULL,\n        created_at INTEGER NOT NULL\n      , qualifier TEXT, qualifier_force TEXT, exceptions_json TEXT NOT NULL DEFAULT '[]')"
     },
     {
       "type": "table",

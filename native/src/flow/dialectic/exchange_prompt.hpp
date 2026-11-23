@@ -22,6 +22,8 @@ struct ExchangePromptArgs {
     /** 定立の論拠から応答対象までの経路 (根が先頭・末尾が応答対象)。 */
     std::vector<ArgumentNode> path;
     std::optional<std::string> voicesBlock;
+    /** 深掘りの言い直しのとき、進行役からの節 (drilldown_prompt_block)。 */
+    std::optional<std::string> drillDown;
 };
 std::string build_exchange_prompt(const ExchangePromptArgs& args);
 

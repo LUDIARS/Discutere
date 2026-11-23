@@ -83,17 +83,30 @@ Issue (論点)           テーマから分解した争点。1 議論に 3〜5 �
 | 帰納 (induction) | この仕様を入れている他のゲームでは、こういう体験になっていた |
 | アブダクション (abduction) | こういう体験を作りたいから、きっとこういう仕様にしたら良い |
 
-**トゥールミンの整理**:
+**トゥールミンの整理** (6 要素。2026-11-23 neco「トゥールミンモデルを正しく適用」で裏付け・確度・反駁を追加、`toulmin.hpp`):
 
-- Position は `claim` (主張) と `qualifier` (限定 = どの層・どの条件の話か) を持つ。
-- 根拠は `text` (データ) と `warrant` (論拠) を分けて持つ。データが正しくても論拠が誤れば主張は誤り。
-- 反論 (rebut) は**トゥールミンモデルを満たしていれば有効**。反論自身の `data` (データ) と `warrant` (論拠) を持ち、
-  `attack` = data / warrant / qualifier のどれを突くかを宣言し、data / warrant なら `groundId` で攻撃対象の根拠を指す。
+| 要素 | 持ち方 | 意味 |
+|---|---|---|
+| 主張 (claim) | `Position.claim` | 論点への答え |
+| データ (data) | `Ground.text` | 事実・事例・仕様。主張と混ぜない |
+| 論拠 (warrant) | `Ground.warrant` | データから主張が言える理由。データの言い換えにしない。データが正しくても論拠が誤れば主張は誤り |
+| 裏付け (backing) | `Ground.backing` (任意) | 論拠がなぜ成り立つか (他のゲームの例・仕様・調査) |
+| 限定 (qualifier) | `Position.qualifier` = 範囲 / `qualifierForce` = 確度 | 範囲 = どのプレイヤー層・どの条件の話か。確度 = 必ず / 多くの場合 / 条件つきで / おそらく。根拠に見合う強さにする |
+| 反駁 (rebuttal) | `Position.exceptions` | 主張する本人が先に挙げる「この主張が成り立たない場合」(例外条件) |
+
+- 応酬の「反論」(dialogue act `rebut`) はトゥールミンの反駁ではない。相手陣営の発言で、**それ自体がトゥールミンの形**
+  (反論のデータ + 論拠) を満たしていれば有効。`attack` = data / warrant / backing / qualifier / exception のどれを突くかを宣言し、
+  data / warrant / backing なら `groundId` で攻撃対象の根拠を指す。qualifier (範囲・確度の言い過ぎ) と exception
+  (挙がっていない例外がこの場合に当てはまる) は主張全体に掛かるので根拠を指さなくてよい。
+- **深掘りは論拠が不足している場合に行う** (neco 2026-11-23。1 回だけ言い直させる。`spec/plan/2026-11-23-dialectic-drilldown.md`)。
+  対象: 反論のデータか論拠が無い (`incomplete`)・形が崩れて読めない / 定立の根拠が主張の複製 (データが無い)・論拠が無い・
+  論拠がデータの言い換え。突く先が無い (`unanchored`)・種類・範囲・確度・裏付け・例外条件の欠け・前提ルール違反は対象外
+  (指示文で求め、従来どおり扱う)。
 
 **ゲート** (`src/flow/dialectic/rule-check.ts`):
 
 1. トゥールミン検査 (コードのみ): Position への反論で、反論自身のデータか論拠が無ければ違反 (`incomplete`)。
-   `attack` が無い、または data / warrant なのに未譲歩の根拠を指していなければ違反 (`unanchored`)。
+   `attack` が無い、または data / warrant / backing なのに未譲歩の根拠を指していなければ違反 (`unanchored`)。
 2. 判定 LLM (`judgeModel`、`flow.dialectic.ruleCheck` 既定 true): 宣言した要素を相手の限定の内側で突いているかを
    単一ラベルで判定 — `out_of_scope` (限定の外側から全体否定) / `straw_man` (言っていない主張への置き換え) /
    `dismissal` (中身に触れない却下) / `topic_shift` (論点ずらし)。障害・ラベル不明は ok に倒す。

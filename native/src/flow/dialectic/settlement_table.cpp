@@ -5,6 +5,7 @@
 #include "base/strings.hpp"
 #include "flow/dialectic/ground_state.hpp"
 #include "flow/dialectic/outcome.hpp"
+#include "flow/dialectic/toulmin.hpp"
 
 namespace di::flow::dialectic {
 
@@ -45,6 +46,8 @@ std::string render_exchange_end(const ExchangeEnd& e) {
     std::string out = ended_by_turn_cap(e) ? "応答ターンの上限で打ち切り (応答待ち " + std::to_string(e.cutPending) + " 件は未決)"
                                            : std::string("論拠のやり取りが落ち着いた");
     if (e.errored > 0) out += " / 応答できなかった " + std::to_string(e.errored) + " 件は未決";
+    if (e.drilled > 0)
+        out += " / 深掘り " + std::to_string(e.drilled) + " 件 (言い直しで反論になった " + std::to_string(e.drillRecovered) + " 件)";
     return out;
 }
 
@@ -91,7 +94,7 @@ std::string render_settlement_table(const SettlementTableArgs& args) {
         lines.push_back("- 決着: " + render_settlement_outcome_line(s));
         for (const auto& p : s.positions) {
             lines.push_back("- " + side_label(p.stance) + " (" + name_of(args.personaNames, p.personaId) + "): " + p.claim +
-                            (p.qualifier && !p.qualifier->empty() ? " (限定: " + *p.qualifier + ")" : "") + " — " +
+                            " (限定: " + render_qualifier(p) + (p.exceptions.empty() ? "" : " / " + render_exceptions(p)) + ") — " +
                             render_ground_tally(tally_grounds(p.grounds)));
             push_grounds(lines, "残った根拠", p.grounds, is_standing_ground);
             push_grounds(lines, "未決の根拠 (前提に使わない)", p.grounds, is_unsettled_ground);

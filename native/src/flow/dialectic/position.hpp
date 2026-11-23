@@ -17,10 +17,16 @@ struct GeneratedPosition {
     std::optional<std::string> qualifier;
     std::vector<Ground> grounds;
     std::vector<std::string> values;
+    /** 限定の確度 (必ず / 多くの場合 / 条件つきで / おそらく)。qualifier は範囲。 */
+    std::optional<std::string> qualifierForce;
+    /** 反駁 = 例外条件 (この主張が成り立たない場合)。 */
+    std::vector<std::string> exceptions;
     std::string text;
     /** grounds と同じ順の論拠ごとの露出文。 */
     std::vector<std::string> groundTexts;
     bool degraded = false;
+    /** LLM 障害で coreClaims を代用した (形の問題ではない。深掘りしない)。 */
+    bool llmError = false;
 };
 Json to_json(const GeneratedPosition& p);
 
