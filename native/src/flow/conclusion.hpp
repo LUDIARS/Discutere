@@ -2,6 +2,7 @@
 // src/flow/conclusion.ts の移植: 結論生成 (discussion.md step 9)。
 // 全ラウンドの止揚 + 高評価発話 (世論) を元に LLM で結論テキストを生成し flow_conclusion に保存する。
 // facilitator/prompts の build_converge_prompt / extract_json_object を流用する。
+#include <cstdint>
 #include <optional>
 #include <string>
 #include <string_view>
@@ -47,5 +48,24 @@ std::string build_rounds_section(const std::vector<RoundSummary>& rounds);
 
 /** 結論を生成して flow_conclusion テーブルに保存する。止揚も世論も無ければ「(結論なし)」。 */
 ConclusionResult generate_conclusion(persona_engine::LLMClient& llm, const GenerateConclusionArgs& args);
+
+struct PersistConclusionArgs {
+    std::string theme;
+    std::string sessionId;
+    std::string paperId;
+    std::string flow = "discussion";
+    /** 保存する本文 (CONVERGE_PREFIX 込み)。 */
+    std::string summary;
+    bool concluded = false;
+    std::vector<std::string> aufhebung;
+    std::vector<std::string> topUtteranceIds;
+    std::int64_t utteranceCount = 0;
+    /** 議論エンジンの版 (dialectic v2 P10)。rounds は nullopt。 */
+    std::optional<std::string> engineVersion;
+    WarnFn warn;
+};
+
+/** flow_conclusion・タイトルキャッシュ・結論一覧キャッシュへ書く (generate_conclusion と dialectic が共用)。 */
+void persist_flow_conclusion(const PersistConclusionArgs& args);
 
 } // namespace di::flow

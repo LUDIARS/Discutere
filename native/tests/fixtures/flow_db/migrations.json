@@ -249,9 +249,43 @@
         "ALTER TABLE flow_utterance ADD COLUMN claim_kind TEXT",
         "ALTER TABLE flow_utterance ADD COLUMN evidence_ids_json TEXT"
       ]
+    },
+    {
+      "id": "2026-11-21-playtest-voices",
+      "sql": [
+        "CREATE TABLE IF NOT EXISTS ai_playtest_review (\n           seq INTEGER PRIMARY KEY AUTOINCREMENT, run_id TEXT NOT NULL UNIQUE, game_id TEXT NOT NULL,\n           game_title TEXT NOT NULL, payload TEXT NOT NULL\n         )",
+        "CREATE INDEX IF NOT EXISTS ai_playtest_review_game_id ON ai_playtest_review(game_id, seq)",
+        "CREATE INDEX IF NOT EXISTS ai_playtest_review_game_title ON ai_playtest_review(game_title, seq)",
+        "CREATE TABLE IF NOT EXISTS human_playtest_voice (\n           seq INTEGER PRIMARY KEY AUTOINCREMENT, impression_id TEXT NOT NULL UNIQUE,\n           game_title TEXT NOT NULL, comment TEXT NOT NULL\n         )",
+        "CREATE INDEX IF NOT EXISTS human_playtest_voice_game ON human_playtest_voice(game_title, seq)"
+      ]
+    },
+    {
+      "id": "2026-11-23-conclusion-engine-version",
+      "sql": [
+        "ALTER TABLE flow_conclusion ADD COLUMN engine_version TEXT"
+      ]
     }
   ],
   "sqlite_master": [
+    {
+      "type": "index",
+      "name": "ai_playtest_review_game_id",
+      "tbl_name": "ai_playtest_review",
+      "sql": "CREATE INDEX ai_playtest_review_game_id ON ai_playtest_review(game_id, seq)"
+    },
+    {
+      "type": "index",
+      "name": "ai_playtest_review_game_title",
+      "tbl_name": "ai_playtest_review",
+      "sql": "CREATE INDEX ai_playtest_review_game_title ON ai_playtest_review(game_title, seq)"
+    },
+    {
+      "type": "index",
+      "name": "human_playtest_voice_game",
+      "tbl_name": "human_playtest_voice",
+      "sql": "CREATE INDEX human_playtest_voice_game ON human_playtest_voice(game_title, seq)"
+    },
     {
       "type": "index",
       "name": "idx_conclusion_cache_updated",
@@ -428,6 +462,12 @@
     },
     {
       "type": "index",
+      "name": "sqlite_autoindex_ai_playtest_review_1",
+      "tbl_name": "ai_playtest_review",
+      "sql": null
+    },
+    {
+      "type": "index",
       "name": "sqlite_autoindex_conclusion_cache_1",
       "tbl_name": "conclusion_cache",
       "sql": null
@@ -530,6 +570,12 @@
     },
     {
       "type": "index",
+      "name": "sqlite_autoindex_human_playtest_voice_1",
+      "tbl_name": "human_playtest_voice",
+      "sql": null
+    },
+    {
+      "type": "index",
       "name": "sqlite_autoindex_persona_bridge_assertion_nonce_1",
       "tbl_name": "persona_bridge_assertion_nonce",
       "sql": null
@@ -539,6 +585,12 @@
       "name": "_flow_migrations",
       "tbl_name": "_flow_migrations",
       "sql": "CREATE TABLE _flow_migrations (id TEXT PRIMARY KEY, applied_at INTEGER NOT NULL)"
+    },
+    {
+      "type": "table",
+      "name": "ai_playtest_review",
+      "tbl_name": "ai_playtest_review",
+      "sql": "CREATE TABLE ai_playtest_review (\n           seq INTEGER PRIMARY KEY AUTOINCREMENT, run_id TEXT NOT NULL UNIQUE, game_id TEXT NOT NULL,\n           game_title TEXT NOT NULL, payload TEXT NOT NULL\n         )"
     },
     {
       "type": "table",
@@ -598,7 +650,7 @@
       "type": "table",
       "name": "flow_conclusion",
       "tbl_name": "flow_conclusion",
-      "sql": "CREATE TABLE flow_conclusion (\n        id INTEGER PRIMARY KEY AUTOINCREMENT,\n        session_id TEXT NOT NULL,\n        paper_id TEXT NOT NULL,\n        summary TEXT NOT NULL DEFAULT '',\n        aufhebung_json TEXT NOT NULL DEFAULT '[]',\n        top_utterance_ids_json TEXT NOT NULL DEFAULT '[]',\n        concluded INTEGER NOT NULL DEFAULT 0,\n        created_at INTEGER NOT NULL\n      )"
+      "sql": "CREATE TABLE flow_conclusion (\n        id INTEGER PRIMARY KEY AUTOINCREMENT,\n        session_id TEXT NOT NULL,\n        paper_id TEXT NOT NULL,\n        summary TEXT NOT NULL DEFAULT '',\n        aufhebung_json TEXT NOT NULL DEFAULT '[]',\n        top_utterance_ids_json TEXT NOT NULL DEFAULT '[]',\n        concluded INTEGER NOT NULL DEFAULT 0,\n        created_at INTEGER NOT NULL\n      , engine_version TEXT)"
     },
     {
       "type": "table",
@@ -659,6 +711,12 @@
       "name": "flow_voice_preparation",
       "tbl_name": "flow_voice_preparation",
       "sql": "CREATE TABLE flow_voice_preparation (session_id TEXT PRIMARY KEY, payload TEXT NOT NULL, updated_at INTEGER NOT NULL)"
+    },
+    {
+      "type": "table",
+      "name": "human_playtest_voice",
+      "tbl_name": "human_playtest_voice",
+      "sql": "CREATE TABLE human_playtest_voice (\n           seq INTEGER PRIMARY KEY AUTOINCREMENT, impression_id TEXT NOT NULL UNIQUE,\n           game_title TEXT NOT NULL, comment TEXT NOT NULL\n         )"
     },
     {
       "type": "table",

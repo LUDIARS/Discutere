@@ -322,6 +322,8 @@ FlowPersona to_flow_persona(const PoolPersona& p, const ToFlowPersonaOpts& opts)
     out.traits = p.traits;
     out.model = p.model && !p.model->empty() ? *p.model : opts.defaultModel;
     out.isLocal = opts.isLocal;
+    const std::string profile = build_persona_descriptor(p);
+    if (!str::trim(profile).empty()) out.playerProfile = profile;
     return out;
 }
 

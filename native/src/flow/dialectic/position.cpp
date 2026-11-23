@@ -1,6 +1,7 @@
 #include "flow/dialectic/position.hpp"
 
 #include "base/strings.hpp"
+#include "flow/dialectic/persona_profile.hpp"
 #include "flow/proxy/prompt.hpp"
 
 namespace di::flow::dialectic {
@@ -27,10 +28,11 @@ std::string build_position_prompt(const BuildPositionPromptArgs& args) {
     const std::string seed = (persona.coreClaims && !persona.coreClaims->empty())
                                  ? "あなたの核となる主張 (これを種に組み立てる): " + str::join(*persona.coreClaims, " / ") + "\n"
                                  : "";
+    const std::string profile = persona_profile_line(persona);
     return "あなたは議論ペルソナ「" + persona.name + "」。" + "特徴: " + str::join(persona.traits, " / ") +
            " / 話し方: " + persona.speechStyle + "\n" +
            ((persona.valueAxis && !persona.valueAxis->empty()) ? "あなたが重視する価値: " + *persona.valueAxis + "\n" : "") +
-           seed + (persona.proxy ? "\n" + str::join(proxy::proxy_prompt_lines(persona), "\n") : "") + "\n# 論点 " +
+           (profile.empty() ? std::string() : profile + "\n") + seed + (persona.proxy ? "\n" + str::join(proxy::proxy_prompt_lines(persona), "\n") : "") + "\n# 論点 " +
            std::to_string(issue.ordinal) + "\n" + issue.title + "\n\n" + voices + premise_rules_text() + "\n\n" +
            "この論点についてあなたは【" + stance_ja + "】の立場 (" + args.stance + ") で定立 (Position) を張ります。\n" +
            "賛成 = 論点 (問い) に「はい」と答える立場、反対 = 「いいえ」と答える立場。" + "論点が問いの形でなければ「" +

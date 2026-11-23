@@ -300,7 +300,10 @@ TEST_CASE("DB を使う経路 (投票・価値軸・ラウンドまとめ・リ�
         a.issueTitle = "I";
         a.tension = t0;
         a.positionA = posA;
-        a.positionB = posB;
+        // v2: 崩れた根拠だけの陣営は批准できない。修正ループ (reject → 修正 → 批准) を見るため、反対側の根拠は残った状態にする。
+        auto posB_standing = posB;
+        for (auto& gr : posB_standing.grounds) gr.state = "defended";
+        a.positionB = posB_standing;
         a.personaNames = names_map();
         a.paperSystem = "SYS";
         a.genLlm = &gen;

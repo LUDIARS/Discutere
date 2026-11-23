@@ -136,7 +136,7 @@ LLMResult ClaudeCliClient::invoke(const LLMInvokeArgs& args) {
     if (run.output_exceeded) {
         result = LLMResult::failure("claude cli output too large");
     } else if (run.exit_code != 0) {
-        result = LLMResult::failure("claude cli exit " + std::to_string(run.exit_code) + ": " + str::js_slice(run.err, 0, 200));
+        result = LLMResult::failure(claude_cli_exit_error(run.exit_code, run.err, run.out));
     } else {
         const std::string raw = str::trim(run.out);
         result = raw.empty() ? LLMResult::failure("claude cli empty output") : parse_claude_cli_result(raw, max_output_bytes_);
@@ -173,6 +173,15 @@ LLMResult ClaudeCliClient::invoke(const LLMInvokeArgs& args) {
     }
     report_concordia_cost_one_shot(std::move(cost));
     return result;
+}
+
+std::string claude_cli_exit_error(int exit_code, const std::string& err, const std::string& out) {
+    const std::string head = "claude cli exit " + std::to_string(exit_code) + ": ";
+    const std::string e = str::trim(err);
+    if (!e.empty()) return head + str::js_slice(e, 0, 200);
+    const std::string o = str::trim(out);
+    if (!o.empty()) return head + "(stderr なし) stdout: " + str::js_slice(o, 0, 200);
+    return head + "(stderr・stdout とも出力なし)";
 }
 
 } // namespace di::persona_engine

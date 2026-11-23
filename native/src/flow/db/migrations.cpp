@@ -410,6 +410,8 @@ const std::vector<FlowMigration>& flow_migrations() {
            game_title TEXT NOT NULL, comment TEXT NOT NULL
          ))SQL",
           R"SQL(CREATE INDEX IF NOT EXISTS human_playtest_voice_game ON human_playtest_voice(game_title, seq))SQL"}},
+        // 議論エンジンの版 (dialectic v2 P10)。旧行は NULL = 版の記録が無い (v1 以前)。
+        {"2026-11-23-conclusion-engine-version", {R"SQL(ALTER TABLE flow_conclusion ADD COLUMN engine_version TEXT)SQL"}},
     };
     return migrations;
 }

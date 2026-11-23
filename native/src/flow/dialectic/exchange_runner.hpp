@@ -3,10 +3,13 @@
 // — driver から 1 論点ぶんを切り出した進行台本。
 //
 //   1. 応答待ちの論拠を幅優先で 1 件取り出す (exchange)
-//   2. 相手陣営の発言数最少ペルソナが「反論 (論拠 1 件)」か「認める」で答える
+//   2. 相手陣営のペルソナが「反論 (論拠 1 件)」か「認める」で答える (v2 P6: その連鎖で直近に話した人を優先、
+//      いなければ発言数最少)
 //   3. 反論は前提ルールのゲート (rule_check) を通ったときだけ論拠として積む
 //   4. 応答待ちが無くなる (= 論拠が落ち着く) か応答ターン上限で終わる
 // 終わったら定立の論拠の決着を Position の根拠状態へ書き戻す (goal の論破判定が読む)。
+// v2: 進行役の指名・まとめは定型文 (LLM を呼ばない)。まとめは終了理由 (落ち着いた / 上限で打ち切り) と
+// 陣営ごとの内訳 (反論なし / 守った / 未決 / 崩れた) を告げる。応答者の LLM 障害・空応答は未決に数える。
 //
 // 永続・通知・論証グラフの更新は driver から渡された commit / applyGraph に任せる。
 // 呼んだスレッドで同期に進める (LLM の待ちもこのスレッド)。
@@ -21,6 +24,7 @@
 #include "flow/argument_graph.hpp"
 #include "flow/director.hpp"
 #include "flow/dialectic/exchange.hpp"
+#include "flow/dialectic/exchange_end.hpp"
 #include "flow/dialectic/store.hpp"
 #include "flow/dialectic/turn_prompt.hpp"
 #include "flow/effect_predict.hpp"
@@ -90,6 +94,7 @@ struct GroundExchangeArgs {
     std::optional<std::string> judgeModel;
     TurnLlmFactory turnLlm;
     RuleCheckLlmFactory ruleCheckLlm;
+    /** 旧版の進行文の言い直し用 (v2 では使わない。互換のため残す)。 */
     persona_engine::LLMClient* facilitatorLlm = nullptr;
     std::function<FlowUtteranceRecord(const RecordArgs&)> makeRecord;
     std::function<void(const FlowUtteranceRecord&)> commit;
@@ -102,8 +107,18 @@ struct GroundExchangeArgs {
 const FlowPersona* pick_side_speaker(const std::vector<FlowPersona>& speakers, const Side& side,
                                      const std::map<std::string, int>& speak_counts);
 
-/** 応酬を回し、最後のターン番号を返す。必須の引数 (exchange 等) が無ければ std::invalid_argument。 */
-int run_ground_exchange(const GroundExchangeArgs& args);
+/**
+ * 応答対象 node の連鎖 (根から node まで) で、side の陣営が直近に発言した人 (speakers にいる人) を返す。
+ * いなければ pick_side_speaker (発言数最少)。どちらも無ければ nullptr。
+ */
+const FlowPersona* pick_chain_speaker(const std::vector<FlowPersona>& speakers, const Side& side, const std::vector<ArgumentNode>& path,
+                                      const std::map<std::string, int>& speak_counts);
+
+/** まとめ文 (定型)。終了理由と陣営ごとの内訳を告げる。 */
+std::string render_exchange_closing(const ExchangeEnd& end, const GroundTally& pro, const GroundTally& con);
+
+/** 応酬を回し、終わり方を返す。必須の引数 (exchange 等) が無ければ std::invalid_argument。 */
+ExchangeEnd run_ground_exchange(const GroundExchangeArgs& args);
 
 /** 定立の論拠の決着を Position の根拠状態へ書き戻す (変化した Position だけ永続)。 */
 void write_back_ground_states(const GroundExchange& exchange, const PositionsBySide& position_by_side);

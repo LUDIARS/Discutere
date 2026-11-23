@@ -1,6 +1,7 @@
 #include "flow/dialectic/exchange_prompt.hpp"
 
 #include "base/strings.hpp"
+#include "flow/dialectic/persona_profile.hpp"
 #include "flow/dialectic/turn_prompt.hpp"
 #include "flow/discussion_paper.hpp"
 #include "flow/proxy/prompt.hpp"
@@ -56,6 +57,7 @@ std::string build_exchange_prompt(const ExchangePromptArgs& args) {
     std::vector<std::string> lines{"あなたは議論ペルソナ「" + persona.name + "」。",
                                    "特徴: " + str::join(persona.traits, " / ") + " / 話し方: " + persona.speechStyle};
     if (persona.valueAxis && !persona.valueAxis->empty()) lines.push_back("あなたが重視する価値: " + *persona.valueAxis);
+    if (const std::string profile = persona_profile_line(persona); !profile.empty()) lines.push_back(profile);
     lines.push_back(stance_line(args.stance));
     lines.emplace_back("");
     for (auto& l : proxy::proxy_prompt_lines(persona)) lines.push_back(std::move(l));

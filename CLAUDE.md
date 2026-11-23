@@ -370,6 +370,13 @@ bot 名義で締める (収束時 `finalizeForumPost` で lock+archive+まとめ
 `--recommend` の参考値で合否に使わない。既定では合格者だけ代理に出る)。
   `機密`/`内部` タグでは使えない。出典 URL は Di に渡さない。
 
+- **議論エンジン v2 (2026-11-23, `spec/plan/2026-11-23-dialectic-v2-implementation-plan.md`)**: 打ち切り・応答者の LLM 障害は
+  根拠状態 `unsettled` (未決) にし、勝敗に数えない (残った根拠が無く未決だけの陣営は論破にしない)。止揚の材料と批准の分母は
+  崩れずに残った根拠だけ。結論は論点ごとの決着表 (全予定論点・残った / 未決 / 崩れた根拠・未討議・批准) をコードで書き、
+  LLM は決着表だけを入力に要約部を書く (投票の勝者・直近 20 発話は渡さない)。dialectic の論点投票は既定 off
+  (`flow.dialectic.vote`)、進行役の開幕・指名・まとめは定型文 (LLM を呼ばない)。`flow_conclusion.engine_version` に版を残す。
+  personaIds で指定したプール人物は遊び手の型 (`persona_descriptor`) を定立・応答の prompt に載せる。
+
 ## 個人データ
 
 匿名 workspace (`DISCATIER_WORKSPACE` 既定 `knowledge`)。攻略 KG / 議論ノードに編集者名・アカウント名を保存しない (`spec/feature/crawler/DESIGN.md` 準拠)。

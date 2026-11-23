@@ -109,32 +109,49 @@ ConclusionResult generate_conclusion(persona_engine::LLMClient& llm, const Gener
     // 注記 (議論適性: 低 の強行など) を結論に併記する (表示・永続の両方に乗る)。
     if (args.annotation && !str::trim(*args.annotation).empty()) summary = summary + "\n\n※ " + str::trim(*args.annotation);
 
-    // DB に保存
+    PersistConclusionArgs pa;
+    pa.theme = args.theme;
+    pa.sessionId = args.sessionId;
+    pa.paperId = args.paperId;
+    pa.flow = args.flow;
+    pa.summary = summary;
+    pa.concluded = concluded;
+    pa.aufhebung = args.allAufhebung;
+    pa.topUtteranceIds = winner_ids;
+    pa.utteranceCount = static_cast<std::int64_t>(args.allUtterances.size());
+    pa.warn = warn;
+    persist_flow_conclusion(pa);
+    return {summary, concluded};
+}
+
+void persist_flow_conclusion(const PersistConclusionArgs& args) {
+    const WarnFn warn = args.warn ? args.warn : WarnFn([](const std::string& m) { log::warn(m); });
     auto db = db::get_flow_db();
     const std::int64_t now = time::now_ms();
     db->run(R"SQL(INSERT OR REPLACE INTO flow_conclusion
-       (session_id, paper_id, summary, aufhebung_json, top_utterance_ids_json, concluded, created_at)
-     VALUES (?, ?, ?, ?, ?, ?, ?))SQL",
-            {args.sessionId, args.paperId, summary, json_stringify(Json(args.allAufhebung)), json_stringify(Json(winner_ids)),
-             concluded ? 1 : 0, now});
+       (session_id, paper_id, summary, aufhebung_json, top_utterance_ids_json, concluded, created_at, engine_version)
+     VALUES (?, ?, ?, ?, ?, ?, ?, ?))SQL",
+            {args.sessionId, args.paperId, args.summary, json_stringify(Json(args.aufhebung)), json_stringify(Json(args.topUtteranceIds)),
+             args.concluded ? 1 : 0, now, args.engineVersion ? sql::Value(*args.engineVersion) : sql::Value()});
     TitleCacheMeta meta;
     meta.discussionType = args.flow;
-    upsert_discussion_title_cache(args.sessionId, concluded ? summary : args.theme, concluded ? "conclusion" : "paper", now, meta);
+    upsert_discussion_title_cache(args.sessionId, args.concluded ? args.summary : args.theme, args.concluded ? "conclusion" : "paper", now,
+                                  meta);
 
     // 結論一覧キャッシュへ write-through (議論が収束するたびに発話数=議論ボリュームを更新)。KG を引かない軽量更新。
     try {
         visualize::WriteThroughParams p;
         p.sessionId = args.sessionId;
         p.title = args.theme;
-        if (concluded) p.conclusion = str::trim(str::js_slice(summary, static_cast<std::int64_t>(str::js_length(CONVERGE_PREFIX))));
-        p.utteranceCount = static_cast<std::int64_t>(args.allUtterances.size());
-        p.aufhebungCount = static_cast<std::int64_t>(args.allAufhebung.size());
+        if (args.concluded)
+            p.conclusion = str::trim(str::js_slice(args.summary, static_cast<std::int64_t>(str::js_length(CONVERGE_PREFIX))));
+        p.utteranceCount = args.utteranceCount;
+        p.aufhebungCount = static_cast<std::int64_t>(args.aufhebung.size());
         p.updatedAt = now;
         visualize::write_through_flow_conclusion(*db, p);
     } catch (const std::exception& e) {
         warn(std::string("結論キャッシュ更新 失敗 (議論は継続): ") + e.what());
     }
-    return {summary, concluded};
 }
 
 } // namespace di::flow

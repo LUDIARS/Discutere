@@ -302,6 +302,8 @@ DiscutereConfig load_config(const LoadOptions& options) {
     fl.dialectic.judgeModel = L::pick(e("DISCUTERE_FLOW_DIALECTIC_JUDGE_MODEL"), x.f({"flow", "dialectic", "judgeModel"}),
                                       "haiku");
     fl.dialectic.ruleCheck = L::pick_bool(e("DISCUTERE_FLOW_DIALECTIC_RULE_CHECK"), x.f({"flow", "dialectic", "ruleCheck"}), true);
+    fl.dialectic.version = L::pick(e("DISCUTERE_FLOW_DIALECTIC_VERSION"), x.f({"flow", "dialectic", "version"}), "v2");
+    fl.dialectic.vote = L::pick_bool(e("DISCUTERE_FLOW_DIALECTIC_VOTE"), x.f({"flow", "dialectic", "vote"}), false);
     fl.dialectic.finalJudgeModel =
         L::pick(e("DISCUTERE_FLOW_DIALECTIC_FINAL_JUDGE_MODEL"), x.f({"flow", "dialectic", "finalJudgeModel"}), "");
     fl.personaSetupModel = L::pick(e("DISCUTERE_FLOW_PERSONA_SETUP_MODEL"), x.f({"flow", "personaSetupModel"}), "");
@@ -637,7 +639,8 @@ Json to_json(const DiscutereConfig& c) {
     f["dialectic"] = Json{{"rebutTurns", fl.dialectic.rebutTurns},       {"exchangeTurns", fl.dialectic.exchangeTurns},
                           {"argumentDepth", fl.dialectic.argumentDepth}, {"staleTurns", fl.dialectic.staleTurns},
                           {"judgeModel", fl.dialectic.judgeModel},       {"ruleCheck", fl.dialectic.ruleCheck},
-                          {"finalJudgeModel", fl.dialectic.finalJudgeModel}};
+                          {"finalJudgeModel", fl.dialectic.finalJudgeModel}, {"version", fl.dialectic.version},
+                          {"vote", fl.dialectic.vote}};
     f["personaSetupModel"] = fl.personaSetupModel;
     f["tags"] = strings(fl.tags);
     f["sparringMaxTurns"] = fl.sparringMaxTurns;

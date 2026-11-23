@@ -1,12 +1,14 @@
 #pragma once
 // src/flow/dialectic/exchange.ts の移植: 論拠の応酬 [2] (dialectic.md §2.6) — 決定的コード・LLM 不使用。
 // 論拠 1 件 = 1 ノード。反論も論拠 1 件のノードとして親にぶら下げ、幅優先のキューで相手陣営が答える。
-// 決着は三値 (standing / refuted / contested)。打ち切りは contested とし根拠を崩さない。
+// 決着は三値 (standing / refuted / contested)。打ち切り・応答障害は contested とし、根拠を崩さず残ったにも数えない
+// (v2 P2: contested を含む定立の論拠は unsettled = 未決)。
 #include <map>
 #include <optional>
 #include <string>
 #include <vector>
 
+#include "flow/dialectic/ground_state.hpp"
 #include "flow/dialectic/premise_rules.hpp"
 #include "flow/dialectic/store.hpp"
 
@@ -14,7 +16,7 @@ namespace di::flow::dialectic {
 
 /** "pro" | "con" */
 using Side = std::string;
-/** "open" | "answered" | "accepted" | "cut" */
+/** "open" | "answered" | "accepted" | "cut" | "errored" (応答者の LLM 障害・空応答。v2) */
 using NodeStatus = std::string;
 /** "standing" | "refuted" | "contested" */
 using NodeVerdict = std::string;
@@ -61,7 +63,10 @@ public:
     /** target への反論を登録する (未知の target は std::invalid_argument)。 */
     ArgumentNode rebut(const std::string& target_id, const NewNode& node);
     void accept(const std::string& target_id);
+    /** 有効な反論にならなかった (問いに格下げ等)。相手の論拠は成り立ったまま。 */
     void fail(const std::string& target_id);
+    /** 応答者が応答できなかった (LLM 障害・空応答)。決着せず contested (v2)。 */
+    void error(const std::string& target_id);
     /** 残りの応答待ちをすべて打ち切る。打ち切った件数を返す。 */
     int cut_remaining();
     bool settled();
@@ -79,6 +84,8 @@ public:
         int total = 0;
     };
     Count standing_count(const Side& side) const;
+    /** 陣営の定立の論拠の内訳 (ground_states と同じ判定)。 */
+    GroundTally tally(const Side& side) const;
 
 private:
     ArgumentNode insert(const NewNode& node, std::optional<std::string> parent_id, int depth);

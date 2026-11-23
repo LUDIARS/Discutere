@@ -133,7 +133,8 @@ std::string quote_excerpt(const std::string& text, std::size_t max) {
         if (cp == U'。' || cp == U'！' || cp == U'？' || cp == '!' || cp == '?') cut = pos;
         pos += cp >= 0x10000 ? 2 : 1;
     }
-    return static_cast<double>(cut) >= static_cast<double>(max) / 3 ? str::js_slice(head, 0, cut + 1) : head + "…";
+    // 切ったことが分かるように、文の区切りで切っても省略記号を付ける (v2 P11)。
+    return static_cast<double>(cut) >= static_cast<double>(max) / 3 ? str::js_slice(head, 0, cut + 1) + "…" : head + "…";
 }
 
 std::string nomination_frame_text(const ScheduleDecision& decision, const std::string& persona_name,
@@ -146,6 +147,11 @@ std::string nomination_frame_text(const ScheduleDecision& decision, const std::s
                       : persona_name + "さん、反対の立場から意見をどうぞ。";
     if (decision.kind == "free") return persona_name + "さん、この論点について意見をどうぞ。";
     return "";
+}
+
+std::string render_nomination_text(const RenderNominationArgs& args) {
+    const std::string line = nomination_frame_text(args.decision, args.personaName, args.target);
+    return args.target ? line + "\n> " + quote_excerpt(args.target->text) : line;
 }
 
 std::string render_nomination(persona_engine::LLMClient& llm, const RenderNominationArgs& args) {

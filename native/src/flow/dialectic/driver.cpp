@@ -14,6 +14,7 @@
 #include "flow/dialectic/conclusion.hpp"
 #include "flow/dialectic/convergence.hpp"
 #include "flow/dialectic/exchange.hpp"
+#include "flow/dialectic/exchange_end.hpp"
 #include "flow/dialectic/exchange_runner.hpp"
 #include "flow/dialectic/goal.hpp"
 #include "flow/dialectic/issue_voices.hpp"
@@ -366,12 +367,9 @@ FlowDirectorResult run_dialectic_flow(persona_engine::LLMClient& llm, const std:
             speakers = {pro, con};
         }
 
-        // ファシリテーター開幕 (露出文のレンダリングのみ LLM)。
-        const std::string opening_text = render_facilitator_line(
-            facilitator_llm,
-            "論点 " + rs + "「" + issue.title + "」について議論します。まず賛成側の" + pro.name + "さん、続いて反対側の" + con.name +
-                "さんに定立をお願いします。",
-            facilitator.model, warn);
+        // ファシリテーター開幕 (v2: 定型文のまま。言い直しの LLM は呼ばない)。
+        const std::string opening_text = "論点 " + rs + "「" + issue.title + "」について議論します。まず賛成側の" + pro.name +
+                                         "さん、続いて反対側の" + con.name + "さんに定立をお願いします。";
         commit(make_record(simple(facilitator, round, 0, opening_text)));
 
         // 論点ごとのプレイヤーの声 (集めた外部の声)。定立と反論のプロンプトに根拠のデータとして載せる。
@@ -492,6 +490,7 @@ FlowDirectorResult run_dialectic_flow(persona_engine::LLMClient& llm, const std:
         }
 
         // ── [2] 論拠の応酬 (相手の論拠に「反論 = 論拠 1 件」か「認める」で答える → 落ち着いたらまとめ) ──
+        ExchangeEnd exchange_end;
         {
             GroundExchangeArgs ea;
             ea.issue = issue;
@@ -533,7 +532,8 @@ FlowDirectorResult run_dialectic_flow(persona_engine::LLMClient& llm, const std:
             };
             ea.log = log;
             ea.warn = warn;
-            turn = run_ground_exchange(ea);
+            exchange_end = run_ground_exchange(ea);
+            turn = exchange_end.turn;
         }
 
         // ── [3] 矛盾の特定 (型分類 + 事実解消) ─────────────────────────────────
@@ -648,14 +648,17 @@ FlowDirectorResult run_dialectic_flow(persona_engine::LLMClient& llm, const std:
         settlement.syntheses = syntheses;
         settlement.refutation = refutation.note;
         settlement.undecided = refutation.undecided;
+        settlement.exchangeEnd = exchange_end;
         settlements.push_back(settlement);
 
-        // ── issue 決着ごとのレンズ投票 (03 流用。winnerShare が収束シグナル (b)) ──
+        // ── issue 決着ごとのレンズ投票 (v2: 既定 off。決着・結論には使わない。flow.dialectic.vote=true のときだけ表示用に走る) ──
         check_stop(state);
-        if (state) state->set_phase("vote");
         std::vector<RoundUtterance> candidates;
-        for (const auto& u : all_utterances)
-            if (u.round == round && !u.isError && u.role != "facilitator") candidates.push_back({u.id, u.personaName, u.text});
+        if (cfg.flow.dialectic.vote) {
+            if (state) state->set_phase("vote");
+            for (const auto& u : all_utterances)
+                if (u.round == round && !u.isError && u.role != "facilitator") candidates.push_back({u.id, u.personaName, u.text});
+        }
         VoteResult evaluation;
         if (!candidates.empty()) {
             RunRoundVoteArgs va;
@@ -693,7 +696,9 @@ FlowDirectorResult run_dialectic_flow(persona_engine::LLMClient& llm, const std:
         // ── [5] 計測型収束 (コードのみ・2/3 + aufhebungTarget 上限キャップ) ──────
         ConvergenceInput ci;
         ci.unresolvedRebuttals = static_cast<double>(graph.unresolved_rebuttals().size());
-        ci.winnerShare = evaluation.winnerShare;
+        // 投票を回さないとき (v2 既定) の信号 (b) は「論点が閉じた」= 1.0。旧版の 3 票はほぼ常に集中していたので
+        // 収束の振る舞いはそのまま。打ち切った論点は結論の決着表に「未討議」で載る (隠れた打ち切りにしない)。
+        ci.winnerShare = cfg.flow.dialectic.vote ? evaluation.winnerShare : std::optional<double>(1.0);
         ci.convergeShare = cfg.flow.convergeShare;
         ci.newClaimsInWindow = graph.new_claims_since(global_turn - std::max(1.0, cfg.flow.dialectic.staleTurns));
         ci.ratifiedAufhebenCount = static_cast<double>(ratified_aufheben.size());
@@ -722,6 +727,8 @@ FlowDirectorResult run_dialectic_flow(persona_engine::LLMClient& llm, const std:
     cda.paperId = paper_id;
     cda.flow = flow;
     cda.settlements = settlements;
+    for (const auto& issue : issues)
+        if (issue.status != "concluded") cda.undiscussed.push_back(issue);
     cda.personaNames = persona_names;
     cda.allUtterances = all_utterances;
     cda.voteResults = vote_results;
@@ -729,6 +736,8 @@ FlowDirectorResult run_dialectic_flow(persona_engine::LLMClient& llm, const std:
     if (override_paper && override_paper->debatability && !override_paper->debatability->debatable)
         cda.debatabilityNote =
             "議論適性: 低 (両論武装可能な争点 " + std::to_string(override_paper->debatability->armableBothCount) + " 件)";
+    cda.model = facilitator.model;
+    if (!cfg.flow.dialectic.version.empty()) cda.engineVersion = cfg.flow.dialectic.version;
     cda.warn = warn;
     const ConclusionResult conclusion_result = conclude_dialectic(llm, cda);
     log("結論: " + (conclusion_result.concluded ? str::js_slice(conclusion_result.summary, 0, 80) : std::string("結論なし")));

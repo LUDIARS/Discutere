@@ -2191,7 +2191,8 @@
       "summary": "【収束】ビルド多様性で飽きを防ぐ",
       "aufhebung_json": "[\"止揚その1\"]",
       "top_utterance_ids_json": "[\"<U6>\"]",
-      "concluded": 1
+      "concluded": 1,
+      "engine_version": null
      }
     ],
     "flow_session_persona": [
@@ -3204,7 +3205,8 @@
       "summary": "【収束(未検証)】それでも JSON ではない\n\n※ 議論適性: 低 (両論武装可能な争点 1 件)",
       "aufhebung_json": "[\"射幸性と天井の両立\"]",
       "top_utterance_ids_json": "[\"<U7>\",\"<U11>\"]",
-      "concluded": 0
+      "concluded": 0,
+      "engine_version": null
      }
     ],
     "flow_session_persona": [
@@ -3969,7 +3971,8 @@
       "summary": "(結論なし)",
       "aufhebung_json": "[\"報酬間隔と選択の両輪\"]",
       "top_utterance_ids_json": "[\"<U4>\"]",
-      "concluded": 0
+      "concluded": 0,
+      "engine_version": null
      }
     ],
     "flow_persona": [

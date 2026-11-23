@@ -83,6 +83,10 @@ struct DiscutereConfig {
             bool ruleCheck = true;
             /** 結論候補の評価・批准専用。空なら judgeModel を使う。 */
             std::string finalJudgeModel;
+            /** 議論エンジンの版 (v2 P10)。flow_conclusion.engine_version に記録する (比較用。挙動は切り替えない)。 */
+            std::string version;
+            /** 論点決着後のレンズ投票 (既定 false)。決着・結論には使わない。true のときだけ表示用に走る。 */
+            bool vote = false;
         } dialectic;
         std::string personaSetupModel;
         std::vector<std::string> tags;

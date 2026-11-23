@@ -5,6 +5,7 @@
 #include <stdexcept>
 
 #include "base/strings.hpp"
+#include "flow/dialectic/ground_state.hpp"
 
 namespace di::flow::dialectic {
 
@@ -25,11 +26,17 @@ std::string synthesis_template_for(const TensionType& type) {
 namespace {
 
 std::string render_position_for_synthesis(const std::string& label, const PositionRecord& p) {
-    std::vector<std::string> grounds;
-    for (const auto& g : p.grounds) grounds.push_back("  - [" + g.id + "] (" + g.state + ") " + g.text);
+    std::vector<std::string> usable;
+    std::vector<std::string> unusable;
+    for (const auto& g : p.grounds) {
+        const std::string line = "  - [" + g.id + "] (" + ground_state_label(g.state) + ") " + g.text;
+        (is_standing_ground(g.state) ? usable : unusable).push_back(line);
+    }
     const std::string values = str::join(p.values, " / ");
-    return label + " (" + p.stance + "): " + p.claim + "\n" + str::join(grounds, "\n") + "\n  価値前提: " +
-           (values.empty() ? "(なし)" : values);
+    std::string out = label + " (" + p.stance + "): " + p.claim + "\n  残った根拠 (保存の対象):\n" +
+                      (usable.empty() ? std::string("  - (なし)") : str::join(usable, "\n"));
+    if (!unusable.empty()) out += "\n  崩れた・未決の根拠 (前提に使わない。preserves に入れない):\n" + str::join(unusable, "\n");
+    return out + "\n  価値前提: " + (values.empty() ? "(なし)" : values);
 }
 
 std::vector<std::string> coerce_id_array(const Json& v, const std::set<std::string>& valid) {
@@ -64,11 +71,16 @@ std::string build_synthesis_prompt(const BuildSynthesisPromptArgs& args) {
         feedback = "\n# 前回候補への批准フィードバック (これらの根拠が保存されておらず reject された)\n" + str::join(lines, "\n") +
                    "\n前回候補の言い換えは禁止です。欠けていた根拠を、どの条件・対象・検証方法で保存したかが分かる形に修正してください。\n";
     }
+    if (args.rejectReasons && !args.rejectReasons->empty()) {
+        std::vector<std::string> lines;
+        for (const auto& m : *args.rejectReasons) lines.push_back("- " + m);
+        feedback += "# 前回候補を拒否した理由\n" + str::join(lines, "\n") + "\n";
+    }
     return "# 論点\n" + args.issueTitle + "\n\n" + "# 対立する Position (根拠は [id] で指す)\n" +
            render_position_for_synthesis("A", args.positionA) + "\n\n" + render_position_for_synthesis("B", args.positionB) +
            "\n\n" + "# 指示\n" + synthesis_template_for(args.tension.type) + "\n" + feedback +
            "\n止揚 (aufheben) の 3 要件をデータで示してください:\n" +
-           "- preserves: 各陣営から何を保存したか (上の根拠 id で指す。両陣営から挙げる)\n" +
+           "- preserves: 各陣営から何を保存したか (「残った根拠」の id で指す。両陣営から挙げる。崩れた・未決の根拠は挙げない)\n" +
            "- negates: 何を放棄させたか (根拠 id)\n" +
            "- elevates: 導入した新しい枠 (上位目標 / 条件分割 / 再定義)。単なる「両方やる」は不可\n\n" +
            "text には、保存した根拠がどう両立するかを短く含める。既存案の反復や「状況に応じて両方」は不可。\n\n" +
@@ -79,8 +91,9 @@ std::string build_synthesis_prompt(const BuildSynthesisPromptArgs& args) {
 
 GeneratedSynthesis generate_synthesis(persona_engine::LLMClient& llm, const GenerateSynthesisArgs& args) {
     std::set<std::string> valid;
-    for (const auto& g : args.positionA.grounds) valid.insert(g.id);
-    for (const auto& g : args.positionB.grounds) valid.insert(g.id);
+    std::set<std::string> unusable;
+    for (const auto* p : {&args.positionA, &args.positionB})
+        for (const auto& g : p->grounds) (is_standing_ground(g.state) ? valid : unusable).insert(g.id);
     persona_engine::LLMInvokeArgs call;
     call.system = args.paperSystem;
     call.prompt = build_synthesis_prompt(args);
@@ -99,8 +112,19 @@ GeneratedSynthesis generate_synthesis(persona_engine::LLMClient& llm, const Gene
     const Json& elev = field(*obj, "elevates");
     std::optional<std::string> elevates;
     if (elev.is_string() && !str::trim(elev.get<std::string>()).empty()) elevates = str::trim(elev.get<std::string>());
-    return {str::trim(text.get<std::string>()), coerce_id_array(field(*obj, "preserves"), valid),
-            coerce_id_array(field(*obj, "negates"), valid), elevates, false};
+    std::set<std::string> any = valid;
+    any.insert(unusable.begin(), unusable.end());
+    GeneratedSynthesis out{str::trim(text.get<std::string>()), coerce_id_array(field(*obj, "preserves"), valid),
+                           coerce_id_array(field(*obj, "negates"), any), elevates, false, {}};
+    for (const auto& id : coerce_id_array(field(*obj, "preserves"), unusable))
+        if (std::find(out.unusablePreserves.begin(), out.unusablePreserves.end(), id) == out.unusablePreserves.end())
+            out.unusablePreserves.push_back(id);
+    // 重複を除く (同じ id を 2 回挙げて保存を水増しさせない)。
+    std::vector<std::string> unique;
+    for (const auto& id : out.preserves)
+        if (std::find(unique.begin(), unique.end(), id) == unique.end()) unique.push_back(id);
+    out.preserves = std::move(unique);
+    return out;
 }
 
 std::string elevation_gate(persona_engine::LLMClient& llm, const std::optional<std::string>& elevates,
@@ -138,12 +162,13 @@ std::string build_ratify_prompt(const BuildRatifyPromptArgs& args) {
     std::vector<std::string> ids;
     std::vector<std::string> list;
     for (const auto& g : position.grounds) {
+        if (!is_standing_ground(g.state)) continue;
         ids.push_back(g.id);
         list.push_back("- [" + g.id + "] " + g.text);
     }
     const std::string preserves = str::join(args.preserves, ", ");
     return "あなたは議論ペルソナ「" + args.personaName + "」。この議論でのあなたの立場は " + position.stance + "、" +
-           "主張は「" + position.claim + "」です。\n\n" + "# あなたの主張の根拠\n" + str::join(list, "\n") + "\n\n" +
+           "主張は「" + position.claim + "」です。\n\n" + "# あなたの主張の根拠 (議論で崩れずに残ったもの)\n" + str::join(list, "\n") + "\n\n" +
            "# 提示された統合案\n" + args.synthesisText + "\n" +
            ((args.elevates && !args.elevates->empty()) ? "新しい枠: " + *args.elevates + "\n" : "") +
            "(統合案が保存を主張する根拠: [" + (preserves.empty() ? "なし" : preserves) + "])\n\n" +
@@ -157,12 +182,17 @@ std::string build_ratify_prompt(const BuildRatifyPromptArgs& args) {
 
 RatificationEntry ratify_synthesis(persona_engine::LLMClient& llm, const RatifyArgs& args) {
     const auto& position = args.position;
+    // 批准の対象は崩れずに残った根拠だけ (v2 P3。崩れた・未決の根拠の保存を求めない)。
     std::vector<std::string> own_ids;  // Set の挿入順
     for (const auto& g : position.grounds)
-        if (std::find(own_ids.begin(), own_ids.end(), g.id) == own_ids.end()) own_ids.push_back(g.id);
+        if (is_standing_ground(g.state) && std::find(own_ids.begin(), own_ids.end(), g.id) == own_ids.end()) own_ids.push_back(g.id);
     auto is_own = [&](const std::string& id) { return std::find(own_ids.begin(), own_ids.end(), id) != own_ids.end(); };
     auto reject_default = [&](const std::string& reason) { return RatificationEntry{position.id, "reject", {}, own_ids, reason}; };
 
+    if (own_ids.empty()) {
+        if (args.warn) args.warn("批准 (" + position.stance + "): 崩れずに残った根拠が無い — 止揚の批准はできない (reject)");
+        return reject_default("崩れずに残った根拠が無い");
+    }
     persona_engine::LLMInvokeArgs call;
     call.prompt = build_ratify_prompt(args);
     if (args.model && !args.model->empty()) call.model = *args.model;
@@ -181,7 +211,7 @@ RatificationEntry ratify_synthesis(persona_engine::LLMClient& llm, const RatifyA
         for (const auto& s : v)
             if (s.is_string()) {
                 auto t = str::trim(s.get<std::string>());
-                if (is_own(t)) out.push_back(std::move(t));
+                if (is_own(t) && std::find(out.begin(), out.end(), t) == out.end()) out.push_back(std::move(t));
             }
         return out;
     };
@@ -197,12 +227,12 @@ RatificationEntry ratify_synthesis(persona_engine::LLMClient& llm, const RatifyA
     const std::string reason = r.is_string() ? r.get<std::string>() : "";
 
     // 機械検証: 過半数保存が確認できたときのみ accept が有効。
-    const bool majority = static_cast<double>(preserved.size()) > static_cast<double>(position.grounds.size()) / 2;
+    const bool majority = static_cast<double>(preserved.size()) > static_cast<double>(own_ids.size()) / 2;
     const Json& v = field(*obj, "verdict");
     const bool said_accept = v.is_string() && v.get<std::string>() == "accept";
     if (said_accept && !majority && args.warn)
         args.warn("批准 (" + position.stance + "): verdict=accept だが保存確認 " + std::to_string(preserved.size()) + "/" +
-                  std::to_string(position.grounds.size()) + " は過半数未満 — コードが reject に矯正");
+                  std::to_string(own_ids.size()) + " は過半数未満 — コードが reject に矯正");
     return {position.id, said_accept && majority ? "accept" : "reject", preserved, missing, reason};
 }
 
@@ -214,6 +244,7 @@ SynthesisOutcome run_synthesis_loop(const SynthesisLoopArgs& args) {
     };
     std::optional<std::string> record_id;
     std::vector<std::string> missing_feedback;
+    std::vector<std::string> reject_reasons;
     SynthesisRecord last;
 
     for (int revision = 0; revision <= MAX_REVISIONS; ++revision) {
@@ -226,8 +257,14 @@ SynthesisOutcome run_synthesis_loop(const SynthesisLoopArgs& args) {
         gen.paperSystem = args.paperSystem;
         gen.model = args.mainModel;
         gen.warn = args.warn;
+        if (!reject_reasons.empty()) gen.rejectReasons = reject_reasons;
         const auto candidate = generate_synthesis(*args.genLlm, gen);
-        const std::string kind = elevation_gate(*args.gateLlm, candidate.elevates, args.judgeModel, args.warn);
+        // 崩れた・未決の根拠を保存すると言った候補は止揚にしない (折衷ゲートを呼ばない)。
+        if (!candidate.unusablePreserves.empty() && args.warn)
+            args.warn("Synthesis 候補が崩れた・未決の根拠 [" + str::join(candidate.unusablePreserves, ", ") + "] を保存に挙げた — 折衷扱い");
+        const std::string kind = candidate.unusablePreserves.empty()
+                                     ? elevation_gate(*args.gateLlm, candidate.elevates, args.judgeModel, args.warn)
+                                     : std::string("compromise");
 
         std::vector<RatificationEntry> ratifications;
         for (const PositionRecord* position : {&args.positionA, &args.positionB}) {
@@ -266,8 +303,12 @@ SynthesisOutcome run_synthesis_loop(const SynthesisLoopArgs& args) {
         if (all_accepted) return {last, kind == "aufheben" ? "synthesized" : "compromised"};
 
         missing_feedback.clear();
+        reject_reasons.clear();
         for (const auto& r : ratifications)
-            if (r.verdict == "reject") missing_feedback.insert(missing_feedback.end(), r.missing.begin(), r.missing.end());
+            if (r.verdict == "reject") {
+                missing_feedback.insert(missing_feedback.end(), r.missing.begin(), r.missing.end());
+                if (!str::trim(r.reason).empty()) reject_reasons.push_back(str::trim(r.reason));
+            }
         if (args.warn)
             args.warn("Synthesis 批准 reject (revision " + std::to_string(revision) + "/" + std::to_string(MAX_REVISIONS) +
                       "): 欠落根拠 [" + str::join(missing_feedback, ", ") + "]" +

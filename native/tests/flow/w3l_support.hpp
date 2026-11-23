@@ -138,6 +138,11 @@ inline std::function<double()> lcg(std::uint32_t seed) {
     };
 }
 
+/** dialectic v2 で呼ばなくなった種類の呼び出し (進行文の言い直し / レンズ投票) か。 */
+inline bool is_v2_dropped_call(const std::string& prompt) {
+    return prompt.rfind("あなたは議論の進行役です。次の進行内容を", 0) == 0 || prompt.find("あなたは中立な審判として") != std::string::npos;
+}
+
 /** 記録した呼び出し列の応答を順に返す偽の LLM。呼び出しは正規化して記録する。 */
 class ReplayLLM : public di::persona_engine::LLMClient {
 public:
@@ -149,6 +154,10 @@ public:
         call["prompt"] = norm_.str(args.prompt);
         call["model"] = args.model ? Json(*args.model) : Json(nullptr);
         call["maxTokens"] = args.maxTokens ? Json(*args.maxTokens) : Json(nullptr);
+        // dialectic v2 でやめた呼び出し (進行文の言い直し・論点ごとの投票) の記録は、同じ種類の呼び出しが
+        // 来ない限り読み飛ばす (記録の順番を保ったまま、残った呼び出しに元の応答を返す)。
+        const bool incoming_dropped = is_v2_dropped_call(args.prompt);
+        while (!incoming_dropped && index_ < recorded_.size() && is_v2_dropped_call(recorded_[index_].value("prompt", ""))) ++index_;
         if (index_ >= recorded_.size()) {
             calls.push_back(call);
             return di::persona_engine::LLMResult::failure("replay exhausted");

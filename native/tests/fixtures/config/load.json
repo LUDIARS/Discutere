@@ -51,7 +51,9 @@
           "staleTurns": 6,
           "judgeModel": "haiku",
           "ruleCheck": true,
-          "finalJudgeModel": ""
+          "finalJudgeModel": "",
+          "version": "v2",
+          "vote": false
         },
         "personaSetupModel": "",
         "tags": [],
@@ -155,7 +157,13 @@
         "maxConcurrent": 2,
         "sources": [
           "genre"
-        ]
+        ],
+        "minNewVoices": 3,
+        "cooldownMs": 86400000
+      },
+      "managementProposals": {
+        "baseUrl": "",
+        "projectCode": ""
       },
       "llm": {
         "backend": "anthropic",
@@ -354,7 +362,9 @@
           "staleTurns": 6,
           "judgeModel": "haiku",
           "ruleCheck": true,
-          "finalJudgeModel": ""
+          "finalJudgeModel": "",
+          "version": "v2",
+          "vote": false
         },
         "personaSetupModel": "",
         "tags": [
@@ -461,7 +471,13 @@
         "maxConcurrent": 2,
         "sources": [
           "genre"
-        ]
+        ],
+        "minNewVoices": 3,
+        "cooldownMs": 86400000
+      },
+      "managementProposals": {
+        "baseUrl": "",
+        "projectCode": ""
       },
       "llm": {
         "backend": "worker-pool",
@@ -640,7 +656,9 @@
           "staleTurns": 6,
           "judgeModel": "judge-x",
           "ruleCheck": false,
-          "finalJudgeModel": "final-x"
+          "finalJudgeModel": "final-x",
+          "version": "v2",
+          "vote": false
         },
         "personaSetupModel": "",
         "tags": [
@@ -757,7 +775,13 @@
         "maxConcurrent": 2,
         "sources": [
           "genre"
-        ]
+        ],
+        "minNewVoices": 3,
+        "cooldownMs": 86400000
+      },
+      "managementProposals": {
+        "baseUrl": "",
+        "projectCode": ""
       },
       "llm": {
         "backend": "claude-cli",
@@ -954,7 +978,9 @@
           "staleTurns": 6,
           "judgeModel": "judge-x",
           "ruleCheck": false,
-          "finalJudgeModel": "final-x"
+          "finalJudgeModel": "final-x",
+          "version": "v2",
+          "vote": false
         },
         "personaSetupModel": "",
         "tags": [
@@ -1072,7 +1098,13 @@
         "maxConcurrent": 2,
         "sources": [
           "genre"
-        ]
+        ],
+        "minNewVoices": 3,
+        "cooldownMs": 86400000
+      },
+      "managementProposals": {
+        "baseUrl": "",
+        "projectCode": ""
       },
       "llm": {
         "backend": "mock",
@@ -1260,7 +1292,9 @@
           "staleTurns": 6,
           "judgeModel": "haiku",
           "ruleCheck": true,
-          "finalJudgeModel": ""
+          "finalJudgeModel": "",
+          "version": "v2",
+          "vote": false
         },
         "personaSetupModel": "",
         "tags": [],
@@ -1364,7 +1398,13 @@
         "maxConcurrent": 2,
         "sources": [
           "genre"
-        ]
+        ],
+        "minNewVoices": 3,
+        "cooldownMs": 86400000
+      },
+      "managementProposals": {
+        "baseUrl": "",
+        "projectCode": ""
       },
       "llm": {
         "backend": "anthropic",
@@ -1533,7 +1573,9 @@
           "staleTurns": 6,
           "judgeModel": "haiku",
           "ruleCheck": true,
-          "finalJudgeModel": ""
+          "finalJudgeModel": "",
+          "version": "v2",
+          "vote": false
         },
         "personaSetupModel": "",
         "tags": [],
@@ -1637,7 +1679,13 @@
         "maxConcurrent": 2,
         "sources": [
           "genre"
-        ]
+        ],
+        "minNewVoices": 3,
+        "cooldownMs": 86400000
+      },
+      "managementProposals": {
+        "baseUrl": "",
+        "projectCode": ""
       },
       "llm": {
         "backend": "anthropic",
@@ -1806,7 +1854,9 @@
           "staleTurns": 6,
           "judgeModel": "haiku",
           "ruleCheck": true,
-          "finalJudgeModel": ""
+          "finalJudgeModel": "",
+          "version": "v2",
+          "vote": false
         },
         "personaSetupModel": "",
         "tags": [],
@@ -1910,7 +1960,13 @@
         "maxConcurrent": 2,
         "sources": [
           "genre"
-        ]
+        ],
+        "minNewVoices": 3,
+        "cooldownMs": 86400000
+      },
+      "managementProposals": {
+        "baseUrl": "",
+        "projectCode": ""
       },
       "llm": {
         "backend": "anthropic",
@@ -2079,7 +2135,9 @@
           "staleTurns": 6,
           "judgeModel": "haiku",
           "ruleCheck": true,
-          "finalJudgeModel": ""
+          "finalJudgeModel": "",
+          "version": "v2",
+          "vote": false
         },
         "personaSetupModel": "",
         "tags": [],
@@ -2183,7 +2241,13 @@
         "maxConcurrent": 2,
         "sources": [
           "genre"
-        ]
+        ],
+        "minNewVoices": 3,
+        "cooldownMs": 86400000
+      },
+      "managementProposals": {
+        "baseUrl": "",
+        "projectCode": ""
       },
       "llm": {
         "backend": "anthropic",
@@ -2387,7 +2451,9 @@
           "staleTurns": 6,
           "judgeModel": "haiku",
           "ruleCheck": true,
-          "finalJudgeModel": ""
+          "finalJudgeModel": "",
+          "version": "v2",
+          "vote": false
         },
         "personaSetupModel": "",
         "tags": [],
@@ -2491,7 +2557,13 @@
         "maxConcurrent": 2,
         "sources": [
           "genre"
-        ]
+        ],
+        "minNewVoices": 3,
+        "cooldownMs": 86400000
+      },
+      "managementProposals": {
+        "baseUrl": "",
+        "projectCode": ""
       },
       "llm": {
         "backend": "anthropic",

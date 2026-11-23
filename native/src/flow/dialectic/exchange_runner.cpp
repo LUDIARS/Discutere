@@ -46,6 +46,28 @@ const FlowPersona* pick_side_speaker(const std::vector<FlowPersona>& speakers, c
     return best;
 }
 
+const FlowPersona* pick_chain_speaker(const std::vector<FlowPersona>& speakers, const Side& side, const std::vector<ArgumentNode>& path,
+                                      const std::map<std::string, int>& speak_counts) {
+    for (auto it = path.rbegin(); it != path.rend(); ++it) {
+        if (it->side != side) continue;
+        for (const auto& p : speakers)
+            if (p.id == it->personaId && persona_stance(p) == side) return &p;
+    }
+    return pick_side_speaker(speakers, side, speak_counts);
+}
+
+std::string render_exchange_closing(const ExchangeEnd& end, const GroundTally& pro, const GroundTally& con) {
+    const std::string head =
+        ended_by_turn_cap(end)
+            ? "応答ターンの上限 (" + std::to_string(end.answered) + ") に達したので、応答待ち " + std::to_string(end.cutPending) +
+                  " 件は決着しないまま (未決) まとめに入ります。"
+            : std::string("論拠のやり取りが落ち着きました。");
+    const std::string errored =
+        end.errored > 0 ? "応答できなかった " + std::to_string(end.errored) + " 件も未決として扱います。" : std::string();
+    return head + errored + "定立の論拠は、賛成側 " + std::to_string(pro.total) + " 件 (" + render_ground_tally(pro) + ")、反対側 " +
+           std::to_string(con.total) + " 件 (" + render_ground_tally(con) + ") です。ここまでをまとめます。";
+}
+
 namespace {
 
 /** 反論先ノードをゲート用の Position に見立てる (定立の論拠は元の Position、反論はその 1 論拠だけの主張)。 */
@@ -75,9 +97,9 @@ bool has_text(const std::optional<std::string>& s) { return s && !s->empty(); }
 
 } // namespace
 
-int run_ground_exchange(const GroundExchangeArgs& args) {
-    if (!args.exchange || !args.positionBySide || !args.utteranceIndex || !args.speakCounts || !args.facilitatorLlm || !args.turnLlm ||
-        !args.ruleCheckLlm || !args.makeRecord || !args.commit || !args.applyGraph)
+ExchangeEnd run_ground_exchange(const GroundExchangeArgs& args) {
+    if (!args.exchange || !args.positionBySide || !args.utteranceIndex || !args.speakCounts || !args.turnLlm || !args.ruleCheckLlm ||
+        !args.makeRecord || !args.commit || !args.applyGraph)
         throw std::invalid_argument("run_ground_exchange: required argument missing");
     GroundExchange& exchange = *args.exchange;
     const PositionsBySide& by_side = *args.positionBySide;
@@ -87,6 +109,7 @@ int run_ground_exchange(const GroundExchangeArgs& args) {
     const std::string r = std::to_string(round);
     int turn = args.turn;
     int answered = 0;
+    ExchangeEnd end;
 
     auto make = [&](const FlowPersona& persona, int t, const std::string& text) {
         RecordArgs a;
@@ -110,13 +133,15 @@ int run_ground_exchange(const GroundExchangeArgs& args) {
         const ArgumentNode node = *node_opt;
         if (answered >= args.turnCap) {
             const int cut = exchange.cut_remaining();
+            end.reason = "turn_cap";
+            end.cutPending = cut;
             log("論点 " + r + ": 応答ターン上限 " + std::to_string(args.turnCap) + " — 応答待ち " + std::to_string(cut) +
-                " 件を打ち切り (決着つかずとして扱う)");
+                " 件を打ち切り (未決として扱う)");
             break;
         }
         answered++;
         const Side side = opposing_side(node.side);
-        const FlowPersona* picked = pick_side_speaker(args.speakers, side, *args.speakCounts);
+        const FlowPersona* picked = pick_chain_speaker(args.speakers, side, exchange.path(node.id), *args.speakCounts);
         const FlowPersona persona = picked ? *picked : args.debaters.of(side);
         turn += 1;
         const std::string ts = std::to_string(turn);
@@ -132,9 +157,7 @@ int run_ground_exchange(const GroundExchangeArgs& args) {
             na.personaName = persona.name;
             const auto it = args.utteranceIndex->find(node.utteranceId);
             if (it != args.utteranceIndex->end()) na.target = it->second;
-            na.model = args.facilitator.model;
-            na.warn = warn;
-            const std::string nomination = render_nomination(*args.facilitatorLlm, na);
+            const std::string nomination = render_nomination_text(na);
             args.commit(args.makeRecord(make(args.facilitator, turn, nomination)));
         }
 
@@ -154,18 +177,20 @@ int run_ground_exchange(const GroundExchangeArgs& args) {
         const auto turn_llm = args.turnLlm(persona, turn);
         const auto result = turn_llm->invoke(ia);
         if (!result.ok) {
-            warn("論点 " + r + " ターン " + ts + " (" + persona.name + ") LLM エラー: " + result.error + " — 応答なしとして扱う");
+            warn("論点 " + r + " ターン " + ts + " (" + persona.name + ") LLM エラー: " + result.error + " — 未決として扱う");
             RecordArgs a = make(persona, turn, "[エラー: " + result.error + "]");
             a.isError = true;
             args.commit(args.makeRecord(a));
-            exchange.fail(node.id);
+            exchange.error(node.id);
+            end.errored++;
             continue;
         }
 
         const ParsedExchangeTurn parsed = parse_exchange_response(result.text, warn);
         if (parsed.text.empty()) {
-            log("論点 " + r + " ターン " + ts + " (" + persona.name + "): 空応答 — 応答なしとして扱う");
-            exchange.fail(node.id);
+            warn("論点 " + r + " ターン " + ts + " (" + persona.name + "): 空応答 — 未決として扱う");
+            exchange.error(node.id);
+            end.errored++;
             continue;
         }
 
@@ -268,18 +293,15 @@ int run_ground_exchange(const GroundExchangeArgs& args) {
 
     write_back_ground_states(exchange, by_side);
 
-    // 論拠が落ち着いたら進行役がまとめに入る。
-    const auto pro = exchange.standing_count("pro");
-    const auto con = exchange.standing_count("con");
-    const std::string closing = render_facilitator_line(
-        *args.facilitatorLlm,
-        "論拠のやり取りが落ち着きました。崩れずに残った論拠は、賛成側 " + std::to_string(pro.standing) + "/" + std::to_string(pro.total) +
-            " 件、" + "反対側 " + std::to_string(con.standing) + "/" + std::to_string(con.total) + " 件です。ここまでをまとめます。",
-        args.facilitator.model, warn);
-    args.commit(args.makeRecord(make(args.facilitator, ++turn, closing)));
-    log("論点 " + r + ": 論拠の応酬 " + std::to_string(answered) + " ターンで終了 (賛成 " + std::to_string(pro.standing) + "/" +
-        std::to_string(pro.total) + " / 反対 " + std::to_string(con.standing) + "/" + std::to_string(con.total) + ")");
-    return turn;
+    // 論拠が落ち着いた (または上限で打ち切った) ら進行役がまとめに入る。まとめ文は定型 (言い換えで集計を誤らせない)。
+    end.answered = answered;
+    const GroundTally pro = exchange.tally("pro");
+    const GroundTally con = exchange.tally("con");
+    args.commit(args.makeRecord(make(args.facilitator, ++turn, render_exchange_closing(end, pro, con))));
+    log("論点 " + r + ": 論拠の応酬 " + std::to_string(answered) + " ターンで終了 (" + end.reason + " / 賛成 " + render_ground_tally(pro) +
+        " / 反対 " + render_ground_tally(con) + ")");
+    end.turn = turn;
+    return end;
 }
 
 void write_back_ground_states(const GroundExchange& exchange, const PositionsBySide& position_by_side) {

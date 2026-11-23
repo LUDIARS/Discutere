@@ -65,5 +65,7 @@ struct RenderNominationArgs {
     WarnFn warn;
 };
 std::string render_nomination(persona_engine::LLMClient& llm, const RenderNominationArgs& args);
+/** 指名文を定型文のまま組む (LLM を呼ばない。dialectic v2 — 進行役の言い直しは意味を変え得るので使わない)。 */
+std::string render_nomination_text(const RenderNominationArgs& args);
 
 } // namespace di::flow::dialectic

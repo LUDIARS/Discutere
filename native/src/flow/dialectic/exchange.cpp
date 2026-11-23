@@ -27,6 +27,8 @@ void GroundExchange::accept(const std::string& target_id) { close(require(target
 
 void GroundExchange::fail(const std::string& target_id) { close(require(target_id), "answered"); }
 
+void GroundExchange::error(const std::string& target_id) { close(require(target_id), "errored"); }
+
 int GroundExchange::cut_remaining() {
     int n = 0;
     for (std::size_t i = queue_head_; i < queue_.size(); ++i) {
@@ -71,7 +73,7 @@ std::vector<ArgumentNode> GroundExchange::path(const std::string& id) const {
 
 NodeVerdict GroundExchange::verdict(const std::string& id) const {
     const auto& node = require(id);
-    if (node.status == "cut") return "contested";
+    if (node.status == "cut" || node.status == "errored") return "contested";
     bool contested = false;
     for (const auto& child : children(id)) {
         const auto v = verdict(child.id);
@@ -86,14 +88,17 @@ std::vector<std::pair<std::string, GroundState>> GroundExchange::ground_states()
     for (const auto& node : nodes_) {
         if (node.depth != 0 || !node.groundId) continue;
         const auto kids = children(node.id);
+        const NodeVerdict v = verdict(node.id);
         GroundState state;
-        if (kids.empty()) state = "unchallenged";
-        else if (verdict(node.id) != "refuted") state = "defended";
+        // 打ち切り・応答障害を含む連鎖は未決 (v2 P2)。持ち主の勝ちにも負けにもしない。
+        if (v == "contested") state = std::string(GROUND_UNSETTLED);
+        else if (kids.empty()) state = std::string(GROUND_UNCHALLENGED);
+        else if (v != "refuted") state = std::string(GROUND_DEFENDED);
         else {
             bool accepted = false;
             for (const auto& k : kids)
                 if (k.status == "accepted") accepted = true;
-            state = accepted ? "conceded" : "challenged";
+            state = std::string(accepted ? GROUND_CONCEDED : GROUND_CHALLENGED);
         }
         // Map.set と同じく同じ groundId は値だけ上書き (位置は最初のまま)。
         bool replaced = false;
@@ -112,9 +117,23 @@ GroundExchange::Count GroundExchange::standing_count(const Side& side) const {
     for (const auto& node : nodes_) {
         if (node.depth != 0 || node.side != side) continue;
         ++c.total;
-        if (verdict(node.id) != "refuted") ++c.standing;
+        if (verdict(node.id) == "standing") ++c.standing;
     }
     return c;
+}
+
+GroundTally GroundExchange::tally(const Side& side) const {
+    std::vector<Ground> grounds;
+    const auto states = ground_states();
+    for (const auto& node : nodes_) {
+        if (node.depth != 0 || node.side != side || !node.groundId) continue;
+        Ground g;
+        g.id = *node.groundId;
+        for (const auto& [gid, st] : states)
+            if (gid == g.id) g.state = st;
+        grounds.push_back(std::move(g));
+    }
+    return tally_grounds(grounds);
 }
 
 ArgumentNode GroundExchange::insert(const NewNode& node, std::optional<std::string> parent_id, int depth) {

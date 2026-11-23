@@ -14,6 +14,7 @@
 #include <filesystem>
 #include <thread>
 
+#include "base/fsutil.hpp"
 #include "base/sqlite.hpp"
 #include "base/strings.hpp"
 #include "flow/db/connection.hpp"
@@ -125,7 +126,30 @@ persona_engine::LLMClientPtr borrow(persona_engine::LLMClient& llm) {
     return persona_engine::LLMClientPtr(&llm, [](persona_engine::LLMClient*) {});
 }
 
+/**
+ * golden の記録し直し (DI_GOLDEN_REBASE=<出力ディレクトリ>)。比べずに実際の値を <name>.json に書く。
+ * 仕様変更 (dialectic v2 など) で期待値を作り直すときだけ使い、出力は差分を読んで確かめてから fixture へ取り込む。
+ */
+struct GoldenSink {
+    std::string dir = di::env::get("DI_GOLDEN_REBASE").value_or("");
+    Json out = Json::object();
+    bool rebasing() const { return !dir.empty(); }
+    void same(const char* key, const Json& actual, const Json& expected) {
+        if (rebasing()) {
+            out[key] = actual;
+            return;
+        }
+        W3L_SAME(actual, expected);
+    }
+    void flush(const std::string& name) const {
+        if (!rebasing()) return;
+        di::fs::ensure_dir(dir);
+        if (!di::fs::write_file_atomic(dir + "/" + name + ".json", out.dump(1))) throw test::Failure("golden rebase: write failed: " + name);
+    }
+};
+
 void run_golden(const Json& sc) {
+    GoldenSink sink;
     w3l::TempFlowDb tmp;
     set_env(sc["env"]);
     foresight::reset_foresight_status_for_test();
@@ -193,7 +217,7 @@ void run_golden(const Json& sc) {
         const auto r = dispatch_flow(in, d);
         actual_result = norm.any(Json{{"kind", r.kind}, {"flow", r.flow}, {"result", to_json(*r.result)}});
         const auto st = foresight::get_foresight_status(*d.sessionId);
-        W3L_SAME(st ? foresight::to_json(*st) : Json(nullptr), sc["foresightStatus"]);
+        sink.same("foresightStatus", st ? foresight::to_json(*st) : Json(nullptr), sc["foresightStatus"]);
     } else if (mode == "improvement") {
         ImprovementFlowDeps d;
         static_cast<FlowDirectorDeps&>(d) = common;
@@ -224,7 +248,7 @@ void run_golden(const Json& sc) {
         session.start();
         Json turns = Json::array();
         for (const auto& text : sc["userTexts"]) turns.push_back(norm.any(to_json(session.submit_user(text.get<std::string>()))));
-        W3L_SAME(turns, sc["turns"]);
+        sink.same("turns", turns, sc["turns"]);
         actual_result = norm.any(Json{{"sessionId", session.session_id()}, {"paperId", session.paper_id()}, {"ended", session.is_ended()}});
     } else {
         const Json& opts = sc["foresightOpts"];
@@ -253,24 +277,37 @@ void run_golden(const Json& sc) {
         pa.warn = common.warn;
         const auto r = foresight::run_foresight_phase(llm, pa);
         actual_result = r ? norm.any(phase_to_json(*r)) : Json(nullptr);
-        W3L_SAME(committed, sc["committed"]);
-        W3L_SAME(body ? Json(*body) : Json(nullptr), sc["body"]);
+        sink.same("committed", committed, sc["committed"]);
+        sink.same("body", body ? Json(*body) : Json(nullptr), sc["body"]);
     }
 
-    CHECK_EQ(llm.calls.size(), sc["calls"].size());
-    W3L_SAME(llm.calls, drop_kind(sc["calls"]));
-    W3L_SAME(Json(logs), sc["logs"]);
-    W3L_SAME(Json(warns), sc["warns"]);
-    W3L_SAME(utter_events, sc["utterEvents"]);
-    W3L_SAME(vote_events, sc["voteEvents"]);
-    W3L_SAME(lookups, sc["lookups"]);
-    W3L_SAME(actual_result, sc["result"]);
-    if (mode == "foresight") return;
+    if (!sink.rebasing()) CHECK_EQ(llm.calls.size(), sc["calls"].size());
+    sink.same("calls", llm.calls, drop_kind(sc["calls"]));
+    sink.same("logs", Json(logs), sc["logs"]);
+    sink.same("warns", Json(warns), sc["warns"]);
+    sink.same("utterEvents", utter_events, sc["utterEvents"]);
+    sink.same("voteEvents", vote_events, sc["voteEvents"]);
+    sink.same("lookups", lookups, sc["lookups"]);
+    sink.same("result", actual_result, sc["result"]);
+    if (mode == "foresight") {
+        sink.flush(name);
+        return;
+    }
     flow::db::reset_flow_db_for_test();
     sql::OpenOptions ro;
     ro.readonly = true;
     auto db = sql::Database::open(tmp.path, ro);
     const Json dumped = w3l::dump_db(*db, norm);
+    if (sink.rebasing()) {
+        // 比べていた表だけを記録する (golden に無い表は従来どおり比べない)。
+        Json tables = Json::object();
+        for (const auto& [table, rows] : sc["db"].items())
+            if (dumped.contains(table)) tables[table] = dumped[table];
+        sink.out["db"] = tables;
+        sink.flush(name);
+        db->close();
+        return;
+    }
     for (const auto& [table, rows] : sc["db"].items()) {
         if (!dumped.contains(table)) throw test::Failure(name + ": table missing in C++ DB: " + table);
         W3L_SAME(dumped[table], rows);

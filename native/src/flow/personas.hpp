@@ -53,6 +53,12 @@ struct FlowPersona {
     std::optional<std::vector<std::string>> coreClaims;
     std::optional<PersonaPossession> possession;
     std::optional<ProxyPersonaContext> proxy;
+    /**
+     * プール人物の遊び手としての型 (嗜好軸・苦手・メカニクス反応・年代/課金の言語化、persona_descriptor)。
+     * personaIds でプール人物を指定したときだけ入る。dialectic の定立・応答の prompt に載せる
+     * (spec/plan/2026-11-23-persona-game-archetype-context.md A1)。
+     */
+    std::optional<std::string> playerProfile;
 };
 
 Json to_json(const PersonaPossession& p);

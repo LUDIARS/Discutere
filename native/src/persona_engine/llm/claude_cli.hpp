@@ -37,6 +37,12 @@ private:
 
 /** claude -p --output-format json の stdout を読む (純関数)。 */
 LLMResult parse_claude_cli_result(const std::string& raw, std::size_t max_bytes = kClaudeCliMaxOutputBytes);
+
+/**
+ * exit != 0 のときの error 文 (dialectic v2 P11)。stderr の先頭 200 字を使い、stderr が空なら stdout の先頭 200 字を
+ * 「stdout: 」付きで載せる (原因が残らない失敗を減らす)。どちらも空なら「出力なし」と書く。
+ */
+std::string claude_cli_exit_error(int exit_code, const std::string& err, const std::string& out);
 /** system があれば "[system]\n...\n\n[user]\n..." にする。 */
 std::string compose_prompt(const std::optional<std::string>& system, const std::string& user);
 /** 起動する引数 (claude 以降)。テスト用に公開。 */
