@@ -21,4 +21,10 @@ std::string render_exceptions(const PositionRecord& p);
 /** 根拠 1 件の論拠・裏付けの行 (字下げ付き、無い要素は出さない)。 */
 std::string render_warrant_lines(const Ground& g, const std::string& indent);
 
+/**
+ * 定立の要約 (応酬の発言者に渡す「まとめ」。トークンコスト最適化)。focus_ground_id の根拠だけデータ・論拠・裏付けを全部出し、
+ * ほかの根拠は id・状態・データの冒頭 1 行にする。主張・限定・例外条件は常に出す。
+ */
+std::string render_position_compact(const PositionRecord& p, const std::string& label, const std::optional<std::string>& focus_ground_id);
+
 } // namespace di::flow::dialectic

@@ -1,6 +1,7 @@
 #include "persona_engine/llm/claude_cli.hpp"
 
 #include <chrono>
+#include <filesystem>
 
 #include "base/env.hpp"
 #include "base/fsutil.hpp"
@@ -16,6 +17,25 @@ namespace di::persona_engine {
 
 namespace {
 constexpr long long kDefaultTimeoutMs = 120'000;
+
+struct IsolationDefaults {
+    bool isolate = false;  // main が設定 (llm.claudeCliIsolate、既定 true) で上書きする。テストは隔離しない。
+    std::string home;
+};
+IsolationDefaults& isolation_defaults() {
+    static IsolationDefaults d;
+    return d;
+}
+} // namespace
+
+void set_claude_cli_isolation_defaults(bool isolate, std::string home) {
+    isolation_defaults().isolate = isolate;
+    isolation_defaults().home = std::move(home);
+}
+
+std::string default_claude_cli_home() {
+    if (auto local = env::get_nonempty("LOCALAPPDATA")) return fs::join(fs::join(*local, "Discutere"), "llm-home");
+    return fs::join(fs::join(std::filesystem::temp_directory_path().string(), "discutere"), "llm-home");
 }
 
 ClaudeCliClient::ClaudeCliClient(ClaudeCliClientOptions options)
@@ -23,19 +43,25 @@ ClaudeCliClient::ClaudeCliClient(ClaudeCliClientOptions options)
       default_timeout_ms_(options.defaultTimeoutMs.value_or(kDefaultTimeoutMs)),
       git_bash_path_(std::move(options.gitBashPath)),
       default_model_(std::move(options.defaultModel)),
-      max_output_bytes_(options.maxOutputBytes.value_or(kClaudeCliMaxOutputBytes)) {}
+      max_output_bytes_(options.maxOutputBytes.value_or(kClaudeCliMaxOutputBytes)),
+      isolate_(options.isolate),
+      isolated_home_(std::move(options.isolatedHome)) {}
 
 std::string compose_prompt(const std::optional<std::string>& system, const std::string& user) {
     if (!system || system->empty()) return user;
     return "[system]\n" + *system + "\n\n[user]\n" + user;
 }
 
-std::vector<std::string> claude_cli_args(const std::optional<std::string>& model, bool conversation_only) {
+std::vector<std::string> claude_cli_args(const std::optional<std::string>& model, bool conversation_only, bool isolated) {
     const ModelSpec spec = parse_model_spec(model);
     std::vector<std::string> args = {"-p", "--output-format", "json"};
     if (conversation_only) {
         args.insert(args.end(), {"--tools=", "--strict-mcp-config", "--disable-slash-commands", "--safe-mode"});
+    } else if (isolated) {
+        args.insert(args.end(), {"--tools=", "--strict-mcp-config", "--disable-slash-commands"});
     }
+    // 隔離: 動的な system 節 (日時・git の状態など) を外して前置きを毎回同じにし、user / project の設定 (フック) を読まない。
+    if (isolated) args.insert(args.end(), {"--exclude-dynamic-system-prompt-sections", "--setting-sources", "local"});
     if (!spec.model.empty()) args.insert(args.end(), {"--model", spec.model});
     if (spec.effort) args.insert(args.end(), {"--effort", *spec.effort});
     return args;
@@ -86,7 +112,13 @@ LLMResult ClaudeCliClient::invoke(const LLMInvokeArgs& args) {
         if (auto err = validate_model_spec(parse_model_spec(model), ModelProvider::claude))
             return LLMResult::failure("claude cli: " + *err);
     }
-    const auto cli_args = claude_cli_args(model, args.conversationOnly);
+    const bool isolated = isolate_.value_or(isolation_defaults().isolate);
+    std::string home;
+    if (isolated) {
+        home = isolated_home_.value_or(isolation_defaults().home.empty() ? default_claude_cli_home() : isolation_defaults().home);
+        fs::ensure_dir(home);
+    }
+    const auto cli_args = claude_cli_args(model, args.conversationOnly, isolated);
     auto env = env::snapshot();
     if (git_bash_path_) env["CLAUDE_CODE_GIT_BASH_PATH"] = *git_bash_path_;
 #ifdef _WIN32
@@ -109,7 +141,7 @@ LLMResult ClaudeCliClient::invoke(const LLMInvokeArgs& args) {
     try {
         lib::one_shot::RunOptions options;
         options.env = env;
-        options.cwd = env::cwd();
+        options.cwd = isolated ? home : env::cwd();
         options.stdin_data = prompt;
         options.timeout = std::chrono::milliseconds(timeout_ms);
         options.max_stdout = max_output_bytes_;

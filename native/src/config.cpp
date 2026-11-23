@@ -452,6 +452,8 @@ DiscutereConfig load_config(const LoadOptions& options) {
     c.llm.tiers.cheap = L::pick_opt(e("LLM_TIER_CHEAP"), x.f({"llm", "tiers", "cheap"}));
     c.llm.tiers.strong = L::pick_opt(e("LLM_TIER_STRONG"), x.f({"llm", "tiers", "strong"}));
     c.llm.claudeCliTimeoutMs = L::pick_num(e("CLAUDE_CLI_TIMEOUT_MS"), x.f({"llm", "claudeCliTimeoutMs"}), 120'000);
+    c.llm.claudeCliIsolate = L::pick_bool(e("DISCUTERE_CLAUDE_CLI_ISOLATE"), x.f({"llm", "claudeCliIsolate"}), true);
+    c.llm.claudeCliHome = L::pick(e("DISCUTERE_CLAUDE_CLI_HOME"), x.f({"llm", "claudeCliHome"}), "");
     c.llm.gitBashPath = L::pick_opt(e("CLAUDE_CODE_GIT_BASH_PATH"), x.f({"llm", "gitBashPath"}));
     // 既定は Ollama の OpenAI 互換エンドポイント。vLLM/LM Studio は baseUrl を差し替え。
     c.llm.local.baseUrl = L::pick(e("LLM_LOCAL_BASE_URL"), x.f({"llm", "local", "baseUrl"}), "http://localhost:11434/v1");
@@ -736,6 +738,8 @@ Json to_json(const DiscutereConfig& c) {
     put_opt(tiers, "strong", c.llm.tiers.strong);
     llm["tiers"] = std::move(tiers);
     llm["claudeCliTimeoutMs"] = c.llm.claudeCliTimeoutMs;
+    llm["claudeCliIsolate"] = c.llm.claudeCliIsolate;
+    llm["claudeCliHome"] = c.llm.claudeCliHome;
     put_opt(llm, "gitBashPath", c.llm.gitBashPath);
     Json local = Json::object();
     local["baseUrl"] = c.llm.local.baseUrl;

@@ -12383,6 +12383,30 @@
       ]
     },
     {
+      "file": "native/tests/flow/dialectic_cost_tests.cpp",
+      "standard": "c++20",
+      "includes": [
+        "native/src",
+        "native/tests"
+      ],
+      "defines": [
+        "WIN32_LEAN_AND_MEAN",
+        "NOMINMAX",
+        "_WIN32_WINNT=0x0A00",
+        "BOOST_ERROR_CODE_HEADER_ONLY",
+        "BOOST_ASIO_NO_DEPRECATED",
+        "BOOST_BEAST_USE_STD_STRING_VIEW",
+        "BOOST_BEAST_SEPARATE_COMPILATION"
+      ],
+      "packages": [
+        "odeum-json-3-11-3",
+        "odeum-boost-1-87-0",
+        "odeum-openssl-3",
+        "discutere-lorica-cab4f120",
+        "discutere-sqlite-3-53-4"
+      ]
+    },
+    {
       "file": "native/tests/flow/dialectic_drilldown_tests.cpp",
       "standard": "c++20",
       "includes": [

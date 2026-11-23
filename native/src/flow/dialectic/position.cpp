@@ -29,18 +29,19 @@ std::string build_position_prompt(const BuildPositionPromptArgs& args) {
                                  ? "あなたの核となる主張 (これを種に組み立てる): " + str::join(*persona.coreClaims, " / ") + "\n"
                                  : "";
     const std::string profile = persona_profile_line(persona);
-    return "あなたは議論ペルソナ「" + persona.name + "」。" + "特徴: " + str::join(persona.traits, " / ") +
+    // 並びは変わらない部分を先に (前提ルール → 論点と声 → 発言者)。同じ論点の定立 2 本で先頭がキャッシュに当たる。
+    return premise_rules_text() + "\n\n# 論点 " + std::to_string(issue.ordinal) + "\n" + issue.title + "\n\n" + voices +
+           "# あなた\nあなたは議論ペルソナ「" + persona.name + "」。" + "特徴: " + str::join(persona.traits, " / ") +
            " / 話し方: " + persona.speechStyle + "\n" +
            ((persona.valueAxis && !persona.valueAxis->empty()) ? "あなたが重視する価値: " + *persona.valueAxis + "\n" : "") +
-           (profile.empty() ? std::string() : profile + "\n") + seed + (persona.proxy ? "\n" + str::join(proxy::proxy_prompt_lines(persona), "\n") : "") + "\n# 論点 " +
-           std::to_string(issue.ordinal) + "\n" + issue.title + "\n\n" + voices + premise_rules_text() + "\n\n" +
-           "この論点についてあなたは【" + stance_ja + "】の立場 (" + args.stance + ") で定立 (Position) を張ります。\n" +
+           (profile.empty() ? std::string() : profile + "\n") + seed +
+           (persona.proxy ? str::join(proxy::proxy_prompt_lines(persona), "\n") + "\n" : "") + "\n" + "この論点についてあなたは【" + stance_ja + "】の立場 (" + args.stance + ") で定立 (Position) を張ります。\n" +
            "賛成 = 論点 (問い) に「はい」と答える立場、反対 = 「いいえ」と答える立場。" + "論点が問いの形でなければ「" +
            issue.title + " は成り立つか / 十分か」と読み替える。" + "主張は必ず【" + stance_ja +
            "】の向きにし、相手陣営より強い肯定・否定にすり替えない。\n" +
            ((args.feedback && !args.feedback->empty()) ? *args.feedback + "\n" : "") +
            "次の JSON 1 個だけを返してください (前後に説明やコードフェンスを付けない):\n" +
-           "{\"claim\": \"<主張 1 文>\", \"qualifier\": \"<限定の範囲: どのプレイヤー層・どの条件の話か>\", " +
+           "{\"answer\": \"<論点の問いへのあなたの答え: yes | no>\", \"claim\": \"<主張 1 文>\", \"qualifier\": \"<限定の範囲: どのプレイヤー層・どの条件の話か>\", " +
            "\"force\": \"<限定の確度: 必ず | 多くの場合 | 条件つきで | おそらく>\", " +
            "\"exceptions\": [\"<反駁: この主張が成り立たない場合 (例外条件) 1〜2 個>\"], " +
            "\"grounds\": [{\"kind\": \"<deduction|induction|abduction>\", \"data\": \"<データ: 事実・事例・仕様>\", " +
@@ -178,6 +179,10 @@ GeneratedPosition generate_position(persona_engine::LLMClient& llm, const Genera
     }
     p.qualifier = trimmed_string(*obj, "qualifier");
     p.qualifierForce = trimmed_string(*obj, "force");
+    if (auto a = trimmed_string(*obj, "answer")) {
+        const std::string lower = str::to_lower(*a);
+        if (lower == "yes" || lower == "no") p.declaredAnswer = lower;
+    }
     p.exceptions = coerce_string_array(obj->contains("exceptions") ? (*obj)["exceptions"] : Json(), 3);
     p.text = trimmed_string(*obj, "text").value_or(claim);
     p.values = coerce_string_array(obj->contains("values") ? (*obj)["values"] : Json(), 4);

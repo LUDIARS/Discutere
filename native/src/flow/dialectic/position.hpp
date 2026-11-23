@@ -21,6 +21,8 @@ struct GeneratedPosition {
     std::optional<std::string> qualifierForce;
     /** 反駁 = 例外条件 (この主張が成り立たない場合)。 */
     std::vector<std::string> exceptions;
+    /** 論点の問いへの本人の答えの申告 ("yes" | "no")。立場と合えば向きの判定 LLM を呼ばない (コスト最適化)。 */
+    std::optional<std::string> declaredAnswer;
     std::string text;
     /** grounds と同じ順の論拠ごとの露出文。 */
     std::vector<std::string> groundTexts;

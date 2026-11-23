@@ -426,7 +426,9 @@ FlowDirectorResult run_dialectic_flow(persona_engine::LLMClient& llm, const std:
                 }
             }
             // 定立が陣営と逆向き (賛成なのに否定 / 反対なのに肯定) なら 1 回だけ作り直す (neco レビュー 2026-10-13)。
-            if (cfg.flow.dialectic.ruleCheck && !gp.degraded) {
+            // 向きの判定: 本人の申告 (answer) が立場と合っていれば判定 LLM を呼ばない。申告が無い・食い違うときだけ判定する。
+            const bool declared_ok = gp.declaredAnswer && !is_reversed(stance, *gp.declaredAnswer);
+            if (cfg.flow.dialectic.ruleCheck && !gp.degraded && !declared_ok) {
                 CostLogContext stc = ctx_of(flow, session_id, "position-stance");
                 stc.round = round;
                 stc.turn = turn;
@@ -636,6 +638,8 @@ FlowDirectorResult run_dialectic_flow(persona_engine::LLMClient& llm, const std:
                 // 生成は進行役。結論候補の評価・批准は頻繁な通常判定と分離する。
                 sa.mainModel = facilitator.model;
                 sa.judgeModel = final_judge_model;
+                // 折衷ゲートは elevates 1 文だけを見るので、最終判定モデルではなく通常の判定モデルで足りる (コスト最適化)。
+                sa.gateModel = judge_model;
                 sa.warn = warn;
                 const auto outcome = run_synthesis_loop(sa);
                 syntheses.push_back(outcome.record);

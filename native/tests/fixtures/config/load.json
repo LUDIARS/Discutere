@@ -170,6 +170,8 @@
         "backend": "anthropic",
         "tiers": {},
         "claudeCliTimeoutMs": 120000,
+        "claudeCliIsolate": true,
+        "claudeCliHome": "",
         "local": {
           "baseUrl": "http://localhost:11434/v1",
           "model": "gemma4:12b",
@@ -488,6 +490,8 @@
           "strong": "strong-x"
         },
         "claudeCliTimeoutMs": 120000,
+        "claudeCliIsolate": true,
+        "claudeCliHome": "",
         "gitBashPath": "/usr/bin/bash",
         "local": {
           "baseUrl": "http://localhost:11434/v1",
@@ -792,6 +796,8 @@
           "cheap": "cheap-x"
         },
         "claudeCliTimeoutMs": 120000,
+        "claudeCliIsolate": true,
+        "claudeCliHome": "",
         "gitBashPath": "C:/git/bash.exe",
         "local": {
           "baseUrl": "http://localhost:11434/v1",
@@ -1116,6 +1122,8 @@
           "cheap": "cheap-x"
         },
         "claudeCliTimeoutMs": 120000,
+        "claudeCliIsolate": true,
+        "claudeCliHome": "",
         "gitBashPath": "C:/git/bash.exe",
         "local": {
           "baseUrl": "http://localhost:11434/v1",
@@ -1415,6 +1423,8 @@
         "backend": "anthropic",
         "tiers": {},
         "claudeCliTimeoutMs": 120000,
+        "claudeCliIsolate": true,
+        "claudeCliHome": "",
         "local": {
           "baseUrl": "http://localhost:11434/v1",
           "model": "gemma4:12b",
@@ -1697,6 +1707,8 @@
         "backend": "anthropic",
         "tiers": {},
         "claudeCliTimeoutMs": 120000,
+        "claudeCliIsolate": true,
+        "claudeCliHome": "",
         "local": {
           "baseUrl": "http://localhost:11434/v1",
           "model": "gemma4:12b",
@@ -1979,6 +1991,8 @@
         "backend": "anthropic",
         "tiers": {},
         "claudeCliTimeoutMs": 120000,
+        "claudeCliIsolate": true,
+        "claudeCliHome": "",
         "local": {
           "baseUrl": "http://localhost:11434/v1",
           "model": "gemma4:12b",
@@ -2261,6 +2275,8 @@
         "backend": "anthropic",
         "tiers": {},
         "claudeCliTimeoutMs": 120000,
+        "claudeCliIsolate": true,
+        "claudeCliHome": "",
         "local": {
           "baseUrl": "http://localhost:11434/v1",
           "model": "gemma4:12b",
@@ -2578,6 +2594,8 @@
         "backend": "anthropic",
         "tiers": {},
         "claudeCliTimeoutMs": 120000,
+        "claudeCliIsolate": true,
+        "claudeCliHome": "",
         "local": {
           "baseUrl": "http://localhost:11434/v1",
           "model": "gemma4:12b",

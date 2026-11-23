@@ -245,6 +245,12 @@ int run_server() {
     auto vestigium = std::make_unique<log::Vestigium>(vopts);
 
     const config::DiscutereConfig& config = config::get_config();
+    // claude -p の隔離 (トークンコスト最適化、spec/plan/2026-11-23-token-cost-optimization.md): 全 ClaudeCliClient に効かせる。
+    persona_engine::set_claude_cli_isolation_defaults(config.llm.claudeCliIsolate, config.llm.claudeCliHome);
+    log::info(std::string("  claude -p 隔離: ") + (config.llm.claudeCliIsolate ? "on" : "off") +
+              (config.llm.claudeCliIsolate
+                   ? " (cwd=" + (config.llm.claudeCliHome.empty() ? persona_engine::default_claude_cli_home() : config.llm.claudeCliHome) + ")"
+                   : std::string()));
     // production 起動の前提 (botToken 必須等) を fail-fast 検証する (dev/test は no-op)。
     try {
         assert_startup_health(config);

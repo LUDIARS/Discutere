@@ -270,6 +270,8 @@ ExchangeEnd run_ground_exchange(const GroundExchangeArgs& args) {
             // 「認める」の申告が中身と合っているかを確かめる (追撃を「認める」に数えない)。
             // 中身が反論なら、論拠 (データ・論拠) を伴わない問いとして扱い相手の論拠は成り立ったままにする。
             if (parsed.act == "concede") {
+                // 「認める」の中身の確認は省かない (材料の欄が空でも本文が反論のことがあり、誤って論拠を崩すため。
+                // コスト最適化では見送り。spec/plan/2026-11-23-token-cost-optimization.md §1)。
                 if (args.ruleCheck) {
                     const auto judge_llm = args.ruleCheckLlm(turn);
                     const std::string verdict = judge_concession(*judge_llm, node.text, parsed.text, args.judgeModel, warn);

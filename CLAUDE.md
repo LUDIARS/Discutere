@@ -381,6 +381,11 @@ bot 名義で締める (収束時 `finalizeForumPost` で lock+archive+まとめ
   応答は問いとして残し、進行役が欠けている要素を名指しして同じ人に 1 回だけ言い直させる (`flow.dialectic.drillDown`、既定 true)。
   定立はトゥールミンの 6 要素 (主張・データ・論拠・裏付け・限定 = 範囲 + 確度・反駁 = 例外条件) で持ち、反論は
   data / warrant / backing / qualifier / exception のどれを突くか宣言する (`dialectic.md` §2.5、表示は `toulmin.hpp`)。
+- **トークンコスト最適化 (2026-11-23, `spec/plan/2026-11-23-token-cost-optimization.md`)**: `claude -p` は隔離して起動する
+  (`llm.claudeCliIsolate` 既定 true。cwd は Ars の外の `%LOCALAPPDATA%/Discutere/llm-home`、ツール・MCP・動的な system 節・
+  user / project 設定を読まない)。Discutere の cwd で起動すると CLAUDE.md・ツール定義が毎回約 5 万トークン乗り、キャッシュも
+  当たらなかった (判定 1 回 $0.14 → 隔離で $0.01)。指示文は変わらない部分を先に並べる (前提ルール → 論点と声 → 両陣営の要約 →
+  発言者 → 応酬)。折衷ゲートは通常の判定モデル、批准は最終判定モデル。定立の `answer` の申告が立場と合えば向きの判定を省く。
 
 ## 個人データ
 

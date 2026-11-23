@@ -266,7 +266,7 @@ SynthesisOutcome run_synthesis_loop(const SynthesisLoopArgs& args) {
         if (!candidate.unusablePreserves.empty() && args.warn)
             args.warn("Synthesis 候補が崩れた・未決の根拠 [" + str::join(candidate.unusablePreserves, ", ") + "] を保存に挙げた — 折衷扱い");
         const std::string kind = candidate.unusablePreserves.empty()
-                                     ? elevation_gate(*args.gateLlm, candidate.elevates, args.judgeModel, args.warn)
+                                     ? elevation_gate(*args.gateLlm, candidate.elevates, args.gateModel ? args.gateModel : args.judgeModel, args.warn)
                                      : std::string("compromise");
 
         std::vector<RatificationEntry> ratifications;

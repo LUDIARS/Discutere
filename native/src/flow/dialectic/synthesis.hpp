@@ -78,7 +78,10 @@ struct SynthesisLoopArgs {
     persona_engine::LLMClient* gateLlm = nullptr;
     persona_engine::LLMClient* ratifyLlm = nullptr;
     std::optional<std::string> mainModel;
+    /** 批准のモデル (最終判定)。 */
     std::optional<std::string> judgeModel;
+    /** 折衷ゲートのモデル (elevates 1 文だけを見る判定。未指定は judgeModel)。トークンコスト最適化で通常の判定モデルに回す。 */
+    std::optional<std::string> gateModel;
     WarnFn warn;
 };
 

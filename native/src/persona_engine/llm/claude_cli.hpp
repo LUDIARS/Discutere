@@ -17,7 +17,20 @@ struct ClaudeCliClientOptions {
     std::optional<std::string> gitBashPath;    // Windows 用
     /** claude -p の標準出力の上限 (既定 kClaudeCliMaxOutputBytes)。超えたら子を止めて失敗にする。 */
     std::optional<std::size_t> maxOutputBytes;
+    /**
+     * 隔離して起動するか (既定は set_claude_cli_isolation_defaults の値)。隔離すると、Ars の外の空フォルダを cwd にし、
+     * ツール・MCP・スラッシュコマンド・動的な system 節・user / project 設定を読まない。CLAUDE.md・フック・ツール定義が
+     * 毎回の前置きに乗らず (実測 約 5.1 万 → 2.8 千トークン)、前置きが毎回同じになってキャッシュが当たる。
+     */
+    std::optional<bool> isolate;
+    /** 隔離時の cwd (既定は set_claude_cli_isolation_defaults の値)。 */
+    std::optional<std::string> isolatedHome;
 };
+
+/** 隔離の既定 (main が設定から一度だけ決める)。home が空なら default_claude_cli_home()。 */
+void set_claude_cli_isolation_defaults(bool isolate, std::string home);
+/** 隔離時の既定の cwd: %LOCALAPPDATA%/Discutere/llm-home (無ければ一時フォルダの下)。 */
+std::string default_claude_cli_home();
 
 /** claude -p の標準出力 (JSON) の上限の既定: 16 MiB (lib/one_shot の既定と同じ)。 */
 inline constexpr std::size_t kClaudeCliMaxOutputBytes = 16u << 20;
@@ -33,6 +46,8 @@ private:
     std::optional<std::string> git_bash_path_;
     std::optional<std::string> default_model_;
     std::size_t max_output_bytes_;
+    std::optional<bool> isolate_;
+    std::optional<std::string> isolated_home_;
 };
 
 /** claude -p --output-format json の stdout を読む (純関数)。 */
@@ -46,6 +61,6 @@ std::string claude_cli_exit_error(int exit_code, const std::string& err, const s
 /** system があれば "[system]\n...\n\n[user]\n..." にする。 */
 std::string compose_prompt(const std::optional<std::string>& system, const std::string& user);
 /** 起動する引数 (claude 以降)。テスト用に公開。 */
-std::vector<std::string> claude_cli_args(const std::optional<std::string>& model, bool conversation_only);
+std::vector<std::string> claude_cli_args(const std::optional<std::string>& model, bool conversation_only, bool isolated = false);
 
 } // namespace di::persona_engine

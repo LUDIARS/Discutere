@@ -2,6 +2,7 @@
 
 #include "base/strings.hpp"
 #include "flow/dialectic/persona_profile.hpp"
+#include "flow/dialectic/toulmin.hpp"
 #include "flow/dialectic/turn_prompt.hpp"
 #include "flow/discussion_paper.hpp"
 #include "flow/proxy/prompt.hpp"
@@ -37,10 +38,12 @@ std::string build_exchange_prompt(const ExchangePromptArgs& args) {
         auto it = args.personaNames.find(id);
         return it == args.personaNames.end() ? id : it->second;
     };
+    // 両陣営は要約 (まとめ) で渡す: 応答する連鎖の根の根拠だけ詳しく、ほかは 1 行 (トークンコスト最適化)。
+    const std::optional<std::string> focus = args.path.empty() ? std::nullopt : args.path.front().groundId;
     std::vector<std::string> blocks;
     for (const auto& p : args.positions) {
         const std::string name = name_of(p.personaId);
-        blocks.push_back(render_position_digest(p, p.personaId == persona.id ? name + " (あなた)" : name));
+        blocks.push_back(render_position_compact(p, p.personaId == persona.id ? name + " (あなた)" : name, focus));
     }
     const std::string position_block = str::join(blocks, "\n\n");
     std::vector<std::string> chain;
@@ -54,15 +57,9 @@ std::string build_exchange_prompt(const ExchangePromptArgs& args) {
         }
     const std::string side_ja = args.stance == "pro" ? "賛成" : args.stance == "con" ? "反対" : "";
 
-    std::vector<std::string> lines{"あなたは議論ペルソナ「" + persona.name + "」。",
-                                   "特徴: " + str::join(persona.traits, " / ") + " / 話し方: " + persona.speechStyle};
-    if (persona.valueAxis && !persona.valueAxis->empty()) lines.push_back("あなたが重視する価値: " + *persona.valueAxis);
-    if (const std::string profile = persona_profile_line(persona); !profile.empty()) lines.push_back(profile);
-    lines.push_back(stance_line(args.stance));
-    lines.emplace_back("");
-    for (auto& l : proxy::proxy_prompt_lines(persona)) lines.push_back(std::move(l));
-    lines.push_back(premise_rules_text());
-    lines.emplace_back("");
+    // 並びは変わらない部分を先に (前提ルール → 論点と声 → 両陣営の要約 → 発言者 → 応酬)。同じ議論の中では先頭が毎回同じに
+    // なり、ペーパー (system) からここまでがキャッシュに当たり続ける (トークンコスト最適化「キャッシュを残す」)。
+    std::vector<std::string> lines{premise_rules_text(), ""};
     lines.push_back("# 論点 " + std::to_string(args.issue.ordinal));
     lines.push_back(args.issue.title);
     lines.emplace_back("");
@@ -70,8 +67,16 @@ std::string build_exchange_prompt(const ExchangePromptArgs& args) {
         lines.push_back(*args.voicesBlock);
         lines.emplace_back("");
     }
-    lines.emplace_back("# 両陣営の主張と論拠");
+    lines.emplace_back("# 両陣営の主張と論拠 (要約。応答する論拠だけ詳しく)");
     lines.push_back(position_block.empty() ? "(Position なし)" : position_block);
+    lines.emplace_back("");
+    lines.push_back("# あなた");
+    lines.push_back("あなたは議論ペルソナ「" + persona.name + "」。");
+    lines.push_back("特徴: " + str::join(persona.traits, " / ") + " / 話し方: " + persona.speechStyle);
+    if (persona.valueAxis && !persona.valueAxis->empty()) lines.push_back("あなたが重視する価値: " + *persona.valueAxis);
+    if (const std::string profile = persona_profile_line(persona); !profile.empty()) lines.push_back(profile);
+    lines.push_back(stance_line(args.stance));
+    for (auto& l : proxy::proxy_prompt_lines(persona)) lines.push_back(std::move(l));
     lines.emplace_back("");
     lines.emplace_back("# この論拠の応酬 (上から順に。最後が応答対象)");
     lines.push_back(str::join(chain, "\n"));

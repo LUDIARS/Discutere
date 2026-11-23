@@ -208,6 +208,10 @@ struct DiscutereConfig {
             std::optional<std::string> strong;
         } tiers;
         double claudeCliTimeoutMs = 0;
+        /** claude -p を隔離して起動する (既定 true。Ars の外の空フォルダ・ツールなし・動的前置きなし・設定を読まない)。 */
+        bool claudeCliIsolate = true;
+        /** 隔離時の cwd (空なら %LOCALAPPDATA%/Discutere/llm-home)。 */
+        std::string claudeCliHome;
         std::optional<std::string> gitBashPath;
         struct {
             std::string baseUrl;

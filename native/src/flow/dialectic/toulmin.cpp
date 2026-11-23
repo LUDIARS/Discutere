@@ -28,4 +28,16 @@ std::string render_warrant_lines(const Ground& g, const std::string& indent) {
     return out;
 }
 
+std::string render_position_compact(const PositionRecord& p, const std::string& label, const std::optional<std::string>& focus_ground_id) {
+    std::vector<std::string> lines{label + " (" + p.stance + "): " + p.claim, "  限定: " + render_qualifier(p)};
+    if (const std::string ex = render_exceptions(p); !ex.empty()) lines.push_back("  " + ex);
+    for (const auto& g : p.grounds) {
+        if (focus_ground_id && g.id == *focus_ground_id)
+            lines.push_back("  - [" + g.id + "] (" + g.state + ") データ: " + g.text + render_warrant_lines(g, "      "));
+        else
+            lines.push_back("  - [" + g.id + "] (" + g.state + ") " + str::js_slice(str::squish(g.text), 0, 60));
+    }
+    return str::join(lines, "\n");
+}
+
 } // namespace di::flow::dialectic
