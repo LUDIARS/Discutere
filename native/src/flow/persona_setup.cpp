@@ -85,6 +85,17 @@ void persist_session_personas(const std::string& session_id, const std::vector<F
     }
 }
 
+void record_session_argument_patterns(const std::string& session_id, const std::vector<FlowPersona>& personas,
+                                      const std::string& catalog_version) {
+    auto db = db::get_flow_db();
+    for (const auto& p : personas) {
+        if (!p.scriptPattern && !p.reasoningStyle) continue;
+        db->run(R"SQL(UPDATE flow_session_persona SET script_pattern = ?, reasoning_style = ?, pattern_catalog_version = ?
+     WHERE id = ? AND session_id = ?)SQL",
+                {sql::Value(p.scriptPattern), sql::Value(p.reasoningStyle), catalog_version, p.id, session_id});
+    }
+}
+
 std::vector<FlowPersona> setup_session_personas(persona_engine::LLMClient& llm, const SetupSessionPersonasArgs& args) {
     const WarnFn warn = args.warn ? args.warn : WarnFn([](const std::string& m) { log::warn(m); });
     auto logged = with_cost_log(llm, {args.flow, args.sessionId, {}, {}, {}, {}, "persona-setup", {}});

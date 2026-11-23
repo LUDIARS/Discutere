@@ -1,6 +1,7 @@
 #include "flow/dialectic/exchange_prompt.hpp"
 
 #include "base/strings.hpp"
+#include "flow/dialectic/argument_pattern.hpp"
 #include "flow/dialectic/persona_profile.hpp"
 #include "flow/dialectic/toulmin.hpp"
 #include "flow/dialectic/turn_prompt.hpp"
@@ -75,6 +76,8 @@ std::string build_exchange_prompt(const ExchangePromptArgs& args) {
     lines.push_back("特徴: " + str::join(persona.traits, " / ") + " / 話し方: " + persona.speechStyle);
     if (persona.valueAxis && !persona.valueAxis->empty()) lines.push_back("あなたが重視する価値: " + *persona.valueAxis);
     if (const std::string profile = persona_profile_line(persona); !profile.empty()) lines.push_back(profile);
+    for (auto& l : argument_pattern_lines(persona, ArgumentPhase::exchange, args.pressed, argument_pattern_catalog()))
+        lines.push_back(std::move(l));
     lines.push_back(stance_line(args.stance));
     for (auto& l : proxy::proxy_prompt_lines(persona)) lines.push_back(std::move(l));
     lines.emplace_back("");

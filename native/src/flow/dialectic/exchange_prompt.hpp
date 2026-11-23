@@ -24,6 +24,8 @@ struct ExchangePromptArgs {
     std::optional<std::string> voicesBlock;
     /** 深掘りの言い直しのとき、進行役からの節 (drilldown_prompt_block)。 */
     std::optional<std::string> drillDown;
+    /** この論点で発言者自身の論拠が崩れている (押されている)。論述パターンをストレス側へ切り替える。 */
+    bool pressed = false;
 };
 std::string build_exchange_prompt(const ExchangePromptArgs& args);
 

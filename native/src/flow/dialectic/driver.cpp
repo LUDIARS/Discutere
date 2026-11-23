@@ -11,6 +11,7 @@
 #include "config.hpp"
 #include "flow/argument_graph.hpp"
 #include "flow/cost_logger.hpp"
+#include "flow/dialectic/argument_pattern.hpp"
 #include "flow/dialectic/conclusion.hpp"
 #include "flow/dialectic/drilldown.hpp"
 #include "flow/dialectic/convergence.hpp"
@@ -176,6 +177,21 @@ FlowDirectorResult run_dialectic_flow(persona_engine::LLMClient& llm, const std:
         enriched = setup_personas;
     }
     EnsuredDebaters initial = proxy_mode ? EnsuredDebaters{enriched[1], enriched[2], enriched} : ensure_debaters(enriched, warn);
+    // 論述パターン (人生脚本の癖・論じ方の好み)。代理議論 (本人の発言に縛る) には付けない。議題から決定的に割り当て、
+    // ペーパーの「# 論じ方の癖」で人が上書きできる。発言の prompt に 1〜2 行載るだけで LLM の呼び出しは増えない。
+    if (!proxy_mode && cfg.flow.dialectic.argumentPatterns) {
+        const auto& catalog = argument_pattern_catalog();
+        assign_argument_patterns(initial.cast, theme, parse_argument_pattern_overrides(paper_system, catalog), catalog);
+        for (const auto& p : initial.cast) {
+            if (p.id == initial.pro.id) initial.pro = p;
+            if (p.id == initial.con.id) initial.con = p;
+        }
+        record_session_argument_patterns(session_id, initial.cast, catalog.version);
+        std::vector<std::string> labels;
+        for (const auto& p : initial.cast)
+            if (p.scriptPattern) labels.push_back(p.name + "=" + *p.scriptPattern + "/" + p.reasoningStyle.value_or("-"));
+        log("論述パターン (" + catalog.version + "): " + str::join(labels, ", "));
+    }
     FlowPersona pro = initial.pro;
     FlowPersona con = initial.con;
     const std::vector<FlowPersona> cast = initial.cast;

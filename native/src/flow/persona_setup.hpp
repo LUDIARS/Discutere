@@ -26,6 +26,9 @@ struct SetupSessionPersonasArgs {
 std::string build_persona_setup_prompt(const std::string& theme, const std::vector<FlowPersona>& personas);
 /** キャスト全員を flow_session_persona に永続する。 */
 void persist_session_personas(const std::string& session_id, const std::vector<FlowPersona>& personas);
+/** 割り当てた論述パターン (scriptPattern / reasoningStyle) とカタログの版を flow_session_persona の既存行に書く。 */
+void record_session_argument_patterns(const std::string& session_id, const std::vector<FlowPersona>& personas,
+                                      const std::string& catalog_version);
 /** 価値軸/核主張を割り当て (LLM 1 call) て永続し、マージしたペルソナ列を返す。 */
 std::vector<FlowPersona> setup_session_personas(persona_engine::LLMClient& llm, const SetupSessionPersonasArgs& args);
 

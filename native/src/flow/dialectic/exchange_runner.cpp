@@ -5,6 +5,7 @@
 
 #include "flow/dialectic/drilldown.hpp"
 #include "flow/dialectic/exchange_prompt.hpp"
+#include "flow/dialectic/ground_state.hpp"
 #include "flow/dialectic/rule_check.hpp"
 #include "flow/dialectic/scheduler.hpp"
 
@@ -79,6 +80,20 @@ struct GateTarget {
     PositionRecord position;
     std::string groundId;
 };
+
+/**
+ * 発言者の陣営の定立の論拠が、この論点の応酬で 1 つでも崩れているか (押されている)。
+ * 論述パターンのストレス側への切り替えに使う (spec/plan/2026-11-23-argument-patterns.md §3.3)。論点ごとに戻る。
+ */
+bool is_pressed_in_exchange(const GroundExchange& exchange, const PositionsBySide& by_side, const FlowStance& stance) {
+    const PositionRecord* own = by_side.get(stance);
+    if (!own) return false;
+    for (const auto& [id, state] : exchange.ground_states())
+        if (is_broken_ground(state))
+            for (const auto& g : own->grounds)
+                if (g.id == id) return true;
+    return false;
+}
 
 std::optional<GateTarget> gate_target(const ArgumentNode& node, const PositionsBySide& by_side) {
     const PositionRecord* owner = by_side.get(node.side);
@@ -189,6 +204,7 @@ ExchangeEnd run_ground_exchange(const GroundExchangeArgs& args) {
             pa.path = exchange.path(node.id);
             pa.voicesBlock = args.voicesBlock;
             pa.drillDown = drill_block;
+            pa.pressed = is_pressed_in_exchange(exchange, by_side, pa.stance);
             persona_engine::LLMInvokeArgs ia;
             ia.system = args.paperSystem;
             ia.prompt = build_exchange_prompt(pa);

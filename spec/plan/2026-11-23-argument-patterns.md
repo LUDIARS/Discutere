@@ -4,7 +4,7 @@ project: Discutere
 kind: 設計
 author: Opus (Cc セッション)
 created: 2026-11-23
-status: decided (P1〜P3 は 2026-11-23 neco「全部推奨どおり」。実装は深掘りの PR の後に別 PR)
+status: 実装 (P1〜P3 は 2026-11-23 neco「全部推奨どおり」。軸 A・軸 B・割り当て・押されたときの切り替え・記録を実装。司会の自他肯定の一言と測り方 (§3.5) は未実装)
 related:
   - E:/Document/Ars/Histrio/spec/feature/virtual-persona-life-script.md (人生脚本パターン 6 種・反応表・OK牧場)
   - spec/feature/flow/dialectic.md §2.5 (論拠の 3 種類・トゥールミンの 6 要素)
@@ -80,3 +80,18 @@ prompt に 1〜2 行 (約 100 トークン) 増えるだけで、呼び出しは
 | P1 | 不完全さの出し方 | **論じ方の癖 (言い過ぎ・前例への固執・保留など) で出し、論拠の形は崩さない** | 形を崩すと深掘りとゲートで消える。癖は相手の反論の的として議論に残る |
 | P2 | カタログの置き場所 | **Histrio の設計書を正本に、Histrio が動くまでは Di が版付きデータファイルで持つ** | Histrio はコードが無い (D2: 本体は別タスク)。契約 (データの形) を先に決めれば後で取得先を差し替えるだけ |
 | P3 | 割り当て方 | **seed から決定的に割り当て、ペーパーで人が上書きできる。同じ陣営に同じパターンを並べない** | 再現できる・比較できる。対立軸が偏らない |
+
+## 6. 実装 (2026-11-23)
+
+| 項目 | 置き場所 |
+|---|---|
+| カタログ (版 `di-2026-11-23.1`) | `data/argument-patterns.json`。C++ は同じ内容の組み込み版を持ち、`<repo_root>/data/argument-patterns.json` があればそちらを読む (`argument_pattern_catalog.{hpp,cpp}`)。両者の一致はテストで確かめる |
+| 揺れ先の象限 | Histrio §4.1 の例 (`until` → `I-U+`、`always` → `I+U-`) 以外は Di の仮置き (`after`・`almost` → `I-U+`、`never` → `I+U-`、`open_ended` → `I+U+`)。Histrio の `script_patterns` が版を出したら差し替える |
+| 割り当て | `assign_argument_patterns` (`argument_pattern.{hpp,cpp}`)。対象は進行役・代理以外の発言者。seed は議題 (同じ議題・同じキャストなら同じ割り当て)。陣営ごとに seed から決まる位置から未使用のものを順に取る (軸 B は 3 種類なので 4 人目から重なる) |
+| 人の上書き | ペーパー本文の `# 論じ方の癖` 節。行は `- 名前: パターン / 論じ方` (id か表示名、どちらか一方でも可)。カタログに無い値は捨てる。上書きは重なりの制約より優先 |
+| prompt | 定立は「定立の癖」、応酬は「応酬の癖」の行と論じ方の好みの行を、人物像 (A1) の行の後に載せる |
+| 押されたとき | 応酬で発言者の陣営の定立の論拠が 1 つでも崩れた (challenged / conceded) 論点では、ストレス側の行に切り替える (`is_pressed_in_exchange`)。論点が変われば戻る。LLM の呼び出しは増えない |
+| 記録 | `flow_session_persona.script_pattern` / `reasoning_style` / `pattern_catalog_version` (migration `2026-11-23-session-persona-argument-pattern`)。ログに `論述パターン (版): 名前=パターン/論じ方` |
+| 設定 | `flow.dialectic.argumentPatterns` (env `DISCUTERE_FLOW_DIALECTIC_ARGUMENT_PATTERNS`、既定 true) |
+
+未実装 (次の段): 司会が場を自他肯定へ戻す定型の一言 (§2.1)、癖が発言に出ているかの判別評価と決着表の比較 (§3.5)。

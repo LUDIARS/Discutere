@@ -59,6 +59,10 @@ struct FlowPersona {
      * (spec/plan/2026-11-23-persona-game-archetype-context.md A1)。
      */
     std::optional<std::string> playerProfile;
+    /** 論述パターン 軸 A (人生脚本パターンの id。spec/plan/2026-11-23-argument-patterns.md)。dialectic が議論者に割り当てる。 */
+    std::optional<std::string> scriptPattern;
+    /** 論述パターン 軸 B (論じ方の好み: deduction | induction | abduction)。 */
+    std::optional<std::string> reasoningStyle;
 };
 
 Json to_json(const PersonaPossession& p);

@@ -54,7 +54,8 @@
           "finalJudgeModel": "",
           "version": "v2",
           "vote": false,
-          "drillDown": true
+          "drillDown": true,
+          "argumentPatterns": true
         },
         "personaSetupModel": "",
         "tags": [],
@@ -368,7 +369,8 @@
           "finalJudgeModel": "",
           "version": "v2",
           "vote": false,
-          "drillDown": true
+          "drillDown": true,
+          "argumentPatterns": true
         },
         "personaSetupModel": "",
         "tags": [
@@ -665,7 +667,8 @@
           "finalJudgeModel": "final-x",
           "version": "v2",
           "vote": false,
-          "drillDown": true
+          "drillDown": true,
+          "argumentPatterns": true
         },
         "personaSetupModel": "",
         "tags": [
@@ -990,7 +993,8 @@
           "finalJudgeModel": "final-x",
           "version": "v2",
           "vote": false,
-          "drillDown": true
+          "drillDown": true,
+          "argumentPatterns": true
         },
         "personaSetupModel": "",
         "tags": [
@@ -1307,7 +1311,8 @@
           "finalJudgeModel": "",
           "version": "v2",
           "vote": false,
-          "drillDown": true
+          "drillDown": true,
+          "argumentPatterns": true
         },
         "personaSetupModel": "",
         "tags": [],
@@ -1591,7 +1596,8 @@
           "finalJudgeModel": "",
           "version": "v2",
           "vote": false,
-          "drillDown": true
+          "drillDown": true,
+          "argumentPatterns": true
         },
         "personaSetupModel": "",
         "tags": [],
@@ -1875,7 +1881,8 @@
           "finalJudgeModel": "",
           "version": "v2",
           "vote": false,
-          "drillDown": true
+          "drillDown": true,
+          "argumentPatterns": true
         },
         "personaSetupModel": "",
         "tags": [],
@@ -2159,7 +2166,8 @@
           "finalJudgeModel": "",
           "version": "v2",
           "vote": false,
-          "drillDown": true
+          "drillDown": true,
+          "argumentPatterns": true
         },
         "personaSetupModel": "",
         "tags": [],
@@ -2478,7 +2486,8 @@
           "finalJudgeModel": "",
           "version": "v2",
           "vote": false,
-          "drillDown": true
+          "drillDown": true,
+          "argumentPatterns": true
         },
         "personaSetupModel": "",
         "tags": [],

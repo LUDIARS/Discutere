@@ -89,6 +89,8 @@ struct DiscutereConfig {
             bool vote = false;
             /** 論拠の形を成していない応答・定立を 1 回だけ言い直させる (既定 true)。 */
             bool drillDown = true;
+            /** 議論者に論述パターン (人生脚本の癖・論じ方の好み) を持たせる (既定 true、spec/plan/2026-11-23-argument-patterns.md)。 */
+            bool argumentPatterns = true;
         } dialectic;
         std::string personaSetupModel;
         std::vector<std::string> tags;

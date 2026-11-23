@@ -416,6 +416,11 @@ const std::vector<FlowMigration>& flow_migrations() {
         {"2026-11-23-position-toulmin",
          {R"SQL(ALTER TABLE flow_position ADD COLUMN qualifier_force TEXT)SQL",
           R"SQL(ALTER TABLE flow_position ADD COLUMN exceptions_json TEXT NOT NULL DEFAULT '[]')SQL"}},
+        // 論述パターン (人生脚本の癖・論じ方の好み) の割り当て。旧行・進行役・代理は NULL。
+        {"2026-11-23-session-persona-argument-pattern",
+         {R"SQL(ALTER TABLE flow_session_persona ADD COLUMN script_pattern TEXT)SQL",
+          R"SQL(ALTER TABLE flow_session_persona ADD COLUMN reasoning_style TEXT)SQL",
+          R"SQL(ALTER TABLE flow_session_persona ADD COLUMN pattern_catalog_version TEXT)SQL"}},
     };
     return migrations;
 }

@@ -201,6 +201,8 @@ Json to_json(const FlowPersona& p) {
     if (p.possession) o["possession"] = to_json(*p.possession);
     if (p.proxy) o["proxy"] = to_json(*p.proxy);
     if (p.playerProfile) o["playerProfile"] = *p.playerProfile;
+    if (p.scriptPattern) o["scriptPattern"] = *p.scriptPattern;
+    if (p.reasoningStyle) o["reasoningStyle"] = *p.reasoningStyle;
     return o;
 }
 
@@ -218,6 +220,8 @@ FlowPersona flow_persona_from_json(const Json& j) {
     p.valueAxis = opt_str(j, "valueAxis");
     if (j.contains("coreClaims") && j["coreClaims"].is_array()) p.coreClaims = str_list(j["coreClaims"]);
     p.playerProfile = opt_str(j, "playerProfile");
+    p.scriptPattern = opt_str(j, "scriptPattern");
+    p.reasoningStyle = opt_str(j, "reasoningStyle");
     if (j.contains("possession") && j["possession"].is_object()) {
         const Json& po = j["possession"];
         p.possession = PersonaPossession{json_string(po, "label"), opt_str(po, "descriptor")};

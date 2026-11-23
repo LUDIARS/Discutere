@@ -306,6 +306,8 @@ DiscutereConfig load_config(const LoadOptions& options) {
     fl.dialectic.vote = L::pick_bool(e("DISCUTERE_FLOW_DIALECTIC_VOTE"), x.f({"flow", "dialectic", "vote"}), false);
     fl.dialectic.drillDown =
         L::pick_bool(e("DISCUTERE_FLOW_DIALECTIC_DRILL_DOWN"), x.f({"flow", "dialectic", "drillDown"}), true);
+    fl.dialectic.argumentPatterns = L::pick_bool(e("DISCUTERE_FLOW_DIALECTIC_ARGUMENT_PATTERNS"),
+                                                 x.f({"flow", "dialectic", "argumentPatterns"}), true);
     fl.dialectic.finalJudgeModel =
         L::pick(e("DISCUTERE_FLOW_DIALECTIC_FINAL_JUDGE_MODEL"), x.f({"flow", "dialectic", "finalJudgeModel"}), "");
     fl.personaSetupModel = L::pick(e("DISCUTERE_FLOW_PERSONA_SETUP_MODEL"), x.f({"flow", "personaSetupModel"}), "");
@@ -644,7 +646,8 @@ Json to_json(const DiscutereConfig& c) {
                           {"argumentDepth", fl.dialectic.argumentDepth}, {"staleTurns", fl.dialectic.staleTurns},
                           {"judgeModel", fl.dialectic.judgeModel},       {"ruleCheck", fl.dialectic.ruleCheck},
                           {"finalJudgeModel", fl.dialectic.finalJudgeModel}, {"version", fl.dialectic.version},
-                          {"vote", fl.dialectic.vote},                           {"drillDown", fl.dialectic.drillDown}};
+                          {"vote", fl.dialectic.vote},                           {"drillDown", fl.dialectic.drillDown},
+                          {"argumentPatterns", fl.dialectic.argumentPatterns}};
     f["personaSetupModel"] = fl.personaSetupModel;
     f["tags"] = strings(fl.tags);
     f["sparringMaxTurns"] = fl.sparringMaxTurns;
