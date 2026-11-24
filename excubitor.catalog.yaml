@@ -32,6 +32,8 @@ services:
       # port 正本: Cernere / Voluptas の各 excubitor.catalog.yaml。
       CERNERE_BASE_URL: http://127.0.0.1:8080
       DISCUTERE_VOLUPTAS_BASE_URL: http://127.0.0.1:8892
+      # port 正本: Histrio/excubitor.catalog.yaml。
+      HISTRIO_URL: http://127.0.0.1:4260
       # 認証集約 P4: persona bridge が受ける Cernere service token の aud (= Discutere の storage_slug)。
       CERNERE_PROJECT_STORAGE_SLUG: "discutere"
     # Discutere は Cernere 無しで単独起動する (neco 2026-10-13「Di は独立して動かせるようにして」、CLAUDE.md 認証モデル)。

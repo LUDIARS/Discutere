@@ -39,6 +39,18 @@ struct ProxyPersonaContext {
     std::vector<std::pair<std::string, std::string>> evidenceTexts;
 };
 
+/** セッション開始時に確定した会話反応とその出所。 */
+struct LifeScriptContext {
+    std::string id;
+    std::string version;
+    std::string source;
+    std::string label;
+    std::string position;
+    std::string exchange;
+    std::string stress;
+    std::optional<std::string> tone;
+};
+
 struct FlowPersona {
     std::string id;
     std::string name;
@@ -63,6 +75,9 @@ struct FlowPersona {
     std::optional<std::string> scriptPattern;
     /** 論述パターン 軸 B (論じ方の好み: deduction | induction | abduction)。 */
     std::optional<std::string> reasoningStyle;
+    /** 永続プールから選んだ人物の ID。セッション内でのみ使う。 */
+    std::optional<std::string> poolPersonaId;
+    std::optional<LifeScriptContext> lifeScript;
 };
 
 Json to_json(const PersonaPossession& p);

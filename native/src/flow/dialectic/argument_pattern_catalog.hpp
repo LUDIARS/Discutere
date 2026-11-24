@@ -1,7 +1,7 @@
 #pragma once
 // 論述パターンのカタログ (spec/plan/2026-11-23-argument-patterns.md §3.1)。
 //
-// 正本は Histrio の script_patterns (版付き)。Histrio が動くまでは Di の data/argument-patterns.json を読む。
+// 正本は Histrio の script_patterns (版付き)。Di の割当とフォールバックには data/argument-patterns.json を読む。
 // ファイルが無い・読めないときは同じ内容の組み込み版を使う (テストで両者が一致することを確かめる)。
 #include <optional>
 #include <string>

@@ -9,6 +9,7 @@ related:
   - spec/feature/flow/dialectic.md
   - spec/feature/flow/persona-pool.md
   - spec/feature/flow/proxy-debate.md
+  - actio:af313176-0e6b-4b77-a082-ce1a14a2375b
   - E:/Document/Ars/Histrio/spec/feature/virtual-persona-life-script.md
   - E:/Document/Ars/Ludus/spec/data/game-template/README.md
 ---
@@ -78,9 +79,9 @@ neco (2026-11-23):「Histrio を使ってペルソナとゲームアーキタイ
 |---|---|---|
 | A1 | `persona_descriptor` を dialectic の発話・定立 prompt に配線 (全キャスト)。キャストの型の多様化 | descriptor の無い人は従来とバイト等価 / 型の違う人が選ばれる単体テスト |
 | A2 | `scripts/build-game-archetypes` (Ludus → `data/game-archetypes.json`、生成物はコミット) + ペーパーのジャンル当て + system 末尾の `# ゲームの型` | 同じ入力で同じ JSON / 当たらないときはブロック無し / ペーパー調整で上書きできる |
-| A3 | Histrio クライアント (`integrations/histrio`) と人生脚本パターン行 | Histrio 不通でも議論が完走 / 1.5 秒で打ち切り (応答 1 秒超は不具合扱いの方針に合わせ、取得は議論開始時に 1 回だけ) |
+| A3 (実装済み) | Histrio クライアント (`native/src/integrations/histrio_client`) と人生脚本パターン行 | Histrio 不通でも議論を続行 / 通信を 1 回あたり 1.5 秒で打ち切り、プロフィールは議論開始時に人物ごとに 1 回だけ取得 |
 
-A3 は Histrio の S6 (最小サービス) と脚本パターンの実装が前提。それまでは A1・A2 だけで動く。
+A3 は `HISTRIO_URL` 設定時に `di` 名前空間のプール人物のプロフィールと脚本カタログを取得する。プロフィールが有効でカタログが取得できない場合は、同じ脚本 ID の Di の写しを使う。採用した脚本 ID、カタログの版、出所 (`histrio` / `di`) を `flow_session_persona` に記録する。
 
 ## 3.5 設計評価 (2026-11-23、3 者) の指摘
 

@@ -90,9 +90,14 @@ void record_session_argument_patterns(const std::string& session_id, const std::
     auto db = db::get_flow_db();
     for (const auto& p : personas) {
         if (!p.scriptPattern && !p.reasoningStyle) continue;
-        db->run(R"SQL(UPDATE flow_session_persona SET script_pattern = ?, reasoning_style = ?, pattern_catalog_version = ?
+        const auto source = p.lifeScript ? std::optional(p.lifeScript->source)
+                                         : p.scriptPattern ? std::optional(std::string("di")) : std::nullopt;
+        const auto version = p.lifeScript ? std::optional(p.lifeScript->version)
+                                          : p.scriptPattern ? std::optional(catalog_version) : std::nullopt;
+        db->run(R"SQL(UPDATE flow_session_persona SET script_pattern = ?, reasoning_style = ?, pattern_catalog_version = ?,
+          script_pattern_source = ?
      WHERE id = ? AND session_id = ?)SQL",
-                {sql::Value(p.scriptPattern), sql::Value(p.reasoningStyle), catalog_version, p.id, session_id});
+                {sql::Value(p.scriptPattern), sql::Value(p.reasoningStyle), sql::Value(version), sql::Value(source), p.id, session_id});
     }
 }
 

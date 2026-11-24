@@ -421,6 +421,8 @@ const std::vector<FlowMigration>& flow_migrations() {
          {R"SQL(ALTER TABLE flow_session_persona ADD COLUMN script_pattern TEXT)SQL",
           R"SQL(ALTER TABLE flow_session_persona ADD COLUMN reasoning_style TEXT)SQL",
           R"SQL(ALTER TABLE flow_session_persona ADD COLUMN pattern_catalog_version TEXT)SQL"}},
+        {"2026-11-24-session-persona-histrio-source",
+         {R"SQL(ALTER TABLE flow_session_persona ADD COLUMN script_pattern_source TEXT)SQL"}},
     };
     return migrations;
 }

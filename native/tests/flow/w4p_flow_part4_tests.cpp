@@ -1,6 +1,9 @@
 // w4p_flow のテスト (4/4)。準備は w4p_flow_support.hpp。
 #include "w4p_flow_support.hpp"
 
+#include "flow/persona_pool.hpp"
+#include "infra/http_server.hpp"
+
 using namespace w4p_flow_support;
 
 // ─── 境界 ───────────────────────────────────────────────────────
@@ -66,6 +69,61 @@ TEST_CASE("境界: 壊れた・巨大な・失敗する LLM 応答でも dialect
         CHECK_EQ(db->get("SELECT COUNT(*) AS n FROM flow_conclusion WHERE session_id = 'dlx-garbage'")->i64("n"), 1);
     }
     set_env(Json::object());
+}
+
+TEST_CASE("dialectic completes and persists other patterns when Histrio is unavailable") {
+    w3l::TempFlowDb tmp;
+    set_env(golden_run("dlx-basic")["env"]);
+    const auto old_histrio_url = env::get("HISTRIO_URL");
+    struct RestoreEnv {
+        std::optional<std::string> url;
+        std::optional<std::string> patterns;
+        ~RestoreEnv() {
+            env::set_for_test("HISTRIO_URL", url);
+            env::set_for_test("DISCUTERE_FLOW_DIALECTIC_ARGUMENT_PATTERNS", patterns);
+            set_env(Json::object());
+        }
+    } restore{old_histrio_url, env::get("DISCUTERE_FLOW_DIALECTIC_ARGUMENT_PATTERNS")};
+    auto router = std::make_shared<http::Router>();
+    http::Server server(http::ServerOptions{.port = 0}, router);
+    server.start();
+    const std::string url = "http://127.0.0.1:" + std::to_string(server.bound_port());
+    server.stop();
+    env::set_for_test("HISTRIO_URL", url);
+    env::set_for_test("DISCUTERE_FLOW_DIALECTIC_ARGUMENT_PATTERNS", "true");
+    config::reset_config_for_test();
+
+    PoolPersona persona;
+    persona.id = "pool-histrio-down";
+    persona.name = "Pool debater";
+    persona.role = "debater";
+    persona.origin = "seed";
+    persona.affectVector.assign(static_cast<std::size_t>(DIM), 0.0);
+    insert_pool_persona(persona);
+    w3l::FnLLM llm([](const persona_engine::LLMInvokeArgs&) { return persona_engine::LLMResult::failure("stub"); });
+    FlowRunOptions args;
+    args.sessionId = "dlx-histrio-down";
+    args.personaIds = std::vector<std::string>{persona.id};
+    args.rng = w3l::lcg(5);
+    args.gamesDir = tmp.dir + "/games";
+    args.log = [](const std::string&) {};
+    std::vector<std::string> warnings;
+    args.warn = [&](const std::string& warning) { warnings.push_back(warning); };
+    const auto result = dialectic::run_dialectic_flow(llm, "議論テーマ", {}, args);
+    CHECK(result.rounds >= 1);
+    CHECK_EQ(std::count_if(warnings.begin(), warnings.end(), [](const std::string& warning) {
+        return warning.starts_with("Histrio プロフィール (pool-histrio-down)");
+    }), 1);
+    auto db = flow::db::get_flow_db();
+    CHECK_EQ(db->get("SELECT COUNT(*) AS n FROM flow_conclusion WHERE session_id = 'dlx-histrio-down'")->i64("n"), 1);
+    const auto persisted = db->get("SELECT * FROM flow_session_persona WHERE session_id = ? AND id = ?",
+                                   {args.sessionId.value(), persona.id});
+    CHECK(persisted);
+    CHECK(!persisted->opt_str("script_pattern"));
+    CHECK(!persisted->opt_str("script_pattern_source"));
+    CHECK(persisted->opt_str("reasoning_style"));
+    CHECK(db->get("SELECT id FROM flow_session_persona WHERE session_id = ? AND script_pattern_source = 'di' LIMIT 1",
+                  {args.sessionId.value()}));
 }
 
 TEST_CASE("run_ground_exchange: 必須の引数が無ければ拒否 / ensure_debaters は昇格できなければ例外") {

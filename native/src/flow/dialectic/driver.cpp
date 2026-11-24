@@ -6,6 +6,7 @@
 #include <stdexcept>
 
 #include "base/crypto.hpp"
+#include "base/env.hpp"
 #include "base/log.hpp"
 #include "base/strings.hpp"
 #include "config.hpp"
@@ -19,6 +20,7 @@
 #include "flow/dialectic/exchange_end.hpp"
 #include "flow/dialectic/exchange_runner.hpp"
 #include "flow/dialectic/goal.hpp"
+#include "flow/dialectic/histrio_context.hpp"
 #include "flow/dialectic/issue_voices.hpp"
 #include "flow/dialectic/issues.hpp"
 #include "flow/dialectic/outcome.hpp"
@@ -182,14 +184,20 @@ FlowDirectorResult run_dialectic_flow(persona_engine::LLMClient& llm, const std:
     if (!proxy_mode && cfg.flow.dialectic.argumentPatterns) {
         const auto& catalog = argument_pattern_catalog();
         assign_argument_patterns(initial.cast, theme, parse_argument_pattern_overrides(paper_system, catalog), catalog);
+        const integrations::HistrioClient histrio(env::get_nonempty("HISTRIO_URL").value_or(""));
+        apply_histrio_context(initial.cast, histrio, catalog, warn);
         for (const auto& p : initial.cast) {
             if (p.id == initial.pro.id) initial.pro = p;
             if (p.id == initial.con.id) initial.con = p;
         }
         record_session_argument_patterns(session_id, initial.cast, catalog.version);
         std::vector<std::string> labels;
-        for (const auto& p : initial.cast)
-            if (p.scriptPattern) labels.push_back(p.name + "=" + *p.scriptPattern + "/" + p.reasoningStyle.value_or("-"));
+        for (const auto& p : initial.cast) {
+            if (!p.scriptPattern) continue;
+            auto label = p.name + "=" + *p.scriptPattern + "/" + p.reasoningStyle.value_or("-");
+            if (p.lifeScript) label += " [" + p.lifeScript->source + " " + p.lifeScript->version + "]";
+            labels.push_back(std::move(label));
+        }
         log("論述パターン (" + catalog.version + "): " + str::join(labels, ", "));
     }
     FlowPersona pro = initial.pro;

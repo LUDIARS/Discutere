@@ -113,7 +113,13 @@ std::vector<std::string> argument_pattern_lines(const FlowPersona& persona, Argu
     if (!is_patterned(persona)) return lines;
     const ScriptPattern* sp = persona.scriptPattern ? find_script_pattern(catalog, *persona.scriptPattern) : nullptr;
     const ReasoningStyle* rs = persona.reasoningStyle ? find_reasoning_style(catalog, *persona.reasoningStyle) : nullptr;
-    if (sp) {
+    if (persona.lifeScript) {
+        const auto& script = *persona.lifeScript;
+        const auto& reaction = phase == ArgumentPhase::position ? script.position : pressed ? script.stress : script.exchange;
+        lines.push_back("会話での反応傾向 (推測): 「" + script.label + "」― " + reaction +
+                        " (型の名前は名乗らず、立場と論拠は議題に従う)");
+        if (script.tone) lines.push_back("口調だけの目安: " + *script.tone + "話す。");
+    } else if (sp) {
         const std::string& habit = phase == ArgumentPhase::position ? sp->position : pressed ? sp->stress : sp->exchange;
         lines.push_back("あなたの論じ方の癖: " + habit +
                         " (癖の名前は名乗らない。データと論拠は分けて書き、人を否定せず論拠に反論する)");

@@ -2207,7 +2207,8 @@
       "possession_name": null,
       "script_pattern": null,
       "reasoning_style": null,
-      "pattern_catalog_version": null
+      "pattern_catalog_version": null,
+      "script_pattern_source": null
      },
      {
       "id": "<U2>",
@@ -2220,7 +2221,8 @@
       "possession_name": null,
       "script_pattern": null,
       "reasoning_style": null,
-      "pattern_catalog_version": null
+      "pattern_catalog_version": null,
+      "script_pattern_source": null
      },
      {
       "id": "<U3>",
@@ -2233,7 +2235,8 @@
       "possession_name": null,
       "script_pattern": null,
       "reasoning_style": null,
-      "pattern_catalog_version": null
+      "pattern_catalog_version": null,
+      "script_pattern_source": null
      }
     ],
     "flow_utterance": [
@@ -3230,7 +3233,8 @@
       "possession_name": null,
       "script_pattern": null,
       "reasoning_style": null,
-      "pattern_catalog_version": null
+      "pattern_catalog_version": null,
+      "script_pattern_source": null
      },
      {
       "id": "<U2>",
@@ -3243,7 +3247,8 @@
       "possession_name": null,
       "script_pattern": null,
       "reasoning_style": null,
-      "pattern_catalog_version": null
+      "pattern_catalog_version": null,
+      "script_pattern_source": null
      },
      {
       "id": "<U3>",
@@ -3256,7 +3261,8 @@
       "possession_name": null,
       "script_pattern": null,
       "reasoning_style": null,
-      "pattern_catalog_version": null
+      "pattern_catalog_version": null,
+      "script_pattern_source": null
      },
      {
       "id": "<U4>",
@@ -3269,7 +3275,8 @@
       "possession_name": null,
       "script_pattern": null,
       "reasoning_style": null,
-      "pattern_catalog_version": null
+      "pattern_catalog_version": null,
+      "script_pattern_source": null
      }
     ],
     "flow_utterance": [
@@ -4036,7 +4043,8 @@
       "possession_name": null,
       "script_pattern": null,
       "reasoning_style": null,
-      "pattern_catalog_version": null
+      "pattern_catalog_version": null,
+      "script_pattern_source": null
      },
      {
       "id": "<U2>",
@@ -4049,7 +4057,8 @@
       "possession_name": "論者#test01",
       "script_pattern": null,
       "reasoning_style": null,
-      "pattern_catalog_version": null
+      "pattern_catalog_version": null,
+      "script_pattern_source": null
      },
      {
       "id": "<U3>",
@@ -4062,7 +4071,8 @@
       "possession_name": null,
       "script_pattern": null,
       "reasoning_style": null,
-      "pattern_catalog_version": null
+      "pattern_catalog_version": null,
+      "script_pattern_source": null
      }
     ],
     "flow_utterance": [

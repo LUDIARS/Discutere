@@ -314,6 +314,7 @@ FlowPersona to_flow_persona(const PoolPersona& p, const ToFlowPersonaOpts& opts)
     const FlowRole role = opts.role ? *opts.role : p.role;
     FlowPersona out;
     out.id = p.id;
+    out.poolPersonaId = p.id;
     out.name = p.name;
     out.role = role;
     // stance はセッション固定 (respec 01)。指定が無ければロール既定 (debater は pro 起点)。

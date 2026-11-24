@@ -280,6 +280,12 @@
         "ALTER TABLE flow_session_persona ADD COLUMN reasoning_style TEXT",
         "ALTER TABLE flow_session_persona ADD COLUMN pattern_catalog_version TEXT"
       ]
+    },
+    {
+      "id": "2026-11-24-session-persona-histrio-source",
+      "sql": [
+        "ALTER TABLE flow_session_persona ADD COLUMN script_pattern_source TEXT"
+      ]
     }
   ],
   "sqlite_master": [
@@ -701,7 +707,7 @@
       "type": "table",
       "name": "flow_session_persona",
       "tbl_name": "flow_session_persona",
-      "sql": "CREATE TABLE flow_session_persona (\n        id TEXT PRIMARY KEY,\n        session_id TEXT NOT NULL,\n        name TEXT NOT NULL,\n        role TEXT NOT NULL,\n        stance TEXT NOT NULL,\n        value_axis TEXT,\n        core_claims_json TEXT,\n        possession_name TEXT,\n        created_at INTEGER NOT NULL\n      , script_pattern TEXT, reasoning_style TEXT, pattern_catalog_version TEXT)"
+      "sql": "CREATE TABLE flow_session_persona (\n        id TEXT PRIMARY KEY,\n        session_id TEXT NOT NULL,\n        name TEXT NOT NULL,\n        role TEXT NOT NULL,\n        stance TEXT NOT NULL,\n        value_axis TEXT,\n        core_claims_json TEXT,\n        possession_name TEXT,\n        created_at INTEGER NOT NULL\n      , script_pattern TEXT, reasoning_style TEXT, pattern_catalog_version TEXT, script_pattern_source TEXT)"
     },
     {
       "type": "table",

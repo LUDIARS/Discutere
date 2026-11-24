@@ -77,6 +77,27 @@ npm run discord:register   # discord.botToken + discord.applicationId が必要
 
 > 旧バージョンは登録コードが無く、slash がクライアントに一切出ない不具合があった (#この PR で修正)。
 
+### Histrio にプール人物を登録する
+
+Histrio が稼働している環境で、Node.js 22.13 以降を使い PowerShell から次を実行します。Di のデータベースを読み取り専用で開き、アーカイブされていない人物の ID、名前、特徴、話し方を Histrio の `di` 名前空間へ送ります。再実行すると同じ ID の人物が更新されます。
+
+```powershell
+$env:HISTRIO_URL = 'http://127.0.0.1:4260' # Histrio の excubitor.catalog.yaml に合わせる
+$env:DATABASE_PATH = './data/discutere.db'
+npm run histrio:register-personas
+```
+
+登録後、Histrio のアンケート生成が有効な環境で対象のプール人物 ID を指定します。空の JSON で開始すると既存結果は再利用されます。GET で結果を確認できます。
+
+```powershell
+$personaId = '<Di のプール人物 ID>'
+$questionnaire = "$($env:HISTRIO_URL.TrimEnd('/'))/v1/personas/${personaId}/questionnaire?namespace=di"
+Invoke-RestMethod -Uri $questionnaire -Method Post -ContentType 'application/json' -Body '{}'
+Invoke-RestMethod -Uri $questionnaire
+```
+
+Di が Histrio を参照するのは、論述パターンが有効な通常議論でプール人物が参加するときです。接続先の設定には `HISTRIO_URL` を使います。
+
 ## 使える slash command
 
 | command | 説明 | 認可 |
