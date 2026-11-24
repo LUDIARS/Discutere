@@ -8,5 +8,5 @@
     { "pathPattern": "(^|/)scripts/creator-insight/(?:.*/)?[^/]+$" },
     { "pathPattern": "(^|/)tests/creator-insight/(?:.*/)?[^/]+$" }
   ],
-  "specRefs": ["DI-CI-01", "DI-CI-02", "DI-CI-03", "DI-CI-04", "DI-CI-05", "DI-CI-06", "DI-CI-07", "つくり手インサイト"]
+  "specRefs": ["DI-CI-01", "DI-CI-02", "DI-CI-03", "DI-CI-04", "DI-CI-05", "DI-CI-06", "DI-CI-07", "DI-CI-08", "DI-CI-09", "つくり手インサイト"]
 }

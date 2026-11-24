@@ -16,7 +16,7 @@
 | チャットログ | 本人が持ち込んだ Discord / Slack のエクスポート。管理者がエクスポートする場合は、対象者ごとに同意を取る |
 | コード | 本人が指定したリポジトリ |
 | ポートフォリオ | 本人が渡した URL またはファイル |
-| アンケート | `data/life-script-questionnaire.ja.json` への本人の回答 |
+| アンケート | `data/life-script-questionnaire.ja.json` への本人の回答。セッションのチャットで1問ずつ聞く。Lictor 経由のセッションでは ask マーカーで選択肢を出し、「飛ばす」は自由文で受ける |
 
 Discutere の KG と SQLite は、発言者の名前やアカウントを保存しない設計になっている（匿名 workspace）。
 **Discutere の DB から個人別のログを作らない。** 監査用に保存している `author_id` も使わない。

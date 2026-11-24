@@ -74,6 +74,7 @@ jobs:
           npm run test:discord-hook
           npm run test:mechanics-check
           npm run test:level-check
+          npm run test:creator-insight
           npm run test:backup
           npm run test:flow
           npm run test:fundamentum-export
