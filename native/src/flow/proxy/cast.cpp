@@ -219,6 +219,7 @@ std::vector<FlowPersona> load_proxy_participants(const LoadProxyParticipantsArgs
         ProxyPersonaContext ctx;
         ctx.label = label;
         ctx.speakerKey = row.speakerKey;
+        ctx.histrioPersonaId = row.pack.histrioPersonaId;
         ctx.genre = genre;
         ctx.bundleText = bundle->text;
         ctx.evidenceIds = bundle->evidenceIds;

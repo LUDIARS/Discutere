@@ -1,5 +1,5 @@
 {
   "service": "discutere-playtest",
-  "include": ["src/playtest/*.cpp"],
+  "include": ["src/playtest/*.cpp", "src/flow/debater_templates.cpp", "src/flow/dialectic/histrio_context.cpp"],
   "rules": {"contract-wrap": true}
 }

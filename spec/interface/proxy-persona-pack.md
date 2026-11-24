@@ -10,6 +10,7 @@
   "contractVersion": 1,
   "personaKind": "observedSpeaker",
   "speakerKey": "ext:steam:3f9a0c1d2e4b5a6f",   // ext:<source>:<hmac16>。生 ID・表示名を入れない
+  "histrioPersonaId": "steam-3f9a0c1d2e4b5a6f", // 任意。Steam 代理の Histrio 上の仮名 ID
   "genre": "roguelike",                          // 形成側のジャンル辞書 id (英小文字・数字・-_)
   "genreSpecVersion": 1,
   "profileVersion": "proxy-form-v1:0a1b2c3d4e5f",
@@ -30,6 +31,8 @@
   "revoked": false
 }
 ```
+
+Steam 代理では、任意の `histrioPersonaId` に Histrio 上の既存の仮名 ID を指定できる。形式は `steam-[A-Za-z0-9_.-]{1,122}`。Di のキャスト ID と `speakerKey` はパックと議論を結び付け、Histrio のプロフィール照会には `histrioPersonaId` を使う。ID やプロフィールが無い場合は脚本を省略する。代理の論拠は人物パックを使う。Histrio 側の Steam 人格取り込みは別タスク。
 
 ## 拒否する条件 (Di 入口)
 

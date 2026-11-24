@@ -8,6 +8,8 @@
     {"id":"C-6","file":"src/playtest/seed.cpp","symbol":"voice_threshold_met","module":"src/playtest/contracts/seed.hpp","criterion":"C-6 voice_threshold_met(count, minimum): 未消費の新着感想が閾値に達したときだけ起動候補になる"},
     {"id":"C-7","file":"src/playtest/proposal_client.cpp","symbol":"proposal_payload","module":"src/playtest/contracts/proposal.hpp","criterion":"C-7 proposal_payload(conclusion_id, project_code, target_key, summary, observed_at): 同じ結論の配送で同じ event_key と AI 由来情報を保持する"},
     {"id":"C-11","file":"src/integrations/histrio_client.cpp","symbol":"parse_histrio_profile","module":"src/integrations/contracts/histrio_profile.hpp","criterion":"C-11 parse_histrio_profile(body, persona_id): 要求した人物に一致し、脚本 ID と版を持つプロフィールだけを受理する"},
-    {"id":"C-12","file":"src/flow/dialectic/histrio_context.cpp","symbol":"resolve_histrio_pattern","module":"src/flow/dialectic/contracts/histrio_pattern.hpp","criterion":"C-12 resolve_histrio_pattern(profile, remote, local): 取得した脚本は ID と版が一致するものを優先し、カタログ取得失敗時は同じ ID の Di 写しを使う"}
+    {"id":"C-12","file":"src/flow/dialectic/histrio_context.cpp","symbol":"resolve_histrio_pattern","module":"src/flow/dialectic/contracts/histrio_pattern.hpp","criterion":"C-12 resolve_histrio_pattern(profile, remote, local): 取得した脚本は ID と版が一致するものを優先し、カタログ取得失敗時は同じ ID の Di 写しを使う"},
+    {"id":"C-13","file":"src/flow/debater_templates.cpp","symbol":"assign_debater_templates","module":"src/flow/contracts/debater_templates.hpp","criterion":"C-13 assign_debater_templates(cast, session_id): プール参加者だけに登録用テンプレート ID を割り当て、全種を使うまで同席者と重複させない"},
+    {"id":"C-14","file":"src/flow/dialectic/histrio_context.cpp","symbol":"histrio_lookup_id","module":"src/flow/dialectic/contracts/histrio_lookup.hpp","criterion":"C-14 histrio_lookup_id(persona): 通常議論はテンプレート ID、Steam 代理は明示された Histrio ID を使い、対象外は照会しない"}
   ]
 }

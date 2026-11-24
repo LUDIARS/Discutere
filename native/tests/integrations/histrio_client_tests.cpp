@@ -2,8 +2,10 @@
 
 #include <atomic>
 #include <chrono>
+#include <set>
 #include <thread>
 
+#include "flow/debater_templates.hpp"
 #include "flow/dialectic/argument_pattern.hpp"
 #include "flow/dialectic/histrio_context.hpp"
 #include "infra/http_server.hpp"
@@ -45,6 +47,16 @@ FlowPersona pool_persona(std::string id) {
     persona.stance = "con";
     persona.scriptPattern = "always";
     persona.reasoningStyle = "deduction";
+    return persona;
+}
+
+FlowPersona proxy_persona(std::string source, std::optional<std::string> histrio_id) {
+    FlowPersona persona;
+    persona.id = "internal:" + source;
+    persona.role = "debater";
+    persona.proxy.emplace();
+    persona.proxy->speakerKey = "ext:" + source + ":d2e0afe3337ca564";
+    persona.proxy->histrioPersonaId = std::move(histrio_id);
     return persona;
 }
 
@@ -97,14 +109,18 @@ TEST_CASE("Histrio stops a slow response at the request deadline") {
     CHECK(elapsed >= 1400ms && elapsed < 2400ms);
 }
 
-TEST_CASE("Histrio context is read once, scoped per persona and independent of stance") {
+TEST_CASE("Histrio uses template and Steam IDs and retains assigned patterns on 404 or malformed profiles") {
     std::atomic<int> profiles{0};
     std::atomic<int> catalogs{0};
     Stub stub;
     stub.router->get("/v1/personas/:id/profile", [&](http::Request& request) {
         ++profiles;
         const auto id = request.param("id");
-        if (id == "missing") return http::Response::text("unknown", 404);
+        if (request.query("namespace") != "di" ||
+            (id != "tpl-available" && id != "tpl-missing" && id != "tpl-broken" && id != "steam-reviewer"))
+            return http::Response::text("unexpected ID or namespace", 400);
+        if (id == "tpl-missing") return http::Response::text("unknown", 404);
+        if (id == "tpl-broken") return http::Response::json(profile_for("wrong"));
         return http::Response::json(profile_for(id));
     });
     stub.router->get("/v1/script-patterns", [&](http::Request&) {
@@ -112,8 +128,16 @@ TEST_CASE("Histrio context is read once, scoped per persona and independent of s
         return http::Response::json(patterns());
     });
     const HistrioClient client(stub.start());
-    auto cast = std::vector{pool_persona("available"), pool_persona("missing"), pool_persona("generated")};
-    cast.back().poolPersonaId.reset();
+    auto cast = std::vector{pool_persona("pool-a"), pool_persona("pool-b"), pool_persona("pool-c"),
+                            proxy_persona("steam", "steam-reviewer"), proxy_persona("steam", {}),
+                            proxy_persona("youtube", "steam-reviewer"), pool_persona("pool-facilitator"),
+                            pool_persona("generated"), pool_persona("pool-same-template")};
+    cast[0].debaterTemplateId = "tpl-available";
+    cast[1].debaterTemplateId = "tpl-missing";
+    cast[2].debaterTemplateId = "tpl-broken";
+    cast[6].role = "facilitator";
+    cast[7].poolPersonaId.reset();
+    cast[8].debaterTemplateId = cast[0].debaterTemplateId;
     const auto& local = argument_pattern_catalog();
     std::vector<std::string> warnings;
     const HistrioClient disabled("");
@@ -125,10 +149,11 @@ TEST_CASE("Histrio context is read once, scoped per persona and independent of s
     CHECK_EQ(profiles.load(), 0);
     CHECK_EQ(catalogs.load(), 0);
     apply_histrio_context(cast, client, local, [&](const std::string& message) { warnings.push_back(message); });
-    CHECK_EQ(profiles.load(), 2);
+    CHECK_EQ(profiles.load(), 4);
     CHECK_EQ(catalogs.load(), 1);
-    CHECK_EQ(warnings.size(), 1u);
-    CHECK(warnings[0].find("missing") != std::string::npos);
+    CHECK_EQ(warnings.size(), 2u);
+    CHECK(warnings[0].find("tpl-broken") != std::string::npos);
+    CHECK(warnings[1].find("tpl-missing") != std::string::npos);
     CHECK_EQ(cast[0].stance, std::string("con"));
     CHECK(cast[0].lifeScript);
     CHECK_EQ(cast[0].lifeScript->source, std::string("histrio"));
@@ -139,10 +164,13 @@ TEST_CASE("Histrio context is read once, scoped per persona and independent of s
     CHECK(opening[1].find("口調") != std::string::npos);
     const auto pressed = argument_pattern_lines(cast[0], ArgumentPhase::exchange, true, local);
     CHECK(pressed[0].find("不足条件を問い直す") != std::string::npos);
-    CHECK(!cast[1].scriptPattern);
+    CHECK_EQ(cast[1].scriptPattern.value_or(""), std::string("always"));
     CHECK(!cast[1].lifeScript);
-    CHECK_EQ(argument_pattern_lines(cast[1], ArgumentPhase::position, false, local).size(), 1u);
+    CHECK_EQ(argument_pattern_lines(cast[1], ArgumentPhase::position, false, local).size(), 2u);
     CHECK_EQ(cast[2].scriptPattern.value_or(""), std::string("always"));
+    CHECK(cast[3].lifeScript);
+    for (std::size_t i : {4u, 5u, 6u, 7u}) CHECK(!cast[i].lifeScript);
+    CHECK(cast[8].lifeScript);
 }
 
 TEST_CASE("Histrio uses the Di copy if only the catalog fails") {
@@ -153,12 +181,40 @@ TEST_CASE("Histrio uses the Di copy if only the catalog fails") {
     stub.router->get("/v1/script-patterns", [](http::Request&) { return http::Response::text("{"); });
     const HistrioClient client(stub.start());
     auto cast = std::vector{pool_persona("available")};
+    cast[0].debaterTemplateId = "tpl-available";
     const auto& local = argument_pattern_catalog();
     apply_histrio_context(cast, client, local, {});
     CHECK(cast[0].lifeScript);
     CHECK_EQ(cast[0].lifeScript->id, std::string("until"));
     CHECK_EQ(cast[0].lifeScript->source, std::string("di"));
     CHECK_EQ(cast[0].lifeScript->version, local.version);
+}
+
+TEST_CASE("Debater template assignment is deterministic and exhausts the catalog before repeating") {
+    std::vector<FlowPersona> cast;
+    for (int i = 0; i < 18; ++i) cast.push_back(pool_persona("pool-" + std::to_string(i)));
+    cast[0].role = "facilitator";
+    cast[1].poolPersonaId.reset();
+    cast[2] = proxy_persona("steam", "steam-reviewer");
+    auto second = cast;
+    auto other_session = cast;
+    assign_debater_templates(cast, "session-a");
+    assign_debater_templates(second, "session-a");
+    assign_debater_templates(other_session, "session-b");
+    std::set<std::string> first_cycle;
+    bool differs = false;
+    for (std::size_t i = 0; i < cast.size(); ++i) {
+        CHECK(cast[i].debaterTemplateId == second[i].debaterTemplateId);
+        if (i < 3) {
+            CHECK(!cast[i].debaterTemplateId);
+            continue;
+        }
+        CHECK(cast[i].debaterTemplateId);
+        CHECK(cast[i].debaterTemplateId->starts_with("tpl-"));
+        if (i < 15) CHECK(first_cycle.insert(*cast[i].debaterTemplateId).second);
+        differs = differs || cast[i].debaterTemplateId != other_session[i].debaterTemplateId;
+    }
+    CHECK(differs);
 }
 
 int main() { return di::test::run_all(); }

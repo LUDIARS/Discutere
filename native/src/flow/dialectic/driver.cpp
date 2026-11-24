@@ -179,11 +179,11 @@ FlowDirectorResult run_dialectic_flow(persona_engine::LLMClient& llm, const std:
         enriched = setup_personas;
     }
     EnsuredDebaters initial = proxy_mode ? EnsuredDebaters{enriched[1], enriched[2], enriched} : ensure_debaters(enriched, warn);
-    // 論述パターン (人生脚本の癖・論じ方の好み)。代理議論 (本人の発言に縛る) には付けない。議題から決定的に割り当て、
-    // ペーパーの「# 論じ方の癖」で人が上書きできる。発言の prompt に 1〜2 行載るだけで LLM の呼び出しは増えない。
-    if (!proxy_mode && cfg.flow.dialectic.argumentPatterns) {
+    // Di の論述パターンは通常議論で使う。代理には実在する Steam 人格のプロフィールだけを照会する。
+    if (cfg.flow.dialectic.argumentPatterns) {
         const auto& catalog = argument_pattern_catalog();
-        assign_argument_patterns(initial.cast, theme, parse_argument_pattern_overrides(paper_system, catalog), catalog);
+        if (!proxy_mode)
+            assign_argument_patterns(initial.cast, theme, parse_argument_pattern_overrides(paper_system, catalog), catalog);
         const integrations::HistrioClient histrio(env::get_nonempty("HISTRIO_URL").value_or(""));
         apply_histrio_context(initial.cast, histrio, catalog, warn);
         for (const auto& p : initial.cast) {
@@ -198,7 +198,7 @@ FlowDirectorResult run_dialectic_flow(persona_engine::LLMClient& llm, const std:
             if (p.lifeScript) label += " [" + p.lifeScript->source + " " + p.lifeScript->version + "]";
             labels.push_back(std::move(label));
         }
-        log("論述パターン (" + catalog.version + "): " + str::join(labels, ", "));
+        if (!labels.empty()) log("論述パターン (" + catalog.version + "): " + str::join(labels, ", "));
     }
     FlowPersona pro = initial.pro;
     FlowPersona con = initial.con;

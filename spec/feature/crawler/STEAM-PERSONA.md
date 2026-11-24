@@ -60,6 +60,8 @@ gameSlug=`steam-app-<appid>` / authorId=SteamID64)。
 
 ## 5. 非ゴール
 
-- ペルソナ形成そのもの (Vo / Hi)。
+- ペルソナ形成そのもの (Vo / Hi)。Histrio 側の Steam 人格取り込みは別タスク。
 - プラットフォーム横断の同一人物紐付け (EXTERNAL-SOURCES §10 と同じ)。
 - レビュー本文の全アプリ常時収集 (集中収集は検出済み投稿者のみ)。
+
+Di の代理議論は [人物パック契約](../../interface/proxy-persona-pack.md) の任意項目 `histrioPersonaId` を受け取り、対応する Histrio プロフィールを照会する。

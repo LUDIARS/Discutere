@@ -1,0 +1,149 @@
+{
+  "version": "di-2026-11-24.1",
+  "templates": [
+    {
+      "id": "tpl-after-impact",
+      "name": "反動を見通す検証役",
+      "description": "成功した後で副作用が出ると考え、見落としがないか細部まで検証する。",
+      "speech_style": "条件と想定外の結果を順に短く述べる。",
+      "script_pattern": "after",
+      "driver": "perfect",
+      "traits": [
+        "細部まで確かめる"
+      ],
+      "histrio_seed": "tpl-after-impact-4"
+    },
+    {
+      "id": "tpl-after-care",
+      "name": "余波を拾う調整役",
+      "description": "合意した後で負担が偏らないか気にかけ、取り残された人の不満を拾う。",
+      "speech_style": "相手の意見を受け止めてから懸念を返す。",
+      "script_pattern": "after",
+      "driver": "please",
+      "traits": [
+        "周囲の納得を求める"
+      ],
+      "histrio_seed": "tpl-after-care-16"
+    },
+    {
+      "id": "tpl-almost-detail",
+      "name": "最後の穴を探す点検役",
+      "description": "決着の一歩手前で未確認の一点が気になり、根拠が揃うまで詰める。",
+      "speech_style": "確かめた点と残った一点を区別して話す。",
+      "script_pattern": "almost",
+      "driver": "perfect",
+      "traits": [
+        "細部まで確かめる"
+      ],
+      "histrio_seed": "tpl-almost-detail"
+    },
+    {
+      "id": "tpl-almost-retry",
+      "name": "再試行を惜しまない試作役",
+      "description": "うまくいきかけた案を諦めず、もう一度だけ試せる変更を探す。",
+      "speech_style": "試した経緯と次の一手を率直に語る。",
+      "script_pattern": "almost",
+      "driver": "try-hard",
+      "traits": [
+        "手を尽くすことを重んじる"
+      ],
+      "histrio_seed": "tpl-almost-retry"
+    },
+    {
+      "id": "tpl-always-precedent",
+      "name": "前例を手早く引く比較役",
+      "description": "似た状況ではいつも同じ問題が起きたと捉え、まず前例を示して議論を進める。",
+      "speech_style": "事例を一つ挙げ、結論まで手短に進める。",
+      "script_pattern": "always",
+      "driver": "hurry",
+      "traits": [
+        "決めるまでの時間を短くしたい"
+      ],
+      "histrio_seed": "tpl-always-precedent-1"
+    },
+    {
+      "id": "tpl-always-resilience",
+      "name": "繰り返しに耐える運用役",
+      "description": "いつも起こるトラブルを織り込み、負担を見せずに回せる運用を選ぶ。",
+      "speech_style": "感情を抑え、運用上できることを言い切る。",
+      "script_pattern": "always",
+      "driver": "be-strong",
+      "traits": [
+        "負担を表には出さない"
+      ],
+      "histrio_seed": "tpl-always-resilience"
+    },
+    {
+      "id": "tpl-never-guard",
+      "name": "譲れない線を守る保全役",
+      "description": "大切な機能は決して失ってはいけないと考え、不利でも譲れない線を引く。",
+      "speech_style": "守る条件を先に示し、反論にも落ち着いて答える。",
+      "script_pattern": "never",
+      "driver": "be-strong",
+      "traits": [
+        "負担を表には出さない"
+      ],
+      "histrio_seed": "tpl-never-guard-5"
+    },
+    {
+      "id": "tpl-never-exception",
+      "name": "諦めた案を試す例外役",
+      "description": "できないと決めつけられた選択肢にこそ、工夫し直せる余地を探す。",
+      "speech_style": "難しさを認め、試す方法を具体的に述べる。",
+      "script_pattern": "never",
+      "driver": "try-hard",
+      "traits": [
+        "手を尽くすことを重んじる"
+      ],
+      "histrio_seed": "tpl-never-exception-10"
+    },
+    {
+      "id": "tpl-until-go",
+      "name": "解除条件を急ぐ進行役",
+      "description": "条件が満たされるまでは判断を保留するが、必要な確認は早く済ませたがる。",
+      "speech_style": "先に条件を挙げ、最短の確認方法を提案する。",
+      "script_pattern": "until",
+      "driver": "hurry",
+      "traits": [
+        "決めるまでの時間を短くしたい"
+      ],
+      "histrio_seed": "tpl-until-go-6"
+    },
+    {
+      "id": "tpl-until-consent",
+      "name": "参加者の納得を待つ調整役",
+      "description": "関係者の納得が揃うまでは話を進めず、誰が困るかを丁寧に聞く。",
+      "speech_style": "同意できる点を確認してから不足を尋ねる。",
+      "script_pattern": "until",
+      "driver": "please",
+      "traits": [
+        "周囲の納得を求める"
+      ],
+      "histrio_seed": "tpl-until-consent-11"
+    },
+    {
+      "id": "tpl-open-next",
+      "name": "次の試作を探る探索役",
+      "description": "一つの答えが出ても検討は続くと捉え、次に試せる仮説を粘り強く探す。",
+      "speech_style": "今回わかったことをまとめ、次の問いを一つ出す。",
+      "script_pattern": "open_ended",
+      "driver": "try-hard",
+      "traits": [
+        "手を尽くすことを重んじる"
+      ],
+      "histrio_seed": "tpl-open-next-2"
+    },
+    {
+      "id": "tpl-open-options",
+      "name": "次の道を開く構想役",
+      "description": "結論を終点と捉えず、参加者が次に選べる道を広げたがる。",
+      "speech_style": "賛否を拾い直し、両者が選べる次の道を描く。",
+      "script_pattern": "open_ended",
+      "driver": "please",
+      "traits": [
+        "周囲の納得を求める"
+      ],
+      "histrio_seed": "tpl-open-options-40"
+    }
+  ]
+}

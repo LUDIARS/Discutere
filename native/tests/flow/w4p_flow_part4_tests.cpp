@@ -112,18 +112,23 @@ TEST_CASE("dialectic completes and persists other patterns when Histrio is unava
     const auto result = dialectic::run_dialectic_flow(llm, "議論テーマ", {}, args);
     CHECK(result.rounds >= 1);
     CHECK_EQ(std::count_if(warnings.begin(), warnings.end(), [](const std::string& warning) {
-        return warning.starts_with("Histrio プロフィール (pool-histrio-down)");
+        return warning.starts_with("Histrio プロフィール (tpl-");
     }), 1);
     auto db = flow::db::get_flow_db();
     CHECK_EQ(db->get("SELECT COUNT(*) AS n FROM flow_conclusion WHERE session_id = 'dlx-histrio-down'")->i64("n"), 1);
     const auto persisted = db->get("SELECT * FROM flow_session_persona WHERE session_id = ? AND id = ?",
                                    {args.sessionId.value(), persona.id});
     CHECK(persisted);
-    CHECK(!persisted->opt_str("script_pattern"));
-    CHECK(!persisted->opt_str("script_pattern_source"));
+    CHECK(persisted->opt_str("script_pattern"));
+    CHECK_EQ(persisted->str("script_pattern_source"), std::string("di"));
+    CHECK(persisted->str("debater_template_id").starts_with("tpl-"));
     CHECK(persisted->opt_str("reasoning_style"));
     CHECK(db->get("SELECT id FROM flow_session_persona WHERE session_id = ? AND script_pattern_source = 'di' LIMIT 1",
                   {args.sessionId.value()}));
+    args.sessionId = "dlx-histrio-next";
+    dialectic::run_dialectic_flow(llm, "議論テーマ", {}, args);
+    CHECK_EQ(db->get("SELECT COUNT(*) AS n FROM flow_session_persona WHERE id = ? AND debater_template_id IS NOT NULL",
+                     {persona.id})->i64("n"), 2);
 }
 
 TEST_CASE("run_ground_exchange: 必須の引数が無ければ拒否 / ensure_debaters は昇格できなければ例外") {

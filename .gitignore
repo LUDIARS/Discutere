@@ -17,6 +17,7 @@ data/proxy/*
 !data/proxy/genres.example.json
 # 論述パターンのカタログ (版付き。Histrio の script_patterns が動くまでの写し)。
 !data/argument-patterns.json
+!data/debater-templates.json
 .env
 .env.secrets
 .env.youtube.key

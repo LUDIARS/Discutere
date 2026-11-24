@@ -8,6 +8,7 @@
 #include "base/time.hpp"
 #include "flow/cost_logger.hpp"
 #include "flow/db/connection.hpp"
+#include "flow/debater_templates.hpp"
 
 namespace di::flow {
 
@@ -77,11 +78,11 @@ void persist_session_personas(const std::string& session_id, const std::vector<F
     const auto now = time::now_ms();
     for (const auto& p : personas) {
         db->run(R"SQL(INSERT OR REPLACE INTO flow_session_persona
-       (id, session_id, name, role, stance, value_axis, core_claims_json, possession_name, created_at)
-     VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?))SQL",
+       (id, session_id, name, role, stance, value_axis, core_claims_json, possession_name, created_at, debater_template_id)
+     VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?))SQL",
                 {p.id, session_id, p.name, p.role, p.stance, sql::Value(p.valueAxis),
                  p.coreClaims ? sql::Value(json_stringify(Json(*p.coreClaims))) : sql::Value(),
-                 p.possession ? sql::Value(p.possession->label) : sql::Value(), now});
+                 p.possession ? sql::Value(p.possession->label) : sql::Value(), now, sql::Value(p.debaterTemplateId)});
     }
 }
 
@@ -130,6 +131,7 @@ std::vector<FlowPersona> setup_session_personas(persona_engine::LLMClient& llm, 
             warn(std::string("ペルソナ価値軸生成 JSON パース失敗: ") + e.what() + " — 価値軸なしで議論を続行 (degrade)");
         }
     }
+    assign_debater_templates(enriched, args.sessionId);
     persist_session_personas(args.sessionId, enriched);
     return enriched;
 }

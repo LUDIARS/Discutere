@@ -90,6 +90,7 @@ struct PersonaPack {
     std::vector<std::string> likedGames;
     std::vector<HeldOutLabel> heldOut;
     bool revoked = false;
+    std::optional<std::string> histrioPersonaId;
 };
 
 /** { ok: true, pack } | { ok: false, errors } */

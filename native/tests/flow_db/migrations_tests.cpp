@@ -40,6 +40,28 @@ TEST_CASE("migration idempotent (applying twice is fine)") {
              static_cast<std::int64_t>(fdb::flow_migrations().size()));
 }
 
+TEST_CASE("migration preserves old scripts and permits the same persona in multiple sessions") {
+    test::TempDir dir;
+    auto db = sql::Database::open(dir.file("existing-cast.db"));
+    db->exec("CREATE TABLE _flow_migrations (id TEXT PRIMARY KEY, applied_at INTEGER NOT NULL)");
+    const auto& migrations = fdb::flow_migrations();
+    for (std::size_t i = 0; i + 1 < migrations.size(); ++i) {
+        for (const auto& statement : migrations[i].sql) db->exec(statement);
+        db->run("INSERT INTO _flow_migrations (id, applied_at) VALUES (?, ?)", {migrations[i].id, 1});
+    }
+    db->exec("INSERT INTO flow_session_persona (id, session_id, name, role, stance, created_at, script_pattern, script_pattern_source)"
+             " VALUES ('pool-a', 'old', 'Pool A', 'debater', 'pro', 1, 'after', 'di')");
+    fdb::apply_flow_migrations(*db);
+    db->exec("INSERT INTO flow_session_persona (id, session_id, name, role, stance, created_at, debater_template_id)"
+             " VALUES ('pool-a', 'new', 'Pool A', 'debater', 'con', 2, 'tpl-after-impact')");
+    const auto rows = db->all("SELECT * FROM flow_session_persona WHERE id = 'pool-a' ORDER BY created_at");
+    CHECK_EQ(rows.size(), 2u);
+    CHECK_EQ(rows[0].str("script_pattern"), std::string("after"));
+    CHECK_EQ(rows[0].str("script_pattern_source"), std::string("di"));
+    CHECK(!rows[0].opt_str("debater_template_id"));
+    CHECK_EQ(rows[1].str("debater_template_id"), std::string("tpl-after-impact"));
+}
+
 TEST_CASE("existing DB: columns already added by hand are ignored (duplicate column)") {
     const Json fx = test::load_fixture("flow_db/migrations.json");
     test::TempDir dir;

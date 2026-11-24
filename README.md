@@ -77,26 +77,23 @@ npm run discord:register   # discord.botToken + discord.applicationId が必要
 
 > 旧バージョンは登録コードが無く、slash がクライアントに一切出ない不具合があった (#この PR で修正)。
 
-### Histrio にプール人物を登録する
+### Histrio に議論者テンプレートを登録する
 
-Histrio が稼働している環境で、Node.js 22.13 以降を使い PowerShell から次を実行します。Di のデータベースを読み取り専用で開き、アーカイブされていない人物の ID、名前、特徴、話し方を Histrio の `di` 名前空間へ送ります。再実行すると同じ ID の人物が更新されます。
+Histrio が稼働している環境で、PowerShell から次を実行します。版付きの `data/debater-templates.json` にある型を Histrio の `di` 名前空間へ登録します。再実行では同じ `tpl-` ID の型が更新されます。
 
 ```powershell
 $env:HISTRIO_URL = 'http://127.0.0.1:4260' # Histrio の excubitor.catalog.yaml に合わせる
-$env:DATABASE_PATH = './data/discutere.db'
-npm run histrio:register-personas
+npm run histrio:register-templates
 ```
 
-登録後、Histrio のアンケート生成が有効な環境で対象のプール人物 ID を指定します。空の JSON で開始すると既存結果は再利用されます。GET で結果を確認できます。
+登録時の脚本とシードからプロフィールが作られます。テンプレート ID を指定して GET で確認できます。
 
 ```powershell
-$personaId = '<Di のプール人物 ID>'
-$questionnaire = "$($env:HISTRIO_URL.TrimEnd('/'))/v1/personas/${personaId}/questionnaire?namespace=di"
-Invoke-RestMethod -Uri $questionnaire -Method Post -ContentType 'application/json' -Body '{}'
-Invoke-RestMethod -Uri $questionnaire
+$templateId = 'tpl-after-impact'
+Invoke-RestMethod -Uri "$($env:HISTRIO_URL.TrimEnd('/'))/v1/personas/${templateId}/profile?namespace=di"
 ```
 
-Di が Histrio を参照するのは、論述パターンが有効な通常議論でプール人物が参加するときです。接続先の設定には `HISTRIO_URL` を使います。
+論述パターンが有効な通常議論では、プール参加者に割り当てたテンプレートのプロフィールを照会します。Histrio が未設定、応答不能、未登録、または不正な応答を返したときは、Di が議論開始時に割り当てた脚本を使います。Steam 代理の照会は、人物パックに Histrio ID がある場合に行います。
 
 ## 使える slash command
 

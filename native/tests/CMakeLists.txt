@@ -25,6 +25,9 @@ foreach(source ${DI_TEST_SOURCES})
     TIMEOUT 120)
 endforeach()
 
+set_tests_properties(integrations.histrio_client flow.w4p_flow_part4 PROPERTIES
+  ENVIRONMENT_MODIFICATION "DISCUTERE_REPO_ROOT=set:${PROJECT_SOURCE_DIR}/..")
+
 # fuzz の入口と、その回帰用の実行ファイル (tests/fuzz/CMakeLists.txt)。
 add_subdirectory(fuzz)
 

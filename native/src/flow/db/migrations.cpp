@@ -423,6 +423,34 @@ const std::vector<FlowMigration>& flow_migrations() {
           R"SQL(ALTER TABLE flow_session_persona ADD COLUMN pattern_catalog_version TEXT)SQL"}},
         {"2026-11-24-session-persona-histrio-source",
          {R"SQL(ALTER TABLE flow_session_persona ADD COLUMN script_pattern_source TEXT)SQL"}},
+        // 同じプール ID が次の議論で選ばれても、前のセッションの割り当てを残す。
+        {"2026-11-24-session-persona-debater-template",
+         {
+             R"SQL(CREATE TABLE flow_session_persona_by_session (
+        id TEXT NOT NULL,
+        session_id TEXT NOT NULL,
+        name TEXT NOT NULL,
+        role TEXT NOT NULL,
+        stance TEXT NOT NULL,
+        value_axis TEXT,
+        core_claims_json TEXT,
+        possession_name TEXT,
+        created_at INTEGER NOT NULL,
+        script_pattern TEXT,
+        reasoning_style TEXT,
+        pattern_catalog_version TEXT,
+        script_pattern_source TEXT,
+        debater_template_id TEXT,
+        PRIMARY KEY (session_id, id)
+      ))SQL",
+             R"SQL(INSERT INTO flow_session_persona_by_session
+        (id, session_id, name, role, stance, value_axis, core_claims_json, possession_name, created_at,
+         script_pattern, reasoning_style, pattern_catalog_version, script_pattern_source)
+      SELECT id, session_id, name, role, stance, value_axis, core_claims_json, possession_name, created_at,
+             script_pattern, reasoning_style, pattern_catalog_version, script_pattern_source
+      FROM flow_session_persona)SQL",
+             R"SQL(DROP TABLE flow_session_persona)SQL",
+             R"SQL(ALTER TABLE flow_session_persona_by_session RENAME TO flow_session_persona)SQL"}},
     };
     return migrations;
 }

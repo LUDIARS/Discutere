@@ -183,6 +183,7 @@ Json to_json(const ProxyPersonaContext& p) {
     o["bundleText"] = p.bundleText;
     o["evidenceIds"] = p.evidenceIds;
     o["evidenceTexts"] = std::move(texts);
+    if (p.histrioPersonaId) o["histrioPersonaId"] = *p.histrioPersonaId;
     return o;
 }
 
@@ -203,6 +204,7 @@ Json to_json(const FlowPersona& p) {
     if (p.playerProfile) o["playerProfile"] = *p.playerProfile;
     if (p.scriptPattern) o["scriptPattern"] = *p.scriptPattern;
     if (p.reasoningStyle) o["reasoningStyle"] = *p.reasoningStyle;
+    if (p.debaterTemplateId) o["debaterTemplateId"] = *p.debaterTemplateId;
     return o;
 }
 
@@ -222,6 +224,7 @@ FlowPersona flow_persona_from_json(const Json& j) {
     p.playerProfile = opt_str(j, "playerProfile");
     p.scriptPattern = opt_str(j, "scriptPattern");
     p.reasoningStyle = opt_str(j, "reasoningStyle");
+    p.debaterTemplateId = opt_str(j, "debaterTemplateId");
     if (j.contains("possession") && j["possession"].is_object()) {
         const Json& po = j["possession"];
         p.possession = PersonaPossession{json_string(po, "label"), opt_str(po, "descriptor")};
@@ -231,6 +234,7 @@ FlowPersona flow_persona_from_json(const Json& j) {
         ProxyPersonaContext c;
         c.label = json_string(px, "label");
         c.speakerKey = json_string(px, "speakerKey");
+        c.histrioPersonaId = opt_str(px, "histrioPersonaId");
         c.genre = json_string(px, "genre");
         c.bundleText = json_string(px, "bundleText");
         c.evidenceIds = str_list(json_array(px, "evidenceIds"));

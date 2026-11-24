@@ -286,6 +286,15 @@
       "sql": [
         "ALTER TABLE flow_session_persona ADD COLUMN script_pattern_source TEXT"
       ]
+    },
+    {
+      "id": "2026-11-24-session-persona-debater-template",
+      "sql": [
+        "CREATE TABLE flow_session_persona_by_session (\n        id TEXT NOT NULL,\n        session_id TEXT NOT NULL,\n        name TEXT NOT NULL,\n        role TEXT NOT NULL,\n        stance TEXT NOT NULL,\n        value_axis TEXT,\n        core_claims_json TEXT,\n        possession_name TEXT,\n        created_at INTEGER NOT NULL,\n        script_pattern TEXT,\n        reasoning_style TEXT,\n        pattern_catalog_version TEXT,\n        script_pattern_source TEXT,\n        debater_template_id TEXT,\n        PRIMARY KEY (session_id, id)\n      )",
+        "INSERT INTO flow_session_persona_by_session\n        (id, session_id, name, role, stance, value_axis, core_claims_json, possession_name, created_at,\n         script_pattern, reasoning_style, pattern_catalog_version, script_pattern_source)\n      SELECT id, session_id, name, role, stance, value_axis, core_claims_json, possession_name, created_at,\n             script_pattern, reasoning_style, pattern_catalog_version, script_pattern_source\n      FROM flow_session_persona",
+        "DROP TABLE flow_session_persona",
+        "ALTER TABLE flow_session_persona_by_session RENAME TO flow_session_persona"
+      ]
     }
   ],
   "sqlite_master": [
@@ -426,12 +435,6 @@
       "name": "idx_flow_utterance_session",
       "tbl_name": "flow_utterance",
       "sql": "CREATE INDEX idx_flow_utterance_session ON flow_utterance(session_id, round)"
-    },
-    {
-      "type": "index",
-      "name": "idx_fsp_session",
-      "tbl_name": "flow_session_persona",
-      "sql": "CREATE INDEX idx_fsp_session ON flow_session_persona(session_id)"
     },
     {
       "type": "index",
@@ -707,7 +710,7 @@
       "type": "table",
       "name": "flow_session_persona",
       "tbl_name": "flow_session_persona",
-      "sql": "CREATE TABLE flow_session_persona (\n        id TEXT PRIMARY KEY,\n        session_id TEXT NOT NULL,\n        name TEXT NOT NULL,\n        role TEXT NOT NULL,\n        stance TEXT NOT NULL,\n        value_axis TEXT,\n        core_claims_json TEXT,\n        possession_name TEXT,\n        created_at INTEGER NOT NULL\n      , script_pattern TEXT, reasoning_style TEXT, pattern_catalog_version TEXT, script_pattern_source TEXT)"
+      "sql": "CREATE TABLE \"flow_session_persona\" (\n        id TEXT NOT NULL,\n        session_id TEXT NOT NULL,\n        name TEXT NOT NULL,\n        role TEXT NOT NULL,\n        stance TEXT NOT NULL,\n        value_axis TEXT,\n        core_claims_json TEXT,\n        possession_name TEXT,\n        created_at INTEGER NOT NULL,\n        script_pattern TEXT,\n        reasoning_style TEXT,\n        pattern_catalog_version TEXT,\n        script_pattern_source TEXT,\n        debater_template_id TEXT,\n        PRIMARY KEY (session_id, id)\n      )"
     },
     {
       "type": "table",

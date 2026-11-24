@@ -152,7 +152,7 @@ TEST_CASE("store: upsert keeps eval for same content, resets on change, revoke +
 
 TEST_CASE("cast: parse + load participants with the same refusals (proxy-debate.test.ts)") {
     w2h::TempFlowDb tmp;
-    put("a1", "論者#aaaaaa", "ha");
+    put("a1", "論者#aaaaaa", "ha", Json{{"histrioPersonaId", "steam-persona-a1"}});
     put("b2", "論者#bbbbbb", "hb");
     const auto req = *parse_proxy_request("代理: 論者#aaaaaa, 論者#bbbbbb 周回報酬は必要か");
     CHECK_EQ(req.theme, std::string("周回報酬は必要か"));
@@ -172,6 +172,8 @@ TEST_CASE("cast: parse + load participants with the same refusals (proxy-debate.
     CHECK_EQ(cast[0].model, std::string("m1"));
     CHECK_EQ(cast[1].model, std::string("m2"));
     CHECK_EQ(cast[0].id, std::string("proxy:ext:steam:00000000000000a1:roguelike"));
+    CHECK_EQ(cast[0].proxy->histrioPersonaId.value_or(""), std::string("steam-persona-a1"));
+    CHECK(!cast[1].proxy->histrioPersonaId);
     CHECK_EQ(cast[0].speechStyle, std::string("短く書く / 語尾が強い"));
 
     const auto expect_error = [&](LoadProxyParticipantsArgs args, const std::string& needle) {

@@ -2208,7 +2208,8 @@
       "script_pattern": null,
       "reasoning_style": null,
       "pattern_catalog_version": null,
-      "script_pattern_source": null
+      "script_pattern_source": null,
+      "debater_template_id": null
      },
      {
       "id": "<U2>",
@@ -2222,7 +2223,8 @@
       "script_pattern": null,
       "reasoning_style": null,
       "pattern_catalog_version": null,
-      "script_pattern_source": null
+      "script_pattern_source": null,
+      "debater_template_id": null
      },
      {
       "id": "<U3>",
@@ -2236,7 +2238,8 @@
       "script_pattern": null,
       "reasoning_style": null,
       "pattern_catalog_version": null,
-      "script_pattern_source": null
+      "script_pattern_source": null,
+      "debater_template_id": null
      }
     ],
     "flow_utterance": [
@@ -3234,7 +3237,8 @@
       "script_pattern": null,
       "reasoning_style": null,
       "pattern_catalog_version": null,
-      "script_pattern_source": null
+      "script_pattern_source": null,
+      "debater_template_id": null
      },
      {
       "id": "<U2>",
@@ -3248,7 +3252,8 @@
       "script_pattern": null,
       "reasoning_style": null,
       "pattern_catalog_version": null,
-      "script_pattern_source": null
+      "script_pattern_source": null,
+      "debater_template_id": null
      },
      {
       "id": "<U3>",
@@ -3262,7 +3267,8 @@
       "script_pattern": null,
       "reasoning_style": null,
       "pattern_catalog_version": null,
-      "script_pattern_source": null
+      "script_pattern_source": null,
+      "debater_template_id": null
      },
      {
       "id": "<U4>",
@@ -3276,7 +3282,8 @@
       "script_pattern": null,
       "reasoning_style": null,
       "pattern_catalog_version": null,
-      "script_pattern_source": null
+      "script_pattern_source": null,
+      "debater_template_id": null
      }
     ],
     "flow_utterance": [
@@ -4044,7 +4051,8 @@
       "script_pattern": null,
       "reasoning_style": null,
       "pattern_catalog_version": null,
-      "script_pattern_source": null
+      "script_pattern_source": null,
+      "debater_template_id": null
      },
      {
       "id": "<U2>",
@@ -4058,7 +4066,8 @@
       "script_pattern": null,
       "reasoning_style": null,
       "pattern_catalog_version": null,
-      "script_pattern_source": null
+      "script_pattern_source": null,
+      "debater_template_id": null
      },
      {
       "id": "<U3>",
@@ -4072,7 +4081,8 @@
       "script_pattern": null,
       "reasoning_style": null,
       "pattern_catalog_version": null,
-      "script_pattern_source": null
+      "script_pattern_source": null,
+      "debater_template_id": null
      }
     ],
     "flow_utterance": [

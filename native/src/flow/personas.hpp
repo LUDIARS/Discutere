@@ -37,6 +37,8 @@ struct ProxyPersonaContext {
     std::vector<std::string> evidenceIds;
     /** 根拠 id → 原文 (引用の検査に使う)。挿入順を保つ。 */
     std::vector<std::pair<std::string, std::string>> evidenceTexts;
+    /** Steam 代理の照会用に供給された Histrio の不透明な人格 ID。 */
+    std::optional<std::string> histrioPersonaId;
 };
 
 /** セッション開始時に確定した会話反応とその出所。 */
@@ -78,6 +80,7 @@ struct FlowPersona {
     /** 永続プールから選んだ人物の ID。セッション内でのみ使う。 */
     std::optional<std::string> poolPersonaId;
     std::optional<LifeScriptContext> lifeScript;
+    std::optional<std::string> debaterTemplateId;
 };
 
 Json to_json(const PersonaPossession& p);

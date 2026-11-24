@@ -7,7 +7,7 @@
 
 namespace di::flow::dialectic {
 
-/** 通常の論述パターン割当後に、プール人物の脚本をセッション内で確定する。 */
+/** 割り当て済みの脚本を、取得できたテンプレートまたは Steam 代理の脚本で更新する。 */
 void apply_histrio_context(std::vector<FlowPersona>& cast, const integrations::HistrioClient& client,
                            const ArgumentPatternCatalog& local, const WarnFn& warn);
 

@@ -7,6 +7,7 @@
 #include "base/parallel.hpp"
 #include "playtest/contracts/runtime.hpp" /* augur-inject:import:b0c87704 */
 #include "contracts/histrio_pattern.hpp" /* augur-inject:contract-predicate:d5efc091 */
+#include "contracts/histrio_lookup.hpp" /* augur-inject:contract-predicate:d4e22656 */
 
 namespace di::flow::dialectic {
 namespace {
@@ -33,9 +34,13 @@ std::optional<LifeScriptContext> resolve_histrio_pattern(const HistrioProfile& p
     return std::nullopt;
 }, profile, remote, local); /* augur-inject:contract-end:3167948a */ }
 
-bool uses_histrio(const FlowPersona& persona) {
-    return persona.poolPersonaId && persona.role != "facilitator" && !persona.proxy;
-}
+std::optional<std::string> histrio_lookup_id(const FlowPersona& persona) { return ::augur::invoke_observed(::augur::ContractSpec{"C-14", "41b53802", "src/flow/dialectic/histrio_context.cpp:36"}, di::flow::dialectic::checks::histrio_lookup, [&]() -> std::optional<std::string> { /* augur-inject:contract-wrap:41b53802 */
+    if (persona.role == "facilitator") return std::nullopt;
+    if (persona.proxy)
+        return persona.proxy->speakerKey.starts_with("ext:steam:")
+            ? persona.proxy->histrioPersonaId : std::nullopt;
+    return persona.poolPersonaId ? persona.debaterTemplateId : std::nullopt;
+}, persona); /* augur-inject:contract-end:41b53802 */ }
 
 std::string_view loggable_id(std::string_view id) {
     if (id.size() > 128 || std::ranges::any_of(id, [](unsigned char c) { return c < 32 || c > 126; }))
@@ -50,7 +55,7 @@ void apply_histrio_context(std::vector<FlowPersona>& cast, const integrations::H
     if (!client.enabled()) return;
     std::map<std::string, std::vector<std::size_t>> by_id;
     for (std::size_t i = 0; i < cast.size(); ++i)
-        if (uses_histrio(cast[i])) by_id[*cast[i].poolPersonaId].push_back(i);
+        if (auto id = histrio_lookup_id(cast[i])) by_id[*id].push_back(i);
     if (by_id.empty()) return;
 
     std::vector<std::string> ids;
@@ -66,12 +71,15 @@ void apply_histrio_context(std::vector<FlowPersona>& cast, const integrations::H
     for (std::size_t i = 0; i < ids.size(); ++i) {
         const auto& profile = remote.second[i];
         const auto script = profile.value ? resolve_histrio_pattern(*profile.value, remote.first.value, local) : std::nullopt;
-        if (!script && warn)
-            warn("Histrio プロフィール (" + std::string(loggable_id(ids[i])) + "): " +
-                 (profile.value ? "対応する脚本がありません" : profile.error) + "。この人物の脚本行を省きます。");
+        if (!script) {
+            if (warn)
+                warn("Histrio プロフィール (" + std::string(loggable_id(ids[i])) + "): " +
+                     (profile.value ? "対応する脚本がありません" : profile.error) + "。議論開始時の脚本割り当てを維持します。");
+            continue;
+        }
         for (const auto index : by_id.at(ids[i])) {
             auto& persona = cast[index];
-            persona.scriptPattern = script ? std::optional(script->id) : std::nullopt;
+            persona.scriptPattern = script->id;
             persona.lifeScript = script;
         }
     }

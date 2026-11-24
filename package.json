@@ -47,7 +47,7 @@
     "investigate:affects": "node scripts/investigate-affects.mjs",
     "wire:affects": "tsx scripts/wire-observed-affects.ts",
     "discord:register": "tsx scripts/register-discord-commands.ts",
-    "histrio:register-personas": "node scripts/register-histrio-personas.mjs",
+    "histrio:register-templates": "node scripts/register-histrio-templates.mjs",
     "backup": "tsx scripts/backup.ts",
     "llm:smoke": "tsx scripts/llm-smoke.ts",
     "kg:pull": "tsx scripts/kg-pull.ts",

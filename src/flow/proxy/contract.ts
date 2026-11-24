@@ -111,6 +111,7 @@ export interface PersonaPack {
   contractVersion: number;
   personaKind: "observedSpeaker";
   speakerKey: string;
+  histrioPersonaId?: string;
   genre: string;
   genreSpecVersion: number;
   profileVersion: string;
@@ -344,6 +345,12 @@ export function parsePersonaPack(raw: unknown): PackValidation {
   if (speakerKey && !SPEAKER_KEY_PATTERN.test(speakerKey)) {
     errors.push("speakerKey: ext:<source>:<hmac16> の仮名のみ受け取る");
   }
+  const histrioPersonaId = raw.histrioPersonaId;
+  if (Object.hasOwn(raw, "histrioPersonaId") &&
+      (!speakerKey.startsWith("ext:steam:") || typeof histrioPersonaId !== "string" ||
+       !/^steam-[A-Za-z0-9_.-]{1,122}$/.test(histrioPersonaId))) {
+    errors.push("histrioPersonaId: Steam 代理の不透明な steam- ID を指定してください");
+  }
   const genre = str(raw.genre, "genre", errors, 64);
   if (genre && !GENRE_PATTERN.test(genre)) errors.push("genre: 辞書 id (英小文字・数字・-_)");
 
@@ -365,6 +372,7 @@ export function parsePersonaPack(raw: unknown): PackValidation {
     contractVersion: PROXY_CONTRACT_VERSION,
     personaKind: "observedSpeaker",
     speakerKey,
+    ...(typeof histrioPersonaId === "string" ? { histrioPersonaId } : {}),
     genre,
     genreSpecVersion: nonNegInt(raw.genreSpecVersion, "genreSpecVersion", errors),
     profileVersion: str(raw.profileVersion, "profileVersion", errors, 128),

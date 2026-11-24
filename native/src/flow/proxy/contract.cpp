@@ -323,6 +323,16 @@ PackValidation parse_persona_pack(const Json& raw) {
     pack.speakerKey = str_field(field(raw, "speakerKey"), "speakerKey", errors, 80);
     if (!pack.speakerKey.empty() && !is_speaker_key(pack.speakerKey))
         errors.push_back("speakerKey: ext:<source>:<hmac16> の仮名のみ受け取る");
+    if (raw.contains("histrioPersonaId")) {
+        const auto id = json_string(raw, "histrioPersonaId");
+        if (!pack.speakerKey.starts_with("ext:steam:") || !id.starts_with("steam-") ||
+            id.size() <= 6 || id.size() > 128 ||
+            id.find_first_not_of("ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789_.-") != std::string::npos) {
+            errors.push_back("histrioPersonaId: Steam 代理の不透明な steam- ID を指定してください");
+        } else {
+            pack.histrioPersonaId = id;
+        }
+    }
     pack.genre = str_field(field(raw, "genre"), "genre", errors, 64);
     if (!pack.genre.empty() && !is_genre_id(pack.genre)) errors.push_back("genre: 辞書 id (英小文字・数字・-_)");
 
@@ -378,6 +388,7 @@ Json to_json(const PersonaPack& p) {
     o["contractVersion"] = p.contractVersion;
     o["personaKind"] = p.personaKind;
     o["speakerKey"] = p.speakerKey;
+    if (p.histrioPersonaId) o["histrioPersonaId"] = *p.histrioPersonaId;
     o["genre"] = p.genre;
     o["genreSpecVersion"] = p.genreSpecVersion;
     o["profileVersion"] = p.profileVersion;
