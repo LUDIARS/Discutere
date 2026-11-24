@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
   "id": "life-script-ja",
-  "revision": "2026-11-13",
+  "revision": "2026-11-25",
   "locale": "ja-JP",
   "context": "制作・学習・チーム活動の場面",
   "instructions": [
@@ -50,7 +50,7 @@
         { "id": "D-BP-4", "key": "be_perfect", "reverse": true, "text": "8割の出来でも、期限が来たら出してしまえる。" },
 
         { "id": "D-BS-1", "key": "be_strong", "reverse": false, "text": "困っていても、ぎりぎりまで自分で何とかしようとする。" },
-        { "id": "D-BS-2", "key": "be_strong", "reverse": false, "text": "しんどいときほど、周りには平気そうに振る舞う。" },
+        { "id": "D-BS-2", "key": "be_strong", "reverse": false, "text": "作業が立て込んでいても、周りからは「余裕がありそう」と言われることが多い。" },
         { "id": "D-BS-3", "key": "be_strong", "reverse": false, "text": "人に頼るより、時間がかかっても一人で片づけるほうが楽だ。" },
         { "id": "D-BS-4", "key": "be_strong", "reverse": true, "text": "行き詰まったら、早めに「助けてほしい」と言える。" },
 
@@ -79,17 +79,17 @@
         { "id": "S-UN-2", "key": "until", "reverse": false, "text": "「これが終わったら」と、楽しみを後回しにすることが多い。" },
         { "id": "S-UN-3", "key": "until", "reverse": false, "text": "ごほうびは、やり遂げてからでないと受け取ってはいけない気がする。" },
 
-        { "id": "S-AF-1", "key": "after", "reverse": false, "text": "うまくいっているときほど、このあと悪いことが起きそうで落ち着かない。" },
-        { "id": "S-AF-2", "key": "after", "reverse": false, "text": "楽しんだあとに「そのぶんのツケが来る」と感じる。" },
-        { "id": "S-AF-3", "key": "after", "reverse": false, "text": "良い評価をもらっても、次で失望されることを先に考える。" },
+        { "id": "S-AF-1", "key": "after", "reverse": false, "text": "順調に進んでいるときほど、念のための予備の案を用意したくなる。" },
+        { "id": "S-AF-2", "key": "after", "reverse": false, "text": "遊びに使った日の次の日は、いつもより作業を多めに入れがちだ。" },
+        { "id": "S-AF-3", "key": "after", "reverse": false, "text": "良い反応をもらったあとは、次の作品に寄せられる期待の高さが気になる。" },
 
         { "id": "S-NE-1", "key": "never", "reverse": false, "text": "いちばんやりたいことほど、なぜか手をつけられないままになる。" },
         { "id": "S-NE-2", "key": "never", "reverse": false, "text": "計画や構想は練るが、実行に移らないことが多い。" },
-        { "id": "S-NE-3", "key": "never", "reverse": false, "text": "「自分には結局できないだろう」と思って、最初の一歩を見送る。" },
+        { "id": "S-NE-3", "key": "never", "reverse": false, "text": "大きめの企画は、始める前の準備や下調べの段階で止まっていることが多い。" },
 
         { "id": "S-AL-1", "key": "always", "reverse": false, "text": "環境や相手が変わっても、似たような困りごとに何度もぶつかる。" },
         { "id": "S-AL-2", "key": "always", "reverse": false, "text": "うまくいかないと分かっていても、同じやり方を続けてしまう。" },
-        { "id": "S-AL-3", "key": "always", "reverse": false, "text": "「なぜいつもこうなるのか」と思うことがある。" },
+        { "id": "S-AL-3", "key": "always", "reverse": false, "text": "「前にも似たような流れになったな」と感じる場面がよくある。" },
 
         { "id": "S-AM-1", "key": "almost", "reverse": false, "text": "完成の直前で手が止まり、仕上がらないことが多い。" },
         { "id": "S-AM-2", "key": "almost", "reverse": false, "text": "九割できたあたりで、別の作業に移ってしまう。" },
@@ -107,13 +107,13 @@
       "items": [
         { "id": "P-S-1", "key": "self", "reverse": false, "text": "自分の作ったものには、人に見せる価値があると思う。" },
         { "id": "P-S-2", "key": "self", "reverse": false, "text": "失敗しても、自分はやり直せると思える。" },
-        { "id": "P-S-3", "key": "self", "reverse": true, "text": "周りと比べて、自分だけ力が足りないと感じる。" },
-        { "id": "P-S-4", "key": "self", "reverse": true, "text": "褒められても、本当はそれほどでもないと打ち消したくなる。" },
+        { "id": "P-S-3", "key": "self", "reverse": true, "text": "人の作品を見たあとは、自分の作品を見せるのを少し待ちたくなる。" },
+        { "id": "P-S-4", "key": "self", "reverse": true, "text": "作品を褒められると、つい直したい点の話を始めてしまう。" },
 
         { "id": "P-O-1", "key": "other", "reverse": false, "text": "チームのメンバーは、任せればやってくれると思う。" },
         { "id": "P-O-2", "key": "other", "reverse": false, "text": "意見が違う相手にも、その人なりの理由があると思える。" },
-        { "id": "P-O-3", "key": "other", "reverse": true, "text": "周りのやり方を見て、なぜそんなやり方をするのかと苛立つことが多い。" },
-        { "id": "P-O-4", "key": "other", "reverse": true, "text": "他人は、結局あてにならないと思う。" }
+        { "id": "P-O-3", "key": "other", "reverse": true, "text": "人の作業を見て、「自分ならこうするのに」と思うことが多い。" },
+        { "id": "P-O-4", "key": "other", "reverse": true, "text": "大事な作業は、人に任せず自分の手元に置いておきたい。" }
       ]
     },
     {

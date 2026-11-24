@@ -27,6 +27,16 @@ assert.ok(plan.topics[0]!.basis.includes("drivers.forcedChoice.be_strong=1"));
 assert.equal(plan.topics[1]!.ask, bank.drivers.be_perfect!.ask);
 assert.equal(plan.topics[1]!.strength, "丁寧さ");
 assert.ok(plan.topics.every((t) => !/\{\w+\}/.test(t.ask)));
+// 問いに専門用語を出さない (neco 2026-11-25)。分析の呼び名は plainLabels に置き換わる。
+const jargon = [...Object.values(q.labels), "脚本", "ドライバー", "禁止令", "構え"];
+for (const t of plan.topics) for (const word of jargon) assert.ok(!t.ask.includes(word), `jargon "${word}" in: ${t.ask}`);
+assert.ok(plan.topics[0]!.ask.includes(bank.plainLabels.be_strong!));
+// 文例の全部も専門用語なし。
+const bankAsks = [
+  ...Object.values(bank.drivers).map((d) => d.ask), ...Object.values(bank.process).map((p) => p.ask),
+  ...Object.values(bank.position), ...Object.values(bank.templates),
+];
+for (const ask of bankAsks) for (const word of jargon) assert.ok(!ask.includes(word), `jargon "${word}" in bank: ${ask}`);
 
 // 同じ入力からは同じ出力。
 assert.deepEqual(planFollowups(scoreLifeScript(q, exampleAnswers(q)), bank, q), plan);

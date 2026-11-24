@@ -84,7 +84,7 @@
   "questionnaire": {
     "lifeScript": {
       "questionnaire": "life-script-ja",
-      "revision": "2026-11-13",
+      "revision": "2026-11-25",
       "answered": 51,
       "drivers": {
         "scores": { "be_perfect": 3.5, "be_strong": 3.25, "try_hard": 2.25, "please_others": 2.5, "hurry_up": 2.0 },

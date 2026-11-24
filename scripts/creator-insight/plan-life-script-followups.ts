@@ -30,6 +30,8 @@ export interface FollowupBank {
   position: Record<string, string>;
   templates: Record<"forcedChoiceMismatch" | "correspondenceMismatch" | "reverseConflict" | "flat" | "oneSided" | "open", string>;
   directions: { high: string; low: string };
+  /** 本人への問いに出す呼び名。q.labels (分析の用語) は問いに出さない。 */
+  plainLabels: Record<string, string>;
 }
 
 export type TopicKind =
@@ -58,6 +60,7 @@ export function parseBank(raw: unknown, q: Questionnaire): FollowupBank {
   }
   const bank = raw as unknown as FollowupBank;
   for (const k of q.scoring.axes.drivers) if (!bank.drivers?.[k]) throw new InputError(`followups: driver ${k} missing`);
+  for (const k of q.scoring.axes.drivers) if (!bank.plainLabels?.[k]) throw new InputError(`followups: plain label ${k} missing`);
   for (const k of q.scoring.axes.process) if (!bank.process?.[k]) throw new InputError(`followups: process ${k} missing`);
   return bank;
 }
@@ -75,7 +78,8 @@ const fill = (template: string, vars: Record<string, string>): string =>
 
 /** 話題の候補を優先順に並べる。答え方の偏り → 逆転の矛盾 → 強制選択との食い違い → 優位 → 対応の食い違い → 構え。 */
 function candidates(r: LifeScriptResult, bank: FollowupBank, q: Questionnaire): Omit<FollowupTopic, "n">[] {
-  const label = (k: string): string => q.labels[k] ?? k;
+  // 問いには専門用語 (「完全であれ」など) を出さない (neco 2026-11-25)。
+  const label = (k: string): string => bank.plainLabels[k] ?? k;
   const t = bank.templates;
   const out: Omit<FollowupTopic, "n">[] = [];
   const rs = r.responseStyle;
